@@ -34,6 +34,6 @@
 .rvmrc
 
 AprilFools.rb
-.login
+*.login
 *.yaml
 Gemfile.lock
