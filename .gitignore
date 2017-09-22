@@ -34,3 +34,5 @@
 .rvmrc
 
 AprilFools.rb
+.login
+*.yaml
