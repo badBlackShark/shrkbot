@@ -1,0 +1,17 @@
+---
+345748230816006155:
+  :selfAssigningRoles: []
+  :aliases: {}
+  :logChannel: 0
+359732770198519808:
+  :selfAssigningRoles: []
+  :aliases: {}
+  :logChannel: 0
+192095296497516544:
+  :selfAssigningRoles:
+  - 192096032543342593
+  - 192096000809238528
+  :aliases:
+    90+: 192096032543342593
+    80+: 192096000809238528
+  :logChannel: 0
