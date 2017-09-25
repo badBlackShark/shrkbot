@@ -279,7 +279,7 @@ module SelfAssigningRoles
       user_roles << role.id
     end
     # Return if the user already has the role he wants to give himself.
-    next if user_roles.include?(role_id)
+    return if user_roles.include?(role_id)
 
     delete_existing_roles(user, server, @assignable_roles_store[server.id][:self_assigning_roles], user_roles)
     user.add_role(role_id)
