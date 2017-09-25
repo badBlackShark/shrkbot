@@ -14,11 +14,11 @@ require_relative 'modules/self_assigning_roles'
 login = YAML.load_file('.login')
 
 bot = Discordrb::Commands::CommandBot.new(
-    token: login[:token],
-    client_id: login[:client_id],
-    prefix: '.',
-    help_command: :help,
-    advanced_functionality: true
+  token: login[:token],
+  client_id: login[:client_id],
+  prefix: '.',
+  help_command: :help,
+  advanced_functionality: true
 )
 
 bot.include! ServerSystem

@@ -33,7 +33,7 @@
 # unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
 .rvmrc
 
-AprilFools.rb
+april_fools.rb
 .login
 *.yaml
 Gemfile.lock
