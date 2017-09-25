@@ -1,3 +1,5 @@
+# All the hardcoded BS goes in here :)
+
 module MiscCommands
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
