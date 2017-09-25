@@ -110,17 +110,26 @@ module SelfAssigningRoles
 
   attrs = {
     usage: '.roles',
-    description: 'Returns a list of the roles you can assign yourself with !giveMe.'
+    description: 'Points you to the channel where you can assign roles to yourself.'
   }
   command :roles, attrs do |event|
-    @assignable_roles_store.transaction do
-      channel_id = @assignable_roles_store[event.server.id][:self_assigning_roles]
-      "In the channel <##{channel_id}> you can find the roles you can assign to yourself."
+    Thread.new do
+      @mutex.synchronize do
+        @assignable_roles_store.transaction do
+          channel_id = @assignable_roles_store[event.server.id][:assignment_channel]
+          event.respond "In the channel <##{channel_id}> you can find the roles you can assign to yourself."
+        end
+      end
     end
     nil
   end
 
-  # Allows for a manual refresh, e.g. after adding new self-assignable roles.
+  attrs = {
+    permission_level: 1,
+    permission_message: false,
+    usage: '.refreshRoles',
+    description: 'Triggers a manual refresh for the role message, e.g. after adding new self-assignable roles.',
+  }
   command :refreshRoles do |event|
     refresh_roles(event, event.server)
   end

@@ -73,7 +73,8 @@ module JoinLeaveMessages
   }
   command :joinMessage, attrs do |event|
     @message_store.transaction do
-      event.respond @message_store[event.server.id][:join_message].join(' ')
+      event.channel.split_send @message_store[event.server.id][:join_message].join(' ')
+      nil
     end
   end
 
