@@ -283,7 +283,7 @@ module SelfAssigningRoles
 
     delete_existing_roles(user, server, @assignable_roles_store[server.id][:self_assigning_roles], user_roles)
     user.add_role(role_id)
-    user.pm("I assigned the role \"#{id_to_rolename(serverm role_id)}\" to you on \"#{server.name}\"")
+    user.pm("I assigned the role \"#{id_to_rolename(server, role_id)}\" to you on \"#{server.name}\"")
     log_channel = @assignable_roles_store[server.id][:log_channel]
     event.bot.channel(log_channel).send_message("#{user.distinct} gave himself the role \"#{id_to_rolename(server, role_id)}\".")
   end
