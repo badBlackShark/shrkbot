@@ -2,7 +2,7 @@ require 'gruff'
 
 # Standard chart class
 class Chart
-  @chart = nil
+  attr_reader :chart
 
   def initialize(chart)
     @chart = chart
