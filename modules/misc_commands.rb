@@ -1,5 +1,4 @@
 # All the hardcoded BS goes in here :)
-
 module MiscCommands
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
@@ -9,7 +8,7 @@ module MiscCommands
     message = event.respond 'fuck off'
     sleep 10
     message.edit "I mean, 'pong'"
-    message.react(EmojiTranslator.name_to_unicode('heart'))
+    message.react(Emojis.name_to_unicode('heart'))
   end
 
   attrs = {
@@ -20,7 +19,7 @@ module MiscCommands
   }
   command :setGame, attrs do |event, *args|
     game = args.join(' ')
-    event.bot.game = game
+    SSB.game = game
     event.message.delete
   end
 
