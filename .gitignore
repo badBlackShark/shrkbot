@@ -37,3 +37,5 @@ april_fools.rb
 .login
 *.yaml
 Gemfile.lock
+testbot_invite.txt
+db_test.rb
