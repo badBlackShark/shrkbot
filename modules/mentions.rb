@@ -1,6 +1,5 @@
 # Allows users to mention @here, without letting them user @everyone. Won't interfere with staff users.
-
-module MentionSystem
+module Mentions
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
 
@@ -14,7 +13,7 @@ module MentionSystem
   }
   command :mention, attrs do |event, *args|
     event.message.delete
-    event.respond event.server.members.find { |member| member.name.casecmp(args.join(' ')).zero? }.mention
+    event.respond event.server.members.find { |member| member.name.casecmp?(args.join(' ')) }.mention
   end
 
   # Replaces @everyone with @here mentions in someone's message, if they want to.
@@ -22,16 +21,16 @@ module MentionSystem
     next if staff_user?(event.user) # Staff should still be abled to just use @everyone
 
     message = event.respond 'You are not allowed to use `@everyone`. Do you want to use `@here` instead?'
-    message.react(EmojiTranslator.name_to_unicode('checkmark'))
-    message.react(EmojiTranslator.name_to_unicode('crossmark'))
+    message.react(Emojis.name_to_unicode('checkmark'))
+    message.react(Emojis.name_to_unicode('crossmark'))
 
-    event.bot.add_await(:"replace_#{message.id}", Discordrb::Events::ReactionAddEvent) do |reaction_event|
+    SSB.add_await(:"replace_#{message.id}", Discordrb::Events::ReactionAddEvent) do |reaction_event|
       # Only the user who sent the message should be abled to confirm / deny.
       next false unless (reaction_event.message.id == message.id) && (reaction_event.user.id == event.user.id)
-      if reaction_event.emoji.name == EmojiTranslator.name_to_emoji('crossmark')
+      if reaction_event.emoji.name == Emojis.name_to_emoji('crossmark')
         event.channel.send_temporary_message 'Alright :)', 10
         message.delete
-      elsif reaction_event.emoji.name == EmojiTranslator.name_to_emoji('checkmark')
+      elsif reaction_event.emoji.name == Emojis.name_to_emoji('checkmark')
         event.respond "#{event.message.user.mention} said: #{event.message.content.gsub(/@everyone/, '@here')}"
         message.delete
       else
@@ -41,25 +40,27 @@ module MentionSystem
   end
 
   # Since not being allowed to ping everyone also stops you from using @here, this allows users to do so again.
-  # Works exactly like the @everyone replacement
+  # Works pretty much exactly like the @everyone replacement
   message(contains: '@here') do |event|
     next if staff_user?(event.user)
     # In case a message has @here and @everyone, just let one event handle it.
     next if event.message.content.include?('@everyone')
 
     message = event.respond 'Are you sure you want to tag `@here`?'
-    message.react(EmojiTranslator.name_to_unicode('checkmark'))
-    message.react(EmojiTranslator.name_to_unicode('crossmark'))
-    event.bot.add_await(:"confirm_#{message.id}", Discordrb::Events::ReactionAddEvent) do |reaction_event|
+    message.react(Emojis.name_to_unicode('checkmark'))
+    message.react(Emojis.name_to_unicode('crossmark'))
+
+    SSB.add_await(:"confirm_#{message.id}", Discordrb::Events::ReactionAddEvent) do |reaction_event|
       next false unless (reaction_event.message.id == message.id) && (reaction_event.user.id == event.user.id)
-      if reaction_event.emoji.name == EmojiTranslator.name_to_emoji('crossmark')
+
+      if reaction_event.emoji.name == Emojis.name_to_emoji('crossmark')
         event.channel.send_temporary_message 'Alright :)', 10
         message.delete
-      elsif reaction_event.emoji.name == EmojiTranslator.name_to_emoji('checkmark')
+      elsif reaction_event.emoji.name == Emojis.name_to_emoji('checkmark')
         event.respond "#{event.message.user.mention} said: #{event.message.content}"
         message.delete
       else
-        next false
+        false
       end
     end
   end
