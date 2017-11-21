@@ -31,10 +31,9 @@ class Database
   # Creates a table, if it doesn't already exist, with the given columns.
   def create_table(table_name, columns = {})
     @database.create_table?(table_name) do
-      # primary_key :id
       columns.each do |column_name, datatype|
         # Not pretty, but the only way to actually get it to store IDs correctly.
-        datatype == Integer ? (Bignum column_name) : (column column_name, datatype)
+        datatype == Integer ? (Bignum column_name) : (String column_name)
       end
     end
   end
@@ -54,7 +53,7 @@ class Database
 
   # Returns all the non-nil values of a column as an array.
   def read_column(table_name, column)
-    @database[table_name].select(column).where(column => !nil).map(&:values).flatten
+    @database[table_name].select(column).map(&:values).flatten.compact
   end
 
   # Returns the first value of a column. Only used for columns that really only store one value.
@@ -67,6 +66,14 @@ class Database
   def update_value(table_name, column, value)
     affected_rows = @database[table_name].where(column => !nil).update(column => value)
     unique_insert(table_name, column, value) if affected_rows.zero?
+  end
+
+  # Regular update_value doesn't work for Strings.
+  # For some reason, it classifies those rows as nil.
+  def update_string_value(table_name, column, value)
+    old_value = read_column(table_name, column).join(' ')
+    @database[table_name].where(column => old_value).delete
+    unique_insert(table_name, column, value)
   end
 
   # Inserts value if it doesn't exist for given server ID.
@@ -93,23 +100,13 @@ class Database
 
   # Deletes all values in the table for a given server.
   def delete_server_values(server_id)
-    @database.drop_table?("ssb_server_#{server_id}".to_sym)
+    @database.drop_table?("shrk_server_#{server_id}".to_sym)
   end
 
   # Sets the default values for the log- and assignment-channel, if they don't already have values.
   def init_default_values(server)
-    init_assignment_channel(server) unless read_value("ssb_server_#{server.id}".to_sym, :assignment_channel)
-    LOGGER.default_log_channel(server)
-  end
-
-  private
-
-  def init_assignment_channel(server)
-    # Assignment channel defaults to the rules channel...
-    assignment_channel = server.channels.find { |channel| channel.name.include?('rules') }
-    # ...or the top channel, if there is no rules channel.
-    assignment_channel ||= server.channels.sort_by { |c| [c.position, c.id] }[1]
-
-    unique_insert("ssb_server_#{server.id}".to_sym, :assignment_channel, assignment_channel.id)
+    LOGGER.init_log_channel(server)
+    RoleMessage.init_assignment_channel(server)
+    JoinLeaveMessages.init_message_channel(server)
   end
 end

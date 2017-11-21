@@ -7,7 +7,7 @@ module ChartCommands
 
   attrs = {
     description: 'Generates a chart showing the distribution of roles on the server.',
-    usage: '.roleChart <min_members> || Selects 10 roles max, if <min_members> isn\'t specified.'
+    usage: 'roleChart <minMembers> || Selects 10 roles max, if <min_members> isn\'t specified.'
   }
   command :roleChart, attrs do |event, min_members|
     event.send_temporary_message('Creating and uploading your chart. Hold on...', 10)
@@ -30,7 +30,7 @@ module ChartCommands
 
   attrs = {
     description: 'Generates a chart of the games currently being played on the server.',
-    usage: '.gameChart'
+    usage: 'gameChart'
   }
   command :gameChart, attrs do |event|
     event.send_temporary_message('Creating and uploading your chart. Hold on...', 10)

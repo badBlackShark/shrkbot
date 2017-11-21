@@ -4,33 +4,36 @@ class RoleMessage
   @assignment_bucket = Discordrb::Commands::Bucket.new(nil, nil, 3600)
   # Returns the message object of the role message, whether it existed or not.
   def self.send(server)
-    return role_message(server.id) if role_message(server.id)
+    role_message_is_valid?(server) ? (return role_message(server.id)) : delete_role_message(server)
 
-    channel = get_assignment_channel(server.id)
+    message = send_role_embed(server, get_assignment_channel(server.id))
+    # So you can already click the reactions while the bot is creating them
+    Thread.new { add_reactions(server, message) }
+    add_role_await(server, message)
 
-    message = send_role_embed(server, channel)
-    add_reactions(server, message)
-
-    DB.update_value("ssb_server_#{server.id}".to_sym, :role_message_id, message.id)
+    DB.update_value("shrk_server_#{server.id}".to_sym, :role_message_id, message.id)
 
     message
   end
 
   # Deletes the old role message and sends a new one.
   def self.send!(server)
-    channel = get_assignment_channel(server.id)
-    channel.message(DB.read_value("ssb_server_#{server.id}".to_sym, :role_message_id))&.delete
-
+    delete_role_message(server)
     send(server)
+  end
+
+  def self.delete_role_message(server)
+    channel = get_assignment_channel(server.id)
+    channel.message(DB.read_value("shrk_server_#{server.id}".to_sym, :role_message_id))&.delete
   end
 
   def self.role_message(server_id)
     channel = get_assignment_channel(server_id)
-    channel.message(DB.read_value("ssb_server_#{server_id}".to_sym, :role_message_id))
+    channel.message(DB.read_value("shrk_server_#{server_id}".to_sym, :role_message_id))
   end
 
   def self.add_reactions(server, message)
-    server_roles = DB.read_column("ssb_server_#{server.id}".to_sym, :assignable_roles)
+    server_roles = DB.read_column("shrk_server_#{server.id}".to_sym, :roles)
     emoji = 'a'
     reactions = []
     server_roles.length.times do
@@ -41,7 +44,7 @@ class RoleMessage
   end
 
   def self.refresh_reactions(server)
-    message = channel.message(DB.read_value("ssb_server_#{server.id}".to_sym, :role_message_id))
+    message = channel.message(DB.read_value("shrk_server_#{server.id}".to_sym, :role_message_id))
     message ||= send(server)
     message.delete_all_reactions
 
@@ -49,31 +52,52 @@ class RoleMessage
   end
 
   def self.add_role_await(server, message)
-    SSB.add_await(:"roles_#{message.id}", Discordrb::Events::ReactionEvent) do |event|
-      Thread.new do
-        next unless event.message.id == message.id
-        # Reaction events are broken, needs the check to make sure it's actually the event I want.
-        next unless event.class == Discordrb::Events::ReactionAddEvent
-        next if event.user.id == BOT_ID
+    SHRK.add_await(:"roles_#{message.id}", Discordrb::Events::ReactionEvent) do |event|
+      next false unless event.message.id == message.id
+      # Reaction events are broken, needs the check to make sure it's actually the event I want.
+      next false unless event.class == Discordrb::Events::ReactionAddEvent
+      next false if event.user.id == BOT_ID
 
-        role_id = emoji_to_role_id(server, event.emoji.name)
-        next unless role_id
-        next if event.user.role?(role_id)
+      role_id = emoji_to_role_id(server, event.emoji.name)
+      next false unless role_id
+      next false if event.user.role?(role_id)
 
-        if (sec_left = @assignment_bucket.rate_limited?(event.user))
-          time_left = "#{sec_left.to_i / 60} minutes and #{sec_left.to_i % 60} seconds"
-          event.user.pm("You can't assign yourself another role for #{time_left}.")
-          next
-        end
-        add_role_to_user(event.user, server, role_id)
+      if (sec_left = @assignment_bucket.rate_limited?(event.user))
+        time_left = "#{sec_left.to_i / 60} minutes and #{sec_left.to_i % 60} seconds"
+        event.user.pm("You can't assign yourself another role for #{time_left}.")
+        LOGGER.log("#{event.user.distinct} tried to give himself "\
+          "#{id_to_role(event.server, role_id)}\", but still has #{time_left} cooldown.")
+        next false
       end
+      add_role_to_user(event.user, server, role_id)
       false
     end
   end
 
+  def self.init_assignment_channel(server)
+    return if DB.read_value("shrk_server_#{server.id}".to_sym, :assignment_channel)
+    # Assignment channel defaults to the rules channel...
+    assignment_channel = server.channels.find { |channel| channel.name.include?('rules') } ||
+                         server.default_channel
+    # ...or the top channel, if there is no rules channel.
+
+    DB.unique_insert("shrk_server_#{server.id}".to_sym, :assignment_channel, assignment_channel.id)
+    LOGGER.log(
+      server,
+      "Set <##{assignment_channel.id}> as the channel where the role-assignment " \
+      'messages will be sent. You can change it by using the `setAssignmentChannel` command.'
+    )
+  end
+
+  # Checks if the role message exists and has the correct amount of reactions.
+  private_class_method def self.role_message_is_valid?(server)
+    (message = role_message(server.id)) &&
+    message.reactions.keys.count == DB.read_column("shrk_server_#{server.id}".to_sym, :roles).count
+  end
+
   private_class_method def self.add_role_to_user(user, server, role_id)
     user_roles = user.roles.map(&:id)
-    assignable_roles = DB.read_column("ssb_server_#{server.id}".to_sym, :assignable_roles)
+    assignable_roles = DB.read_column("shrk_server_#{server.id}".to_sym, :roles)
 
     delete_existing_roles(user, server, assignable_roles, user_roles)
     user.add_role(role_id)
@@ -92,16 +116,19 @@ class RoleMessage
   end
 
   private_class_method def self.get_assignment_channel(server_id)
-    SSB.channel(DB.read_value("ssb_server_#{server_id}".to_sym, :assignment_channel))
+    SHRK.channel(DB.read_value("shrk_server_#{server_id}".to_sym, :assignment_channel))
   end
 
   private_class_method def self.send_role_embed(server, channel)
-    server_roles = DB.read_column("ssb_server_#{server.id}".to_sym, :assignable_roles)
-    emoji = 'a'
+    server_roles = DB.read_column("shrk_server_#{server.id}".to_sym, :roles).sort
 
+    emoji = 'a'
     field_value = ''
     server_roles.each do |role_id|
-      field_value << "• #{id_to_role(server, role_id)}\t[#{Emojis.name_to_emoji(emoji)}]\n\n"
+      role = id_to_role(server, role_id)
+      # Removes roles that don't exist anymore
+      next DB.delete_value("shrk_server_#{server.id}".to_sym, :roles, role_id) unless role
+      field_value << "• #{role}\t[#{Emojis.name_to_emoji(emoji)}]\n\n"
       emoji.succ! # :^)
     end
     field_value = 'There are no self assignable roles.' if field_value == ''
@@ -111,15 +138,18 @@ class RoleMessage
         name: 'All roles you can assign to yourself.',
         value: field_value
       )
-      embed.footer = { text: 'Click a reaction to assign a role to yourself.' }
+      embed.footer = {
+        text: 'Click a reaction to assign a role to yourself.',
+        icon_url: SHRK.profile.avatar_url
+      }
     end
   end
 
   private_class_method def self.emoji_to_role_id(server, emoji)
     # Currently only 26 roles per server are supported
     current_emoji = 'a'
-    roles = DB.read_column("ssb_server_#{server.id}".to_sym, :assignable_roles)
-    6.times do |i|
+    roles = DB.read_column("shrk_server_#{server.id}".to_sym, :roles).sort
+    26.times do |i|
       return roles[i] if emoji == Emojis.name_to_emoji(current_emoji)
       current_emoji.succ! # :^)
     end
@@ -128,6 +158,6 @@ class RoleMessage
 
   # Translates a role ID to the name of that role on a given server.
   private_class_method def self.id_to_role(server, role_id)
-    server.roles.find { |role| role.id == role_id }.name
+    server.roles.find { |role| role.id == role_id }&.name
   end
 end

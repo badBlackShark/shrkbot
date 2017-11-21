@@ -21,14 +21,34 @@ module Emojis
     'c'         => { unicode: "\u1F1E8",       emoji: '🇨' },
     'd'         => { unicode: "\u1F1E9",       emoji: '🇩' },
     'e'         => { unicode: "\u1F1EA",       emoji: '🇪' },
-    'f'         => { unicode: "\u1F1EB",       emoji: '🇫' }
+    'f'         => { unicode: "\u1F1EB",       emoji: '🇫' },
+    'g'         => { unicode: "\u1F1EC",       emoji: '🇬' },
+    'h'         => { unicode: "\u1F1ED",       emoji: '🇭' },
+    'i'         => { unicode: "\u1F1EE",       emoji: '🇮' },
+    'j'         => { unicode: "\u1F1EF",       emoji: '🇯' },
+    'k'         => { unicode: "\u1F1F0",       emoji: '🇰' },
+    'l'         => { unicode: "\u1F1F1",       emoji: '🇱' },
+    'm'         => { unicode: "\u1F1F2",       emoji: '🇲' },
+    'n'         => { unicode: "\u1F1F3",       emoji: '🇳' },
+    'o'         => { unicode: "\u1F1F4",       emoji: '🇴' },
+    'p'         => { unicode: "\u1F1F5",       emoji: '🇵' },
+    'q'         => { unicode: "\u1F1F6",       emoji: '🇶' },
+    'r'         => { unicode: "\u1F1F7",       emoji: '🇷' },
+    's'         => { unicode: "\u1F1F8",       emoji: '🇸' },
+    't'         => { unicode: "\u1F1F9",       emoji: '🇹' },
+    'u'         => { unicode: "\u1F1FA",       emoji: '🇺' },
+    'v'         => { unicode: "\u1F1FB",       emoji: '🇻' },
+    'w'         => { unicode: "\u1F1FC",       emoji: '🇼' },
+    'x'         => { unicode: "\u1F1FD",       emoji: '🇽' },
+    'y'         => { unicode: "\u1F1FE",       emoji: '🇾' },
+    'z'         => { unicode: "\u1F1FF",       emoji: '🇿' }
   }
 
   def self.name_to_unicode(name)
-    @emoji[name][:unicode]
+    @emoji[name][:unicode] || name
   end
 
   def self.name_to_emoji(name)
-    @emoji[name][:emoji]
+    @emoji[name][:emoji] || name
   end
 end

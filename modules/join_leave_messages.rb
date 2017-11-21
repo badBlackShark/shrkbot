@@ -5,7 +5,7 @@ module JoinLeaveMessages
 
   member_join do |event|
     # Sends in #general (the oldest channel). If that's deleted, you may have a problem.
-    message = DB.read_value("SHRK_server_#{event.server.id}".to_sym, :join_message)&.split(' ')
+    message = DB.read_value("shrk_server_#{event.server.id}".to_sym, :join_message)&.split(' ')
     next unless message
     target_channel = get_message_channel(event.server)
     reply = ''
@@ -17,7 +17,7 @@ module JoinLeaveMessages
   end
 
   member_leave do |event| # Works exactly like member_join
-    message = DB.read_value("SHRK_server_#{event.server.id}".to_sym, :leave_message)&.split(' ')
+    message = DB.read_value("shrk_server_#{event.server.id}".to_sym, :leave_message)&.split(' ')
     return unless message
     target_channel = get_message_channel(event.server)
     reply = ''
@@ -36,7 +36,7 @@ module JoinLeaveMessages
     min_args: 1
   }
   command :setJoinMessage, attrs do |event, *args|
-    DB.update_string_value("SHRK_server_#{event.server.id}".to_sym, :join_message, args.join(' '))
+    DB.update_string_value("shrk_server_#{event.server.id}".to_sym, :join_message, args.join(' '))
     event.message.react(Emojis.name_to_unicode('checkmark'))
   end
 
@@ -49,7 +49,7 @@ module JoinLeaveMessages
     min_args: 1
   }
   command :setLeaveMessage, attrs do |event, *args|
-    DB.update_string_value("SHRK_server_#{event.server.id}".to_sym, :leave_message, args.join(' '))
+    DB.update_string_value("shrk_server_#{event.server.id}".to_sym, :leave_message, args.join(' '))
     event.message.react(Emojis.name_to_unicode('checkmark'))
   end
 
@@ -60,7 +60,7 @@ module JoinLeaveMessages
     description: 'Displays the message for when a user joins the server.'
   }
   command :joinMessage, attrs do |event|
-    DB.read_value("SHRK_server_#{event.server.id}".to_sym, :join_message)
+    DB.read_value("shrk_server_#{event.server.id}".to_sym, :join_message)
   end
 
   attrs = {
@@ -70,7 +70,7 @@ module JoinLeaveMessages
     description: 'Displays the message for when a user leaves the server.'
   }
   command :leaveMessage, attrs do |event|
-    DB.read_value("SHRK_server_#{event.server.id}".to_sym, :leave_message)
+    DB.read_value("shrk_server_#{event.server.id}".to_sym, :leave_message)
   end
 
   attrs = {
@@ -85,18 +85,18 @@ module JoinLeaveMessages
     channel = event.server.channels.find { |s_channel| s_channel.name.casecmp?(args.join(' ')) }
     next "That channel doesn't exist." unless channel
 
-    DB.update_value("SHRK_server_#{event.server.id}".to_sym, :message_channel, channel.id)
+    DB.update_value("shrk_server_#{event.server.id}".to_sym, :message_channel, channel.id)
     event.message.react(Emojis.name_to_unicode('checkmark'))
   end
 
   attrs = {
     permission_level: 1,
     permission_message: false,
-    usage: 'MessageChannel?',
+    usage: 'messageChannel?',
     description: 'Sends a message in the log channel, in case you forgot which one it is.'
   }
   command :messageChannel?, attrs do |event|
-    message_channel = DB.read_value("SHRK_server_#{event.server.id}".to_sym, :message_channel)
+    message_channel = DB.read_value("shrk_server_#{event.server.id}".to_sym, :message_channel)
 
     next "The channel for join / leave messages is <##{message_channel}>." if message_channel
 
@@ -105,11 +105,11 @@ module JoinLeaveMessages
   end
 
   def self.init_message_channel(server)
-    return if DB.read_value("SHRK_server_#{server.id}".to_sym, :message_channel)
+    return if DB.read_value("shrk_server_#{server.id}".to_sym, :message_channel)
     # Join / leave messages will be sent in the top channel of the server.
     # You probably gonna wanna change this.
     message_channel = server.default_channel
-    DB.unique_insert("SHRK_server_#{server.id}".to_sym, :message_channel, message_channel.id)
+    DB.unique_insert("shrk_server_#{server.id}".to_sym, :message_channel, message_channel.id)
     LOGGER.log(
       server,
       "Set <##{message_channel.id}> as the channel where join / leave " \
@@ -152,6 +152,6 @@ module JoinLeaveMessages
   end
 
   private_class_method def self.get_message_channel(server)
-    SHRK.channel(DB.read_value("SHRK_server_#{server.id}".to_sym, :message_channel))
+    SHRK.channel(DB.read_value("shrk_server_#{server.id}".to_sym, :message_channel))
   end
 end

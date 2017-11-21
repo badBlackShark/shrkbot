@@ -14,19 +14,19 @@ module MiscCommands
   attrs = {
     permission_level: 1,
     permission_message: false,
-    usage: '.setGame <game>',
+    usage: 'setGame <game>',
     description: 'Sets what the bots is playing.'
   }
   command :setGame, attrs do |event, *args|
     game = args.join(' ')
-    SSB.game = game
+    SHRK.game = game
     event.message.delete
   end
 
   attrs = {
     permission_level: 1,
     permission_message: false,
-    usage: '.REEEEE',
+    usage: 'REEEEE',
     description: 'REEEEE!'
   }
   command :REEEEE, attrs do |event|

@@ -11,7 +11,7 @@ module Reactions
     RestClient.put(
       "#{Discordrb::API.api_base}/channels/#{channel_id}/messages/#{message_id}/reactions/#{encoded_reaction}/@me",
       nil,
-      Authorization: SSB.token
+      Authorization: SHRK.token
     )
   end
 
