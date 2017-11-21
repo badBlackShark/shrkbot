@@ -120,11 +120,11 @@ class RoleMessage
   end
 
   private_class_method def self.send_role_embed(server, channel)
-    server_roles = DB.read_column("shrk_server_#{server.id}".to_sym, :roles).sort
+    server_roles = DB.read_column("shrk_server_#{server.id}".to_sym, :roles)
 
     emoji = 'a'
     field_value = ''
-    server_roles.each do |role_id|
+    server_roles.sort_by { |r| id_to_role(server, r) }.each do |role_id|
       role = id_to_role(server, role_id)
       # Removes roles that don't exist anymore
       next DB.delete_value("shrk_server_#{server.id}".to_sym, :roles, role_id) unless role
@@ -148,7 +148,7 @@ class RoleMessage
   private_class_method def self.emoji_to_role_id(server, emoji)
     # Currently only 26 roles per server are supported
     current_emoji = 'a'
-    roles = DB.read_column("shrk_server_#{server.id}".to_sym, :roles).sort
+    roles = DB.read_column("shrk_server_#{server.id}".to_sym, :roles).sort_by { |r| id_to_role(server, r) }
     26.times do |i|
       return roles[i] if emoji == Emojis.name_to_emoji(current_emoji)
       current_emoji.succ! # :^)
