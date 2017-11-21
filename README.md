@@ -1,3 +1,3 @@
 # SharkShock Bot
 
-Very work in progress. Don't judge.
+The discord version of my twitch bot, including modular design. More features coming soon.
