@@ -20,10 +20,7 @@ require_relative 'modules/assignment_commands'
 
 # Bot inv: https://discordapp.com/oauth2/authorize?&client_id=346043915142561793&scope=bot&permissions=2146958591
 
-# TODO: Improve .help (split normal / staff commands)
 # TODO: .todo and .reminder with rufus scheduler (v1.3.1)
-# TODO: Uncomment username change in server_system!
-# TODO: Fix the placeholder replacement!
 
 # Create the directory that charts get saved in.
 Dir.mkdir('images') unless File.exist?('images')
@@ -84,6 +81,7 @@ end
 
 SHRK.run(:async)
 
+# Database might not exist yet, so just wait a moment.
 sleep 2
 
 SHRK.servers.each_value do |server|
