@@ -93,7 +93,7 @@ module JoinLeaveMessages
     permission_level: 1,
     permission_message: false,
     usage: 'messageChannel?',
-    description: 'Sends a message in the log channel, in case you forgot which one it is.'
+    description: 'Links the channel for join / leave messages, in case you forgot which one it is.'
   }
   command :messageChannel?, attrs do |event|
     message_channel = DB.read_value("shrk_server_#{event.server.id}".to_sym, :message_channel)
