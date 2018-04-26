@@ -3,8 +3,6 @@ module Mentions
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
 
-  # TODO: Multithread
-
   attrs = {
     permission_level: 1,
     permission_message: false,
@@ -21,21 +19,16 @@ module Mentions
     next if staff_user?(event.user) # Staff should still be abled to just use @everyone
 
     message = event.respond 'You are not allowed to use `@everyone`. Do you want to use `@here` instead?'
-    message.react(Emojis.name_to_unicode('checkmark'))
-    message.react(Emojis.name_to_unicode('crossmark'))
-
-    SHRK.add_await(:"replace_#{message.id}", Discordrb::Events::ReactionAddEvent) do |r_event|
-      # Only the user who sent the message should be abled to confirm / deny.
-      next false unless (r_event.message.id == message.id) && (r_event.user.id == event.user.id)
-      if r_event.emoji.name == Emojis.name_to_emoji('crossmark')
-        event.channel.send_temporary_message('Alright :)', 10)
-        message.delete
-      elsif r_event.emoji.name == Emojis.name_to_emoji('checkmark')
-        message.delete
-        "#{event.message.user.mention} said: #{event.message.content.gsub(/@everyone/, '@here')}"
-      else
-        false # Ignore reactions that aren't the two we want
-      end
+    choice = Reactions.yes_no(message, event.user)
+    if choice
+      message.delete
+      event.respond "#{event.message.user.mention} said: #{event.message.content.gsub(/@everyone/, '@here')}"
+    elsif choice.nil?
+      event.channel.send_temporary_message('Nevermind then.', 5)
+      message.delete
+    else
+      event.channel.send_temporary_message('Alright :)', 5)
+      message.delete
     end
   end
 
@@ -47,21 +40,17 @@ module Mentions
     next if event.message.content.include?('@everyone')
 
     message = event.respond 'Are you sure you want to tag `@here`?'
-    message.react(Emojis.name_to_unicode('checkmark'))
-    message.react(Emojis.name_to_unicode('crossmark'))
 
-    SHRK.add_await(:"confirm_#{message.id}", Discordrb::Events::ReactionAddEvent) do |r_event|
-      next false unless (r_event.message.id == message.id) && (r_event.user.id == event.user.id)
-
-      if r_event.emoji.name == Emojis.name_to_emoji('crossmark')
-        event.channel.send_temporary_message 'Alright :)', 10
-        message.delete
-      elsif r_event.emoji.name == Emojis.name_to_emoji('checkmark')
-        message.delete
-        "#{event.message.user.mention} said: #{event.message.content}"
-      else
-        false
-      end
+    choice = Reactions.yes_no(message, event.user)
+    if choice
+      message.delete
+      event.respond "#{event.message.user.mention} said: #{event.message.content}"
+    elsif choice.nil?
+      event.channel.send_temporary_message('Nevermind then.', 5)
+      message.delete
+    else
+      event.channel.send_temporary_message('Alright :)', 5)
+      message.delete
     end
   end
 
