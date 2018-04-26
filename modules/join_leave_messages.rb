@@ -100,7 +100,7 @@ module JoinLeaveMessages
 
     next "The channel for join / leave messages is <##{message_channel}>." if message_channel
 
-    'There is no channel for join / leave messages.'\
+    'There is no channel for join / leave messages. '\
     'Please set one by using the `setMessageChannel` command.'
   end
 
