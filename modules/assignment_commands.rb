@@ -26,8 +26,8 @@ module AssignmentCommands
   attrs = {
     permission_level: 1,
     permission_message: false,
-    usage: 'addToSelfAssign <roleName>',
-    description: 'Adds a role to the list of self-assignable roles.',
+    usage: 'addToSelfAssign <roleNames>',
+    description: 'Adds as many roles to the list of self-assignable roles as you want.',
     min_args: 1
   }
   command :addToSelfAssign, attrs do |event, *args|
@@ -44,9 +44,9 @@ module AssignmentCommands
 
     response = roles.select { |_role_name, success| success }.keys.join('", "')
 
-    unless response == ''
+    unless response.empty?
       RoleMessage.send!(event.server)
-      response.prepend('Added the roles "') << '" to the list of self-assignable roles.'
+      "Added the roles \"#{response}\" to the list of self-assignable roles."
     end
   end
 
@@ -54,17 +54,25 @@ module AssignmentCommands
     permission_level: 1,
     permission_message: false,
     usage: 'removeFromSelfAssign <roleName>',
-    description: 'Removes a role from the list of self-assignable roles.',
+    description: 'Removes as many roles from the list of self-assignable roles as you want.',
     min_args: 1
   }
   command :removeFromSelfAssign, attrs do |event, *args|
-    role = event.server.roles.find { |s_role| s_role.name.casecmp?(args.join(' ')) }
+    roles = Hash[args.join(' ').split(', ').collect { |role_name| [role_name, false] }]
+    roles.each_key do |role_name|
+      role = event.server.roles.find { |s_role| s_role.name.casecmp?(role_name) }
+      unless DB.delete_value("shrk_server_#{event.server.id}".to_sym, :roles, role.id)
+        event.respond("The role \"#{role_name}\" isn't self-assignable.")
+      else
+        roles[role_name] = true
+      end
+    end
 
-    if DB.delete_value("shrk_server_#{event.server.id}".to_sym, :roles, role.id)
+    response = roles.select { |_role_name, success| success }.keys.join('", "')
+
+    unless response.empty?
       RoleMessage.send!(event.server)
-      event.message.react(Emojis.name_to_unicode('checkmark'))
-    else
-      event.send_temporary_message("The role #{args.join(' ').downcase} isn't self-assignable.", 10)
+      "Removed the roles \"#{response}\" from the list of self-assignable roles."
     end
   end
 
@@ -83,8 +91,8 @@ module AssignmentCommands
     description: 'Points you to the channel where you can assign roles to yourself.'
   }
   command :roles, attrs do |event|
-    channel_id = DB.read_value("shrk_server_#{event.server.id}", :assignment_channel)
-    "In the channel <##{channel_id}> you can find the roles you can assign to yourself."
+    channel_id = DB.read_value("shrk_server_#{event.server.id}".to_sym, :assignment_channel)
+    "You can assign roles to yourself in <##{channel_id}>."
   end
 
   attrs = {
@@ -95,7 +103,6 @@ module AssignmentCommands
   }
   command :assignmentChannel?, attrs do |event|
     assignment_channel = DB.read_value("shrk_server_#{event.server.id}".to_sym, :assignment_channel)
-
     next "The assignment channel is <##{assignment_channel}>." if assignment_channel
 
     'There is no assignment channel. Please set one by using the `setAssignmentChannel` command.'
