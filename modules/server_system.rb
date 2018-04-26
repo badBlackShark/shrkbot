@@ -30,7 +30,6 @@ module ServerSystem
   end
 
   server_delete do |event|
-    puts 'lol'
     # Clean up the database when the bot gets kicked from a server.
     DB.delete_server_values(event.server.id)
   end
