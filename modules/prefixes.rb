@@ -1,16 +1,18 @@
+# Allows you to set prefixes on a by-server basis.
 module Prefixes
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
 
   message(with_text: '.prefix') do |event|
-    event.respond "This server's prefix is `#{$prefixes[event.server.id] || '.' }`"
+    event.respond "This server's prefix is `#{$prefixes[event.server.id] || '.'}`"
   end
 
   attrs = {
     permission_level: 1,
     permission_message: false,
-    description: 'Sets the prefix for this server.',
     usage: 'setPrefix <newPrefix>',
+    description: 'Sets the prefix for this server. '\
+                 'Don\'t set this to a custom emoji, unless you want to brick your bot :)',
     min_args: 1
   }
   command :setPrefix, attrs do |event, new_prefix|
@@ -32,6 +34,6 @@ module Prefixes
     $prefixes[event.server.id] = nil
 
     event.message.react(Emojis.name_to_unicode('checkmark'))
-    LOGGER.log(event.server, "The prefix has been reset to `.`")
+    LOGGER.log(event.server, 'The prefix has been reset to `.`')
   end
 end
