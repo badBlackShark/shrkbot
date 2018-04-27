@@ -30,13 +30,7 @@ module Moderation
 
     users = event.message.mentions
     next "Please mention at least one user to be muted." if users.empty?
-
-    users.each do |user|
-      mute(event, user, time, reason)
-    end
-
-    LOGGER.log(event.server, "Successfully muted `#{users.map(&:distinct).join('`, `')}` until "\
-              "#{@mutes[users.first][0].next_time.strftime(TIME_FORMAT)} for **#{reason}**.")
+    mute(event, users, time, reason)
   end
 
   attrs = {
@@ -92,16 +86,21 @@ module Moderation
     event.channel.send_embed('', embed)
   end
 
-  def self.mute(event, user, time, reason)
+  def self.mute(event, users, time, reason, logging: true)
     deny = Discordrb::Permissions.new
     deny.can_send_messages = true
     deny.can_speak = true
 
-    event.server.channels.each do |channel|
-      channel.define_overwrite(user, 0, deny)
+    users.each do |user|
+      event.server.channels.each do |channel|
+        channel.define_overwrite(user, 0, deny)
+      end
+      schedule_unmute(event, user, time)
+      @mutes[user][1] = reason
     end
-    schedule_unmute(event, user, time)
-    @mutes[user][1] = reason
+
+    LOGGER.log(event.server, "Successfully muted `#{users.map(&:distinct).join('`, `')}` until "\
+              "#{@mutes[users.first][0].next_time.strftime(TIME_FORMAT)}. Reason: **#{reason}**.") if logging
   end
 
   # Schedules the unmute for a user
