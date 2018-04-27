@@ -11,6 +11,8 @@ require_relative 'lib/charts/chart'
 require_relative 'modules/help'
 require_relative 'modules/prefixes'
 require_relative 'modules/mentions'
+require_relative 'modules/fun_stuff'
+require_relative 'modules/moderation'
 require_relative 'modules/server_system'
 require_relative 'modules/misc_commands'
 require_relative 'modules/chart_commands'
@@ -67,6 +69,8 @@ LOGGER = SHRKLogger.new
 SHRK.include! Help
 SHRK.include! Prefixes
 SHRK.include! Mentions
+SHRK.include! FunStuff
+SHRK.include! Moderation
 SHRK.include! ServerSystem
 SHRK.include! MiscCommands
 SHRK.include! ChartCommands
