@@ -11,6 +11,7 @@ require_relative 'lib/charts/chart'
 require_relative 'modules/help'
 require_relative 'modules/prefixes'
 require_relative 'modules/mentions'
+require_relative 'modules/roulette'
 require_relative 'modules/fun_stuff'
 require_relative 'modules/moderation'
 require_relative 'modules/server_system'
@@ -69,6 +70,7 @@ LOGGER = SHRKLogger.new
 SHRK.include! Help
 SHRK.include! Prefixes
 SHRK.include! Mentions
+SHRK.include! Roulette
 SHRK.include! FunStuff
 SHRK.include! Moderation
 SHRK.include! ServerSystem
@@ -85,11 +87,13 @@ end
 
 SHRK.run(:async)
 
+
 # Database might not exist yet, so just wait a moment.
 sleep 2
 
 SHRK.servers.each_value do |server|
   $prefixes[server.id] = DB.read_value("shrk_server_#{server.id}".to_sym, :prefix)
+  Roulette.load_revolver(server.id)
 end
 
 SHRK.sync
