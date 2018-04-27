@@ -1,6 +1,7 @@
 require 'rufus-scheduler'
 
-# Simulating some russian roulette
+# Simulates a revolver with 6 shots on a per-server basis.
+# Revolver times out if people wait too long to play.
 module Roulette
   extend Discordrb::Commands::CommandContainer
 
