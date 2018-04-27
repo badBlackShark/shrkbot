@@ -14,6 +14,7 @@ require_relative 'modules/mentions'
 require_relative 'modules/roulette'
 require_relative 'modules/fun_stuff'
 require_relative 'modules/moderation'
+require_relative 'modules/link_removal'
 require_relative 'modules/server_system'
 require_relative 'modules/misc_commands'
 require_relative 'modules/chart_commands'
@@ -73,6 +74,7 @@ SHRK.include! Mentions
 SHRK.include! Roulette
 SHRK.include! FunStuff
 SHRK.include! Moderation
+SHRK.include! LinkRemoval
 SHRK.include! ServerSystem
 SHRK.include! MiscCommands
 SHRK.include! ChartCommands
@@ -87,6 +89,7 @@ end
 
 SHRK.run(:async)
 
+LinkRemoval.initiate
 
 # Database might not exist yet, so just wait a moment.
 sleep 2
