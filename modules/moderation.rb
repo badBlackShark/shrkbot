@@ -9,7 +9,7 @@ module Moderation
   # User => [Job, reason]
   @mutes = {}
 
-  TIME_FORMAT = "%d. %B, %Y at %-l:%M:%S%P %Z"
+  TIME_FORMAT = "%A, %d. %B, %Y at %-l:%M:%S%P %Z"
 
   attrs = {
     permission_level: 1,
