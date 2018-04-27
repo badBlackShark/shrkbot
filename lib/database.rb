@@ -103,6 +103,16 @@ class Database
     @database.drop_table?("shrk_server_#{server_id}".to_sym)
   end
 
+  # Insert a row into a table (assumes you know what the columns are!)
+  def insert_row(table_name, values)
+    @database[table_name].insert(values)
+  end
+
+  # Select rows, based on one filter row
+  def select_rows(table_name, column, value)
+    @database[table_name].where(column => value).all
+  end
+
   # Sets the default values for the log- and assignment-channel, if they don't already have values.
   def init_default_values(server)
     LOGGER.init_log_channel(server)
