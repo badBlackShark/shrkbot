@@ -25,8 +25,8 @@ module Roulette
       "I couldn't ever let you shoot yourself. #{Emojis.name_to_emoji('heart')}"
     elsif outcome
       event.respond "Unlucky. #{event.user.mention} shoots themself in the head, and dies."
-      Moderation.mute(event, event.user, '1m', 'Died while playing roulette.')
       load_revolver(event.server.id)
+      Moderation.mute(event, event.user, '1m', 'Died while playing roulette.')
       @position[event.server.id] = 0
       event.respond 'The revolver has been reloaded.'
     else
