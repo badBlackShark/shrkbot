@@ -26,9 +26,8 @@ module Roulette
     elsif outcome
       event.respond "Unlucky. #{event.user.mention} shoots themself in the head, and dies."
       load_revolver(event.server.id)
-      Moderation.mute(event, event.user, '1m', 'Died while playing roulette.')
-      @position[event.server.id] = 0
       event.respond 'The revolver has been reloaded.'
+      Moderation.mute(event, event.user, '1m', 'Died while playing roulette.')
     else
       @position[event.server.id] += 1
       "The revolver clicks, and #{event.user.mention} survives. Congratulations."
