@@ -27,7 +27,7 @@ module Roulette
       event.respond "Unlucky. #{event.user.mention} shoots themself in the head, and dies."
       load_revolver(event.server.id)
       event.respond 'The revolver has been reloaded.'
-      Moderation.mute(event, event.user, '1m', 'Died while playing roulette.')
+      Moderation.mute(event, [event.user], '1m', 'Died while playing roulette.', logging: false)
       nil
     else
       @position[event.server.id] += 1
