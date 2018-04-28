@@ -23,7 +23,7 @@ module LinkRemoval
   end
 
   message do |event|
-    next if SHRK.permission?(event.user, 1, event.server)
+    next if SHRK.permission?(event.user, 1, event.server) || @permitted[event.user.id]
     text = event.message.content.gsub(/\[?dot|\.\]?|\{?dot|\.\}?|\(dot|\.\)/, '.').downcase
 
     if duration = (contains_prohibited?(event.server.id, text))
@@ -104,12 +104,22 @@ module LinkRemoval
     event.channel.send_embed('', embed)
   end
 
+  attrs = {
+    permission_level: 1,
+    permission_message: false,
+    usage: 'permit <userMentions>',
+    description: 'Allows all mentioned users to send prohibited links for 30s.'
+  }
   command :permit do |event|
     users = event.message.mentions
 
-    users.each do |variable|
-
+    users.each do |user|
+      @permitted[user.id] = true
+      @scheduler.in '30s' do
+        @permitted.delete(user.id)
+      end
     end
+    "`#{users.map(&:distinct).join('`, `')}` may send prohibited links for 30s."
   end
 
   private_class_method def self.is_link?(string)
