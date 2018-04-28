@@ -35,8 +35,10 @@ module LinkRemoval
   attrs = {
     permission_level: 1,
     permission_message: false,
-    usage: 'prohibit <link>',
-    description: 'Prohibits linking to the specified site. Keep this as general as possible for best results.'
+    usage: 'prohibit <link> <duration> <--ignore-whitespace>',
+    description: 'Prohibits linking to the specified site. Keep this as general as possible for best results. '\
+                 'Duration defaults to 2h. The flag is optional. When enabled, the bot will still recognize the '\
+                 'link, even if there\'s whitespace in it. Beware of false positives.'
   }
   command :prohibit, attrs do |event, link, *args|
     next 'Not a link.' unless is_link?(link)
