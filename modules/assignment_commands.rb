@@ -61,10 +61,10 @@ module AssignmentCommands
     roles = Hash[args.join(' ').split(', ').collect { |role_name| [role_name, false] }]
     roles.each_key do |role_name|
       role = event.server.roles.find { |s_role| s_role.name.casecmp?(role_name) }
-      unless DB.delete_value("shrk_server_#{event.server.id}".to_sym, :roles, role.id)
-        event.respond("The role \"#{role_name}\" isn't self-assignable.")
-      else
+      if DB.delete_value("shrk_server_#{event.server.id}".to_sym, :roles, role.id)
         roles[role_name] = true
+      else
+        event.respond("The role \"#{role_name}\" isn't self-assignable.")
       end
     end
 

@@ -42,7 +42,7 @@ module Roulette
 
   def self.start_scheduler(server)
     @reloading[server.id] = @scheduler.every('15m', job: true) do
-      unless @position[server.id] == 0
+      unless @position[server.id].zero?
         load_revolver(server.id)
         LOGGER.log(server, 'People were too scared to pull the trigger again. '\
                            'The revolver has been reloaded.')

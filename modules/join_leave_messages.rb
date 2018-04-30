@@ -133,22 +133,22 @@ module JoinLeaveMessages
     role_match.each do |m|
       mention << (event.server.roles.find { |role| role.name.casecmp?(m) }&.mention || m)
     end
-    mention << " "
+    mention << ' '
   end
 
   private_class_method def self.replace_user_match(event, user_match)
     mention = ''
     if event.class == Discordrb::Events::ServerMemberAddEvent
       user_match.each do |m|
-        mention << (m =~ /\{user\}/ ? event.user.mention : m)
+        mention << (m.match?(/\{user\}/) ? event.user.mention : m)
       end
     elsif event.class == Discordrb::Events::ServerMemberDeleteEvent
       # No mention on leave, because user might not be cached anymore.
       user_match.each do |m|
-        mention << (m =~ /\{user\}/ ? event.user.distinct : m)
+        mention << (m.match?(/\{user\}/) ? event.user.distinct : m)
       end
     end
-    mention << " "
+    mention << ' '
   end
 
   private_class_method def self.get_message_channel(server)

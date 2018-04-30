@@ -26,7 +26,7 @@ module LinkRemoval
     next if SHRK.permission?(event.user, 1, event.server) || @permitted[event.user.id]
     text = event.message.content.gsub(/\[?dot|\.\]?|\{?dot|\.\}?|\(dot|\.\)/, '.').downcase
 
-    if duration = (contains_prohibited?(event.server.id, text))
+    if (duration = contains_prohibited?(event.server.id, text))
       event.message.delete
       Moderation.mute(event, [event.user], duration, 'Posted a prohibited link.')
     end
@@ -41,9 +41,9 @@ module LinkRemoval
                  'link, even if there\'s whitespace in it. Beware of false positives.'
   }
   command :prohibit, attrs do |event, link, *args|
-    next 'Not a link.' unless is_link?(link)
+    next 'Not a link.' unless link?(link)
     link = link.downcase.gsub(/https?:\/\/(www.)?/, '')
-    duration = args.select{ |a| a =~ /^((\d+)[smhdwmy]{1})+$/ }
+    duration = args.select { |a| a =~ /^((\d+)[smhdwmy]{1})+$/ }
     duration = '2h' if duration.empty?
     ignore_whitespace = args.include?('--ignore-whitespace')
 
@@ -66,8 +66,8 @@ module LinkRemoval
   }
   command :allow, attrs do |event, *args|
     link = args.join(' ').gsub(/https?:\/\/(www.)?/, '')
-    next 'Not a link.' unless is_link?(link)
-    if entries = (@prohibited[event.server.id].select{ |entry| entry[:link].gsub(/\\s\*/, '').include?(link) })
+    next 'Not a link.' unless link?(link)
+    if (entries = @prohibited[event.server.id].select { |entry| entry[:link].gsub(/\\s\*/, '').include?(link) })
       entries.each do |entry|
         DB.delete_value(:shrk_link_removal, :link, entry[:link])
       end
@@ -86,7 +86,7 @@ module LinkRemoval
     embed = Discordrb::Webhooks::Embed.new
     field_value = ''
 
-    @prohibited[event.server.id].map{ |entry| entry[:link] }.sort.each do |link|
+    @prohibited[event.server.id].map { |entry| entry[:link] }.sort.each do |link|
       field_value << "• `#{link.gsub(/\\s\*/, '')}`\n"
     end
 
@@ -112,7 +112,7 @@ module LinkRemoval
     usage: 'permit <userMentions>',
     description: 'Allows all mentioned users to send prohibited links for 30s.'
   }
-  command :permit do |event|
+  command :permit, attrs do |event|
     users = event.message.mentions
 
     users.each do |user|
@@ -124,15 +124,13 @@ module LinkRemoval
     "`#{users.map(&:distinct).join('`, `')}` may send prohibited links for 30s."
   end
 
-  private_class_method def self.is_link?(string)
+  private_class_method def self.link?(string)
     string =~ /(https?:\/\/)?(www\.)?[ a-zA-Z0-9@:%._\+~#=-]{2,256}((\.[a-z]{2,6})|:)([ a-zA-Z0-9@:%._\+.~#?&\/=-]*)/
   end
 
   private_class_method def self.contains_prohibited?(id, message)
     @prohibited[id].each do |entry|
-      if message.match?(Regexp.new(entry[:link]))
-        return entry[:duration]
-      end
+      return entry[:duration] if message.match?(Regexp.new(entry[:link]))
     end
     false
   end

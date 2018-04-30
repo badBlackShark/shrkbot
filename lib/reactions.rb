@@ -46,13 +46,13 @@ module Reactions
 
       next false if choice.nil?
     end
-    spam_reactions(message, [Emojis.name_to_emoji('checkmark'), Emojis.name_to_emoji("crossmark")])
+    spam_reactions(message, [Emojis.name_to_emoji('checkmark'), Emojis.name_to_emoji('crossmark')])
 
     # Timeout
     i = 30
     loop do
       if i.zero?
-        SHRK.awaits.delete(:"yes_no_#message.id")
+        SHRK.awaits.delete(:"yes_no_#{message.id}")
         return nil
       elsif choice.nil?
         i -= 1

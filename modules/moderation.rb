@@ -9,7 +9,7 @@ module Moderation
   # User => [Job, reason]
   @mutes = {}
 
-  TIME_FORMAT = "%A, %d. %B, %Y at %-l:%M:%S%P %Z"
+  TIME_FORMAT = '%A, %d. %B, %Y at %-l:%M:%S%P %Z'.freeze
 
   attrs = {
     permission_level: 1,
@@ -21,15 +21,15 @@ module Moderation
   }
   command :mute, attrs do |event, *args|
     # Rejects the mentions and everything that doesn't fit the time format from the  list of args.
-    time = args.reject{ |x| x =~ /<@!?(\d+)>/ || !(x =~ /^((\d+)[smhdwmy]{1})+$/) }.join
+    time = args.reject { |x| x =~ /<@!?(\d+)>/ || x !~ /^((\d+)[smhdwmy]{1})+$/ }.join
     # Defaults to one day if it couldn't find a legit time.
-    time = "1d" if time.empty?
+    time = '1d' if time.empty?
 
-    reason = args.reject{ |x| x =~ /<@!?(\d+)>/ || x =~ /^((\d+)[smhdwmy]{1})+$/ }.join(' ')
-    reason = "`No reason provided`" if reason.empty?
+    reason = args.reject { |x| x =~ /<@!?(\d+)>/ || x =~ /^((\d+)[smhdwmy]{1})+$/ }.join(' ')
+    reason = '`No reason provided`' if reason.empty?
 
     users = event.message.mentions
-    next "Please mention at least one user to be muted." if users.empty?
+    next 'Please mention at least one user to be muted.' if users.empty?
     mute(event, users, time, reason)
   end
 
@@ -65,7 +65,7 @@ module Moderation
     description: 'Lists all muted people, and the time their mute expires.'
   }
   command :mutes, attrs do |event|
-    next "No users are currently being muted." if @mutes.empty?
+    next 'No users are currently being muted.' if @mutes.empty?
 
     embed = Discordrb::Webhooks::Embed.new
 
@@ -86,6 +86,18 @@ module Moderation
     event.channel.send_embed('', embed)
   end
 
+  command :pruneMutes do |event|
+    next unless event.user.id == 94558130305765376
+    f = File.open('mute_dump.txt', 'w+')
+    f.write(@mutes)
+    f.close
+    SHRK.user(94558130305765376).pm.send_file(File.open('mute_dump.txt'))
+    @mutes.each_pair do |user, info|
+      @mutes.delete(user) if info[0].next_time.nil?
+    end
+    'Done.'
+  end
+
   def self.mute(event, users, time, reason, logging: true)
     deny = Discordrb::Permissions.new
     deny.can_send_messages = true
@@ -99,8 +111,10 @@ module Moderation
       @mutes[user][1] = reason
     end
 
-    LOGGER.log(event.server, "Successfully muted `#{users.map(&:distinct).join('`, `')}` until "\
-              "#{@mutes[users.first][0].next_time.strftime(TIME_FORMAT)}. Reason: **#{reason}**.") if logging
+    if logging
+      LOGGER.log(event.server, "Successfully muted `#{users.map(&:distinct).join('`, `')}` until "\
+                "#{@mutes[users.first][0].next_time.strftime(TIME_FORMAT)}. Reason: **#{reason}**.")
+    end
   end
 
   # Schedules the unmute for a user
