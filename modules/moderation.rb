@@ -21,11 +21,11 @@ module Moderation
   }
   command :mute, attrs do |event, *args|
     # Rejects the mentions and everything that doesn't fit the time format from the  list of args.
-    time = args.reject { |x| x =~ /<@!?(\d+)>/ || x !~ /^((\d+)[smhdwmy]{1})+$/ }.join
+    time = args.reject { |x| x =~ /<@!?(\d+)>/ || x !~ /^((\d+)[smhdwMy]{1})+$/ }.join
     # Defaults to one day if it couldn't find a legit time.
     time = '1d' if time.empty?
 
-    reason = args.reject { |x| x =~ /<@!?(\d+)>/ || x =~ /^((\d+)[smhdwmy]{1})+$/ }.join(' ')
+    reason = args.reject { |x| x =~ /<@!?(\d+)>/ || x =~ /^((\d+)[smhdwMy]{1})+$/ }.join(' ')
     reason = '`No reason provided`' if reason.empty?
 
     users = event.message.mentions
