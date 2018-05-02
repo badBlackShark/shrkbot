@@ -38,7 +38,7 @@ module Help
 
   private_class_method def self.send_all_commands_embed(event)
     commands = SHRK.commands.select { |_, cmd| cmd.attributes[:permission_level].zero? }
-    staff_commands = SHRK.commands.reject { |_, cmd| cmd.attributes[:permission_level].zero? }
+    staff_commands = SHRK.commands.select { |_, cmd| cmd.attributes[:permission_level] == 1 }
 
     is_staff = SHRK.permission?(event.user, 1, event.server)
 
