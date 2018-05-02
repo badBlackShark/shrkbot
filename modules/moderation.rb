@@ -69,8 +69,9 @@ module Moderation
     permission_level: 1,
     permission_message: false,
     usage: 'mute <userMentions> <duration> <reason>',
-    description: 'Mutes all users mentioned in the command for the duration given. '\
-                 'Order doesn\'t matter, duration and reason are optional',
+    description: "Mutes all users mentioned in the command for the duration given. "\
+                 "Order doesn't matter, duration and reason are optional and have default values.\n"\
+                 "**WARNING**: When the bot restarts, it won't unmute currently muted users!",
     min_args: 1
   }
   command :mute, attrs do |event, *args|
