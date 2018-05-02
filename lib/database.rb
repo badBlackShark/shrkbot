@@ -108,9 +108,15 @@ class Database
     @database[table_name].insert(values)
   end
 
-  # Select rows, based on one filter row
+  # Select rows, based on one filter column
   def select_rows(table_name, column, value)
     @database[table_name].where(column => value).all
+  end
+
+  # Updates a row. The first value is assumed to be the primary key.
+  def update_row(table_name, values)
+    @database[table_name].where(@database[table_name].columns.first => values.first).delete
+    @database[table_name].insert(values)
   end
 
   # Sets the default values for the log- and assignment-channel, if they don't already have values.
