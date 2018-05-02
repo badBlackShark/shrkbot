@@ -33,7 +33,7 @@ module Moderation
   private_class_method def self.update_muted_role(server)
     # This is an Array of Hashes, but actually just one Hash, which is the one mapping the
     # server ID of the requested server to the role ID we want, so this can just be merged.
-    role_id = DB.select_rows(:shrk_muted_roles, :server, server.id).inject(:merge)[:role]
+    role_id = DB.select_rows(:shrk_muted_roles, :server, server.id).inject(:merge)&.fetch(:role)
     return if role_id && server.role(role_id)
     role = create_muted_role(server)
     DB.update_row(:shrk_muted_roles, [server.id, role.id])

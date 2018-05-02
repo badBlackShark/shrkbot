@@ -138,7 +138,8 @@ module LinkRemoval
 
   private_class_method def self.update_prohibited
     SHRK.servers.each_value do |server|
-      @prohibited[server.id] = DB.select_rows(:shrk_link_removal, :server, server.id) || {}
+      @prohibited[server.id] = DB.select_rows(:shrk_link_removal, :server, server.id)
+      @prohibited[server.id] ||= {}
     end
   end
 end
