@@ -30,11 +30,11 @@ module ChartCommands
   end
 
   attrs = {
-    usage: 'gamechart',
+    usage: 'gameChart',
     description: 'Generates a chart of the games currently being played on the server. '\
                  'The scale can currently be a bit weird, but the data is correct.'
   }
-  command :gameChart, attrs do |event|
+  command :gamechart, attrs do |event|
     event.send_temporary_message('Creating and uploading your chart. Hold on...', 10)
 
     data = Hash.new(0)
