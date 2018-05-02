@@ -15,7 +15,7 @@ module Prefixes
                  'Don\'t set this to a custom emoji, unless you want to brick your bot :)',
     min_args: 1
   }
-  command :setPrefix, attrs do |event, new_prefix|
+  command :setprefix, attrs do |event, new_prefix|
     DB.update_string_value("shrk_server_#{event.server.id}".to_sym, :prefix, new_prefix)
     $prefixes[event.server.id] = new_prefix
 
@@ -29,7 +29,7 @@ module Prefixes
     description: 'Resets the prefix for this server.',
     usage: 'resetPrefix'
   }
-  command :resetPrefix, attrs do |event|
+  command :resetprefix, attrs do |event|
     DB.update_string_value("shrk_server_#{event.server.id}".to_sym, :prefix, nil)
     $prefixes[event.server.id] = nil
 

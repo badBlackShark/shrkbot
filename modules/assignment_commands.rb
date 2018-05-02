@@ -11,7 +11,7 @@ module AssignmentCommands
     min_args: 1
   }
   # This is the manual setter, ServerSystem attempts to assign a default value when initializing.
-  command :setAssignmentChannel, attrs do |event, *args|
+  command :setassignmentchannel, attrs do |event, *args|
     channel = event.server.channels.find { |s_channel| s_channel.name.casecmp?(args.join(' ')) }
     next "That channel doesn't exist." unless channel
 
@@ -30,7 +30,7 @@ module AssignmentCommands
     description: 'Adds as many roles to the list of self-assignable roles as you want.',
     min_args: 1
   }
-  command :addToSelfAssign, attrs do |event, *args|
+  command :addtoselfassign, attrs do |event, *args|
     # Name of the role => successfully inserted
     roles = Hash[args.join(' ').split(', ').collect { |role_name| [role_name, false] }]
     roles.each_key do |role_name|
@@ -57,7 +57,7 @@ module AssignmentCommands
     description: 'Removes as many roles from the list of self-assignable roles as you want.',
     min_args: 1
   }
-  command :removeFromSelfAssign, attrs do |event, *args|
+  command :removefromselfassign, attrs do |event, *args|
     roles = Hash[args.join(' ').split(', ').collect { |role_name| [role_name, false] }]
     roles.each_key do |role_name|
       role = event.server.roles.find { |s_role| s_role.name.casecmp?(role_name) }
@@ -82,7 +82,7 @@ module AssignmentCommands
     usage: 'refreshRoles',
     description: 'Triggers a manual refresh for the role message.'
   }
-  command :refreshRoles, attrs do |event|
+  command :refreshroles, attrs do |event|
     RoleMessage.send!(event.server)
   end
 
@@ -101,7 +101,7 @@ module AssignmentCommands
     usage: 'assignmentChannel?',
     description: 'Tells you what the assignment channel is, in case you forgot which one it was.'
   }
-  command :assignmentChannel?, attrs do |event|
+  command :assignmentchannel?, attrs do |event|
     assignment_channel = DB.read_value("shrk_server_#{event.server.id}".to_sym, :assignment_channel)
     next "The assignment channel is <##{assignment_channel}>." if assignment_channel
 

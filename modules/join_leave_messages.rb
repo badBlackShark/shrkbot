@@ -35,7 +35,7 @@ module JoinLeaveMessages
                  'Can\'t be longer than 255 characters.',
     min_args: 1
   }
-  command :setJoinMessage, attrs do |event, *args|
+  command :setjoinmessage, attrs do |event, *args|
     DB.update_string_value("shrk_server_#{event.server.id}".to_sym, :join_message, args.join(' '))
     event.message.react(Emojis.name_to_unicode('checkmark'))
   end
@@ -48,7 +48,7 @@ module JoinLeaveMessages
                  'Can\'t be longer than 255 characters.',
     min_args: 1
   }
-  command :setLeaveMessage, attrs do |event, *args|
+  command :setleavemessage, attrs do |event, *args|
     DB.update_string_value("shrk_server_#{event.server.id}".to_sym, :leave_message, args.join(' '))
     event.message.react(Emojis.name_to_unicode('checkmark'))
   end
@@ -59,7 +59,7 @@ module JoinLeaveMessages
     usage: 'joinMessage',
     description: 'Displays the message for when a user joins the server.'
   }
-  command :joinMessage, attrs do |event|
+  command :joinmessage, attrs do |event|
     DB.read_value("shrk_server_#{event.server.id}".to_sym, :join_message)
   end
 
@@ -69,7 +69,7 @@ module JoinLeaveMessages
     usage: 'leaveMessage',
     description: 'Displays the message for when a user leaves the server.'
   }
-  command :leaveMessage, attrs do |event|
+  command :leavemessage, attrs do |event|
     DB.read_value("shrk_server_#{event.server.id}".to_sym, :leave_message)
   end
 
@@ -81,7 +81,7 @@ module JoinLeaveMessages
     min_args: 1
   }
   # This is the manual setter, the database attempts to assign a default value when initializing.
-  command :setMessageChannel, attrs do |event, *args|
+  command :setmessagechannel, attrs do |event, *args|
     channel = event.server.channels.find { |s_channel| s_channel.name.casecmp?(args.join(' ')) }
     next "That channel doesn't exist." unless channel
 
@@ -95,7 +95,7 @@ module JoinLeaveMessages
     usage: 'messageChannel?',
     description: 'Links the channel for join / leave messages, in case you forgot which one it is.'
   }
-  command :messageChannel?, attrs do |event|
+  command :messagechannel?, attrs do |event|
     message_channel = DB.read_value("shrk_server_#{event.server.id}".to_sym, :message_channel)
 
     next "The channel for join / leave messages is <##{message_channel}>." if message_channel

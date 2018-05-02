@@ -17,7 +17,7 @@ module MiscCommands
     usage: 'setGame <game>',
     description: 'Sets what the bots is playing.'
   }
-  command :setGame, attrs do |event, *args|
+  command :setgame, attrs do |event, *args|
     game = args.join(' ')
     SHRK.game = game
     event.message.delete
@@ -29,7 +29,7 @@ module MiscCommands
     usage: 'REEEEE',
     description: 'REEEEE!'
   }
-  command :REEEEE, attrs do |event|
+  command :reeeee, attrs do |event|
     event.channel.send_embed('') do |embed|
       embed.image = Discordrb::Webhooks::EmbedImage.new(url: 'https://cdn.discordapp.com/attachments/345748230816006156/347070498078851103/Eternally_screaming.gif')
     end

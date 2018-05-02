@@ -26,6 +26,7 @@ require_relative 'modules/join_leave_messages'
 # Bot inv: https://discordapp.com/oauth2/authorize?&client_id=346043915142561793&scope=bot&permissions=2146958591
 
 # TODO: .todo and .reminder with rufus scheduler (v1.3.1)
+# TODO: Improve database column types
 
 # Create the directory that charts get saved in.
 Dir.mkdir('images') unless File.exist?('images')
@@ -43,13 +44,15 @@ DB = Database.new(
 )
 puts 'done!'
 
-# Using a hash because the lookup times are so much faster.
+# Using an in-memory hash because the lookup times are so much faster.
 # Obviously, the values will still be stored in the database for persistency.
 $prefixes = {}
 prefix_proc = proc do |message|
   prefix = $prefixes[message.channel.server&.id] || '.'
-  # Add a .downcase for case-insensitive commands.
-  message.content[prefix.size..-1] if message.content.start_with?(prefix)
+  if message.content.start_with?(prefix)
+    message.content.sub!(/\w+/) { |w| w.downcase }
+    message.content[prefix.size..-1]
+  end
 end
 
 SHRK = Discordrb::Commands::CommandBot.new(

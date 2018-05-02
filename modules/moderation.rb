@@ -60,7 +60,7 @@ module Moderation
     usage: 'refreshMutedRole',
     description: 'Allows for a refresh of the muted role, e.g. when it was accidentally deleted.'
   }
-  command :refreshMutedRole, attrs do |event|
+  command :refreshmutedrole, attrs do |event|
     update_muted_role(event.server)
     Reactions.confirm(event.message)
   end
@@ -143,7 +143,7 @@ module Moderation
     event.channel.send_embed('', embed)
   end
 
-  command :pruneMutes do |event|
+  command :prunemutes do |event|
     next unless event.user.id == 94558130305765376
     f = File.open('mute_dump.txt', 'w+')
     f.write(@mutes)
