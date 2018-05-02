@@ -11,7 +11,7 @@ module LinkRemoval
 
   @scheduler = Rufus::Scheduler.new
 
-  def self.initiate
+  def self.init
     DB.create_table(
       'shrk_link_removal',
       server: Integer,
@@ -24,7 +24,7 @@ module LinkRemoval
 
   message do |event|
     next if SHRK.permission?(event.user, 1, event.server) || @permitted[event.user.id]
-    text = event.message.content.gsub(/\[?dot|\.\]?|\{?dot|\.\}?|\(dot|\.\)/, '.').downcase
+    text = event.message.content.gsub(/(\{|\[|\()?(dot|\.)(\]|\}|\))?/i, '.').downcase
 
     if (duration = contains_prohibited?(event.server.id, text))
       event.message.delete
@@ -42,12 +42,13 @@ module LinkRemoval
   }
   command :prohibit, attrs do |event, link, *args|
     next 'Not a link.' unless link?(link)
+    # Makes the URL simpler, so even non-clickable links will be caught.
     link = link.downcase.gsub(/https?:\/\/(www.)?/, '')
-    duration = args.select { |a| a =~ /^((\d+)[smhdwmy]{1})+$/ }
+    duration = args.select { |a| a =~ /^((\d+)[smhdwMy]{1})+$/ }
     duration = '2h' if duration.empty?
     ignore_whitespace = args.include?('--ignore-whitespace')
 
-    if contains_prohibited?(event.server.id, [link])
+    if contains_prohibited?(event.server.id, link)
       "Linking to `#{link}` is already prohibited."
     else
       event.respond "Linking to `#{link}` is now prohibited."
