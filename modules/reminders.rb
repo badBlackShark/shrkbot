@@ -7,8 +7,9 @@ module Reminders
   @scheduler = Rufus::Scheduler.new
 
   attrs = {
-    usage: '.remind <time> <message>',
-    description: "You will be reminded of <message> after <time>. Argument order doesn't matter."
+    usage: 'remind <time> <message> <--pm>',
+    description: "You will be reminded of <message> after <time>. Argument order doesn't matter. "\
+                 'Set the `--pm` flag to be reminded in a PM.'
   }
   command :remind, attrs do |event, *args|
     time = args.select { |a| a =~ /^((\d+)[smhdwMy]{1})+$/ }.join
