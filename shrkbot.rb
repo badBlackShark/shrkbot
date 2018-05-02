@@ -9,18 +9,19 @@ require_relative 'lib/shrk_logger'
 require_relative 'lib/charts/chart'
 
 require_relative 'modules/help'
-require_relative 'modules/prefixes'
 require_relative 'modules/mentions'
+require_relative 'modules/prefixes'
 require_relative 'modules/roulette'
 require_relative 'modules/fun_stuff'
+require_relative 'modules/reminders'
 require_relative 'modules/moderation'
 require_relative 'modules/link_removal'
-require_relative 'modules/server_system'
 require_relative 'modules/misc_commands'
+require_relative 'modules/server_system'
 require_relative 'modules/chart_commands'
 require_relative 'modules/logger_commands'
-require_relative 'modules/join_leave_messages'
 require_relative 'modules/assignment_commands'
+require_relative 'modules/join_leave_messages'
 
 # Bot inv: https://discordapp.com/oauth2/authorize?&client_id=346043915142561793&scope=bot&permissions=2146958591
 
@@ -32,7 +33,7 @@ Dir.mkdir('images') unless File.exist?('images')
 login = YAML.load_file('.login')
 BOT_ID = login[:client_id]
 
-print 'Initiating database connection...'
+print 'Initializing database connection...'
 DB = Database.new(
   server: login[:server_name], # Delete if ran on the same server as the database
   username: login[:username],
@@ -47,6 +48,7 @@ puts 'done!'
 $prefixes = {}
 prefix_proc = proc do |message|
   prefix = $prefixes[message.channel.server&.id] || '.'
+  # Add a .downcase for case-insensitive commands.
   message.content[prefix.size..-1] if message.content.start_with?(prefix)
 end
 
@@ -69,10 +71,11 @@ SHRK.add_handler(role_delete)
 LOGGER = SHRKLogger.new
 
 SHRK.include! Help
-SHRK.include! Prefixes
 SHRK.include! Mentions
+SHRK.include! Prefixes
 SHRK.include! Roulette
 SHRK.include! FunStuff
+SHRK.include! Reminders
 SHRK.include! Moderation
 SHRK.include! LinkRemoval
 SHRK.include! ServerSystem
@@ -89,7 +92,9 @@ end
 
 SHRK.run(:async)
 
-LinkRemoval.initiate
+# Initialize everything that requires setup.
+LinkRemoval.init
+Moderation.init
 
 # Database might not exist yet, so just wait a moment.
 sleep 2
