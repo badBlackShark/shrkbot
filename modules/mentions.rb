@@ -16,7 +16,8 @@ module Mentions
 
   # Replaces @everyone with @here mentions in someone's message, if they want to.
   message(contains: '@everyone') do |event|
-    next if staff_user?(event.user) # Staff should still be abled to just use @everyone
+    # Staff should still be abled to just use @everyone
+    next if SHRK.permission?(event.user, 1, event.server)
 
     message = event.respond 'You are not allowed to use `@everyone`. Do you want to use `@here` instead?'
     choice = Reactions.yes_no(message, event.user)
@@ -35,7 +36,7 @@ module Mentions
   # Since not being allowed to ping everyone also stops you from using @here, this allows users to do so again.
   # Works pretty much exactly like the @everyone replacement
   message(contains: '@here') do |event|
-    next if staff_user?(event.user)
+    next if SHRK.permission?(event.user, 1, event.server)
     # In case a message has @here and @everyone, just let one event handle it.
     next if event.message.content.include?('@everyone')
 
@@ -52,9 +53,5 @@ module Mentions
       event.channel.send_temporary_message('Alright :)', 5)
       message.delete
     end
-  end
-
-  private_class_method def self.staff_user?(user)
-    !user.roles.find { |role| role.name == 'BotCommand' }.nil?
   end
 end
