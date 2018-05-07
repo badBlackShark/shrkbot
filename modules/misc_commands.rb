@@ -51,6 +51,7 @@ module MiscCommands
         name: 'Input',
         value: code.prepend("```rb\n") << '```'
       )
+      output = nil if output.to_s.empty?
       embed.add_field(
         name: 'Output',
         value: output || '-'
@@ -59,7 +60,7 @@ module MiscCommands
       embed.title = 'Evaluation of code.'
       event.channel.send_embed('', embed)
     rescue Exception => e
-      "An error occured while evaluation your code: "\
+      "An error occured while evaluating your code: "\
       "```#{e}``` at ```#{e.backtrace.join("\n")[0..1800].gsub(/\s\w+\s*$/, '...')}```"
     end
   end
