@@ -94,6 +94,7 @@ at_exit do
 end
 
 SHRK.run(:async)
+SHRK.set_user_permission(94558130305765376, 2)
 
 # Initialize everything that requires setup.
 LinkRemoval.init
