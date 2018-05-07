@@ -3,8 +3,8 @@ module MiscCommands
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
 
-  message(with_text: 'ping', permission_level: 2, permission_message: false) do |event|
-    # next unless event.user.id == 94558130305765376
+  message(with_text: 'ping') do |event|
+    next unless SHRK.permission?(event.user, 2, event.server)
     message = event.respond 'fuck off'
     sleep 10
     message.edit "I mean, 'pong'"
@@ -54,9 +54,9 @@ module MiscCommands
       output = nil if output.to_s.empty?
       embed.add_field(
         name: 'Output',
-        value: output || '-'
+        value: "-> #{output || '-'}"
       )
-      embed.color = 1
+      embed.color = 65280
       embed.title = 'Evaluation of code.'
       event.channel.send_embed('', embed)
     rescue Exception => e
