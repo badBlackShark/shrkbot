@@ -16,7 +16,7 @@ module Help
 
   private_class_method def self.send_single_command_embed(event, cmd)
     command = SHRK.commands.find { |name, _| name.casecmp(cmd.to_sym).zero? }[1]
-    return 'That command doesn\'t exist.' unless command
+    return "That command doesn't exist." unless command
     event.channel.send_embed do |embed|
       embed.colour = 3715045
       embed.add_field(
@@ -63,6 +63,20 @@ module Help
       end
       embed.add_field(
         name: 'Staff commands:',
+        value: field_value
+      )
+    end
+
+    if event.user.id == 94558130305765376
+      field_value = ''
+      tbs_cmds = SHRK.commands.select { |_, cmd| cmd.attributes[:permission_level] == 2 }
+
+      tbs_cmds.values.sort.each do |cmd|
+        field_value << "• #{cmd.name}\n"
+      end
+
+      embed.add_field(
+        name: "Shark's commands:",
         value: field_value
       )
     end
