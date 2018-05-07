@@ -23,13 +23,7 @@ module Prefixes
     LOGGER.log(event.server, "The prefix has been changed to `#{new_prefix}`")
   end
 
-  attrs = {
-    permission_level: 1,
-    permission_message: false,
-    description: 'Resets the prefix for this server.',
-    usage: 'resetPrefix'
-  }
-  command :resetprefix, attrs do |event|
+  message with_text: '.resetprefix', permission_level: 1, permission_message: false do |event|
     DB.update_string_value("shrk_server_#{event.server.id}".to_sym, :prefix, nil)
     $prefixes[event.server.id] = nil
 
