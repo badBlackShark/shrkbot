@@ -143,8 +143,11 @@ module Moderation
     event.channel.send_embed('', embed)
   end
 
-  command :prunemutes do |event|
-    next unless event.user.id == 94558130305765376
+  attrs = {
+    permission_level: 2,
+    permission_message: false
+  }
+  command :prunemutes, attrs do |event|
     f = File.open('mute_dump.txt', 'w+')
     f.write(@mutes)
     f.close
@@ -168,7 +171,7 @@ module Moderation
 
     if logging
       LOGGER.log(event.server, "Successfully muted `#{users.map(&:distinct).join('`, `')}` until "\
-                "#{@mutes[users.first][:time].strftime(TIME_FORMAT)}. Reason: **#{reason}**.")
+                "#{@mutes[users.first][:time].strftime(TIME_FORMAT)}. Reason: **#{reason}**")
     end
   end
 
