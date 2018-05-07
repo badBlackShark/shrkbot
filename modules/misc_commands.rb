@@ -39,8 +39,8 @@ module MiscCommands
   attrs = {
     permission_level: 2,
     permission_message: false,
-    usage: '.eval ```rb<code>```',
-    description: 'Executes the given codeblock.'
+    usage: 'eval <code>',
+    description: 'Executes the given codeblock. Syntax highlighting supported.'
   }
   command :eval, attrs do |event, *args|
     code = args.join(' ').gsub(/```(rb)?/, '')
