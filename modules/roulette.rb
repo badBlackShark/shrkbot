@@ -21,7 +21,7 @@ module Roulette
     @reloading[event.server.id]&.unschedule
     start_scheduler(event.server)
 
-    if event.user.id == 94558130305765376
+    if SHRK.permission?(event.user, 2, event.server)
       "I couldn't ever let you shoot yourself. #{Emojis.name_to_emoji('heart')}"
     elsif outcome
       event.respond "Unlucky. #{event.user.mention} shoots themself in the head, and dies."
