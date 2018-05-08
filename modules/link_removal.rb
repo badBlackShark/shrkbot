@@ -14,7 +14,7 @@ module LinkRemoval
   def self.init
     DB.create_table(
       'shrk_link_removal',
-      server: Integer,
+      server: :bigint,
       link: String,
       duration: String
     )

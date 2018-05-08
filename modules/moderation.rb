@@ -10,13 +10,11 @@ module Moderation
   @mutes = {}
   @deny = nil
 
-  TIME_FORMAT = '%A, %d. %B, %Y at %-l:%M:%S%P %Z'.freeze
-
   def self.init()
     DB.create_table(
       'shrk_muted_roles',
-      server: Integer,
-      role: Integer
+      server: :bigint,
+      role: :bigint
     )
 
     # This gets stored, so the Permissions object doesn't have to be created so often.
