@@ -88,6 +88,9 @@ SHRK.include! LoggerCommands
 SHRK.include! JoinLeaveMessages
 SHRK.include! AssignmentCommands
 
+# The general format dates & times should follow.
+TIME_FORMAT = '%A, %d. %B, %Y at %-l:%M:%S%P %Z'.freeze
+
 at_exit do
   DB.close
   SHRK.stop
@@ -99,6 +102,7 @@ SHRK.set_user_permission(94558130305765376, 2)
 # Initialize everything that requires setup.
 LinkRemoval.init
 Moderation.init
+Reminders.init
 
 # Database might not exist yet, so just wait a moment.
 sleep 2
