@@ -60,7 +60,7 @@ module MiscCommands
       embed.title = 'Evaluation of code.'
       event.channel.send_embed('', embed)
     rescue Exception => e
-      "An error occured while evaluating your code: "\
+      'An error occured while evaluating your code: '\
       "```#{e}``` at ```#{e.backtrace.join("\n")[0..1800].gsub(/\s\w+\s*$/, '...')}```"
     end
   end
