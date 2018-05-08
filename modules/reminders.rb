@@ -49,7 +49,7 @@ module Reminders
   attrs = {
     usage: 'remind <time> <message> <--pm>',
     description: "You will be reminded of <message> after <time>. Argument order doesn't matter. "\
-                 'Set the `--pm` flag to be reminded in a PM.'
+                 'Set the `--pm` flag to be reminded in a PM. Time defaults to 1 day.'
   }
   command :remind, attrs do |event, *args|
     time = args.select { |a| a =~ /^((\d+)[smhdwMy]{1})+$/ }.join
