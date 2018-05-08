@@ -9,6 +9,7 @@ require_relative 'lib/shrk_logger'
 require_relative 'lib/charts/chart'
 
 require_relative 'modules/help'
+require_relative 'modules/todo'
 require_relative 'modules/mentions'
 require_relative 'modules/prefixes'
 require_relative 'modules/roulette'
@@ -50,7 +51,7 @@ $prefixes = {}
 prefix_proc = proc do |message|
   prefix = $prefixes[message.channel.server&.id] || '.'
   if message.content.start_with?(prefix)
-    message.content.sub!(/\w+/) { |w| w.downcase }
+    message.content.sub!(/\w+/, &:downcase)
     message.content[prefix.size..-1]
   end
 end
@@ -74,6 +75,7 @@ SHRK.add_handler(role_delete)
 LOGGER = SHRKLogger.new
 
 SHRK.include! Help
+SHRK.include! Todo
 SHRK.include! Mentions
 SHRK.include! Prefixes
 SHRK.include! Roulette
@@ -96,10 +98,13 @@ at_exit do
   SHRK.stop
 end
 
+# Initialize what doesn't require a gateway connection.
+Todo.init
+
 SHRK.run(:async)
 SHRK.set_user_permission(94558130305765376, 2)
 
-# Initialize everything that requires setup.
+# Initialize everything that does require a gateway connection.
 LinkRemoval.init
 Moderation.init
 Reminders.init
@@ -111,5 +116,7 @@ SHRK.servers.each_value do |server|
   $prefixes[server.id] = DB.read_value("shrk_server_#{server.id}".to_sym, :prefix)
   Roulette.load_revolver(server.id)
 end
+
+puts 'Setup completed.'
 
 SHRK.sync
