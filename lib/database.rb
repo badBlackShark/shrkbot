@@ -68,7 +68,6 @@ class Database
 
   # Inserts value if it doesn't exist for given server ID.
   # Returns true if the insert was successful, false if a duplicate was found
-  # Look into what some guy said on the discord API server to maybe safe an "if" here
   def unique_insert(table_name, column, value)
     if read_column(table_name, column).include?(value)
       false
@@ -78,7 +77,8 @@ class Database
     end
   end
 
-  # Removes the row with a given value in a given column. Returns if it actually deleted anything.
+  # Removes the row with a given value in a given column.
+  # Returns whether or not something was actually deleted.
   def delete_value(table_name, column, value)
     if read_column(table_name, column).include?(value)
       @database[table_name].where(column => value).delete
