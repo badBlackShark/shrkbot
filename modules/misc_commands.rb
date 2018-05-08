@@ -4,7 +4,7 @@ module MiscCommands
   extend Discordrb::Commands::CommandContainer
 
   message(with_text: 'ping') do |event|
-    next unless event.user.id == 94558130305765376
+    next unless ((event.user.id == 94558130305765376) || (event.user.id == 155963500265603072))
     message = event.respond 'fuck off'
     sleep 10
     message.edit "I mean, 'pong'"
