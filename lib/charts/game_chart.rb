@@ -11,6 +11,7 @@ class GameChart < Chart
     games.sort.each_with_index do |(game, count), i|
       count_array = Array.new(i, 0)
       count_array.push(count)
+      game = game[0, 30].gsub(/\s\w+\s*$/, '...')
       @chart.data(game.to_sym, count_array, '#06AAF5')
       @chart.labels[i] = game unless @chart.labels.include?(game)
     end
