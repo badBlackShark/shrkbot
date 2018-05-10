@@ -49,6 +49,11 @@ puts 'done!'
 # Obviously, the values will still be stored in the database for persistency.
 $prefixes = {}
 prefix_proc = proc do |message|
+  # Almost all commands crash if called in a PM, so let's disable that outright.
+  if message.channel.pm? && message.user.id != 94558130305765376
+    message.channel.send "I'm sorry, I don't accept commands in PMs. Please try again in a server."
+    next
+  end
   prefix = $prefixes[message.channel.server&.id] || '.'
   if message.content.start_with?(prefix)
     message.content.sub!(/\w+/, &:downcase)
