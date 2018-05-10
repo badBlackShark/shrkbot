@@ -40,10 +40,10 @@ module MiscCommands
     permission_level: 2,
     permission_message: false,
     usage: 'eval <code>',
-    description: 'Executes the given codeblock. Syntax highlighting supported.'
+    description: 'Executes the given Ruby codeblock. You can use syntax highlighting.'
   }
-  command :eval, attrs do |event, *args|
-    code = args.join(' ').gsub(/```(rb)?/, '')
+  command :eval, attrs do |event|
+    code = event.message.content.gsub(/```(rb)?/, '').gsub("#{$prefixes[event.server&.id] || '.'}eval ", '')
     begin
       output = eval(code)
       embed = Discordrb::Webhooks::Embed.new
