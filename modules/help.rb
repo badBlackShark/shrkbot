@@ -71,8 +71,8 @@ module Help
       field_value = ''
       tbs_cmds = SHRK.commands.select { |_, cmd| cmd.attributes[:permission_level] == 2 }
 
-      tbs_cmds.values.sort.each do |cmd|
-        field_value << "• #{cmd.name}\n"
+      tbs_cmds.values.map(&:name).sort.each do |cmd|
+        field_value << "• #{cmd}\n"
       end
 
       embed.add_field(
