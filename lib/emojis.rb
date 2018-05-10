@@ -5,6 +5,7 @@ module Emojis
     'heart'     => { unicode: "\u2764",        emoji: '❤' },
     'checkmark' => { unicode: "\u2705",        emoji: '✅' },
     'crossmark' => { unicode: "\u274C",        emoji: '❌' },
+    'thumbs_up' => { unicode: "\u1F44D",       emoji: '👍' },
     '0'         => { unicode: "\u0030\u20E3",  emoji: '0⃣' },
     '1'         => { unicode: "\u0031\u20E3",  emoji: '1⃣' },
     '2'         => { unicode: "\u0032\u20E3",  emoji: '2⃣' },

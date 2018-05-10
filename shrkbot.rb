@@ -9,18 +9,25 @@ require_relative 'lib/shrk_logger'
 require_relative 'lib/charts/chart'
 
 require_relative 'modules/help'
-require_relative 'modules/prefixes'
+require_relative 'modules/todo'
 require_relative 'modules/mentions'
-require_relative 'modules/server_system'
+require_relative 'modules/prefixes'
+require_relative 'modules/roulette'
+require_relative 'modules/fun_stuff'
+require_relative 'modules/reminders'
+require_relative 'modules/moderation'
+require_relative 'modules/link_removal'
 require_relative 'modules/misc_commands'
+require_relative 'modules/server_system'
 require_relative 'modules/chart_commands'
 require_relative 'modules/logger_commands'
-require_relative 'modules/join_leave_messages'
 require_relative 'modules/assignment_commands'
+require_relative 'modules/join_leave_messages'
 
 # Bot inv: https://discordapp.com/oauth2/authorize?&client_id=346043915142561793&scope=bot&permissions=2146958591
 
 # TODO: .todo and .reminder with rufus scheduler (v1.3.1)
+# TODO: Improve database column types
 
 # Create the directory that charts get saved in.
 Dir.mkdir('images') unless File.exist?('images')
@@ -28,7 +35,7 @@ Dir.mkdir('images') unless File.exist?('images')
 login = YAML.load_file('.login')
 BOT_ID = login[:client_id]
 
-print 'Initiating database connection...'
+print 'Initializing database connection...'
 DB = Database.new(
   server: login[:server_name], # Delete if ran on the same server as the database
   username: login[:username],
@@ -38,12 +45,20 @@ DB = Database.new(
 )
 puts 'done!'
 
-# Using a hash because the lookup times are so much faster.
+# Using an in-memory hash because the lookup times are so much faster.
 # Obviously, the values will still be stored in the database for persistency.
 $prefixes = {}
 prefix_proc = proc do |message|
+  # Almost all commands crash if called in a PM, so let's disable that outright.
+  if message.channel.pm? && message.user.id != 94558130305765376
+    message.channel.send "I'm sorry, I don't accept commands in PMs. Please try again in a server."
+    next
+  end
   prefix = $prefixes[message.channel.server&.id] || '.'
-  message.content[prefix.size..-1] if message.content.start_with?(prefix)
+  if message.content.start_with?(prefix)
+    message.content.sub!(/\w+/, &:downcase)
+    message.content[prefix.size..-1]
+  end
 end
 
 SHRK = Discordrb::Commands::CommandBot.new(
@@ -65,8 +80,14 @@ SHRK.add_handler(role_delete)
 LOGGER = SHRKLogger.new
 
 SHRK.include! Help
-SHRK.include! Prefixes
+SHRK.include! Todo
 SHRK.include! Mentions
+SHRK.include! Prefixes
+SHRK.include! Roulette
+SHRK.include! FunStuff
+SHRK.include! Reminders
+SHRK.include! Moderation
+SHRK.include! LinkRemoval
 SHRK.include! ServerSystem
 SHRK.include! MiscCommands
 SHRK.include! ChartCommands
@@ -74,18 +95,33 @@ SHRK.include! LoggerCommands
 SHRK.include! JoinLeaveMessages
 SHRK.include! AssignmentCommands
 
+# The general format dates & times should follow.
+TIME_FORMAT = '%A, %d. %B, %Y at %-l:%M:%S%P %Z'.freeze
+
 at_exit do
   DB.close
   SHRK.stop
 end
 
+# Initialize what doesn't require a gateway connection.
+Todo.init
+
 SHRK.run(:async)
+SHRK.set_user_permission(94558130305765376, 2)
+
+# Initialize everything that does require a gateway connection.
+LinkRemoval.init
+Moderation.init
+Reminders.init
 
 # Database might not exist yet, so just wait a moment.
 sleep 2
 
 SHRK.servers.each_value do |server|
   $prefixes[server.id] = DB.read_value("shrk_server_#{server.id}".to_sym, :prefix)
+  Roulette.load_revolver(server.id)
 end
+
+puts 'Setup completed.'
 
 SHRK.sync

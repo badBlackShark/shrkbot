@@ -15,21 +15,21 @@ module Help
   end
 
   private_class_method def self.send_single_command_embed(event, cmd)
-    command = SHRK.commands.select { |name, _| name.casecmp(cmd.to_sym).zero? }
-    return 'That command doesn\'t exist.' unless command.values.first
+    command = SHRK.commands.find { |name, _| name.casecmp(cmd.to_sym).zero? }[1]
+    return "That command doesn't exist." unless command
     event.channel.send_embed do |embed|
       embed.colour = 3715045
       embed.add_field(
         name: 'Description',
-        value: command.values.first.attributes[:description] || '*No description given.*'
+        value: command.attributes[:description] || '*No description given.*'
       )
       embed.add_field(
         name: 'Usage',
-        value: "`#{$prefixes[event.server.id] || '.'}#{command.values.first.attributes[:usage]}`" ||
-               '*No usage described.*'
+        value: "`#{command.attributes[:usage]&.prepend($prefixes[event.server.id] || '.') ||
+               'No usage described.'}`"
       )
       embed.footer = {
-        text: "Command \"#{command.keys.first}\"",
+        text: "Command \"#{command.attributes[:usage]&.split&.first || command.name}\"",
         icon_url: SHRK.profile.avatar_url
       }
       embed.timestamp = Time.now
@@ -37,15 +37,16 @@ module Help
   end
 
   private_class_method def self.send_all_commands_embed(event)
-    commands = SHRK.commands.select { |_, cmd| cmd.attributes[:permission_level].zero? }
-    staff_commands = SHRK.commands.reject { |_, cmd| cmd.attributes[:permission_level].zero? }
+    cmds = SHRK.commands.select { |_, cmd| cmd.attributes[:permission_level].zero? }
+    staff_cmds = SHRK.commands.select { |_, cmd| cmd.attributes[:permission_level] == 1 }
 
     is_staff = SHRK.permission?(event.user, 1, event.server)
 
     embed = Discordrb::Webhooks::Embed.new
     field_value = ''
 
-    commands.keys.sort.each do |name|
+    # Commands that don't have a usage described are considered hidden, and won't be displayed.
+    cmds.values.map { |c| c.attributes[:usage]&.split&.first }.compact.sort.each do |name|
       field_value << "• #{name}\n"
     end
     embed.add_field(
@@ -55,11 +56,27 @@ module Help
 
     if is_staff
       field_value = ''
-      staff_commands.keys.sort.each do |name|
+
+      # Commands that don't have a usage described are considered hidden, and won't be displayed.
+      staff_cmds.values.map { |c| c.attributes[:usage]&.split&.first }.compact.sort.each do |name|
         field_value << "• #{name}\n"
       end
       embed.add_field(
         name: 'Staff commands:',
+        value: field_value
+      )
+    end
+
+    if event.user.id == 94558130305765376
+      field_value = ''
+      tbs_cmds = SHRK.commands.select { |_, cmd| cmd.attributes[:permission_level] == 2 }
+
+      tbs_cmds.values.map(&:name).sort.each do |cmd|
+        field_value << "• #{cmd}\n"
+      end
+
+      embed.add_field(
+        name: "Shark's commands:",
         value: field_value
       )
     end
@@ -71,8 +88,8 @@ module Help
     }
     embed.timestamp = Time.now
 
-    command_count = commands.keys.count
-    command_count += staff_commands.keys.count if is_staff
+    command_count = cmds.keys.count
+    command_count += staff_cmds.keys.count if is_staff
 
     if command_count >= 50
       event.user.pm.send_embed('', embed)

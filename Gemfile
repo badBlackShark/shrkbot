@@ -14,3 +14,6 @@ gem 'sequel'
 
 # Charts
 gem 'gruff', git: 'https://github.com/badBlackShark/gruff'
+
+# Scheduling
+gem 'rufus-scheduler'

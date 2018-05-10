@@ -52,10 +52,9 @@ class RoleMessage
   end
 
   def self.add_role_await(server, message)
-    SHRK.add_await(:"roles_#{message.id}", Discordrb::Events::ReactionEvent) do |event|
+    SHRK.add_await(:"roles_#{message.id}", Discordrb::Events::ReactionAddEvent) do |event|
       next false unless event.message.id == message.id
       # Reaction events are broken, needs the check to make sure it's actually the event I want.
-      next false unless event.class == Discordrb::Events::ReactionAddEvent
       next false if event.user.id == BOT_ID
 
       role_id = emoji_to_role_id(server, event.emoji.name)
@@ -65,8 +64,8 @@ class RoleMessage
       if (sec_left = @assignment_bucket.rate_limited?(event.user))
         time_left = "#{sec_left.to_i / 60} minutes and #{sec_left.to_i % 60} seconds"
         event.user.pm("You can't assign yourself another role for #{time_left}.")
-        LOGGER.log("#{event.user.distinct} tried to give himself "\
-          "#{id_to_role(event.server, role_id)}\", but still has #{time_left} cooldown.")
+        LOGGER.log(event.server, "#{event.user.distinct} tried to give himself the role "\
+          "**#{id_to_role(event.server, role_id)}**, but still has **#{time_left}** cooldown.")
         next false
       end
       add_role_to_user(event.user, server, role_id)

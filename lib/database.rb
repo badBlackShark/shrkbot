@@ -32,23 +32,13 @@ class Database
   def create_table(table_name, columns = {})
     @database.create_table?(table_name) do
       columns.each do |column_name, datatype|
-        # Not pretty, but the only way to actually get it to store IDs correctly.
-        datatype == Integer ? (Bignum column_name) : (String column_name)
+        column column_name, datatype
       end
     end
   end
 
   def close
     @gateway.shutdown!
-  end
-
-  # Outputs everything on the database related to the server. Just for debugging.
-  def test_output(table_name)
-    puts @database[table_name].select.all
-  end
-
-  def schema(table_name)
-    puts @database.schema(table_name)
   end
 
   # Returns all the non-nil values of a column as an array.
@@ -78,7 +68,6 @@ class Database
 
   # Inserts value if it doesn't exist for given server ID.
   # Returns true if the insert was successful, false if a duplicate was found
-  # Look into what some guy said on the discord API server to maybe safe an "if" here
   def unique_insert(table_name, column, value)
     if read_column(table_name, column).include?(value)
       false
@@ -88,7 +77,8 @@ class Database
     end
   end
 
-  # Removes the row with a given server ID and a given value in a given column.
+  # Removes the row with a given value in a given column.
+  # Returns whether or not something was actually deleted.
   def delete_value(table_name, column, value)
     if read_column(table_name, column).include?(value)
       @database[table_name].where(column => value).delete
@@ -101,6 +91,27 @@ class Database
   # Deletes all values in the table for a given server.
   def delete_server_values(server_id)
     @database.drop_table?("shrk_server_#{server_id}".to_sym)
+  end
+
+  # Insert a row into a table (assumes you know what the columns are!)
+  def insert_row(table_name, values)
+    @database[table_name].insert(values)
+  end
+
+  # Select rows, based on one filter column
+  def select_rows(table_name, column, value)
+    @database[table_name].where(column => value).all
+  end
+
+  # Updates a row. The first value is assumed to be the primary key.
+  def update_row(table_name, values)
+    @database[table_name].where(@database[table_name].columns.first => values.first).delete
+    @database[table_name].insert(values)
+  end
+
+  # Returns the whole table
+  def read_all(table_name)
+    @database[table_name].all
   end
 
   # Sets the default values for the log- and assignment-channel, if they don't already have values.
