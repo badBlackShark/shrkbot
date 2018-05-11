@@ -49,7 +49,7 @@ module Moderation
   end
 
   channel_create do |event|
-    unless event.channel.pm?
+    unless event.channel.private?
       event.channel.define_overwrite(muted_role(event.server), 0, @deny, reason: 'Added overwrite for bot mutes.')
     end
   end
