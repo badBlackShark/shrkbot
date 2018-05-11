@@ -2,8 +2,10 @@ require 'yaml'
 require 'discordrb'
 require 'yaml/store'
 
+require_relative 'lib/icons'
 require_relative 'lib/emojis'
 require_relative 'lib/database'
+require_relative 'lib/webhooks'
 require_relative 'lib/reactions'
 require_relative 'lib/shrk_logger'
 require_relative 'lib/charts/chart'
@@ -21,6 +23,7 @@ require_relative 'modules/misc_commands'
 require_relative 'modules/server_system'
 require_relative 'modules/chart_commands'
 require_relative 'modules/logger_commands'
+require_relative 'modules/webhook_commands'
 require_relative 'modules/assignment_commands'
 require_relative 'modules/join_leave_messages'
 
@@ -55,7 +58,8 @@ prefix_proc = proc do |message|
       message.channel.send "I'm sorry, I don't accept commands in PMs. Please try again in a server."
       next
     end
-    message.content.sub!(/\w+/, &:downcase)
+    # Converts the command to downcase, so commands are case-insensitive.
+    message.content[prefix.size..-1].sub!(/\w+/, &:downcase)
     message.content[prefix.size..-1]
   end
 end
@@ -91,6 +95,7 @@ SHRK.include! ServerSystem
 SHRK.include! MiscCommands
 SHRK.include! ChartCommands
 SHRK.include! LoggerCommands
+SHRK.include! WebhookCommands
 SHRK.include! JoinLeaveMessages
 SHRK.include! AssignmentCommands
 
@@ -109,6 +114,7 @@ SHRK.run(:async)
 SHRK.set_user_permission(94558130305765376, 2)
 
 # Initialize everything that does require a gateway connection.
+WH = Webhooks.new
 LinkRemoval.init
 Moderation.init
 Reminders.init
