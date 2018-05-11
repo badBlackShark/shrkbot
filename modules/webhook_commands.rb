@@ -1,4 +1,5 @@
 module WebhookCommands
+  extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
 
   attrs = {
@@ -35,5 +36,9 @@ module WebhookCommands
       username: event.user.name,
       avatar_url: event.user.avatar_url
     )
+  end
+
+  channel_create do |event|
+    WH.create_webhook(event.channel.id) unless event.channel.private?
   end
 end
