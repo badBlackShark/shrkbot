@@ -40,7 +40,8 @@ module Todo
       delete_entry(event, id.gsub(/#/, '').to_i - 1)
     else
       server_only = args.any? { |a| a.casecmp?('--server') }
-      create_entry(event, entry, server_only)
+      # Not taking entry here to preserve newlines.
+      create_entry(event, event.message.content.sub("#{$prefixes[event.server.id] || '.'}todo ", ''), server_only)
     end
   end
 
