@@ -49,7 +49,9 @@ module Moderation
   end
 
   channel_create do |event|
-    event.channel.define_overwrite(muted_role(event.server), 0, @deny, 'Added overwrite for bot mutes.') unless event.channel.pm?
+    unless event.channel.pm?
+      event.channel.define_overwrite(muted_role(event.server), 0, @deny, reason: 'Added overwrite for bot mutes.')
+    end
   end
 
   attrs = {
