@@ -1,4 +1,5 @@
 # Helper methods for abusing reactions :'(
+# All API abuse is property of @z64 (Github)
 module Reactions
   RATE_LIMIT = 0.25
 
