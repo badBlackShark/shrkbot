@@ -26,7 +26,6 @@ require_relative 'modules/join_leave_messages'
 
 # Bot inv: https://discordapp.com/oauth2/authorize?&client_id=346043915142561793&scope=bot&permissions=2146958591
 
-# TODO: .todo and .reminder with rufus scheduler (v1.3.1)
 # TODO: Improve database column types
 
 # Create the directory that charts get saved in.
@@ -51,6 +50,11 @@ $prefixes = {}
 prefix_proc = proc do |message|
   prefix = $prefixes[message.channel.server&.id] || '.'
   if message.content.start_with?(prefix)
+    # Almost all commands crash if called in a PM, so let's disable that outright.
+    if message.channel.pm? && message.user.id != 94558130305765376
+      message.channel.send "I'm sorry, I don't accept commands in PMs. Please try again in a server."
+      next
+    end
     message.content.sub!(/\w+/, &:downcase)
     message.content[prefix.size..-1]
   end

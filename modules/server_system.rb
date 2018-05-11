@@ -49,13 +49,13 @@ module ServerSystem
 
   private_class_method def self.create_server_table(server_id)
     attrs = {
-      roles: Integer,
-      log_channel: Integer,
-      message_channel: Integer,
-      role_message_id: Integer,
-      assignment_channel: Integer,
-      join_message: String,
-      leave_message: String,
+      roles: :bigint,
+      log_channel: :bigint,
+      message_channel: :bigint,
+      role_message_id: :bigint,
+      assignment_channel: :bigint,
+      join_message: :text,
+      leave_message: :text,
       prefix: String
     }
     DB.create_table("shrk_server_#{server_id}".to_sym, attrs)
