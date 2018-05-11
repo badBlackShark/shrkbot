@@ -29,8 +29,8 @@ module Roulette
         avatar_url: Icons.name_to_link(:heart)
       )
     elsif outcome
-      load_revolver(event.server.id)
       pos = @position[event.server.id] + 1
+      load_revolver(event.server.id)
       embed = Discordrb::Webhooks::Embed.new
       embed.footer = {text: "Unlucky. #{event.user.name} has died on shot ##{pos}."}
       embed.colour = 12648448
