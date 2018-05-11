@@ -64,7 +64,7 @@ class RoleMessage
       if (sec_left = @assignment_bucket.rate_limited?(event.user))
         time_left = "#{sec_left.to_i / 60} minutes and #{sec_left.to_i % 60} seconds"
         event.user.pm("You can't assign yourself another role for #{time_left}.")
-        LOGGER.log(event.server, "#{event.user.distinct} tried to give himself the role "\
+        LOGGER.log(event.server, "#{event.user.distinct} tried to give themselves the role "\
           "**#{id_to_role(event.server, role_id)}**, but still has **#{time_left}** cooldown.")
         next false
       end
@@ -102,7 +102,7 @@ class RoleMessage
     user.add_role(role_id)
 
     user.pm("You now have the role \"#{id_to_role(server, role_id)}\" on \"#{server.name}\"")
-    LOGGER.log(server, "#{user.distinct} gave himself the role \"#{id_to_role(server, role_id)}\".")
+    LOGGER.log(server, "#{user.distinct} gave themselves the role \"#{id_to_role(server, role_id)}\".")
   end
 
   private_class_method def self.delete_existing_roles(user, server, assignable_roles, user_roles)
