@@ -179,7 +179,7 @@ module Moderation
 
     @mutes[user] = {}
     @mutes[user][:job] = @scheduler.in(time, job: true) do
-      user.pm("You're no longer muted for **#{@mutes[user][:reason]}** in `#{event.server.name}`.")
+      user.pm("You're no longer muted for `#{@mutes[user][:reason]}` in **#{event.server.name}**.")
       unmute(event, user)
     end
     @mutes[user][:time] = @mutes[user][:job].next_time
