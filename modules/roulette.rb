@@ -22,16 +22,39 @@ module Roulette
     start_scheduler(event.server)
 
     if SHRK.permission?(event.user, 2, event.server)
-      "I couldn't ever let you shoot yourself. #{Emojis.name_to_emoji('heart')}"
+      WH.send(
+        event.channel.id,
+        "I couldn't ever let you shoot yourself.",
+        username: "Don't do it!",
+        avatar_url: Icons.name_to_link(:heart)
+      )
     elsif outcome
-      event.respond "Unlucky. #{event.user.mention} shoots themself in the head, and dies."
+      pos = @position[event.server.id] + 1
+      embed = Discordrb::Webhooks::Embed.new
+      embed.footer = {text: "Unlucky. #{event.user.name} has died on shot ##{pos}."}
+      embed.colour = 12648448
+      WH.send(
+        event.channel.id,
+        nil,
+        username: 'The revolver has been reloaded',
+        avatar_url: Icons.name_to_link("revolver_d#{pos}".to_sym),
+        embed: embed
+      )
       load_revolver(event.server.id)
-      event.respond 'The revolver has been reloaded.'
       Moderation.mute(event, [event.user], '1m', 'Died while playing roulette.', logging: false)
       nil
     else
       @position[event.server.id] += 1
-      "The revolver clicks, and #{event.user.mention} survives. Congratulations."
+      embed = Discordrb::Webhooks::Embed.new
+      embed.footer = {text: "#{event.user.name} survived shot ##{@position[event.server.id]}"}
+      embed.colour = 171520
+      WH.send(
+        event.channel.id,
+        nil,
+        username: "Congratulations!",
+        avatar_url: Icons.name_to_link("revolver_#{@position[event.server.id]}".to_sym),
+        embed: embed
+      )
     end
   end
 
