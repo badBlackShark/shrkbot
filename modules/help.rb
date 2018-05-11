@@ -81,9 +81,10 @@ module Help
       )
     end
 
+    embed.title = 'All commands you can use.'
     embed.colour = 3715045
     embed.footer = {
-      text: 'All commands you can use.',
+      text: 'Commands are case-insensitive.',
       icon_url: SHRK.profile.avatar_url
     }
     embed.timestamp = Time.now
