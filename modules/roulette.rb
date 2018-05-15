@@ -30,6 +30,7 @@ module Roulette
         )
       end
       @survivor_role[server.id] = role
+      @messages[server.id] = []
     end
   end
 
@@ -41,6 +42,8 @@ module Roulette
   @reloading = {}
   # Contains all user info stored in the database.
   @data = {}
+  # Contains all of the bots roulette messages, queued for deletion. Server => Messages
+  @messages = {}
 
   @scheduler = Rufus::Scheduler.new
 
@@ -67,7 +70,14 @@ module Roulette
         username: "Don't do it!",
         avatar_url: Icons.name_to_link(:heart)
       )
-      delete_round(event, msg)
+      msg = JSON.parse(msg)['id']
+      queue_for_deletion(
+        event.server.id, [
+          {id: msg, channel: event.channel.id},
+          {id: event.message.id, channel: event.channel.id}
+        ]
+      )
+      nil
     elsif outcome
       pos = @position[event.server.id] + 1
       load_revolver(event.server.id)
@@ -86,7 +96,14 @@ module Roulette
         embed: embed
       )
       @data[event.user.id][:streak] = 0
-      delete_round(event, msg)
+      msg = JSON.parse(msg)['id']
+      queue_for_deletion(
+        event.server.id, [
+          {id: msg, channel: event.channel.id},
+          {id: event.message.id, channel: event.channel.id}
+        ]
+      )
+      delete_round(event.server)
       nil
     else
       @position[event.server.id] += 1
@@ -94,7 +111,7 @@ module Roulette
       embed = Discordrb::Webhooks::Embed.new
       if @data[event.user.id][:highscore] < @data[event.user.id][:streak]
         @data[event.user.id][:highscore] += 1
-        if @data[event.user.id][:highscore] == 15
+        if @data[event.user.id][:highscore] == 20
           award_survivor_role(event.user.id)
           embed.description = '**Survior role awarded!**'
         end
@@ -112,7 +129,14 @@ module Roulette
         avatar_url: Icons.name_to_link("revolver_#{@position[event.server.id]}".to_sym),
         embed: embed
       )
-      delete_round(event, msg)
+      msg = JSON.parse(msg)['id']
+      queue_for_deletion(
+        event.server.id, [
+          {id: msg, channel: event.channel.id},
+          {id: event.message.id, channel: event.channel.id}
+        ]
+      )
+      nil
     end
   end
 
@@ -160,7 +184,7 @@ module Roulette
     stats << "• **Best streak:** #{@data[event.user.id][:highscore]}\n\n"
 
     embed.description = stats
-    embed.colour = @data[event.user.id][:highscore] >= 15 ? 13938487 : 12632256
+    embed.colour = @data[event.user.id][:highscore] >= 20 ? 13938487 : 12632256
     embed.timestamp = Time.now
 
     WH.send(
@@ -195,6 +219,10 @@ module Roulette
     end
   end
 
+  private_class_method def self.queue_for_deletion(server_id, msgs)
+    @messages[server_id].concat(msgs)
+  end
+
   private_class_method def self.award_survivor_role(id)
     SHRK.servers.each_value do |server|
       SHRK.user(id).on(server)&.add_role(@survivor_role[server.id])
@@ -202,11 +230,8 @@ module Roulette
   end
 
   # Deletes the roulette call, as well as the bot's response
-  private_class_method def self.delete_round(event, msg)
-    msg = JSON.parse(msg)
-    sleep 20
-    event.message.delete
-    event.channel.message(msg['id']).delete
+  private_class_method def self.delete_round(server)
+    @messages[server.id].map { |h| SHRK.channel(h[:channel])&.message(h[:id]) }.compact.each(&:delete)
   end
 
   # Initialize with default values, so nothing we want to increment can be nil
@@ -226,8 +251,8 @@ module Roulette
     @reloading[server.id] = @scheduler.every('15m', job: true) do
       unless @position[server.id].zero?
         load_revolver(server.id)
-        LOGGER.log(server, 'People were too scared to pull the trigger again. '\
-                           'The revolver has been reloaded.')
+        delete_round(server)
+        LOGGER.log(server, 'People were too scared to pull the trigger again. The revolver has been reloaded.')
       end
     end
   end
