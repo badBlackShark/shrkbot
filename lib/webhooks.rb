@@ -47,10 +47,11 @@ class Webhooks
   end
 
   def send(channel_id, content, username: 'shrkbot', avatar_url: SHRK.profile.avatar_url, embed: nil)
-    @clients[channel_id].execute do |builder|
+    @clients[channel_id].execute(nil, true) do |builder|
       builder.content = content
       builder.username = username
       builder.avatar_url = avatar_url
+      # It doesn't work if it's not exactly like this. Don't ask me why.
       builder.add_embed embed do end if embed
     end
   end
