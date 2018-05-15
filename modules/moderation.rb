@@ -69,8 +69,9 @@ module Moderation
     permission_level: 1,
     permission_message: false,
     usage: 'mute <userMentions> <duration> <reason>',
-    description: "Mutes all users mentioned in the command for the duration given. "\
+    description: 'Mutes all users mentioned in the command for the duration given. '\
                  "Order doesn't matter, duration and reason are optional and have default values.\n"\
+                 "Supported time formats: s, m, d, w, M, y. Mixing formats (e.g. 1d10h) is supported.\n"\
                  "**WARNING**: When the bot restarts, it won't unmute currently muted users!",
     min_args: 1
   }
