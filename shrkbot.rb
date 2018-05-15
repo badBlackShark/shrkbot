@@ -104,6 +104,7 @@ SHRK.include! AssignmentCommands
 TIME_FORMAT = '%A, %d. %B, %Y at %-l:%M:%S%P %Z'.freeze
 
 at_exit do
+  Roulette.write_to_db
   DB.close
   SHRK.stop
 end
@@ -119,6 +120,7 @@ WH = Webhooks.new
 LinkRemoval.init
 Moderation.init
 Reminders.init
+Roulette.init
 
 # Database might not exist yet, so just wait a moment.
 sleep 2
