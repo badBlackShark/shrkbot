@@ -15,7 +15,7 @@ module Help
   end
 
   private_class_method def self.send_single_command_embed(event, cmd)
-    command = SHRK.commands.find { |name, _| name.casecmp(cmd.to_sym).zero? }&.get(1)
+    command = SHRK.commands.find { |name, _| name.casecmp(cmd.to_sym).zero? }&.fetch(1)
     return "The command `#{cmd}` doesn't exist." unless command
     event.channel.send_embed do |embed|
       embed.colour = 3715045
