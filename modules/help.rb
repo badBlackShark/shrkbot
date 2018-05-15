@@ -15,8 +15,8 @@ module Help
   end
 
   private_class_method def self.send_single_command_embed(event, cmd)
-    command = SHRK.commands.find { |name, _| name.casecmp(cmd.to_sym).zero? }[1]
-    return "That command doesn't exist." unless command
+    command = SHRK.commands.find { |name, _| name.casecmp(cmd.to_sym).zero? }&.get(1)
+    return "The command `#{cmd}` doesn't exist." unless command
     event.channel.send_embed do |embed|
       embed.colour = 3715045
       embed.add_field(
@@ -25,8 +25,7 @@ module Help
       )
       embed.add_field(
         name: 'Usage',
-        value: "`#{command.attributes[:usage]&.prepend($prefixes[event.server.id] || '.') ||
-               'No usage described.'}`"
+        value: "`#{command.attributes[:usage]&.dup&.prepend($prefixes[event.server.id] || '.') || 'No usage described.'}`"
       )
       embed.footer = {
         text: "Command \"#{command.attributes[:usage]&.split&.first || command.name}\"",
