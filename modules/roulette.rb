@@ -203,7 +203,7 @@ module Roulette
   # Deletes the roulette call, as well as the bot's response
   private_class_method def self.delete_round(event, msg)
     msg = JSON.parse(msg)
-    sleep 10
+    sleep 20
     event.message.delete
     event.channel.message(msg['id']).delete
   end
