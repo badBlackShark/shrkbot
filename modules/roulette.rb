@@ -233,7 +233,7 @@ module Roulette
   private_class_method def self.delete_round(server)
     # Creates a hash channel_id => Array of message IDs in that channel.
     del = @messages[server.id].group_by { |h| h[:channel] }.each_value { |e| e.map! { |h| h[:id] } }
-    @messages.delete(server.id)
+    @messages[server.id] = []
     sleep 2
     del.each_pair { |channel, msgs| SHRK.channel(channel)&.delete_messages(msgs) }
   end
