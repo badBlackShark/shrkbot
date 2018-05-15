@@ -148,6 +148,7 @@ module Roulette
     description: 'Shows your current roulette stats.'
   }
   command :stats, attrs do |event|
+    init_user_data(event.user.id)
     embed = Discordrb::Webhooks::Embed.new
     embed.author = {
       name: "Stats for #{event.user.distinct}",
