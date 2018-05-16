@@ -15,7 +15,7 @@ module LinkRemoval
     DB.create_table(
       'shrk_link_removal',
       server: :bigint,
-      link: String,
+      link: :text,
       duration: String
     )
 
@@ -67,7 +67,6 @@ module LinkRemoval
   }
   command :allow, attrs do |event, *args|
     link = args.join(' ').gsub(/https?:\/\/(www.)?/, '')
-    next 'Not a link.' unless link?(link)
     if (entries = @prohibited[event.server.id].select { |entry| entry[:link].gsub(/\\s\*/, '').include?(link) })
       entries.each do |entry|
         DB.delete_value(:shrk_link_removal, :link, entry[:link])

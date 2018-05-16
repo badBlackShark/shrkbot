@@ -24,7 +24,7 @@ module Todo
     description: 'Creates an entry, if <entry> is given. Otherwise, displays the TODO list. '\
                  "Flags:\n`--server`: Hides the entry from all servers but the one it was created on.\n"\
                  "`--delete`: Deletes the entry with the given <id>.\n"\
-                 '`--all`: Also displays entries hidden with `--server`.\n'\
+                 "`--all`: Also displays entries hidden with `--server`.\n"\
                  '`--clear`: Clears your TODO list.'
   }
   command :todo, attrs do |event, *args|
@@ -40,7 +40,8 @@ module Todo
       delete_entry(event, id.gsub(/#/, '').to_i - 1)
     else
       server_only = args.any? { |a| a.casecmp?('--server') }
-      create_entry(event, entry, server_only)
+      # Not taking entry here to preserve newlines.
+      create_entry(event, event.message.content.sub("#{$prefixes[event.server.id] || '.'}todo ", ''), server_only)
     end
   end
 
