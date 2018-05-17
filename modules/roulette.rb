@@ -14,7 +14,8 @@ module Roulette
       user: :bigint,
       plays: Integer,
       streak: Integer,
-      highscore: Integer
+      highscore: Integer,
+      deaths: Integer
     )
 
     # Converts the array of hashes to an ID => Hash hash.
@@ -95,11 +96,11 @@ module Roulette
         avatar_url: Icons.name_to_link("revolver_d#{pos}".to_sym),
         embed: embed
       )
+      @data[event.user.id][:deaths] += 1
       @data[event.user.id][:streak] = 0
       msg = JSON.parse(msg)['id']
       queue_for_deletion(
         event.server.id, [
-          {id: msg, channel: event.channel.id},
           {id: event.message.id, channel: event.channel.id}
         ]
       )
@@ -142,19 +143,35 @@ module Roulette
 
   attrs = {
     usage: 'leaderboard',
-    description: 'Shows a leaderboard of roulette highscores.'
+    description: 'Shows a leaderboard of top 10 roulette highscores, plays and deaths.'\
+                 "\nWARNING: Takes a while when called for the first time after a restart."
   }
   command :leaderboard, attrs do |event|
     embed = Discordrb::Webhooks::Embed.new
     # Don't select more than the top 12. Reverse because sort sorts ascending.
-    @data.sort_by { |_, e| e[:highscore] }.reverse[0, 12].each do |entry|
-      user = SHRK.user(entry.first).distinct
-      embed.add_field(
-        name: "**#{user}**",
-        value: "Best streak: *#{entry[1][:highscore]}*",
-        inline: true
-      )
-    end
+    highscores = @data.sort_by { |_, e| e[:highscore] }.reverse[0, 10]
+    deaths = @data.sort_by { |_, e| e[:deaths] }.reverse[0, 10]
+    plays = @data.sort_by { |_, e| e[:plays] }.reverse[0, 10]
+
+    highscores.map! { |user, e| "#{SHRK.user(user).distinct}: **#{e[:highscore]}**  \u200b\n" }
+    deaths.map! { |user, e| "#{SHRK.user(user).distinct}: **#{e[:deaths]}**\n" }
+    plays.map! { |user, e| "#{SHRK.user(user).distinct}: **#{e[:plays]}**  \u200b\n" }
+
+    embed.add_field(
+      name: '__Top 10 (highscore)__',
+      value: highscores.join(),
+      inline: true
+    )
+    embed.add_field(
+      name: '__Top 10 (plays)__',
+      value: plays.join(),
+      inline: true
+    )
+    embed.add_field(
+      name: '__Top 10 (deaths)__',
+      value: deaths.join(),
+      inline: true
+    )
     embed.colour = 13938487
     embed.timestamp = Time.now
     WH.send(
@@ -179,9 +196,10 @@ module Roulette
       icon_url: event.user.avatar_url
     }
     stats = ''
-    stats << "• **Total number of plays**: #{@data[event.user.id][:plays]}\n\n"
-    stats << "• **Current streak:** #{@data[event.user.id][:streak]}\n\n"
-    stats << "• **Best streak:** #{@data[event.user.id][:highscore]}\n\n"
+    stats << "• Total number of plays: **#{@data[event.user.id][:plays]}**\n"
+    stats << "• Total number of deaths: **#{@data[event.user.id][:deaths]}**\n"
+    stats << "• Current streak: **#{@data[event.user.id][:streak]}**\n"
+    stats << "• Best streak: **#{@data[event.user.id][:highscore]}**"
 
     embed.description = stats
     embed.colour = @data[event.user.id][:highscore] >= 20 ? 13938487 : 12632256
@@ -213,7 +231,7 @@ module Roulette
     @data.each_pair do |id, h|
       if h[:modified]
         # The :modified attribute doesn't need to be written into the database.
-        DB.update_row(:shrk_roulette, [id, h[:plays], h[:streak], h[:highscore]])
+        DB.update_row(:shrk_roulette, [id, h[:plays], h[:streak], h[:highscore], h[:deaths]])
         h[:modified] = false
       end
     end
@@ -235,13 +253,20 @@ module Roulette
     del = @messages[server.id].group_by { |h| h[:channel] }.each_value { |e| e.map! { |h| h[:id] } }
     @messages[server.id] = []
     sleep 2
-    del.each_pair { |channel, msgs| SHRK.channel(channel)&.delete_messages(msgs) }
+    del.each_pair do |channel, msgs|
+      if msgs.size == 1
+        SHRK.channel(channel)&.delete_message(msgs.first)
+      else
+        SHRK.channel(channel)&.delete_messages(msgs)
+      end
+    end
   end
 
   # Initialize with default values, so nothing we want to increment can be nil
   private_class_method def self.init_user_data(id)
     @data[id] ||= {}
     @data[id][:plays] ||= 0
+    @data[id][:deaths] ||= 0
     @data[id][:streak] ||= 0
     @data[id][:highscore] ||= 0
   end
