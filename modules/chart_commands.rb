@@ -8,7 +8,7 @@ module ChartCommands
   attrs = {
     usage: 'roleChart <minMembers>',
     description: 'Generates a chart showing the distribution of roles on the server. '\
-                 'Selects 10 roles max, if <min_members> isn\'t specified.'
+                 "Selects 10 roles max, if <minMembers> isn't specified."
   }
   command :rolechart, attrs do |event, min_members|
     event.send_temporary_message('Creating and uploading your chart. Hold on...', 10)
