@@ -18,7 +18,7 @@ module AssignmentCommands
     RoleMessage.role_message(event.server.id)&.delete
 
     DB.update_value("shrk_server_#{event.server.id}".to_sym, :assignment_channel, channel.id)
-    event.message.react(Emojis.name_to_unicode('checkmark'))
+    Reactions.confirm(event.message)
     # Automatically creates the new role-assignment message when you change the channel
     RoleMessage.send(event.server)
   end

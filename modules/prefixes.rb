@@ -19,7 +19,7 @@ module Prefixes
     DB.update_string_value("shrk_server_#{event.server.id}".to_sym, :prefix, new_prefix)
     $prefixes[event.server.id] = new_prefix
 
-    event.message.react(Emojis.name_to_unicode('checkmark'))
+    Reactions.confirm(event.message)
     LOGGER.log(event.server, "The prefix has been changed to `#{new_prefix}`")
   end
 
@@ -27,7 +27,7 @@ module Prefixes
     DB.update_string_value("shrk_server_#{event.server.id}".to_sym, :prefix, nil)
     $prefixes[event.server.id] = nil
 
-    event.message.react(Emojis.name_to_unicode('checkmark'))
+    Reactions.confirm(event.message)
     LOGGER.log(event.server, 'The prefix has been reset to `.`')
   end
 end

@@ -15,7 +15,7 @@ module LoggerCommands
     next "That channel doesn't exist." unless channel
 
     DB.update_value("shrk_server_#{event.server.id}".to_sym, :log_channel, channel.id)
-    event.message.react(Emojis.name_to_unicode('checkmark'))
+    Reactions.confirm(event.message)
   end
 
   attrs = {

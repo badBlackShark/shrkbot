@@ -37,7 +37,7 @@ module JoinLeaveMessages
   }
   command :setjoinmessage, attrs do |event, *args|
     DB.update_string_value("shrk_server_#{event.server.id}".to_sym, :join_message, args.join(' '))
-    event.message.react(Emojis.name_to_unicode('checkmark'))
+    Reactions.confirm(event.message)
   end
 
   attrs = {
@@ -50,7 +50,7 @@ module JoinLeaveMessages
   }
   command :setleavemessage, attrs do |event, *args|
     DB.update_string_value("shrk_server_#{event.server.id}".to_sym, :leave_message, args.join(' '))
-    event.message.react(Emojis.name_to_unicode('checkmark'))
+    Reactions.confirm(event.message)
   end
 
   attrs = {
@@ -86,7 +86,7 @@ module JoinLeaveMessages
     next "That channel doesn't exist." unless channel
 
     DB.update_value("shrk_server_#{event.server.id}".to_sym, :message_channel, channel.id)
-    event.message.react(Emojis.name_to_unicode('checkmark'))
+    Reactions.confirm(event.message)
   end
 
   attrs = {
