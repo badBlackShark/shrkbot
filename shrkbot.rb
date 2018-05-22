@@ -129,6 +129,8 @@ sleep 2
 SHRK.servers.each_value do |server|
   $prefixes[server.id] = DB.read_value("shrk_server_#{server.id}".to_sym, :prefix)
   Roulette.load_revolver(server.id)
+  # Cache members.
+  server.members
 end
 
 puts 'Setup completed.'
