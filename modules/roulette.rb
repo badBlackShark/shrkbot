@@ -12,8 +12,8 @@ module Roulette
   def init
     DB.create_table(
       'shrk_roulette',
-      server: :bigint,
       user: :bigint,
+      server: :bigint,
       plays: Integer,
       streak: Integer,
       highscore: Integer,
@@ -201,7 +201,7 @@ module Roulette
     description = ''
     description << "• Total number of plays: **#{stats[:plays]}**\n"
     description << "• Total number of deaths: **#{stats[:deaths]}**\n"
-    description << "• Current#{global ? 'hightest ': ''} streak: **#{stats[:streak]}**\n"
+    description << "• Current#{global ? ' hightest': ''} streak: **#{stats[:streak]}**\n"
     description << "• Best streak: **#{stats[:highscore]}**"
 
     embed.description = description
