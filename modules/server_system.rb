@@ -4,6 +4,7 @@ require_relative '../lib/role_message'
 # Sets up and resets a whole bunch of stuff automatically
 module ServerSystem
   extend Discordrb::EventContainer
+  extend self
 
   # Setting things up for every server the bot is on on startup.
   ready do |event|
@@ -35,8 +36,10 @@ module ServerSystem
     DB.delete_server_values(event.server.id)
   end
 
+  private
+
   # Sets up  the staff role for a given server.
-  private_class_method def self.init_permissions(server)
+  def init_permissions(server)
     SHRK.set_role_permission(server.roles.find { |role| role.name == 'BotCommand' }.id, 1)
   rescue StandardError
     # If it doesn't find the BotCommand role, it creates it.
@@ -48,7 +51,7 @@ module ServerSystem
     init_permissions(server) # Needed so the permission level is actually set.
   end
 
-  private_class_method def self.create_server_table(server_id)
+  def create_server_table(server_id)
     attrs = {
       roles: :bigint,
       log_channel: :bigint,

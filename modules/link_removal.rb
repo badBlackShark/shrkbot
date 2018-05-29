@@ -4,6 +4,7 @@ require 'rufus-scheduler'
 module LinkRemoval
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
+  extend self
 
   # Server => links
   @prohibited = {}
@@ -11,7 +12,7 @@ module LinkRemoval
 
   @scheduler = Rufus::Scheduler.new
 
-  def self.init
+  def init
     DB.create_table(
       'shrk_link_removal',
       server: :bigint,
@@ -128,11 +129,13 @@ module LinkRemoval
     update_prohibited(event.server.id)
   end
 
-  private_class_method def self.link?(string)
+  private
+
+  def link?(string)
     string =~ /(https?:\/\/)?(www\.)?[ a-zA-Z0-9@:%._\+~#=-]{2,256}((\.[a-z]{2,6})|:)([ a-zA-Z0-9@:%._\+.~#?&\/=-]*)/
   end
 
-  private_class_method def self.contains_prohibited?(id, message, strict: true)
+  def contains_prohibited?(id, message, strict: true)
     if strict
       @prohibited[id].each do |entry|
         return entry[:duration] if message.match?(Regexp.new(entry[:link]))
@@ -143,7 +146,7 @@ module LinkRemoval
     end
   end
 
-  private_class_method def self.update_prohibited(server_id)
+  def update_prohibited(server_id)
     @prohibited[server_id] = DB.select_rows(:shrk_link_removal, :server, server_id)
     @prohibited[server_id] ||= {}
   end

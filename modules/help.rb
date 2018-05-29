@@ -1,6 +1,7 @@
 # I'll help you :]
 module Help
   extend Discordrb::Commands::CommandContainer
+  extend self
 
   attrs = {
     description: 'Lists all the commands available to you, or shows help for one specific command.',
@@ -14,7 +15,9 @@ module Help
     end
   end
 
-  private_class_method def self.send_single_command_embed(event, cmd)
+  private
+
+  def send_single_command_embed(event, cmd)
     command = SHRK.commands.find { |name, _| name.casecmp(cmd.to_sym).zero? }&.fetch(1)
     return "The command `#{cmd}` doesn't exist." unless command
     event.channel.send_embed do |embed|
@@ -35,7 +38,7 @@ module Help
     end
   end
 
-  private_class_method def self.send_all_commands_embed(event)
+  def send_all_commands_embed(event)
     cmds = SHRK.commands.select { |_, cmd| cmd.attributes[:permission_level].zero? }
     staff_cmds = SHRK.commands.select { |_, cmd| cmd.attributes[:permission_level] == 1 }
 

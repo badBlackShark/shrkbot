@@ -2,6 +2,7 @@
 module JoinLeaveMessages
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
+  extend self
 
   member_join do |event|
     # Sends in #general (the oldest channel). If that's deleted, you may have a problem.
@@ -104,7 +105,7 @@ module JoinLeaveMessages
     'Please set one by using the `setMessageChannel` command.'
   end
 
-  def self.init_message_channel(server)
+  def init_message_channel(server)
     return if DB.read_value("shrk_server_#{server.id}".to_sym, :message_channel)
     # Join / leave messages will be sent in the top channel of the server.
     # You probably gonna wanna change this.
@@ -117,7 +118,9 @@ module JoinLeaveMessages
     )
   end
 
-  private_class_method def self.placeholder_replacement(event, s)
+  private
+
+  def placeholder_replacement(event, s)
     role_match = s.match(/(.*)\{role=(.+)\}(.*)/)&.captures
     user_match = s.match(/(.*)(\{user\})(.*)/)&.captures
 
@@ -128,7 +131,7 @@ module JoinLeaveMessages
     "#{s} "
   end
 
-  private_class_method def self.replace_role_match(event, role_match)
+  def replace_role_match(event, role_match)
     mention = ''
     role_match.each do |m|
       mention << (event.server.roles.find { |role| role.name.casecmp?(m) }&.mention || m)
@@ -136,7 +139,7 @@ module JoinLeaveMessages
     mention << ' '
   end
 
-  private_class_method def self.replace_user_match(event, user_match)
+  def replace_user_match(event, user_match)
     mention = ''
     if event.class == Discordrb::Events::ServerMemberAddEvent
       user_match.each do |m|
@@ -151,7 +154,7 @@ module JoinLeaveMessages
     mention << ' '
   end
 
-  private_class_method def self.get_message_channel(server)
+  def get_message_channel(server)
     SHRK.channel(DB.read_value("shrk_server_#{server.id}".to_sym, :message_channel))
   end
 end

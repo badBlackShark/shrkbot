@@ -2,6 +2,7 @@
 module AssignmentCommands
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
+  extend self
 
   attrs = {
     permission_level: 1,
@@ -108,7 +109,9 @@ module AssignmentCommands
     'There is no assignment channel. Please set one by using the `setAssignmentChannel` command.'
   end
 
-  private_class_method def self.insert_role(event, role_name)
+  private
+
+  def insert_role(event, role_name)
     role = event.server.roles.find { |s_role| s_role.name.casecmp?(role_name) }
     return "I couldn't find the role \"#{role_name}\"." unless role
 

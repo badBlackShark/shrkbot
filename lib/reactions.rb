@@ -1,10 +1,11 @@
 # Helper methods for abusing reactions :'(
 # All API abuse is property of @z64 (Github)
 module Reactions
+  extend self
   RATE_LIMIT = 0.25
 
   # Manually issues a reaction request
-  def self.react(message, reaction)
+  def react(message, reaction)
     channel_id = message.channel.id
     message_id = message.id
     encoded_reaction = URI.encode(reaction)
@@ -17,7 +18,7 @@ module Reactions
   end
 
   # Applies multiple reactions at the given `RATE_LIMIT`
-  def self.spam_reactions(message, reactions)
+  def spam_reactions(message, reactions)
     reactions.each do |r|
       react(message, r)
       sleep RATE_LIMIT
@@ -25,19 +26,19 @@ module Reactions
   end
 
   # Shortcut method
-  def self.confirm(message)
+  def confirm(message)
     react(message, Emojis.name_to_unicode('checkmark'))
   end
 
   # Shortcut method
-  def self.error(message)
+  def error(message)
     react(message, Emojis.name_to_unicode('crossmark'))
   end
 
   # Used to put an accept / decline dialog on a message. Gets the user that the prompt is for.
   # Returns true / false depending on input, or nil if no choice was made.
   # Staff users (permission level 1) are also able to make the choice.
-  def self.yes_no(message, user)
+  def yes_no(message, user)
     choice = nil
 
     SHRK.add_await(:"yes_no_#{message.id}", Discordrb::Events::ReactionAddEvent) do |r_event|
