@@ -30,9 +30,9 @@ module JoinLeaveMessages
   attrs = {
     permission_level: 1,
     permission_message: false,
-    usage: 'setJoinMessage <joinMessage> | Valid placeholders: {user}, {role=<roleName}',
-    description: 'Sets a message to display when a user joins the server. '\
-                 'Can\'t be longer than 255 characters.',
+    usage: 'setJoinMessage <joinMessage>',
+    description: "Sets a message to display when a user joins the server. Valid placeholders:\n"\
+                 "`{user}`: Mentiones the user that joined.\n`{role=<roleName>}`: Mentions a role.",
     min_args: 1
   }
   command :setjoinmessage, attrs do |event, *args|
@@ -43,9 +43,9 @@ module JoinLeaveMessages
   attrs = {
     permission_level: 1,
     permission_message: false,
-    usage: 'setLeaveMessage <leaveMessage> | Valid placeholders: {user}, {role=<roleName}',
-    description: 'Sets a message to display when a user leaves the server. '\
-                 'Can\'t be longer than 255 characters.',
+    usage: 'setLeaveMessage <leaveMessage>',
+    description: "Sets a message to display when a user leaves the server. Valid placeholders:\n"\
+                 "`{user}`: Mentiones the user that joined.\n`{role=<roleName>}`: Mentions a role.",
     min_args: 1
   }
   command :setleavemessage, attrs do |event, *args|
