@@ -48,7 +48,7 @@ module LinkRemoval
     duration = '2h' if duration.empty?
     ignore_whitespace = args.include?('--ignore-whitespace')
 
-    if contains_prohibited?(event.server.id, link)
+    if contains_prohibited?(event.server.id, link, strict: false)
       "Linking to `#{link}` is already prohibited."
     else
       event.respond "Linking to `#{link}` is now prohibited."
@@ -132,11 +132,15 @@ module LinkRemoval
     string =~ /(https?:\/\/)?(www\.)?[ a-zA-Z0-9@:%._\+~#=-]{2,256}((\.[a-z]{2,6})|:)([ a-zA-Z0-9@:%._\+.~#?&\/=-]*)/
   end
 
-  private_class_method def self.contains_prohibited?(id, message)
-    @prohibited[id].each do |entry|
-      return entry[:duration] if message.match?(Regexp.new(entry[:link]))
+  private_class_method def self.contains_prohibited?(id, message, strict: true)
+    if strict
+      @prohibited[id].each do |entry|
+        return entry[:duration] if message.match?(Regexp.new(entry[:link]))
+      end
+      false
+    else
+      return @prohibited[id].find { |entry| message.include?(entry[:link].gsub(/\\s\*/, '')) }
     end
-    false
   end
 
   private_class_method def self.update_prohibited(server_id)
