@@ -19,7 +19,7 @@ module LinkRemoval
       duration: String
     )
 
-    update_prohibited
+    SHRK.servers.each_value { |server| update_prohibited(server.id) }
   end
 
   message do |event|
@@ -54,7 +54,7 @@ module LinkRemoval
       event.respond "Linking to `#{link}` is now prohibited."
       link = link.split('').join('\s*') if ignore_whitespace
       DB.insert_row(:shrk_link_removal, [event.server.id, link, duration])
-      update_prohibited
+      update_prohibited(event.server.id)
       nil
     end
   end
@@ -71,7 +71,7 @@ module LinkRemoval
       entries.each do |entry|
         DB.delete_value(:shrk_link_removal, :link, entry[:link])
       end
-      update_prohibited
+      update_prohibited(event.server.id)
       "Linking to `#{link}` is no longer prohibited."
     else
       "Linking to `#{link}` isn't prohibited."
@@ -124,6 +124,10 @@ module LinkRemoval
     "`#{users.map(&:distinct).join('`, `')}` may send prohibited links for 30s."
   end
 
+  server_create do |event|
+    update_prohibited(event.server.id)
+  end
+
   private_class_method def self.link?(string)
     string =~ /(https?:\/\/)?(www\.)?[ a-zA-Z0-9@:%._\+~#=-]{2,256}((\.[a-z]{2,6})|:)([ a-zA-Z0-9@:%._\+.~#?&\/=-]*)/
   end
@@ -135,10 +139,8 @@ module LinkRemoval
     false
   end
 
-  private_class_method def self.update_prohibited
-    SHRK.servers.each_value do |server|
-      @prohibited[server.id] = DB.select_rows(:shrk_link_removal, :server, server.id)
-      @prohibited[server.id] ||= {}
-    end
+  private_class_method def self.update_prohibited(server_id)
+    @prohibited[server_id] = DB.select_rows(:shrk_link_removal, :server, server_id)
+    @prohibited[server_id] ||= {}
   end
 end
