@@ -67,6 +67,25 @@ module Reminders
     end
   end
 
+  attrs = {
+    usage: 'remind <time> <message> <--pm>',
+    description: "You will be reminded of <message> after <time>. Argument order doesn't matter. "\
+                 "Set the `--pm` flag to be reminded in a PM. Time defaults to 1 day.\n"\
+                 'Supported time formats: s, m, d, w, M, y. Mixing formats (e.g. 1d10h) is supported.'
+  }
+  command :remind, attrs do |event, *args|
+    time = args.select { |a| a =~ /^((\d+)[smhdwMy]{1})+$/ }.join
+    msg  = args.reject { |a| a =~ /^((\d+)[smhdwMy]{1})+$/ || a.casecmp?('--pm') }.join(' ')
+    pm = args.include?('--pm')
+    time = '1d' if time.empty?
+
+    next "Please tell me what to remind you of." if msg.empty?
+    event.respond "I will remind you about `#{msg}` in #{time}."
+    job = schedule_reminder(event.user, event.channel, time, msg, pm)
+    DB.insert_row(:shrk_reminders, [event.user.id, msg, job.next_time.to_s, job.scheduled_at.to_s, event.channel.id, pm, job.id])
+    nil
+  end
+
   def schedule_reminder(user, channel, time, msg, pm)
     @scheduler.schedule time, job: true do |j|
       DB.delete_value(:shrk_reminders, :job_id, j.id)
