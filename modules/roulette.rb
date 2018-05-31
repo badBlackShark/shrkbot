@@ -88,8 +88,8 @@ module Roulette
       Moderation.mute(event, [event.user], '1m', 'Died while playing roulette.', logging: false)
       embed = Discordrb::Webhooks::Embed.new
       embed.footer = {
-        text: "Unlucky. #{event.user.name} has died on shot ##{pos}.\n"\
-               "You just ended your streak of #{@data[event.user.id][event.server.id][:streak]}."
+        text: "Unlucky. #{event.user.name} has died on shot ##{pos}, and ended "\
+               "their streak of #{@data[event.user.id][event.server.id][:streak]}."
       }
       embed.colour = 12648448
       msg = WH.send(
