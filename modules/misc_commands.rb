@@ -3,14 +3,6 @@ module MiscCommands
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
 
-  message(with_text: 'ping') do |event|
-    next unless SHRK.permission?(event.user, 2, event.server)
-    message = event.respond 'fuck off'
-    sleep 10
-    message.edit "I mean, 'pong'"
-    message.react(Emojis.name_to_unicode('heart'))
-  end
-
   attrs = {
     permission_level: 1,
     permission_message: false,
