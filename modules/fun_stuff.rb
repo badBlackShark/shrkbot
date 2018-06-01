@@ -23,7 +23,7 @@ module FunStuff
     message.react(Emojis.name_to_unicode('heart'))
   end
 
-  message(contains: /^ayy$/i) do |event|
+  message(contains: /^a[y]{2,5}$/i) do |event|
     event.respond 'lmao' if (1..5).to_a.sample == 1
   end
 end
