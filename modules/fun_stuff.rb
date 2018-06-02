@@ -2,6 +2,7 @@
 module FunStuff
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
+  @ping_whitelist = [94558130305765376,377840962128445441,98499497348321280,155963500265603072]
 
   message(contains: /^lol$/i) do |event|
     event.respond '- Rondo' if (1..100).to_a.sample == 1
@@ -16,7 +17,7 @@ module FunStuff
   end
 
   message(with_text: 'ping') do |event|
-    next unless SHRK.permission?(event.user, 2, event.server)
+    next unless @ping_whitelist.include?(event.user.id)
     message = event.respond 'fuck off'
     sleep 10
     message.edit "I mean, 'pong'"
