@@ -3,14 +3,6 @@ module MiscCommands
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
 
-  message(with_text: 'ping') do |event|
-    next unless SHRK.permission?(event.user, 2, event.server)
-    message = event.respond 'fuck off'
-    sleep 10
-    message.edit "I mean, 'pong'"
-    message.react(Emojis.name_to_unicode('heart'))
-  end
-
   attrs = {
     permission_level: 1,
     permission_message: false,
@@ -40,10 +32,10 @@ module MiscCommands
     permission_level: 2,
     permission_message: false,
     usage: 'eval <code>',
-    description: 'Executes the given codeblock. Syntax highlighting supported.'
+    description: 'Executes the given Ruby codeblock. You can use syntax highlighting.'
   }
-  command :eval, attrs do |event, *args|
-    code = args.join(' ').gsub(/```(rb)?/, '')
+  command :eval, attrs do |event|
+    code = event.message.content.gsub(/```(rb)?/, '').gsub("#{$prefixes[event.server&.id] || '.'}eval ", '')
     begin
       output = eval(code)
       embed = Discordrb::Webhooks::Embed.new
@@ -60,8 +52,9 @@ module MiscCommands
       embed.title = 'Evaluation of code.'
       event.channel.send_embed('', embed)
     rescue Exception => e
-      "An error occured while evaluating your code: "\
-      "```#{e}``` at ```#{e.backtrace.join("\n")[0..1800].gsub(/\s\w+\s*$/, '...')}```"
+      backtrace = e.backtrace.join("\n")
+      'An error occured while evaluating your code: '\
+      "```#{e}``` at ```#{backtrace.length > 1800 ? backtrace[0, backtrace.rindex(/\n/,1800)].rstrip << "\n..." : backtrace}```"
     end
   end
 end

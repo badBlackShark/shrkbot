@@ -4,6 +4,7 @@ require 'rufus-scheduler'
 module LinkRemoval
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
+  extend self
 
   # Server => links
   @prohibited = {}
@@ -11,15 +12,15 @@ module LinkRemoval
 
   @scheduler = Rufus::Scheduler.new
 
-  def self.init
+  def init
     DB.create_table(
       'shrk_link_removal',
-      server: Integer,
-      link: String,
+      server: :bigint,
+      link: :text,
       duration: String
     )
 
-    update_prohibited
+    SHRK.servers.each_value { |server| update_prohibited(server.id) }
   end
 
   message do |event|
@@ -48,13 +49,13 @@ module LinkRemoval
     duration = '2h' if duration.empty?
     ignore_whitespace = args.include?('--ignore-whitespace')
 
-    if contains_prohibited?(event.server.id, link)
+    if contains_prohibited?(event.server.id, link, strict: false)
       "Linking to `#{link}` is already prohibited."
     else
       event.respond "Linking to `#{link}` is now prohibited."
       link = link.split('').join('\s*') if ignore_whitespace
       DB.insert_row(:shrk_link_removal, [event.server.id, link, duration])
-      update_prohibited
+      update_prohibited(event.server.id)
       nil
     end
   end
@@ -67,12 +68,11 @@ module LinkRemoval
   }
   command :allow, attrs do |event, *args|
     link = args.join(' ').gsub(/https?:\/\/(www.)?/, '')
-    next 'Not a link.' unless link?(link)
     if (entries = @prohibited[event.server.id].select { |entry| entry[:link].gsub(/\\s\*/, '').include?(link) })
       entries.each do |entry|
         DB.delete_value(:shrk_link_removal, :link, entry[:link])
       end
-      update_prohibited
+      update_prohibited(event.server.id)
       "Linking to `#{link}` is no longer prohibited."
     else
       "Linking to `#{link}` isn't prohibited."
@@ -125,21 +125,29 @@ module LinkRemoval
     "`#{users.map(&:distinct).join('`, `')}` may send prohibited links for 30s."
   end
 
-  private_class_method def self.link?(string)
+  server_create do |event|
+    update_prohibited(event.server.id)
+  end
+
+  private
+
+  def link?(string)
     string =~ /(https?:\/\/)?(www\.)?[ a-zA-Z0-9@:%._\+~#=-]{2,256}((\.[a-z]{2,6})|:)([ a-zA-Z0-9@:%._\+.~#?&\/=-]*)/
   end
 
-  private_class_method def self.contains_prohibited?(id, message)
-    @prohibited[id].each do |entry|
-      return entry[:duration] if message.match?(Regexp.new(entry[:link]))
+  def contains_prohibited?(id, message, strict: true)
+    if strict
+      @prohibited[id].each do |entry|
+        return entry[:duration] if message.match?(Regexp.new(entry[:link]))
+      end
+      false
+    else
+      return @prohibited[id].find { |entry| message.include?(entry[:link].gsub(/\\s\*/, '')) }
     end
-    false
   end
 
-  private_class_method def self.update_prohibited
-    SHRK.servers.each_value do |server|
-      @prohibited[server.id] = DB.select_rows(:shrk_link_removal, :server, server.id)
-      @prohibited[server.id] ||= {}
-    end
+  def update_prohibited(server_id)
+    @prohibited[server_id] = DB.select_rows(:shrk_link_removal, :server, server_id)
+    @prohibited[server_id] ||= {}
   end
 end

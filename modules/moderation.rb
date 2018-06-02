@@ -4,19 +4,18 @@ require 'rufus-scheduler'
 module Moderation
   extend Discordrb::EventContainer
   extend Discordrb::Commands::CommandContainer
+  extend self
 
   @scheduler = Rufus::Scheduler.new
   # User => {job: <the job object>, time: <time of unmute>, reason: <reason for the mute>}
   @mutes = {}
   @deny = nil
 
-  TIME_FORMAT = '%A, %d. %B, %Y at %-l:%M:%S%P %Z'.freeze
-
-  def self.init()
+  def init
     DB.create_table(
       'shrk_muted_roles',
-      server: Integer,
-      role: Integer
+      server: :bigint,
+      role: :bigint
     )
 
     # This gets stored, so the Permissions object doesn't have to be created so often.
@@ -30,28 +29,10 @@ module Moderation
     end
   end
 
-  private_class_method def self.update_muted_role(server)
-    # This is an Array of Hashes, but actually just one Hash, which is the one mapping the
-    # server ID of the requested server to the role ID we want, so this can just be merged.
-    role_id = DB.select_rows(:shrk_muted_roles, :server, server.id).inject(:merge)&.fetch(:role)
-    return if role_id && server.role(role_id)
-    role = create_muted_role(server)
-    DB.update_row(:shrk_muted_roles, [server.id, role.id])
-    server.channels.each do |channel|
-      channel.define_overwrite(role, 0, @deny, reason: 'Added overwrite for bot mutes.')
-    end
-  end
-
-  private_class_method def self.create_muted_role(server)
-    server.create_role(
-      name: 'muted',
-      permissions: 0,
-      reason: 'Added the role required for bot mutes.'
-    )
-  end
-
   channel_create do |event|
-    event.channel.define_overwrite(muted_role(event.server), 0, @deny, 'Added overwrite for bot mutes.') unless event.channel.pm?
+    unless event.channel.private?
+      event.channel.define_overwrite(muted_role(event.server), 0, @deny, reason: 'Added overwrite for bot mutes.')
+    end
   end
 
   attrs = {
@@ -69,8 +50,9 @@ module Moderation
     permission_level: 1,
     permission_message: false,
     usage: 'mute <userMentions> <duration> <reason>',
-    description: "Mutes all users mentioned in the command for the duration given. "\
+    description: 'Mutes all users mentioned in the command for the duration given. '\
                  "Order doesn't matter, duration and reason are optional and have default values.\n"\
+                 "Supported time formats: s, m, d, w, M, y. Mixing formats (e.g. 1d10h) is supported.\n"\
                  "**WARNING**: When the bot restarts, it won't unmute currently muted users!",
     min_args: 1
   }
@@ -158,7 +140,7 @@ module Moderation
     'Done.'
   end
 
-  def self.mute(event, users, time, reason, logging: true)
+  def mute(event, users, time, reason, logging: true)
     deny = Discordrb::Permissions.new
     deny.can_send_messages = true
     deny.can_speak = true
@@ -175,27 +157,49 @@ module Moderation
     end
   end
 
+  private
+
+  def update_muted_role(server)
+    # This is an Array of Hashes, but actually just one Hash, which is the one mapping the
+    # server ID of the requested server to the role ID we want, so this can just be merged.
+    role_id = DB.select_rows(:shrk_muted_roles, :server, server.id).inject(:merge)&.fetch(:role)
+    return if role_id && server.role(role_id)
+    role = create_muted_role(server)
+    DB.update_row(:shrk_muted_roles, [server.id, role.id])
+    server.channels.each do |channel|
+      channel.define_overwrite(role, 0, @deny, reason: 'Added overwrite for bot mutes.')
+    end
+  end
+
+  def create_muted_role(server)
+    server.create_role(
+      name: 'muted',
+      permissions: 0,
+      reason: 'Added the role required for bot mutes.'
+    )
+  end
+
   # Schedules the unmute for a user
-  private_class_method def self.schedule_unmute(event, user, time)
+  def schedule_unmute(event, user, time)
     @mutes[user][:job].unschedule if @mutes[user]
 
     @mutes[user] = {}
     @mutes[user][:job] = @scheduler.in(time, job: true) do
-      user.pm("You're no longer muted for **#{@mutes[user][:reason]}** in `#{event.server.name}`.")
+      user.pm("You're no longer muted for `#{@mutes[user][:reason]}` in **#{event.server.name}**.")
       unmute(event, user)
     end
     @mutes[user][:time] = @mutes[user][:job].next_time
   end
 
   # Unmutes a user, and cancels the scheduled unmute.
-  private_class_method def self.unmute(event, user)
+  def unmute(event, user)
     user.on(event.server).remove_role(muted_role(event.server))
     @mutes[user][:job].unschedule
     @mutes.delete(user)
   end
 
   # Gets the the muted role on the given server
-  private_class_method def self.muted_role(server)
+  def muted_role(server)
     # This is an Array of Hashes, but actually just one Hash, which is the one mapping the
     # server ID of the requested server to the role ID we want, so this can just be merged.
     server.role(DB.select_rows(:shrk_muted_roles, :server, server.id).inject(:merge)[:role])

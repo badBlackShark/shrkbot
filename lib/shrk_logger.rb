@@ -4,10 +4,10 @@ class SHRKLogger
     log_channel = get_log_channel(server.id)
 
     unless log_channel
-      # Format message as code, to distinguish between the original and the added warning message.
-      message.prepend('```') << '```'
+      # Format message as bold, to distinguish between the original and the added warning message.
+      message.prepend("#{'-'*150}\n**") << "**\n#{'-'*150}\n"
       # Add a warning message.
-      message << "\nCouldn't find a log channel to log this message to on \"#{server.name}.\" "
+      message << "Couldn't find a log channel to log this message to on \"#{server.name}.\" "
       message << 'Please set one by using the `setLogChannel` command on that server.'
       pm_owner(server, message)
       return
