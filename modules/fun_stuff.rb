@@ -12,9 +12,9 @@ module FunStuff
     usage: 'intensify <message>',
     description: 'Intensifies a message.'
   }
-  command :intensify, attrs do |_event, *args|
-    "*#{args.join(' ').split('').join(' ')}*"
+  command :intensify, attrs do |event, *args|
     event.message.delete
+    "*#{args.join(' ').split('').join(' ')}*"
   end
 
   message(with_text: 'ping') do |event|
