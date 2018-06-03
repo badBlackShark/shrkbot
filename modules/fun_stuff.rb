@@ -14,6 +14,7 @@ module FunStuff
   }
   command :intensify, attrs do |_event, *args|
     "*#{args.join(' ').split('').join(' ')}*"
+    event.message.delete
   end
 
   message(with_text: 'ping') do |event|
