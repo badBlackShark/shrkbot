@@ -92,5 +92,7 @@ module Reminders
 
   def send_reminder(user, channel, time, msg)
     channel.send "#{user.mention}, on #{time.strftime(TIME_FORMAT)} you wanted to be reminded about `#{msg}`."
+  rescue Exception
+    # The bot probably left the server this channel was in.
   end
 end
