@@ -47,13 +47,13 @@ DB = Database.new(
 )
 puts 'done!'
 
-$not_ready = true
+not_ready = true
 
 # Using an in-memory hash because the lookup times are so much faster.
 # Obviously, the values will still be stored in the database for persistency.
 $prefixes = {}
 prefix_proc = proc do |message|
-  next if $not_ready || message.webhook?
+  next if not_ready || message.webhook?
   prefix = $prefixes[message.channel.server&.id] || '.'
   if message.content.start_with?(prefix)
     # Almost all commands crash if called in a PM, so let's disable that outright.
@@ -134,6 +134,6 @@ SHRK.servers.each_value do |server|
 end
 
 puts 'Setup completed.'
-$not_ready = false
+not_ready = false
 
 SHRK.sync
