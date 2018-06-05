@@ -10,6 +10,7 @@ module Update
     description: 'Updates the bot.'
   }
   command :update, attrs do |event|
+    event.respond 'Goodbye :)'
     Dir.chdir('../../shrkbot') do
       `git pull`
       `svc -du ~/service/shrkbot`
