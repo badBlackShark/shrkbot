@@ -6,13 +6,20 @@ module Update
   attrs = {
     permission_level: 2,
     permission_message: false,
-    usage: 'update',
-    description: 'Updates the bot.'
+    usage: 'update <--hard>',
+    description: 'Updates the bot. The --hard flag means that local changes will be discarded.'
   }
-  command :update, attrs do |event|
+  command :update, attrs do |event, flag|
     event.respond 'Goodbye :)'
     Dir.chdir('../../shrkbot') do
-      `git pull`
+      # Update the files
+      if flag.casecmp?('--hard')
+        `git fetch --all`
+        `git reset --hard origin/develop`
+      else
+        `git pull`
+      end
+      # Restart the bot
       `svc -du ~/service/shrkbot`
     end
   end
