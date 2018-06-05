@@ -12,6 +12,7 @@ require_relative 'lib/charts/chart'
 
 require_relative 'modules/help'
 require_relative 'modules/todo'
+require_relative 'modules/update'
 require_relative 'modules/mentions'
 require_relative 'modules/prefixes'
 require_relative 'modules/roulette'
@@ -86,6 +87,7 @@ LOGGER = SHRKLogger.new
 
 SHRK.include! Help
 SHRK.include! Todo
+SHRK.include! Update
 SHRK.include! Mentions
 SHRK.include! Prefixes
 SHRK.include! Roulette
