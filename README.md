@@ -1,4 +1,6 @@
-# shrkbot-readme-
+# shrkbot-readme
+
+This bot is deprecated. There will be no bug fixes or new features anymore. However, there will be a rewrite in the not so distant future.
 
 ### Welcome to the README portion of shrkbot
 
