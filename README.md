@@ -42,7 +42,7 @@ All commands are case-insensitive, but will be written in camelCase in the docum
 
 Required parameters will be written in `<>`, optional ones in `[]`.
 
-**IMPORTANT**: In its current state, shrkbot has some issues when joining a server without restarting. Please DM me (TrueBlackShark#6987) on Discord, if you'd like to use shrkbot!
+**IMPORTANT**: In its current state, shrkbot has some issues when joining a server without restarting. Please DM me (badBlackShark#6987) on Discord, if you'd like to use shrkbot!
         
 ## Features for users:
         
