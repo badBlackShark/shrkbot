@@ -109,6 +109,13 @@ class Database
     @database[table_name].insert(values)
   end
 
+  # Updates a row. The first two values are assumed to be the primary keys.
+  def update_row_double_key(table_name, values)
+    @database[table_name].where(@database[table_name].columns.first => values.first)
+                         .where(@database[table_name].columns[1] => values[1]).delete
+    @database[table_name].insert(values)
+  end
+
   # Returns the whole table
   def read_all(table_name)
     @database[table_name].all

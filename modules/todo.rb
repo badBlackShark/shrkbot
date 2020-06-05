@@ -1,11 +1,12 @@
 # Create TODO lists
 module Todo
   extend Discordrb::Commands::CommandContainer
+  extend self
 
   # Todo entries will get unique IDs per user. This is a User_ID => next_entry_ID map.
   @next_id = 0
 
-  def self.init
+  def init
     DB.create_table(
       'shrk_todo',
       id: :bigint,
@@ -24,7 +25,7 @@ module Todo
     description: 'Creates an entry, if <entry> is given. Otherwise, displays the TODO list. '\
                  "Flags:\n`--server`: Hides the entry from all servers but the one it was created on.\n"\
                  "`--delete`: Deletes the entry with the given <id>.\n"\
-                 '`--all`: Also displays entries hidden with `--server`.\n'\
+                 "`--all`: Also displays entries hidden with `--server`.\n"\
                  '`--clear`: Clears your TODO list.'
   }
   command :todo, attrs do |event, *args|
@@ -40,11 +41,14 @@ module Todo
       delete_entry(event, id.gsub(/#/, '').to_i - 1)
     else
       server_only = args.any? { |a| a.casecmp?('--server') }
-      create_entry(event, entry, server_only)
+      # Not taking entry here to preserve newlines.
+      create_entry(event, event.message.content.sub("#{$prefixes[event.server.id] || '.'}todo ", ''), server_only)
     end
   end
 
-  private_class_method def self.create_entry(event, entry, server_only)
+  private
+
+  def create_entry(event, entry, server_only)
     DB.insert_row(
       :shrk_todo,
       [
@@ -63,7 +67,7 @@ module Todo
   # list via .todo or .todo --all, they will get them numbered continuously from 1 upwards.
   # This finds the entry that matches the position it's displayed at in the list, and then deletes
   # that. This way, the output is nice, and users don't have to deal with unique IDs.
-  private_class_method def self.delete_entry(event, id)
+  def delete_entry(event, id)
     entries = DB.select_rows(:shrk_todo, :user, event.user.id)
     entries.sort_by { |e| e[:id] }.each_with_index do |entry, i|
       if i == id
@@ -74,7 +78,7 @@ module Todo
     "Entry with ID #{id + 1} wasn't found. Check your todo list with `.todo` to see which entries exist."
   end
 
-  private_class_method def self.show_todo_list(event, show_all)
+  def show_todo_list(event, show_all)
     embed = Discordrb::Webhooks::Embed.new
 
     entries = DB.select_rows(:shrk_todo, :user, event.user.id)
