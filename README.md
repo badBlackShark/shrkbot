@@ -83,7 +83,7 @@ Required parameters will be written in `<>`, optional ones in `[]`.
 * Creates an entry, if [entry] is given. Otherwise, displays the TODO list. 
 * Flags:        
   * --server: Hides the entry from all servers but the one it was created on. 
-  * --delete: Deletes the entry with the given <id>.
+  * --delete: Deletes the entry with the given `<id>`.
   * --all: Also displays entries hidden with --server.
   * --clear: Clears your TODO list.
 
