@@ -57,7 +57,10 @@ module Reminders
     pm = args.include?('--pm')
     time = '1d' if time.empty?
 
-    event.respond "I will remind you about `#{msg}` in #{time}."
+    if event.user.id == 155963500265603072
+      event.respond "Your kitchentimer for `#{msg}` has been set to #{time}."
+    else
+      event.respond "I will remind you about `#{msg}` in #{time}."
     job = schedule_reminder(event.user, event.channel, time, msg, pm)
     DB.insert_row(:shrk_reminders, [event.user.id, msg, job.next_time.to_s, job.scheduled_at.to_s, event.channel.id, pm, job.id])
     nil
