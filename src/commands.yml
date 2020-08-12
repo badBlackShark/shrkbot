@@ -17,9 +17,9 @@ plugins:
 
   Prefix:
     resetprefix:
-      name: 'resetPrefix'
+      name: '.resetPrefix'
       aliases:
-        - 'pfx!'
+        - '.pfx!'
       args: null
       opt_args: null
       description: "Resets this guild's prefix back to `.`"
