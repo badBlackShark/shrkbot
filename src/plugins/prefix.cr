@@ -47,7 +47,7 @@ class Shrkbot::Prefix
 
     @@prefixes[guild] = prefix
 
-    Logger.log(guild, "The prefix for this server has been changed to `#{prefix}`.")
+    Logger.log(guild, "The prefix for this server has been changed to `#{prefix}`.", payload.author)
     client.create_reaction(payload.channel_id, payload.id, CHECKMARK)
   end
 
