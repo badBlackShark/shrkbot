@@ -3,5 +3,5 @@
 /bin/
 /.shards/
 *.dwarf
-.config
+/src/config.yml
 /src/database/data/
