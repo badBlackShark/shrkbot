@@ -1,0 +1,36 @@
+plugins:
+  General:
+    help:
+      name: 'help'
+      aliases: null
+      args: null
+      opt_args: '[command]'
+      description: 'Shows you all the commands you can use. If [command] is given, shows you what exactly that command does. Command names are fuzzy matched.'
+      perm_level: 0
+    info:
+      name: 'info'
+      aliases: null
+      args: null
+      opt_args: null
+      description: 'Displays some info about the development of this bot.'
+      perm_level: 0
+
+  Prefix:
+    resetprefix:
+      name: 'resetPrefix'
+      aliases:
+        - 'pfx!'
+      args: null
+      opt_args: null
+      description: "Resets this guild's prefix back to `.`"
+      perm_level: 1
+
+  Rules:
+    addreactionrole:
+      name: 'addReactionRole'
+      aliases:
+        - 'rr+'
+      args: '<role>'
+      opt_args: null
+      description: "Makes <role> self-assignable for everyone, where <role> is passed by name and fuzzy matched against the guild's roles."
+      perm_level: 1

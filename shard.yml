@@ -1,0 +1,30 @@
+name: shrkbot
+version: 0.1.0
+
+dependencies:
+  # Framework for the Discord API.
+  discordcr:
+    github: discordcr/discordcr
+    branch: master
+  # Making discordcr much nicer to use.
+  discordcr-middleware:
+    github: z64/discordcr-middleware
+    branch: master
+  # Modularity
+  discordcr-plugin:
+    github: z64/discordcr-plugin
+  # Scheduling
+  tasker:
+    github: spider-gazelle/tasker
+  # PostgreSQL support
+  pg:
+    github: will/crystal-pg
+  # DB interface
+  db:
+    github: crystal-lang/crystal-db
+
+targets:
+  shrkbot:
+    main: src/entrypoint.cr
+
+license: MIT

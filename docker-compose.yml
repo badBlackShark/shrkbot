@@ -1,0 +1,19 @@
+version: '3.5'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: shrkbot_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5678:5432
+    volumes:
+      - type: bind
+        source: ./src/database/data
+        target: /var/lib/postgresql/data
+  app:
+    build: .
+    restart: always
