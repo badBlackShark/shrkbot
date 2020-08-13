@@ -94,8 +94,8 @@ class Shrkbot::RoleAssignment
     middleware: {
       Command.new(["roleLogsOff", "rl-"]),
       GuildChecker.new,
-      PermissionChecker.new(PermissionLevel::Moderator),
       EnabledChecker.new("roles"),
+      PermissionChecker.new(PermissionLevel::Moderator),
     }
   )]
   def disable_logs(payload, ctx)
@@ -111,8 +111,8 @@ class Shrkbot::RoleAssignment
     middleware: {
       Command.new(["roleLogsOn", "rl+"]),
       GuildChecker.new,
-      PermissionChecker.new(PermissionLevel::Moderator),
       EnabledChecker.new("roles"),
+      PermissionChecker.new(PermissionLevel::Moderator),
     }
   )]
   def enable_logs(payload, ctx)
@@ -128,8 +128,8 @@ class Shrkbot::RoleAssignment
     middleware: {
       Command.new(["roleNotifsOff", "rn-"]),
       GuildChecker.new,
-      PermissionChecker.new(PermissionLevel::Moderator),
       EnabledChecker.new("roles"),
+      PermissionChecker.new(PermissionLevel::Moderator),
     }
   )]
   def disable_notifs(payload, ctx)
@@ -145,8 +145,8 @@ class Shrkbot::RoleAssignment
     middleware: {
       Command.new(["roleNotifsOn", "rn+"]),
       GuildChecker.new,
-      PermissionChecker.new(PermissionLevel::Moderator),
       EnabledChecker.new("roles"),
+      PermissionChecker.new(PermissionLevel::Moderator),
     }
   )]
   def enable_notifs(payload, ctx)
@@ -162,8 +162,8 @@ class Shrkbot::RoleAssignment
     middleware: {
       Command.new(["setRoleChannel", "rc="]),
       GuildChecker.new,
-      PermissionChecker.new(PermissionLevel::Moderator),
       EnabledChecker.new("roles"),
+      PermissionChecker.new(PermissionLevel::Moderator),
     }
   )]
   def set_role_channel(payload, ctx)
@@ -206,9 +206,9 @@ class Shrkbot::RoleAssignment
     middleware: {
       Command.new(["addReactionRole", "rr+"]),
       GuildChecker.new,
+      EnabledChecker.new("roles"),
       PermissionChecker.new(PermissionLevel::Moderator),
       ArgumentChecker.new(1),
-      EnabledChecker.new("roles"),
     }
   )]
   def add_reaction_role(payload, ctx)
@@ -247,9 +247,9 @@ class Shrkbot::RoleAssignment
     middleware: {
       Command.new(["removeReactionRole", "rr-"]),
       GuildChecker.new,
+      EnabledChecker.new("roles"),
       PermissionChecker.new(PermissionLevel::Moderator),
       ArgumentChecker.new(1),
-      EnabledChecker.new("roles"),
     }
   )]
   def rem_reaction_role(payload, ctx)

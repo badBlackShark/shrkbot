@@ -29,8 +29,8 @@ class Shrkbot::Logger
     middleware: {
       Command.new(["setLogChannel", "lc="]),
       GuildChecker.new,
-      PermissionChecker.new(PermissionLevel::Moderator),
       EnabledChecker.new("logging"),
+      PermissionChecker.new(PermissionLevel::Moderator),
     }
   )]
   def set_log_channel(payload, ctx)
@@ -70,8 +70,8 @@ class Shrkbot::Logger
     event: :message_create,
     middleware: {
       Command.new("logChannel"),
-      GuildChecker.new,
       EnabledChecker.new("logging"),
+      GuildChecker.new,
     }
   )]
   def log_channel(payload, ctx)
