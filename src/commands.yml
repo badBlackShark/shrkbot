@@ -14,8 +14,61 @@ plugins:
       opt_args: null
       description: 'Displays some info about the development of this bot.'
       perm_level: 0
+    setlogchannel:
+      name: 'setLogChannel'
+      aliases:
+        - 'lc='
+      args: '<channelname>'
+      opt_args: null
+      description: "Sets the log channel to <channelname>. Doesn't work with IDs."
+      perm_level: 1
+    logchannel:
+      name: 'logchannel'
+      aliases: null
+      args: null
+      opt_args: null
+      description: 'Returns the current log channel'
+      perm_level: 0
+    disableplugin:
+      name: 'disable'
+      aliases: null
+      args: '<plugin>'
+      opt_args: null
+      description: "Disables <plugin> for the guild. <Plugin> can be re-enabled by using `enable`. \n"
+                   'Note that some plugins cannot be toggled off.'
+      perm_level: 1
+    enableplugin:
+      name: 'enable'
+      aliases: null
+      args: '<plugin>'
+      opt_args: null
+      description: 'Enables <plugin> for the guild. <Plugin> can be disabled by using `disable`.'
+      perm_level: 1
+    plugins:
+      name: 'plugins'
+      aliases: null
+      args: null
+      opt_args: null
+      description: 'Returns a list with all plugins you can toggle.'
+      perm_level: 1
+
 
   Prefix:
+    setprefix:
+      name: '.setPrefix'
+      aliases:
+        - '.pfx='
+      args: '<prefix>'
+      opt_args: null
+      description: 'Sets a custom prefix for this guild. Does not support spaces.'
+      perm_level: 1
+    prefix:
+      name: '.prefix'
+      aliases: null
+      args: null
+      opt_args: null
+      description: "Returns this guild's prefix."
+      perm_level: 0
     resetprefix:
       name: '.resetPrefix'
       aliases:
@@ -25,7 +78,47 @@ plugins:
       description: "Resets this guild's prefix back to `.`"
       perm_level: 1
 
-  Rules:
+  Roles:
+    rolelogsoff:
+      name: 'roleLogsOff'
+      aliases:
+        - 'rl-'
+      args: null
+      opt_args: null
+      description: 'Disables logging for role assignment; no messages about role assignment in the guild.'
+      perm_level: 1
+    rolelogson:
+      name: 'roleLogsOn'
+      aliases:
+        - 'rl+'
+      args: null
+      opt_args: null
+      description: "Enables logging for role assignment; messages about role assignments will be sent in the guild's log channel."
+      perm_level: 1
+    rolenotifsoff:
+      name: 'roleNotifsOff'
+      aliases:
+        - 'rn-'
+      args: null
+      opt_args: null
+      description: 'Disables DMs to users self-assigning a role.'
+      perm_level: 1
+    rolenotifson:
+      name: 'roleNotifsOn'
+      aliases:
+        - 'rn+'
+      args: null
+      opt_args: null
+      description: 'Enables DMs to users self-assigning a role.'
+      perm_level: 1
+    setrolechannel:
+      name: 'setRoleChannel'
+      aliases:
+        - 'rc='
+      args: '<channelname>'
+      opt_args: null
+      description: 'Sets a channel for role assignment. Note that it uses channelname instead of ID.'
+      perm_level: 1
     addreactionrole:
       name: 'addReactionRole'
       aliases:
@@ -33,4 +126,39 @@ plugins:
       args: '<role>'
       opt_args: null
       description: "Makes <role> self-assignable for everyone, where <role> is passed by name and fuzzy matched against the guild's roles."
+      perm_level: 1
+    removereactionrole:
+      name: 'removeReactionRole'
+      aliases:
+        - 'rr-'
+      args: '<role>'
+      opt_args: null
+      description: "Removes <role> from the self-assignable roles; passed by name and fuzzy matched against the guild's roles."
+      perm_level: 1
+
+  Moderation:
+    mutes:
+      name: 'mutes'
+      aliases:
+        - '!?'
+      args: null
+      opt_args: null
+      description: 'Returns a list of all currently active mutes'
+      perm_level: 1
+    mute:
+      name: 'mute'
+      aliases:
+        - '!'
+      args: '<userMention>', '<duration>'
+      opt_args: '[reason]'
+      description: "Mutes all users mentioned for the given duration, order doesn't matter. \n"
+                   "Supported time formats are s, m, h, d, w, mixing formats (e.g. 2h5m) is supported."
+      perm_level: 1
+    unmute:
+      name: 'unmute'
+      aliases:
+        - '!-'
+      args: '<userMention>'
+      opt_args: null
+      description: 'Unmutes all mentioned users'
       perm_level: 1
