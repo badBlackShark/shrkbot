@@ -58,7 +58,7 @@ class Shrkbot::Mutes
     middleware: {
       Command.new("mutes"),
       GuildChecker.new,
-      EnabledChecker.new("mutes"),
+      EnabledChecker.new(["mutes", "!?"]),
       PermissionChecker.new(PermissionLevel::Moderator)
     }
   )]
@@ -86,7 +86,7 @@ class Shrkbot::Mutes
   @[Discord::Handler(
     event: :message_create,
     middleware: {
-      Command.new("mute"),
+      Command.new(["mute", "!"]),
       GuildChecker.new,
       EnabledChecker.new("mutes"),
       PermissionChecker.new(PermissionLevel::Moderator),
@@ -153,7 +153,7 @@ class Shrkbot::Mutes
   @[Discord::Handler(
     event: :message_create,
     middleware: {
-      Command.new("unmute"),
+      Command.new(["unmute", "!-"]),
       GuildChecker.new,
       EnabledChecker.new("mutes"),
       PermissionChecker.new(PermissionLevel::Moderator),
