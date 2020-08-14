@@ -21,15 +21,17 @@ class Shrkbot::RoleAssignment
   @[Discord::Handler(
     event: :guild_create
   )]
-  def init_role_channel(payload)
-    # Make sure that the table exists on startup. Should only be relevant the very first time the bot
-    # starts up. I tried to use ready for this, but apparently that was too slow and I got an exception.
-    if @first
-      init_table
-      @first = false
-    end
+  def init_roles(payload)
+    spawn do
+      # Make sure that the table exists on startup. Should only be relevant the very first time the bot
+      # starts up. I tried to use ready for this, but apparently that was too slow and I got an exception.
+      if @first
+        init_table
+        @first = false
+      end
 
-    Shrkbot::RoleAssignment.setup(payload.id, client) if PluginSelector.enabled?(payload.id, "roles")
+      Shrkbot::RoleAssignment.setup(payload.id, client) if PluginSelector.enabled?(payload.id, "roles")
+    end
   end
 
   def self.setup(guild : Discord::Snowflake, client : Discord::Client)
