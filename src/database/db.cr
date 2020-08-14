@@ -23,8 +23,16 @@ class Db
     @db.query_one?("select * from #{table} where #{column} = #{value} limit 1", as: types)
   end
 
+  def get_rows(table : String, column : String, value)
+    @db.query("select * from #{table} where #{column} = #{value}")
+  end
+
   def delete_row(table : String, column : String, value)
     @db.exec("delete from #{table} where #{column} = #{value}")
+  end
+
+  def delete_row_double_filter(table : String, filter1 : String, value1, filter2 : String, value2)
+    @db.exec("delete from #{table} where #{filter1} = #{value1} and #{filter2} = #{value2}")
   end
 
   def get_value(table : String, column : String, filter : String, value, klass : Class)
