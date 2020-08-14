@@ -1,4 +1,5 @@
 require "yaml"
+require "tasker"
 require "discordcr"
 require "discordcr-plugin"
 require "discordcr-middleware"
@@ -11,8 +12,9 @@ require "./middlewares/*"
 
 module Shrkbot
   # Stuff used across all modules, especially heavily used emojis.
-  CHECKMARK = URI.encode("\u2705")
-  CROSSMARK = URI.encode("\u274C")
+  CHECKMARK   = URI.encode("\u2705")
+  CROSSMARK   = URI.encode("\u274C")
+  TIME_FORMAT = "%A, %d. %B, %Y at %I:%M:%S %p (UTC%:z)" # Please fix
 
   class Bot
     getter client : Discord::Client

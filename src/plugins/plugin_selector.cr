@@ -8,6 +8,7 @@ class Shrkbot::PluginSelector
   @@optional_plugins = [
     "logging",
     "roles",
+    "mutes",
   ]
 
   @first = true
@@ -20,30 +21,32 @@ class Shrkbot::PluginSelector
     event: :guild_create
   )]
   def init(payload)
-    if @first
-      @first = false
-      init_table
-    end
+    spawn do
+      if @first
+        @first = false
+        init_table
+      end
 
-    enabled = Shrkbot.bot.db.get_value("shrk_plugins", "plugins", "guild", payload.id, Array(String))
-    if enabled
-      @@enabled[payload.id] = enabled
-    else
-      # Not all plugins should be enabled by default
-      @@enabled[payload.id] = ["logging"]
-      Shrkbot.bot.db.insert_row("shrk_plugins", [payload.id, @@optional_plugins])
+      enabled = Shrkbot.bot.db.get_value("shrk_plugins", "plugins", "guild", payload.id, Array(String))
+      if enabled
+        @@enabled[payload.id] = enabled
+      else
+        # Not all plugins should be enabled by default
+        @@enabled[payload.id] = ["logging"]
+        Shrkbot.bot.db.insert_row("shrk_plugins", [payload.id, @@optional_plugins])
 
-      msg = "Hi there, I'm shrkbot. You are receiving this message because either I'm seeing this server for the first time, or " \
-            "my database was deleted. If you already know me, feel free to ignore this message.\n" \
-            "I have enabled my logger by default, but all the other plugins that can be disabled are opt-in. " \
-            "You can find out which modules can be enabled by using `.plugins`.\n" \
-            "You can find out which commands are currently enabled with `.help`, and more about what they do with `.help [command]`. " \
-            "This won't show disabled commands, and it won't show users commands they have too little permissions to use.\n" \
-            "If there is no BotCommand role to distinguish staff members from regular ones, one will be created shortly. " \
-            "In that case you will get another message.\n" \
-            "If you have any questions, please message badBlackShark#6987." # Replace name when running this bot yourself.
+        msg = "Hi there, I'm shrkbot. You are receiving this message because either I'm seeing this server for the first time, or " \
+              "my database was deleted. If you already know me, feel free to ignore this message.\n" \
+              "I have enabled my logger by default, but all the other plugins that can be disabled are opt-in. " \
+              "You can find out which modules can be enabled by using `.plugins`.\n" \
+              "You can find out which commands are currently enabled with `.help`, and more about what they do with `.help [command]`. " \
+              "This won't show disabled commands, and it won't show users commands they have too little permissions to use.\n" \
+              "If there is no BotCommand role to distinguish staff members from regular ones, one will be created shortly. " \
+              "In that case you will get another message.\n" \
+              "If you have any questions, please message badBlackShark#6987." # Replace name when running this bot yourself.
 
-      client.create_message(client.create_dm(payload.owner_id).id, msg)
+        client.create_message(client.create_dm(payload.owner_id).id, msg)
+      end
     end
   end
 
@@ -128,13 +131,26 @@ class Shrkbot::PluginSelector
       Shrkbot::Logger.setup(guild, client)
     when "roles"
       Shrkbot::RoleAssignment.setup(guild, client)
+    when "mutes"
+      Shrkbot::Mutes.setup(guild, client)
     end
   end
 
   def self.enabled?(guild : Discord::Snowflake?, plugin : String)
     if guild
       # Plugins that cannot be disabled are always enabled.
-      @@optional_plugins.includes?(plugin) ? @@enabled[guild].includes?(plugin) : true
+      if @@optional_plugins.includes?(plugin)
+        while @@enabled[guild]?.nil?
+          # We've hit a race condition, so we're waiting for the PluginSelector to initialize this guild
+          # This can happen when other plugins try to initialize on GuildCreate before this one does.
+          # Because of this we use concurrency in all of the initial setup calls that get triggered
+          # by a GuildCreate. Probably not the cleanest way, but it works :)
+          sleep 1
+        end
+        @@enabled[guild].includes?(plugin)
+      else
+        true
+      end
     else
       # Everything is always enabled in DMs.
       true
