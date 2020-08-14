@@ -14,42 +14,45 @@ plugins:
       opt_args: null
       description: 'Displays some info about the development of this bot.'
       perm_level: 0
+  
+  Logging:
     setlogchannel:
       name: 'setLogChannel'
       aliases:
         - 'lc='
-      args: '<channelname>'
+      args: '<channel>'
       opt_args: null
-      description: "Sets the log channel to <channelname>. Doesn't work with IDs."
+      description: 'Sets the log channel to <channel>; passed as a channel mention.'
       perm_level: 1
     logchannel:
-      name: 'logchannel'
+      name: 'logChannel'
       aliases: null
       args: null
       opt_args: null
-      description: 'Returns the current log channel'
+      description: 'Returns the log channel for this guild.'
       perm_level: 0
-    disableplugin:
+
+  Plugins:
+    disable:
       name: 'disable'
       aliases: null
       args: '<plugin>'
       opt_args: null
-      description: "Disables <plugin> for the guild. <Plugin> can be re-enabled by using `enable`. \n"
-                   'Note that some plugins cannot be toggled off.'
+      description: 'Disables <plugin> for this guild.'
       perm_level: 1
-    enableplugin:
+    enable:
       name: 'enable'
       aliases: null
       args: '<plugin>'
       opt_args: null
-      description: 'Enables <plugin> for the guild. <Plugin> can be disabled by using `disable`.'
+      description: 'Enables <plugin> for this guild.'
       perm_level: 1
     plugins:
       name: 'plugins'
       aliases: null
       args: null
       opt_args: null
-      description: 'Returns a list with all plugins you can toggle.'
+      description: 'Returns a list with every plugin you can toggle.'
       perm_level: 1
 
 
@@ -60,14 +63,14 @@ plugins:
         - '.pfx='
       args: '<prefix>'
       opt_args: null
-      description: 'Sets a custom prefix for this guild. Does not support spaces.'
+      description: 'Sets a custom prefix for this guild. Does not support spaces. The maximum prefix length is 20 characters.'
       perm_level: 1
     prefix:
       name: '.prefix'
       aliases: null
       args: null
       opt_args: null
-      description: "Returns this guild's prefix."
+      description: 'Returns this guild''s prefix.'
       perm_level: 0
     resetprefix:
       name: '.resetPrefix'
@@ -75,7 +78,7 @@ plugins:
         - '.pfx!'
       args: null
       opt_args: null
-      description: "Resets this guild's prefix back to `.`"
+      description: 'Resets this guild''s prefix back to `.`'
       perm_level: 1
 
   Roles:
@@ -85,7 +88,7 @@ plugins:
         - 'rl-'
       args: null
       opt_args: null
-      description: 'Disables logging for role assignment; no messages about role assignment in the guild.'
+      description: 'Disables logging for role assignments, which makes it fully silent in the guild itself.'
       perm_level: 1
     rolelogson:
       name: 'roleLogsOn'
@@ -93,7 +96,7 @@ plugins:
         - 'rl+'
       args: null
       opt_args: null
-      description: "Enables logging for role assignment; messages about role assignments will be sent in the guild's log channel."
+      description: 'Enables logging for role assignments. Messages about role assignments will be sent in the guild''s log channel.'
       perm_level: 1
     rolenotifsoff:
       name: 'roleNotifsOff'
@@ -115,9 +118,9 @@ plugins:
       name: 'setRoleChannel'
       aliases:
         - 'rc='
-      args: '<channelname>'
+      args: '<channel>'
       opt_args: null
-      description: 'Sets a channel for role assignment. Note that it uses channelname instead of ID.'
+      description: 'Sets the channel for role assignments to <channel>; passed as a channel mention.'
       perm_level: 1
     addreactionrole:
       name: 'addReactionRole'
@@ -125,7 +128,7 @@ plugins:
         - 'rr+'
       args: '<role>'
       opt_args: null
-      description: "Makes <role> self-assignable for everyone, where <role> is passed by name and fuzzy matched against the guild's roles."
+      description: 'Makes <role> self-assignable for everyone; passed by name and fuzzy matched against the guild''s roles.'
       perm_level: 1
     removereactionrole:
       name: 'removeReactionRole'
@@ -133,32 +136,32 @@ plugins:
         - 'rr-'
       args: '<role>'
       opt_args: null
-      description: "Removes <role> from the self-assignable roles; passed by name and fuzzy matched against the guild's roles."
+      description: 'Removes <role> from the self-assignable roles; passed by name and fuzzy matched against the guild''s roles.'
       perm_level: 1
 
-  Moderation:
+  Mutes:
     mutes:
       name: 'mutes'
       aliases:
         - '!?'
       args: null
       opt_args: null
-      description: 'Returns a list of all currently active mutes'
+      description: 'Returns a list of all currently active mutes for this guild.'
       perm_level: 1
     mute:
       name: 'mute'
       aliases:
         - '!'
-      args: '<userMention>', '<duration>'
+      args: '<userMentions> <duration>'
       opt_args: '[reason]'
-      description: "Mutes all users mentioned for the given duration, order doesn't matter. \n"
-                   "Supported time formats are s, m, h, d, w, mixing formats (e.g. 2h5m) is supported."
+      description: "Mutes all users mentioned for the given duration; order doesn't matter. \n"
+                   'Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported.'
       perm_level: 1
     unmute:
       name: 'unmute'
       aliases:
         - '!-'
-      args: '<userMention>'
+      args: '<userMentions>'
       opt_args: null
       description: 'Unmutes all mentioned users'
       perm_level: 1
