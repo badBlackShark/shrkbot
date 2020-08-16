@@ -16,7 +16,7 @@ class Shrkbot::Mutes
       # Make sure that the table exists on startup. Should only be relevant the very first time the bot
       # starts up. I tried to use ready for this, but apparently that was too slow and I got an exception.
       if @first
-        Shrkbot.bot.db.create_table("shrk_mutes", ["guild int8", "user_id int8", "time timestamptz", "reason varchar(255)"])
+        Shrkbot.bot.db.create_table("shrk_mutes", ["guild int8", "user_id int8", "time timestamptz", "reason text"])
         @@muted_role = Hash(Discord::Snowflake, Discord::Role).new
         @first = false
       end
@@ -56,10 +56,10 @@ class Shrkbot::Mutes
   @[Discord::Handler(
     event: :message_create,
     middleware: {
-      Command.new("mutes"),
+      Command.new(["mutes", "!?"]),
       GuildChecker.new,
-      EnabledChecker.new(["mutes", "!?"]),
-      PermissionChecker.new(PermissionLevel::Moderator)
+      EnabledChecker.new("mutes"),
+      PermissionChecker.new(PermissionLevel::Moderator),
     }
   )]
   def list_mutes(payload, ctx)
@@ -178,13 +178,13 @@ class Shrkbot::Mutes
   end
 
   def self.schedule_unmute(time : Time,
-                      guild : Discord::Snowflake,
-                      user : Discord::Snowflake,
-                      message : String,
-                      client : Discord::Client,
-                      mod : Discord::User?,
-                      silent_mute : Bool? = false,
-                      silent_unmute : Bool? = false)
+                           guild : Discord::Snowflake,
+                           user : Discord::Snowflake,
+                           message : String,
+                           client : Discord::Client,
+                           mod : Discord::User?,
+                           silent_mute : Bool? = false,
+                           silent_unmute : Bool? = false)
     if @@mutes[guild]? && @@mutes[guild][user]?
       return @@mutes[guild][user] if @@mutes[guild][user].time > time
 
