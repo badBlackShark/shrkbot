@@ -8,7 +8,7 @@ class Shrkbot::Help
   @[Discord::Handler(
     event: :message_create,
     middleware: {
-      Command.new("help"),
+      Command.new(["help", "?"]),
       ArgumentChecker.new(0, 1),
     }
   )]
