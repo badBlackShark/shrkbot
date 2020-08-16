@@ -5,8 +5,8 @@ class Db
   getter db : DB::Database
 
   def initialize
-    # db = DB.open("postgres://root:password@localhost:5678/shrkbot_db") # dev
-    db = DB.open("postgres://root:password@db:5432/shrkbot_db") # production
+    db = DB.open("postgres://root:password@localhost:5678/shrkbot_db") # dev
+    # db = DB.open("postgres://root:password@db:5432/shrkbot_db") # production
 
     @db = db.not_nil!
   end
@@ -55,9 +55,7 @@ class Db
     @db.exec("insert into #{table} values #{placeholders}", args: values)
   end
 
-  def get_table(table : String, types : Tuple)
-    res = Array(String | Int64).new
-    tmp = @db.query_one("select * from #{table} limit 1", as: types)
-    tmp
+  def get_table(table : String)
+    @db.query("select * from #{table}")
   end
 end

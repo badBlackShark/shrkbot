@@ -9,6 +9,7 @@ class Shrkbot::PluginSelector
     "logging",
     "roles",
     "mutes",
+    "reminders",
   ]
 
   @first = true
