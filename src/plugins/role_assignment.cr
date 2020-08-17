@@ -302,7 +302,7 @@ class Shrkbot::RoleAssignment
     client.add_guild_member_role(guild_id, payload.user_id, role.id)
 
     if @@role_notifs[guild_id]
-      client.create_message(client.create_dm(payload.user_id).id, "I gave you the role `#{role.name}` on \"#{client.get_guild(guild_id).name}\".")
+      client.create_message(client.create_dm(payload.user_id).id, "I gave you the role `#{role.name}` on \"#{Shrkbot.bot.cache.resolve_guild(guild_id).name}\".")
     end
     if @@role_logs[guild_id]
       member = client.get_guild_member(guild_id, payload.user_id)
@@ -328,7 +328,7 @@ class Shrkbot::RoleAssignment
     client.remove_guild_member_role(guild_id.to_u64, payload.user_id.to_u64, role.id.to_u64)
 
     if @@role_notifs[guild_id]
-      client.create_message(client.create_dm(payload.user_id).id, "I removed the role `#{role.name}` on \"#{client.get_guild(guild_id).name}\".")
+      client.create_message(client.create_dm(payload.user_id).id, "I removed the role `#{role.name}` on \"#{Shrkbot.bot.cache.resolve_guild(guild_id).name}\".")
     end
     if @@role_logs[guild_id]
       member = client.get_guild_member(guild_id, payload.user_id)

@@ -27,7 +27,7 @@ class Shrkbot::Mutes
 
   def self.setup(guild_id : Discord::Snowflake, client : Discord::Client)
     @@mutes[guild_id] = Hash(Discord::Snowflake, Mute).new
-    guild = client.get_guild(guild_id)
+    guild = Shrkbot.bot.cache.resolve_guild(guild_id)
 
     role = client.get_guild_roles(guild.id).find { |role| role.name.downcase == "muted" }
     if role
@@ -200,7 +200,7 @@ class Shrkbot::Mutes
         Logger.log(guild, "#{member_format(member)} is no longer muted. Mute reason: #{message}")
       end
 
-      client.create_message(client.create_dm(user).id, "You're no longer muted for `#{message}` in *#{client.get_guild(guild).name}*.")
+      client.create_message(client.create_dm(user).id, "You're no longer muted for `#{message}` in *#{Shrkbot.bot.cache.resolve_guild(guild).name}*.")
       nil
     end
 
