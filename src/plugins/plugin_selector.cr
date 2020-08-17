@@ -10,6 +10,7 @@ class Shrkbot::PluginSelector
     "roles",
     "mutes",
     "reminders",
+    "welcomes",
   ]
 
   @first = true
@@ -134,6 +135,8 @@ class Shrkbot::PluginSelector
       Shrkbot::RoleAssignment.setup(guild, client)
     when "mutes"
       Shrkbot::Mutes.setup(guild, client)
+    when "welcomes"
+      Shrkbot::JoinLeave.setup(guild, client)
     end
   end
 
