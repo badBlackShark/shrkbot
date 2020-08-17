@@ -164,7 +164,7 @@ class Shrkbot::Reminders
     middleware: {
       Command.new(["unremind", "rmd-"]),
       EnabledChecker.new("reminders"),
-      ArgumentChecker.new(1)
+      ArgumentChecker.new(1),
     }
   )]
   def unremind(payload, ctx)
