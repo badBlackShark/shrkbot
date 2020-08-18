@@ -41,6 +41,8 @@ module Utilities
       "y"       => {unicode: "\u{1F1FE}", emoji: "🇾"},
       "z"       => {unicode: "\u{1F1FF}", emoji: "🇿"},
       "refresh" => {unicode: "\u{1F504}", emoji: "🔄"},
+      "ban"     => {unicode: "\u{1F6AB}", emoji: "🚫"},
+      "warn"    => {unicode: "\u26A0", emoji: "⚠️"},
     }
 
     def self.name_to_unicode(name : String)
