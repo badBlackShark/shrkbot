@@ -210,6 +210,7 @@ class Shrkbot::Mutes
     member = client.get_guild_member(guild, user)
     unless silent_mute
       Logger.log(guild, "Muted #{member_format(member)} until #{time.to_s(TIME_FORMAT)}. Reason: #{message}", mod)
+      client.create_message(client.create_dm(user).id, "You've been muted until #{time.to_s(TIME_FORMAT)}. Reason: #{message}")
     end
 
     return mute
