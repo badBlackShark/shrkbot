@@ -11,6 +11,7 @@ class Shrkbot::PluginSelector
     "mutes",
     "reminders",
     "welcomes",
+    "auto-removal",
   ]
 
   @first = true
@@ -33,13 +34,14 @@ class Shrkbot::PluginSelector
       if enabled
         @@enabled[payload.id] = enabled
       else
-        # Not all plugins should be enabled by default
+        # Only logging should be enabled by default
         @@enabled[payload.id] = ["logging"]
         Shrkbot.bot.db.insert_row("shrk_plugins", [payload.id, @@optional_plugins])
 
         msg = "Hi there, I'm shrkbot. You are receiving this message because either I'm seeing this server for the first time, or " \
               "my database was deleted. If you already know me, feel free to ignore this message.\n" \
               "I have enabled my logger by default, but all the other plugins that can be disabled are opt-in. " \
+              "It is highly recommended not to turn off logging. It occasionally contains important information. " \
               "You can find out which modules can be enabled by using `.plugins`.\n" \
               "You can find out which commands are currently enabled with `.help`, and more about what they do with `.help [command]`. " \
               "This won't show disabled commands, and it won't show users commands they have insufficient permissions to use.\n" \
@@ -65,6 +67,7 @@ class Shrkbot::PluginSelector
     plugin = ctx[ArgumentChecker::Result].args.join(" ").downcase
     guild = ctx[GuildChecker::Result].id
 
+    # TODO: Make this fuzzy matched
     unless @@optional_plugins.includes?(plugin)
       client.create_message(payload.channel_id, "The plugin \"#{plugin}\" does either not exist or cannot be disabled. You can disable the following plugins: `#{@@enabled[guild].join("`, `")}`.")
       return
@@ -96,6 +99,7 @@ class Shrkbot::PluginSelector
     plugin = ctx[ArgumentChecker::Result].args.join(" ").downcase
     guild = ctx[GuildChecker::Result].id
 
+    # TODO: Make this fuzzy matched
     unless @@optional_plugins.includes?(plugin)
       client.create_message(payload.channel_id, "The plugin \"#{plugin}\" does either not exist or cannot be enabled. You can enable the following plugins: `#{(@@optional_plugins - @@enabled[guild]).join("`, `")}`.")
       return
@@ -137,6 +141,8 @@ class Shrkbot::PluginSelector
       Shrkbot::Mutes.setup(guild, client)
     when "welcomes"
       Shrkbot::JoinLeave.setup(guild, client)
+    when "auto-removal"
+      Shrkbot::AutoRemoval.setup(guild, client)
     end
   end
 
