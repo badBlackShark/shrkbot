@@ -1,7 +1,7 @@
 class Shrkbot::Mutes
   include Discord::Plugin
 
-  # guild => { user =>  Mute}
+  # guild => { user => Mute }
   @@mutes = Hash(Discord::Snowflake, Hash(Discord::Snowflake, Mute)).new
 
   class_getter! muted_role : Hash(Discord::Snowflake, Discord::Role)
