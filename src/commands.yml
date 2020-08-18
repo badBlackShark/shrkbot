@@ -173,7 +173,7 @@ plugins:
         - 'jm='
       args: null
       opt_args: '[message]'
-      description: 'Sets this guild''s join message. If [message] is empty, no join message will be sent.'
+      description: 'Sets this guild''s join message. If [message] is empty, no new join messages will be sent.'
       perm_level: 1
     joinmessage:
       name: 'joinMessage'
@@ -189,7 +189,7 @@ plugins:
         - 'lm='
       args: null
       opt_args: '[message]'
-      description: 'Sets this guild''s leave message. If [message] is empty, no leave message will be sent.'
+      description: 'Sets this guild''s leave message. If [message] is empty, no new leave messages will be sent.'
       perm_level: 1
     leavemessage:
       name: 'leaveMessage'
@@ -207,7 +207,7 @@ plugins:
         - 'rmd'
       args: '<time> <message>'
       opt_args: '[-dm]'
-      description: "Reminds you about <message> after <time>, order doesn't matter. \n"
+      description: "Reminds you about <message> after <time>. Argument order doesn't matter. \n"
                    "Set the `-dm` flag to be reminded via DM. \n"
                    'Supported time formats are `s`, `m`, `h`, `d`, `w`. Mixing formats (e.g. 2h5m) is supported.'
       perm_level: 0
@@ -217,7 +217,7 @@ plugins:
         - 'rmd?'
       args: null
       opt_args: '[all]'
-      description: 'Returns your reminders for the guild. Using the `all` flag will return all your reminders.'
+      description: 'Returns your reminders for this guild. Using the `all` flag, or using this command in a DM, will return all your reminders.'
       perm_level: 0
     unremind:
       name: 'unremind'
