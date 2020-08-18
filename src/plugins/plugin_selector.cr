@@ -42,7 +42,7 @@ class Shrkbot::PluginSelector
               "I have enabled my logger by default, but all the other plugins that can be disabled are opt-in. " \
               "You can find out which modules can be enabled by using `.plugins`.\n" \
               "You can find out which commands are currently enabled with `.help`, and more about what they do with `.help [command]`. " \
-              "This won't show disabled commands, and it won't show users commands they have too little permissions to use.\n" \
+              "This won't show disabled commands, and it won't show users commands they have insufficient permissions to use.\n" \
               "If there is no BotCommand role to distinguish staff members from regular ones, one will be created shortly. " \
               "In that case you will get another message.\n" \
               "If you have any questions, please message badBlackShark#6987." # Replace name when running this bot yourself.
