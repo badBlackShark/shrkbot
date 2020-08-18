@@ -134,7 +134,6 @@ class Shrkbot::Mutes
     end
 
     users.each do |user|
-      client.add_guild_member_role(guild_id, user.id, Mutes.muted_role[guild_id].id)
       time = timespan.from_now
       mute = Mutes.schedule_unmute(time, guild_id, user.id, reason, client, payload.author)
       if mute.time != time
@@ -144,7 +143,6 @@ class Shrkbot::Mutes
         client.create_message(payload.channel_id, msg)
         client.create_reaction(payload.channel_id, payload.id, CROSSMARK)
       else
-        Shrkbot.bot.db.insert_row("shrk_mutes", [guild_id, user.id, time, reason])
         client.create_reaction(payload.channel_id, payload.id, CHECKMARK)
       end
     end
@@ -191,6 +189,10 @@ class Shrkbot::Mutes
       @@mutes[guild][user].cancel
       Shrkbot.bot.db.delete_row_double_filter("shrk_mutes", "guild", guild, "user_id", user)
     end
+
+    client.add_guild_member_role(guild_id, user.id, Mutes.muted_role[guild_id].id)
+    Shrkbot.bot.db.insert_row("shrk_mutes", [guild_id, user.id, time, reason])
+
     job = Tasker.at(time) do
       delete_mute(guild, user, client)
 
