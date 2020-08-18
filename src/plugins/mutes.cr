@@ -73,7 +73,7 @@ class Shrkbot::Mutes
       embed.title = "Everyone currently muted on this server."
       embed.description = String.build do |str|
         mutes.each do |user_id, mute|
-          member = client.get_guild_member(guild_id, user_id)
+          member = Shrkbot.bot.cache.resolve_member(guild_id, user_id)
           str << "• #{Mutes.member_format(member)}, muted until #{mute.time.to_s(TIME_FORMAT)}. Reason: #{mute.message}\n\n"
         end
       end
@@ -138,7 +138,7 @@ class Shrkbot::Mutes
       mute = Mutes.schedule_unmute(time, guild_id, user.id, reason, client, payload.author)
       if mute.time != time
         # This triggers if the new mute lasts shorter than the old mute.
-        member = client.get_guild_member(guild_id, user.id)
+        member = Shrkbot.bot.cache.resolve_member(guild_id, user.id)
         msg = "#{Mutes.member_format(member)} is already muted until #{time.to_s(TIME_FORMAT)}. Reason: \"#{mute.message}\""
         client.create_message(payload.channel_id, msg)
         client.create_reaction(payload.channel_id, payload.id, CROSSMARK)
@@ -162,7 +162,7 @@ class Shrkbot::Mutes
     guild_id = ctx[GuildChecker::Result].id
 
     payload.mentions.each do |user|
-      member = client.get_guild_member(guild_id, user.id)
+      member = Shrkbot.bot.cache.resolve_member(guild_id, user.id)
       unless @@mutes[guild_id][user.id]?
         client.create_message(payload.channel_id, "#{Mutes.member_format(member)} isn't currently muted.")
         next
@@ -198,7 +198,7 @@ class Shrkbot::Mutes
 
       unless silent_unmute
         # We fetch member here and below in case the nickname changed in the meantime
-        member = client.get_guild_member(guild, user)
+        member = Shrkbot.bot.cache.resolve_member(guild, user)
         Logger.log(guild, "#{member_format(member)} is no longer muted. Mute reason: #{message}")
       end
 
@@ -209,7 +209,7 @@ class Shrkbot::Mutes
     mute = Mute.new(job, time, guild, user, message)
     @@mutes[guild][user] = mute
 
-    member = client.get_guild_member(guild, user)
+    member = Shrkbot.bot.cache.resolve_member(guild, user)
     unless silent_mute
       Logger.log(guild, "Muted #{member_format(member)} until #{time.to_s(TIME_FORMAT)}. Reason: #{message}", mod)
       client.create_message(client.create_dm(user).id, "You've been muted until #{time.to_s(TIME_FORMAT)}. Reason: #{message}")
