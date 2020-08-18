@@ -190,8 +190,8 @@ class Shrkbot::Mutes
       Shrkbot.bot.db.delete_row_double_filter("shrk_mutes", "guild", guild, "user_id", user)
     end
 
-    client.add_guild_member_role(guild_id, user.id, Mutes.muted_role[guild_id].id)
-    Shrkbot.bot.db.insert_row("shrk_mutes", [guild_id, user.id, time, reason])
+    client.add_guild_member_role(guild, user, Mutes.muted_role[guild].id)
+    Shrkbot.bot.db.insert_row("shrk_mutes", [guild, user, time, message])
 
     job = Tasker.at(time) do
       delete_mute(guild, user, client)
