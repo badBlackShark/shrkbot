@@ -207,6 +207,7 @@ class Shrkbot::Reminders
     job = Tasker.at(time) do
       elapsed = time - created_at
       time_string = String.build do |str|
+        str << "Approximately "
         if elapsed.days == 1
           str << "#{elapsed.days} day, "
         elsif elapsed.days > 1
@@ -231,6 +232,13 @@ class Shrkbot::Reminders
         str << " ago"
       end
 
+      # We delete these first in case something goes wrong with sending the reminder - e.g.
+      # if the channel the reminder is supposed to be sent to gets deleted, or the bot is removed
+      # from the guild. Otherwise, the failing reminder will be re-scheduled, just to re-fail,
+      # every time the bot restarts.
+      Shrkbot.bot.db.delete_row_double_filter("shrk_reminders", "user_id", user, "id", id)
+      @@reminders[user].delete(@@reminders[user].find { |reminder| reminder.id == id })
+
       send_to = dm ? client.create_dm(user).id : channel
       message = "<@#{user}>, #{time_string} you asked to be reminded of this: \"#{msg}\""
 
@@ -239,9 +247,7 @@ class Shrkbot::Reminders
       rescue e : Exception
         client.create_message(channel, message += "\n\nI tried to DM you this reminder, but you don't allow DMs from me.")
       end
-      Shrkbot.bot.db.delete_row_double_filter("shrk_reminders", "user_id", user, "id", id)
 
-      @@reminders[user].delete(@@reminders[user].find { |reminder| reminder.id == id })
       nil
     end
 
