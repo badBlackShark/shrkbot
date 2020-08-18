@@ -109,7 +109,7 @@ class Shrkbot::Logger
 
   def self.log(guild_id : Discord::Snowflake, message : String, mod : Discord::User? = nil)
     if PluginSelector.enabled?(guild_id, "logging")
-      message += "\nThis action was performed by `#{mod.username}##{mod.discriminator}`." if mod
+      message += "\nThis action was performed by **#{mod.username}##{mod.discriminator}**." if mod
       Shrkbot.bot(guild_id.to_u64).client.create_message(@@log_channel[guild_id], message)
     end
   end
