@@ -5,8 +5,8 @@ class Db
   getter db : DB::Database
 
   def initialize
-    db = DB.open("postgres://root:password@localhost:5678/shrkbot_db") # dev
-    # db = DB.open("postgres://root:password@db:5432/shrkbot_db") # production
+    # db = DB.open("postgres://root:password@localhost:5678/shrkbot_db") # dev
+    db = DB.open("postgres://root:password@db:5432/shrkbot_db") # production
 
     @db = db.not_nil!
   end
