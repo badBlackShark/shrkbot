@@ -17,3 +17,5 @@ services:
   app:
     build: .
     restart: always
+    depends_on:
+      - db
