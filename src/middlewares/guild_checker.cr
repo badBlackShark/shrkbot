@@ -7,6 +7,9 @@ class Shrkbot::GuildChecker
     end
   end
 
+  def initialize(@silent : Bool = false)
+  end
+
   def call(payload : Discord::Message, ctx : Discord::Context)
     client = ctx[Discord::Client]
     guild = client.cache.try &.resolve_channel(payload.channel_id).guild_id
@@ -14,7 +17,7 @@ class Shrkbot::GuildChecker
       ctx.put(Result.new(guild))
       yield
     else
-      client.create_message(payload.channel_id, "This command can only be used in a guild.")
+      client.create_message(payload.channel_id, "This command can only be used in a guild.") unless @silent
     end
   end
 end
