@@ -14,7 +14,7 @@ plugins:
       opt_args: null
       description: 'Displays some info about the development of this bot.'
       perm_level: 0
-  
+
   Logging:
     setlogchannel:
       name: 'setLogChannel'
@@ -55,7 +55,6 @@ plugins:
       description: 'Returns a list with every plugin you can toggle.'
       perm_level: 1
 
-
   Prefix:
     setprefix:
       name: '.setPrefix'
@@ -70,7 +69,7 @@ plugins:
       aliases: null
       args: null
       opt_args: null
-      description: 'Returns this guild''s prefix.'
+      description: "Returns this guild's prefix."
       perm_level: 0
     resetprefix:
       name: '.resetPrefix'
@@ -78,7 +77,7 @@ plugins:
         - '.pfx!'
       args: null
       opt_args: null
-      description: 'Resets this guild''s prefix back to `.`'
+      description: "Resets this guild's prefix back to `.`"
       perm_level: 1
 
   Roles:
@@ -96,7 +95,7 @@ plugins:
         - 'rl+'
       args: null
       opt_args: null
-      description: 'Enables logging for role assignments. Messages about role assignments will be sent in the guild''s log channel.'
+      description: "Enables logging for role assignments. Messages about role assignments will be sent in the guild's log channel."
       perm_level: 1
     rolenotifsoff:
       name: 'roleNotifsOff'
@@ -128,7 +127,7 @@ plugins:
         - 'rr+'
       args: '<role>'
       opt_args: null
-      description: 'Makes <role> self-assignable for everyone; passed by name and fuzzy matched against the guild''s roles.'
+      description: "Makes <role> self-assignable for everyone; passed by name and fuzzy matched against the guild's roles."
       perm_level: 1
     removereactionrole:
       name: 'removeReactionRole'
@@ -136,7 +135,7 @@ plugins:
         - 'rr-'
       args: '<role>'
       opt_args: null
-      description: 'Removes <role> from the self-assignable roles; passed by name and fuzzy matched against the guild''s roles.'
+      description: "Removes <role> from the self-assignable roles; passed by name and fuzzy matched against the guild's roles."
       perm_level: 1
 
   Mutes:
@@ -154,8 +153,8 @@ plugins:
         - '!'
       args: '<userMentions> <duration>'
       opt_args: '[reason]'
-      description: "Mutes all users mentioned for the given duration; order doesn't matter. \n"
-                   'Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported.'
+      description: "Mutes all users mentioned for the given duration; order doesn't matter. \n
+        Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported."
       perm_level: 1
     unmute:
       name: 'unmute'
@@ -173,7 +172,7 @@ plugins:
         - 'jm='
       args: null
       opt_args: '[message]'
-      description: 'Sets this guild''s join message. If [message] is empty, no new join messages will be sent.'
+      description: "Sets this guild's join message. If [message] is empty, no new join messages will be sent."
       perm_level: 1
     joinmessage:
       name: 'joinMessage'
@@ -181,7 +180,7 @@ plugins:
         - 'jm?'
       args: null
       opt_args: null
-      description: 'Returns the guild''s join message.'
+      description: "Returns the guild's join message."
       perm_level: 1
     setleavemessage:
       name: 'setLeaveMessage'
@@ -189,7 +188,7 @@ plugins:
         - 'lm='
       args: null
       opt_args: '[message]'
-      description: 'Sets this guild''s leave message. If [message] is empty, no new leave messages will be sent.'
+      description: "Sets this guild's leave message. If [message] is empty, no new leave messages will be sent."
       perm_level: 1
     leavemessage:
       name: 'leaveMessage'
@@ -197,23 +196,23 @@ plugins:
         - 'lm?'
       args: null
       opt_args: null
-      description: 'Returns this guild''s leave message.'
+      description: "Returns this guild's leave message."
       perm_level: 1
-      
+
   Reminders:
     remind:
       name: 'remind'
-      aliases: 
+      aliases:
         - 'rmd'
       args: '<time> <message>'
       opt_args: '[-dm]'
-      description: "Reminds you about <message> after <time>. Argument order doesn't matter. \n"
-                   "Set the `-dm` flag to be reminded via DM. \n"
-                   'Supported time formats are `s`, `m`, `h`, `d`, `w`. Mixing formats (e.g. 2h5m) is supported.'
+      description: "Reminds you about <message> after <time>. Argument order doesn't matter. \n
+        Set the `-dm` flag to be reminded via DM. \n
+        Supported time formats are `s`, `m`, `h`, `d`, `w`. Mixing formats (e.g. 2h5m) is supported."
       perm_level: 0
     reminders:
       name: 'reminders'
-      aliases: 
+      aliases:
         - 'rmd?'
       args: null
       opt_args: '[all]'
