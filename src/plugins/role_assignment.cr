@@ -190,7 +190,7 @@ class Shrkbot::RoleAssignment
 
       @@role_channel[guild] = id
       Shrkbot.bot.db.update_value("shrk_roles", "channel", id, "guild", guild)
-      Logger.log(guild, "Set #{channel[0]} has been set as the role assignment channel.", payload.author)
+      Logger.log(guild, "Set #{channel[0]} as the role assignment channel.", payload.author)
       client.create_reaction(payload.channel_id, payload.id, CHECKMARK)
 
       @@role_message[guild] = RoleAssignment.create_role_message_and_reactions(guild, client)

@@ -60,6 +60,47 @@ class Shrkbot::JoinLeave
   end
 
   @[Discord::Handler(
+    event: :message_create,
+    middleware: {
+      Command.new(["setWelcomeChannel", "welcome="]),
+      GuildChecker.new,
+      EnabledChecker.new("welcomes"),
+      PermissionChecker.new(PermissionLevel::Moderator),
+    }
+  )]
+  def set_log_channel(payload, ctx)
+    channel = payload.content.match(/<#(\d*)>/)
+    if channel
+      guild = ctx[GuildChecker::Result].id
+      id = Discord::Snowflake.new(channel[1])
+
+      chnl = begin
+        client.get_channel(id)
+      rescue e : Exception
+        client.create_message(payload.channel_id, "This channel doesn't seem to exist or isn't accessible to me.")
+        return
+      end
+
+      if chnl.guild_id != guild
+        client.create_message(payload.channel_id, "That channel is on a different guild.")
+        return
+      end
+
+      @@welcome_channel[guild] = id
+
+      Shrkbot.bot.db.update_value("shrk_join_leave", "channel", @@welcome_channel[guild], "guild", guild)
+
+      Logger.log(guild, "Set #{channel[0]} as the welcome channel.", payload.author)
+      client.create_reaction(payload.channel_id, payload.id, CHECKMARK)
+    else
+      msg = client.create_message(payload.channel_id, "No channel was provided.")
+      sleep 5
+      client.delete_message(payload.channel_id, msg.id)
+      client.delete_message(payload.channel_id, payload.id)
+    end
+  end
+
+  @[Discord::Handler(
     event: :guild_member_add
   )]
   def join(payload)
