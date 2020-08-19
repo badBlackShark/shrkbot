@@ -1,0 +1,38 @@
+version: 2.0
+shards:
+  cron_parser:
+    git: https://github.com/kostya/cron_parser.git
+    version: 0.3.0
+
+  db:
+    git: https://github.com/crystal-lang/crystal-db.git
+    version: 0.9.0
+
+  discordcr:
+    git: https://github.com/discordcr/discordcr.git
+    version: 0.4.0+git.commit.619e08d31fd10918f2554f7623e2066ac308c439
+
+  discordcr-middleware:
+    git: https://github.com/z64/discordcr-middleware.git
+    version: 0.4.0+git.commit.5c0b2ba082839aef76b6f452eacb30a54bdd2675
+
+  discordcr-plugin:
+    git: https://github.com/z64/discordcr-plugin.git
+    version: 0.1.0+git.commit.a96031f95337bf1aa6ba212007c84f4c0c4a2c99
+
+  future:
+    git: https://github.com/crystal-community/future.cr.git
+    version: 0.1.0
+
+  pg:
+    git: https://github.com/will/crystal-pg.git
+    version: 0.21.1
+
+  rate_limiter:
+    git: https://github.com/z64/rate_limiter.git
+    version: 0.1.0+git.commit.e63f0b1d8e17105d7dc8bb875462693caf221499
+
+  tasker:
+    git: https://github.com/spider-gazelle/tasker.git
+    version: 2.0.1
+

@@ -1,0 +1,349 @@
+plugins:
+  General:
+    help:
+      name: 'help'
+      aliases: null
+      args: null
+      opt_args: '[command]'
+      description: 'Shows you all the commands you can use. If [command] is given, shows you what exactly that command does. Command names are fuzzy matched.'
+      perm_level: 0
+    info:
+      name: 'info'
+      aliases: null
+      args: null
+      opt_args: null
+      description: 'Displays some info about the development of this bot.'
+      perm_level: 0
+    sendownermessage:
+      name: 'sendOwnerMessage'
+      aliases: null
+      args: '<message>'
+      opt_args: null
+      description: 'Sends <message> to all unique owners of guilds the bot is on.'
+      perm_level: 2
+
+  Logging:
+    setlogchannel:
+      name: 'setLogChannel'
+      aliases:
+        - 'lc='
+      args: '<channel>'
+      opt_args: null
+      description: 'Sets the log channel to <channel>; passed as a channel mention.'
+      perm_level: 1
+    logchannel:
+      name: 'logChannel'
+      aliases: null
+      args: null
+      opt_args: null
+      description: 'Returns the log channel for this guild.'
+      perm_level: 0
+
+  Plugins:
+    disable:
+      name: 'disable'
+      aliases: null
+      args: '<plugin>'
+      opt_args: null
+      description: 'Disables <plugin> for this guild.'
+      perm_level: 1
+    enable:
+      name: 'enable'
+      aliases: null
+      args: '<plugin>'
+      opt_args: null
+      description: 'Enables <plugin> for this guild.'
+      perm_level: 1
+    plugins:
+      name: 'plugins'
+      aliases: null
+      args: null
+      opt_args: null
+      description: 'Returns a list with every plugin you can toggle.'
+      perm_level: 1
+
+  Prefix:
+    setprefix:
+      name: '.setPrefix'
+      aliases:
+        - '.pfx='
+      args: '<prefix>'
+      opt_args: null
+      description: 'Sets a custom prefix for this guild. Does not support spaces. The maximum prefix length is 20 characters.'
+      perm_level: 1
+    prefix:
+      name: '.prefix'
+      aliases: null
+      args: null
+      opt_args: null
+      description: "Returns this guild's prefix."
+      perm_level: 0
+    resetprefix:
+      name: '.resetPrefix'
+      aliases:
+        - '.pfx!'
+      args: null
+      opt_args: null
+      description: "Resets this guild's prefix back to `.`"
+      perm_level: 1
+
+  Roles:
+    rolelogsoff:
+      name: 'roleLogsOff'
+      aliases:
+        - 'rl-'
+      args: null
+      opt_args: null
+      description: 'Disables logging for role assignments, which makes it fully silent in the guild itself.'
+      perm_level: 1
+    rolelogson:
+      name: 'roleLogsOn'
+      aliases:
+        - 'rl+'
+      args: null
+      opt_args: null
+      description: "Enables logging for role assignments. Messages about role assignments will be sent in the guild's log channel."
+      perm_level: 1
+    rolenotifsoff:
+      name: 'roleNotifsOff'
+      aliases:
+        - 'rn-'
+      args: null
+      opt_args: null
+      description: 'Disables DMs to users self-assigning a role.'
+      perm_level: 1
+    rolenotifson:
+      name: 'roleNotifsOn'
+      aliases:
+        - 'rn+'
+      args: null
+      opt_args: null
+      description: 'Enables DMs to users self-assigning a role.'
+      perm_level: 1
+    setrolechannel:
+      name: 'setRoleChannel'
+      aliases:
+        - 'rc='
+      args: '<channel>'
+      opt_args: null
+      description: 'Sets the channel for role assignments to <channel>; passed as a channel mention.'
+      perm_level: 1
+    addreactionrole:
+      name: 'addReactionRole'
+      aliases:
+        - 'rr+'
+      args: '<role>'
+      opt_args: null
+      description: "Makes <role> self-assignable for everyone; passed by name and fuzzy matched against the guild's roles."
+      perm_level: 1
+    removereactionrole:
+      name: 'removeReactionRole'
+      aliases:
+        - 'rr-'
+      args: '<role>'
+      opt_args: null
+      description: "Removes <role> from the self-assignable roles; passed by name and fuzzy matched against the guild's roles."
+      perm_level: 1
+
+  Mutes:
+    mutes:
+      name: 'mutes'
+      aliases:
+        - '!?'
+      args: null
+      opt_args: null
+      description: 'Returns a list of all currently active mutes for this guild.'
+      perm_level: 1
+    mute:
+      name: 'mute'
+      aliases:
+        - '!'
+      args: '<userMentions> <duration>'
+      opt_args: '[reason]'
+      description: "Mutes all users mentioned for the given duration; order doesn't matter. \n
+        Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported."
+      perm_level: 1
+    unmute:
+      name: 'unmute'
+      aliases:
+        - '!-'
+      args: '<userMentions>'
+      opt_args: null
+      description: 'Unmutes all mentioned users'
+      perm_level: 1
+
+  Welcomes:
+    setwelcomechannel:
+      name: 'setWelcomeChannel'
+      aliases:
+        - 'welcome='
+      args: '<channel>'
+      opt_args: null
+      description: 'Sets the channel for join and leave messsages to <channel>; passed as a channel mention.'
+      perm_level: 1
+    setjoinmessage:
+      name: 'setJoinMessage'
+      aliases:
+        - 'jm='
+      args: null
+      opt_args: '[message]'
+      description: "Sets this guild's join message. If [message] is empty, no new join messages will be sent."
+      perm_level: 1
+    joinmessage:
+      name: 'joinMessage'
+      aliases:
+        - 'jm?'
+      args: null
+      opt_args: null
+      description: "Returns the guild's join message."
+      perm_level: 1
+    setleavemessage:
+      name: 'setLeaveMessage'
+      aliases:
+        - 'lm='
+      args: null
+      opt_args: '[message]'
+      description: "Sets this guild's leave message. If [message] is empty, no new leave messages will be sent."
+      perm_level: 1
+    leavemessage:
+      name: 'leaveMessage'
+      aliases:
+        - 'lm?'
+      args: null
+      opt_args: null
+      description: "Returns this guild's leave message."
+      perm_level: 1
+
+  Reminders:
+    remind:
+      name: 'remind'
+      aliases:
+        - 'rmd'
+      args: '<time> <message>'
+      opt_args: '[-dm]'
+      description: "Reminds you about <message> after <time>. Argument order doesn't matter. \n
+        Set the `-dm` flag to be reminded via DM. \n
+        Supported time formats are `s`, `m`, `h`, `d`, `w`. Mixing formats (e.g. 2h5m) is supported."
+      perm_level: 0
+    reminders:
+      name: 'reminders'
+      aliases:
+        - 'rmd?'
+      args: null
+      opt_args: '[all]'
+      description: 'Returns your reminders for this guild. Using the `all` flag, or using this command in a DM, will return all your reminders.'
+      perm_level: 0
+    unremind:
+      name: 'unremind'
+      aliases:
+        - 'rmd-'
+      args: '<ID>'
+      opt_args: null
+      description: 'Deletes your reminder corresponding to <ID>'
+      perm_level: 0
+
+  Auto-Removal:
+    bannedphrases:
+      name: 'bannedPhrases'
+      aliases:
+        - 'prohibited?'
+      args: null
+      opt_args: null
+      description: 'Returns all banned phrases if used by staff; everybody else will be referred to staff.'
+      perm_level: 0
+    warnedusers:
+      name: 'warnedUsers'
+      aliases:
+        - 'warns?'
+      args: null
+      opt_args: null
+      description: 'Returns a list of currently warned users for this guild.'
+      perm_level: 1
+    unwarn:
+      name: 'unwarn'
+      aliases:
+        - 'warn-'
+      args: '<userMentions>'
+      opt_args: null
+      description: 'Removes warns for every mentioned User in this guild.'
+      perm_level: 1
+    permit:
+      name: 'permit'
+      aliases: null
+      args: '<userMention>'
+      opt_args: null
+      description: 'Allows <User> to post banned phrases for one minute.'
+      perm_level: 1
+    setautomuteduration:
+      name: 'setAutoMuteDuration'
+      aliases:
+        - 'muteTime='
+      args: '<duration>'
+      opt_args: null
+      description:
+        "Changes the mute duration for using banned phrases in this guild. This will NOT be applied retroactively.\n
+        Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported."
+      perm_level: 1
+    automuteduration:
+      name: 'autoMuteDuration'
+      aliases:
+        - 'mutetime?'
+      args: null
+      opt_args: null
+      description: 'Returns the current mute duration for using banned phrases in this guild.'
+      perm_level: 1
+    setautowarnduration:
+      name: 'setAutoWarnDuration'
+      aliases:
+        - 'warnTime='
+      args: '<duration>'
+      opt_args: null
+      description:
+        "Changes the warn duration for using banned phrases in this guild. This will NOT be applied retroactively.\n
+        Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported."
+      perm_level: 1
+    autowarnduration:
+      name: 'autoWarnDuration'
+      aliases:
+        - 'warnTime?'
+      args: null
+      opt_args: null
+      description: 'Returns the current warn time for using banned phrases in this guild.'
+      perm_level: 1
+    addbannedphrase:
+      name: 'addBannedPhrase'
+      aliases:
+        - 'rmv+'
+      args: '<phrase>'
+      opt_args: '[-warn]'
+      description:
+        'Adds <phrase> to the banned phrases for this guild. Setting the [-warn] flag will set the term as soft-banned,
+        warning users once before muting them.'
+      perm_level: 1
+    removebannedphrase:
+      name: 'removeBannedPhrase'
+      aliases:
+        - 'rmv-'
+      args: '<phrase>'
+      opt_args: null
+      description: 'Removes <phrase> from banned phrases on this guild. This change will not apply to already warned or muted Users.'
+      perm_level: 1
+    ignorewhitespaceon:
+      name: 'ignoreWhiteSpaceOn'
+      aliases:
+        - 'noSpaceOn'
+      args: null
+      opt_args: null
+      description:
+        'This will make it so the bot overlooks excessive whitespace when looking for a banned phrase.
+        I.e., if you ban the phrase `banned`, the bot will also catch `b a n   n e d`. This does not work the
+        other way around. I.e., if you ban `ban me`, the bot will not catch `banme`.'
+      perm_level: 1
+    ignorewhitespaceoff:
+      name: 'ignoreWhiteSpaceOff'
+      aliases:
+        - 'noSpaceOff'
+      args: null
+      opt_args: null
+      description: 'This makes the bot respect the whitespace of a message. I.e., if you ban the phrase `banned`, it will not catch `ban ned`.'
+      perm_level: 1
