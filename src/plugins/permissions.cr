@@ -3,7 +3,7 @@ class Shrkbot::Permissions
 
   @@permissions = Hash(Discord::Snowflake, Hash(Discord::Snowflake, PermissionLevel)).new
 
-  getter! perm_role : Discord::Role
+  @@perm_role = Hash(Discord::Snowflake, Discord::Role).new
 
   @[Discord::Handler(
     event: :guild_create
@@ -12,12 +12,14 @@ class Shrkbot::Permissions
     spawn do
       @@permissions[payload.id] = Hash(Discord::Snowflake, PermissionLevel).new
 
-      @perm_role = client.get_guild_roles(payload.id).find { |role| role.name.downcase == "botcommand" }
-      unless @perm_role
-        @perm_role = client.create_guild_role(payload.id, "BotCommand")
+      role = client.get_guild_roles(payload.id).find { |role| role.name.downcase == "botcommand" }
+      if role
+        @@perm_role[payload.id] = role
+      else
+        @@perm_role[payload.id] = client.create_guild_role(payload.id, "BotCommand")
       end
 
-      mods = payload.members.select { |member| member.roles.includes?(self.perm_role.id) }
+      mods = payload.members.select { |member| member.roles.includes?(@@perm_role[payload.id].id) }
       mods.each do |mod|
         next if mod.user.id == Shrkbot.config.owner_id
         @@permissions[payload.id][mod.user.id] = PermissionLevel::Moderator
@@ -29,7 +31,7 @@ class Shrkbot::Permissions
     event: :guild_member_update
   )]
   def recheck_for_role(payload)
-    if payload.roles.includes?(self.perm_role.id)
+    if payload.roles.includes?(@@perm_role[payload.guild_id].id)
       @@permissions[payload.guild_id][payload.user.id] = PermissionLevel::Moderator
     else
       @@permissions[payload.guild_id].delete(payload.user.id)
