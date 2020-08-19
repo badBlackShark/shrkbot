@@ -285,7 +285,7 @@ plugins:
         Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported."
       perm_level: 1
     automuteduration:
-      name: 'autMuteDuration'
+      name: 'autoMuteDuration'
       aliases:
         - 'mutetime?'
       args: null
