@@ -9,17 +9,19 @@ class Shrkbot::Permissions
     event: :guild_create
   )]
   def init_permissions(payload)
-    @perm_role = client.get_guild_roles(payload.id).find { |role| role.name.downcase == "botcommand" }
-    unless @perm_role
-      @perm_role = client.create_guild_role(payload.id, "BotCommand")
-    end
+    spawn do
+      @@permissions[payload.id] = Hash(Discord::Snowflake, PermissionLevel).new
 
-    @@permissions[payload.id] = Hash(Discord::Snowflake, PermissionLevel).new
+      @perm_role = client.get_guild_roles(payload.id).find { |role| role.name.downcase == "botcommand" }
+      unless @perm_role
+        @perm_role = client.create_guild_role(payload.id, "BotCommand")
+      end
 
-    mods = payload.members.select { |member| member.roles.includes?(self.perm_role.id) }
-    mods.each do |mod|
-      next if mod.user.id == Shrkbot.config.owner_id
-      @@permissions[payload.id][mod.user.id] = PermissionLevel::Moderator
+      mods = payload.members.select { |member| member.roles.includes?(self.perm_role.id) }
+      mods.each do |mod|
+        next if mod.user.id == Shrkbot.config.owner_id
+        @@permissions[payload.id][mod.user.id] = PermissionLevel::Moderator
+      end
     end
   end
 
