@@ -173,6 +173,14 @@ plugins:
       perm_level: 1
 
   Welcomes:
+    setwelcomechannel:
+      name: 'setWelcomeChannel'
+      aliases:
+        - 'welcome='
+       args: '<channel>'
+       opt_args: null
+       description: 'Sets the channel for join and leave messsages to <channel>; passed as a channel mention.'
+       perm_level: 1
     setjoinmessage:
       name: 'setJoinMessage'
       aliases:
@@ -244,7 +252,7 @@ plugins:
       description: 'Returns all banned phrases if used by staff; everybody else will be referred to staff.'
       perm_level: 0
     warnedusers:
-      name: 'warnedUser'
+      name: 'warnedUsers'
       aliases:
         - 'warns?'
       args: null
@@ -257,7 +265,7 @@ plugins:
         - 'warn-'
       args: '<userMentions>'
       opt_args: null
-      description: 'Deletes warns for every mentioned User in this guild.'
+      description: 'Removes warns for every mentioned User in this guild.'
       perm_level: 1
     permit:
       name: 'permit'
@@ -273,7 +281,7 @@ plugins:
       args: '<duration>'
       opt_args: null
       description: "Changes the mute duration for using banned phrases in this guild. This will NOT be applied retroactively.\n
-        Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported."
+                    Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported."
       perm_level: 1
     automuteduration:
       name: 'autMuteDuration'
@@ -290,7 +298,7 @@ plugins:
       args: '<duration>'
       opt_args: null
       description: "Changes the warn duration for using banned phrases in this guild. This will NOT be applied retroactively.\n
-        Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported."
+                    Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported."
       perm_level: 1
     autowarnduration:
       name: 'autoWarnDuration'
@@ -305,8 +313,9 @@ plugins:
       aliases:
         - 'rmv+'
       args: '<phrase>'
-      opt_args: '[hard]'
-      description: 'Adds <phrase> to the soft-banned phrases for this guild. [Hard] adds it to fully banned phrases.'
+      opt_args: '[-warn]'
+      description: 'Adds <phrase> to the banned phrases for this guild. Setting the [-warn] flag will set the term as soft-banned,
+                    warning users once before muting them.'
       perm_level: 1
     removebannedphrase:
       name: 'removeBannedPhrase'
@@ -322,7 +331,9 @@ plugins:
         - 'noSpaceOn'
       args: null
       opt_args: null
-      description: ''
+      description: 'This will make it so the bot overlooks excessive whitespace when looking for a banned phrase. 
+                    I.e., if you ban the phrase `banned`, the bot will also catch `b a n   n e d`. This does not work the 
+                    other way around. I.e., if you ban `ban me`, the bot will not catch `banme`.'
       perm_level: 1
     ignorewhitespaceoff:
       name: 'ignoreWhiteSpaceOff'
@@ -330,5 +341,5 @@ plugins:
         - 'noSpaceOff'
       args: null
       opt_args: null
-      description: ''
+      description: 'This makes the bot respect the whitespace of a message. I.e., if you ban the phrase `banned`, it will not catch `ban ned`.'
       perm_level: 1
