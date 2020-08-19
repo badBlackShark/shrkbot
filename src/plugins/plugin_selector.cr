@@ -36,7 +36,7 @@ class Shrkbot::PluginSelector
       else
         # Only logging should be enabled by default
         @@enabled[payload.id] = ["logging"]
-        Shrkbot.bot.db.insert_row("shrk_plugins", [payload.id, @@optional_plugins])
+        Shrkbot.bot.db.insert_row("shrk_plugins", [payload.id, @@enabled[payload.id]])
 
         msg = "Hi there, I'm shrkbot. You are receiving this message because either I'm seeing this server for the first time, or " \
               "my database was deleted. If you already know me, feel free to ignore this message.\n" \
