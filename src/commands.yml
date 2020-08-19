@@ -14,6 +14,13 @@ plugins:
       opt_args: null
       description: 'Displays some info about the development of this bot.'
       perm_level: 0
+    sendownermessage:
+      name: 'sendOwnerMessage'
+      aliases: null
+      args: '<message>'
+      opt_args: null
+      description: 'Sends <message> to all unique owners of guilds the bot is on.'
+      perm_level: 2
 
   Logging:
     setlogchannel:
@@ -226,3 +233,102 @@ plugins:
       opt_args: null
       description: 'Deletes your reminder corresponding to <ID>'
       perm_level: 0
+
+  Auto-Removal:
+    bannedphrases:
+      name: 'bannedPhrases'
+      aliases: 
+        - 'prohibited?'
+      args: null
+      opt_args: null
+      description: 'Returns all banned phrases if used by staff; everybody else will be referred to staff.'
+      perm_level: 0
+    warnedusers:
+      name: 'warnedUser'
+      aliases:
+        - 'warns?'
+      args: null
+      opt_args: null
+      description: 'Returns a list of currently warned users for this guild.'
+      perm_level: 1
+    unwarn:
+      name: 'unwarn'
+      aliases: 
+        - 'warn-'
+      args: '<userMentions>'
+      opt_args: null
+      description: 'Deletes warns for every mentioned User in this guild.'
+      perm_level: 1
+    permit:
+      name: 'permit'
+      aliases: null
+      args: '<userMention>'
+      opt_args: null
+      description: 'Allows <User> to post banned phrases for one minute.'
+      perm_level: 1
+    setautomuteduration:
+      name: 'setAutoMuteDuration'
+      aliases:
+        - 'muteTime='
+      args: '<duration>'
+      opt_args: null
+      description: "Changes the mute duration for using banned phrases in this guild. This will NOT be applied retroactively.\n
+        Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported."
+      perm_level: 1
+    automuteduration:
+      name: 'autMuteDuration'
+      aliases:
+        - 'mutetime?'
+      args: null
+      opt_args: null
+      description: 'Returns the current mute duration for using banned phrases in this guild.'
+      perm_level: 1
+    setautowarnduration:
+      name: 'setAutoWarnDuration'
+      aliases:
+        - 'warnTime='
+      args: '<duration>'
+      opt_args: null
+      description: "Changes the warn duration for using banned phrases in this guild. This will NOT be applied retroactively.\n
+        Supported time formats are `s`, `m`, `h`, `d` and `w`. Mixing formats (e.g. 2h5m) is supported."
+      perm_level: 1
+    autowarnduration:
+      name: 'autoWarnDuration'
+      aliases:
+        - 'warnTime?'
+      args: null
+      opt_args: null
+      description: 'Returns the current warn time for using banned phrases in this guild.'
+      perm_level: 1
+    addbannedphrase:
+      name: 'addBannedPhrase'
+      aliases:
+        - 'rmv+'
+      args: '<phrase>'
+      opt_args: '[hard]'
+      description: 'Adds <phrase> to the soft-banned phrases for this guild. [Hard] adds it to fully banned phrases.'
+      perm_level: 1
+    removebannedphrase:
+      name: 'removeBannedPhrase'
+      aliases: 
+        - 'rmv-'
+      args: '<phrase>'
+      opt_args: null
+      description: 'Removes <phrase> from banned phrases on this guild. This change will not apply to already warned or muted Users.'
+      perm_level: 1
+    ignorewhitespaceon:
+      name: 'ignoreWhiteSpaceOn'
+      aliases:
+        - 'noSpaceOn'
+      args: null
+      opt_args: null
+      description: ''
+      perm_level: 1
+    ignorewhitespaceoff:
+      name: 'ignoreWhiteSpaceOff'
+      aliases:
+        - 'noSpaceOff'
+      args: null
+      opt_args: null
+      description: ''
+      perm_level: 1
