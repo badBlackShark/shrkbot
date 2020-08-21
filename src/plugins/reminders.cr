@@ -207,7 +207,7 @@ class Shrkbot::Reminders
     job = Tasker.at(time) do
       elapsed = time - created_at
       time_string = String.build do |str|
-        str << "Approximately "
+        str << "approximately "
         if elapsed.days == 1
           str << "#{elapsed.days} day, "
         elsif elapsed.days > 1
