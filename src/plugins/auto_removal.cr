@@ -182,6 +182,8 @@ class Shrkbot::AutoRemoval
 
         embed.footer = Discord::EmbedFooter.new(text: "For soft-banned phrases you get a warning first, and a mute on the second offense.")
 
+        embed.colour = 0x38AFE5
+
         client.create_message(payload.channel_id, "", embed)
       end
     end
