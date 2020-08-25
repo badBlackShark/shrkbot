@@ -59,6 +59,10 @@ class Shrkbot::Reminders
       client.create_message(payload.channel_id, "Please tell me what to remind you of.")
       return
     end
+    # Sanitize the message a little. First escape all unescaped mass pings
+    msg = msg.gsub(/(?<!`)(@everyone|@here)(?!.*`)/, "`\\1`")
+    # Next, replace all role pings with their name
+    msg = msg.gsub(/<@&(\d+)>/) { |m| "`@#{Shrkbot.bot.cache.resolve_role(Discord::Snowflake.new($1)).name}`" }
 
     matchdata = time_raw.scan(/\d+[smhdw]{1}/i)
     timespan = Time::Span.new
