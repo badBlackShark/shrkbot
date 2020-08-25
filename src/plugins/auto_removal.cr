@@ -250,7 +250,7 @@ class Shrkbot::AutoRemoval
       @@warned_users[guild_id].delete(warn)
       Shrkbot.bot.db.delete_row_double_filter("shrk_warned_users", "guild", guild_id, "user_id", user.id)
 
-      member = Shrkbot.bot.cache.resolve_member(guild_id, payload.author.id)
+      member = Shrkbot.bot.cache.resolve_member(guild_id, user.id)
       name = "*#{member.user.username}##{member.user.discriminator}*"
       name += " [aka *#{member.nick}*]" if member.nick
       Logger.log(guild_id, "#{name} has been unwarned.", payload.author)
