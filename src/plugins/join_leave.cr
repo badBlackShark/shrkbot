@@ -68,7 +68,7 @@ class Shrkbot::JoinLeave
       PermissionChecker.new(PermissionLevel::Moderator),
     }
   )]
-  def set_log_channel(payload, ctx)
+  def set_welcome_channel(payload, ctx)
     channel = payload.content.match(/<#(\d*)>/)
     if channel
       guild = ctx[GuildChecker::Result].id
