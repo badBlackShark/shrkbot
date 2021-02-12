@@ -24,6 +24,10 @@ shards:
     git: https://github.com/crystal-community/future.cr.git
     version: 0.1.0
 
+  myhtml:
+    git: https://github.com/kostya/myhtml.git
+    version: 1.5.3
+
   pg:
     git: https://github.com/will/crystal-pg.git
     version: 0.21.1
@@ -31,6 +35,10 @@ shards:
   rate_limiter:
     git: https://github.com/z64/rate_limiter.git
     version: 0.1.0+git.commit.e63f0b1d8e17105d7dc8bb875462693caf221499
+
+  rss:
+    git: https://github.com/ruivieira/rss.git
+    version: 0.1.1
 
   tasker:
     git: https://github.com/spider-gazelle/tasker.git

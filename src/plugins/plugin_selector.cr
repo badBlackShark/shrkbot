@@ -12,6 +12,7 @@ class Shrkbot::PluginSelector
     "reminders",
     "welcomes",
     "auto-removal",
+    "halts",
   ]
 
   @first = true
@@ -143,6 +144,8 @@ class Shrkbot::PluginSelector
       Shrkbot::JoinLeave.setup(guild, client)
     when "auto-removal"
       Shrkbot::AutoRemoval.setup(guild, client)
+    when "halts"
+      Shrkbot::HaltNotifs.setup(guild, client)
     end
   end
 
@@ -165,5 +168,9 @@ class Shrkbot::PluginSelector
       # Everything is always enabled in DMs.
       true
     end
+  end
+
+  def self.guilds_with_plugin(plugin : String)
+    return @@enabled.select { |guild, plugins| plugins.includes?(plugin) }.keys
   end
 end

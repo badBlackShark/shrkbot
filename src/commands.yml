@@ -347,3 +347,35 @@ plugins:
       opt_args: null
       description: 'This makes the bot respect the whitespace of a message. I.e., if you ban the phrase `banned`, it will not catch `ban ned`.'
       perm_level: 1
+
+  Halts:
+    stopcode:
+      name: 'stopcode'
+      aliases:
+        - 'sc?'
+      args: '<code>'
+      opt_args: null
+      description: 'Shows the details about the stopcode <code>. If an in-depth description is provided by NASDAQTrader, the bot will provide it as well.'
+      perm_level: 0
+    lasthalt:
+      name: 'lastHalt'
+      aliases: null
+      args: null
+      opt_args: null
+      description: 'Shows the last halt that the bot knows of.'
+      perm_level: 0
+    halts:
+      name: 'halts'
+      aliases: null
+      args: null
+      opt_args: '[ticker]'
+      description: 'If [ticker] was provided, shows all the current halts for this ticker. Otherwise, all current halts are shown. This command shows halts in a shorted format.'
+      perm_level: 0
+    sethaltchannel:
+      name: 'setHaltChannel'
+      aliases:
+        - 'hc='
+      args: '<channel>'
+      opt_args: null
+      description: 'Sets the channel for halt notifications to <channel>, which must be passed as a channel mention.'
+      perm_level: 1

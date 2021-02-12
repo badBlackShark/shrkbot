@@ -5,6 +5,7 @@ require "discordcr-plugin"
 require "discordcr-middleware"
 
 require "./config"
+require "./halts/*"
 require "./helpers/*"
 require "./plugins/*"
 require "./utilities/*"

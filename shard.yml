@@ -4,7 +4,7 @@ version: 0.1.0
 dependencies:
   # Framework for the Discord API.
   discordcr:
-    github: discordcr/discordcr
+    github: shardlab/discordcr
     branch: master
   # Making discordcr much nicer to use.
   discordcr-middleware:
@@ -22,6 +22,12 @@ dependencies:
   # DB interface
   db:
     github: crystal-lang/crystal-db
+  # RSS feeds
+  rss:
+    github: ruivieira/rss
+  # HTML parsing
+  myhtml:
+    github: kostya/myhtml
 
 targets:
   shrkbot:

@@ -14,12 +14,14 @@ class Shrkbot::Info
                         "My code can be found [here](https://github.com/badBlackShark/shrkbot)."
     embed.fields = [Discord::EmbedField.new(
       name: "I was built using these packages",
-      value: "**[discordcr](https://github.com/discordcr/discordcr)** *by z64*\n" \
+      value: "**[discordcr](https://github.com/shardlab/discordcr)** *by meew0 and RX14*\n" \
              "**[discordcr-middleware](https://github.com/z64/discordcr-middleware)** *by z64*\n" \
              "**[discordcr-plugin](https://github.com/z64/discordcr-plugin)** *by z64*\n" \
              "**[tasker](https://github.com/spider-gazelle/tasker)** *by spider-gazelle*\n" \
              "**[crystal-db](https://github.com/crystal-lang/crystal-db)** *by crystal-lang*\n" \
-             "**[crystal-pg](https://github.com/will/crystal-pg)** *by will*"
+             "**[crystal-pg](https://github.com/will/crystal-pg)** *by will*\n" \
+             "**[rss](https://github.com/ruivieira/rss)** *by ruivieira*\n" \
+             "**[myhtml](https://github.com/kostya/myhtml)** *by kostya*"
     )]
 
     embed.colour = 0x38AFE5

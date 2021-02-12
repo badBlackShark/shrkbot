@@ -6,7 +6,7 @@ class Shrkbot::OwnerMessage
     middleware: {
       Command.new("sendOwnerMessage"),
       PermissionChecker.new(PermissionLevel::Creator),
-      ArgumentChecker.new(1)
+      ArgumentChecker.new(1),
     }
   )]
   def send_owner_message(payload, ctx)
