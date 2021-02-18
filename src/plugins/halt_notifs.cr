@@ -155,7 +155,7 @@ class Shrkbot::HaltNotifs
       halts = @@halts.select { |halt| halt.ticker.downcase == ticker.downcase }
 
       if halts.empty?
-        client.create_message(payload.channel_id, "There are current trading halts for $#{ticker.upcase}.")
+        client.create_message(payload.channel_id, "There are no current trading halts for $#{ticker.upcase}.")
       else
         embed = Discord::Embed.new
 
@@ -170,12 +170,14 @@ class Shrkbot::HaltNotifs
   end
 
   private def self.start_request_loop(client : Discord::Client)
-    @@schedule = Tasker.every(1.minute) do
+    @@schedule = Tasker.every(5.seconds) do
       feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
       halts = feed.items.map { |item| parse_halt(item.description) }
 
       new_halts = halts.reject { |halt| @@halts.includes?(halt) }
       new_halts.each do |halt|
+        halt_nr = @@halts.select { |h| h.ticker == halt.ticker && !h.res_trade_time.empty? }.size + 1
+        halt.halt_nr = halt_nr
         PluginSelector.guilds_with_plugin("halts").each do |guild|
           client.create_message(@@notif_channel[guild], "", halt.to_embed)
         end

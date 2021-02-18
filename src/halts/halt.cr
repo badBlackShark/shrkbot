@@ -9,6 +9,7 @@ class Halt
   getter res_date : String
   getter res_quote_time : String
   getter res_trade_time : String
+  property halt_nr : Int32
 
   def initialize(
     @date : String,
@@ -20,14 +21,21 @@ class Halt
     @pauseprice : String,
     @res_date : String,
     @res_quote_time : String,
-    @res_trade_time : String
+    @res_trade_time : String,
+    @halt_nr : Int32 = 0
   )
   end
 
   def to_embed
     embed = Discord::Embed.new
 
-    embed.title = "Halt update on ticker #{@ticker} with code *#{@stopcode}* at #{@time} ET!"
+    if @res_trade_time.empty?
+      embed.title = "$#{@ticker} has been halted with code *#{@stopcode}* at #{@time} ET!"
+      embed.colour = 0xFF0000
+    else
+      embed.title = "$#{@ticker} has been resumed at #{@res_trade_time} ET! It had been halted with code *#{@stopcode}* at #{@time} ET!"
+      embed.colour = 0x38AFE5
+    end
 
     fields = Array(Discord::EmbedField).new
 
@@ -43,7 +51,8 @@ class Halt
       stopcode = CodeList.find_code(@stopcode)
       str << "• Stop Code: **#{stopcode.symbol}**\n"
       str << "• Reason: #{stopcode.title}\n"
-      str << "• For more info on this stopcode use the `stopcode <code>` command." if stopcode.description
+      str << "• Number of halts today on this ticker: #{@halt_nr}\n" unless @halt_nr == 0
+      str << "\nFor more info on this stopcode use the `stopcode <code>` command." if stopcode.description
     end
     fields << Discord::EmbedField.new(name: "Halt Info", value: value)
 
@@ -57,7 +66,6 @@ class Halt
     fields << Discord::EmbedField.new(name: "Dates & Times", value: value)
 
     embed.fields = fields
-    embed.colour = 0xFF0000
     embed.footer = Discord::EmbedFooter.new(text: "All times are in Eastern Time. All dates are in MM/DD/YYYY.")
 
     return embed
