@@ -6,11 +6,11 @@ shards:
 
   db:
     git: https://github.com/crystal-lang/crystal-db.git
-    version: 0.9.0
+    version: 0.10.0
 
   discordcr:
-    git: https://github.com/discordcr/discordcr.git
-    version: 0.4.0+git.commit.619e08d31fd10918f2554f7623e2066ac308c439
+    git: https://github.com/shardlab/discordcr.git
+    version: 0.4.0+git.commit.50d080fa34122c1c022ba5bbaafb58d5c693109d
 
   discordcr-middleware:
     git: https://github.com/z64/discordcr-middleware.git
@@ -30,7 +30,7 @@ shards:
 
   pg:
     git: https://github.com/will/crystal-pg.git
-    version: 0.21.1
+    version: 0.23.1
 
   rate_limiter:
     git: https://github.com/z64/rate_limiter.git
@@ -42,5 +42,5 @@ shards:
 
   tasker:
     git: https://github.com/spider-gazelle/tasker.git
-    version: 2.0.1
+    version: 2.0.2
 

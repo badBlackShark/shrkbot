@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   db:
-    image: postgres
+    image: postgres:11
     restart: always
     environment:
       POSTGRES_DB: shrkbot_db

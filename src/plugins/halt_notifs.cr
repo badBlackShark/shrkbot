@@ -7,7 +7,7 @@ class Shrkbot::HaltNotifs
   # guild => channel
   @@notif_channel = Hash(Discord::Snowflake, Discord::Snowflake).new
   @@halts = Array(Halt).new
-  @@schedule : Tasker::Repeat(Array(Halt))?
+  @@schedule : Tasker::Repeat(Nil)?
 
   @first = true
 
@@ -48,15 +48,17 @@ class Shrkbot::HaltNotifs
         Shrkbot.bot.db.update_value("shrk_halts", "channel", @@notif_channel[guild], "guild", guild)
         client.create_message(@@notif_channel[guild], "I have set this channel as my channel for halt notifications. Staff can disable these with the `disable halts` command, or change the channel with `setHaltChannel`.")
       else
-        @@notif_channel[guild] = client.create_guild_channel(guild, "halts", Discord::ChannelType::GuildText, nil, nil, nil, nil, nil, nil, nil).id
+        # @@notif_channel[guild] = client.create_guild_channel(guild, "halts", Discord::ChannelType::GuildText, nil, nil, nil, nil, nil, nil, nil).id
         Shrkbot.bot.db.update_value("shrk_halts", "channel", @@notif_channel[guild], "guild", guild)
         client.create_message(@@notif_channel[guild], "I have created this channel as my channel for halt notifications. Staff can disable these with the `disable halts` command, or change the channel with `setHaltChannel`.")
       end
     end
 
-    feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
-    @@halts = feed.items.map { |item| parse_halt(item.description) }
-    start_request_loop(client) unless @@schedule
+    unless @@schedule
+      feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
+      @@halts = feed.items.map { |item| parse_halt(item.description) }
+      start_request_loop(client)
+    end
   end
 
   @[Discord::Handler(
@@ -186,6 +188,11 @@ class Shrkbot::HaltNotifs
       end
 
       @@halts = halts
+      # The garbage collector doesn't seem to do its job without this. I really dislike using this,
+      # but memory increases monotonically without this. My feeling is that the old space for
+      # @@halts doesn't get cleared as it should. Either way, this is the solution until I find a
+      # better one.
+      GC.collect
     end
   end
 

@@ -5,3 +5,4 @@
 *.dwarf
 /src/config.yml
 /src/database/data/
+.DS_STORE
