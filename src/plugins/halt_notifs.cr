@@ -9,6 +9,8 @@ class Shrkbot::HaltNotifs
   @@halts = Array(Halt).new
   @@schedule : Tasker::Repeat(Nil)?
 
+  class_getter! api : YahooFinance::Api
+
   @first = true
 
   @[Discord::Handler(
@@ -19,6 +21,7 @@ class Shrkbot::HaltNotifs
       if @first
         @first = false
         Shrkbot.bot.db.create_table("shrk_halts", ["guild int8", "channel int8"])
+        @@api = YahooFinance::Api.new(Shrkbot.config.yahoo_token)
       end
 
       HaltNotifs.setup(payload.id, client) if PluginSelector.enabled?(payload.id, "halts")
@@ -107,7 +110,7 @@ class Shrkbot::HaltNotifs
     middleware: {
       Command.new(["stopcode", "sc?"]),
       EnabledChecker.new("halts"),
-      ArgumentChecker.new(1)
+      ArgumentChecker.new(1),
     }
   )]
   def stopcode(payload, ctx)
@@ -120,7 +123,7 @@ class Shrkbot::HaltNotifs
     event: :message_create,
     middleware: {
       Command.new(["lastHalt"]),
-      EnabledChecker.new("halts")
+      EnabledChecker.new("halts"),
     }
   )]
   def last_halt(payload, ctx)
@@ -132,7 +135,7 @@ class Shrkbot::HaltNotifs
     middleware: {
       Command.new(["halts"]),
       EnabledChecker.new("halts"),
-      ArgumentChecker.new(0,1)
+      ArgumentChecker.new(0, 1),
     }
   )]
   def halts(payload, ctx)
@@ -178,8 +181,27 @@ class Shrkbot::HaltNotifs
 
       new_halts = halts.reject { |halt| @@halts.includes?(halt) }
       new_halts.each do |halt|
-        halt_nr = @@halts.select { |h| h.ticker == halt.ticker && !h.res_trade_time.empty? }.size + 1
-        halt.halt_nr = halt_nr
+        if halt.res_trade_time.empty?
+          halt_nr = @@halts.select { |h| h.ticker == halt.ticker && !h.res_trade_time.empty? }.size + 1
+          halt.halt_nr = halt_nr
+          price_action = get_price_action(halt.ticker)
+          if price_action[0] == "error"
+            halt.price_action_error = "Price action could not be displayed due to an error on Yahoo Finance's side. Error: #{price_action[1]}"
+          else
+            halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction = price_action
+            halt.set_price_action(halt_price.to_f, last_close.to_f, today_open.to_f, last_candle_open.to_f, pm_open.to_f, pm_close.to_f, halt_direction.to_s)
+          end
+        else
+          old_halt = @@halts.find { |h| h.ticker == halt.ticker && h.res_trade_time.empty? }
+          if old_halt
+            halt.set_price_action_by_other(old_halt)
+            halt.resume_price = get_resume_price(halt.ticker)
+            @@halts.delete(old_halt)
+          else
+            halt.price_action_error = "Resume time set without previous known halt. Price action cannot be displayed."
+          end
+        end
+
         PluginSelector.guilds_with_plugin("halts").each do |guild|
           spawn do
             client.create_message(@@notif_channel[guild], "", halt.to_embed)
@@ -187,7 +209,12 @@ class Shrkbot::HaltNotifs
         end
       end
 
-      @@halts = halts
+      # This way we don't lose data about price-action etc. throughout the day.
+      if halts.size >= @@halts.size
+        @@halts += new_halts
+      else
+        @@halts = halts
+      end
       # The garbage collector doesn't seem to do its job without this. I really dislike using this,
       # but memory increases monotonically without this. My feeling is that the old space for
       # @@halts doesn't get cleared as it should. Either way, this is the solution until I find a
@@ -196,11 +223,59 @@ class Shrkbot::HaltNotifs
     end
   end
 
+  private def self.get_resume_price(symbol : String)
+    raw = HaltNotifs.api.get_chart(symbol)["chart"]
+    if raw["result"].as_a?
+      # This is not fully guaranteed to get the resume price. I think this becomes inaccurate
+      # if between the resume happening and the bot picking it up Yahoo starts a new candle interval.
+      # Making sure this doesn't happen does more work than it helps right now though.
+      return raw["result"][0]["indicators"]["quote"][0]["open"].as_a.last.as_f
+    else
+      return -1.0
+    end
+  end
+
+  private def self.get_price_action(symbol : String)
+    raw = HaltNotifs.api.get_chart(symbol)["chart"]
+    if raw["result"].as_a?
+      chart_data = raw["result"][0]
+      quote_data = chart_data["indicators"]["quote"][0]
+      meta_data = raw["result"][0]["meta"]
+
+      halt_price = meta_data["regularMarketPrice"].as_f
+      last_close = meta_data["previousClose"].as_f
+
+      time = meta_data["currentTradingPeriod"]["regular"]["start"].as_i
+      index = chart_data["timestamp"].as_a.index { |timestamp| timestamp.as_i >= time }
+      today_open = if index
+        quote_data["open"][index].as_f
+      else
+        -1
+      end
+
+      last_candle_open = quote_data["open"].as_a.last.as_f
+      pm_open = quote_data["open"][0].as_f
+
+      time = meta_data["currentTradingPeriod"]["pre"]["end"].as_i
+      index = chart_data["timestamp"].as_a.index { |timestamp| timestamp.as_i > time }
+      pm_close = if index
+        quote_data["close"][index].as_f
+      else
+        quote_data["close"].as_a.last.as_f
+      end
+
+      halt_direction = last_candle_open < halt_price ? "up" : "down"
+
+      return [halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction]
+    else
+      return ["error", raw["error"]["description"].as_s]
+    end
+  end
+
   private def self.parse_halt(raw_html : String)
     parser = Myhtml::Parser.new(raw_html)
 
     date, time, ticker, name, market, stopcode, pausprice, res_date, res_quote_time, res_trade_time = parser.nodes(:td).map(&.inner_text.strip).to_a
-
     return Halt.new(date, time, ticker, name, market, stopcode, pausprice, res_date, res_quote_time, res_trade_time)
   end
 end

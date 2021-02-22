@@ -5,9 +5,10 @@ module Shrkbot
     getter token : String
     getter owner_id : UInt64
     getter client_id : UInt64
+    getter yahoo_token : String
     getter shard_count : Int32 = 1
 
-    def initialize(@token : String, @owner_id : UInt64, @client_id : UInt64)
+    def initialize(@token : String, @owner_id : UInt64, @client_id : UInt64, @yahoo_token : String)
     end
 
     def self.load(filename)

@@ -10,6 +10,7 @@ require "./helpers/*"
 require "./plugins/*"
 require "./utilities/*"
 require "./middlewares/*"
+require "./yahoo-finance/*"
 
 module Shrkbot
   # Stuff used across all modules, especially heavily used emojis.
