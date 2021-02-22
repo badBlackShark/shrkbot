@@ -1,0 +1,4 @@
+dependencies:
+  discordcr:
+    github: shardlab/discordcr
+    commit: 50d080fa34122c1c022ba5bbaafb58d5c693109d

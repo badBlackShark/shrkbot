@@ -1,3 +1,4 @@
+# NOTICE: This lockfile contains some overrides from shard.override.yml
 version: 2.0
 shards:
   cron_parser:
@@ -8,7 +9,7 @@ shards:
     git: https://github.com/crystal-lang/crystal-db.git
     version: 0.10.0
 
-  discordcr:
+  discordcr: # Overridden
     git: https://github.com/shardlab/discordcr.git
     version: 0.4.0+git.commit.50d080fa34122c1c022ba5bbaafb58d5c693109d
 
