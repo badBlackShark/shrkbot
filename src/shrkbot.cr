@@ -14,8 +14,9 @@ require "./yahoo-finance/*"
 
 module Shrkbot
   # Stuff used across all modules, especially heavily used emojis.
-  CHECKMARK   = URI.encode("\u2705")
-  CROSSMARK   = URI.encode("\u274C")
+  # Docs say they need to be URI encoded, but now I get an error when I do that. Who even knows.
+  CHECKMARK   = "✅" # URI.encode("\u2705")
+  CROSSMARK   = "❌" # URI.encode("\u274C")
   TIME_FORMAT = "%A, %d. %B, %Y at %I:%M:%S %p (UTC%:z)" # Please fix
 
   class Bot

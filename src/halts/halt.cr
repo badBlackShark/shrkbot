@@ -145,13 +145,13 @@ class Halt
             str << "• Price at last close: #{@last_close == -1 ? "Unknown" : "$#{@last_close}"}\n"
             str << "• Today's pre-market move: #{@pm_open == -1 ? "Unknown" : "$#{@pm_open}"} -> #{@pm_close == -1 ? "Unknown" : "$#{@pm_close}"} (#{@pre_market_percent_change}%)\n"
             str << "• Price at market open: #{@today_open == -1 ? "Unknown" : "$#{@today_open}"}\n" if @pm_close != @today_open
-            str << "• Last known 5m candle price movement: #{@last_candle_open == -1 ? "Unknown" : "$#{@last_candle_open}"} -> #{@halt_price == -1 ? "Unknown" : "$#{@halt_price}"} (#{@last_candle_percent_change}%)\n"
+            str << "• Last known price movement: #{@last_candle_open == -1 ? "Unknown" : "$#{@last_candle_open}"} -> #{@halt_price == -1 ? "Unknown" : "$#{@halt_price}"} (#{@last_candle_percent_change}%)\n"
             str << "• Suspected halt direction: **#{@halt_direction.capitalize}**"
           end
         else
           value = String.build do |str|
             str << "• Price at halt: $#{@halt_price == -1 ? "Unknown" : @halt_price}\n"
-            str << "• Resumed at: **$#{@resume_price == -1 ? "Unknown" : @resume_price}** (#{@percent_change_since_last_close}% since last close)\n"
+            str << "• Resumed at: **$#{@resume_price == -1 ? "Unknown" : @resume_price.round(2)}** (#{@percent_change_since_last_close}% since last close)\n"
             str << "• Suspected halt direction: #{@halt_direction.capitalize}\n"
             str << "• Price at market open: $#{@today_open == -1 ? "Unknown" : @today_open}"
           end

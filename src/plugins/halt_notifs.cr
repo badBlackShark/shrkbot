@@ -175,9 +175,11 @@ class Shrkbot::HaltNotifs
   end
 
   private def self.start_request_loop(client : Discord::Client)
-    @@schedule = Tasker.every(1.minute) do
+    @@schedule = Tasker.every(10.seconds) do
       feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
       halts = feed.items.map { |item| parse_halt(item.description) }
+
+      halts << Halt.new("today", "now", "cciv", "cciv dude", "nyse", "t2", "", "also today", "", "")
 
       new_halts = halts.reject { |halt| @@halts.includes?(halt) }
       new_halts.each do |halt|
@@ -253,7 +255,7 @@ class Shrkbot::HaltNotifs
         -1
       end
 
-      last_candle_open = quote_data["open"].as_a.last.as_f
+      last_candle_open = quote_data["open"].as_a[-2]?.try(&.as_f) || -1.0
       pm_open = quote_data["open"][0].as_f
 
       time = meta_data["currentTradingPeriod"]["pre"]["end"].as_i
@@ -264,7 +266,11 @@ class Shrkbot::HaltNotifs
         quote_data["close"].as_a.last.as_f
       end
 
-      halt_direction = last_candle_open < halt_price ? "up" : "down"
+      halt_direction = if last_candle_open
+        last_candle_open < halt_price ? "up" : "down"
+      else
+        "intederminable"
+      end
 
       return [halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction]
     else
