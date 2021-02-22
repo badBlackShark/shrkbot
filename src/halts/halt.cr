@@ -44,7 +44,7 @@ class Halt
     @pm_close : Float64 = -1,
     @pre_market_percent_change : Float64 = -1,
     @percent_change_since_last_close : Float64 = -1,
-    @halt_direction : String = "Indeterminable",
+    @halt_direction : String = "indeterminable",
     @resume_price : Float64 = -1,
     @halt_nr : Int32 = 0
   )
