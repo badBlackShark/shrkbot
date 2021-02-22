@@ -175,7 +175,7 @@ class Shrkbot::HaltNotifs
   end
 
   private def self.start_request_loop(client : Discord::Client)
-    @@schedule = Tasker.every(10.seconds) do
+    @@schedule = Tasker.every(1.minute) do
       feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
       halts = feed.items.map { |item| parse_halt(item.description) }
 
