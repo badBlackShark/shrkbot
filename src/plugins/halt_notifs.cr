@@ -208,17 +208,9 @@ class Shrkbot::HaltNotifs
         end
       end
 
-      if new_halts.size > 0
-        puts "Old halts:"
-        puts @@halts
-        puts "New halts:"
-        puts new_halts
-      end
-
       # This way we don't lose data about price-action etc. throughout the day.
       if halts.size >= @@halts.size
         @@halts += new_halts
-        puts "@@halts after addition: #{@@halts}" if new_halts.size > 0
       else
         @@halts = halts
       end
