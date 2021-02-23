@@ -5,5 +5,5 @@ COPY . /app
 WORKDIR /app
 
 RUN shards install
-RUN shards build --release --no-debug
+RUN shards build --release
 ENTRYPOINT /app/bin/shrkbot
