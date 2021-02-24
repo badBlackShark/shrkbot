@@ -22,6 +22,9 @@ class Shrkbot::HaltNotifs
         @first = false
         Shrkbot.bot.db.create_table("shrk_halts", ["guild int8", "channel int8"])
         @@api = YahooFinance::Api.new(Shrkbot.config.yahoo_token)
+        feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
+        @@halts = feed.items.map { |item| HaltNotifs.parse_halt(item.description) }
+        HaltNotifs.start_request_loop(Shrkbot.bot.client)
       end
 
       HaltNotifs.setup(payload.id, client) if PluginSelector.enabled?(payload.id, "halts")
@@ -55,12 +58,6 @@ class Shrkbot::HaltNotifs
         Shrkbot.bot.db.update_value("shrk_halts", "channel", @@notif_channel[guild], "guild", guild)
         client.create_message(@@notif_channel[guild], "I have created this channel as my channel for halt notifications. Staff can disable these with the `disable halts` command, or change the channel with `setHaltChannel`.")
       end
-    end
-
-    unless @@schedule
-      feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
-      @@halts = feed.items.map { |item| parse_halt(item.description) }
-      start_request_loop(client)
     end
   end
 
@@ -174,7 +171,8 @@ class Shrkbot::HaltNotifs
     end
   end
 
-  private def self.start_request_loop(client : Discord::Client)
+  def self.start_request_loop(client : Discord::Client)
+    puts "Starting loop"
     @@schedule = Tasker.every(1.minute) do
       feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
       halts = feed.items.map { |item| parse_halt(item.description) }
@@ -203,23 +201,12 @@ class Shrkbot::HaltNotifs
         end
 
         PluginSelector.guilds_with_plugin("halts").each do |guild|
-          puts "Posting on guild: #{guild}"
           client.create_message(@@notif_channel[guild], "", halt.to_embed)
         end
       end
 
-      if new_halts.size > 0
-        puts "Old halts:"
-        puts @@halts
-        puts "New halts:"
-        puts new_halts
-      end
-
-      # This way we don't lose data about price-action etc. throughout the day.
-      if halts.size >= @@halts.size
-        @@halts += new_halts
-        puts "@@halts after addition: #{@@halts}" if new_halts.size > 0
-      else
+      # Clears the the internal list when the online list resets
+      if halts.size < @@halts.size
         @@halts = halts
       end
 
@@ -284,7 +271,7 @@ class Shrkbot::HaltNotifs
     end
   end
 
-  private def self.parse_halt(raw_html : String)
+  def self.parse_halt(raw_html : String)
     parser = Myhtml::Parser.new(raw_html)
 
     date, time, ticker, name, market, stopcode, pausprice, res_date, res_quote_time, res_trade_time = parser.nodes(:td).map(&.inner_text.strip).to_a
