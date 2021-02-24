@@ -208,6 +208,8 @@ class Shrkbot::HaltNotifs
       # Clears the the internal list when the online list resets
       if halts.size < @@halts.size
         @@halts = halts
+      else
+        @@halts += new_halts
       end
 
       # The garbage collector doesn't seem to do its job without this. I really dislike using this,
