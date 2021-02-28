@@ -59,10 +59,20 @@ class Shrkbot::Help
   end
 
   @[Discord::Handler(
-    event: :ready
+    event: :guild_create
   )]
-  def set_game(payload)
-    # For some reason I need to send this 0, otherwise Discord refuses to update the game.
-    client.status_update(game: Discord::GamePlaying.new("your commands", Discord::GamePlaying::Type::Listening))
+  def guild_create(payload)
+    update_status(client)
+  end
+
+  @[Discord::Handler(
+    event: :guild_delete
+  )]
+  def guild_delete(payload)
+    update_status(client)
+  end
+
+  def update_status(client : Discord::Client)
+    client.status_update(game: Discord::GamePlaying.new(".help, .prefix, and all your commands on #{Shrkbot.bot.cache.guilds.size} guilds", Discord::GamePlaying::Type::Listening))
   end
 end

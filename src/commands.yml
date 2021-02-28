@@ -379,3 +379,12 @@ plugins:
       opt_args: null
       description: 'Sets the channel for halt notifications to <channel>, which must be passed as a channel mention.'
       perm_level: 1
+
+  Donations:
+    donate:
+      name: 'donate'
+      aliases: null
+      args: null
+      opt_args: null
+      description: 'Gives you details on how to donate to the project. Thank you for your support!'
+      perm_level: 0
