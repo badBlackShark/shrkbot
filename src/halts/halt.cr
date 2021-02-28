@@ -21,8 +21,11 @@ class Halt
   getter halt_direction : String
   property resume_price : Float64
   property halt_nr : Int32
+  property donation_msg : Bool
   property display_price_action : Bool = true
   property price_action_error : String?
+
+  @location = Time::Location.load("America/New_York")
 
   def initialize(
     @date : String,
@@ -35,6 +38,7 @@ class Halt
     @res_date : String,
     @res_quote_time : String,
     @res_trade_time : String,
+    @donation_msg : Bool = false,
     @halt_price : Float64 = -1,
     @last_close : Float64 = -1,
     @today_open : Float64 = -1,
@@ -53,21 +57,21 @@ class Halt
   end
 
   def set_price_action(
-    halt_price : Float64?,
-    last_close : Float64?,
-    today_open : Float64?,
-    last_candle_open : Float64?,
-    pm_open : Float64?,
-    pm_close : Float64?,
-    halt_direction : String?
+    halt_price,
+    last_close,
+    today_open,
+    last_candle_open,
+    pm_open,
+    pm_close,
+    halt_direction
   )
-    @halt_price = halt_price.round(2) if halt_price
-    @last_close = last_close.round(2) if last_close
-    @today_open = today_open.round(2) if today_open
-    @last_candle_open = last_candle_open.round(2) if last_candle_open
-    @pm_open = pm_open.round(2) if pm_open
-    @pm_close = pm_close.round(2) if pm_close
-    @halt_direction = halt_direction if halt_direction
+    @halt_price = halt_price.to_f.round(2) if halt_price
+    @last_close = last_close.to_f.round(2) if last_close
+    @today_open = today_open.to_f.round(2) if today_open
+    @last_candle_open = last_candle_open.to_f.round(2) if last_candle_open
+    @pm_open = pm_open.to_f.round(2) if pm_open
+    @pm_close = pm_close.to_f.round(2) if pm_close
+    @halt_direction = halt_direction.to_s if halt_direction
     @pre_market_percent_change = ((@pm_close - @pm_open) / @pm_open * 100).round(2)
     if @resume_price == -1
       @percent_change_since_last_close = ((@halt_price - @last_close) / @last_close * 100).round(2)
@@ -92,6 +96,10 @@ class Halt
 
   def to_embed
     embed = Discord::Embed.new
+
+    if @donation_msg
+      embed.description = "Want to support the project? Consider [donating](https://paypal.me/trueblackshark). For more information, please use the `donate` command."
+    end
 
     if @res_trade_time.empty?
       embed.title = "$#{@ticker} has been halted with code *#{@stopcode}* at #{@time} ET!"
@@ -121,17 +129,24 @@ class Halt
       stopcode = CodeList.find_code(@stopcode)
       str << "• Stop Code: **#{stopcode.symbol}**\n"
       str << "• Reason: #{stopcode.title}\n"
-      str << "• Number of halts today on this ticker: #{@halt_nr == 0 ? "Unknown (error)" : @halt_nr}\n"
+      str << "• Number of halts today on this ticker: #{@halt_nr == 0 ? "Unknown (error)" : "**#{@halt_nr}**"}\n"
       str << "\nFor more info on this stopcode use the `stopcode <code>` command." if stopcode.description
     end
     fields << Discord::EmbedField.new(name: "Halt Info", value: value)
 
+    time = Time.local(@location)
+    day = time.day.to_s.rjust(2, '0')
+    month = time.month.to_s.rjust(2, '0')
+    year = time.year.to_s
+    date = "#{month}/#{day}/#{year}"
     value = String.build do |str|
-      str << "• Date of halt: #{@date}\n"
       str << "• Time of halt: **#{@time}**\n"
-      str << "• Resumption date: #{@res_date.empty? ? "Not specified" : @res_date}\n"
-      str << "• Resumption time (quotes): #{@res_quote_time.empty? ? "Not specified" : @res_quote_time}\n"
-      str << "• Resumption time (trading): **#{@res_trade_time.empty? ? "Not specified" : @res_trade_time}**"
+      str << "• Resumption time (trading): **#{@res_trade_time.empty? ? "Not specified" : @res_trade_time}**\n\n"
+
+      if date != @date
+        str << "• Date of halt: #{@date}\n"
+        str << "• Resumption date: #{@res_date.empty? ? "Not specified" : @res_date}\n"
+      end
     end
     fields << Discord::EmbedField.new(name: "Dates & Times", value: value)
 
@@ -141,17 +156,34 @@ class Halt
       else
         if @res_trade_time.empty?
           value = String.build do |str|
-            str << "• Last known price: **#{@halt_price == -1 ? "Unknown" : "$#{@halt_price}"}** (#{@percent_change_since_last_close}% since last close)\n"
+            str << "• Last known price: **#{@halt_price == -1 ? "Unknown" : "$#{@halt_price}"}** "
+            str << "(#{("%+20.2f" % @percent_change_since_last_close).strip}% since last close)" unless @halt_price == -1
+            str << "\n"
+
             str << "• Price at last close: #{@last_close == -1 ? "Unknown" : "$#{@last_close}"}\n"
-            str << "• Today's pre-market move: #{@pm_open == -1 ? "Unknown" : "$#{@pm_open}"} -> #{@pm_close == -1 ? "Unknown" : "$#{@pm_close}"} (#{@pre_market_percent_change}%)\n"
+
+            pm = @pm_open == -1 || @pm_close == -1
+            str << "• Today's pre-market move: #{pm ? "Unknown" : "$#{@pm_open} -> $#{@pm_close}"} "
+            str << "(#{("%+20.2f" % @pre_market_percent_change).strip}%)" unless pm
+            str << "\n"
+
             str << "• Price at market open: #{@today_open == -1 ? "Unknown" : "$#{@today_open}"}\n" if @pm_close != @today_open
-            str << "• Last known price movement: #{@last_candle_open == -1 ? "Unknown" : "$#{@last_candle_open}"} -> #{@halt_price == -1 ? "Unknown" : "$#{@halt_price}"} (#{@last_candle_percent_change}%)\n"
+
+            last_move = @last_candle_open == -1 || @halt_price == -1
+            str << "• Last known price movement: #{last_move ? "Unknown" : "$#{@last_candle_open} -> $#{@halt_price}"} "
+            str << "(#{("%+20.2f" % @last_candle_percent_change).strip}%)" unless last_move
+            str << "\n"
+
             str << "• Suspected halt direction: **#{@halt_direction.capitalize}**"
           end
         else
           value = String.build do |str|
             str << "• Price at halt: $#{@halt_price == -1 ? "Unknown" : @halt_price}\n"
-            str << "• Resumed at: **$#{@resume_price == -1 ? "Unknown" : @resume_price.round(2)}** (#{@percent_change_since_last_close}% since last close)\n"
+
+            str << "• Resumed at: **$#{@resume_price == -1 ? "Unknown" : @resume_price.round(2)}** "
+            str << "(#{"%+20.2f" % @percent_change_since_last_close}% since last close)" unless @resume_price == -1
+            str << "\n"
+
             str << "• Suspected halt direction: #{@halt_direction.capitalize}\n"
             str << "• Price at market open: $#{@today_open == -1 ? "Unknown" : @today_open}"
           end

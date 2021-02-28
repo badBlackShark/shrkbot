@@ -172,12 +172,13 @@ class Shrkbot::HaltNotifs
   end
 
   def self.start_request_loop(client : Discord::Client)
-    puts "Starting loop"
+    i = 1
     @@schedule = Tasker.every(1.minute) do
       feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
       halts = feed.items.map { |item| parse_halt(item.description) }
 
       new_halts = halts.reject { |halt| @@halts.includes?(halt) }
+
       new_halts.each do |halt|
         if halt.res_trade_time.empty?
           halt_nr = @@halts.select { |h| h.ticker == halt.ticker && !h.res_trade_time.empty? }.size + 1
@@ -187,7 +188,7 @@ class Shrkbot::HaltNotifs
             halt.price_action_error = "Price action could not be displayed due to an error on Yahoo Finance's side. Error: #{price_action[1]}"
           else
             halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction = price_action
-            halt.set_price_action(halt_price.to_f, last_close.to_f, today_open.to_f, last_candle_open.to_f, pm_open.to_f, pm_close.to_f, halt_direction.to_s)
+            halt.set_price_action(halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction)
           end
         else
           old_halt = @@halts.find { |h| h.ticker == halt.ticker && h.res_trade_time.empty? }
@@ -200,16 +201,26 @@ class Shrkbot::HaltNotifs
           end
         end
 
-        PluginSelector.guilds_with_plugin("halts").each do |guild|
-          client.create_message(@@notif_channel[guild], "", halt.to_embed)
+        # Every 15th halt notification we want to inclue our donation message.
+        if i == 15
+          i = 1
+          halt.donation_msg = true
         end
+
+        embed = halt.to_embed
+        PluginSelector.guilds_with_plugin("halts").each do |guild|
+          spawn do
+            client.create_message(@@notif_channel[guild], "", embed)
+          end
+        end
+
+        @@halts << halt
+        i += 1
       end
 
       # Clears the the internal list when the online list resets
       if halts.size < @@halts.size
         @@halts = halts
-      else
-        @@halts += new_halts
       end
 
       # The garbage collector doesn't seem to do its job without this. I really dislike using this,
@@ -233,35 +244,39 @@ class Shrkbot::HaltNotifs
   end
 
   private def self.get_price_action(symbol : String)
-    raw = HaltNotifs.api.get_chart(symbol)["chart"]
+    begin
+      raw = HaltNotifs.api.get_chart(symbol)["chart"]
+    rescue e : Exception
+      return ["error", e.message.not_nil!]
+    end
     if raw["result"].as_a?
       chart_data = raw["result"][0]
       quote_data = chart_data["indicators"]["quote"][0]
       meta_data = raw["result"][0]["meta"]
 
-      halt_price = meta_data["regularMarketPrice"].as_f
-      last_close = meta_data["previousClose"].as_f
+      halt_price = meta_data["regularMarketPrice"].as_f?
+      last_close = meta_data["previousClose"].as_f?
 
       time = meta_data["currentTradingPeriod"]["regular"]["start"].as_i
       index = chart_data["timestamp"].as_a.index { |timestamp| timestamp.as_i >= time }
       today_open = if index
-        quote_data["open"][index].as_f
+        quote_data["open"][index].as_f?
       else
         -1
       end
 
-      last_candle_open = quote_data["open"].as_a[-2]?.try(&.as_f) || -1.0
-      pm_open = quote_data["open"][0].as_f
+      last_candle_open = quote_data["open"].as_a[-2]?.try(&.as_f?)
+      pm_open = quote_data["open"][0].as_f?
 
       time = meta_data["currentTradingPeriod"]["pre"]["end"].as_i
       index = chart_data["timestamp"].as_a.index { |timestamp| timestamp.as_i > time }
       pm_close = if index
-        quote_data["close"][index].as_f
+        quote_data["close"][index].as_f?
       else
-        quote_data["close"].as_a.last.as_f
+        quote_data["close"].as_a.last.as_f?
       end
 
-      halt_direction = if last_candle_open
+      halt_direction = unless last_candle_open.nil? || halt_price.nil?
         last_candle_open < halt_price ? "up" : "down"
       else
         "intederminable"
