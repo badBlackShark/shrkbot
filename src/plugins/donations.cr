@@ -20,7 +20,7 @@ class Shrkbot::Donations
       str << "to donate in any way! Simply using shrkbot is great :) Please also make sure you only donate with money "
       str << "that you absolutely don't need otherwise!\n\n"
       str << "Thank you for using shrkbot! Here's the link to send me some money, if you so choose: https://paypal.me/trueblackshark\n"
-      str << "You can also support me via Liberapay, if you prefer that: https://liberapay.com/badBlackShark\n/"
+      str << "You can also support me via Liberapay, if you prefer that: https://liberapay.com/badBlackShark\n"
       str << "Please do note that all donation are non-refundable. Thank you for the support! <3"
     end
 
