@@ -25,6 +25,7 @@ class Shrkbot::Info
     )]
 
     embed.colour = 0x38AFE5
+    embed.footer = Discord::EmbedFooter.new(text: "If you would like to support the project, you can get all the information on that by using the \"donate\" command.")
     client.create_message(payload.channel_id, "", embed)
   end
 end
