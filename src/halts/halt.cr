@@ -181,7 +181,7 @@ class Halt
             str << "• Price at halt: $#{@halt_price == -1 ? "Unknown" : @halt_price}\n"
 
             str << "• Resumed at: **$#{@resume_price == -1 ? "Unknown" : @resume_price.round(2)}** "
-            str << "(#{"%+20.2f" % @percent_change_since_last_close}% since last close)" unless @resume_price == -1
+            str << "(#{("%+20.2f" % @percent_change_since_last_close).strip}% since last close)" unless @resume_price == -1
             str << "\n"
 
             str << "• Suspected halt direction: #{@halt_direction.capitalize}\n"
