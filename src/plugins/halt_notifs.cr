@@ -254,35 +254,39 @@ class Shrkbot::HaltNotifs
       quote_data = chart_data["indicators"]["quote"][0]
       meta_data = raw["result"][0]["meta"]
 
-      halt_price = meta_data["regularMarketPrice"].as_f?
-      last_close = meta_data["previousClose"].as_f?
+      halt_price = meta_data["regularMarketPrice"]?.try(&.as_f?)
+      last_close = meta_data["previousClose"]?.try(&.as_f?)
 
-      time = meta_data["currentTradingPeriod"]["regular"]["start"].as_i
-      index = chart_data["timestamp"].as_a.index { |timestamp| timestamp.as_i >= time }
-      today_open = if index
-        quote_data["open"][index].as_f?
+      if quote_data.size == 0
+        return [halt_price, last_close, nil, nil, nil, nil, "intederminable"]
       else
-        -1
+        time = meta_data["currentTradingPeriod"]["regular"]["start"].as_i
+        index = chart_data["timestamp"].as_a.index { |timestamp| timestamp.as_i >= time } if chart_data["timestamp"]?
+        today_open = if index
+          quote_data["open"][index].as_f?
+        else
+          -1
+        end
+
+        last_candle_open = quote_data["open"].as_a[-2]?.try(&.as_f?)
+        pm_open = quote_data["open"][0].as_f?
+
+        time = meta_data["currentTradingPeriod"]["pre"]["end"].as_i
+        index = chart_data["timestamp"].as_a.index { |timestamp| timestamp.as_i > time } if chart_data["timestamp"]?
+        pm_close = if index
+          quote_data["close"][index - 1].as_f?
+        else
+          quote_data["close"].as_a.last.as_f?
+        end
+
+        halt_direction = unless last_candle_open.nil? || halt_price.nil?
+          last_candle_open < halt_price ? "up" : "down"
+        else
+          "intederminable"
+        end
+
+        return [halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction]
       end
-
-      last_candle_open = quote_data["open"].as_a[-2]?.try(&.as_f?)
-      pm_open = quote_data["open"][0].as_f?
-
-      time = meta_data["currentTradingPeriod"]["pre"]["end"].as_i
-      index = chart_data["timestamp"].as_a.index { |timestamp| timestamp.as_i > time }
-      pm_close = if index
-        quote_data["close"][index].as_f?
-      else
-        quote_data["close"].as_a.last.as_f?
-      end
-
-      halt_direction = unless last_candle_open.nil? || halt_price.nil?
-        last_candle_open < halt_price ? "up" : "down"
-      else
-        "intederminable"
-      end
-
-      return [halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction]
     else
       return ["error", raw["error"]["description"].as_s]
     end
