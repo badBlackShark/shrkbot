@@ -15,7 +15,7 @@ class YahooFinance::Api
     if response.status_code == 200
       return JSON.parse(response.body)
     else
-      raise "Error in request to Yahoo Finance, code #{response.status_code}"
+      raise "Request returned with code #{response.status_code} - #{response.status_message || "no status message"}."
     end
   end
 

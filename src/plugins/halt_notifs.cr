@@ -173,49 +173,59 @@ class Shrkbot::HaltNotifs
 
   def self.start_request_loop(client : Discord::Client)
     i = 1
-    @@schedule = Tasker.every(1.minute) do
+    @@schedule = Tasker.every(5.seconds) do
       feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
       halts = feed.items.map { |item| parse_halt(item.description) }
+      halts << Halt.new("02/26/2021", "19:50:57", "ACIA", "Acacia Communications Inc CM", "NASDAQ", "D", "", "", "", "")
 
       new_halts = halts.reject { |halt| @@halts.includes?(halt) }
 
       new_halts.each do |halt|
-        if halt.res_trade_time.empty?
-          halt_nr = @@halts.select { |h| h.ticker == halt.ticker && !h.res_trade_time.empty? }.size + 1
-          halt.halt_nr = halt_nr
-          price_action = get_price_action(halt.ticker)
-          if price_action[0] == "error"
-            halt.price_action_error = "Price action could not be displayed due to an error on Yahoo Finance's side. Error: #{price_action[1]}"
+        t = halt.ticker
+        begin
+          if halt.res_trade_time.empty?
+            halt_nr = @@halts.select { |h| h.ticker == halt.ticker && !h.res_trade_time.empty? }.size + 1
+            halt.halt_nr = halt_nr
+            price_action = get_price_action(halt.ticker)
+            if price_action[0] == "error"
+              halt.price_action_error = "Price action could not be displayed due to an error on Yahoo Finance's side. Error: #{price_action[1]}"
+            else
+              halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction = price_action
+              halt.set_price_action(halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction)
+            end
           else
-            halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction = price_action
-            halt.set_price_action(halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction)
+            old_halt = @@halts.find { |h| h.ticker == halt.ticker && h.res_trade_time.empty? }
+            if old_halt
+              halt.set_price_action_by_other(old_halt)
+              halt.resume_price = get_resume_price(halt.ticker)
+              @@halts.delete(old_halt)
+            else
+              halt.price_action_error = "Resume time set without previous known halt. Price action cannot be displayed."
+            end
           end
-        else
-          old_halt = @@halts.find { |h| h.ticker == halt.ticker && h.res_trade_time.empty? }
-          if old_halt
-            halt.set_price_action_by_other(old_halt)
-            halt.resume_price = get_resume_price(halt.ticker)
-            @@halts.delete(old_halt)
-          else
-            halt.price_action_error = "Resume time set without previous known halt. Price action cannot be displayed."
+
+          # Add the halt before the donation message so the donation message never shows up
+          # when using the `lastHalt` command.
+          @@halts.unshift(halt)
+
+          # Every 15th halt notification we want to inclue our donation message.
+          if i == 15
+            i = 1
+            halt.donation_msg = true
           end
-        end
-
-        # Every 15th halt notification we want to inclue our donation message.
-        if i == 15
-          i = 1
-          halt.donation_msg = true
-        end
-
-        embed = halt.to_embed
-        PluginSelector.guilds_with_plugin("halts").each do |guild|
-          spawn do
-            client.create_message(@@notif_channel[guild], "", embed)
+          embed = halt.to_embed
+          PluginSelector.guilds_with_plugin("halts").each do |guild|
+            spawn do
+              client.create_message(@@notif_channel[guild], "", embed)
+            end
           end
-        end
 
-        @@halts << halt
-        i += 1
+          i += 1
+        # Leaving this in for now because not having this caused 7000 requests to Yahoo Finance
+        # because I didn't think of an edge case.
+        rescue e : Exception
+          client.create_message(client.create_dm(Shrkbot.config.owner_id).id, "An error occured while trying to process halt for $#{t}.\n\n#{e}\n#{e.backtrace.join("\n")}")
+        end
       end
 
       # Clears the the internal list when the online list resets
@@ -244,6 +254,7 @@ class Shrkbot::HaltNotifs
   end
 
   private def self.get_price_action(symbol : String)
+    puts "Getting price action for #{symbol}"
     begin
       raw = HaltNotifs.api.get_chart(symbol)["chart"]
     rescue e : Exception

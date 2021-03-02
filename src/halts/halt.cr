@@ -98,7 +98,7 @@ class Halt
     embed = Discord::Embed.new
 
     if @donation_msg
-      embed.description = "Want to support the project? Consider [donating](https://paypal.me/trueblackshark). For more information, please use the `donate` command."
+      embed.description = "Want to support the project? Consider [donating](https://paypal.me/trueblackshark). For more information, please use the `.donate` command."
     end
 
     if @res_trade_time.empty?
@@ -111,7 +111,7 @@ class Halt
                        0x000001.to_u32 # Because 0x0 is transparent for Discord, not black.
                      end
     else
-      embed.title = "$#{@ticker} has been resumed at #{@res_trade_time} ET! It had been halted with code *#{@stopcode}* at #{@time} ET!"
+      embed.title = "$#{@ticker} has been resumed at #{@res_trade_time} ET! It had been halted with code *#{@stopcode}*."
       embed.colour = 0x38AFE5
     end
 
@@ -141,7 +141,7 @@ class Halt
     date = "#{month}/#{day}/#{year}"
     value = String.build do |str|
       str << "• Time of halt: **#{@time}**\n"
-      str << "• Resumption time (trading): **#{@res_trade_time.empty? ? "Not specified" : @res_trade_time}**\n\n"
+      str << "• Resumption time (trading): **#{@res_trade_time.empty? ? "Not specified" : @res_trade_time}**\n"
 
       if date != @date
         str << "• Date of halt: #{@date}\n"
@@ -178,14 +178,14 @@ class Halt
           end
         else
           value = String.build do |str|
-            str << "• Price at halt: $#{@halt_price == -1 ? "Unknown" : @halt_price}\n"
+            str << "• Price at halt: #{@halt_price == -1 ? "Unknown" : "$#{@halt_price}"}\n"
 
-            str << "• Resumed at: **$#{@resume_price == -1 ? "Unknown" : @resume_price.round(2)}** "
+            str << "• Resumed with price: **#{@resume_price == -1 ? "Unknown" : "$#{@resume_price.round(2)}"}** "
             str << "(#{("%+20.2f" % @percent_change_since_last_close).strip}% since last close)" unless @resume_price == -1
             str << "\n"
 
             str << "• Suspected halt direction: #{@halt_direction.capitalize}\n"
-            str << "• Price at market open: $#{@today_open == -1 ? "Unknown" : @today_open}"
+            str << "• Price at market open: #{@today_open == -1 ? "Unknown" : "$#{@today_open}"}"
           end
         end
 

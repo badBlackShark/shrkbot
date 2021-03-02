@@ -11,7 +11,7 @@ class Shrkbot::Info
     embed = Discord::Embed.new
     embed.author = Discord::EmbedAuthor.new(name: bot.username, icon_url: bot.avatar_url)
     embed.description = "I was written in [Crystal](https://crystal-lang.org/) by [badBlackShark](https://github.com/badBlackShark/).\n" \
-                        "My code can be found [here](https://github.com/badBlackShark/shrkbot)."
+                        "My code can be found [here](https://github.com/badBlackShark/shrkbot). Want me for your server? [Invite me!](https://discord.com/api/oauth2/authorize?client_id=346043915142561793&permissions=889285718&scope=bot)"
     embed.fields = [Discord::EmbedField.new(
       name: "I was built using these packages",
       value: "**[discordcr](https://github.com/shardlab/discordcr)** *by meew0 and RX14*\n" \
