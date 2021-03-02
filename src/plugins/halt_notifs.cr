@@ -173,10 +173,9 @@ class Shrkbot::HaltNotifs
 
   def self.start_request_loop(client : Discord::Client)
     i = 1
-    @@schedule = Tasker.every(5.seconds) do
+    @@schedule = Tasker.every(1.minute) do
       feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
       halts = feed.items.map { |item| parse_halt(item.description) }
-      halts << Halt.new("02/26/2021", "19:50:57", "ACIA", "Acacia Communications Inc CM", "NASDAQ", "D", "", "", "", "")
 
       new_halts = halts.reject { |halt| @@halts.includes?(halt) }
 
