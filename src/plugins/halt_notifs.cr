@@ -173,9 +173,10 @@ class Shrkbot::HaltNotifs
 
   def self.start_request_loop(client : Discord::Client)
     i = 1
-    @@schedule = Tasker.every(1.minute) do
+    @@schedule = Tasker.every(3.seconds) do
       feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
       halts = feed.items.map { |item| parse_halt(item.description) }
+      halts << Halt.new("", "", "GENE", "", "", "ludp", "", "", "", "")
 
       new_halts = halts.reject { |halt| @@halts.includes?(halt) }
 
@@ -242,12 +243,12 @@ class Shrkbot::HaltNotifs
 
   private def self.get_resume_price(symbol : String)
     raw = HaltNotifs.api.get_chart(symbol)["chart"]
-    if raw["result"].as_a?
+    begin
       # This is not fully guaranteed to get the resume price. I think this becomes inaccurate
       # if between the resume happening and the bot picking it up Yahoo starts a new candle interval.
       # Making sure this doesn't happen does more work than it helps right now though.
       return raw["result"][0]["indicators"]["quote"][0]["open"].as_a.last.as_f
-    else
+    rescue e : Exception
       return -1.0
     end
   end
