@@ -176,7 +176,6 @@ class Shrkbot::HaltNotifs
     @@schedule = Tasker.every(3.seconds) do
       feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
       halts = feed.items.map { |item| parse_halt(item.description) }
-      halts << Halt.new("", "", "GENE", "", "", "ludp", "", "", "", "")
 
       new_halts = halts.reject { |halt| @@halts.includes?(halt) }
 
