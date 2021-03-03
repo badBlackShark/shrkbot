@@ -173,7 +173,7 @@ class Shrkbot::HaltNotifs
 
   def self.start_request_loop(client : Discord::Client)
     i = 1
-    @@schedule = Tasker.every(3.seconds) do
+    @@schedule = Tasker.every(1.minute) do
       feed = RSS.parse("http://www.nasdaqtrader.com/rss.aspx?feed=tradehalts")
       halts = feed.items.map { |item| parse_halt(item.description) }
 
@@ -214,13 +214,11 @@ class Shrkbot::HaltNotifs
           end
           embed = halt.to_embed
           PluginSelector.guilds_with_plugin("halts").each do |guild|
-            spawn do
-              client.create_message(@@notif_channel[guild], "", embed)
-            end
+            client.create_message(@@notif_channel[guild], "", embed)
           end
 
           i += 1
-        # Leaving this in for now because not having this caused 7000 requests to Yahoo Finance
+        # Leaving this in for now, because not having this caused 7000 requests to Yahoo Finance
         # because I didn't think of an edge case.
         rescue e : Exception
           client.create_message(client.create_dm(Shrkbot.config.owner_id).id, "An error occured while trying to process halt for $#{t}.\n\n#{e}\n#{e.backtrace.join("\n")}")
