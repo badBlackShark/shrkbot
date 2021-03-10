@@ -182,9 +182,9 @@ class Shrkbot::HaltNotifs
       new_halts.each do |halt|
         t = halt.ticker
         begin
+          halt_nr = @@halts.select { |h| h.ticker == halt.ticker && !h.res_trade_time.empty? }.size + 1
+          halt.halt_nr = halt_nr
           if halt.res_trade_time.empty?
-            halt_nr = @@halts.select { |h| h.ticker == halt.ticker && !h.res_trade_time.empty? }.size + 1
-            halt.halt_nr = halt_nr
             price_action = get_price_action(halt.ticker)
             if price_action[0] == "error"
               halt.price_action_error = "Price action could not be displayed due to an error on Yahoo Finance's side. Error: #{price_action[1]}"
@@ -239,8 +239,8 @@ class Shrkbot::HaltNotifs
   end
 
   private def self.get_resume_price(symbol : String)
-    raw = HaltNotifs.api.get_chart(symbol)["chart"]
     begin
+      raw = HaltNotifs.api.get_chart(symbol)["chart"]
       # This is not fully guaranteed to get the resume price. I think this becomes inaccurate
       # if between the resume happening and the bot picking it up Yahoo starts a new candle interval.
       # Making sure this doesn't happen does more work than it helps right now though.
