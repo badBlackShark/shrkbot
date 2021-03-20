@@ -46,7 +46,9 @@ module Utilities
     }
 
     def self.name_to_unicode(name : String)
-      URI.encode(@@emoji[name][:unicode])
+      # Discord is being dumb about emojis rn for some reason.
+      # URI.encode(@@emoji[name][:unicode])
+      @@emoji[name][:unicode]
     end
 
     def self.name_to_emoji(name)

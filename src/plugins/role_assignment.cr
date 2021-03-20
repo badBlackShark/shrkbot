@@ -186,7 +186,11 @@ class Shrkbot::RoleAssignment
         return
       end
 
-      client.delete_message(@@role_channel[guild], @@role_message[guild])
+      begin
+        client.delete_message(@@role_channel[guild], @@role_message[guild])
+      rescue e : Exception
+        # Message was deleted, no problem.
+      end
 
       @@role_channel[guild] = id
       Shrkbot.bot.db.update_value("shrk_roles", "channel", id, "guild", guild)
