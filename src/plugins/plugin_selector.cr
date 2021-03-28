@@ -13,6 +13,7 @@ class Shrkbot::PluginSelector
     "welcomes",
     "auto-removal",
     "halts",
+    "news",
   ]
 
   @first = true
@@ -146,6 +147,8 @@ class Shrkbot::PluginSelector
       Shrkbot::AutoRemoval.setup(guild, client)
     when "halts"
       Shrkbot::HaltNotifs.setup(guild, client)
+    when "news"
+      Shrkbot::NewsNotifs.setup(guild, client)
     end
   end
 
