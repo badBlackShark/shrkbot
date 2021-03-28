@@ -4,7 +4,7 @@ class Shrkbot::Donations
   @[Discord::Handler(
     event: :message_create,
     middleware: {
-      Command.new("donate")
+      Command.new("donate"),
     }
   )]
   def donate(payload, ctx)
