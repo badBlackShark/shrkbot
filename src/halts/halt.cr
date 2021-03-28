@@ -24,6 +24,9 @@ class Halt
   property donation_msg : Bool
   property display_price_action : Bool = true
   property price_action_error : String?
+  property news : Array(News)
+  property display_news : Bool = false
+  property news_error : String?
 
   @location = Time::Location.load("America/New_York")
 
@@ -50,7 +53,8 @@ class Halt
     @percent_change_since_last_close : Float64 = -1,
     @halt_direction : String = "indeterminable",
     @resume_price : Float64 = -1,
-    @halt_nr : Int32 = 0
+    @halt_nr : Int32 = 0,
+    @news : Array(News) = Array(News).new
   )
     # Sometimes tickers have an '=' at the end for no apparent reason, so we fix this manually.
     @ticker = @ticker[0..-2] if @ticker[-1] == '='
@@ -103,15 +107,23 @@ class Halt
 
     if @res_trade_time.empty?
       embed.title = "$#{@ticker} has been halted with code *#{@stopcode}* at #{@time} ET!"
-      embed.colour = if @halt_direction == "up"
-                       0x00FF00.to_u32
-                     elsif @halt_direction == "down"
-                       0xFF0000.to_u32
+      embed.colour = if @display_price_action
+                       if @halt_direction == "up"
+                         0x00FF00.to_u32
+                       elsif @halt_direction == "down"
+                         0xFF0000.to_u32
+                       else
+                         0x000001.to_u32 # Because 0x0 is transparent for Discord, not black.
+                       end
                      else
-                       0x000001.to_u32 # Because 0x0 is transparent for Discord, not black.
+                       0xFFE600.to_u32
                      end
     else
-      embed.title = "$#{@ticker} has been resumed at #{@res_trade_time} ET! It had been halted with code *#{@stopcode}*."
+      if @stopcode == "T3"
+        embed.title = "The resumption time for $#{@ticker} has been set to #{@res_trade_time} ET."
+      else
+        embed.title = "$#{@ticker} has been resumed at #{@res_trade_time} ET! It had been halted with code *#{@stopcode}*."
+      end
       embed.colour = 0x38AFE5
     end
 
@@ -129,7 +141,7 @@ class Halt
       stopcode = CodeList.find_code(@stopcode)
       str << "• Stop Code: **#{stopcode.symbol}**\n"
       str << "• Reason: #{stopcode.title}\n"
-      str << "• Number of halts today on this ticker: #{@halt_nr == 0 ? "Unknown (error)" : "**#{@halt_nr}**"}\n"
+      str << "• Number of halts on this ticker today: #{@halt_nr == 0 ? "Unknown (error)" : "**#{@halt_nr}**"}\n"
       str << "\nFor more info on this stopcode use the `stopcode <code>` command." if stopcode.description
     end
     fields << Discord::EmbedField.new(name: "Halt Info", value: value)
@@ -151,7 +163,7 @@ class Halt
     fields << Discord::EmbedField.new(name: "Dates & Times", value: value)
 
     if @display_price_action
-      if(pae = @price_action_error)
+      if (pae = @price_action_error)
         fields << Discord::EmbedField.new(name: "Price Action", value: pae)
       else
         if @res_trade_time.empty?
@@ -193,9 +205,21 @@ class Halt
       end
     end
 
+    if @display_news
+      if (ne = @news_error)
+        fields << Discord::EmbedField.new(name: "News", value: ne)
+      else
+        name = "News within the last week"
+        name += " - only showing three most recent" if @news.size > 3
+        value = @news.empty? ? "No recent news." : @news[0..2].map(&.short_form).join("\n\n")
+        fields << Discord::EmbedField.new(name: name, value: value)
+      end
+    end
+
     embed.fields = fields
     embed.footer = Discord::EmbedFooter.new(text: "All times are in Eastern Time. All dates are in MM/DD/YYYY. The correctness of the data displayed is not guaranteed.")
 
+    p embed
     return embed
   end
 
@@ -207,7 +231,10 @@ class Halt
              else
                "Trading was resumed on #{@res_date} at #{@res_trade_time}. "
              end
-    value += "The suspected halt direction was #{@halt_direction}."
+
+    if @stopcode == "LUDP" || @stopcode == "M" || @stopcode == "LUDS"
+      value += "The suspected halt direction was #{@halt_direction}."
+    end
 
     return Discord::EmbedField.new(name: name, value: value)
   end

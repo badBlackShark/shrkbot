@@ -21,7 +21,8 @@ class Shrkbot::Info
              "**[crystal-db](https://github.com/crystal-lang/crystal-db)** *by crystal-lang*\n" \
              "**[crystal-pg](https://github.com/will/crystal-pg)** *by will*\n" \
              "**[rss](https://github.com/ruivieira/rss)** *by ruivieira*\n" \
-             "**[myhtml](https://github.com/kostya/myhtml)** *by kostya*"
+             "**[myhtml](https://github.com/kostya/myhtml)** *by kostya*\n" \
+             "**[humanize_time](https://github.com/mamantoha/humanize_time)** *by mamantoha*"
     )]
 
     embed.colour = 0x38AFE5

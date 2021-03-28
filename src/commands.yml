@@ -380,6 +380,15 @@ plugins:
       description: 'Sets the channel for halt notifications to <channel>, which must be passed as a channel mention.'
       perm_level: 1
 
+  News:
+    news:
+      name: 'news'
+      aliases: null
+      args: '<ticker>'
+      opt_args: null
+      description: 'Shows you up to three recent news articles for the ticker specified.'
+      perm_level: 0
+
   Donations:
     donate:
       name: 'donate'

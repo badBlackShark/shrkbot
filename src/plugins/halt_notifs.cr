@@ -54,7 +54,7 @@ class Shrkbot::HaltNotifs
         Shrkbot.bot.db.update_value("shrk_halts", "channel", @@notif_channel[guild], "guild", guild)
         client.create_message(@@notif_channel[guild], "I have set this channel as my channel for halt notifications. Staff can disable these with the `disable halts` command, or change the channel with `setHaltChannel`.")
       else
-        # @@notif_channel[guild] = client.create_guild_channel(guild, "halts", Discord::ChannelType::GuildText, nil, nil, nil, nil, nil, nil, nil).id
+        @@notif_channel[guild] = client.create_guild_channel(guild, "halts", Discord::ChannelType::GuildText, nil, nil, nil, nil, nil, nil, nil).id
         Shrkbot.bot.db.update_value("shrk_halts", "channel", @@notif_channel[guild], "guild", guild)
         client.create_message(@@notif_channel[guild], "I have created this channel as my channel for halt notifications. Staff can disable these with the `disable halts` command, or change the channel with `setHaltChannel`.")
       end
@@ -140,7 +140,7 @@ class Shrkbot::HaltNotifs
     if args.empty?
       total_parts = (@@halts.size / 10).ceil.to_i
       i = 1
-      @@halts.each_slice(10) do |halts|
+      @@halts.reverse.each_slice(10) do |halts|
         embed = Discord::Embed.new
 
         embed.title = "Every current trading halt. Part #{i}/#{total_parts}"
@@ -162,7 +162,7 @@ class Shrkbot::HaltNotifs
         embed = Discord::Embed.new
 
         embed.title = "Current trading halts for #{halts.first.name}"
-        embed.fields = halts.map(&.to_embed_field)
+        embed.fields = halts.reverse.map(&.to_embed_field)
         embed.colour = 0x38AFE5
         embed.footer = Discord::EmbedFooter.new(text: "All times are in Eastern Time. All dates are in MM/DD/YYYY.")
 
@@ -184,42 +184,59 @@ class Shrkbot::HaltNotifs
         begin
           halt_nr = @@halts.select { |h| h.ticker == halt.ticker && !h.res_trade_time.empty? }.size + 1
           halt.halt_nr = halt_nr
-          if halt.res_trade_time.empty?
-            price_action = get_price_action(halt.ticker)
-            if price_action[0] == "error"
-              halt.price_action_error = "Price action could not be displayed due to an error on Yahoo Finance's side. Error: #{price_action[1]}"
+
+          if halt.stopcode == "LUDP" || halt.stopcode == "M" || halt.stopcode == "LUDS"
+            if halt.res_trade_time.empty?
+              price_action = get_price_action(halt.ticker)
+              if price_action[0] == "error"
+                halt.price_action_error = "Price action could not be displayed due to an error on Yahoo Finance's side. Error: #{price_action[1]}"
+              else
+                halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction = price_action
+                halt.set_price_action(halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction)
+              end
             else
-              halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction = price_action
-              halt.set_price_action(halt_price, last_close, today_open, last_candle_open, pm_open, pm_close, halt_direction)
+              old_halt = @@halts.find { |h| h.ticker == halt.ticker && h.res_trade_time.empty? }
+              if old_halt
+                halt.set_price_action_by_other(old_halt)
+                halt.resume_price = get_resume_price(halt.ticker)
+                @@halts.delete(old_halt)
+              else
+                halt.price_action_error = "Resume time set without previous known halt. Price action cannot be displayed."
+              end
             end
           else
-            old_halt = @@halts.find { |h| h.ticker == halt.ticker && h.res_trade_time.empty? }
-            if old_halt
-              halt.set_price_action_by_other(old_halt)
-              halt.resume_price = get_resume_price(halt.ticker)
-              @@halts.delete(old_halt)
+            halt.display_price_action = false
+          end
+
+          if halt.res_trade_time.empty? || halt.stopcode == "T3"
+            news = get_news(halt.ticker)
+            if news.is_a?(String)
+              halt.news_error = "News could not be displayed due to an error or Yahoo Finance's side. Error: #{news}"
             else
-              halt.price_action_error = "Resume time set without previous known halt. Price action cannot be displayed."
+              halt.news = news
             end
+            halt.display_news = true
           end
 
           # Add the halt before the donation message so the donation message never shows up
           # when using the `lastHalt` command.
           @@halts.unshift(halt)
 
-          # Every 15th halt notification we want to inclue our donation message.
+          # Every 15th halt notification we want to include our donation message.
           if i == 15
             i = 1
             halt.donation_msg = true
           end
           embed = halt.to_embed
           PluginSelector.guilds_with_plugin("halts").each do |guild|
-            client.create_message(@@notif_channel[guild], "", embed)
+            spawn do
+              client.create_message(@@notif_channel[guild], "", embed)
+            end
           end
 
           i += 1
-        # Leaving this in for now, because not having this caused 7000 requests to Yahoo Finance
-        # because I didn't think of an edge case.
+          # Leaving this in for now, because not having this caused 7000 requests to Yahoo Finance
+          # because I didn't think about an edge case.
         rescue e : Exception
           client.create_message(client.create_dm(Shrkbot.config.owner_id).id, "An error occured while trying to process halt for $#{t}.\n\n#{e}\n#{e.backtrace.join("\n")}")
         end
@@ -251,7 +268,6 @@ class Shrkbot::HaltNotifs
   end
 
   private def self.get_price_action(symbol : String)
-    puts "Getting price action for #{symbol}"
     begin
       raw = HaltNotifs.api.get_chart(symbol)["chart"]
     rescue e : Exception
@@ -271,10 +287,10 @@ class Shrkbot::HaltNotifs
         time = meta_data["currentTradingPeriod"]["regular"]["start"].as_i
         index = chart_data["timestamp"].as_a.index { |timestamp| timestamp.as_i >= time } if chart_data["timestamp"]?
         today_open = if index
-          quote_data["open"][index].as_f?
-        else
-          -1
-        end
+                       quote_data["open"][index].as_f?
+                     else
+                       -1
+                     end
 
         last_candle_open = quote_data["open"].as_a[-2]?.try(&.as_f?)
         pm_open = quote_data["open"][0].as_f?
@@ -282,10 +298,10 @@ class Shrkbot::HaltNotifs
         time = meta_data["currentTradingPeriod"]["pre"]["end"].as_i
         index = chart_data["timestamp"].as_a.index { |timestamp| timestamp.as_i > time } if chart_data["timestamp"]?
         pm_close = if index
-          quote_data["close"][index - 1].as_f?
-        else
-          quote_data["close"].as_a.last.as_f?
-        end
+                     quote_data["close"][index - 1].as_f?
+                   else
+                     quote_data["close"].as_a.last.as_f?
+                   end
 
         halt_direction = unless last_candle_open.nil? || halt_price.nil?
           last_candle_open < halt_price ? "up" : "down"
@@ -298,6 +314,17 @@ class Shrkbot::HaltNotifs
     else
       return ["error", raw["error"]["description"].as_s]
     end
+  end
+
+  private def self.get_news(symbol : String)
+    begin
+      raw = HaltNotifs.api.get_news(symbol)
+    rescue e : Exception
+      return e.message.not_nil!
+    end
+
+    news = raw["items"]["result"].as_a.map { |n| News.from_json(n.to_json) }
+    news.select { |n| Time.unix(n.published_at) > 1.week.ago }.sort_by { |n| n.published_at }.reverse
   end
 
   def self.parse_halt(raw_html : String)

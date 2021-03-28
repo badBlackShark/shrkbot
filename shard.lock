@@ -25,6 +25,14 @@ shards:
     git: https://github.com/crystal-community/future.cr.git
     version: 0.1.0
 
+  humanize_time:
+    git: https://github.com/mamantoha/humanize_time.git
+    version: 0.9.0
+
+  i18n:
+    git: https://github.com/crystal-i18n/i18n.git
+    version: 0.1.4
+
   myhtml:
     git: https://github.com/kostya/myhtml.git
     version: 1.5.3

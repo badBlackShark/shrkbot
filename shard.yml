@@ -28,6 +28,9 @@ dependencies:
   # HTML parsing
   myhtml:
     github: kostya/myhtml
+  # Time humanizing
+  humanize_time:
+    github: mamantoha/humanize_time
 
 targets:
   shrkbot:

@@ -19,6 +19,15 @@ class YahooFinance::Api
     end
   end
 
+  def get_news(symbol : String)
+    response = request("/stock/get-news?category=#{symbol}&region=US")
+    if response.status_code == 200
+      return JSON.parse(response.body)
+    else
+      raise "Request returned with code #{response.status_code} - #{response.status_message || "no status message"}."
+    end
+  end
+
   private def request(endpoint : String)
     headers = HTTP::Headers.new
     headers.add("x-rapidapi-key", @token)
