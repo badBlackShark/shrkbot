@@ -69,7 +69,7 @@ class Shrkbot::Reminders
     matchdata.each do |match|
       raw = match[0]
       amount = raw[0..-2].to_i
-      increment = raw[-1].to_s
+      increment = raw[-1].to_s.downcase
 
       case increment
       when "w"
