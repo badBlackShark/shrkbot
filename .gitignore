@@ -46,3 +46,6 @@
 # a read-only /dev/null device (git can't add a non-regular file). Rails doesn't use
 # it; remove this line and the mount when docker-compose is rewritten (deploy phase).
 /src/config.yml
+
+# Sandbox Postgres data volume lives here; never commit a live data directory.
+/src/database/
