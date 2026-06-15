@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe SetLoggingChannel do
-  let(:server) { ServerConfiguration.create!(discord_id: 1) }
+  let(:server) { create(:server_configuration, discord_id: 1) }
 
   it "fails without a channel" do
     result = described_class.call(server_configuration: server, channel_id: nil)

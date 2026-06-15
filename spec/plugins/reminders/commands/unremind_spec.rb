@@ -13,8 +13,8 @@ RSpec.describe Reminders::Unremind do
 
   describe "#autocomplete" do
     it "offers only the requesting user's reminders, labelled by message" do
-      mine = Reminders::Reminder.create!(user_id: 1, channel_id: 2, remind_at: 1.hour.from_now, message: "walk dog")
-      Reminders::Reminder.create!(user_id: 999, channel_id: 2, remind_at: 1.hour.from_now, message: "not mine")
+      mine = create(:reminder, user_id: 1, channel_id: 2, remind_at: 1.hour.from_now, message: "walk dog")
+      create(:reminder, user_id: 999, channel_id: 2, remind_at: 1.hour.from_now, message: "not mine")
       ac_event = double("autocomplete_event", user: double(id: 1))
 
       expect(ac_event).to receive(:respond).with(choices: {"walk dog" => mine.id})

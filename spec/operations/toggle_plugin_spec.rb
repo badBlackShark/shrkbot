@@ -1,9 +1,9 @@
 require "rails_helper"
 
 RSpec.describe TogglePlugin do
-  let(:server) { ServerConfiguration.create!(discord_id: 1) }
-  let(:logging) { Plugin.create!(key: "logging", name: "Logging") }
-  let(:roles) { Plugin.create!(key: "roles", name: "Roles") }
+  let(:server) { create(:server_configuration, discord_id: 1) }
+  let(:logging) { create(:plugin, key: "logging", name: "Logging") }
+  let(:roles) { create(:plugin, key: "roles", name: "Roles") }
 
   it "refuses to enable logging until a channel is configured" do
     result = described_class.call(server_configuration: server, plugin: logging, enabled: true)
@@ -28,7 +28,7 @@ RSpec.describe TogglePlugin do
   end
 
   it "disables a plugin regardless of settings, reusing the activation row" do
-    server.plugin_activations.create!(plugin: logging, enabled: true)
+    create(:plugin_activation, server_configuration: server, plugin: logging, enabled: true)
 
     result = described_class.call(server_configuration: server, plugin: logging, enabled: false)
 

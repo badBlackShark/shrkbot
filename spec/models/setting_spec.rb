@@ -2,13 +2,13 @@ require "rails_helper"
 
 RSpec.describe Setting do
   it "generates a prefixed-uuid primary key" do
-    setting = Setting.create!(key: "x", value: "y")
+    setting = create(:setting, key: "x", value: "y")
     expect(setting.id).to match(/\Aset_\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/)
   end
 
   it "enforces unique keys" do
-    Setting.create!(key: "dupe")
-    expect(Setting.new(key: "dupe")).not_to be_valid
+    create(:setting, key: "dupe")
+    expect(build(:setting, key: "dupe")).not_to be_valid
   end
 
   describe "get/set" do

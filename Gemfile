@@ -57,8 +57,9 @@ group :development, :test do
 
   # Load env vars from .env in dev/test (12-factor; prod uses real env)
   gem "dotenv-rails"
-  # House test framework
+  # House test framework + test-data factories
   gem "rspec-rails"
+  gem "factory_bot_rails"
 
   # Audits gems for known security defects (use config/bundler-audit.yml to ignore issues)
   gem "bundler-audit", require: false

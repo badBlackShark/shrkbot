@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe DeleteReminder do
   let(:reminder) do
-    Reminders::Reminder.create!(user_id: 1, channel_id: 2, remind_at: 1.hour.from_now, message: "x")
+    create(:reminder, user_id: 1, channel_id: 2, remind_at: 1.hour.from_now, message: "x")
   end
 
   it "deletes the owner's reminder" do
