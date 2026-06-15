@@ -16,7 +16,8 @@ class CommandRegistrar
 
   def register_all
     commands.each do |klass|
-      define(klass)
+      next unless define(klass)
+
       attach(klass)
     end
   end
@@ -25,6 +26,16 @@ class CommandRegistrar
 
   def define(klass)
     reg = klass.registration
+
+    # A :guild command needs a server to register against. Without one it would
+    # silently register GLOBALLY (up to ~1h to appear, no per-server toggle), so
+    # skip + warn instead. In production :guild commands register per-server on
+    # plugin enable (Phase 8); TEST_SERVER_ID is the local-testing stand-in.
+    if !reg.global? && test_server_id.to_s.empty?
+      Rails.logger.warn("[CommandRegistrar] skipping :guild command /#{reg.name} — TEST_SERVER_ID not set")
+      return false
+    end
+
     bot.register_application_command(
       reg.name,
       reg.description,
@@ -33,6 +44,7 @@ class CommandRegistrar
       contexts: reg.contexts,
       &reg.options_block
     )
+    true
   end
 
   def attach(klass)

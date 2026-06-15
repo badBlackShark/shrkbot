@@ -71,4 +71,20 @@ RSpec.describe CommandRegistrar do
     described_class.new(fake_bot, commands: [abstract], test_server_id: "x").register_all
     expect(fake_bot.defined).to be_empty
   end
+
+  context "without a test server id" do
+    it "skips :guild commands (and their handler) rather than registering them globally" do
+      allow(Rails.logger).to receive(:warn)
+      described_class.new(fake_bot, commands: [guild_cmd], test_server_id: nil).register_all
+
+      expect(fake_bot.defined).to be_empty
+      expect(fake_bot.handlers).to be_empty
+      expect(Rails.logger).to have_received(:warn).with(/skipping :guild command \/ping/)
+    end
+
+    it "still registers :global commands" do
+      described_class.new(fake_bot, commands: [global_cmd], test_server_id: nil).register_all
+      expect(fake_bot.defined.map { |c| c[:name] }).to eq([:info])
+    end
+  end
 end
