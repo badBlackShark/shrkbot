@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:11
+    image: postgres:18
     restart: always
     environment:
       POSTGRES_DB: shrkbot_db
@@ -9,9 +9,7 @@ services:
     ports:
       - 5678:5432
     volumes:
-      - type: bind
-        source: ./src/database/data
-        target: /var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql
   app:
     build: .
     restart: always
@@ -46,4 +44,8 @@ services:
     working_dir: /app
     stdin_open: true
     tty: true
-    depends_on: []
+    depends_on:
+      - db
+
+volumes:
+  pg_data:

@@ -1,9 +1,8 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# Plugin catalog (the 3 toggleable plugins). Idempotent.
+[
+  { key: "logging",  name: "Logging",  description: "Writes moderation actions to a log channel.", default_enabled: true },
+  { key: "roles",    name: "Roles",    description: "Self-assignable roles via a button menu.",     default_enabled: false },
+  { key: "welcomes", name: "Welcomes", description: "Join and leave messages.",                      default_enabled: false },
+].each do |attrs|
+  Plugin.find_or_create_by!(key: attrs[:key]) { |p| p.assign_attributes(attrs) }
+end
