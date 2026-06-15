@@ -37,7 +37,7 @@ RSpec.describe BaseCommand do
   end
 
   describe "#call template" do
-    let(:event) { double("event", user: double(id: 1), member: double(permission?: true), respond: nil) }
+    let(:event) { double("event", user: double(id: 1), member: double(permission?: true), respond: nil, bot: double("bot")) }
 
     def command_class(&body)
       Class.new(described_class) do
@@ -68,8 +68,9 @@ RSpec.describe BaseCommand do
       klass.dispatch(denied_event)
     end
 
-    it "rescues errors in #execute and responds without raising" do
+    it "rescues errors in #execute, reports to the owner, and responds without raising" do
       klass = command_class { raise "boom" }
+      expect(OwnerNotifier).to receive(:report).with(hash_including(source: "command /probe"))
       expect(event).to receive(:respond).with(hash_including(ephemeral: true))
       expect { klass.dispatch(event) }.not_to raise_error
     end

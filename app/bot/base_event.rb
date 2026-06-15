@@ -14,6 +14,7 @@ class BaseEvent
     with_connection { handle }
   rescue => e
     Rails.logger.error("[#{self.class.name}] #{e.class}: #{e.message}")
+    OwnerNotifier.report(bot: event.bot, error: e, source: "event #{self.class.name}")
     nil # events have no interaction to reply to; swallow after logging
   end
 
