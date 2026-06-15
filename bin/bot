@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+# The gateway bot process. Long-lived, single instance (NEVER boot from Puma —
+# cluster workers would open N gateway connections → duplicate events).
+require_relative "../config/environment"
+require "discordrb"
+
+# Eager-load so BaseCommand.descendants sees every command class.
+Rails.application.eager_load!
+
+# ponytail: intents cover servers + interactions only. member_join/leave
+# (welcomes) needs the privileged :server_members intent — add in Phase 4.
+bot = Discordrb::Bot.new(token: BotConfig.token, intents: %i[servers])
+
+CommandRegistrar.new(bot, commands: BaseCommand.descendants).register_all
+
+refresh_presence = -> { BotPresence.update(bot) }
+bot.ready { refresh_presence.call }
+bot.server_create { refresh_presence.call }
+bot.server_delete { refresh_presence.call }
+
+bot.run
