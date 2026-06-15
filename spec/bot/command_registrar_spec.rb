@@ -10,7 +10,10 @@ RSpec.describe CommandRegistrar do
       def initialize
         @defined = []
         @handlers = {}
+        @autocompletes = {}
       end
+
+      attr_reader :autocompletes
 
       def register_application_command(name, description, server_id:, default_member_permissions:, contexts:, &block)
         @defined << {name:, description:, server_id:, default_member_permissions:, contexts:, block:}
@@ -18,6 +21,10 @@ RSpec.describe CommandRegistrar do
 
       def application_command(name, &block)
         @handlers[name] = block
+      end
+
+      def autocomplete(name, &block)
+        @autocompletes[name] = block
       end
     end.new
   end
@@ -64,6 +71,20 @@ RSpec.describe CommandRegistrar do
     allow(BotConfig).to receive(:owner_id).and_return(nil)
     expect(global_cmd).to receive(:dispatch).with(event)
     fake_bot.handlers[:info].call(event)
+  end
+
+  it "attaches an autocomplete handler only for commands that define #autocomplete" do
+    picker = Class.new(BaseCommand) do
+      command_name :pick
+      description "d"
+      register_in :global
+      def autocomplete = nil
+    end
+
+    described_class.new(fake_bot, commands: [picker, global_cmd], test_server_id: "x").register_all
+
+    expect(fake_bot.autocompletes.key?(:pick)).to be(true)
+    expect(fake_bot.autocompletes.key?(:info)).to be(false)
   end
 
   it "skips commands that are not registrable" do

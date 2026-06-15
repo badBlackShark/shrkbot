@@ -19,6 +19,7 @@ class CommandRegistrar
       next unless define(klass)
 
       attach(klass)
+      attach_autocomplete(klass) if klass.autocomplete?
     end
   end
 
@@ -49,5 +50,9 @@ class CommandRegistrar
 
   def attach(klass)
     bot.application_command(klass.command_name) { |event| klass.dispatch(event) }
+  end
+
+  def attach_autocomplete(klass)
+    bot.autocomplete(klass.command_name) { |event| klass.dispatch_autocomplete(event) }
   end
 end

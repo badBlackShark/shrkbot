@@ -28,6 +28,12 @@ module App
     # Common ones are `templates`, `generators`, or `middleware`, for example.
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # Plugins live in app/plugins/<plugin>/ (an auto-rooted app dir). Collapse the
+    # commands/ and events/ subfolders out of the constant path so files map to
+    # Reminders::Remind, not Reminders::Commands::Remind.
+    Rails.autoloaders.main.collapse(Rails.root.join("app/plugins/*/commands"))
+    Rails.autoloaders.main.collapse(Rails.root.join("app/plugins/*/events"))
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

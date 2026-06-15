@@ -73,6 +73,13 @@ class BaseCommand
       new(event).call
     end
 
+    # Commands that define #autocomplete get an autocomplete handler registered too.
+    def autocomplete? = method_defined?(:autocomplete)
+
+    def dispatch_autocomplete(event)
+      new(event).run_autocomplete
+    end
+
     # Concrete commands only (skip abstract bases without a name).
     def registrable = command_name.present?
   end
@@ -97,6 +104,20 @@ class BaseCommand
 
   # Subclasses implement this.
   def execute = raise(NotImplementedError, "#{self.class} must implement #execute")
+
+  # Wraps #autocomplete (defined by commands that need it) with connection
+  # checkout + error handling. On failure, respond with empty choices so the
+  # client's autocomplete UI doesn't hang.
+  def run_autocomplete
+    with_connection { autocomplete }
+  rescue => e
+    Rails.logger.error("[#{self.class.command_name}] autocomplete #{e.class}: #{e.message}")
+    begin
+      event.respond(choices: [])
+    rescue
+      nil
+    end
+  end
 
   private
 
