@@ -1,0 +1,47 @@
+FROM ruby:4.0.5-bookworm
+
+ENV LC_ALL=C.UTF-8 \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8
+
+RUN apt-get update \
+  && apt-get upgrade -y \
+  && apt-get install -y --no-install-recommends --no-install-suggests \
+    build-essential \
+    sudo \
+    git \
+    curl \
+    jq \
+    npm \
+  && rm -rf /var/lib/apt/lists/*
+
+# GitHub CLI
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
+  && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+    > /etc/apt/sources.list.d/github-cli.list \
+  && apt-get update \
+  && apt-get install -y --no-install-recommends gh \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN npm install -g @anthropic-ai/claude-code @github/copilot
+
+# Use PAT from the mounted host sandbox, if present.
+RUN git config --system credential.https://github.com.helper \
+      '!f() { echo username=oauth2; echo password=$(cat /home/dev/.ai-sandbox/github-pat-private 2>/dev/null); }; f' \
+  && git config --system url."https://github.com/".insteadOf "git@github.com:" \
+  && git config --system --add safe.directory /app
+
+# Create unprivileged user with passwordless sudo
+RUN useradd --create-home --shell /bin/bash dev \
+  && echo 'dev ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/dev \
+  && chmod 0440 /etc/sudoers.d/dev
+
+RUN mkdir /app && chown dev:dev /app
+WORKDIR /app
+USER dev
+
+RUN ruby --version \
+  && gh --version \
+  && claude --version \
+  && copilot --version

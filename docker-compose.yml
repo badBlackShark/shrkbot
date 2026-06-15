@@ -1,5 +1,3 @@
-version: '3.5'
-
 services:
   db:
     image: postgres:11
@@ -19,3 +17,33 @@ services:
     restart: always
     depends_on:
       - db
+
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      GH_REPO: badBlackShark/shrkbot
+      GIT_CONFIG_GLOBAL: /home/dev/.ai-sandbox/gitconfig-shrkbot
+      DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
+      CONFIG_PATH: /app/src/config.yml
+    volumes:
+      - ./:/app
+      # Prevent sandbox from reading checked-in/local secret files.
+      - /dev/null:/app/src/config.yml:ro
+      - /dev/null:/app/.env:ro
+      # Prevent sandbox from changing its own guardrails.
+      - ./docker-compose.yml:/app/docker-compose.yml:ro
+      - ./Dockerfile:/app/Dockerfile:ro
+      - ./Dockerfile.dev:/app/Dockerfile.dev:ro
+      - ~/.ai-sandbox/shrkbot/claude:/home/dev/.claude
+      - ~/.ai-sandbox/shrkbot/claude.json:/home/dev/.claude.json
+      - ~/.ai-sandbox/shrkbot/local-state:/home/dev/.local/state/claude
+      - ~/.ai-sandbox/shrkbot/local-share:/home/dev/.local/share/claude
+      - ~/.config/gh:/home/dev/.config/gh
+      - ~/.config/github-copilot:/home/dev/.config/github-copilot
+      - ~/.ai-sandbox:/home/dev/.ai-sandbox:ro
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    depends_on: []
