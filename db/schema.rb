@@ -10,11 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_15_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_15_120008) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
-  create_table "assignable_roles", id: :string, force: :cascade do |t|
+  create_table "assignable_roles", id: :string, default: -> { "('asr_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "description"
     t.string "emoji"
@@ -27,7 +27,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_130000) do
     t.index ["role_setting_id"], name: "index_assignable_roles_on_role_setting_id"
   end
 
-  create_table "logging_settings", id: :string, force: :cascade do |t|
+  create_table "logging_settings", id: :string, default: -> { "('lgs_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.bigint "channel_id"
     t.datetime "created_at", null: false
     t.string "server_configuration_id", null: false
@@ -35,7 +35,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_130000) do
     t.index ["server_configuration_id"], name: "index_logging_settings_on_server_configuration_id", unique: true
   end
 
-  create_table "plugin_activations", id: :string, force: :cascade do |t|
+  create_table "plugin_activations", id: :string, default: -> { "('pac_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.boolean "enabled", default: false, null: false
     t.string "plugin_id", null: false
@@ -46,7 +46,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_130000) do
     t.index ["server_configuration_id"], name: "index_plugin_activations_on_server_configuration_id"
   end
 
-  create_table "plugins", id: :string, force: :cascade do |t|
+  create_table "plugins", id: :string, default: -> { "('plg_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.boolean "default_enabled", default: false, null: false
     t.text "description"
@@ -56,7 +56,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_130000) do
     t.index ["key"], name: "index_plugins_on_key", unique: true
   end
 
-  create_table "reminders", id: :string, force: :cascade do |t|
+  create_table "reminders", id: :string, default: -> { "('rmd_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.bigint "channel_id", null: false
     t.datetime "created_at", null: false
     t.boolean "deliver_via_dm", default: false, null: false
@@ -68,7 +68,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_130000) do
     t.index ["remind_at"], name: "index_reminders_on_remind_at"
   end
 
-  create_table "role_settings", id: :string, force: :cascade do |t|
+  create_table "role_settings", id: :string, default: -> { "('rls_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.bigint "channel_id"
     t.datetime "created_at", null: false
     t.boolean "log_on_assign", default: false, null: false
@@ -79,7 +79,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_130000) do
     t.index ["server_configuration_id"], name: "index_role_settings_on_server_configuration_id", unique: true
   end
 
-  create_table "server_configurations", id: :string, force: :cascade do |t|
+  create_table "server_configurations", id: :string, default: -> { "('srv_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "discord_id", null: false
     t.boolean "force_dm_reminders", default: false, null: false
@@ -87,7 +87,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_130000) do
     t.index ["discord_id"], name: "index_server_configurations_on_discord_id", unique: true
   end
 
-  create_table "settings", id: :string, force: :cascade do |t|
+  create_table "settings", id: :string, default: -> { "('set_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "key", null: false
     t.datetime "updated_at", null: false
@@ -95,7 +95,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_130000) do
     t.index ["key"], name: "index_settings_on_key", unique: true
   end
 
-  create_table "welcome_settings", id: :string, force: :cascade do |t|
+  create_table "welcome_settings", id: :string, default: -> { "('wls_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.bigint "channel_id"
     t.datetime "created_at", null: false
     t.text "join_message"

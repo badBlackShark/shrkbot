@@ -2,10 +2,6 @@
 # Toggle at runtime via console (e.g. `Setting.owner_error_dms = true`) — no
 # redeploy — and later via the web UI.
 class Setting < ApplicationRecord
-  include PrefixedId
-
-  id_prefix "set"
-
   validates :key, presence: true, uniqueness: true
 
   class << self

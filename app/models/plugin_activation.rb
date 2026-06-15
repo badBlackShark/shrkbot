@@ -1,8 +1,4 @@
 class PluginActivation < ApplicationRecord
-  include PrefixedId
-
-  id_prefix "pac"
-
   belongs_to :server_configuration
   belongs_to :plugin
 

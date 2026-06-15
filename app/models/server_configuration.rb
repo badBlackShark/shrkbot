@@ -1,8 +1,4 @@
 class ServerConfiguration < ApplicationRecord
-  include PrefixedId
-
-  id_prefix "srv"
-
   has_many :plugin_activations, dependent: :destroy
   has_many :plugins, through: :plugin_activations
   has_many :enabled_plugins, -> { where(plugin_activations: {enabled: true}) },
