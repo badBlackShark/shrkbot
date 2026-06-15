@@ -63,6 +63,13 @@ RSpec.describe CommandRegistrar do
     expect(cmd[:default_member_permissions]).to be_nil # empty perms → nil, not []
   end
 
+  it "registers a :global command to the test server when instant_global (dev)" do
+    described_class.new(fake_bot, commands: [global_cmd], test_server_id: "srv_123", instant_global: true).register_all
+    cmd = fake_bot.defined.sole
+    expect(cmd[:server_id]).to eq("srv_123") # guild-scoped → appears instantly
+    expect(cmd[:contexts]).to be_nil # guild commands are server-only
+  end
+
   it "attaches a handler that dispatches to the command class" do
     described_class.new(fake_bot, commands: [global_cmd], test_server_id: "x").register_all
     expect(fake_bot.handlers.key?(:info)).to be(true)

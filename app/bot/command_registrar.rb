@@ -6,10 +6,15 @@
 # ponytail: :guild commands all register to TEST_SERVER_ID for now. Per-server
 # registration driven by plugin enable/disable is Phase 8 (Redis → job).
 class CommandRegistrar
-  def initialize(bot, commands:, test_server_id: BotConfig.test_server_id)
+  # instant_global (dev): register :global commands to the test server too, so
+  # they appear instantly. Global propagation takes up to ~1h, which is painful
+  # for iteration. Such a registration is guild-scoped (server-only), so the DM
+  # path of a global command still needs a real global registration (production).
+  def initialize(bot, commands:, test_server_id: BotConfig.test_server_id, instant_global: false)
     @bot = bot
     @commands = commands.select(&:registrable)
     @test_server_id = test_server_id
+    @instant_global = instant_global
   end
 
   attr_reader :bot, :commands, :test_server_id
@@ -37,12 +42,14 @@ class CommandRegistrar
       return false
     end
 
+    to_guild = !reg.global? || (@instant_global && test_server_id.present?)
+
     bot.register_application_command(
       reg.name,
       reg.description,
-      server_id: reg.global? ? nil : test_server_id,
+      server_id: to_guild ? test_server_id : nil,
       default_member_permissions: reg.permissions.presence,
-      contexts: reg.contexts,
+      contexts: to_guild ? nil : reg.contexts, # guild commands are server-only
       &reg.options_block
     )
     true
