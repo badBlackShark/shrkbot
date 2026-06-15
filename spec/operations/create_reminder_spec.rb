@@ -20,11 +20,12 @@ RSpec.describe CreateReminder do
   it "fails on an unparseable duration without creating or scheduling" do
     result = nil
     expect {
-      result = described_class.call(user_id: 1, channel_id: 2, message: "x", duration: "soon")
+      expect {
+        result = described_class.call(user_id: 1, channel_id: 2, message: "x", duration: "soon")
+      }.not_to change(Reminders::Reminder, :count)
     }.not_to have_enqueued_job(Reminders::DeliverJob)
 
     expect(result.failure?).to be(true)
-    expect(Reminders::Reminder.count).to eq(0)
   end
 
   it "fails on a blank message" do
