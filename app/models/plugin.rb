@@ -1,4 +1,8 @@
 class Plugin < ApplicationRecord
+  include PrefixedId
+
+  id_prefix "plg"
+
   has_many :plugin_activations, dependent: :destroy
 
   validates :key, presence: true, uniqueness: true
