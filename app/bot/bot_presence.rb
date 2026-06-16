@@ -1,5 +1,3 @@
-# Bot presence: "Listening to /help • N servers". Pure text builder + a method
-# that pushes it via the duck-typed bot (#update_status, #servers).
 module BotPresence
   LISTENING = 2 # discordrb activity_type for "Listening to"
 

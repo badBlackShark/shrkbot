@@ -49,7 +49,7 @@ class CommandRegistrar
       reg.description,
       server_id: to_guild ? test_server_id : nil,
       default_member_permissions: reg.permissions.presence,
-      contexts: to_guild ? nil : reg.contexts, # guild commands are server-only
+      contexts: to_guild ? nil : reg.contexts,
       &reg.options_block
     )
     true

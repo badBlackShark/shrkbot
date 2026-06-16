@@ -1,8 +1,7 @@
 module Reminders
-  # Delivers a due reminder, then deletes it. Runs in the jobs process (bin/jobs),
-  # which has no gateway connection — so it sends over the REST API with the bot
-  # token. Idempotent: if the row is gone (unremind, or already delivered), it
-  # no-ops, so no job cancellation is needed.
+  # Delivers a due reminder and deletes it. Runs in the jobs process (no gateway),
+  # sending over the REST API with the bot token. Idempotent: no-ops if the row is
+  # gone, so no job cancellation needed.
   class DeliverJob < ApplicationJob
     include ActionView::Helpers::DateHelper # distance_of_time_in_words
 
@@ -23,7 +22,7 @@ module Reminders
       Discordrb::API::Channel.create_message(BotConfig.rest_token, channel_id, content(reminder))
     end
 
-    # user's choice OR the server's force_dm_reminders, resolved now (#16).
+    # Resolved at delivery time: user choice or server's force_dm_reminders policy.
     def deliver_via_dm?(reminder)
       return true if reminder.deliver_via_dm
       return false unless reminder.server_id

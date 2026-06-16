@@ -1,4 +1,3 @@
-# App-level bot config from env (distinct from per-server DB config).
 module BotConfig
   module_function
 
@@ -11,7 +10,6 @@ module BotConfig
     token.start_with?("Bot ") ? token : "Bot #{token}"
   end
 
-  # Creator override: this user may run any command (incl. owner_only ones).
   def owner_id = ENV["OWNER_ID"]
 
   # Where :guild commands register until per-server registration lands (Phase 8).

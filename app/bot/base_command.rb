@@ -7,7 +7,6 @@
 class BaseCommand
   include WithConnection
 
-  # Plain descriptor the registrar turns into a discordrb registration call.
   # Pure data → testable without a gateway.
   Registration = Struct.new(
     :name, :description, :permissions, :owner_only, :context, :options_block
@@ -20,8 +19,6 @@ class BaseCommand
   end
 
   class << self
-    # --- declaration macros ---
-
     def command_name(value = nil)
       @command_name = value if value
       @command_name
@@ -51,7 +48,6 @@ class BaseCommand
       @register_in || :guild
     end
 
-    # Option block passed to discordrb's OptionBuilder at registration time.
     def options(&block)
       @options_block = block if block
       @options_block
@@ -68,19 +64,16 @@ class BaseCommand
       )
     end
 
-    # Registrar attaches this as the discordrb handler for the command.
     def dispatch(event)
       new(event).call
     end
 
-    # Commands that define #autocomplete get an autocomplete handler registered too.
     def autocomplete? = method_defined?(:autocomplete)
 
     def dispatch_autocomplete(event)
       new(event).run_autocomplete
     end
 
-    # Concrete commands only (skip abstract bases without a name).
     def registrable = command_name.present?
   end
 
@@ -102,7 +95,6 @@ class BaseCommand
     respond_error
   end
 
-  # Subclasses implement this.
   def execute = raise(NotImplementedError, "#{self.class} must implement #execute")
 
   # Wraps #autocomplete (defined by commands that need it) with connection

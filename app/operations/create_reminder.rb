@@ -1,6 +1,5 @@
-# Creates a reminder and schedules its delivery. The single validation seam:
-# parses the duration, sanitizes the message, persists, then enqueues the
-# delayed delivery job (idempotent — see Reminders::DeliverJob).
+# Validation and persistence layer for reminders; job scheduling is idempotent
+# (see Reminders::DeliverJob).
 class CreateReminder < ApplicationOperation
   def initialize(user_id:, channel_id:, message:, duration:, server_id: nil, deliver_via_dm: false)
     @user_id = user_id

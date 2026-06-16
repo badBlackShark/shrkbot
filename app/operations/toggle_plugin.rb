@@ -1,7 +1,6 @@
-# Enable/disable a plugin for a server via the activation's `enabled` flag
-# (settings persist through disable→enable cycles, #16). Enabling refuses when
-# the plugin's required settings aren't configured yet (#21 — server-side half
-# of the invariant; the web Stimulus gate is the UX half).
+# Settings persist through disable→enable cycles (#16). Enabling refuses when
+# prerequisites aren't met (#21 — server-side enforcement; web Stimulus gate
+# is UX half).
 class TogglePlugin < ApplicationOperation
   def initialize(server_configuration:, plugin:, enabled:)
     @server_configuration = server_configuration

@@ -1,6 +1,5 @@
-# Deletes a reminder, scoped to its owner so a user can't cancel someone else's.
-# No job cancellation needed — DeliverJob guards on row existence, so a deleted
-# reminder simply no-ops when its job fires.
+# No job cancellation: DeliverJob guards on row existence, so deletion just
+# no-ops when the job fires.
 class DeleteReminder < ApplicationOperation
   def initialize(reminder_id:, user_id:)
     @reminder_id = reminder_id

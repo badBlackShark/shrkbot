@@ -2,7 +2,7 @@
 # runtime Setting.owner_error_dms? flag (off by default). Self-guarding: a
 # failure here must never mask the original error.
 module OwnerNotifier
-  MAX_LENGTH = 1900 # Discord message cap is 2000; leave headroom.
+  MAX_LENGTH = 1900
 
   module_function
 

@@ -1,5 +1,4 @@
-# Set the channel the logging sink posts to. A channel is required (logging
-# can't run without one, #16); clearing isn't a feature yet.
+# Channel required for logging (#16); clearing not yet a feature.
 # ponytail: the @everyone-visibility warning (#16) needs synced channel
 # permission-overwrites — added in Phase 5.
 class SetLoggingChannel < ApplicationOperation
