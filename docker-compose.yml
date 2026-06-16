@@ -10,11 +10,57 @@ services:
       - 5678:5432
     volumes:
       - pg_data:/var/lib/postgresql
-  app:
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d shrkbot_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # The app processes. Same image, different command. RAILS_ENV=development for
+  # now; DATABASE_URL here points at the in-network db host (overrides the
+  # localhost value in .env — compose `environment` wins, and dotenv won't
+  # clobber an already-set var). Secrets (DISCORD_TOKEN etc.) come from the
+  # mounted .env via dotenv.
+  web:
     build: .
-    restart: always
+    command: bin/rails server -b 0.0.0.0 -p 3000
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
+  bot:
+    build: .
+    command: bin/bot
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
+    volumes:
+      - ./:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  jobs:
+    build: .
+    command: bin/jobs
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
+    volumes:
+      - ./:/app
+    depends_on:
+      db:
+        condition: service_healthy
 
   dev:
     build:
