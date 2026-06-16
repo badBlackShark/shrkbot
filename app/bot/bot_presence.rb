@@ -1,5 +1,5 @@
 module BotPresence
-  LISTENING = 2 # discordrb activity_type for "Listening to"
+  LISTENING = 2
 
   module_function
 
