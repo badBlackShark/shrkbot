@@ -4,14 +4,13 @@ class CommandRegistrar
   # instant_global (dev): register :global commands to the test server for instant
   # appearance — global propagation takes up to ~1h. Guild-scoped, so it can't
   # reach DMs; production registers them truly globally.
-  def initialize(bot, commands:, test_server_id: BotConfig.test_server_id, instant_global: false)
+  def initialize(bot, commands:, instant_global: false)
     @bot = bot
     @commands = commands.select(&:registrable)
-    @test_server_id = test_server_id
     @instant_global = instant_global
   end
 
-  attr_reader :bot, :commands, :test_server_id
+  attr_reader :bot, :commands
 
   def register_all
     commands.each do |klass|
@@ -23,6 +22,10 @@ class CommandRegistrar
   end
 
   private
+
+  def test_server_id
+    BotConfig.test_server_id
+  end
 
   def define(klass)
     reg = klass.registration
