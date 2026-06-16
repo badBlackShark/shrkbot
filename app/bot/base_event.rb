@@ -1,6 +1,3 @@
-# Base for gateway event handlers (member_join, member_leave, button clicks…).
-# Like BaseCommand it runs on a discordrb worker thread, so it shares the
-# connection-checkout concern. Fleshed out per-event in Phase 4.
 class BaseEvent
   include WithConnection
 

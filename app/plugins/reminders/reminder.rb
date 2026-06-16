@@ -1,8 +1,6 @@
 module Reminders
-  # Scheduled reminders keyed by Discord snowflakes. Delivery handled by DeliverJob;
-  # server_id is null for DM reminders.
   class Reminder < ApplicationRecord
-    # Explicit table name to avoid ambiguity with demodulized default.
+    # Namespaced model would otherwise derive an ambiguous table name.
     self.table_name = "reminders"
 
     validates :user_id, :channel_id, :remind_at, :message, presence: true

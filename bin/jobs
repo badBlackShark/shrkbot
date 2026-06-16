@@ -1,9 +1,8 @@
 #!/usr/bin/env ruby
 
 require_relative "../config/environment"
-# The jobs process delivers Discord messages over REST (e.g. reminders), so load
-# the Discord client once at boot instead of lazily per job. discordrb stays
-# require:false in the Gemfile to keep web/console/rake lean.
+# discordrb is require:false (keeps web/console lean); the jobs process needs it
+# for REST delivery, so load it once here rather than lazily per job.
 require "discordrb"
 require "solid_queue/cli"
 

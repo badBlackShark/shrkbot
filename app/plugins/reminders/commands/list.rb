@@ -1,5 +1,4 @@
 module Reminders
-  # /reminders — list your active reminders (ephemeral).
   class List < BaseCommand
     command_name :reminders
     description "List your active reminders."

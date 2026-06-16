@@ -1,6 +1,4 @@
 module Reminders
-  # /unremind <reminder> — cancel a reminder, picked from an autocomplete list of
-  # the user's own active reminders (the option value is the reminder id).
   class Unremind < BaseCommand
     command_name :unremind
     description "Cancel one of your reminders."

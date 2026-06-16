@@ -1,5 +1,3 @@
-# Validation and persistence layer for reminders; job scheduling is idempotent
-# (see Reminders::DeliverJob).
 class CreateReminder < ApplicationOperation
   def initialize(user_id:, channel_id:, message:, duration:, server_id: nil, deliver_via_dm: false)
     @user_id = user_id

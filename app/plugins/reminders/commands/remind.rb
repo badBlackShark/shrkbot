@@ -1,5 +1,4 @@
 module Reminders
-  # /remind <duration> <message> [deliver] — global, works in servers and DMs.
   class Remind < BaseCommand
     command_name :remind
     description "Set a reminder to be sent to you after a delay (e.g. 1d2h30m)."

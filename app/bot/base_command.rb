@@ -1,20 +1,11 @@
-# Base for every slash command. One command per subclass; the registrar
-# (CommandRegistrar) discovers subclasses via .descendants after eager-load.
-#
-# Subclasses declare metadata with the class macros and implement #execute.
-# The #call template owns the cross-cutting concerns in ONE place: connection
-# checkout, the runtime permission gate, and uniform error handling.
 class BaseCommand
   include WithConnection
 
-  # Pure data → testable without a gateway.
   Registration = Struct.new(
     :name, :description, :permissions, :owner_only, :context, :options_block
   ) do
     def global? = context == :global
 
-    # :global commands work in servers AND bot DMs; :guild commands are
-    # server-only by Discord's rules (guild commands can't appear in DMs).
     def contexts = global? ? %i[server bot_dm] : nil
   end
 
@@ -29,8 +20,6 @@ class BaseCommand
       @description
     end
 
-    # Discord permission-flag symbols (e.g. :manage_server). Sets the command's
-    # default_member_permissions (Discord hides it) and the runtime gate.
     def requires_permissions(*perms)
       @required_permissions = perms.flatten if perms.any?
       @required_permissions || []
@@ -42,7 +31,6 @@ class BaseCommand
 
     def owner_only? = @owner_only || false
 
-    # :guild (default) registers per-server; :global registers once, DM-capable.
     def register_in(value = nil)
       @register_in = value if value
       @register_in || :guild
@@ -97,15 +85,12 @@ class BaseCommand
 
   def execute = raise(NotImplementedError, "#{self.class} must implement #execute")
 
-  # Wraps #autocomplete (defined by commands that need it) with connection
-  # checkout + error handling. On failure, respond with empty choices so the
-  # client's autocomplete UI doesn't hang.
   def run_autocomplete
     with_connection { autocomplete }
   rescue => e
     Rails.logger.error("[#{self.class.command_name}] autocomplete #{e.class}: #{e.message}")
     begin
-      event.respond(choices: [])
+      event.respond(choices: []) # don't leave the picker hanging on error
     rescue
       nil
     end

@@ -1,6 +1,4 @@
-# DMs the bot owner exception details when a command/event raises. Gated by the
-# runtime Setting.owner_error_dms? flag (off by default). Self-guarding: a
-# failure here must never mask the original error.
+# Self-guarding: a failure in here must never mask the original error.
 module OwnerNotifier
   MAX_LENGTH = 1900
 

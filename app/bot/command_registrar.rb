@@ -1,15 +1,9 @@
-# Pushes each command's definition to Discord and attaches its in-process
-# handler. The bot is duck-typed (Discordrb::Bot): #register_application_command
-# and #application_command. That boundary is the only Discord-touching part;
-# everything deciding WHAT to register lives in BaseCommand.registration.
-#
 # ponytail: :guild commands all register to TEST_SERVER_ID for now. Per-server
-# registration driven by plugin enable/disable is Phase 8 (Redis → job).
+# registration driven by plugin enable/disable is Phase 8.
 class CommandRegistrar
-  # instant_global (dev): register :global commands to the test server too, so
-  # they appear instantly. Global propagation takes up to ~1h, which is painful
-  # for iteration. Such a registration is guild-scoped (server-only), so the DM
-  # path of a global command still needs a real global registration (production).
+  # instant_global (dev): register :global commands to the test server for instant
+  # appearance — global propagation takes up to ~1h. Guild-scoped, so it can't
+  # reach DMs; production registers them truly globally.
   def initialize(bot, commands:, test_server_id: BotConfig.test_server_id, instant_global: false)
     @bot = bot
     @commands = commands.select(&:registrable)
@@ -33,10 +27,7 @@ class CommandRegistrar
   def define(klass)
     reg = klass.registration
 
-    # A :guild command needs a server to register against. Without one it would
-    # silently register GLOBALLY (up to ~1h to appear, no per-server toggle), so
-    # skip + warn instead. In production :guild commands register per-server on
-    # plugin enable (Phase 8); TEST_SERVER_ID is the local-testing stand-in.
+    # Without a server, a :guild command would silently register globally — skip it.
     if !reg.global? && test_server_id.to_s.empty?
       Rails.logger.warn("[CommandRegistrar] skipping :guild command /#{reg.name} — TEST_SERVER_ID not set")
       return false
@@ -60,9 +51,8 @@ class CommandRegistrar
   end
 
   def attach_autocomplete(klass)
-    # discordrb's autocomplete(name) matches `name` against the focused OPTION,
-    # not the command. Filter by command_name so it fires for the whole command
-    # regardless of which option is focused.
+    # discordrb's autocomplete(name) matches the focused OPTION, not the command —
+    # filter by command_name instead.
     bot.autocomplete(nil, command_name: klass.command_name) { |event| klass.dispatch_autocomplete(event) }
   end
 end

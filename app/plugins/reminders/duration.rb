@@ -1,5 +1,4 @@
 module Reminders
-  # Parses compact duration strings like "1d2h30m" into an ActiveSupport::Duration.
   module Duration
     UNITS = {"w" => :weeks, "d" => :days, "h" => :hours, "m" => :minutes, "s" => :seconds}.freeze
     PATTERN = /\A(\d+[wdhms])+\z/

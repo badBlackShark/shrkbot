@@ -1,6 +1,5 @@
 module Reminders
-  # Neutralizes @everyone/@here in user-supplied reminder text so delivering it
-  # can't trigger a mass ping.
+  # Defangs @everyone/@here so a delivered reminder can't trigger a mass ping.
   module Sanitizer
     ZERO_WIDTH = "​"
 

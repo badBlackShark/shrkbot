@@ -1,7 +1,6 @@
 module Reminders
-  # Delivers a due reminder and deletes it. Runs in the jobs process (no gateway),
-  # sending over the REST API with the bot token. Idempotent: no-ops if the row is
-  # gone, so no job cancellation needed.
+  # Runs in the jobs process (no gateway), so it sends over REST. Idempotent:
+  # no-ops if the row is gone, which is why unremind needs no job cancellation.
   class DeliverJob < ApplicationJob
     include ActionView::Helpers::DateHelper # distance_of_time_in_words
 

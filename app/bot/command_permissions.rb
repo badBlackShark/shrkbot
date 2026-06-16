@@ -1,14 +1,8 @@
-# Runtime permission gate. Defense-in-depth behind Discord's own hiding
-# (default_member_permissions): a guild admin can re-grant a command to anyone
-# in the integrations UI, so we never trust the hiding alone.
-#
-# `event` is duck-typed (discordrb interaction): #user.id, and #member that
-# responds to #permission?(sym). DM interactions have no member.
+# Re-checked at runtime even though Discord hides commands the member can't use:
+# that hiding can be overridden server-side, so it can't be trusted alone.
 module CommandPermissions
   module_function
 
-  # owner_id/required come from the command class; kept as args (not globals)
-  # so this stays a pure function.
   def permitted?(event:, required:, owner_only:, owner_id:)
     return true if owner?(event, owner_id) # creator override beats everything
     return false if owner_only
