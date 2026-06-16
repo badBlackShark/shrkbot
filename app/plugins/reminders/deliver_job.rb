@@ -19,8 +19,6 @@ module Reminders
     private
 
     def deliver(reminder)
-      require "discordrb" # only the jobs process needs the Discord client
-
       channel_id = deliver_via_dm?(reminder) ? dm_channel_id(reminder.user_id) : reminder.channel_id
       Discordrb::API::Channel.create_message(BotConfig.rest_token, channel_id, content(reminder))
     end
