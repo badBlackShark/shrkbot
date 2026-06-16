@@ -1,12 +1,14 @@
 class BaseCommand
   include WithConnection
 
-  Registration = Struct.new(
-    :name, :description, :permissions, :owner_only, :context, :options_block
-  ) do
-    def global? = context == :global
+  Registration = Struct.new(:name, :description, :permissions, :owner_only, :context, :options_block) do
+    def global?
+      context == :global
+    end
 
-    def contexts = global? ? %i[server bot_dm] : nil
+    def contexts
+      global? ? %i[server bot_dm] : nil
+    end
   end
 
   class << self
@@ -29,7 +31,9 @@ class BaseCommand
       @owner_only = value
     end
 
-    def owner_only? = @owner_only || false
+    def owner_only?
+      @owner_only || false
+    end
 
     def register_in(value = nil)
       @register_in = value if value
@@ -56,13 +60,17 @@ class BaseCommand
       new(event).call
     end
 
-    def autocomplete? = method_defined?(:autocomplete)
+    def autocomplete?
+      method_defined?(:autocomplete)
+    end
 
     def dispatch_autocomplete(event)
       new(event).run_autocomplete
     end
 
-    def registrable = command_name.present?
+    def registrable
+      command_name.present?
+    end
   end
 
   def initialize(event)
@@ -83,7 +91,9 @@ class BaseCommand
     respond_error
   end
 
-  def execute = raise(NotImplementedError, "#{self.class} must implement #execute")
+  def execute
+    raise AbstractMethodError, "#{self.class} must implement #execute"
+  end
 
   def run_autocomplete
     with_connection { autocomplete }
@@ -102,8 +112,7 @@ class BaseCommand
     CommandPermissions.permitted?(
       event: event,
       required: self.class.requires_permissions,
-      owner_only: self.class.owner_only?,
-      owner_id: BotConfig.owner_id
+      owner_only: self.class.owner_only?
     )
   end
 

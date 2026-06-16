@@ -3,7 +3,6 @@ module Commands
     command_name :ping
     description "Check that the bot is online and responding."
     requires_permissions :manage_server
-    register_in :guild
 
     def execute
       event.respond(content: "🦈 pong", ephemeral: true)

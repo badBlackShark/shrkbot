@@ -15,5 +15,7 @@ class BaseEvent
     nil # events have no interaction to reply to; swallow after logging
   end
 
-  def handle = raise(NotImplementedError, "#{self.class} must implement #handle")
+  def handle
+    raise AbstractMethodError, "#{self.class} must implement #handle"
+  end
 end

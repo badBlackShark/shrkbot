@@ -87,7 +87,8 @@ RSpec.describe CommandRegistrar do
       command_name :pick
       description "d"
       register_in :global
-      def autocomplete = nil
+      def autocomplete
+      end
     end
 
     described_class.new(fake_bot, commands: [picker, global_cmd], test_server_id: "x").register_all

@@ -1,7 +1,9 @@
 module BotConfig
   module_function
 
-  def token = ENV.fetch("DISCORD_TOKEN")
+  def token
+    ENV.fetch("DISCORD_TOKEN")
+  end
 
   # Discord's REST API wants the Authorization header as "Bot <token>". The
   # gateway bot adds this itself, but direct Discordrb::API calls (e.g. from the
@@ -10,8 +12,12 @@ module BotConfig
     token.start_with?("Bot ") ? token : "Bot #{token}"
   end
 
-  def owner_id = ENV["OWNER_ID"]
+  def owner_id
+    ENV["OWNER_ID"]
+  end
 
   # Where :guild commands register until per-server registration lands (Phase 8).
-  def test_server_id = ENV["TEST_SERVER_ID"]
+  def test_server_id
+    ENV["TEST_SERVER_ID"]
+  end
 end

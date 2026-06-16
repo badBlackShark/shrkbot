@@ -59,7 +59,10 @@ RSpec.describe BaseCommand do
       klass = Class.new(described_class) do
         command_name :probe
         requires_permissions :manage_server
-        def execute = raise("should not run")
+
+        def execute
+          raise "should not run"
+        end
       end
       denied_event = double("event", user: double(id: 1), member: double, respond: nil)
       allow(denied_event.member).to receive(:permission?).with(:manage_server).and_return(false)
