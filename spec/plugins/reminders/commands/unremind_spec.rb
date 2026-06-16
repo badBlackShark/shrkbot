@@ -3,9 +3,9 @@ require "rails_helper"
 RSpec.describe Reminders::Unremind do
   let(:event) { double("event", user: double(id: 1), options: {"reminder" => "rmd_x"}, respond: nil) }
 
-  it "cancels the chosen reminder via DeleteReminder" do
-    expect(DeleteReminder).to receive(:call).with(reminder_id: "rmd_x", user_id: 1)
-      .and_return(ApplicationOperation::Result.new(true, nil, []))
+  it "cancels the chosen reminder via Ops::DeleteReminder" do
+    expect(Ops::DeleteReminder).to receive(:call).with(reminder_id: "rmd_x", user_id: 1)
+      .and_return(Ops::ApplicationOperation::Result.new(true, nil, []))
     expect(event).to receive(:respond).with(hash_including(content: a_string_including("cancelled")))
 
     described_class.new(event).execute

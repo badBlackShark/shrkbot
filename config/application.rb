@@ -18,6 +18,10 @@ require "action_cable/engine"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+# Hand-defined namespace for app/operations (mapped via push_dir below).
+module Ops
+end
+
 module App
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -33,6 +37,9 @@ module App
     # Reminders::Remind, not Reminders::Commands::Remind.
     Rails.autoloaders.main.collapse(Rails.root.join("app/plugins/*/commands"))
     Rails.autoloaders.main.collapse(Rails.root.join("app/plugins/*/events"))
+
+    # Map app/operations to the Ops:: namespace (files stay flat, no ops/ subdir).
+    Rails.autoloaders.main.push_dir(Rails.root.join("app/operations").to_s, namespace: Ops)
 
     # Configuration for the application, engines, and railties goes here.
     #

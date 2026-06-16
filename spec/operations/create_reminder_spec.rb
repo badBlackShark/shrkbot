@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe CreateReminder do
+RSpec.describe Ops::CreateReminder do
   it "creates a reminder and schedules delivery for the parsed time" do
     result = nil
     expect {

@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe TogglePlugin do
+RSpec.describe Ops::TogglePlugin do
   let(:server) { create(:server_configuration, discord_id: 1) }
   let(:logging) { create(:plugin, key: "logging", name: "Logging") }
   let(:roles) { create(:plugin, key: "roles", name: "Roles") }

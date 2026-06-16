@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe DeleteReminder do
+RSpec.describe Ops::DeleteReminder do
   let(:reminder) do
     create(:reminder, user_id: 1, channel_id: 2, remind_at: 1.hour.from_now, message: "x")
   end

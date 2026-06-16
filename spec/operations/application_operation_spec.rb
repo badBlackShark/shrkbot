@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe ApplicationOperation do
+RSpec.describe Ops::ApplicationOperation do
   let(:op) do
     Class.new(described_class) do
       def initialize(win:)
