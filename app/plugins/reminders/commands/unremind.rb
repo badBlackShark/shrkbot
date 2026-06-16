@@ -16,10 +16,20 @@ module Reminders
     end
 
     def autocomplete
-      choices = Reminders::Reminder.for_user(event.user.id).limit(25).to_h do |reminder|
-        [reminder.message.truncate(90), reminder.id]
+      # Array of {name:, value:} (not a hash) so same-text reminders don't collapse
+      # on a duplicate key. The absolute time keeps the labels meaningful + distinct.
+      choices = Reminders::Reminder.for_user(event.user.id).limit(25).map do |reminder|
+        {name: choice_label(reminder), value: reminder.id}
       end
       event.respond(choices: choices)
+    end
+
+    private
+
+    def choice_label(reminder)
+      # Discord choice names cap at 100 chars and can't use dynamic <t:> markup,
+      # so format an absolute timestamp (UTC) plainly.
+      "#{reminder.message.truncate(75)} (#{reminder.remind_at.strftime("%b %-d %H:%M %Z")})"
     end
   end
 end
