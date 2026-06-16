@@ -10,7 +10,7 @@ RSpec.describe CommandRegistrar do
       def initialize
         @defined = []
         @handlers = {}
-        @autocompletes = {}
+        @autocompletes = []
       end
 
       attr_reader :autocompletes
@@ -23,8 +23,10 @@ RSpec.describe CommandRegistrar do
         @handlers[name] = block
       end
 
-      def autocomplete(name, &block)
-        @autocompletes[name] = block
+      # Mirrors discordrb: the positional name matches the focused OPTION; the
+      # command is filtered via attributes[:command_name].
+      def autocomplete(name = nil, attributes = {}, &block)
+        @autocompletes << {name:, attributes:, block:}
       end
     end.new
   end
@@ -80,7 +82,7 @@ RSpec.describe CommandRegistrar do
     fake_bot.handlers[:info].call(event)
   end
 
-  it "attaches an autocomplete handler only for commands that define #autocomplete" do
+  it "attaches an autocomplete handler filtered by command_name (not focused option) only for commands that define #autocomplete" do
     picker = Class.new(BaseCommand) do
       command_name :pick
       description "d"
@@ -90,8 +92,10 @@ RSpec.describe CommandRegistrar do
 
     described_class.new(fake_bot, commands: [picker, global_cmd], test_server_id: "x").register_all
 
-    expect(fake_bot.autocompletes.key?(:pick)).to be(true)
-    expect(fake_bot.autocompletes.key?(:info)).to be(false)
+    expect(fake_bot.autocompletes.size).to eq(1) # global_cmd has no #autocomplete
+    reg = fake_bot.autocompletes.first
+    expect(reg[:attributes][:command_name]).to eq(:pick) # matches the command…
+    expect(reg[:name]).to be_nil # …not a focused-option name
   end
 
   it "skips commands that are not registrable" do

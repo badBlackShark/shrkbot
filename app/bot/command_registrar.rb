@@ -60,6 +60,9 @@ class CommandRegistrar
   end
 
   def attach_autocomplete(klass)
-    bot.autocomplete(klass.command_name) { |event| klass.dispatch_autocomplete(event) }
+    # discordrb's autocomplete(name) matches `name` against the focused OPTION,
+    # not the command. Filter by command_name so it fires for the whole command
+    # regardless of which option is focused.
+    bot.autocomplete(nil, command_name: klass.command_name) { |event| klass.dispatch_autocomplete(event) }
   end
 end
