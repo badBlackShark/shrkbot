@@ -1,5 +1,5 @@
 # Channel required for logging (#16); clearing not yet a feature.
-# ponytail: the @everyone-visibility warning (#16) needs synced channel
+# The @everyone-visibility warning (#16) needs synced channel
 # permission-overwrites — added in Phase 5.
 class SetLoggingChannel < ApplicationOperation
   def initialize(server_configuration:, channel_id:)

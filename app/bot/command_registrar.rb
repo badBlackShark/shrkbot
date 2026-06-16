@@ -1,5 +1,5 @@
-# ponytail: :guild commands all register to TEST_SERVER_ID for now. Per-server
-# registration driven by plugin enable/disable is Phase 8.
+# For now all :guild commands register to TEST_SERVER_ID; per-server registration
+# on plugin enable/disable is Phase 8.
 class CommandRegistrar
   # instant_global (dev): register :global commands to the test server for instant
   # appearance — global propagation takes up to ~1h. Guild-scoped, so it can't

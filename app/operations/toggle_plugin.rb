@@ -27,7 +27,7 @@ class TogglePlugin < ApplicationOperation
     when "logging"
       @server_configuration.logging_setting&.channel_id.present?
     else
-      # ponytail: roles/welcomes prerequisite gates land with those plugins (Phase 4).
+      # roles/welcomes prerequisite gates land with those plugins (Phase 4).
       true
     end
   end
