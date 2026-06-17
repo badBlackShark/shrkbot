@@ -6,15 +6,27 @@ require "discordrb"
 
 Rails.application.eager_load!
 
+# discordrb is one shard per Bot, so we run one Bot per shard.
 # :server_members is privileged — enable it in the Discord developer portal.
-bot = Discordrb::Bot.new(token: BotConfig.token, intents: %i[servers server_members])
+bots = Array.new(BotConfig.shard_count) do |shard_id|
+  bot = Discordrb::Bot.new(
+    token: BotConfig.token,
+    intents: %i[servers server_members],
+    shard_id: shard_id,
+    num_shards: BotConfig.shard_count
+  )
 
-CommandRegistrar.new(bot, commands: BaseCommand.descendants, instant_global: Rails.env.development?).register_all
-EventRegistrar.new(bot, events: BaseEvent.descendants).register_all
+  CommandRegistrar.new(bot, commands: BaseCommand.descendants, instant_global: Rails.env.development?).register_all
+  EventRegistrar.new(bot, events: BaseEvent.descendants).register_all
 
-refresh_presence = -> { BotPresence.update(bot) }
-bot.ready { refresh_presence.call }
-bot.server_create { refresh_presence.call }
-bot.server_delete { refresh_presence.call }
+  refresh_presence = -> { BotPresence.update(bot) }
+  bot.ready { refresh_presence.call }
+  bot.server_create { refresh_presence.call }
+  bot.server_delete { refresh_presence.call }
 
-bot.run
+  bot
+end
+
+# Start all shards before joining any — a combined loop would block on shard 0.
+bots.each { |bot| bot.run(true) }
+bots.each(&:join)

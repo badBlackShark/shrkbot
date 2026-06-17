@@ -20,4 +20,9 @@ module BotConfig
   def test_server_id
     ENV["TEST_SERVER_ID"]
   end
+
+  # Static sharding only (no dynamic) — bump SHARD_COUNT to scale without a redeploy.
+  def shard_count
+    [ENV.fetch("SHARD_COUNT", "1").to_i, 1].max
+  end
 end

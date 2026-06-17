@@ -22,4 +22,35 @@ RSpec.describe BotConfig do
       end
     end
   end
+
+  describe ".shard_count" do
+    subject(:shard_count) { described_class.shard_count }
+
+    around do |example|
+      original = ENV["SHARD_COUNT"]
+      ENV["SHARD_COUNT"] = raw
+      example.run
+      ENV["SHARD_COUNT"] = original
+    end
+
+    context "when unset" do
+      let(:raw) { nil }
+
+      it { is_expected.to eq(1) }
+    end
+
+    context "when set" do
+      let(:raw) { "4" }
+
+      it { is_expected.to eq(4) }
+    end
+
+    context "when set below 1" do
+      let(:raw) { "0" }
+
+      it "floors at 1" do
+        expect(shard_count).to eq(1)
+      end
+    end
+  end
 end
