@@ -2,6 +2,6 @@ class ServerSetup < BaseEvent
   on :server_create
 
   def handle
-    Ops::ServerConfiguration::Ensure.call(discord_id: event.server.id)
+    GuildMetadata.sync(event.server, event.bot)
   end
 end

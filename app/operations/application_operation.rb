@@ -1,6 +1,6 @@
 module Ops
   class ApplicationOperation
-    Result = Struct.new(:success, :value, :errors) do
+    Result = Struct.new(:success, :value, :errors, :warnings) do
       def success?
         success
       end
@@ -16,12 +16,12 @@ module Ops
 
     private
 
-    def ok(value = nil)
-      Result.new(true, value, [])
+    def ok(value = nil, warnings: [])
+      Result.new(true, value, [], warnings)
     end
 
     def failure(*errors)
-      Result.new(false, nil, errors.flatten)
+      Result.new(false, nil, errors.flatten, [])
     end
 
     def transaction(&)

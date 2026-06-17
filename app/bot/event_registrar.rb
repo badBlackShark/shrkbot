@@ -8,7 +8,9 @@ class EventRegistrar
 
   def register_all
     events.each do |klass|
-      bot.public_send(klass.discord_event) { |event| klass.dispatch(event) }
+      klass.discord_events.each do |discord_event|
+        bot.public_send(discord_event) { |event| klass.dispatch(event) }
+      end
     end
   end
 end

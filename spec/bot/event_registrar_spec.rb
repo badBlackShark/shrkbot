@@ -15,6 +15,14 @@ RSpec.describe EventRegistrar do
       def member_join(&block)
         @handlers[:member_join] = block
       end
+
+      def channel_create(&block)
+        @handlers[:channel_create] = block
+      end
+
+      def channel_delete(&block)
+        @handlers[:channel_delete] = block
+      end
     end.new
   end
 
@@ -35,6 +43,22 @@ RSpec.describe EventRegistrar do
       incoming = double("event")
       expect(event_class).to receive(:dispatch).with(incoming)
       fake_bot.handlers[:member_join].call(incoming)
+    end
+  end
+
+  context "with an event declaring multiple discordrb events" do
+    let(:event_class) do
+      Class.new(BaseEvent) do
+        on :channel_create, :channel_delete
+        def handle
+        end
+      end
+    end
+    let(:events) { [event_class] }
+
+    it "binds the class to each declared handler" do
+      register_all
+      expect(fake_bot.handlers.keys).to contain_exactly(:channel_create, :channel_delete)
     end
   end
 

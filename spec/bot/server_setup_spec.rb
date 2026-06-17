@@ -3,10 +3,12 @@ require "rails_helper"
 RSpec.describe ServerSetup do
   subject(:handle) { described_class.new(event).handle }
 
-  let(:event) { double("event", server: double(id: 77)) }
+  let(:server) { double("server", id: 77) }
+  let(:bot) { double("bot") }
+  let(:event) { double("event", server:, bot:) }
 
-  it "ensures a configuration exists for the server" do
-    expect(Ops::ServerConfiguration::Ensure).to receive(:call).with(discord_id: 77)
+  it "syncs the joined server's config and metadata" do
+    expect(GuildMetadata).to receive(:sync).with(server, bot)
     handle
   end
 end

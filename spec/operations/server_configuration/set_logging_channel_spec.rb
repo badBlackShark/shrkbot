@@ -22,6 +22,25 @@ RSpec.describe Ops::ServerConfiguration::SetLoggingChannel do
     end
   end
 
+  context "when the chosen channel is visible to @everyone" do
+    before { create(:server_channel, server_configuration: server, discord_id: 555) }
+
+    it "saves but returns a visibility warning" do
+      expect(result.success?).to be(true)
+      expect(result.warnings).to include(/@everyone/)
+    end
+  end
+
+  context "when the chosen channel is hidden from @everyone" do
+    let(:channel) { create(:server_channel, server_configuration: server, discord_id: 555) }
+
+    before { create(:channel_overwrite, server_channel: channel, target_id: 1, deny: ServerChannel::VIEW_CHANNEL) }
+
+    it "saves with no warning" do
+      expect(result.warnings).to be_empty
+    end
+  end
+
   context "with an existing setting" do
     before { server.create_logging_setting!(channel_id: 111) }
 

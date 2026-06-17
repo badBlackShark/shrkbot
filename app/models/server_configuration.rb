@@ -8,5 +8,8 @@ class ServerConfiguration < ApplicationRecord
   has_one :role_setting, dependent: :destroy # RoleSetting cascades to its assignable_roles
   has_one :welcome_settings, class_name: "Welcomes::Settings", dependent: :delete
 
+  has_many :server_channels, dependent: :destroy # ServerChannel cascades to its channel_overwrites
+  has_many :server_roles, dependent: :delete_all
+
   validates :discord_id, presence: true, uniqueness: true
 end

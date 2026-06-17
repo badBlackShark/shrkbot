@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_17_191707) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_17_200002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,6 +24,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_191707) do
     t.string "role_setting_id", null: false
     t.datetime "updated_at", null: false
     t.index ["role_setting_id", "role_id"], name: "index_assignable_roles_on_role_setting_id_and_role_id", unique: true
+  end
+
+  create_table "channel_overwrites", id: :string, default: -> { "('cov_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.bigint "allow", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.bigint "deny", default: 0, null: false
+    t.string "server_channel_id", null: false
+    t.bigint "target_id", null: false
+    t.string "target_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["server_channel_id", "target_id"], name: "index_channel_overwrites_on_server_channel_id_and_target_id", unique: true
+    t.check_constraint "target_type::text = ANY (ARRAY['role'::character varying, 'member'::character varying]::text[])", name: "channel_overwrites_target_type_check"
   end
 
   create_table "logging_settings", id: :string, default: -> { "('lgs_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -78,12 +90,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_191707) do
     t.index ["server_configuration_id"], name: "index_role_settings_on_server_configuration_id", unique: true
   end
 
+  create_table "server_channels", id: :string, default: -> { "('sch_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.integer "channel_type", null: false
+    t.datetime "created_at", null: false
+    t.bigint "discord_id", null: false
+    t.string "name", null: false
+    t.string "server_configuration_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["server_configuration_id", "discord_id"], name: "idx_on_server_configuration_id_discord_id_610352a54e", unique: true
+  end
+
   create_table "server_configurations", id: :string, default: -> { "('srv_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "discord_id", null: false
     t.boolean "force_dm_reminders", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["discord_id"], name: "index_server_configurations_on_discord_id", unique: true
+  end
+
+  create_table "server_roles", id: :string, default: -> { "('srl_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "discord_id", null: false
+    t.string "name", null: false
+    t.string "server_configuration_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["server_configuration_id", "discord_id"], name: "index_server_roles_on_server_configuration_id_and_discord_id", unique: true
   end
 
   create_table "settings", id: :string, default: -> { "('set_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -226,10 +257,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_191707) do
   end
 
   add_foreign_key "assignable_roles", "role_settings"
+  add_foreign_key "channel_overwrites", "server_channels"
   add_foreign_key "logging_settings", "server_configurations"
   add_foreign_key "plugin_activations", "plugins"
   add_foreign_key "plugin_activations", "server_configurations"
   add_foreign_key "role_settings", "server_configurations"
+  add_foreign_key "server_channels", "server_configurations"
+  add_foreign_key "server_roles", "server_configurations"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

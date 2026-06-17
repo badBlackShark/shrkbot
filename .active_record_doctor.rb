@@ -28,7 +28,10 @@ ActiveRecordDoctor.configure do
       "role_settings.channel_id",
       "role_settings.message_id",
       "welcome_settings.channel_id",
-      "assignable_roles.role_id"
+      "assignable_roles.role_id",
+      "server_channels.discord_id",
+      "server_roles.discord_id",
+      "channel_overwrites.target_id"
     ]
 
   # These are NOT NULL with a DB default, so they're never nil — presence is wrong

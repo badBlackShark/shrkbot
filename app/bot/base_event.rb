@@ -2,12 +2,12 @@ class BaseEvent
   include WithConnection
 
   class << self
-    def on(value = nil)
-      @discord_event = value if value
-      @discord_event
+    def on(*values)
+      @discord_events = values if values.any?
+      @discord_events ||= []
     end
 
-    def discord_event
+    def discord_events
       on
     end
 
@@ -16,7 +16,7 @@ class BaseEvent
     end
 
     def registrable
-      discord_event.present?
+      discord_events.any?
     end
   end
 
