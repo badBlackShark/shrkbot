@@ -8,7 +8,7 @@ module Reminders
     end
 
     def execute
-      result = Ops::DeleteReminder.call(reminder_id: event.options["reminder"], user_id: event.user.id)
+      result = Ops::Reminders::Delete.call(reminder_id: event.options["reminder"], user_id: event.user.id)
       content = result.success? ? "🗑️ Reminder cancelled." : "⚠️ #{result.errors.first}"
       event.respond(content: content, ephemeral: true)
     end

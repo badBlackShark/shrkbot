@@ -12,31 +12,40 @@ RSpec.describe BaseCommand do
       end
     end
 
+    subject(:registration) { klass.registration }
+
     it "builds a registration descriptor from the macros" do
-      reg = klass.registration
-      expect(reg.name).to eq(:remind)
-      expect(reg.description).to eq("Set a reminder.")
-      expect(reg.permissions).to eq(%i[manage_server ban_members])
-      expect(reg.global?).to be(true)
-      expect(reg.contexts).to eq(%i[server bot_dm])
-      expect(reg.options_block).to be_a(Proc)
+      expect(registration.name).to eq(:remind)
+      expect(registration.description).to eq("Set a reminder.")
+      expect(registration.permissions).to eq(%i[manage_server ban_members])
+      expect(registration.global?).to be(true)
+      expect(registration.contexts).to eq(%i[server bot_dm])
+      expect(registration.options_block).to be_a(Proc)
     end
 
-    it "defaults to :guild context (no DM) with empty permissions" do
-      plain = Class.new(described_class) { command_name :info }
-      reg = plain.registration
-      expect(reg.global?).to be(false)
-      expect(reg.contexts).to be_nil
-      expect(reg.permissions).to eq([])
+    context "plain command without explicit settings" do
+      let(:klass) { Class.new(described_class) { command_name :info } }
+
+      it "defaults to :guild context (no DM) with empty permissions" do
+        expect(registration.global?).to be(false)
+        expect(registration.contexts).to be_nil
+        expect(registration.permissions).to eq([])
+      end
     end
 
-    it "treats only named subclasses as registrable" do
-      expect(klass.registrable).to be(true)
-      expect(Class.new(described_class).registrable).to be(false)
+    context "registrable detection" do
+      it "treats only named subclasses as registrable" do
+        expect(klass.registrable).to be(true)
+      end
+
+      it "treats anonymous subclasses as non-registrable" do
+        anonymous = Class.new(described_class)
+        expect(anonymous.registrable).to be(false)
+      end
     end
   end
 
-  describe "#call template" do
+  describe "#dispatch template" do
     let(:event) { double("event", user: double(id: 1), member: double(permission?: true), respond: nil, bot: double("bot")) }
 
     def command_class(&body)
@@ -48,34 +57,57 @@ RSpec.describe BaseCommand do
 
     before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
 
-    it "runs #execute when permitted" do
-      ran = false
-      klass = command_class { ran = true }
-      klass.dispatch(event)
-      expect(ran).to be(true)
+    context "when permitted" do
+      subject(:dispatch) { klass.dispatch(event) }
+
+      let(:executed) { double("execute spy") }
+      let(:klass) do
+        spy = executed
+        command_class { spy.run }
+      end
+
+      it "runs #execute" do
+        expect(executed).to receive(:run)
+        dispatch
+      end
     end
 
-    it "replies with a denial and skips #execute when not permitted" do
-      klass = Class.new(described_class) do
-        command_name :probe
-        requires_permissions :manage_server
+    context "when not permitted" do
+      subject(:dispatch) { klass.dispatch(denied_event) }
 
-        def execute
-          raise "should not run"
+      let(:klass) do
+        Class.new(described_class) do
+          command_name :probe
+          requires_permissions :manage_server
+
+          def execute
+            raise "should not run"
+          end
         end
       end
-      denied_event = double("event", user: double(id: 1), member: double, respond: nil)
-      allow(denied_event.member).to receive(:permission?).with(:manage_server).and_return(false)
 
-      expect(denied_event).to receive(:respond).with(hash_including(content: a_string_including("permission"), ephemeral: true))
-      klass.dispatch(denied_event)
+      let(:denied_event) do
+        double("event", user: double(id: 1), member: double, respond: nil).tap do |e|
+          allow(e.member).to receive(:permission?).with(:manage_server).and_return(false)
+        end
+      end
+
+      it "replies with a denial and skips #execute" do
+        expect(denied_event).to receive(:respond).with(hash_including(content: a_string_including("permission"), ephemeral: true))
+        dispatch
+      end
     end
 
-    it "rescues errors in #execute, reports to the owner, and responds without raising" do
-      klass = command_class { raise "boom" }
-      expect(OwnerNotifier).to receive(:report).with(hash_including(source: "command /probe"))
-      expect(event).to receive(:respond).with(hash_including(ephemeral: true))
-      expect { klass.dispatch(event) }.not_to raise_error
+    context "when #execute raises" do
+      subject(:dispatch) { klass.dispatch(event) }
+
+      let(:klass) { command_class { raise "boom" } }
+
+      it "reports to the owner and responds without raising" do
+        expect(OwnerNotifier).to receive(:report).with(hash_including(source: "command /probe"))
+        expect(event).to receive(:respond).with(hash_including(ephemeral: true))
+        expect { dispatch }.not_to raise_error
+      end
     end
   end
 end

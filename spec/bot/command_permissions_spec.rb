@@ -11,47 +11,94 @@ RSpec.describe CommandPermissions do
   end
 
   describe ".permitted?" do
-    it "lets the configured owner run anything, including owner_only commands" do
-      allow(BotConfig).to receive(:owner_id).and_return("42")
-      event = event_for(user_id: 42)
-      expect(described_class.permitted?(event:, required: [:manage_server], owner_only: true)).to be(true)
+    subject(:permitted) { described_class.permitted?(event:, required:, owner_only:) }
+
+    context "when the user is the configured owner" do
+      before { allow(BotConfig).to receive(:owner_id).and_return("42") }
+
+      let(:event) { event_for(user_id: 42) }
+
+      context "requesting owner_only" do
+        let(:required) { [:manage_server] }
+        let(:owner_only) { true }
+
+        it "grants access" do
+          is_expected.to be(true)
+        end
+      end
     end
 
-    it "rejects owner_only commands for non-owners" do
-      allow(BotConfig).to receive(:owner_id).and_return("42")
-      event = event_for(user_id: 7, member: double(permission?: true))
-      expect(described_class.permitted?(event:, required: [], owner_only: true)).to be(false)
+    context "when the user is not the configured owner and owner_only is true" do
+      before { allow(BotConfig).to receive(:owner_id).and_return("42") }
+
+      let(:event) { event_for(user_id: 7, member: double(permission?: true)) }
+      let(:required) { [] }
+      let(:owner_only) { true }
+
+      it "denies access" do
+        is_expected.to be(false)
+      end
     end
 
-    it "allows commands with no required permissions" do
-      allow(BotConfig).to receive(:owner_id).and_return(nil)
-      event = event_for(user_id: 7, member: double(permission?: false))
-      expect(described_class.permitted?(event:, required: [], owner_only: false)).to be(true)
+    context "when no owner is configured and command requires no permissions" do
+      before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
+
+      let(:event) { event_for(user_id: 7, member: double(permission?: false)) }
+      let(:required) { [] }
+      let(:owner_only) { false }
+
+      it "grants access" do
+        is_expected.to be(true)
+      end
     end
 
-    it "requires the member to hold every declared permission" do
-      allow(BotConfig).to receive(:owner_id).and_return(nil)
-      member = double("member")
-      allow(member).to receive(:permission?).with(:manage_server).and_return(true)
-      allow(member).to receive(:permission?).with(:ban_members).and_return(false)
-      event = event_for(user_id: 7, member:)
+    context "when multiple permissions are required and member lacks one" do
+      before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
 
-      expect(described_class.permitted?(event:, required: %i[manage_server ban_members], owner_only: false)).to be(false)
+      let(:member) do
+        double("member").tap do |m|
+          allow(m).to receive(:permission?).with(:manage_server).and_return(true)
+          allow(m).to receive(:permission?).with(:ban_members).and_return(false)
+        end
+      end
+
+      let(:event) { event_for(user_id: 7, member:) }
+      let(:required) { %i[manage_server ban_members] }
+      let(:owner_only) { false }
+
+      it "denies access" do
+        is_expected.to be(false)
+      end
     end
 
-    it "grants when the member holds the single required permission" do
-      allow(BotConfig).to receive(:owner_id).and_return(nil)
-      member = double("member")
-      allow(member).to receive(:permission?).with(:manage_server).and_return(true)
-      event = event_for(user_id: 7, member:)
+    context "when a single required permission is held" do
+      before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
 
-      expect(described_class.permitted?(event:, required: [:manage_server], owner_only: false)).to be(true)
+      let(:member) do
+        double("member").tap do |m|
+          allow(m).to receive(:permission?).with(:manage_server).and_return(true)
+        end
+      end
+
+      let(:event) { event_for(user_id: 7, member:) }
+      let(:required) { [:manage_server] }
+      let(:owner_only) { false }
+
+      it "grants access" do
+        is_expected.to be(true)
+      end
     end
 
-    it "denies a permission-gated command in a DM (no member to check)" do
-      allow(BotConfig).to receive(:owner_id).and_return(nil)
-      event = event_for(user_id: 7) # no member
-      expect(described_class.permitted?(event:, required: [:manage_server], owner_only: false)).to be(false)
+    context "when a permission-gated command is used in a DM (no member)" do
+      before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
+
+      let(:event) { event_for(user_id: 7) }
+      let(:required) { [:manage_server] }
+      let(:owner_only) { false }
+
+      it "denies access" do
+        is_expected.to be(false)
+      end
     end
   end
 end

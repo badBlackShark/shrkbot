@@ -6,7 +6,7 @@ class ServerConfiguration < ApplicationRecord
 
   has_one :logging_setting, dependent: :destroy
   has_one :role_setting, dependent: :destroy
-  has_one :welcome_setting, dependent: :destroy
+  has_one :welcome_settings, class_name: "Welcomes::Settings", dependent: :destroy
 
   validates :discord_id, presence: true, uniqueness: true
 end

@@ -11,7 +11,7 @@ module Reminders
     end
 
     def execute
-      result = Ops::CreateReminder.call(
+      result = Ops::Reminders::Create.call(
         user_id: event.user.id,
         channel_id: event.channel_id,
         server_id: event.server_id,

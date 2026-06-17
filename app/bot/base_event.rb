@@ -1,6 +1,25 @@
 class BaseEvent
   include WithConnection
 
+  class << self
+    def on(value = nil)
+      @discord_event = value if value
+      @discord_event
+    end
+
+    def discord_event
+      on
+    end
+
+    def dispatch(event)
+      new(event).call
+    end
+
+    def registrable
+      discord_event.present?
+    end
+  end
+
   def initialize(event)
     @event = event
   end

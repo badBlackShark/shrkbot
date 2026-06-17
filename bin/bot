@@ -6,11 +6,11 @@ require "discordrb"
 
 Rails.application.eager_load!
 
-# Welcomes (member join/leave events) will need the privileged :server_members
-# intent added here in Phase 4.
-bot = Discordrb::Bot.new(token: BotConfig.token, intents: %i[servers])
+# :server_members is privileged — enable it in the Discord developer portal.
+bot = Discordrb::Bot.new(token: BotConfig.token, intents: %i[servers server_members])
 
 CommandRegistrar.new(bot, commands: BaseCommand.descendants, instant_global: Rails.env.development?).register_all
+EventRegistrar.new(bot, events: BaseEvent.descendants).register_all
 
 refresh_presence = -> { BotPresence.update(bot) }
 bot.ready { refresh_presence.call }

@@ -7,16 +7,29 @@ RSpec.describe BaseEvent do
     Class.new(described_class) { define_method(:handle, &body) }
   end
 
-  it "runs #handle" do
-    ran = false
-    klass = event_class { ran = true }
-    klass.new(event).call
-    expect(ran).to be(true)
+  context "when #handle succeeds" do
+    subject(:call) { klass.new(event).call }
+
+    let(:handled) { double("handle spy") }
+    let(:klass) do
+      spy = handled
+      event_class { spy.run }
+    end
+
+    it "runs #handle" do
+      expect(handled).to receive(:run)
+      call
+    end
   end
 
-  it "rescues errors in #handle, reports to the owner, and returns nil" do
-    klass = event_class { raise "boom" }
-    expect(OwnerNotifier).to receive(:report).with(hash_including(error: an_instance_of(RuntimeError)))
-    expect(klass.new(event).call).to be_nil
+  context "when #handle raises" do
+    subject(:call) { klass.new(event).call }
+
+    let(:klass) { event_class { raise "boom" } }
+
+    it "reports to the owner and returns nil" do
+      expect(OwnerNotifier).to receive(:report).with(hash_including(error: an_instance_of(RuntimeError)))
+      expect(call).to be_nil
+    end
   end
 end

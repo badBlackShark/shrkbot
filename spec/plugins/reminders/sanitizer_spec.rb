@@ -2,91 +2,102 @@ require "rails_helper"
 
 RSpec.describe Reminders::Sanitizer do
   describe ".call" do
+    subject(:sanitized) { described_class.call(input) }
+
     context "with @everyone" do
-      it "neutralizes @everyone with zero-width space" do
-        result = Reminders::Sanitizer.call("@everyone hi")
-        expect(result).not_to include("@everyone")
-        expect(result).to include("@")
-        expect(result).to include("everyone")
-      end
+      let(:input) { "@everyone hi" }
 
-      it "neutralizes multiple @everyone instances" do
-        result = Reminders::Sanitizer.call("@everyone test @everyone")
-        expect(result).not_to include("@everyone")
-        expect(result.scan("everyone").length).to eq(2)
+      it "neutralizes it but keeps the visible text" do
+        expect(sanitized).not_to include("@everyone")
+        expect(sanitized).to include("@")
+        expect(sanitized).to include("everyone")
       end
+    end
 
-      it "handles @everyone at the start" do
-        result = Reminders::Sanitizer.call("@everyone please read")
-        expect(result).not_to include("@everyone")
-        expect(result).to start_with("@")
+    context "with multiple @everyone" do
+      let(:input) { "@everyone test @everyone" }
+
+      it "neutralizes every instance" do
+        expect(sanitized).not_to include("@everyone")
+        expect(sanitized.scan("everyone").length).to eq(2)
+      end
+    end
+
+    context "with @everyone at the start" do
+      let(:input) { "@everyone please read" }
+
+      it "still starts with @" do
+        expect(sanitized).not_to include("@everyone")
+        expect(sanitized).to start_with("@")
       end
     end
 
     context "with @here" do
-      it "neutralizes @here with zero-width space" do
-        result = Reminders::Sanitizer.call("@here listen up")
-        expect(result).not_to include("@here")
-        expect(result).to include("@")
-        expect(result).to include("here")
-      end
+      let(:input) { "@here listen up" }
 
-      it "neutralizes multiple @here instances" do
-        result = Reminders::Sanitizer.call("@here first @here second")
-        expect(result).not_to include("@here")
-        expect(result.scan("here").length).to eq(2)
+      it "neutralizes it but keeps the visible text" do
+        expect(sanitized).not_to include("@here")
+        expect(sanitized).to include("@")
+        expect(sanitized).to include("here")
+      end
+    end
+
+    context "with multiple @here" do
+      let(:input) { "@here first @here second" }
+
+      it "neutralizes every instance" do
+        expect(sanitized).not_to include("@here")
+        expect(sanitized.scan("here").length).to eq(2)
       end
     end
 
     context "with both @everyone and @here" do
-      it "neutralizes both in the same string" do
-        result = Reminders::Sanitizer.call("@everyone and @here")
-        expect(result).not_to include("@everyone")
-        expect(result).not_to include("@here")
-        expect(result).to include("everyone")
-        expect(result).to include("here")
+      let(:input) { "@everyone and @here" }
+
+      it "neutralizes both" do
+        expect(sanitized).not_to include("@everyone")
+        expect(sanitized).not_to include("@here")
+        expect(sanitized).to include("everyone")
+        expect(sanitized).to include("here")
       end
     end
 
-    context "with other text" do
-      it "leaves normal text unchanged" do
-        result = Reminders::Sanitizer.call("hello world")
-        expect(result).to eq("hello world")
-      end
-
-      it "leaves @username unchanged" do
-        result = Reminders::Sanitizer.call("@john please help")
-        expect(result).to eq("@john please help")
-      end
-
-      it "leaves a lone @ unchanged" do
-        result = Reminders::Sanitizer.call("@ symbol here")
-        expect(result).to eq("@ symbol here")
-      end
-
-      it "leaves other mentions intact" do
-        result = Reminders::Sanitizer.call("@alice @bob @charlie")
-        expect(result).to eq("@alice @bob @charlie")
-      end
+    context "with normal text" do
+      let(:input) { "hello world" }
+      it { is_expected.to eq("hello world") }
     end
 
-    context "with nil input" do
-      it "converts nil to empty string" do
-        result = Reminders::Sanitizer.call(nil)
-        expect(result).to eq("")
-      end
+    context "with a single @username" do
+      let(:input) { "@john please help" }
+      it { is_expected.to eq("@john please help") }
     end
 
-    context "with edge cases" do
-      it "handles empty string" do
-        result = Reminders::Sanitizer.call("")
-        expect(result).to eq("")
-      end
+    context "with a lone @" do
+      let(:input) { "@ symbol here" }
+      it { is_expected.to eq("@ symbol here") }
+    end
 
-      it "handles @everyone with punctuation" do
-        result = Reminders::Sanitizer.call("@everyone!")
-        expect(result).not_to include("@everyone")
-        expect(result).to include("!")
+    context "with several @username mentions" do
+      let(:input) { "@alice @bob @charlie" }
+      it { is_expected.to eq("@alice @bob @charlie") }
+    end
+
+    context "with nil" do
+      let(:input) { nil }
+      it { is_expected.to eq("") }
+    end
+
+    context "with an empty string" do
+      let(:input) { "" }
+      it { is_expected.to eq("") }
+    end
+
+    context "with @everyone followed by punctuation" do
+      let(:input) { "@everyone!" }
+
+      it "neutralizes the mention and keeps the punctuation" do
+        expect(sanitized).not_to include("@everyone")
+        expect(sanitized).to include("!")
       end
     end
   end
