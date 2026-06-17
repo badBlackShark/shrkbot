@@ -40,7 +40,7 @@ Each phase ends with a **verification gate** — don't advance until it passes. 
 
 ## Phase 4 — Plugins (bot side)
 - **Reminders** (`:global`): `/remind` (duration parse + sanitization), `/reminders`, `/unremind` (autocomplete). Sidekiq `DeliverJob` (`perform_at`, idempotent guard). `force_dm_reminders` resolved at delivery. `distance_of_time_in_words`.
-- **Roles**: button-message render, component-interaction handler (toggle role), re-render on config change.
+- **Roles**: multiple assignable-role *sets* per server (plugin-level default channel + optional per-set channel override; per-plugin notify/log). Each set posts its own public message with a "Manage your roles" button → ephemeral, per-user picker showing current state: `single` sets use buttons (exclusive — picking one strips the set's others), `multi` sets use a `string_select` (current roles pre-checked, diff on submit). Component handlers toggle/diff + re-render; re-post/edit on config change. Backend (op + handler) **fails gracefully** if asked to assign a role the bot can't (above its top role / Manage Roles missing) — guards against forged requests; the UI prevents it for normal users (see Phase 7). Carries the per-plugin metadata DSL + prerequisite-validation hardening + `ModLog`/notify hooks.
 - **Welcomes**: `guild_member_add`/`remove` handlers; placeholders `{user}`, `{membercount}`.
 - **Logging**: `ModLog` sink (already from Phase 3).
 - `/info`, `/donate`, `/sendOwnerMessage` (creator-only).
@@ -48,6 +48,7 @@ Each phase ends with a **verification gate** — don't advance until it passes. 
 
 ## Phase 5 — Guild metadata sync
 - Bot writes channels/roles/permission-overwrites to DB on guild events + on change.
+- Role sync must also capture each role's `position` + `managed`, and the bot's highest-role position, so the Phase 7 role configurator can grey out roles the bot can't assign. (Done for channels/roles/overwrites; `position`/`managed`/bot-top-role still TODO — add when building Roles.)
 - **GATE:** test server's channels/roles/overwrites reflected in DB.
 
 ## Phase 6 — Web: auth
@@ -57,8 +58,10 @@ Each phase ends with a **verification gate** — don't advance until it passes. 
 
 ## Phase 7 — Web: config UI
 - One page per plugin: Turbo auto-save, reusable Stimulus enable-gate controller, Tom Select dropdowns (channels/roles from synced metadata).
+- Roles configurator: grey out / disable roles above the bot's highest role (and `managed` roles) in the selector, with a tooltip explaining why. UI prevention only — NOT a backend constraint; the op still fails gracefully on a forged request asking for an unassignable role.
 - Per-plugin docs page (introspect command registry + `requires_permissions`).
 - Server-level settings (`force_dm_reminders`).
+- Web UI strings go through Rails I18n (idiomatic, ~free). Bot stays English.
 - **GATE:** toggle a plugin, set a log channel, configure roles — all persist + validate.
 
 ## Phase 8 — Wiring: Redis pub/sub + Sidekiq
