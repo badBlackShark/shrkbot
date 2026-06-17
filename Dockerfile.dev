@@ -1,4 +1,4 @@
-FROM ruby:4.0.5-bookworm
+FROM ruby:4.0.5-trixie
 
 ENV LC_ALL=C.UTF-8 \
     LANG=en_US.UTF-8 \
@@ -26,6 +26,9 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg -o 
 
 RUN npm install -g @anthropic-ai/claude-code @github/copilot
 
+RUN curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh \
+  && install -m 0755 /root/.local/bin/rtk /usr/local/bin/rtk
+
 # Use PAT from the mounted host sandbox, if present.
 RUN git config --system credential.https://github.com.helper \
       '!f() { echo username=oauth2; echo password=$(cat /home/dev/.ai-sandbox/github-pat-private 2>/dev/null); }; f' \
@@ -40,6 +43,9 @@ RUN useradd --create-home --shell /bin/bash dev \
 RUN mkdir /app && chown dev:dev /app
 WORKDIR /app
 USER dev
+
+RUN mkdir -p /home/dev/.claude /home/dev/.local/state/claude /home/dev/.local/share/claude \
+  && rtk init -g
 
 RUN ruby --version \
   && gh --version \

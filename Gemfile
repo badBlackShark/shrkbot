@@ -66,6 +66,8 @@ group :development, :test do
 
   # Ruby styling/linting
   gem "standard", require: false
+
+  gem "ruby-lsp", require: false
 end
 
 group :development do
