@@ -7,7 +7,7 @@ module BotPresence
     "/help • #{server_count} #{"server".pluralize(server_count)}"
   end
 
-  def update(bot)
-    bot.update_status("online", activity_text(bot.servers.size), nil, 0, false, LISTENING)
+  def update(bot, server_count)
+    bot.update_status("online", activity_text(server_count), nil, 0, false, LISTENING)
   end
 end

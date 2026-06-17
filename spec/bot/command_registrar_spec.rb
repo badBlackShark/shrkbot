@@ -126,6 +126,18 @@ RSpec.describe CommandRegistrar do
     end
   end
 
+  context "with define_commands: false (a non-first shard)" do
+    subject(:register_all) do
+      described_class.new(fake_bot, commands: [global_cmd], define_commands: false).register_all
+    end
+
+    it "attaches the handler without re-defining the command" do
+      register_all
+      expect(fake_bot.defined).to be_empty
+      expect(fake_bot.handlers.key?(:info)).to be(true)
+    end
+  end
+
   context "with non-registrable commands" do
     subject(:register_all) { described_class.new(fake_bot, commands: [abstract]).register_all }
 

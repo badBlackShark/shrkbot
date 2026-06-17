@@ -30,11 +30,11 @@ RSpec.describe BotPresence do
   end
 
   describe ".update" do
-    subject(:update) { described_class.update(bot) }
+    subject(:update) { described_class.update(bot, 3) }
 
-    let(:bot) { double("bot", servers: [1, 2, 3]) }
+    let(:bot) { double("bot") }
 
-    it "pushes a Listening status with the current server count" do
+    it "pushes a Listening status with the given server count" do
       expect(bot).to receive(:update_status).with("online", "/help • 3 servers", nil, 0, false, 2)
       update
     end
