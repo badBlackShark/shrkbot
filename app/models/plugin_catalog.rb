@@ -1,13 +1,10 @@
 class PluginCatalog
-  # Single source for the plugin catalog: drives the db:seed catalog, the
-  # enable-prerequisite gate (TogglePlugin + PluginActivation), and the
-  # channel-backed registry consulted when a configured channel is deleted.
+  # Single source of plugin metadata — don't hardcode the plugin list elsewhere.
   Definition = Data.define(:key, :name, :description, :default_enabled, :channel_setting) do
     def channel_backed?
       !channel_setting.nil?
     end
 
-    # A channel-backed plugin can't be enabled until its channel is set (#21).
     def prerequisites_met?(server_configuration)
       return true unless channel_backed?
 

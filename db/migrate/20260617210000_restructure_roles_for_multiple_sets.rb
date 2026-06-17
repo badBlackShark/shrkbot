@@ -1,7 +1,5 @@
 class RestructureRolesForMultipleSets < ActiveRecord::Migration[8.1]
   def up
-    # role_settings keeps the plugin's default channel + notify/log toggles; the
-    # posted message moves to the per-set table (each set posts its own message).
     remove_column :role_settings, :message_id
 
     create_table :role_sets, id: false do |t|

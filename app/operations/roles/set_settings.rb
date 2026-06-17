@@ -1,7 +1,6 @@
 module Ops
   module Roles
     class SetSettings < ApplicationOperation
-      # Plugin-level config: the default post channel plus the notify/log toggles.
       # A channel is required only to ENABLE the plugin (TogglePlugin), not to save.
       def initialize(server_configuration:, channel_id:, notify_on_assign:, log_on_assign:)
         @server_configuration = server_configuration
