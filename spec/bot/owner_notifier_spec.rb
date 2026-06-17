@@ -58,6 +58,32 @@ RSpec.describe OwnerNotifier do
     end
   end
 
+  describe ".notify" do
+    subject(:notify) { described_class.notify(bot:, message: "your channel was deleted") }
+
+    before { allow(BotConfig).to receive(:owner_id).and_return(owner_id) }
+
+    context "with an owner configured" do
+      let(:owner_id) { "4242" }
+
+      it "DMs the owner the message regardless of the error-DM toggle" do
+        allow(Setting).to receive(:owner_error_dms?).and_return(false)
+        expect(bot).to receive(:pm_channel).with(4242).and_return(pm_channel)
+        expect(pm_channel).to receive(:send_message).with("your channel was deleted")
+        notify
+      end
+    end
+
+    context "without an owner configured" do
+      let(:owner_id) { nil }
+
+      it "does nothing" do
+        expect(bot).not_to receive(:pm_channel)
+        notify
+      end
+    end
+  end
+
   describe ".format_message" do
     subject(:formatted) { described_class.format_message(error, "src") }
 
