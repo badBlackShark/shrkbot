@@ -31,9 +31,21 @@ RSpec.describe Ops::ServerConfiguration::TogglePlugin do
     end
   end
 
-  context "enabling a plugin without prerequisites (roles gate lands with that plugin)" do
+  context "enabling roles without a channel" do
     let(:plugin) { roles }
     let(:enabled) { true }
+
+    it "is refused until the channel is configured" do
+      expect(result.failure?).to be(true)
+      expect(result.errors.first).to match(/required settings/)
+    end
+  end
+
+  context "enabling roles once a channel is set" do
+    let(:plugin) { roles }
+    let(:enabled) { true }
+
+    before { server.create_role_setting!(channel_id: 777) }
 
     it "succeeds" do
       expect(result.success?).to be(true)
@@ -65,7 +77,10 @@ RSpec.describe Ops::ServerConfiguration::TogglePlugin do
     let(:plugin) { logging }
     let(:enabled) { false }
 
-    before { create(:plugin_activation, server_configuration: server, plugin: logging, enabled: true) }
+    before do
+      server.create_logging_setting!(channel_id: 999)
+      create(:plugin_activation, server_configuration: server, plugin: logging, enabled: true)
+    end
 
     it "succeeds regardless of settings, reusing the activation row" do
       expect(result.success?).to be(true)

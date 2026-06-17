@@ -4,6 +4,18 @@ class PluginActivation < ApplicationRecord
 
   validates :plugin_id, uniqueness: {scope: :server_configuration_id}
 
-  # The "can't enable without required settings" rule (#21) is enforced in the
-  # enable operation, where the settings are known — not here.
+  # Backstop for #21: TogglePlugin gives the friendly failure, but this catches
+  # any write that skips the op (raw console, a web bug, a stale object).
+  validate :enabling_requires_prerequisites
+
+  private
+
+  def enabling_requires_prerequisites
+    return unless enabled?
+
+    definition = PluginCatalog.find(plugin.key)
+    return if definition.nil? || definition.prerequisites_met?(server_configuration)
+
+    errors.add(:enabled, "requires the plugin's settings to be configured first")
+  end
 end

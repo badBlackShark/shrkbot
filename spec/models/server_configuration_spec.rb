@@ -19,6 +19,7 @@ RSpec.describe ServerConfiguration do
     let(:roles) { create(:plugin, key: "roles", name: "Roles") }
 
     before do
+      server.create_logging_setting!(channel_id: 999)
       create(:plugin_activation, server_configuration: server, plugin: logging, enabled: true)
       create(:plugin_activation, server_configuration: server, plugin: roles, enabled: false)
     end

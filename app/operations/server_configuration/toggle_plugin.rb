@@ -25,15 +25,8 @@ module Ops
 
       # Server-side half of #21 — the web Stimulus gate is UX only, so this stays.
       def prerequisites_met?
-        case @plugin.key
-        when :logging
-          @server_configuration.logging_setting&.channel_id.present?
-        when :welcomes
-          @server_configuration.welcome_settings&.channel_id.present?
-        else
-          # The roles prerequisite gate lands with that plugin.
-          true
-        end
+        definition = PluginCatalog.find(@plugin.key)
+        definition.nil? || definition.prerequisites_met?(@server_configuration)
       end
     end
   end

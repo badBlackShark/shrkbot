@@ -1,9 +1,6 @@
 module Ops
   module ServerConfiguration
     class DisablePluginsForDeletedChannel < ApplicationOperation
-      # Hardcoded until the plugin-metadata DSL (Roles phase) declares it.
-      CHANNEL_BACKED = {logging: :logging_setting, welcomes: :welcome_settings, roles: :role_setting}.freeze
-
       def initialize(server_configuration:, channel_id:, bot:)
         @server_configuration = server_configuration
         @channel_id = channel_id
@@ -11,18 +8,18 @@ module Ops
       end
 
       def call
-        disabled = CHANNEL_BACKED.filter_map { |key, association| disable_if_uses_channel(key, association) }
+        disabled = PluginCatalog.channel_backed.filter_map { |definition| disable_if_uses_channel(definition) }
         disabled.each { |plugin| notify_owner(plugin) }
         ok(disabled)
       end
 
       private
 
-      def disable_if_uses_channel(plugin_key, association)
-        setting = @server_configuration.public_send(association)
+      def disable_if_uses_channel(definition)
+        setting = @server_configuration.public_send(definition.channel_setting)
         return unless setting&.channel_id == @channel_id
 
-        plugin = Plugin.find_by(key: plugin_key)
+        plugin = Plugin.find_by(key: definition.key)
         transaction do
           setting.update!(channel_id: nil)
           TogglePlugin.call(server_configuration: @server_configuration, plugin:, enabled: false)

@@ -20,8 +20,8 @@ module Ops
       private
 
       def stale_channel_ids(existing)
-        DisablePluginsForDeletedChannel::CHANNEL_BACKED.filter_map do |_key, association|
-          channel_id = @server_configuration.public_send(association)&.channel_id
+        PluginCatalog.channel_backed.filter_map do |definition|
+          channel_id = @server_configuration.public_send(definition.channel_setting)&.channel_id
           channel_id if channel_id && existing.exclude?(channel_id)
         end.uniq
       end

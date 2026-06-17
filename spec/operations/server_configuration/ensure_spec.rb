@@ -21,7 +21,10 @@ RSpec.describe Ops::ServerConfiguration::Ensure do
   context "when the configuration already exists with a manually toggled activation" do
     let(:config) { described_class.call(discord_id:).value }
 
-    before { config.plugin_activations.find_by(plugin: welcomes).update!(enabled: true) }
+    before do
+      config.create_welcome_settings!(channel_id: 42)
+      config.plugin_activations.find_by(plugin: welcomes).update!(enabled: true)
+    end
 
     it "is idempotent and preserves the toggle" do
       count_before = config.plugin_activations.count
