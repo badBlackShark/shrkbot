@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe Ops::ServerConfiguration::SetWelcomeSettings do
+RSpec.describe Ops::Welcomes::SetSettings do
   subject(:result) do
     described_class.call(server_configuration: server, channel_id:, join_message:, leave_message:)
   end

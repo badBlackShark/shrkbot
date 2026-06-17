@@ -1,6 +1,6 @@
 module Ops
-  module ServerConfiguration
-    class SetLoggingChannel < ApplicationOperation
+  module Logging
+    class SetChannel < ApplicationOperation
       def initialize(server_configuration:, channel_id:)
         @server_configuration = server_configuration
         @channel_id = channel_id
