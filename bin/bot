@@ -1,6 +1,4 @@
 #!/usr/bin/env ruby
-# Never boot from Puma — cluster workers would each open a gateway connection,
-# producing duplicate events.
 require_relative "../config/environment"
 require "discordrb"
 
@@ -8,8 +6,6 @@ Rails.application.eager_load!
 
 shard_count = BotConfig.shard_count
 
-# discordrb is one shard per Bot, so we run one Bot per shard.
-# :server_members is privileged — enable it in the Discord developer portal.
 bots = Array.new(shard_count) do |shard_id|
   Discordrb::Bot.new(
     token: BotConfig.token,
@@ -19,15 +15,12 @@ bots = Array.new(shard_count) do |shard_id|
   )
 end
 
-# Slash command definitions are application-global — only the first shard defines
-# them; every shard attaches the handlers it needs to dispatch interactions.
 bots.each_with_index do |bot, index|
   CommandRegistrar.new(bot, commands: BaseCommand.descendants,
     instant_global: Rails.env.development?, define_commands: index.zero?).register_all
   EventRegistrar.new(bot, events: BaseEvent.descendants).register_all
 end
 
-# Each shard only knows its own guilds, so sum across shards for the bot's total.
 total_servers = -> { bots.sum { |bot| bot.servers.size } }
 bots.each do |bot|
   refresh_presence = -> { BotPresence.update(bot, total_servers.call) }
