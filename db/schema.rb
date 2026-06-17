@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_17_200002) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_17_210000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,9 +21,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_200002) do
     t.string "label"
     t.integer "position", default: 0, null: false
     t.bigint "role_id", null: false
-    t.string "role_setting_id", null: false
+    t.string "role_set_id", null: false
     t.datetime "updated_at", null: false
-    t.index ["role_setting_id", "role_id"], name: "index_assignable_roles_on_role_setting_id_and_role_id", unique: true
+    t.index ["role_set_id", "role_id"], name: "index_assignable_roles_on_role_set_id_and_role_id", unique: true
   end
 
   create_table "channel_overwrites", id: :string, default: -> { "('cov_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -79,11 +79,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_200002) do
     t.index ["user_id"], name: "index_reminders_on_user_id"
   end
 
+  create_table "role_sets", id: :string, default: -> { "('rst_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.bigint "channel_override"
+    t.datetime "created_at", null: false
+    t.bigint "message_id"
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.string "role_setting_id", null: false
+    t.string "selection_mode", null: false
+    t.datetime "updated_at", null: false
+    t.index ["role_setting_id"], name: "index_role_sets_on_role_setting_id"
+    t.check_constraint "selection_mode::text = ANY (ARRAY['single'::character varying, 'multi'::character varying]::text[])", name: "role_sets_selection_mode_check"
+  end
+
   create_table "role_settings", id: :string, default: -> { "('rls_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.bigint "channel_id"
     t.datetime "created_at", null: false
     t.boolean "log_on_assign", default: false, null: false
-    t.bigint "message_id"
     t.boolean "notify_on_assign", default: false, null: false
     t.string "server_configuration_id", null: false
     t.datetime "updated_at", null: false
@@ -256,11 +268,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_200002) do
     t.index ["server_configuration_id"], name: "index_welcome_settings_on_server_configuration_id", unique: true
   end
 
-  add_foreign_key "assignable_roles", "role_settings"
+  add_foreign_key "assignable_roles", "role_sets"
   add_foreign_key "channel_overwrites", "server_channels"
   add_foreign_key "logging_settings", "server_configurations"
   add_foreign_key "plugin_activations", "plugins"
   add_foreign_key "plugin_activations", "server_configurations"
+  add_foreign_key "role_sets", "role_settings"
   add_foreign_key "role_settings", "server_configurations"
   add_foreign_key "server_channels", "server_configurations"
   add_foreign_key "server_roles", "server_configurations"

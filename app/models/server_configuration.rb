@@ -5,7 +5,7 @@ class ServerConfiguration < ApplicationRecord
     through: :plugin_activations, source: :plugin
 
   has_one :logging_setting, dependent: :delete
-  has_one :role_setting, dependent: :destroy # RoleSetting cascades to its assignable_roles
+  has_one :role_setting, class_name: "Roles::Settings", dependent: :destroy # cascades through role_sets to assignable_roles
   has_one :welcome_settings, class_name: "Welcomes::Settings", dependent: :delete
 
   has_many :server_channels, dependent: :destroy # ServerChannel cascades to its channel_overwrites

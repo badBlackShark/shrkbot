@@ -26,7 +26,7 @@ ActiveRecordDoctor.configure do
       "reminders.server_id",
       "logging_settings.channel_id",
       "role_settings.channel_id",
-      "role_settings.message_id",
+      "role_sets.message_id",
       "welcome_settings.channel_id",
       "assignable_roles.role_id",
       "server_channels.discord_id",
@@ -42,8 +42,8 @@ ActiveRecordDoctor.configure do
       "Plugin.default_enabled",
       "PluginActivation.enabled",
       "Reminders::Reminder.deliver_via_dm",
-      "RoleSetting.log_on_assign",
-      "RoleSetting.notify_on_assign",
+      "Roles::Settings.log_on_assign",
+      "Roles::Settings.notify_on_assign",
       "ServerConfiguration.force_dm_reminders"
     ]
 end
