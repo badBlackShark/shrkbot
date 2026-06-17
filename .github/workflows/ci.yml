@@ -82,6 +82,9 @@ jobs:
       - name: Prepare the test database
         run: bin/rails db:test:prepare
 
+      - name: Check model validations and DB constraints stay in sync
+        run: bundle exec rake active_record_doctor
+
       - name: Run specs
         run: bundle exec rspec
 

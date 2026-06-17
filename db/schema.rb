@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_15_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_17_191707) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -24,7 +24,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_140000) do
     t.string "role_setting_id", null: false
     t.datetime "updated_at", null: false
     t.index ["role_setting_id", "role_id"], name: "index_assignable_roles_on_role_setting_id_and_role_id", unique: true
-    t.index ["role_setting_id"], name: "index_assignable_roles_on_role_setting_id"
   end
 
   create_table "logging_settings", id: :string, default: -> { "('lgs_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -43,7 +42,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_140000) do
     t.datetime "updated_at", null: false
     t.index ["plugin_id"], name: "index_plugin_activations_on_plugin_id"
     t.index ["server_configuration_id", "plugin_id"], name: "idx_on_server_configuration_id_plugin_id_3b76ab42ac", unique: true
-    t.index ["server_configuration_id"], name: "index_plugin_activations_on_server_configuration_id"
   end
 
   create_table "plugins", id: :string, default: -> { "('plg_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -66,6 +64,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_140000) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["remind_at"], name: "index_reminders_on_remind_at"
+    t.index ["user_id"], name: "index_reminders_on_user_id"
   end
 
   create_table "role_settings", id: :string, default: -> { "('rls_'::text || gen_random_uuid())" }, force: :cascade do |t|

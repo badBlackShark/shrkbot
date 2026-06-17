@@ -68,6 +68,8 @@ group :development, :test do
   gem "standard", require: false
 
   gem "ruby-lsp", require: false
+
+  gem "active_record_doctor"
 end
 
 group :development do
