@@ -23,7 +23,9 @@ RSpec.describe Ops::ServerConfiguration::TogglePlugin do
     let(:plugin) { logging }
     let(:enabled) { true }
 
-    before { server.create_logging_setting!(channel_id: 999) }
+    before do
+      server.create_logging_setting!(channel_id: 999)
+    end
 
     it "succeeds" do
       expect(result.success?).to be(true)
@@ -45,7 +47,9 @@ RSpec.describe Ops::ServerConfiguration::TogglePlugin do
     let(:plugin) { roles }
     let(:enabled) { true }
 
-    before { server.create_role_setting!(channel_id: 777) }
+    before do
+      server.create_role_setting!(channel_id: 777)
+    end
 
     it "succeeds" do
       expect(result.success?).to be(true)
@@ -66,7 +70,9 @@ RSpec.describe Ops::ServerConfiguration::TogglePlugin do
     let(:plugin) { welcomes }
     let(:enabled) { true }
 
-    before { server.create_welcome_settings!(channel_id: 42) }
+    before do
+      server.create_welcome_settings!(channel_id: 42)
+    end
 
     it "succeeds" do
       expect(result.success?).to be(true)

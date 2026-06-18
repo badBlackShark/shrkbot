@@ -76,7 +76,9 @@ RSpec.describe BaseCommand do
       end
     end
 
-    before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
+    before do
+      allow(BotConfig).to receive(:owner_id).and_return(nil)
+    end
 
     context "when permitted" do
       subject(:dispatch) { klass.dispatch(event) }

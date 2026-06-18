@@ -7,7 +7,9 @@ RSpec.describe ChannelSync do
   let(:event) { double("event", server:) }
   let(:op) { Ops::ServerConfiguration::SyncChannels }
 
-  before { allow(GuildMetadata).to receive(:channels).with(server).and_return([:channel_data]) }
+  before do
+    allow(GuildMetadata).to receive(:channels).with(server).and_return([:channel_data])
+  end
 
   context "for a configured server" do
     let!(:config) { create(:server_configuration, discord_id: 1) }

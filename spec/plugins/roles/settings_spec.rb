@@ -8,7 +8,9 @@ RSpec.describe Roles::Settings do
     let(:settings) { create(:role_setting, server_configuration: server) }
     let(:set) { create(:role_set, role_setting: settings) }
 
-    before { create(:assignable_role, role_set: set) }
+    before do
+      create(:assignable_role, role_set: set)
+    end
 
     it "cascades through sets to assignable roles" do
       expect { destroy_server }

@@ -1,6 +1,4 @@
 module Roles
-  # Renders the public per-set message as raw Discord component JSON (passed
-  # straight to discordrb's send_message/respond, which accept the hash array).
   module Message
     ACTION_ROW = 1
     BUTTON = 2

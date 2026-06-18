@@ -19,7 +19,9 @@ RSpec.describe Ops::Welcomes::SetSettings do
   end
 
   context "with existing settings" do
-    before { server.create_welcome_settings!(channel_id: 1, join_message: "old") }
+    before do
+      server.create_welcome_settings!(channel_id: 1, join_message: "old")
+    end
 
     let(:channel_id) { 2 }
     let(:join_message) { "new" }

@@ -14,7 +14,9 @@ RSpec.describe Ops::Roles::CreateSet do
   context "when a set already exists" do
     let(:setting) { create(:role_setting, server_configuration: server) }
 
-    before { create(:role_set, role_setting: setting, position: 0) }
+    before do
+      create(:role_set, role_setting: setting, position: 0)
+    end
 
     it "appends after the last position" do
       expect(result.value.position).to eq(1)

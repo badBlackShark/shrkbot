@@ -4,11 +4,9 @@ module Welcomes
 
     belongs_to :server_configuration
 
-    # The setting only if welcomes is enabled for that server — the runtime gate
-    # for the (command-less) event handlers.
     def self.active_for(discord_id)
       config = ServerConfiguration.find_by(discord_id:)
-      return unless config&.enabled_plugins&.exists?(key: :welcomes)
+      return unless config&.plugins&.enabled&.exists?(key: :welcomes)
 
       config.welcome_settings
     end

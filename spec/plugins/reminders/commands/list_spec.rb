@@ -13,7 +13,9 @@ RSpec.describe Reminders::List do
   end
 
   context "with reminders" do
-    before { create(:reminder, user_id: 1, channel_id: 2, remind_at: 1.hour.from_now, message: "buy milk") }
+    before do
+      create(:reminder, user_id: 1, channel_id: 2, remind_at: 1.hour.from_now, message: "buy milk")
+    end
 
     it "lists them" do
       expect(event).to receive(:respond).with(hash_including(content: a_string_including("buy milk")))

@@ -14,7 +14,9 @@ RSpec.describe ServerRole do
 
     let(:server) { create(:server_configuration) }
 
-    before { create(:server_role, server_configuration: server, discord_id: 555) }
+    before do
+      create(:server_role, server_configuration: server, discord_id: 555)
+    end
 
     it "forbids the same discord_id twice within one server" do
       expect(duplicate).not_to be_valid

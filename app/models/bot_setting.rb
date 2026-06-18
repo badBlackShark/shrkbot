@@ -1,4 +1,4 @@
-class Setting < ApplicationRecord
+class BotSetting < ApplicationRecord
   validates :key, presence: true, uniqueness: true
 
   class << self

@@ -23,7 +23,9 @@ RSpec.describe Ops::ServerConfiguration::ReconcileDeletedChannels do
   end
 
   context "when the configured channel still exists" do
-    before { create(:server_channel, server_configuration: server, discord_id: 555) }
+    before do
+      create(:server_channel, server_configuration: server, discord_id: 555)
+    end
 
     it "leaves the plugin enabled" do
       result

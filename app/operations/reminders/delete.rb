@@ -10,7 +10,9 @@ module Ops
         reminder = ::Reminders::Reminder.find_by(id: @reminder_id, user_id: @user_id)
         return failure("That reminder doesn't exist.") unless reminder
 
-        transaction { reminder.destroy! }
+        transaction do
+          reminder.destroy!
+        end
         ok(reminder)
       end
     end

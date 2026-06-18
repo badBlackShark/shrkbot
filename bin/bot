@@ -16,23 +16,36 @@ bots = Array.new(shard_count) do |shard_id|
 end
 
 bots.each_with_index do |bot, index|
-  CommandRegistrar.new(bot, commands: BaseCommand.descendants,
-    instant_global: Rails.env.development?, define_commands: index.zero?).register_all
+  CommandRegistrar.new(
+    bot,
+    commands: BaseCommand.descendants,
+    instant_global: Rails.env.development?,
+    define_commands: index.zero?
+  ).register_all
   EventRegistrar.new(bot, events: BaseEvent.descendants).register_all
 end
 
 total_servers = -> { bots.sum { |bot| bot.servers.size } }
-bots.each do |bot|
+ready_mutex = Mutex.new
+ready_count = 0
+bots.each_with_index do |bot, index|
   refresh_presence = -> { BotPresence.update(bot, total_servers.call) }
-  bot.ready { refresh_presence.call }
+  bot.ready do
+    refresh_presence.call
+    all_up = ready_mutex.synchronize do
+      ready_count += 1
+      ready_count == shard_count
+    end
+    Rails.logger.info("[bot] shard #{index + 1}/#{shard_count} ready")
+    Rails.logger.info("[bot] all #{shard_count} shard(s) up") if all_up
+  end
   bot.server_create { refresh_presence.call }
   bot.server_delete { refresh_presence.call }
 end
 
-# Discord rate-limits IDENTIFY to ~one per 5s, so stagger shard starts — a single
-# burst gets the later shards disconnected and into reconnect backoff.
 bots.each_with_index do |bot, index|
   sleep(5) unless index.zero?
+  Rails.logger.info("[bot] shard #{index + 1}/#{shard_count} connecting…")
   bot.run(true)
 end
 bots.each(&:join)

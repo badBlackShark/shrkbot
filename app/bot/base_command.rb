@@ -100,7 +100,7 @@ class BaseCommand
   rescue => e
     Rails.logger.error("[#{self.class.command_name}] autocomplete #{e.class}: #{e.message}")
     begin
-      event.respond(choices: []) # don't leave the picker hanging on error
+      event.respond(choices: [])
     rescue
       nil
     end
@@ -123,6 +123,6 @@ class BaseCommand
   def respond_error
     event.respond(content: "⚠️ Something went wrong running that command.", ephemeral: true)
   rescue
-    nil # already responded / interaction expired — nothing to do
+    nil
   end
 end

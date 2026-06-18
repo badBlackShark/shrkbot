@@ -15,7 +15,9 @@ RSpec.describe PluginActivation do
   context "enabling a channel-backed plugin once its channel is set" do
     let(:enabled) { true }
 
-    before { server.create_welcome_settings!(channel_id: 5) }
+    before do
+      server.create_welcome_settings!(channel_id: 5)
+    end
 
     it { is_expected.to be_valid }
   end

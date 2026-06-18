@@ -66,7 +66,9 @@ RSpec.describe Roles::MessagePoster do
   context "when the bot can't resolve the channel" do
     let(:set) { create(:role_set, role_setting: setting, channel_override: nil, message_id: nil) }
 
-    before { allow(bot).to receive(:channel).with(555).and_return(nil) }
+    before do
+      allow(bot).to receive(:channel).with(555).and_return(nil)
+    end
 
     it "does nothing" do
       post

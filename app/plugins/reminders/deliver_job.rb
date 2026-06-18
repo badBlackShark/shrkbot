@@ -1,8 +1,6 @@
 module Reminders
-  # Runs in the jobs process (no gateway), so it sends over REST. Idempotent:
-  # no-ops if the row is gone, which is why unremind needs no job cancellation.
   class DeliverJob < ApplicationJob
-    include ActionView::Helpers::DateHelper # distance_of_time_in_words
+    include ActionView::Helpers::DateHelper
 
     queue_as :default
 
@@ -21,7 +19,6 @@ module Reminders
       Discordrb::API::Channel.create_message(BotConfig.rest_token, channel_id, content(reminder))
     end
 
-    # Resolved at delivery time: user choice or server's force_dm_reminders policy.
     def deliver_via_dm?(reminder)
       return true if reminder.deliver_via_dm
       return false unless reminder.server_id

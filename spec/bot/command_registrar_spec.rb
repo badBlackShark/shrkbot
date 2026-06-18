@@ -31,7 +31,9 @@ RSpec.describe CommandRegistrar do
     end.new
   end
 
-  before { allow(BotConfig).to receive(:test_server_id).and_return("srv_123") }
+  before do
+    allow(BotConfig).to receive(:test_server_id).and_return("srv_123")
+  end
 
   let(:guild_cmd) do
     Class.new(BaseCommand) do
@@ -150,12 +152,16 @@ RSpec.describe CommandRegistrar do
   end
 
   context "without a test server id" do
-    before { allow(BotConfig).to receive(:test_server_id).and_return(nil) }
+    before do
+      allow(BotConfig).to receive(:test_server_id).and_return(nil)
+    end
 
     context "registering a :guild command" do
       subject(:register_all) { described_class.new(fake_bot, commands: [guild_cmd]).register_all }
 
-      before { allow(Rails.logger).to receive(:warn) }
+      before do
+        allow(Rails.logger).to receive(:warn)
+      end
 
       it "skips it (and their handler) rather than registering globally" do
         register_all

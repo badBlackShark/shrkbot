@@ -10,7 +10,9 @@ RSpec.describe Reminders::DeliverJob do
   end
   let(:reminder_id) { reminder.id }
 
-  before { allow(BotConfig).to receive(:token).and_return("tok") }
+  before do
+    allow(BotConfig).to receive(:token).and_return("tok")
+  end
 
   context "in a channel" do
     it "posts the reminder to its channel and then deletes it" do

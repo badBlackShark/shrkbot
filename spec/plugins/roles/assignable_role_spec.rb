@@ -14,7 +14,9 @@ RSpec.describe Roles::AssignableRole do
 
     let(:set) { create(:role_set) }
 
-    before { create(:assignable_role, role_set: set, role_id: 555) }
+    before do
+      create(:assignable_role, role_set: set, role_id: 555)
+    end
 
     it "forbids the same role twice in one set" do
       expect(duplicate).not_to be_valid

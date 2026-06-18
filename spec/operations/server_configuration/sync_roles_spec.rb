@@ -13,7 +13,9 @@ RSpec.describe Ops::ServerConfiguration::SyncRoles do
     end
 
     context "when a role was renamed since the last sync" do
-      before { create(:server_role, server_configuration: server, discord_id: 111, name: "old") }
+      before do
+        create(:server_role, server_configuration: server, discord_id: 111, name: "old")
+      end
 
       it "updates the existing row in place rather than duplicating" do
         result
@@ -27,7 +29,9 @@ RSpec.describe Ops::ServerConfiguration::SyncRoles do
   describe "pruning" do
     let(:roles) { [{discord_id: 111, name: "Admin"}] }
 
-    before { create(:server_role, server_configuration: server, discord_id: 999, name: "gone") }
+    before do
+      create(:server_role, server_configuration: server, discord_id: 999, name: "gone")
+    end
 
     it "removes roles no longer present" do
       result

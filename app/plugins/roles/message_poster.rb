@@ -1,7 +1,5 @@
 module Roles
-  # Posts (or re-renders) a set's public message and remembers its id. Runs in
-  # the bot process; the config-change trigger that calls it is the Phase 8
-  # Redis path, so for now it's invoked on demand.
+  # Until Phase 8 (Redis config-change trigger), callers invoke this on demand.
   class MessagePoster
     def self.post(bot, set)
       new(bot, set).post

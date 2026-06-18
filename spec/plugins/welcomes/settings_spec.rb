@@ -11,7 +11,9 @@ RSpec.describe Welcomes::Settings do
     context "when welcomes is enabled for the server" do
       let!(:setting) { create(:welcome_settings, server_configuration: server) }
 
-      before { create(:plugin_activation, server_configuration: server, plugin: welcomes, enabled: true) }
+      before do
+        create(:plugin_activation, server_configuration: server, plugin: welcomes, enabled: true)
+      end
 
       it "returns the setting" do
         expect(active_setting).to eq(setting)

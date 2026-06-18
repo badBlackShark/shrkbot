@@ -40,7 +40,9 @@ RSpec.describe Reminders::Unremind do
     context "with reminders belonging to several users" do
       let!(:mine) { create(:reminder, user_id: 1, message: "walk dog", remind_at: Time.utc(2026, 6, 16, 14, 30)) }
 
-      before { create(:reminder, user_id: 999, message: "not mine") }
+      before do
+        create(:reminder, user_id: 999, message: "not mine")
+      end
 
       it "offers only the requesting user's reminders, labelled with message + absolute time" do
         expect(ac_event).to receive(:respond) do |choices:|

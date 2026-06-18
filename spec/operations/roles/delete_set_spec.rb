@@ -5,7 +5,9 @@ RSpec.describe Ops::Roles::DeleteSet do
 
   let(:set) { create(:role_set) }
 
-  before { create(:assignable_role, role_set: set) }
+  before do
+    create(:assignable_role, role_set: set)
+  end
 
   it "destroys the set and cascades to its roles" do
     expect { result }

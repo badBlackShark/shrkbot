@@ -1,11 +1,4 @@
-# For now all :guild commands register to TEST_SERVER_ID; per-server registration
-# on plugin enable/disable is Phase 8.
 class CommandRegistrar
-  # instant_global (dev): register :global commands to the test server for instant
-  # appearance — global propagation takes up to ~1h. Guild-scoped, so it can't
-  # reach DMs; production registers them truly globally.
-  # define_commands: false attaches the handlers without (re)registering the
-  # definitions — they're application-global, so only the first shard defines them.
   def initialize(bot, commands:, instant_global: false, define_commands: true)
     @bot = bot
     @commands = commands.select(&:registrable)
@@ -35,7 +28,6 @@ class CommandRegistrar
     reg = klass.registration
     return true if reg.global? || test_server_id.present?
 
-    # Without a server, a :guild command would silently register globally — skip it.
     Rails.logger.warn("[CommandRegistrar] skipping :guild command /#{reg.name} — TEST_SERVER_ID not set")
     false
   end
@@ -59,8 +51,6 @@ class CommandRegistrar
   end
 
   def attach_autocomplete(klass)
-    # discordrb's autocomplete(name) matches the focused OPTION, not the command —
-    # filter by command_name instead.
     bot.autocomplete(nil, command_name: klass.command_name) { |event| klass.dispatch_autocomplete(event) }
   end
 end
