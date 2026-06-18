@@ -39,4 +39,17 @@ RSpec.describe Reminders::Remind do
       execute
     end
   end
+
+  describe "command options" do
+    it "declares the duration, message, and deliver inputs" do
+      opts = double("options")
+      allow(opts).to receive(:string)
+
+      described_class.registration.options_block.call(opts)
+
+      expect(opts).to have_received(:string).with("duration", anything, hash_including(required: true))
+      expect(opts).to have_received(:string).with("message", anything, hash_including(required: true))
+      expect(opts).to have_received(:string).with("deliver", anything, hash_including(required: false, choices: anything))
+    end
+  end
 end

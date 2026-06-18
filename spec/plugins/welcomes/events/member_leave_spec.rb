@@ -27,4 +27,13 @@ RSpec.describe Welcomes::MemberLeave do
       handle
     end
   end
+
+  context "when the plugin isn't configured for the server" do
+    let(:setting) { nil }
+
+    it "does nothing" do
+      expect(bot).not_to receive(:send_message)
+      handle
+    end
+  end
 end

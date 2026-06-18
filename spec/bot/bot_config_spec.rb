@@ -1,6 +1,33 @@
 require "rails_helper"
 
 RSpec.describe BotConfig do
+  # Each reads straight from ENV; swap and restore so the suite stays isolated.
+  def with_env(key, value)
+    original = ENV[key]
+    ENV[key] = value
+    yield
+  ensure
+    ENV[key] = original
+  end
+
+  describe ".token" do
+    it "reads DISCORD_TOKEN from the environment" do
+      with_env("DISCORD_TOKEN", "tok-123") { expect(described_class.token).to eq("tok-123") }
+    end
+  end
+
+  describe ".owner_id" do
+    it "reads OWNER_ID from the environment" do
+      with_env("OWNER_ID", "9001") { expect(described_class.owner_id).to eq("9001") }
+    end
+  end
+
+  describe ".test_server_id" do
+    it "reads TEST_SERVER_ID from the environment" do
+      with_env("TEST_SERVER_ID", "42") { expect(described_class.test_server_id).to eq("42") }
+    end
+  end
+
   describe ".rest_token" do
     subject(:rest_token) { described_class.rest_token }
 

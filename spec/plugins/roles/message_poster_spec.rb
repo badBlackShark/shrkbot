@@ -50,6 +50,30 @@ RSpec.describe Roles::MessagePoster do
     end
   end
 
+  context "when the stored message has since been deleted" do
+    let(:set) { create(:role_set, role_setting: setting, message_id: 111) }
+
+    before do
+      allow(bot).to receive(:channel).with(555).and_return(channel)
+      allow(channel).to receive(:load_message).with(111).and_return(nil)
+    end
+
+    it "skips the edit without raising" do
+      expect { post }.not_to raise_error
+    end
+  end
+
+  context "when the bot can't resolve the channel" do
+    let(:set) { create(:role_set, role_setting: setting, channel_override: nil, message_id: nil) }
+
+    before { allow(bot).to receive(:channel).with(555).and_return(nil) }
+
+    it "does nothing" do
+      post
+      expect(set.reload.message_id).to be_nil
+    end
+  end
+
   context "when there is no channel to post in" do
     let(:setting) { create(:role_setting, channel_id: nil) }
     let(:set) { create(:role_set, role_setting: setting, channel_override: nil) }
