@@ -73,6 +73,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -87,4 +89,13 @@ jobs:
 
       - name: Run specs
         run: bundle exec rspec
+
+      - name: Check coverage of changed lines
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          gem install undercover -v 0.8.5
+          git fetch --no-tags origin "$BASE_REF"
+          undercover --compare "origin/$BASE_REF"
 

@@ -49,3 +49,5 @@
 
 # Sandbox Postgres data volume lives here; never commit a live data directory.
 /src/database/
+
+/coverage/

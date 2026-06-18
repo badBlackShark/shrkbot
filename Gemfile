@@ -70,6 +70,9 @@ group :development, :test do
   gem "ruby-lsp", require: false
 
   gem "active_record_doctor"
+
+  gem "simplecov", require: false
+  gem "simplecov-lcov", require: false
 end
 
 group :development do
