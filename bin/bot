@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+require_relative "../config/environment"
+require "discordrb"
+
+Rails.application.eager_load!
+
+shard_count = BotConfig.shard_count
+
+bots = Array.new(shard_count) do |shard_id|
+  Discordrb::Bot.new(
+    token: BotConfig.token,
+    intents: %i[servers server_members],
+    shard_id: shard_id,
+    num_shards: shard_count
+  )
+end
+
+bots.each_with_index do |bot, index|
+  CommandRegistrar.new(bot, commands: BaseCommand.descendants,
+    instant_global: Rails.env.development?, define_commands: index.zero?).register_all
+  EventRegistrar.new(bot, events: BaseEvent.descendants).register_all
+end
+
+total_servers = -> { bots.sum { |bot| bot.servers.size } }
+bots.each do |bot|
+  refresh_presence = -> { BotPresence.update(bot, total_servers.call) }
+  bot.ready { refresh_presence.call }
+  bot.server_create { refresh_presence.call }
+  bot.server_delete { refresh_presence.call }
+end
+
+# Discord rate-limits IDENTIFY to ~one per 5s, so stagger shard starts — a single
+# burst gets the later shards disconnected and into reconnect backoff.
+bots.each_with_index do |bot, index|
+  sleep(5) unless index.zero?
+  bot.run(true)
+end
+bots.each(&:join)

@@ -1,8 +1,6 @@
-version: '3.5'
-
 services:
   db:
-    image: postgres:11
+    image: postgres:18
     restart: always
     environment:
       POSTGRES_DB: shrkbot_db
@@ -11,11 +9,89 @@ services:
     ports:
       - 5678:5432
     volumes:
-      - type: bind
-        source: ./src/database/data
-        target: /var/lib/postgresql/data
-  app:
+      - pg_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d shrkbot_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # The app processes. Same image, different command. RAILS_ENV=development for
+  # now; DATABASE_URL here points at the in-network db host (overrides the
+  # localhost value in .env — compose `environment` wins, and dotenv won't
+  # clobber an already-set var). Secrets (DISCORD_TOKEN etc.) come from the
+  # mounted .env via dotenv.
+  web:
     build: .
-    restart: always
+    command: bin/rails server -b 0.0.0.0 -p 3000
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  bot:
+    build: .
+    command: bin/bot
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
+    volumes:
+      - ./:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  jobs:
+    build: .
+    command: bin/jobs
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: development
+      DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
+    volumes:
+      - ./:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      GH_REPO: badBlackShark/shrkbot
+      GIT_CONFIG_GLOBAL: /home/dev/.ai-sandbox/gitconfig-shrkbot
+      DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
+      CONFIG_PATH: /app/src/config.yml
+    volumes:
+      - ./:/app
+      # Prevent sandbox from reading checked-in/local secret files.
+      - /dev/null:/app/src/config.yml:ro
+      - /dev/null:/app/.env:ro
+      # Prevent sandbox from changing its own guardrails.
+      - ./docker-compose.yml:/app/docker-compose.yml:ro
+      - ./Dockerfile:/app/Dockerfile:ro
+      - ./Dockerfile.dev:/app/Dockerfile.dev:ro
+      - ~/.ai-sandbox/shrkbot/claude:/home/dev/.claude
+      - ~/.ai-sandbox/shrkbot/claude.json:/home/dev/.claude.json
+      - ~/.ai-sandbox/shrkbot/local-state:/home/dev/.local/state/claude
+      - ~/.ai-sandbox/shrkbot/local-share:/home/dev/.local/share/claude
+      - ~/.config/gh:/home/dev/.config/gh
+      - ~/.config/github-copilot:/home/dev/.config/github-copilot
+      - ~/.ai-sandbox:/home/dev/.ai-sandbox:ro
+    working_dir: /app
+    stdin_open: true
+    tty: true
     depends_on:
       - db
+
+volumes:
+  pg_data:

@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+require_relative "../config/environment"
+# discordrb is require:false (keeps web/console lean); the jobs process needs it
+# for REST delivery, so load it once here rather than lazily per job.
+require "discordrb"
+require "solid_queue/cli"
+
+SolidQueue::Cli.start(ARGV)
