@@ -51,3 +51,6 @@
 /src/database/
 
 /coverage/
+
+# Personal agent instructions (per-developer, not shared)
+/CLAUDE.md
