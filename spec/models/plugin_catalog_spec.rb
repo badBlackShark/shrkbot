@@ -1,6 +1,12 @@
 require "rails_helper"
 
 RSpec.describe PluginCatalog do
+  describe ".all" do
+    it "returns every definition" do
+      expect(described_class.all).to eq(PluginCatalog::DEFINITIONS)
+    end
+  end
+
   describe ".find" do
     it "looks a definition up by key" do
       expect(described_class.find(:logging).name).to eq("Logging")

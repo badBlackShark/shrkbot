@@ -18,6 +18,15 @@ RSpec.describe Ops::ServerConfiguration::Ensure do
     expect(activations.find_by(plugins: {key: "welcomes"}).enabled).to be(false)
   end
 
+  context "when a concurrent insert wins the race" do
+    it "returns the already-created configuration instead of raising" do
+      existing = create(:server_configuration, discord_id:)
+      allow(ServerConfiguration).to receive(:find_or_create_by!).and_raise(ActiveRecord::RecordNotUnique)
+
+      expect(result.value).to eq(existing)
+    end
+  end
+
   context "when the configuration already exists with a manually toggled activation" do
     let(:config) { described_class.call(discord_id:).value }
 

@@ -32,4 +32,24 @@ RSpec.describe BaseEvent do
       expect(call).to be_nil
     end
   end
+
+  describe ".dispatch" do
+    let(:handled) { double("handle spy") }
+    let(:klass) do
+      spy = handled
+      event_class { spy.run }
+    end
+
+    it "instantiates the event class and runs #handle" do
+      expect(handled).to receive(:run)
+      klass.dispatch(event)
+    end
+  end
+
+  describe "#handle" do
+    it "is abstract" do
+      klass = Class.new(described_class)
+      expect { klass.new(event).handle }.to raise_error(AbstractMethodError)
+    end
+  end
 end

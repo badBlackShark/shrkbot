@@ -43,6 +43,27 @@ RSpec.describe BaseCommand do
         expect(anonymous.registrable).to be(false)
       end
     end
+
+    context "owner-only commands" do
+      let(:klass) do
+        Class.new(described_class) do
+          command_name :secret
+          owner_only
+        end
+      end
+
+      it "carries the flag through to the registration" do
+        expect(klass.owner_only?).to be(true)
+        expect(klass.registration.owner_only).to be(true)
+      end
+    end
+  end
+
+  describe "#execute" do
+    it "is abstract" do
+      klass = Class.new(described_class) { command_name :probe }
+      expect { klass.new(double("event")).execute }.to raise_error(AbstractMethodError)
+    end
   end
 
   describe "#dispatch template" do
@@ -107,6 +128,61 @@ RSpec.describe BaseCommand do
         expect(OwnerNotifier).to receive(:report).with(hash_including(source: "command /probe"))
         expect(event).to receive(:respond).with(hash_including(ephemeral: true))
         expect { dispatch }.not_to raise_error
+      end
+    end
+
+    context "when the error reply itself fails (interaction expired)" do
+      subject(:dispatch) { klass.dispatch(event) }
+
+      let(:klass) { command_class { raise "boom" } }
+
+      it "swallows the secondary failure" do
+        allow(OwnerNotifier).to receive(:report)
+        allow(event).to receive(:respond).and_raise("interaction expired")
+        expect { dispatch }.not_to raise_error
+      end
+    end
+  end
+
+  describe "autocomplete dispatch" do
+    let(:event) { double("event", respond: nil, bot: double("bot")) }
+
+    context "when the command defines #autocomplete" do
+      let(:klass) do
+        Class.new(described_class) do
+          command_name :probe
+
+          def autocomplete
+            event.respond(choices: [{name: "a", value: "a"}])
+          end
+        end
+      end
+
+      it "runs it via .dispatch_autocomplete" do
+        expect(event).to receive(:respond).with(choices: [{name: "a", value: "a"}])
+        klass.dispatch_autocomplete(event)
+      end
+    end
+
+    context "when #autocomplete raises" do
+      let(:klass) do
+        Class.new(described_class) do
+          command_name :probe
+
+          def autocomplete
+            raise "boom"
+          end
+        end
+      end
+
+      it "clears the picker with empty choices instead of leaving it hanging" do
+        expect(event).to receive(:respond).with(choices: [])
+        expect { klass.dispatch_autocomplete(event) }.not_to raise_error
+      end
+
+      it "swallows a secondary failure while clearing the picker" do
+        allow(event).to receive(:respond).and_raise("interaction expired")
+        expect { klass.dispatch_autocomplete(event) }.not_to raise_error
       end
     end
   end

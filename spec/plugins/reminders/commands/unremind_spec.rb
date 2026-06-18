@@ -12,6 +12,24 @@ RSpec.describe Reminders::Unremind do
       expect(event).to receive(:respond).with(hash_including(content: a_string_including("cancelled")))
       execute
     end
+
+    it "surfaces the failure message when the cancellation is rejected" do
+      allow(Ops::Reminders::Delete).to receive(:call)
+        .and_return(Ops::ApplicationOperation::Result.new(false, nil, ["not your reminder"]))
+      expect(event).to receive(:respond).with(hash_including(content: a_string_including("not your reminder")))
+      execute
+    end
+  end
+
+  describe "command options" do
+    it "declares an autocompleted reminder input" do
+      opts = double("options")
+      allow(opts).to receive(:string)
+
+      described_class.registration.options_block.call(opts)
+
+      expect(opts).to have_received(:string).with("reminder", anything, hash_including(required: true, autocomplete: true))
+    end
   end
 
   describe "#autocomplete" do

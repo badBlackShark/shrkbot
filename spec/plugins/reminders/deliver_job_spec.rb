@@ -29,6 +29,17 @@ RSpec.describe Reminders::DeliverJob do
     end
   end
 
+  context "when the reminder has no server (DM-origin) and no DM flag" do
+    let(:reminder) do
+      create(:reminder, user_id: 10, channel_id: 20, server_id: nil, remind_at: 1.minute.ago, message: "hello")
+    end
+
+    it "delivers to the original channel" do
+      expect(Discordrb::API::Channel).to receive(:create_message).with("Bot tok", 20, anything)
+      perform
+    end
+  end
+
   context "when the user requested DM delivery" do
     before do
       reminder.update!(deliver_via_dm: true)
