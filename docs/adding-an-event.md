@@ -48,7 +48,8 @@ several handler classes. The event exposes `custom_id`, `values` (selects), `use
 `server`, and `respond`/`update_message` (acknowledge the interaction — `respond` for a
 new ephemeral reply, `update_message` to edit the message the component is on). See
 `app/plugins/roles/events/`, where a thin `Roles::ComponentHandler` base shares the
-set lookup, member resolution, and notify across the manage/pick/select handlers.
+set lookup, member resolution, and role-diff application across the manage/pick/select
+handlers.
 
 ## Spec it
 

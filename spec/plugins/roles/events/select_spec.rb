@@ -3,8 +3,7 @@ require "rails_helper"
 RSpec.describe Roles::Select do
   subject(:handle) { described_class.new(event).handle }
 
-  let(:setting) { create(:role_setting, notify_on_assign: false) }
-  let(:set) { create(:role_set, role_setting: setting, selection_mode: "multi") }
+  let(:set) { create(:role_set, selection_mode: "multi") }
   let!(:news) { create(:assignable_role, role_set: set, role_id: 100, label: "News", position: 0) }
   let!(:events_role) { create(:assignable_role, role_set: set, role_id: 200, label: "Events", position: 1) }
 
@@ -34,12 +33,8 @@ RSpec.describe Roles::Select do
     handle
   end
 
-  context "when notify_on_assign is on" do
-    let(:setting) { create(:role_setting, notify_on_assign: true) }
-
-    it "DMs the user their resulting selection" do
-      expect(user).to receive(:pm).with("**#{set.name}**: News")
-      handle
-    end
+  it "never DMs the user" do
+    expect(user).not_to receive(:pm)
+    handle
   end
 end

@@ -74,5 +74,7 @@ module Roles
     def button_rows(buttons)
       buttons.each_slice(BUTTONS_PER_ROW).map { |row| {type: ACTION_ROW, components: row} }
     end
+
+    private_class_method :content, :single_content, :role_buttons, :manage_row, :label, :picker_content, :button_rows
   end
 end

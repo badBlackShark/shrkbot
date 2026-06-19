@@ -16,17 +16,8 @@ module Roles
       set.assignable_roles.map(&:role_id)
     end
 
-    def apply(diff, active)
+    def apply(diff)
       member.modify_roles(diff[:add], diff[:remove])
-      notify(active)
-    end
-
-    def notify(active)
-      return unless set.role_setting.notify_on_assign
-
-      event.user.pm(Message.selection_summary(set, active))
-    rescue
-      nil
     end
 
     def update(picker)

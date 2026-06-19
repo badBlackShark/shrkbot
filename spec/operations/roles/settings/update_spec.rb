@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Ops::Roles::Settings::Update do
   subject(:result) do
-    described_class.call(server_configuration: server, channel_id:, notify_on_assign: true, log_on_assign: false)
+    described_class.call(server_configuration: server, channel_id:, log_on_assign: false)
   end
 
   let(:server) { create(:server_configuration) }
@@ -11,12 +11,12 @@ RSpec.describe Ops::Roles::Settings::Update do
 
   it "sets the role settings" do
     expect(result.success?).to be(true)
-    expect(setting.reload).to have_attributes(channel_id: 99, notify_on_assign: true, log_on_assign: false)
+    expect(setting.reload).to have_attributes(channel_id: 99, log_on_assign: false)
   end
 
   context "updating existing values" do
     before do
-      setting.update!(channel_id: 1, notify_on_assign: false)
+      setting.update!(channel_id: 1)
     end
 
     it "updates them in place" do

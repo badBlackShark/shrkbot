@@ -3,8 +3,7 @@ require "rails_helper"
 RSpec.describe Roles::Pick do
   subject(:handle) { described_class.new(event).handle }
 
-  let(:setting) { create(:role_setting, notify_on_assign: false) }
-  let(:set) { create(:role_set, role_setting: setting, selection_mode: "single") }
+  let(:set) { create(:role_set, selection_mode: "single") }
   let!(:red) { create(:assignable_role, role_set: set, role_id: 100, label: "Red", position: 0) }
   let!(:blue) { create(:assignable_role, role_set: set, role_id: 200, label: "Blue", position: 1) }
 
@@ -45,25 +44,8 @@ RSpec.describe Roles::Pick do
     end
   end
 
-  context "when notify_on_assign is on" do
-    let(:setting) { create(:role_setting, notify_on_assign: true) }
-
-    it "DMs the user their selection" do
-      expect(user).to receive(:pm).with("**#{set.name}**: Blue")
-      handle
-    end
-
-    it "still confirms even if the DM cannot be delivered" do
-      allow(user).to receive(:pm).and_raise(StandardError, "Cannot send messages to this user")
-      expect(event).to receive(:respond).with(content: "**#{set.name}**: Blue", ephemeral: true)
-      handle
-    end
-  end
-
-  context "when notify_on_assign is off" do
-    it "does not DM the user" do
-      expect(user).not_to receive(:pm)
-      handle
-    end
+  it "never DMs the user" do
+    expect(user).not_to receive(:pm)
+    handle
   end
 end
