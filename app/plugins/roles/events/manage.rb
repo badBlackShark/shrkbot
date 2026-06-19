@@ -7,7 +7,7 @@ module Roles
 
       active = member.roles.map(&:id) & set_role_ids
       picker = Message.multi_picker(set, active)
-      event.respond(content: picker[:content], components: picker[:components], ephemeral: true)
+      event.respond(components: picker[:components], ephemeral: true, has_components: true)
     end
   end
 end

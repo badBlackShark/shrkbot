@@ -16,13 +16,16 @@ RSpec.describe Roles::Manage do
     let(:set) { create(:role_set, selection_mode: "multi") }
 
     before do
-      create(:assignable_role, role_set: set, role_id: 200, label: "Blue", position: 0)
+      create(:assignable_role, role_set: set, role_id: 200, position: 0)
     end
 
-    it "responds with an ephemeral string-select picker" do
+    it "responds with an ephemeral, components-v2 string-select picker" do
       expect(event).to receive(:respond) do |args|
         expect(args[:ephemeral]).to be(true)
-        expect(args[:components].first[:components].first[:type]).to eq(Roles::Message::STRING_SELECT)
+        expect(args[:has_components]).to be(true)
+        container = args[:components].first
+        select = container[:components].find { |block| block[:type] == Roles::Message::ACTION_ROW }[:components].first
+        expect(select[:type]).to eq(Roles::Message::STRING_SELECT)
       end
       handle
     end

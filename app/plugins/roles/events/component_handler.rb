@@ -21,7 +21,7 @@ module Roles
     end
 
     def update(picker)
-      event.update_message(content: picker[:content], components: picker[:components])
+      event.update_message(components: picker[:components], has_components: true)
     end
   end
 end

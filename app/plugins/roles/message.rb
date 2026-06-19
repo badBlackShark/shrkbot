@@ -1,80 +1,109 @@
 module Roles
   module Message
+    CONTAINER = 17
+    TEXT_DISPLAY = 10
     ACTION_ROW = 1
     BUTTON = 2
     STRING_SELECT = 3
     PRIMARY = 1
     SECONDARY = 2
     BUTTONS_PER_ROW = 5
+    COMPONENTS_V2 = 1 << 15
+    UNKNOWN_ROLE = "Unknown role"
 
     module_function
 
     def public_message(set)
-      if set.selection_mode == "single"
-        {content: single_content(set), components: button_rows(role_buttons(set))}
-      else
-        {content: content(set), components: [manage_row(set)]}
-      end
+      blocks =
+        if set.selection_mode == "single"
+          [text(single_content(set)), *button_rows(role_buttons(set))]
+        else
+          [text(content(set)), action_row([manage_button(set)])]
+        end
+      container(blocks)
+    end
+
+    def multi_picker(set, active_role_ids)
+      container([text(picker_content(set)), action_row([role_select(set, active_role_ids)])])
+    end
+
+    def selection_summary(set, active_role_ids)
+      names = role_names(set)
+      chosen = set.assignable_roles
+        .select { |role| active_role_ids.include?(role.role_id) }
+        .map { |role| names[role.role_id] || UNKNOWN_ROLE }
+      "**#{set.name}**: #{chosen.any? ? chosen.join(", ") : "none"}"
+    end
+
+    def container(blocks)
+      {components: [{type: CONTAINER, components: blocks}], flags: COMPONENTS_V2}
+    end
+
+    def text(body)
+      {type: TEXT_DISPLAY, content: body}
+    end
+
+    def action_row(components)
+      {type: ACTION_ROW, components: components}
     end
 
     def content(set)
-      header = "**#{set.name}**"
-      roles = set.assignable_roles.map { |role| label(role) }
-      [header, *roles].join("\n")
+      names = role_names(set)
+      [["**#{set.name}**"], set.assignable_roles.map { |role| role_label(role, names) }].flatten.join("\n")
     end
 
     def single_content(set)
       "**#{set.name}**\nPick a role below. You can only have one, so choosing a role replaces your current one."
     end
 
+    def picker_content(set)
+      "**#{set.name}** — choose your roles."
+    end
+
     def role_buttons(set)
+      names = role_names(set)
       set.assignable_roles.map do |role|
-        {type: BUTTON, style: SECONDARY, label: label(role), custom_id: CustomId.pick(set, role)}
+        {type: BUTTON, style: SECONDARY, label: role_label(role, names), custom_id: CustomId.pick(set, role)}
       end
     end
 
-    def multi_picker(set, active_role_ids)
+    def role_select(set, active_role_ids)
+      names = role_names(set)
       options = set.assignable_roles.map do |role|
-        option = {label: role.label, value: role.role_id.to_s}
+        option = {label: names[role.role_id] || UNKNOWN_ROLE, value: role.role_id.to_s}
         option[:description] = role.description if role.description.present?
         option[:default] = true if active_role_ids.include?(role.role_id)
         option
       end
-      select = {
+      {
         type: STRING_SELECT,
         custom_id: CustomId.select(set),
         min_values: 0,
         max_values: options.size,
         options: options
       }
-      {content: picker_content(set), components: [{type: ACTION_ROW, components: [select]}]}
     end
 
-    def selection_summary(set, active_role_ids)
-      chosen = set.assignable_roles
-        .select { |role| active_role_ids.include?(role.role_id) }
-        .map(&:label)
-      "**#{set.name}**: #{chosen.any? ? chosen.join(", ") : "none"}"
-    end
-
-    def manage_row(set)
-      {type: ACTION_ROW, components: [
-        {type: BUTTON, style: PRIMARY, label: "Manage Roles", custom_id: CustomId.manage(set)}
-      ]}
-    end
-
-    def label(role)
-      [role.emoji, role.label].compact.join(" ")
-    end
-
-    def picker_content(set)
-      "**#{set.name}** — choose your roles."
+    def manage_button(set)
+      {type: BUTTON, style: PRIMARY, label: "Manage Roles", custom_id: CustomId.manage(set)}
     end
 
     def button_rows(buttons)
-      buttons.each_slice(BUTTONS_PER_ROW).map { |row| {type: ACTION_ROW, components: row} }
+      buttons.each_slice(BUTTONS_PER_ROW).map { |row| action_row(row) }
     end
 
-    private_class_method :content, :single_content, :role_buttons, :manage_row, :label, :picker_content, :button_rows
+    def role_names(set)
+      set.role_setting.server_configuration.server_roles
+        .where(discord_id: set.assignable_roles.map(&:role_id))
+        .pluck(:discord_id, :name)
+        .to_h
+    end
+
+    def role_label(role, names)
+      [role.emoji, names[role.role_id] || UNKNOWN_ROLE].compact.join(" ")
+    end
+
+    private_class_method :container, :text, :action_row, :content, :single_content, :picker_content,
+      :role_buttons, :role_select, :manage_button, :button_rows, :role_names, :role_label
   end
 end

@@ -4,8 +4,8 @@ RSpec.describe Roles::Select do
   subject(:handle) { described_class.new(event).handle }
 
   let(:set) { create(:role_set, selection_mode: "multi") }
-  let!(:news) { create(:assignable_role, role_set: set, role_id: 100, label: "News", position: 0) }
-  let!(:events_role) { create(:assignable_role, role_set: set, role_id: 200, label: "Events", position: 1) }
+  let!(:news) { create(:assignable_role, role_set: set, role_id: 100, position: 0) }
+  let!(:events_role) { create(:assignable_role, role_set: set, role_id: 200, position: 1) }
 
   let(:user) { double("user", id: 42) }
   let(:member) { double("member", modify_roles: nil) }

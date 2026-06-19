@@ -3,9 +3,16 @@ require "rails_helper"
 RSpec.describe Roles::Pick do
   subject(:handle) { described_class.new(event).handle }
 
-  let(:set) { create(:role_set, selection_mode: "single") }
-  let!(:red) { create(:assignable_role, role_set: set, role_id: 100, label: "Red", position: 0) }
-  let!(:blue) { create(:assignable_role, role_set: set, role_id: 200, label: "Blue", position: 1) }
+  let(:server_config) { create(:server_configuration) }
+  let(:setting) { create(:role_setting, server_configuration: server_config) }
+  let(:set) { create(:role_set, role_setting: setting, selection_mode: "single") }
+  let!(:red) { create(:assignable_role, role_set: set, role_id: 100, position: 0) }
+  let!(:blue) { create(:assignable_role, role_set: set, role_id: 200, position: 1) }
+
+  before do
+    create(:server_role, server_configuration: server_config, discord_id: 100, name: "Red")
+    create(:server_role, server_configuration: server_config, discord_id: 200, name: "Blue")
+  end
 
   let(:user) { double("user", id: 42) }
   let(:member) { double("member", roles: [], modify_roles: nil) }
