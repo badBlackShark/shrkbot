@@ -6,6 +6,7 @@ module GuildMetadata
     Ops::ServerConfiguration::ServerChannels::Sync.call(server_configuration: config, channels: channels(server))
     Ops::ServerConfiguration::ServerRoles::Sync.call(server_configuration: config, roles: roles(server))
     Ops::ServerConfiguration::Channels::Reconcile.call(server_configuration: config, bot: bot)
+    ServerOnboarder.notify(bot, server, config)
     config
   end
 

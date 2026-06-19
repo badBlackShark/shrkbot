@@ -60,7 +60,6 @@ Definition.new(
   key: :welcomes,
   name: "Welcomes",
   description: "Join and leave messages.",   # user-facing; reused on the website
-  default_enabled: false,
   channel_setting: :welcome_settings          # the assoc holding channel_id; nil if not channel-backed
 )
 ```

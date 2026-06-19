@@ -4,14 +4,14 @@ RSpec.describe Ops::ServerConfiguration::Ensure do
   subject(:result) { described_class.call(discord_id:) }
 
   let(:discord_id) { 42 }
-  let!(:logging) { create(:plugin, key: "logging", name: "Logging", default_enabled: true) }
-  let!(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes", default_enabled: false) }
+  let!(:logging) { create(:plugin, key: "logging", name: "Logging") }
+  let!(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
 
   it "creates a server configuration when none exists" do
     expect { result }.to change { ServerConfiguration.where(discord_id:).count }.from(0).to(1)
   end
 
-  it "seeds an activation per plugin, all disabled (regardless of default_enabled)" do
+  it "seeds an activation per plugin, all disabled" do
     activations = result.value.plugin_activations.joins(:plugin)
 
     expect(activations.find_by(plugins: {key: "logging"}).enabled).to be(false)

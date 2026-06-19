@@ -25,7 +25,7 @@ RSpec.describe PluginCatalog do
 
   describe PluginCatalog::Definition do
     def definition(channel_setting:)
-      described_class.new(key: :x, name: "X", description: "", default_enabled: false, channel_setting:)
+      described_class.new(key: :x, name: "X", description: "", channel_setting:)
     end
 
     context "when not channel-backed" do
