@@ -1,5 +1,3 @@
-# Re-checked at runtime even though Discord hides commands the member can't use:
-# that hiding can be overridden server-side, so it can't be trusted alone.
 module CommandPermissions
   module_function
 

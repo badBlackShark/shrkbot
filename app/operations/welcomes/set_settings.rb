@@ -1,8 +1,6 @@
 module Ops
   module Welcomes
     class SetSettings < ApplicationOperation
-      # A channel is required only to ENABLE the plugin (TogglePlugin), not to save —
-      # so admins can draft messages first. An empty message disables that announcement.
       def initialize(server_configuration:, channel_id:, join_message:, leave_message:)
         @server_configuration = server_configuration
         @channel_id = channel_id

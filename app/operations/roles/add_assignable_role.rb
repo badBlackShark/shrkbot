@@ -11,8 +11,13 @@ module Ops
 
       def call
         role = transaction do
-          @role_set.assignable_roles.create!(role_id: @role_id, label: @label,
-            description: @description, emoji: @emoji, position: next_position)
+          @role_set.assignable_roles.create!(
+            role_id: @role_id,
+            label: @label,
+            description: @description,
+            emoji: @emoji,
+            position: next_position
+          )
         end
         ok(role)
       end

@@ -26,6 +26,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_210000) do
     t.index ["role_set_id", "role_id"], name: "index_assignable_roles_on_role_set_id_and_role_id", unique: true
   end
 
+  create_table "bot_settings", id: :string, default: -> { "('bst_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "key", null: false
+    t.datetime "updated_at", null: false
+    t.string "value"
+    t.index ["key"], name: "index_bot_settings_on_key", unique: true
+  end
+
   create_table "channel_overwrites", id: :string, default: -> { "('cov_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.bigint "allow", default: 0, null: false
     t.datetime "created_at", null: false
@@ -127,14 +135,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_210000) do
     t.string "server_configuration_id", null: false
     t.datetime "updated_at", null: false
     t.index ["server_configuration_id", "discord_id"], name: "index_server_roles_on_server_configuration_id_and_discord_id", unique: true
-  end
-
-  create_table "settings", id: :string, default: -> { "('set_'::text || gen_random_uuid())" }, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "key", null: false
-    t.datetime "updated_at", null: false
-    t.string "value"
-    t.index ["key"], name: "index_settings_on_key", unique: true
   end
 
   create_table "solid_queue_blocked_executions", force: :cascade do |t|

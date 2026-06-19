@@ -1,6 +1,4 @@
 module Roles
-  # The component custom_id protocol shared by the message renderers (producers)
-  # and the interaction handlers (parser). Format: "roles:<action>:<set_id>[:<role_id>]".
   module CustomId
     PREFIX = "roles"
 

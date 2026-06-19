@@ -14,7 +14,9 @@ RSpec.describe CommandPermissions do
     subject(:permitted) { described_class.permitted?(event:, required:, owner_only:) }
 
     context "when the user is the configured owner" do
-      before { allow(BotConfig).to receive(:owner_id).and_return("42") }
+      before do
+        allow(BotConfig).to receive(:owner_id).and_return("42")
+      end
 
       let(:event) { event_for(user_id: 42) }
 
@@ -29,7 +31,9 @@ RSpec.describe CommandPermissions do
     end
 
     context "when the user is not the configured owner and owner_only is true" do
-      before { allow(BotConfig).to receive(:owner_id).and_return("42") }
+      before do
+        allow(BotConfig).to receive(:owner_id).and_return("42")
+      end
 
       let(:event) { event_for(user_id: 7, member: double(permission?: true)) }
       let(:required) { [] }
@@ -41,7 +45,9 @@ RSpec.describe CommandPermissions do
     end
 
     context "when no owner is configured and command requires no permissions" do
-      before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
+      before do
+        allow(BotConfig).to receive(:owner_id).and_return(nil)
+      end
 
       let(:event) { event_for(user_id: 7, member: double(permission?: false)) }
       let(:required) { [] }
@@ -53,7 +59,9 @@ RSpec.describe CommandPermissions do
     end
 
     context "when multiple permissions are required and member lacks one" do
-      before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
+      before do
+        allow(BotConfig).to receive(:owner_id).and_return(nil)
+      end
 
       let(:member) do
         double("member").tap do |m|
@@ -72,7 +80,9 @@ RSpec.describe CommandPermissions do
     end
 
     context "when a single required permission is held" do
-      before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
+      before do
+        allow(BotConfig).to receive(:owner_id).and_return(nil)
+      end
 
       let(:member) do
         double("member").tap do |m|
@@ -90,7 +100,9 @@ RSpec.describe CommandPermissions do
     end
 
     context "when a permission-gated command is used in a DM (no member)" do
-      before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
+      before do
+        allow(BotConfig).to receive(:owner_id).and_return(nil)
+      end
 
       let(:event) { event_for(user_id: 7) }
       let(:required) { [:manage_server] }

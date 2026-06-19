@@ -14,7 +14,9 @@ RSpec.describe Ops::Roles::SetSettings do
   end
 
   context "with existing settings" do
-    before { server.create_role_setting!(channel_id: 1, notify_on_assign: false) }
+    before do
+      server.create_role_setting!(channel_id: 1, notify_on_assign: false)
+    end
 
     it "updates them in place" do
       result

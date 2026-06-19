@@ -8,8 +8,6 @@ class ServerChannel < ApplicationRecord
 
   VIEW_CHANNEL = 1 << 10
 
-  # The @everyone role's id equals the guild id. Channel-level only — ignores
-  # category inheritance, so this is advisory, not a guarantee.
   def everyone_visible?
     overwrite = channel_overwrites.find_by(target_id: server_configuration.discord_id)
     return true unless overwrite

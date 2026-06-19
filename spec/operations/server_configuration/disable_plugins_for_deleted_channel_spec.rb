@@ -8,7 +8,9 @@ RSpec.describe Ops::ServerConfiguration::DisablePluginsForDeletedChannel do
   let(:channel_id) { 555 }
   let(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
 
-  before { allow(OwnerNotifier).to receive(:notify) }
+  before do
+    allow(OwnerNotifier).to receive(:notify)
+  end
 
   context "when a plugin's configured channel was deleted" do
     before do
@@ -26,7 +28,9 @@ RSpec.describe Ops::ServerConfiguration::DisablePluginsForDeletedChannel do
   end
 
   context "when the deleted channel isn't used by any plugin" do
-    before { server.create_welcome_settings!(channel_id: 999) }
+    before do
+      server.create_welcome_settings!(channel_id: 999)
+    end
 
     it "changes nothing and doesn't notify" do
       result

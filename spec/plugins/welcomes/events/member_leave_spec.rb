@@ -8,7 +8,9 @@ RSpec.describe Welcomes::MemberLeave do
   let(:bot) { double("bot") }
   let(:event) { double("event", server:, user:, bot:) }
 
-  before { allow(Welcomes::Settings).to receive(:active_for).with(123).and_return(setting) }
+  before do
+    allow(Welcomes::Settings).to receive(:active_for).with(123).and_return(setting)
+  end
 
   context "with an active setting and a leave message" do
     let(:setting) { double("settings", channel_id: 555, leave_message: "{user} left. {membercount} remain.") }

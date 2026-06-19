@@ -10,7 +10,9 @@ module Ops
         return failure("A channel is required.") if @channel_id.blank?
 
         setting = @server_configuration.logging_setting || @server_configuration.build_logging_setting
-        transaction { setting.update!(channel_id: @channel_id) }
+        transaction do
+          setting.update!(channel_id: @channel_id)
+        end
         ok(setting, warnings: visibility_warnings)
       end
 

@@ -11,7 +11,7 @@ RSpec.describe OwnerNotifier do
     let(:source) { "command /ping" }
 
     before do
-      allow(Setting).to receive(:owner_error_dms?).and_return(dms_enabled)
+      allow(BotSetting).to receive(:owner_error_dms?).and_return(dms_enabled)
       allow(BotConfig).to receive(:owner_id).and_return(owner_id)
     end
 
@@ -50,7 +50,9 @@ RSpec.describe OwnerNotifier do
       let(:dms_enabled) { true }
       let(:owner_id) { "4242" }
 
-      before { allow(bot).to receive(:pm_channel).and_raise(StandardError, "discord down") }
+      before do
+        allow(bot).to receive(:pm_channel).and_raise(StandardError, "discord down")
+      end
 
       it "swallows the failure so it never masks the original error" do
         expect { report }.not_to raise_error
@@ -61,13 +63,15 @@ RSpec.describe OwnerNotifier do
   describe ".notify" do
     subject(:notify) { described_class.notify(bot:, message: "your channel was deleted") }
 
-    before { allow(BotConfig).to receive(:owner_id).and_return(owner_id) }
+    before do
+      allow(BotConfig).to receive(:owner_id).and_return(owner_id)
+    end
 
     context "with an owner configured" do
       let(:owner_id) { "4242" }
 
       it "DMs the owner the message regardless of the error-DM toggle" do
-        allow(Setting).to receive(:owner_error_dms?).and_return(false)
+        allow(BotSetting).to receive(:owner_error_dms?).and_return(false)
         expect(bot).to receive(:pm_channel).with(4242).and_return(pm_channel)
         expect(pm_channel).to receive(:send_message).with("your channel was deleted")
         notify

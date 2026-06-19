@@ -1,7 +1,5 @@
 module Ops
   module ServerConfiguration
-    # Catches channels deleted while the bot was offline (no live channel_delete
-    # fired). Run after a metadata sync, so server_channels reflects what still exists.
     class ReconcileDeletedChannels < ApplicationOperation
       def initialize(server_configuration:, bot:)
         @server_configuration = server_configuration

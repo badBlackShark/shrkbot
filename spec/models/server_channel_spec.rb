@@ -14,7 +14,9 @@ RSpec.describe ServerChannel do
 
     let(:server) { create(:server_configuration) }
 
-    before { create(:server_channel, server_configuration: server, discord_id: 555) }
+    before do
+      create(:server_channel, server_configuration: server, discord_id: 555)
+    end
 
     it "forbids the same discord_id twice within one server" do
       expect(duplicate).not_to be_valid
@@ -36,19 +38,25 @@ RSpec.describe ServerChannel do
     end
 
     context "when @everyone is denied VIEW_CHANNEL" do
-      before { create(:channel_overwrite, server_channel: channel, target_id: 42, deny: ServerChannel::VIEW_CHANNEL) }
+      before do
+        create(:channel_overwrite, server_channel: channel, target_id: 42, deny: ServerChannel::VIEW_CHANNEL)
+      end
 
       it { is_expected.to be(false) }
     end
 
     context "when @everyone has an overwrite that does not touch VIEW_CHANNEL" do
-      before { create(:channel_overwrite, server_channel: channel, target_id: 42, deny: 0) }
+      before do
+        create(:channel_overwrite, server_channel: channel, target_id: 42, deny: 0)
+      end
 
       it { is_expected.to be(true) }
     end
 
     context "when a non-@everyone role is denied VIEW_CHANNEL" do
-      before { create(:channel_overwrite, server_channel: channel, target_id: 999, deny: ServerChannel::VIEW_CHANNEL) }
+      before do
+        create(:channel_overwrite, server_channel: channel, target_id: 999, deny: ServerChannel::VIEW_CHANNEL)
+      end
 
       it { is_expected.to be(true) }
     end
@@ -59,7 +67,9 @@ RSpec.describe ServerChannel do
 
     let(:channel) { create(:server_channel) }
 
-    before { create(:channel_overwrite, server_channel: channel) }
+    before do
+      create(:channel_overwrite, server_channel: channel)
+    end
 
     it "cascades deletion to its overwrites" do
       expect { destroy_channel }.to change(ChannelOverwrite, :count).by(-1)

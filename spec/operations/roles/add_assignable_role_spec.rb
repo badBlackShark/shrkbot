@@ -11,7 +11,9 @@ RSpec.describe Ops::Roles::AddAssignableRole do
   end
 
   context "when a role already exists" do
-    before { create(:assignable_role, role_set: set, position: 0) }
+    before do
+      create(:assignable_role, role_set: set, position: 0)
+    end
 
     it "appends after the last position" do
       expect(result.value.position).to eq(1)

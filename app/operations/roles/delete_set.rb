@@ -6,7 +6,9 @@ module Ops
       end
 
       def call
-        transaction { @role_set.destroy! }
+        transaction do
+          @role_set.destroy!
+        end
         ok(@role_set)
       end
     end

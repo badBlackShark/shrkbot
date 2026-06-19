@@ -52,7 +52,9 @@ RSpec.describe Roles::Set do
 
     let(:set) { create(:role_set) }
 
-    before { create(:assignable_role, role_set: set) }
+    before do
+      create(:assignable_role, role_set: set)
+    end
 
     it "cascades deletion to its roles" do
       expect { destroy_set }.to change(Roles::AssignableRole, :count).by(-1)

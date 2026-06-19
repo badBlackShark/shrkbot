@@ -30,7 +30,9 @@ RSpec.describe ChannelOverwrite do
 
     let(:channel) { create(:server_channel) }
 
-    before { create(:channel_overwrite, server_channel: channel, target_id: 999) }
+    before do
+      create(:channel_overwrite, server_channel: channel, target_id: 999)
+    end
 
     it "forbids the same target twice on one channel" do
       expect(duplicate).not_to be_valid

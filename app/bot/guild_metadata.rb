@@ -1,8 +1,6 @@
 module GuildMetadata
   module_function
 
-  # Ensure-then-populate in one method: server_create handler order isn't fixed,
-  # so the populate ops always need a guaranteed config to attach to.
   def sync(server, bot)
     config = Ops::ServerConfiguration::Ensure.call(discord_id: server.id).value
     Ops::ServerConfiguration::SyncChannels.call(server_configuration: config, channels: channels(server))

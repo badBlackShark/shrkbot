@@ -3,9 +3,6 @@ class PluginActivation < ApplicationRecord
   belongs_to :plugin
 
   validates :plugin_id, uniqueness: {scope: :server_configuration_id}
-
-  # Backstop for #21: TogglePlugin gives the friendly failure, but this catches
-  # any write that skips the op (raw console, a web bug, a stale object).
   validate :enabling_requires_prerequisites
 
   private

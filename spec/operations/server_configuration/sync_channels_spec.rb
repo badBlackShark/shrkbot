@@ -18,7 +18,9 @@ RSpec.describe Ops::ServerConfiguration::SyncChannels do
     end
 
     context "when a channel was renamed since the last sync" do
-      before { create(:server_channel, server_configuration: server, discord_id: 111, name: "old") }
+      before do
+        create(:server_channel, server_configuration: server, discord_id: 111, name: "old")
+      end
 
       it "updates the existing row in place rather than duplicating" do
         result
@@ -32,7 +34,9 @@ RSpec.describe Ops::ServerConfiguration::SyncChannels do
   describe "pruning" do
     let(:channels) { [{discord_id: 111, name: "general", channel_type: 0, overwrites: []}] }
 
-    before { create(:server_channel, server_configuration: server, discord_id: 999, name: "gone") }
+    before do
+      create(:server_channel, server_configuration: server, discord_id: 999, name: "gone")
+    end
 
     it "removes channels no longer present" do
       result
@@ -64,7 +68,9 @@ RSpec.describe Ops::ServerConfiguration::SyncChannels do
     context "when an overwrite was removed" do
       let(:channel) { create(:server_channel, server_configuration: server, discord_id: 111) }
 
-      before { create(:channel_overwrite, server_channel: channel, target_id: 777) }
+      before do
+        create(:channel_overwrite, server_channel: channel, target_id: 777)
+      end
 
       it "prunes overwrites no longer present on the channel" do
         result

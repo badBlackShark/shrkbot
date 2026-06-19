@@ -1,5 +1,4 @@
 class PluginCatalog
-  # Single source of plugin metadata — don't hardcode the plugin list elsewhere.
   Definition = Data.define(:key, :name, :description, :default_enabled, :channel_setting) do
     def channel_backed?
       !channel_setting.nil?

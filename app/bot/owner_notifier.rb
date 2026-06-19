@@ -4,7 +4,7 @@ module OwnerNotifier
   module_function
 
   def report(bot:, error:, source:)
-    deliver(bot, format_message(error, source)) if Setting.owner_error_dms?
+    deliver(bot, format_message(error, source)) if BotSetting.owner_error_dms?
   end
 
   def notify(bot:, message:)

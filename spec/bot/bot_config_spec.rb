@@ -31,7 +31,9 @@ RSpec.describe BotConfig do
   describe ".rest_token" do
     subject(:rest_token) { described_class.rest_token }
 
-    before { allow(described_class).to receive(:token).and_return(token) }
+    before do
+      allow(described_class).to receive(:token).and_return(token)
+    end
 
     context "with a raw token" do
       let(:token) { "abc123" }
