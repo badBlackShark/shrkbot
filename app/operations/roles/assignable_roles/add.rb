@@ -2,7 +2,9 @@ module Ops
   module Roles
     module AssignableRoles
       class Add < ApplicationOperation
-        receives :role_set, :role_id, :label, optional: [:description, :emoji]
+        receives :role_set, :role_id, :label
+        receives :description, optional: true
+        receives :emoji, optional: true
 
         def execute
           role = role_set.assignable_roles.create!(

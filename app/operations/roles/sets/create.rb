@@ -2,7 +2,8 @@ module Ops
   module Roles
     module Sets
       class Create < ApplicationOperation
-        receives :server_configuration, :name, :selection_mode, optional: [:channel_override]
+        receives :server_configuration, :name, :selection_mode
+        receives :channel_override, optional: true
 
         def execute
           setting = server_configuration.role_setting || server_configuration.create_role_setting!

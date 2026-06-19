@@ -1,7 +1,9 @@
 module Ops
   module Reminders
     class Create < ApplicationOperation
-      receives :user_id, :channel_id, :message, :duration, optional: [:server_id], default: {deliver_via_dm: false}
+      receives :user_id, :channel_id, :message, :duration
+      receives :server_id, optional: true
+      receives :deliver_via_dm, default: false
 
       def execute
         span = ::Reminders::Duration.parse(duration)

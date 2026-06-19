@@ -32,43 +32,44 @@ RSpec.describe Ops::ApplicationOperation do
   describe ".receives" do
     let(:op) do
       Class.new(described_class) do
-        receives :required_one, optional: [:maybe], default: {mode: "multi"}
+        receives :required_one, :required_two
+        receives :maybe, optional: true
+        receives :mode, default: "multi"
 
         def execute
-          ok([required_one, maybe, mode])
+          ok([required_one, required_two, maybe, mode])
         end
       end
     end
 
-    it "exposes the keywords as readers" do
-      expect(op.call(required_one: "x").value).to eq(["x", nil, "multi"])
+    it "exposes every keyword as a reader, applying defaults for the absent ones" do
+      expect(op.call(required_one: "a", required_two: "b").value).to eq(["a", "b", nil, "multi"])
     end
 
-    it "applies defaults and accepts overrides" do
-      expect(op.call(required_one: "x", maybe: "y", mode: "single").value).to eq(["x", "y", "single"])
+    it "accepts overrides for optional and defaulted keywords" do
+      expect(op.call(required_one: "a", required_two: "b", maybe: "c", mode: "single").value).to eq(["a", "b", "c", "single"])
     end
 
-    it "raises on a missing required keyword" do
-      expect { op.call(maybe: "y") }.to raise_error(ArgumentError, /missing keyword: :required_one/)
+    it "raises on a single missing required keyword" do
+      expect { op.call(required_two: "b") }.to raise_error(ArgumentError, /missing keyword: :required_one/)
     end
 
     it "lists every missing required keyword" do
-      two = Class.new(described_class) do
-        receives :a, :b
-
-        def execute
-          ok
-        end
-      end
-      expect { two.call }.to raise_error(ArgumentError, /missing keywords: :a, :b/)
+      expect { op.call }.to raise_error(ArgumentError, /missing keywords: :required_one, :required_two/)
     end
 
-    it "raises on an unknown keyword" do
-      expect { op.call(required_one: "x", bogus: 1) }.to raise_error(ArgumentError, /unknown keyword: :bogus/)
+    it "raises on a single unknown keyword" do
+      expect { op.call(required_one: "a", required_two: "b", bogus: 1) }.to raise_error(ArgumentError, /unknown keyword: :bogus/)
     end
 
     it "lists every unknown keyword" do
-      expect { op.call(required_one: "x", bogus: 1, junk: 2) }.to raise_error(ArgumentError, /unknown keywords: :bogus, :junk/)
+      expect { op.call(required_one: "a", required_two: "b", bogus: 1, junk: 2) }.to raise_error(ArgumentError, /unknown keywords: :bogus, :junk/)
+    end
+
+    it "rejects optional:/default: combined with multiple keywords" do
+      expect {
+        Class.new(described_class) { receives :a, :b, optional: true }
+      }.to raise_error(ArgumentError, /single keyword/)
     end
   end
 
