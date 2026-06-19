@@ -89,8 +89,8 @@ and validations (e.g. the @everyone-visibility check on a logging channel).
 ### Plugin catalog and activation
 
 `PluginCatalog` (`app/models/plugin_catalog.rb`) is the single source of plugin
-metadata — a frozen list of `Definition`s (key, name, description, default_enabled,
-channel_setting). Don't hardcode the plugin list anywhere else. It drives the
+metadata — a frozen list of `Definition`s (key, name, description, channel_setting).
+Don't hardcode the plugin list anywhere else. It drives the
 `db:seed` of the `Plugin` table, prerequisite checks, and the channel-backed registry.
 
 `Plugin#key` is exposed as a **symbol** (stored as text); call sites read `:welcomes`.
@@ -207,6 +207,15 @@ defaulted). This establishes the invariant that **a server's config and its plug
 settings rows always exist**, so settings operations can update the row directly
 instead of build-or-update. (Event handlers reading config for an arbitrary guild
 still guard against a nil config — a server seen before its Ensure has run.)
+
+`GuildMetadata.sync` then calls `ServerOnboarder.notify`, which DMs the guild owner a
+welcome once and stamps `ServerConfiguration#onboarded_at`. Because it runs inside the
+shared sync path, it fires from both triggers — so every server is onboarded exactly
+once, including servers that were already present when the rewrite first goes live
+(the `:ready` sweep). The `onboarded_at` stamp is what keeps it once-per-server rather
+than once-per-boot, and a send failure (owner blocks DMs) is swallowed and left
+un-stamped so a later boot retries. The welcome copy is a placeholder until the config
+website ships, when it gains the real setup link.
 
 ## Sharding
 

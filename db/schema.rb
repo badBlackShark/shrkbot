@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_17_210000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_19_120001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,7 +66,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_210000) do
 
   create_table "plugins", id: :string, default: -> { "('plg_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.boolean "default_enabled", default: false, null: false
     t.text "description"
     t.string "key", null: false
     t.string "name", null: false
@@ -124,6 +123,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_210000) do
     t.datetime "created_at", null: false
     t.bigint "discord_id", null: false
     t.boolean "force_dm_reminders", default: false, null: false
+    t.datetime "onboarded_at"
     t.datetime "updated_at", null: false
     t.index ["discord_id"], name: "index_server_configurations_on_discord_id", unique: true
   end

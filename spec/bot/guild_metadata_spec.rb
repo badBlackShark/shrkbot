@@ -42,12 +42,21 @@ RSpec.describe GuildMetadata do
     before do
       allow(Ops::ServerConfiguration::Ensure).to receive(:call)
         .with(discord_id: 77).and_return(double(value: config))
+      allow(ServerOnboarder).to receive(:notify)
     end
 
     it "ensures the config, then syncs channels and roles, then reconciles deletions" do
       expect(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call).with(server_configuration: config, channels: [])
       expect(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call).with(server_configuration: config, roles: [])
       expect(Ops::ServerConfiguration::Channels::Reconcile).to receive(:call).with(server_configuration: config, bot:)
+      sync
+    end
+
+    it "onboards the server" do
+      allow(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::Channels::Reconcile).to receive(:call)
+      expect(ServerOnboarder).to receive(:notify).with(bot, server, config)
       sync
     end
 
