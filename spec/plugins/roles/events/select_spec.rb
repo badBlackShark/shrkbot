@@ -10,18 +10,23 @@ RSpec.describe Roles::Select do
 
   let(:user) { double("user", id: 42) }
   let(:member) { double("member", modify_roles: nil) }
-  let(:server) { double("server") }
+  let(:server) { double("server", member: member) }
   let(:event) do
     double("event", custom_id: Roles::CustomId.select(set), server:, user:, values: ["100"], update_message: nil)
-  end
-
-  before do
-    allow(server).to receive(:member).with(42).and_return(member)
   end
 
   it "adds the selected set roles and removes the unselected ones" do
     expect(member).to receive(:modify_roles).with([100], [200])
     handle
+  end
+
+  context "outside a server (no member to assign)" do
+    let(:server) { nil }
+
+    it "does nothing" do
+      expect(event).not_to receive(:update_message)
+      handle
+    end
   end
 
   it "re-renders the picker via update_message" do
