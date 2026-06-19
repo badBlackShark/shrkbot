@@ -5,7 +5,7 @@ module Ops
 
       receives :discord_id
 
-      def execute
+      def call
         config = transaction do
           sc = ::ServerConfiguration.find_or_create_by!(discord_id: discord_id)
           ensure_activations(sc)

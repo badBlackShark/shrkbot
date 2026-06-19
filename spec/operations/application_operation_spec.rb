@@ -6,7 +6,7 @@ RSpec.describe Ops::ApplicationOperation do
       Class.new(described_class) do
         receives :win
 
-        def execute
+        def call
           win ? ok(42) : failure("nope", "bad")
         end
       end
@@ -36,7 +36,7 @@ RSpec.describe Ops::ApplicationOperation do
         receives :maybe, optional: true
         receives :mode, default: "multi"
 
-        def execute
+        def call
           ok([required_one, required_two, maybe, mode])
         end
       end
@@ -73,16 +73,16 @@ RSpec.describe Ops::ApplicationOperation do
     end
   end
 
-  describe "#execute" do
+  describe "#call" do
     it "is abstract by default" do
-      expect { Class.new(described_class).new.execute }.to raise_error(AbstractMethodError, /must implement #execute/)
+      expect { Class.new(described_class).new.call }.to raise_error(AbstractMethodError, /must implement #call/)
     end
   end
 
   describe "transaction wrapping" do
     let(:transactional_op) do
       Class.new(described_class) do
-        def execute
+        def call
           ok(:done)
         end
       end
@@ -92,7 +92,7 @@ RSpec.describe Ops::ApplicationOperation do
       Class.new(described_class) do
         self.transactional = false
 
-        def execute
+        def call
           ok(:done)
         end
       end

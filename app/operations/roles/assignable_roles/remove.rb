@@ -4,7 +4,7 @@ module Ops
       class Remove < ApplicationOperation
         receives :assignable_role
 
-        def execute
+        def call
           assignable_role.destroy!
           ok(assignable_role)
         end

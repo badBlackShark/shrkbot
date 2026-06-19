@@ -6,7 +6,7 @@ module Ops
 
         receives :server_configuration, :bot
 
-        def execute
+        def call
           existing = server_configuration.server_channels.pluck(:discord_id)
           stale = stale_channel_ids(existing)
           stale.each do |channel_id|

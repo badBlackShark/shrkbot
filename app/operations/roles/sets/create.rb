@@ -5,7 +5,7 @@ module Ops
         receives :server_configuration, :name, :selection_mode
         receives :channel_override, optional: true
 
-        def execute
+        def call
           setting = server_configuration.role_setting || server_configuration.create_role_setting!
           set = setting.role_sets.create!(
             name: name,

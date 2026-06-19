@@ -33,7 +33,7 @@ module Ops
       end
 
       def call(...)
-        new(...).call
+        new(...).execute
       end
     end
 
@@ -57,16 +57,16 @@ module Ops
       end
     end
 
-    def call
-      return execute unless self.class.transactional
+    def execute
+      return call unless self.class.transactional
 
       transaction do
-        execute
+        call
       end
     end
 
-    def execute
-      raise AbstractMethodError, "#{self.class} must implement #execute"
+    def call
+      raise AbstractMethodError, "#{self.class} must implement #call"
     end
 
     private

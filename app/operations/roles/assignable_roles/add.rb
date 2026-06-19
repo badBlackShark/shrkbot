@@ -6,7 +6,7 @@ module Ops
         receives :description, optional: true
         receives :emoji, optional: true
 
-        def execute
+        def call
           role = role_set.assignable_roles.create!(
             role_id: role_id,
             label: label,

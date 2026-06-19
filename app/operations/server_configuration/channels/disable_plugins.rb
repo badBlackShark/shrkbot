@@ -6,7 +6,7 @@ module Ops
 
         receives :server_configuration, :channel_id, :bot
 
-        def execute
+        def call
           disabled = PluginCatalog.channel_backed.filter_map { |definition| disable_if_uses_channel(definition) }
           disabled.each { |plugin| notify_owner(plugin) }
           ok(disabled)

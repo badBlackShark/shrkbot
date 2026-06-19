@@ -4,7 +4,7 @@ module Ops
       class Update < ApplicationOperation
         receives :server_configuration, :channel_id
 
-        def execute
+        def call
           return failure("A channel is required.") if channel_id.blank?
 
           setting = server_configuration.logging_setting || server_configuration.build_logging_setting

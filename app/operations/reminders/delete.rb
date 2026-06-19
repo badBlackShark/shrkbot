@@ -3,7 +3,7 @@ module Ops
     class Delete < ApplicationOperation
       receives :reminder
 
-      def execute
+      def call
         reminder.destroy!
         ok(reminder)
       end

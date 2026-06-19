@@ -4,7 +4,7 @@ module Ops
       class Toggle < ApplicationOperation
         receives :server_configuration, :plugin, :enabled
 
-        def execute
+        def call
           if enabled && !prerequisites_met?
             return failure("#{plugin.name} can't be enabled until its required settings are configured.")
           end

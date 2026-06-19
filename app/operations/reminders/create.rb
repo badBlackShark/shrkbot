@@ -5,7 +5,7 @@ module Ops
       receives :server_id, optional: true
       receives :deliver_via_dm, default: false
 
-      def execute
+      def call
         span = ::Reminders::Duration.parse(duration)
         return failure("I couldn't understand that duration. Try something like `1d2h30m`.") unless span
         return failure("A reminder needs a message.") if message.blank?

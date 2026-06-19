@@ -4,7 +4,7 @@ module Ops
       class Sync < ApplicationOperation
         receives :server_configuration, :channels
 
-        def execute
+        def call
           channels.each { |data| sync_channel(data) }
           server_configuration.server_channels.where.not(discord_id: channels.map { |c| c[:discord_id] }).destroy_all
           ok(server_configuration.server_channels.reload)

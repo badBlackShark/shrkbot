@@ -4,7 +4,7 @@ module Ops
       class Sync < ApplicationOperation
         receives :server_configuration, :roles
 
-        def execute
+        def call
           roles.each do |data|
             role = server_configuration.server_roles.find_or_initialize_by(discord_id: data[:discord_id])
             role.update!(name: data[:name])
