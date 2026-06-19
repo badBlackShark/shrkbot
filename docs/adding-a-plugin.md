@@ -37,6 +37,19 @@ Wire the association on `ServerConfiguration` with explicit `class_name` (and
 default — see [architecture.md](architecture.md#primary-keys). Mirror model
 validations with DB constraints (CI enforces this via `active_record_doctor`).
 
+Keep every column nullable or defaulted, then add a line to
+`Ops::ServerConfiguration::Ensure#ensure_settings` so the row is pre-created for
+every server:
+
+```ruby
+config.welcome_settings || config.create_welcome_settings!
+```
+
+This upholds the invariant that a server's settings rows always exist (see
+[architecture.md](architecture.md#server-onboarding)), so operations update the row
+directly instead of build-or-update. Forgetting this line means the plugin's
+settings operations hit `nil` for servers onboarded before the line was added.
+
 ## 3. Register in the catalog
 
 Add a `Definition` to `PluginCatalog` (`app/models/plugin_catalog.rb`) — the single

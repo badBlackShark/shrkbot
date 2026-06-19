@@ -202,6 +202,12 @@ GUILD_CREATE handler returns before raising the event when `unavailable` is `fal
 unique `discord_id` index), so both triggers can call it freely. Activation rows seed
 disabled; the admin enables plugins via the web UI, which enforces prerequisites.
 
+Ensure also creates each plugin's settings row (empty — all columns are nullable or
+defaulted). This establishes the invariant that **a server's config and its plugin
+settings rows always exist**, so settings operations can update the row directly
+instead of build-or-update. (Event handlers reading config for an arbitrary guild
+still guard against a nil config — a server seen before its Ensure has run.)
+
 ## Sharding
 
 Static only (`SHARD_COUNT`, floored at 1). discordrb is one shard per `Bot` instance,

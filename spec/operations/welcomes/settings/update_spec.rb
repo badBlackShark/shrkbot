@@ -6,30 +6,31 @@ RSpec.describe Ops::Welcomes::Settings::Update do
   end
 
   let(:server) { create(:server_configuration, discord_id: 1) }
+  let!(:setting) { server.create_welcome_settings! }
   let(:channel_id) { 99 }
   let(:join_message) { "hi" }
   let(:leave_message) { "bye" }
 
-  it "creates the welcome settings with channel and messages" do
+  it "sets the channel and messages" do
     expect(result.success?).to be(true)
-    setting = server.reload.welcome_settings
+    setting.reload
     expect(setting.channel_id).to eq(99)
     expect(setting.join_message).to eq("hi")
     expect(setting.leave_message).to eq("bye")
   end
 
-  context "with existing settings" do
+  context "updating existing values" do
     before do
-      server.create_welcome_settings!(channel_id: 1, join_message: "old")
+      setting.update!(channel_id: 1, join_message: "old")
     end
 
     let(:channel_id) { 2 }
     let(:join_message) { "new" }
     let(:leave_message) { nil }
 
-    it "updates them" do
+    it "overwrites them" do
       result
-      setting = server.reload.welcome_settings
+      setting.reload
       expect(setting.channel_id).to eq(2)
       expect(setting.join_message).to eq("new")
       expect(setting.leave_message).to be_nil
@@ -42,7 +43,7 @@ RSpec.describe Ops::Welcomes::Settings::Update do
 
     it "still saves (a channel is required only to enable)" do
       expect(result.success?).to be(true)
-      expect(server.reload.welcome_settings.channel_id).to be_nil
+      expect(setting.reload.channel_id).to be_nil
     end
   end
 end

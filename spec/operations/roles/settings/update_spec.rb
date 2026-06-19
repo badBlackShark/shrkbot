@@ -6,21 +6,22 @@ RSpec.describe Ops::Roles::Settings::Update do
   end
 
   let(:server) { create(:server_configuration) }
+  let!(:setting) { server.create_role_setting! }
   let(:channel_id) { 99 }
 
-  it "creates the role settings" do
+  it "sets the role settings" do
     expect(result.success?).to be(true)
-    expect(server.reload.role_setting).to have_attributes(channel_id: 99, notify_on_assign: true, log_on_assign: false)
+    expect(setting.reload).to have_attributes(channel_id: 99, notify_on_assign: true, log_on_assign: false)
   end
 
-  context "with existing settings" do
+  context "updating existing values" do
     before do
-      server.create_role_setting!(channel_id: 1, notify_on_assign: false)
+      setting.update!(channel_id: 1, notify_on_assign: false)
     end
 
     it "updates them in place" do
       result
-      expect(server.reload.role_setting.channel_id).to eq(99)
+      expect(setting.reload.channel_id).to eq(99)
     end
   end
 end
