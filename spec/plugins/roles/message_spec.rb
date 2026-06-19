@@ -2,48 +2,49 @@ require "rails_helper"
 
 RSpec.describe Roles::Message do
   describe ".public_message" do
-    subject(:message) { described_class.public_message(set) }
+    context "for a multi-selection set" do
+      subject(:message) { described_class.public_message(set) }
 
-    let(:set) { create(:role_set, name: "Game Roles") }
+      let(:set) { create(:role_set, name: "Game Roles", selection_mode: "multi") }
 
-    before do
-      create(:assignable_role, role_set: set, label: "Gamer", emoji: "🎮", position: 0)
-      create(:assignable_role, role_set: set, label: "Artist", emoji: nil, position: 1)
+      before do
+        create(:assignable_role, role_set: set, label: "Gamer", emoji: "🎮", position: 0)
+        create(:assignable_role, role_set: set, label: "Artist", emoji: nil, position: 1)
+      end
+
+      it "lists the set name and its roles in order" do
+        expect(message[:content]).to eq("**Game Roles**\n🎮 Gamer\nArtist")
+      end
+
+      it "includes a manage button carrying the set's custom id" do
+        button = message[:components].first[:components].first
+        expect(button).to include(label: "Manage Roles", custom_id: Roles::CustomId.manage(set))
+      end
     end
 
-    it "lists the set name and its roles in order" do
-      expect(message[:content]).to eq("**Game Roles**\n🎮 Gamer\nArtist")
-    end
+    context "for a single-selection set" do
+      subject(:message) { described_class.public_message(set) }
 
-    it "includes a manage button carrying the set's custom id" do
-      button = message[:components].first[:components].first
-      expect(button).to include(label: "Manage Roles", custom_id: Roles::CustomId.manage(set))
-    end
-  end
+      let(:set) { create(:role_set, name: "Color", selection_mode: "single") }
+      let!(:red) { create(:assignable_role, role_set: set, role_id: 100, label: "Red", position: 0) }
+      let!(:blue) { create(:assignable_role, role_set: set, role_id: 200, label: "Blue", position: 1) }
 
-  describe ".single_picker" do
-    subject(:picker) { described_class.single_picker(set, [200]) }
+      it "renders the role buttons directly, no manage step" do
+        buttons = message[:components].flat_map { |row| row[:components] }
+        expect(buttons.map { |button| button[:custom_id] }).to eq([
+          Roles::CustomId.pick(set, red),
+          Roles::CustomId.pick(set, blue)
+        ])
+      end
 
-    let(:set) { create(:role_set, name: "Color", selection_mode: "single") }
-    let!(:red) { create(:assignable_role, role_set: set, role_id: 100, label: "Red", position: 0) }
-    let!(:blue) { create(:assignable_role, role_set: set, role_id: 200, label: "Blue", position: 1) }
+      it "warns that picking replaces the current role" do
+        expect(message[:content]).to include("replaces your current one")
+      end
 
-    it "renders one button per role" do
-      buttons = picker[:components].flat_map { |row| row[:components] }
-      expect(buttons.map { |button| button[:custom_id] }).to eq([
-        Roles::CustomId.pick(set, red),
-        Roles::CustomId.pick(set, blue)
-      ])
-    end
-
-    it "styles the active role as primary and the rest as secondary" do
-      buttons = picker[:components].flat_map { |row| row[:components] }
-      expect(buttons.map { |button| button[:style] }).to eq([described_class::SECONDARY, described_class::PRIMARY])
-    end
-
-    it "chunks buttons into rows of five" do
-      6.times { |n| create(:assignable_role, role_set: set, role_id: 300 + n, position: 10 + n) }
-      expect(described_class.single_picker(set, [])[:components].size).to eq(2)
+      it "chunks the buttons into rows of five" do
+        6.times { |n| create(:assignable_role, role_set: set, role_id: 300 + n, position: 10 + n) }
+        expect(message[:components].size).to eq(2)
+      end
     end
   end
 

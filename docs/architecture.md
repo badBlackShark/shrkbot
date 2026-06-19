@@ -217,6 +217,25 @@ than once-per-boot, and a send failure (owner blocks DMs) is swallowed and left
 un-stamped so a later boot retries. The welcome copy is a placeholder until the config
 website ships, when it gains the real setup link.
 
+## Roles self-assignment
+
+Each role set posts a public message and assigns roles through component
+interactions (`app/plugins/roles/events/`). The flow differs by the set's
+`selection_mode`, because a public message renders identically to everyone and so
+can't show per-user state:
+
+- **single** (exclusive) — the public message renders the role buttons directly.
+  Clicking one assigns it and strips the set's other roles, with an ephemeral
+  confirmation. One step; current state doesn't matter for an exclusive overwrite.
+- **multi** — the public message carries one "Manage Roles" button. Clicking it opens
+  an ephemeral string-select with the user's current roles pre-checked, so they can
+  see and toggle what they have. Two steps, because the stateful view is the point.
+
+Selection is always constrained to the set's own roles, so a forged `custom_id` can't
+grant an arbitrary server role. The runtime toggle is bot-only (no DB write, no web
+caller), so it lives in the handlers, not in an operation; the testable unit is the
+pure `Roles::Assignment` diff with `member.modify_roles` as the seam.
+
 ## Sharding
 
 Static only (`SHARD_COUNT`, floored at 1). discordrb is one shard per `Bot` instance,

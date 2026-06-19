@@ -10,7 +10,7 @@ module Roles
 
       active = [picked]
       apply(Assignment.single(set_role_ids, picked), active)
-      update(Message.single_picker(set, active))
+      event.respond(content: Message.selection_summary(set, active), ephemeral: true)
     end
   end
 end

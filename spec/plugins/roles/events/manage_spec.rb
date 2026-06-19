@@ -12,24 +12,6 @@ RSpec.describe Roles::Manage do
     allow(server).to receive(:member).with(42).and_return(member)
   end
 
-  context "for a single-selection set" do
-    let(:set) { create(:role_set, selection_mode: "single") }
-
-    before do
-      create(:assignable_role, role_set: set, role_id: 100, label: "Red", position: 0)
-      create(:assignable_role, role_set: set, role_id: 200, label: "Blue", position: 1)
-    end
-
-    it "responds with an ephemeral button picker" do
-      expect(event).to receive(:respond) do |args|
-        expect(args[:ephemeral]).to be(true)
-        types = args[:components].flat_map { |row| row[:components] }.map { |component| component[:type] }
-        expect(types).to all(eq(Roles::Message::BUTTON))
-      end
-      handle
-    end
-  end
-
   context "for a multi-selection set" do
     let(:set) { create(:role_set, selection_mode: "multi") }
 

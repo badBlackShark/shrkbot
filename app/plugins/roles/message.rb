@@ -10,7 +10,11 @@ module Roles
     module_function
 
     def public_message(set)
-      {content: content(set), components: [manage_row(set)]}
+      if set.selection_mode == "single"
+        {content: single_content(set), components: button_rows(role_buttons(set))}
+      else
+        {content: content(set), components: [manage_row(set)]}
+      end
     end
 
     def content(set)
@@ -19,16 +23,14 @@ module Roles
       [header, *roles].join("\n")
     end
 
-    def single_picker(set, active_role_ids)
-      buttons = set.assignable_roles.map do |role|
-        {
-          type: BUTTON,
-          style: active_role_ids.include?(role.role_id) ? PRIMARY : SECONDARY,
-          label: label(role),
-          custom_id: CustomId.pick(set, role)
-        }
+    def single_content(set)
+      "**#{set.name}**\nPick a role below. You can only have one, so choosing a role replaces your current one."
+    end
+
+    def role_buttons(set)
+      set.assignable_roles.map do |role|
+        {type: BUTTON, style: SECONDARY, label: label(role), custom_id: CustomId.pick(set, role)}
       end
-      {content: picker_content(set), components: button_rows(buttons)}
     end
 
     def multi_picker(set, active_role_ids)

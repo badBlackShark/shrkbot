@@ -10,13 +10,9 @@ RSpec.describe Roles::Pick do
 
   let(:user) { double("user", id: 42) }
   let(:member) { double("member", roles: [], modify_roles: nil) }
-  let(:server) { double("server") }
+  let(:server) { double("server", member: member) }
   let(:event) do
-    double("event", custom_id: Roles::CustomId.pick(set, blue), server:, user:, update_message: nil)
-  end
-
-  before do
-    allow(server).to receive(:member).with(42).and_return(member)
+    double("event", custom_id: Roles::CustomId.pick(set, blue), server:, user:, respond: nil)
   end
 
   it "adds the picked role and removes the other roles in the set" do
@@ -24,18 +20,27 @@ RSpec.describe Roles::Pick do
     handle
   end
 
-  it "re-renders the picker via update_message" do
-    expect(event).to receive(:update_message)
+  it "confirms the new selection ephemerally" do
+    expect(event).to receive(:respond).with(content: "**#{set.name}**: Blue", ephemeral: true)
     handle
   end
 
   context "when the custom id references a role outside the set" do
     let(:event) do
-      double("event", custom_id: "roles:pick:#{set.id}:999", server:, user:, update_message: nil)
+      double("event", custom_id: "roles:pick:#{set.id}:999", server:, user:, respond: nil)
     end
 
     it "makes no change" do
       expect(member).not_to receive(:modify_roles)
+      handle
+    end
+  end
+
+  context "outside a server (no member to assign)" do
+    let(:server) { nil }
+
+    it "does nothing" do
+      expect(event).not_to receive(:respond)
       handle
     end
   end
@@ -45,6 +50,12 @@ RSpec.describe Roles::Pick do
 
     it "DMs the user their selection" do
       expect(user).to receive(:pm).with("**#{set.name}**: Blue")
+      handle
+    end
+
+    it "still confirms even if the DM cannot be delivered" do
+      allow(user).to receive(:pm).and_raise(StandardError, "Cannot send messages to this user")
+      expect(event).to receive(:respond).with(content: "**#{set.name}**: Blue", ephemeral: true)
       handle
     end
   end
