@@ -47,6 +47,8 @@ USER dev
 RUN mkdir -p /home/dev/.claude /home/dev/.local/state/claude /home/dev/.local/share/claude \
   && rtk init -g
 
+RUN bundle install
+
 RUN ruby --version \
   && gh --version \
   && claude --version \
