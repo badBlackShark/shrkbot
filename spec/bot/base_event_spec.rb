@@ -52,4 +52,16 @@ RSpec.describe BaseEvent do
       expect { klass.new(event).handle }.to raise_error(AbstractMethodError)
     end
   end
+
+  describe ".event_attributes" do
+    it "defaults to empty" do
+      expect(Class.new(described_class).event_attributes).to eq({})
+    end
+
+    it "captures the attributes passed to `on` alongside the events" do
+      klass = Class.new(described_class) { on :button, custom_id: /x/ }
+      expect(klass.discord_events).to eq([:button])
+      expect(klass.event_attributes).to eq(custom_id: /x/)
+    end
+  end
 end
