@@ -52,8 +52,29 @@ RSpec.describe Ops::ApplicationOperation do
       expect { op.call(maybe: "y") }.to raise_error(ArgumentError, /missing keyword: :required_one/)
     end
 
+    it "lists every missing required keyword" do
+      two = Class.new(described_class) do
+        receives :a, :b
+
+        def execute
+          ok
+        end
+      end
+      expect { two.call }.to raise_error(ArgumentError, /missing keywords: :a, :b/)
+    end
+
     it "raises on an unknown keyword" do
       expect { op.call(required_one: "x", bogus: 1) }.to raise_error(ArgumentError, /unknown keyword: :bogus/)
+    end
+
+    it "lists every unknown keyword" do
+      expect { op.call(required_one: "x", bogus: 1, junk: 2) }.to raise_error(ArgumentError, /unknown keywords: :bogus, :junk/)
+    end
+  end
+
+  describe "#execute" do
+    it "is abstract by default" do
+      expect { Class.new(described_class).new.execute }.to raise_error(AbstractMethodError, /must implement #execute/)
     end
   end
 
