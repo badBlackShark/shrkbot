@@ -7,7 +7,7 @@ class ChannelCleanup < BaseEvent
     config = ServerConfiguration.find_by(discord_id: event.server.id)
     return unless config
 
-    Ops::ServerConfiguration::DisablePluginsForDeletedChannel.call(
+    Ops::ServerConfiguration::Channels::DisablePlugins.call(
       server_configuration: config,
       channel_id: event.id,
       bot: event.bot

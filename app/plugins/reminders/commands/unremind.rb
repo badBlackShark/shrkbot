@@ -8,13 +8,14 @@ module Reminders
     end
 
     def execute
-      result = Ops::Reminders::Delete.call(reminder_id: event.options["reminder"], user_id: event.user.id)
-      content = result.success? ? "🗑️ Reminder cancelled." : "⚠️ #{result.errors.first}"
-      event.respond(content: content, ephemeral: true)
+      reminder = Reminders::Reminder.find_by(id: event.options["reminder"], user_id: event.user.id)
+      return event.respond(content: "⚠️ That reminder doesn't exist.", ephemeral: true) unless reminder
+
+      Ops::Reminders::Delete.call(reminder: reminder)
+      event.respond(content: "🗑️ Reminder cancelled.", ephemeral: true)
     end
 
     def autocomplete
-      # Array so same-text reminders don't collapse; absolute time keeps labels distinct.
       choices = Reminders::Reminder.for_user(event.user.id).limit(25).map do |reminder|
         {name: choice_label(reminder), value: reminder.id}
       end
@@ -24,7 +25,6 @@ module Reminders
     private
 
     def choice_label(reminder)
-      # Discord choice names can't use dynamic <t:> markup, so use plain timestamp.
       "#{reminder.message.truncate(75)} (#{reminder.remind_at.strftime("%b %-d %H:%M %Z")})"
     end
   end

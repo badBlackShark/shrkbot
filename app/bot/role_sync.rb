@@ -7,6 +7,6 @@ class RoleSync < BaseEvent
     config = ServerConfiguration.find_by(discord_id: event.server.id)
     return unless config
 
-    Ops::ServerConfiguration::SyncRoles.call(server_configuration: config, roles: GuildMetadata.roles(event.server))
+    Ops::ServerConfiguration::ServerRoles::Sync.call(server_configuration: config, roles: GuildMetadata.roles(event.server))
   end
 end

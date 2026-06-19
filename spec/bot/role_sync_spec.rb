@@ -5,7 +5,7 @@ RSpec.describe RoleSync do
 
   let(:server) { double("server", id: 1) }
   let(:event) { double("event", server:) }
-  let(:op) { Ops::ServerConfiguration::SyncRoles }
+  let(:op) { Ops::ServerConfiguration::ServerRoles::Sync }
 
   before do
     allow(GuildMetadata).to receive(:roles).with(server).and_return([:role_data])
