@@ -1,7 +1,9 @@
 module Roles
   module Message
     CONTAINER = 17
+    SECTION = 9
     TEXT_DISPLAY = 10
+    SEPARATOR = 14
     ACTION_ROW = 1
     BUTTON = 2
     STRING_SELECT = 3
@@ -9,6 +11,7 @@ module Roles
     SECONDARY = 2
     BUTTONS_PER_ROW = 5
     COMPONENTS_V2 = 1 << 15
+    ACCENT_COLOR = 0x39afe5
     UNKNOWN_ROLE = "Unknown role"
 
     module_function
@@ -16,9 +19,9 @@ module Roles
     def public_message(set)
       blocks =
         if set.selection_mode == "single"
-          [text(single_content(set)), *button_rows(role_buttons(set))]
+          [text(single_content(set)), separator, *button_rows(role_buttons(set))]
         else
-          [text(content(set)), action_row([manage_button(set)])]
+          [text(multi_content(set)), separator, manage_section(set)]
         end
       container(blocks)
     end
@@ -36,28 +39,41 @@ module Roles
     end
 
     def container(blocks)
-      {components: [{type: CONTAINER, components: blocks}], flags: COMPONENTS_V2}
+      {components: [{type: CONTAINER, accent_color: ACCENT_COLOR, components: blocks}], flags: COMPONENTS_V2}
     end
 
     def text(body)
       {type: TEXT_DISPLAY, content: body}
     end
 
+    def separator
+      {type: SEPARATOR, divider: true}
+    end
+
+    def manage_section(set)
+      {
+        type: SECTION,
+        components: [text("Click the button to the right to edit your roles.")],
+        accessory: manage_button(set)
+      }
+    end
+
     def action_row(components)
       {type: ACTION_ROW, components: components}
     end
 
-    def content(set)
-      names = role_names(set)
-      [["**#{set.name}**"], set.assignable_roles.map { |role| role_label(role, names) }].flatten.join("\n")
+    def single_content(set)
+      "### #{set.name}\nPick a role below — you can only have one, so choosing a role replaces your current one."
     end
 
-    def single_content(set)
-      "**#{set.name}**\nPick a role below. You can only have one, so choosing a role replaces your current one."
+    def multi_content(set)
+      names = role_names(set)
+      roles = set.assignable_roles.map { |role| role_label(role, names) }.join(" • ")
+      "### #{set.name}\nSelect all roles that apply from the options below.\n\n#{roles}"
     end
 
     def picker_content(set)
-      "**#{set.name}** — choose your roles."
+      "### #{set.name}\nSelect all roles that apply."
     end
 
     def role_buttons(set)
@@ -103,7 +119,8 @@ module Roles
       [role.emoji, names[role.role_id] || UNKNOWN_ROLE].compact.join(" ")
     end
 
-    private_class_method :container, :text, :action_row, :content, :single_content, :picker_content,
+    private_class_method :container, :text, :separator, :manage_section, :action_row,
+      :single_content, :multi_content, :picker_content,
       :role_buttons, :role_select, :manage_button, :button_rows, :role_names, :role_label
   end
 end

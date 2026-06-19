@@ -23,11 +23,14 @@ RSpec.describe Roles::Message do
   end
 
   describe ".public_message" do
-    it "wraps the message in a container and sets the components-v2 flag" do
+    it "wraps the message in an accented container and sets the components-v2 flag" do
       set = create(:role_set, role_setting: setting, selection_mode: "multi")
       rendered = described_class.public_message(set)
       expect(rendered[:flags]).to eq(described_class::COMPONENTS_V2)
-      expect(rendered[:components].first[:type]).to eq(described_class::CONTAINER)
+      expect(rendered[:components].first).to include(
+        type: described_class::CONTAINER,
+        accent_color: described_class::ACCENT_COLOR
+      )
     end
 
     context "for a multi-selection set" do
@@ -42,14 +45,23 @@ RSpec.describe Roles::Message do
         sync_role(200, "Artist")
       end
 
-      it "lists the set name and synced role names in order" do
-        expect(text_block(rendered)[:content]).to eq("**Game Roles**\n🎮 Gamer\nArtist")
+      it "heads with the set name and lists the synced roles side by side" do
+        content = text_block(rendered)[:content]
+        expect(content).to include("### Game Roles")
+        expect(content).to include("🎮 Gamer • Artist")
       end
 
-      it "offers a single manage button" do
-        expect(row_components(rendered)).to contain_exactly(
-          hash_including(label: "Manage Roles", custom_id: Roles::CustomId.manage(set))
-        )
+      it "explains the multi-select" do
+        expect(text_block(rendered)[:content]).to include("Select all roles that apply")
+      end
+
+      it "separates the text from the controls" do
+        expect(container_blocks(rendered).map { |block| block[:type] }).to include(described_class::SEPARATOR)
+      end
+
+      it "offers a manage button as a section accessory" do
+        section = container_blocks(rendered).find { |block| block[:type] == described_class::SECTION }
+        expect(section[:accessory]).to include(label: "Manage Roles", custom_id: Roles::CustomId.manage(set))
       end
     end
 
@@ -74,8 +86,14 @@ RSpec.describe Roles::Message do
         ])
       end
 
-      it "warns that picking replaces the current role" do
-        expect(text_block(rendered)[:content]).to include("replaces your current one")
+      it "heads with the set name and warns that picking replaces the current role" do
+        content = text_block(rendered)[:content]
+        expect(content).to include("### Color")
+        expect(content).to include("replaces your current one")
+      end
+
+      it "separates the text from the buttons" do
+        expect(container_blocks(rendered).map { |block| block[:type] }).to include(described_class::SEPARATOR)
       end
 
       it "chunks the buttons into rows of five" do

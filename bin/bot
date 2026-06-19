@@ -3,6 +3,7 @@ require_relative "../config/environment"
 require "discordrb"
 
 Rails.application.eager_load!
+Rails.logger.broadcast_to(ActiveSupport::Logger.new($stdout))
 
 shard_count = BotConfig.shard_count
 

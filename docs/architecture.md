@@ -236,10 +236,14 @@ grant an arbitrary server role. The runtime toggle is bot-only (no DB write, no 
 caller), so it lives in the handlers, not in an operation; the testable unit is the
 pure `Roles::Assignment` diff with `member.modify_roles` as the seam.
 
-`Roles::Message` renders every message as a **Components V2** payload (a `Container`
-wrapping a text block plus the buttons/select), so `public_message`/`multi_picker`
-return `{components:, flags:}` with the `COMPONENTS_V2` flag and no `content` — senders
-pass `has_components: true` (or the flag positionally). Buttons and select options are
+`Roles::Message` renders every message as a **Components V2** payload, so
+`public_message`/`multi_picker` return `{components:, flags:}` with the `COMPONENTS_V2`
+flag and no `content` — senders pass `has_components: true` (or the flag positionally).
+Each message is a `Container` carrying the brand `ACCENT_COLOR` sidebar, a markdown
+`### ` heading (Discord supports only h1–h3), a `Separator`, and then the controls.
+Single sets put the role buttons straight in the container; multi sets list the roles
+side by side (no markdown tables in Discord — an inline `•`-joined line) and expose the
+manage button as a `Section` accessory. Buttons and select options are
 **always labelled with the synced role name** (`ServerRole`, looked up by `role_id`),
 not a stored label — Discord exposes no way to colour a button by the role's colour, so
 the name is the only useful signal. A role missing from the sync falls back to a
