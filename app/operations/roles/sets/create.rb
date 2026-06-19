@@ -6,7 +6,7 @@ module Ops
         receives :channel_override, optional: true
 
         def call
-          setting = server_configuration.role_setting || server_configuration.create_role_setting!
+          setting = server_configuration.role_setting
           set = setting.role_sets.create!(
             name: name,
             selection_mode: selection_mode,

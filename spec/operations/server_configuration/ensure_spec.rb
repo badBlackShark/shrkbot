@@ -18,6 +18,14 @@ RSpec.describe Ops::ServerConfiguration::Ensure do
     expect(activations.find_by(plugins: {key: "welcomes"}).enabled).to be(false)
   end
 
+  it "creates the plugin settings rows so they always exist" do
+    config = result.value
+
+    expect(config.logging_setting).to be_present
+    expect(config.role_setting).to be_present
+    expect(config.welcome_settings).to be_present
+  end
+
   context "when a concurrent insert wins the race" do
     it "returns the already-created configuration instead of raising" do
       existing = create(:server_configuration, discord_id:)
@@ -31,7 +39,7 @@ RSpec.describe Ops::ServerConfiguration::Ensure do
     let(:config) { described_class.call(discord_id:).value }
 
     before do
-      config.create_welcome_settings!(channel_id: 42)
+      config.welcome_settings.update!(channel_id: 42)
       config.plugin_activations.find_by(plugin: welcomes).update!(enabled: true)
     end
 

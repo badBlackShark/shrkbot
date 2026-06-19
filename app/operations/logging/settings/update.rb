@@ -7,7 +7,7 @@ module Ops
         def call
           return failure("A channel is required.") if channel_id.blank?
 
-          setting = server_configuration.logging_setting || server_configuration.build_logging_setting
+          setting = server_configuration.logging_setting
           setting.update!(channel_id: channel_id)
           ok(setting, warnings: visibility_warnings)
         end
