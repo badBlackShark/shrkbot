@@ -4,20 +4,36 @@ RSpec.describe Reminders::Unremind do
   describe "#execute" do
     subject(:execute) { described_class.new(event).execute }
 
-    let(:event) { double("event", user: double(id: 1), options: {"reminder" => "rmd_x"}, respond: nil) }
+    let(:event) { double("event", user: double(id: requester_id), options: {"reminder" => reminder_id}, respond: nil) }
+    let!(:reminder) { create(:reminder, user_id: 1, channel_id: 2, remind_at: 1.hour.from_now, message: "x") }
+    let(:requester_id) { 1 }
+    let(:reminder_id) { reminder.id }
 
-    it "cancels the chosen reminder via Ops::Reminders::Delete" do
-      expect(Ops::Reminders::Delete).to receive(:call).with(reminder_id: "rmd_x", user_id: 1)
-        .and_return(Ops::ApplicationOperation::Result.new(true, nil, []))
-      expect(event).to receive(:respond).with(hash_including(content: a_string_including("cancelled")))
-      execute
+    context "when the requester owns the reminder" do
+      it "cancels it" do
+        expect(event).to receive(:respond).with(hash_including(content: a_string_including("cancelled")))
+        execute
+        expect(Reminders::Reminder.exists?(reminder.id)).to be(false)
+      end
     end
 
-    it "surfaces the failure message when the cancellation is rejected" do
-      allow(Ops::Reminders::Delete).to receive(:call)
-        .and_return(Ops::ApplicationOperation::Result.new(false, nil, ["not your reminder"]))
-      expect(event).to receive(:respond).with(hash_including(content: a_string_including("not your reminder")))
-      execute
+    context "when the reminder belongs to another user" do
+      let(:requester_id) { 999 }
+
+      it "leaves it intact and reports it doesn't exist" do
+        expect(event).to receive(:respond).with(hash_including(content: a_string_including("doesn't exist")))
+        execute
+        expect(Reminders::Reminder.exists?(reminder.id)).to be(true)
+      end
+    end
+
+    context "when the reminder does not exist" do
+      let(:reminder_id) { "rmd_missing" }
+
+      it "reports it doesn't exist" do
+        expect(event).to receive(:respond).with(hash_including(content: a_string_including("doesn't exist")))
+        execute
+      end
     end
   end
 

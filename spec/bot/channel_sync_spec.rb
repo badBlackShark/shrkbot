@@ -5,7 +5,7 @@ RSpec.describe ChannelSync do
 
   let(:server) { double("server", id: 1) }
   let(:event) { double("event", server:) }
-  let(:op) { Ops::ServerConfiguration::SyncChannels }
+  let(:op) { Ops::ServerConfiguration::ServerChannels::Sync }
 
   before do
     allow(GuildMetadata).to receive(:channels).with(server).and_return([:channel_data])

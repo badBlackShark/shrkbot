@@ -3,9 +3,9 @@ module GuildMetadata
 
   def sync(server, bot)
     config = Ops::ServerConfiguration::Ensure.call(discord_id: server.id).value
-    Ops::ServerConfiguration::SyncChannels.call(server_configuration: config, channels: channels(server))
-    Ops::ServerConfiguration::SyncRoles.call(server_configuration: config, roles: roles(server))
-    Ops::ServerConfiguration::ReconcileDeletedChannels.call(server_configuration: config, bot: bot)
+    Ops::ServerConfiguration::ServerChannels::Sync.call(server_configuration: config, channels: channels(server))
+    Ops::ServerConfiguration::ServerRoles::Sync.call(server_configuration: config, roles: roles(server))
+    Ops::ServerConfiguration::Channels::Reconcile.call(server_configuration: config, bot: bot)
     config
   end
 

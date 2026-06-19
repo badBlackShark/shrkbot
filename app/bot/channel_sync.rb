@@ -7,6 +7,6 @@ class ChannelSync < BaseEvent
     config = ServerConfiguration.find_by(discord_id: event.server.id)
     return unless config
 
-    Ops::ServerConfiguration::SyncChannels.call(server_configuration: config, channels: GuildMetadata.channels(event.server))
+    Ops::ServerConfiguration::ServerChannels::Sync.call(server_configuration: config, channels: GuildMetadata.channels(event.server))
   end
 end

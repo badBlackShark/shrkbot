@@ -45,16 +45,16 @@ RSpec.describe GuildMetadata do
     end
 
     it "ensures the config, then syncs channels and roles, then reconciles deletions" do
-      expect(Ops::ServerConfiguration::SyncChannels).to receive(:call).with(server_configuration: config, channels: [])
-      expect(Ops::ServerConfiguration::SyncRoles).to receive(:call).with(server_configuration: config, roles: [])
-      expect(Ops::ServerConfiguration::ReconcileDeletedChannels).to receive(:call).with(server_configuration: config, bot:)
+      expect(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call).with(server_configuration: config, channels: [])
+      expect(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call).with(server_configuration: config, roles: [])
+      expect(Ops::ServerConfiguration::Channels::Reconcile).to receive(:call).with(server_configuration: config, bot:)
       sync
     end
 
     it "returns the config" do
-      allow(Ops::ServerConfiguration::SyncChannels).to receive(:call)
-      allow(Ops::ServerConfiguration::SyncRoles).to receive(:call)
-      allow(Ops::ServerConfiguration::ReconcileDeletedChannels).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::Channels::Reconcile).to receive(:call)
       expect(sync).to eq(config)
     end
   end
