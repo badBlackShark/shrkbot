@@ -255,6 +255,32 @@ not a stored label — Discord exposes no way to colour a button by the role's c
 the name is the only useful signal. A role missing from the sync falls back to a
 placeholder so a component is never empty.
 
+## Activity logging
+
+`ActivityLog.record(server_configuration, event, bot:, **options)` (`app/bot/`) is the
+one-line API for writing a user action to a server's logging channel. It's gated twice:
+the logging plugin must be enabled, and the action behind the `event` must be toggled on.
+
+Two granularities, deliberately separate:
+- **Action** — the unit a server owner toggles, keyed `"<plugin>.<action>"` (e.g.
+  `"roles.assignment"`). Toggles live in `logging_settings.enabled_actions` (a jsonb map,
+  default `{}` = everything off); `LoggingSetting#action_enabled?` reads it. The Phase 7
+  web UI writes this map and greys it all out when the logging plugin is off.
+- **Event** — the specific message variant, which is also the i18n key. `ActivityLog::EVENTS`
+  maps each event to its gating action. One action owns several events so phrasing can vary
+  without conditionals: `role_gained`, `role_lost`, `roles_changed` all gate on
+  `"roles.assignment"`, and the caller picks the event it's actually in.
+
+Message text is `config/locales/activity_log.en.yml`, looked up with `I18n.t(..., locale:
+:en, raise: true)` — the bot is English-only, so I18n is a string registry here, not
+localization. `**options` are interpolation values; Array values are run through
+`to_sentence` so `roles: ["A", "B"]` renders "A and B". Adding a loggable action = a key in
+the locale file + an `EVENTS` entry + a `record` call. A bad event/key **raises** (surfaces
+in the consumer's spec; owner-reported in prod via `BaseEvent`); only the channel send is
+rescued, so a delivery failure never breaks the user's action. Welcomes are excluded by
+design. Roles assignment is the first consumer — `Roles::ComponentHandler#log_assignment`
+diffs gained/lost from the pre-apply roles and picks the event.
+
 ## Sharding
 
 Static only (`SHARD_COUNT`, floored at 1). discordrb is one shard per `Bot` instance,

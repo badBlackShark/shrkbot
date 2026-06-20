@@ -15,14 +15,26 @@ RSpec.describe Roles::Pick do
   end
 
   let(:user) { double("user", id: 42) }
-  let(:member) { double("member", roles: [], modify_roles: nil) }
+  let(:member) { double("member", roles: [], modify_roles: nil, mention: "<@42>") }
   let(:server) { double("server", member: member) }
+  let(:bot) { double("bot") }
   let(:event) do
-    double("event", custom_id: Roles::CustomId.pick(set, blue), server:, user:, respond: nil)
+    double("event", custom_id: Roles::CustomId.pick(set, blue), server:, user:, respond: nil, bot:)
+  end
+
+  before do
+    allow(ActivityLog).to receive(:record)
   end
 
   it "adds the picked role and removes the other roles in the set" do
     expect(member).to receive(:modify_roles).with([200], [100])
+    handle
+  end
+
+  it "logs the role the user gained" do
+    expect(ActivityLog).to receive(:record).with(
+      server_config, :role_gained, bot:, actor: "<@42>", roles: ["Blue"]
+    )
     handle
   end
 

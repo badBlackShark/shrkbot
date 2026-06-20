@@ -6,8 +6,11 @@ module Roles
       return unless set && member
 
       selected = event.values.map(&:to_i)
-      apply(Assignment.multi(set_role_ids, selected))
+      diff = Assignment.multi(set_role_ids, selected)
+      had = member_set_role_ids
+      apply(diff)
       update(Message.multi_picker(set, selected & set_role_ids))
+      log_assignment(had, diff)
     end
   end
 end
