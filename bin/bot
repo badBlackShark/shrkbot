@@ -44,6 +44,13 @@ bots.each_with_index do |bot, index|
   bot.server_delete { refresh_presence.call }
 end
 
+if BotConfig.redis_url
+  ConfigSubscriber.new(bots.first).start
+  Rails.logger.info("[bot] config subscriber listening on #{ConfigBus::CHANNEL}")
+else
+  Rails.logger.warn("[bot] REDIS_URL not set — config subscriber disabled")
+end
+
 bots.each_with_index do |bot, index|
   sleep(5) unless index.zero?
   Rails.logger.info("[bot] shard #{index + 1}/#{shard_count} connecting…")

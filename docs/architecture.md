@@ -13,7 +13,7 @@ One Docker image, multiple services off it:
 - **bot** (`bin/bot`) — the discordrb gateway connection. Long-lived, blocking. Must be its own process: discordrb is gateway-based, and booting it from a Puma worker would open one gateway connection per cluster worker (duplicate events).
 - **jobs** (`bin/jobs`) — Solid Queue worker for background and scheduled work (reminder delivery).
 - **postgres** — source of truth.
-- **redis** — config-change pub/sub (web → bot), Phase 8.
+- **redis** — config-change pub/sub (web → bot); see [Config propagation](#config-propagation).
 
 discordrb dispatches each handler on its own thread, so any DB work in the bot
 process must check out and return its own connection from the AR pool — see
@@ -263,6 +263,31 @@ drops later shards into reconnect backoff.
 The gateway `Bot` prefixes the auth header itself, but direct `Discordrb::API` calls
 (e.g. reminder delivery from the jobs process) need the header as `Bot <token>` or
 Discord returns 401. `BotConfig.rest_token` provides the prefixed form.
+
+## Config propagation
+
+Config is written on the web side, but anything that touches Discord (posting a
+role message, re-registering commands) can only run in the bot process, which
+holds the gateway and token. The two are bridged by a one-way Redis pub/sub bus:
+the web UI publishes, the bot subscribes.
+
+`ConfigBus` (`app/bot/config_bus.rb`) publishes typed JSON events on a single
+channel (`shrkbot:config`); `ConfigSubscriber` (`app/bot/config_subscriber.rb`)
+runs a listener thread on the first shard's bot, routes each event by `type`, and
+hands off to an operation inside a `with_connection` block (its own AR
+connection, like every other bot thread). A malformed or failing event is logged
+and reported to the owner rather than killing the listener.
+
+The first event type is `roles_repost` (`ConfigBus.repost_roles(set)`), the
+force-repost recovery path: it runs `Ops::Roles::Messages::Repost`, which deletes
+the set's stale message (best-effort — a 404 is the expected case) and posts a
+fresh one. The op runs bot-side because both steps need the token; it fails if the
+channel can't be resolved rather than silently doing nothing. Add a new event by
+publishing a new `type` and adding a branch to `ConfigSubscriber#route`.
+
+The bot starts the subscriber only when `REDIS_URL` is set; without it the bot
+logs that propagation is off and runs anyway (Solid Queue is Postgres-backed and
+doesn't depend on Redis).
 
 ## Bot settings vs server configuration
 
