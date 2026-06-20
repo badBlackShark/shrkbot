@@ -1,4 +1,6 @@
 module BotConfig
+  ACCENT_COLOR = 0x39afe5
+
   module_function
 
   def token

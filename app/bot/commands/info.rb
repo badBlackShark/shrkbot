@@ -5,23 +5,29 @@ module Commands
     register_in :global
 
     INVITE_URL = "https://discord.com/oauth2/authorize?client_id=346043915142561793"
-    ACCENT_COLOR = 0x39afe5
 
     def execute
-      event.respond(embeds: [embed(event.bot.profile)])
+      event.respond(components: message[:components], ephemeral: true, has_components: true)
     end
 
     private
 
-    def embed(profile)
-      {
-        author: {name: profile.username, icon_url: profile.avatar_url},
-        description: "I was written in [Ruby](https://www.ruby-lang.org/) by [badBlackShark](https://github.com/badBlackShark/).\n" \
-          "My code lives [here](https://github.com/badBlackShark/shrkbot). Want me on your server? [Invite me!](#{INVITE_URL})",
-        fields: [{name: "Built with", value: credits}],
-        color: ACCENT_COLOR,
-        footer: {text: "Want to support the project? Use /donate."}
-      }
+    def message
+      Discord::Components.container(
+        [
+          Discord::Components.text(header),
+          Discord::Components.separator,
+          Discord::Components.text("**Built with**\n#{credits}"),
+          Discord::Components.separator,
+          Discord::Components.text("-# Want to support the project? Use /donate.")
+        ]
+      )
+    end
+
+    def header
+      "### #{event.bot.profile.username}\n" \
+        "I was written in [Ruby](https://www.ruby-lang.org/) by [badBlackShark](https://github.com/badBlackShark/).\n" \
+        "My code lives [here](https://github.com/badBlackShark/shrkbot). Want me on your server? [Invite me!](#{INVITE_URL})"
     end
 
     def credits

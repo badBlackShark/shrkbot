@@ -5,8 +5,8 @@ RSpec.describe Commands::Donate do
 
   let(:event) { double("event", respond: nil) }
 
-  it "responds with the donation message" do
-    expect(event).to receive(:respond).with(hash_including(content: described_class::MESSAGE))
+  it "responds with the donation message, ephemerally" do
+    expect(event).to receive(:respond).with(hash_including(content: described_class::MESSAGE, ephemeral: true))
     execute
   end
 

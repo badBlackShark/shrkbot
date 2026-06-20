@@ -20,7 +20,7 @@ module Commands
     DONATE
 
     def execute
-      event.respond(content: MESSAGE)
+      event.respond(content: MESSAGE, ephemeral: true)
     end
   end
 end

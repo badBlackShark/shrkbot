@@ -1,5 +1,5 @@
 module OwnerBroadcast
-  FOOTER = "\n\nYou're receiving this because you own at least one server that shrkbot is in."
+  FOOTER = "-# You're receiving this because you own at least one server that shrkbot is in."
   Result = Data.define(:owner_count, :sent, :server_count)
 
   module_function
@@ -14,10 +14,21 @@ module OwnerBroadcast
   end
 
   def deliver(bot, owner_id, content)
-    bot.pm_channel(owner_id).send_message(content + FOOTER)
+    rendered = message(content)
+    bot.pm_channel(owner_id).send_message(nil, false, nil, nil, nil, nil, rendered[:components], rendered[:flags])
     true
   rescue => e
     Rails.logger.warn("[OwnerBroadcast] could not DM owner #{owner_id}: #{e.class}: #{e.message}")
     false
+  end
+
+  def message(content)
+    Discord::Components.container(
+      [
+        Discord::Components.text(content),
+        Discord::Components.separator,
+        Discord::Components.text(FOOTER)
+      ]
+    )
   end
 end

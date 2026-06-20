@@ -32,10 +32,15 @@ RSpec.describe OwnerBroadcast do
       result
     end
 
-    it "appends the explanatory footer to the content" do
-      expect(channel).to receive(:send_message)
-        .with(a_string_including("hello owners").and(a_string_including("you own at least one server")))
-        .at_least(:once)
+    it "sends a components-v2 message with the content and a footer below a separator" do
+      expect(channel).to receive(:send_message).at_least(:once) do |*args|
+        blocks = args[6].first[:components]
+        expect(args[7]).to eq(Discord::Components::COMPONENTS_V2)
+        expect(blocks.map { |block| block[:type] }).to include(Discord::Components::SEPARATOR)
+        body = blocks.filter_map { |block| block[:content] }
+        expect(body).to include("hello owners")
+        expect(body.join).to include("-# ").and include("you own at least one server")
+      end
       result
     end
 
