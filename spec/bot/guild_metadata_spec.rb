@@ -25,10 +25,35 @@ RSpec.describe GuildMetadata do
   describe ".roles" do
     subject(:roles) { described_class.roles(server) }
 
-    let(:server) { double("server", roles: [double("role", id: 222, name: "Admin")]) }
+    let(:server) { double("server", roles: [double("role", id: 222, name: "Admin", position: 3, managed?: false)]) }
 
-    it "maps each role to a plain hash" do
-      expect(roles).to eq([{discord_id: 222, name: "Admin"}])
+    it "maps each role to a plain hash with its position and managed flag" do
+      expect(roles).to eq([{discord_id: 222, name: "Admin", position: 3, managed: false}])
+    end
+  end
+
+  describe ".bot_role_position" do
+    subject(:position) { described_class.bot_role_position(server, bot) }
+
+    let(:bot) { double("bot", profile: double("profile", id: 99)) }
+    let(:server) { double("server") }
+
+    before { allow(server).to receive(:member).with(99).and_return(member) }
+
+    context "when the bot has roles above @everyone" do
+      let(:member) { double("member", roles: [double("role", position: 2), double("role", position: 5)]) }
+
+      it "is the bot's highest role position" do
+        expect(position).to eq(5)
+      end
+    end
+
+    context "when the bot has only @everyone" do
+      let(:member) { double("member", roles: []) }
+
+      it "is 0" do
+        expect(position).to eq(0)
+      end
     end
   end
 
@@ -42,12 +67,13 @@ RSpec.describe GuildMetadata do
     before do
       allow(Ops::ServerConfiguration::Ensure).to receive(:call)
         .with(discord_id: 77).and_return(double(value: config))
+      allow(described_class).to receive(:bot_role_position).with(server, bot).and_return(7)
       allow(ServerOnboarder).to receive(:notify)
     end
 
     it "ensures the config, then syncs channels and roles, then reconciles deletions" do
       expect(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call).with(server_configuration: config, channels: [])
-      expect(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call).with(server_configuration: config, roles: [])
+      expect(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call).with(server_configuration: config, roles: [], bot_role_position: 7)
       expect(Ops::ServerConfiguration::Channels::Reconcile).to receive(:call).with(server_configuration: config, bot:)
       sync
     end
