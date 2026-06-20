@@ -23,9 +23,11 @@ RSpec.describe Roles::Message do
   end
 
   describe ".public_message" do
+    subject(:rendered) { described_class.public_message(set) }
+
+    let(:set) { create(:role_set, role_setting: setting, selection_mode: "multi") }
+
     it "wraps the message in an accented container and sets the components-v2 flag" do
-      set = create(:role_set, role_setting: setting, selection_mode: "multi")
-      rendered = described_class.public_message(set)
       expect(rendered[:flags]).to eq(described_class::COMPONENTS_V2)
       expect(rendered[:components].first).to include(
         type: described_class::CONTAINER,
@@ -34,8 +36,6 @@ RSpec.describe Roles::Message do
     end
 
     context "for a multi-selection set" do
-      subject(:rendered) { described_class.public_message(set) }
-
       let(:set) { create(:role_set, role_setting: setting, name: "Game Roles", selection_mode: "multi") }
 
       before do
@@ -66,8 +66,6 @@ RSpec.describe Roles::Message do
     end
 
     context "for a single-selection set" do
-      subject(:rendered) { described_class.public_message(set) }
-
       let(:set) { create(:role_set, role_setting: setting, name: "Color", selection_mode: "single") }
       let!(:red) { create(:assignable_role, role_set: set, role_id: 100, position: 0) }
       let!(:blue) { create(:assignable_role, role_set: set, role_id: 200, position: 1) }
@@ -96,19 +94,22 @@ RSpec.describe Roles::Message do
         expect(container_blocks(rendered).map { |block| block[:type] }).to include(described_class::SEPARATOR)
       end
 
-      it "chunks the buttons into rows of five" do
-        6.times do |n|
-          create(:assignable_role, role_set: set, role_id: 300 + n, position: 10 + n)
-          sync_role(300 + n, "extra-#{n}")
+      context "with more than five roles" do
+        before do
+          6.times do |n|
+            create(:assignable_role, role_set: set, role_id: 300 + n, position: 10 + n)
+            sync_role(300 + n, "extra-#{n}")
+          end
         end
-        rows = container_blocks(rendered).select { |block| block[:type] == described_class::ACTION_ROW }
-        expect(rows.size).to eq(2)
+
+        it "chunks the buttons into rows of five" do
+          rows = container_blocks(rendered).select { |block| block[:type] == described_class::ACTION_ROW }
+          expect(rows.size).to eq(2)
+        end
       end
     end
 
     context "with a role that has not been synced" do
-      subject(:rendered) { described_class.public_message(set) }
-
       let(:set) { create(:role_set, role_setting: setting, selection_mode: "single") }
 
       before do

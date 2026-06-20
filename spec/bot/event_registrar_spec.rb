@@ -39,12 +39,11 @@ RSpec.describe EventRegistrar do
       end
     end
     let(:events) { [event_class] }
+    let(:incoming) { double("event") }
 
     it "binds it to its discordrb handler and dispatches to the class" do
       register_all
       expect(fake_bot.handlers.key?(:member_join)).to be(true)
-
-      incoming = double("event")
       expect(event_class).to receive(:dispatch).with(incoming)
       fake_bot.handlers[:member_join].call(incoming)
     end
@@ -75,12 +74,11 @@ RSpec.describe EventRegistrar do
       end
     end
     let(:events) { [event_class] }
+    let(:incoming) { double("event") }
 
     it "passes the attributes through to the discordrb handler" do
       register_all
       expect(fake_bot.handlers[:button][:attributes]).to eq(custom_id: /\Aroles:/)
-
-      incoming = double("event")
       expect(event_class).to receive(:dispatch).with(incoming)
       fake_bot.handlers[:button][:block].call(incoming)
     end
