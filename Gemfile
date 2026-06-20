@@ -73,6 +73,8 @@ group :development, :test do
 
   gem "simplecov", require: false
   gem "simplecov-lcov", require: false
+
+  gem "undercover", "0.8.5", require: false
 end
 
 group :development do
