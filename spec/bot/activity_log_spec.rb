@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe ActivityLog do
-  subject(:record) { described_class.record(server_config, event, bot:, **options) }
+  subject(:record) { described_class.record(server_config, :roles, event, bot:, **options) }
 
   let(:server_config) { create(:server_configuration) }
   let(:event) { :role_gained }
@@ -15,7 +15,7 @@ RSpec.describe ActivityLog do
       :logging_setting,
       server_configuration: server_config,
       channel_id: 555,
-      enabled_actions: {"roles.assignment" => true}
+      enabled_actions: {"roles.role_gained" => true}
     )
     logging = create(:plugin, key: "logging", name: "Logging")
     create(:plugin_activation, server_configuration: server_config, plugin: logging, enabled: true)
@@ -36,12 +36,14 @@ RSpec.describe ActivityLog do
     end
   end
 
-  context "for a gained-and-lost change" do
-    let(:event) { :roles_changed }
-    let(:options) { {actor: "<@42>", gained: ["Gamer"], lost: ["Artist", "News"]} }
+  context "for an event gated by its own toggle" do
+    let(:event) { :role_lost }
+    let(:options) { {actor: "<@42>", roles: ["Artist"]} }
 
-    it "renders both sides" do
-      expect(channel).to receive(:send_message).with("<@42> gained Gamer and lost Artist and News.")
+    before { server_config.logging_setting.update!(enabled_actions: {"roles.role_lost" => true}) }
+
+    it "renders that event's own line" do
+      expect(channel).to receive(:send_message).with("<@42> lost Artist.")
       record
     end
   end
@@ -55,8 +57,8 @@ RSpec.describe ActivityLog do
     end
   end
 
-  context "when the action is toggled off" do
-    before { server_config.logging_setting.update!(enabled_actions: {}) }
+  context "when this event's toggle is off" do
+    before { server_config.logging_setting.update!(enabled_actions: {"roles.role_lost" => true}) }
 
     it "writes nothing" do
       expect(channel).not_to receive(:send_message)
@@ -92,8 +94,10 @@ RSpec.describe ActivityLog do
   context "for an unregistered event" do
     let(:event) { :not_a_real_event }
 
+    before { server_config.logging_setting.update!(enabled_actions: {"roles.not_a_real_event" => true}) }
+
     it "raises so the wiring mistake surfaces" do
-      expect { record }.to raise_error(KeyError)
+      expect { record }.to raise_error(I18n::MissingTranslationData)
     end
   end
 end

@@ -1,20 +1,13 @@
 module ActivityLog
-  EVENTS = {
-    role_gained: "roles.assignment",
-    role_lost: "roles.assignment",
-    roles_changed: "roles.assignment"
-  }.freeze
-
   module_function
 
-  def record(server_configuration, event, bot:, **options)
-    action = EVENTS.fetch(event)
-    return unless enabled?(server_configuration, action)
+  def record(server_configuration, plugin, event, bot:, **options)
+    return unless enabled?(server_configuration, "#{plugin}.#{event}")
 
     channel_id = server_configuration.logging_setting.channel_id
     return unless channel_id
 
-    deliver(bot, channel_id, render(event, options))
+    deliver(bot, channel_id, render(plugin, event, options))
   end
 
   def enabled?(server_configuration, action)
@@ -23,8 +16,8 @@ module ActivityLog
     server_configuration.logging_setting.action_enabled?(action)
   end
 
-  def render(event, options)
-    I18n.t("activity_log.#{event}", locale: :en, raise: true, **humanize(options))
+  def render(plugin, event, options)
+    I18n.t("activity_log.#{plugin}.#{event}", locale: :en, raise: true, **humanize(options))
   end
 
   def humanize(options)

@@ -29,7 +29,7 @@ RSpec.describe Roles::Select do
 
   it "logs the gained role" do
     expect(ActivityLog).to receive(:record).with(
-      server_config, :role_gained, bot:, actor: "<@42>", roles: ["News"]
+      server_config, :roles, :role_gained, bot:, actor: "<@42>", roles: ["News"]
     )
     handle
   end
@@ -37,9 +37,12 @@ RSpec.describe Roles::Select do
   context "when the user swaps one role for another" do
     let(:member) { double("member", roles: [double("role", id: 200)], modify_roles: nil, mention: "<@42>") }
 
-    it "logs both the gained and lost roles" do
+    it "logs the gained and lost roles as separate lines" do
       expect(ActivityLog).to receive(:record).with(
-        server_config, :roles_changed, bot:, actor: "<@42>", gained: ["News"], lost: ["Events"]
+        server_config, :roles, :role_gained, bot:, actor: "<@42>", roles: ["News"]
+      )
+      expect(ActivityLog).to receive(:record).with(
+        server_config, :roles, :role_lost, bot:, actor: "<@42>", roles: ["Events"]
       )
       handle
     end
@@ -54,8 +57,9 @@ RSpec.describe Roles::Select do
     end
 
     it "logs only the lost roles" do
+      expect(ActivityLog).not_to receive(:record).with(server_config, :roles, :role_gained, any_args)
       expect(ActivityLog).to receive(:record).with(
-        server_config, :role_lost, bot:, actor: "<@42>", roles: ["News", "Events"]
+        server_config, :roles, :role_lost, bot:, actor: "<@42>", roles: ["News", "Events"]
       )
       handle
     end

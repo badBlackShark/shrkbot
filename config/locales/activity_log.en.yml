@@ -1,5 +1,5 @@
 en:
   activity_log:
-    role_gained: "%{actor} gained %{roles}."
-    role_lost: "%{actor} lost %{roles}."
-    roles_changed: "%{actor} gained %{gained} and lost %{lost}."
+    roles:
+      role_gained: "%{actor} gained %{roles}."
+      role_lost: "%{actor} lost %{roles}."

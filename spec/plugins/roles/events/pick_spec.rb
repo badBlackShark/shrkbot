@@ -33,7 +33,7 @@ RSpec.describe Roles::Pick do
 
   it "logs the role the user gained" do
     expect(ActivityLog).to receive(:record).with(
-      server_config, :role_gained, bot:, actor: "<@42>", roles: ["Blue"]
+      server_config, :roles, :role_gained, bot:, actor: "<@42>", roles: ["Blue"]
     )
     handle
   end

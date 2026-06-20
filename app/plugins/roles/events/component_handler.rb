@@ -25,27 +25,19 @@ module Roles
     end
 
     def log_assignment(had, diff)
-      gained = diff[:add] - had
-      lost = diff[:remove] & had
-      return if gained.empty? && lost.empty?
+      names = role_names(diff[:add] + diff[:remove])
+      log_role_change(:role_gained, label(diff[:add] - had, names))
+      log_role_change(:role_lost, label(diff[:remove] & had, names))
+    end
 
-      names = role_names(gained + lost)
-      event_name, options = assignment_event(label(gained, names), label(lost, names))
-      ActivityLog.record(server_configuration, event_name, bot: event.bot, actor: member.mention, **options)
+    def log_role_change(name, roles)
+      return if roles.empty?
+
+      ActivityLog.record(server_configuration, :roles, name, bot: event.bot, actor: member.mention, roles:)
     end
 
     def member_set_role_ids
       member.roles.map(&:id) & set_role_ids
-    end
-
-    def assignment_event(gained, lost)
-      if gained.any? && lost.any?
-        [:roles_changed, {gained:, lost:}]
-      elsif gained.any?
-        [:role_gained, {roles: gained}]
-      else
-        [:role_lost, {roles: lost}]
-      end
     end
 
     def label(role_ids, names)
