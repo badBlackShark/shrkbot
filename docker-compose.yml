@@ -16,6 +16,15 @@ services:
       timeout: 3s
       retries: 10
 
+  redis:
+    image: redis:7
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   # The app processes. Same image, different command. RAILS_ENV=development for
   # now; DATABASE_URL here points at the in-network db host (overrides the
   # localhost value in .env — compose `environment` wins, and dotenv won't
@@ -28,12 +37,15 @@ services:
     environment:
       RAILS_ENV: development
       DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
+      REDIS_URL: redis://redis:6379/0
     ports:
       - 3000:3000
     volumes:
       - ./:/app
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   bot:
@@ -43,10 +55,13 @@ services:
     environment:
       RAILS_ENV: development
       DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
+      REDIS_URL: redis://redis:6379/0
     volumes:
       - ./:/app
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   jobs:
