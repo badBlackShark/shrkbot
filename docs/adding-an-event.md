@@ -38,6 +38,19 @@ end
 - For plugins gated by an enable flag, check it at the top of `#handle` (a DB read) —
   event handlers aren't hidden the way guild commands are. See `Settings.active_for`.
 
+## Component interactions (buttons, selects)
+
+`on` forwards keyword attributes to the discordrb handler, so component events filter
+by `custom_id`: `on :button, custom_id: /\Aroles:pick:/` or
+`on :string_select, custom_id: /\Aroles:select:/`. discordrb routes each interaction to
+the handler whose `custom_id` regexp matches, so one custom-id namespace can fan out to
+several handler classes. The event exposes `custom_id`, `values` (selects), `user`,
+`server`, and `respond`/`update_message` (acknowledge the interaction — `respond` for a
+new ephemeral reply, `update_message` to edit the message the component is on). See
+`app/plugins/roles/events/`, where a thin `Roles::ComponentHandler` base shares the
+set lookup, member resolution, and role-diff application across the manage/pick/select
+handlers.
+
 ## Spec it
 
 Drive `#handle` with a fake/`double` event and assert the effect (a send, a DB write).

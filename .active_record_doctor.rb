@@ -39,11 +39,9 @@ ActiveRecordDoctor.configure do
   detector :missing_presence_validation,
     ignore_columns_with_default: true,
     ignore_attributes: [
-      "Plugin.default_enabled",
       "PluginActivation.enabled",
       "Reminders::Reminder.deliver_via_dm",
       "Roles::Settings.log_on_assign",
-      "Roles::Settings.notify_on_assign",
       "ServerConfiguration.force_dm_reminders"
     ]
 end

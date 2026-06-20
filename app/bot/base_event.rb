@@ -2,13 +2,20 @@ class BaseEvent
   include WithConnection
 
   class << self
-    def on(*values)
-      @discord_events = values if values.any?
+    def on(*values, **attributes)
+      if values.any?
+        @discord_events = values
+        @event_attributes = attributes
+      end
       @discord_events ||= []
     end
 
     def discord_events
       on
+    end
+
+    def event_attributes
+      @event_attributes ||= {}
     end
 
     def dispatch(event)

@@ -19,6 +19,13 @@ RSpec.describe Roles::MessagePoster do
       post
       expect(set.reload.message_id).to eq(98765)
     end
+
+    it "sends with the components-v2 flag so the container is accepted" do
+      expect(channel).to receive(:send_message)
+        .with(nil, false, nil, nil, nil, nil, anything, Roles::Message::COMPONENTS_V2)
+        .and_return(double(id: 1))
+      post
+    end
   end
 
   context "when the set already has a message" do
@@ -32,6 +39,11 @@ RSpec.describe Roles::MessagePoster do
 
     it "edits the existing message rather than reposting" do
       expect(message).to receive(:edit)
+      post
+    end
+
+    it "edits with the components-v2 flag" do
+      expect(message).to receive(:edit).with(nil, nil, anything, Roles::Message::COMPONENTS_V2)
       post
     end
   end

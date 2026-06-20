@@ -23,6 +23,10 @@ RSpec.describe EventRegistrar do
       def channel_delete(&block)
         @handlers[:channel_delete] = block
       end
+
+      def button(attributes = {}, &block)
+        @handlers[:button] = {attributes: attributes, block: block}
+      end
     end.new
   end
 
@@ -35,12 +39,11 @@ RSpec.describe EventRegistrar do
       end
     end
     let(:events) { [event_class] }
+    let(:incoming) { double("event") }
 
     it "binds it to its discordrb handler and dispatches to the class" do
       register_all
       expect(fake_bot.handlers.key?(:member_join)).to be(true)
-
-      incoming = double("event")
       expect(event_class).to receive(:dispatch).with(incoming)
       fake_bot.handlers[:member_join].call(incoming)
     end
@@ -59,6 +62,25 @@ RSpec.describe EventRegistrar do
     it "binds the class to each declared handler" do
       register_all
       expect(fake_bot.handlers.keys).to contain_exactly(:channel_create, :channel_delete)
+    end
+  end
+
+  context "with an event declaring handler attributes" do
+    let(:event_class) do
+      Class.new(BaseEvent) do
+        on :button, custom_id: /\Aroles:/
+        def handle
+        end
+      end
+    end
+    let(:events) { [event_class] }
+    let(:incoming) { double("event") }
+
+    it "passes the attributes through to the discordrb handler" do
+      register_all
+      expect(fake_bot.handlers[:button][:attributes]).to eq(custom_id: /\Aroles:/)
+      expect(event_class).to receive(:dispatch).with(incoming)
+      fake_bot.handlers[:button][:block].call(incoming)
     end
   end
 

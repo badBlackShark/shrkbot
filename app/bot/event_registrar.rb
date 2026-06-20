@@ -9,7 +9,11 @@ class EventRegistrar
   def register_all
     events.each do |klass|
       klass.discord_events.each do |discord_event|
-        bot.public_send(discord_event) { |event| klass.dispatch(event) }
+        if klass.event_attributes.empty?
+          bot.public_send(discord_event) { |event| klass.dispatch(event) }
+        else
+          bot.public_send(discord_event, klass.event_attributes) { |event| klass.dispatch(event) }
+        end
       end
     end
   end

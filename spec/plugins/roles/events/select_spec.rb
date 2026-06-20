@@ -1,0 +1,40 @@
+require "rails_helper"
+
+RSpec.describe Roles::Select do
+  subject(:handle) { described_class.new(event).handle }
+
+  let(:set) { create(:role_set, selection_mode: "multi") }
+  let!(:news) { create(:assignable_role, role_set: set, role_id: 100, position: 0) }
+  let!(:events_role) { create(:assignable_role, role_set: set, role_id: 200, position: 1) }
+
+  let(:user) { double("user", id: 42) }
+  let(:member) { double("member", modify_roles: nil) }
+  let(:server) { double("server", member: member) }
+  let(:event) do
+    double("event", custom_id: Roles::CustomId.select(set), server:, user:, values: ["100"], update_message: nil)
+  end
+
+  it "adds the selected set roles and removes the unselected ones" do
+    expect(member).to receive(:modify_roles).with([100], [200])
+    handle
+  end
+
+  context "outside a server (no member to assign)" do
+    let(:server) { nil }
+
+    it "does nothing" do
+      expect(event).not_to receive(:update_message)
+      handle
+    end
+  end
+
+  it "re-renders the picker via update_message" do
+    expect(event).to receive(:update_message)
+    handle
+  end
+
+  it "never DMs the user" do
+    expect(user).not_to receive(:pm)
+    handle
+  end
+end

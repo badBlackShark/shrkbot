@@ -23,12 +23,12 @@ module Roles
     private
 
     def create(channel, rendered)
-      message = channel.send_message(rendered[:content], false, nil, nil, nil, nil, rendered[:components])
+      message = channel.send_message(nil, false, nil, nil, nil, nil, rendered[:components], rendered[:flags])
       @set.update!(message_id: message.id)
     end
 
     def edit(channel, rendered)
-      channel.load_message(@set.message_id)&.edit(rendered[:content], nil, rendered[:components])
+      channel.load_message(@set.message_id)&.edit(nil, nil, rendered[:components], rendered[:flags])
     end
   end
 end
