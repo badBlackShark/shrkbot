@@ -5,6 +5,22 @@ RSpec.describe ConfigSubscriber do
 
   let(:bot) { double("bot") }
 
+  describe "#start" do
+    let(:redis) { double("redis") }
+    let(:on) { double("on") }
+
+    it "subscribes on the config channel and routes each message to #handle" do
+      allow(Thread).to receive(:new).and_yield
+      allow(Redis).to receive(:new).with(url: BotConfig.redis_url).and_return(redis)
+      allow(redis).to receive(:subscribe).with(ConfigBus::CHANNEL).and_yield(on)
+      allow(on).to receive(:message).and_yield("shrkbot:config", "payload")
+
+      expect(subscriber).to receive(:handle).with("payload")
+
+      subscriber.start
+    end
+  end
+
   describe "#handle" do
     context "with a roles_repost event for an existing set" do
       let(:set) { create(:role_set) }
