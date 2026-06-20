@@ -8,6 +8,7 @@ RUN apt-get update \
   && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends --no-install-suggests \
     build-essential \
+    cmake \
     sudo \
     git \
     curl \
@@ -47,6 +48,7 @@ USER dev
 RUN mkdir -p /home/dev/.claude /home/dev/.local/state/claude /home/dev/.local/share/claude \
   && rtk init -g
 
+COPY --chown=dev:dev Gemfile Gemfile.lock ./
 RUN bundle install
 
 RUN ruby --version \

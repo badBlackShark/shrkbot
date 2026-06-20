@@ -95,7 +95,6 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
-          gem install undercover -v 0.8.5
           git fetch --no-tags origin "$BASE_REF"
-          undercover --compare "origin/$BASE_REF"
+          bundle exec undercover --compare "origin/$BASE_REF"
 
