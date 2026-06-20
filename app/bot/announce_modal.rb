@@ -4,10 +4,10 @@ class AnnounceModal < BaseEvent
   def handle
     return reject unless owner?
 
+    event.defer(ephemeral: true)
     result = OwnerBroadcast.call(bots: BotRegistry.all, content: content)
-    event.respond(
-      content: "📣 Sent to #{result.sent}/#{result.owner_count} unique owner(s) across #{result.server_count} server(s).",
-      ephemeral: true
+    event.edit_response(
+      content: "📣 Sent to #{result.sent}/#{result.owner_count} unique owner(s) across #{result.server_count} server(s)."
     )
   end
 
