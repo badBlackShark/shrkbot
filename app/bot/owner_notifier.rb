@@ -29,6 +29,6 @@ module OwnerNotifier
       #{backtrace}
       ```
     MSG
-    (msg.length > MAX_LENGTH) ? "#{msg[0, MAX_LENGTH]}…" : msg
+    Discord::Truncate.call(msg, MAX_LENGTH)
   end
 end
