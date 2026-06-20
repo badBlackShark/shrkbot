@@ -236,10 +236,16 @@ grant an arbitrary server role. The runtime toggle is bot-only (no DB write, no 
 caller), so it lives in the handlers, not in an operation; the testable unit is the
 pure `Roles::Assignment` diff with `member.modify_roles` as the seam.
 
-`Roles::Message` renders every message as a **Components V2** payload, so
+`Discord::Components` (`app/bot/discord/`) holds the shared Components V2 primitives —
+the `CONTAINER`/`TEXT_DISPLAY`/`SEPARATOR` type ids, the `COMPONENTS_V2` flag, and the
+`container`/`text`/`separator` builders — so every sender (role messages, `/info`, the
+owner broadcast) renders the same way and the brand colour lives in one place
+(`BotConfig::ACCENT_COLOR`, the container default).
+
+`Roles::Message` composes those builders into a **Components V2** payload, so
 `public_message`/`multi_picker` return `{components:, flags:}` with the `COMPONENTS_V2`
 flag and no `content` — senders pass `has_components: true` (or the flag positionally).
-Each message is a `Container` carrying the brand `ACCENT_COLOR` sidebar, a markdown
+Each message is a `Container` carrying the brand accent sidebar, a markdown
 `### ` heading (Discord supports only h1–h3), a `Separator`, and then the controls.
 Single sets put the role buttons straight in the container; multi sets list the roles
 side by side (no markdown tables in Discord — an inline `•`-joined line) and expose the
@@ -257,6 +263,14 @@ the presence total is summed in-process (no Redis needed). Only the first shard
 defines the application-global commands; every shard attaches handlers. Shard starts
 are staggered by 5s — Discord rate-limits IDENTIFY to roughly one per 5s, and a burst
 drops later shards into reconnect backoff.
+
+Each `Bot` only knows the servers on its own shard, so anything that spans **all**
+servers (e.g. `/announce`, which DMs every unique server owner) must read every
+shard, not just `event.bot`. `bin/bot` registers the bot array with `BotRegistry`
+at boot; `OwnerBroadcast.call(bots:, …)` unions every shard's servers, dedupes owners
+across shards, and DMs through any one bot (DMs are REST, so the shard doesn't
+matter). This works because all shards share one process — no cross-process
+coordination needed.
 
 ## REST vs gateway token
 

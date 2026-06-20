@@ -15,6 +15,7 @@ bots = Array.new(shard_count) do |shard_id|
     num_shards: shard_count
   )
 end
+BotRegistry.register(bots)
 
 bots.each_with_index do |bot, index|
   CommandRegistrar.new(

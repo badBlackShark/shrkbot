@@ -1,17 +1,12 @@
 module Roles
   module Message
-    CONTAINER = 17
     SECTION = 9
-    TEXT_DISPLAY = 10
-    SEPARATOR = 14
     ACTION_ROW = 1
     BUTTON = 2
     STRING_SELECT = 3
     PRIMARY = 1
     SECONDARY = 2
     BUTTONS_PER_ROW = 5
-    COMPONENTS_V2 = 1 << 15
-    ACCENT_COLOR = 0x39afe5
     UNKNOWN_ROLE = "Unknown role"
 
     module_function
@@ -19,15 +14,17 @@ module Roles
     def public_message(set)
       blocks =
         if set.selection_mode == "single"
-          [text(single_content(set)), separator, *button_rows(role_buttons(set))]
+          [Discord::Components.text(single_content(set)), Discord::Components.separator, *button_rows(role_buttons(set))]
         else
-          [text(multi_content(set)), separator, manage_section(set)]
+          [Discord::Components.text(multi_content(set)), Discord::Components.separator, manage_section(set)]
         end
-      container(blocks)
+      Discord::Components.container(blocks)
     end
 
     def multi_picker(set, active_role_ids)
-      container([text(picker_content(set)), action_row([role_select(set, active_role_ids)])])
+      Discord::Components.container(
+        [Discord::Components.text(picker_content(set)), action_row([role_select(set, active_role_ids)])]
+      )
     end
 
     def selection_summary(set, active_role_ids)
@@ -38,22 +35,10 @@ module Roles
       "**#{set.name}**: #{chosen.any? ? chosen.join(", ") : "none"}"
     end
 
-    def container(blocks)
-      {components: [{type: CONTAINER, accent_color: ACCENT_COLOR, components: blocks}], flags: COMPONENTS_V2}
-    end
-
-    def text(body)
-      {type: TEXT_DISPLAY, content: body}
-    end
-
-    def separator
-      {type: SEPARATOR, divider: true}
-    end
-
     def manage_section(set)
       {
         type: SECTION,
-        components: [text("-# Click this button to edit your roles ->")],
+        components: [Discord::Components.text("-# Click this button to edit your roles ->")],
         accessory: manage_button(set)
       }
     end
@@ -119,7 +104,7 @@ module Roles
       [role.emoji, names[role.role_id] || UNKNOWN_ROLE].compact.join(" ")
     end
 
-    private_class_method :container, :text, :separator, :manage_section, :action_row,
+    private_class_method :manage_section, :action_row,
       :single_content, :multi_content, :picker_content,
       :role_buttons, :role_select, :manage_button, :button_rows, :role_names, :role_label
   end
