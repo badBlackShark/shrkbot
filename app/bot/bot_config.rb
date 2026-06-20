@@ -17,6 +17,10 @@ module BotConfig
     ENV["TEST_SERVER_ID"]
   end
 
+  def redis_url
+    ENV["REDIS_URL"]
+  end
+
   def shard_count
     [ENV.fetch("SHARD_COUNT", "1").to_i, 1].max
   end
