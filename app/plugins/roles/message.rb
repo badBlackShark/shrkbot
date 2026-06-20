@@ -53,7 +53,7 @@ module Roles
     def manage_section(set)
       {
         type: SECTION,
-        components: [text("Click the button to the right to edit your roles.")],
+        components: [text("-# Click this button to edit your roles ->")],
         accessory: manage_button(set)
       }
     end
@@ -68,8 +68,8 @@ module Roles
 
     def multi_content(set)
       names = role_names(set)
-      roles = set.assignable_roles.map { |role| role_label(role, names) }.join(" • ")
-      "### #{set.name}\nSelect all roles that apply from the options below.\n\n#{roles}"
+      roles = set.assignable_roles.map { |role| "- **#{role_label(role, names)}**" }.join("\n")
+      "### #{set.name}\nSelect all roles that apply. You will have the following options:\n#{roles}"
     end
 
     def picker_content(set)

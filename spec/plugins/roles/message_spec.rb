@@ -48,7 +48,7 @@ RSpec.describe Roles::Message do
       it "heads with the set name and lists the synced roles side by side" do
         content = text_block(rendered)[:content]
         expect(content).to include("### Game Roles")
-        expect(content).to include("🎮 Gamer • Artist")
+        expect(content).to include("- **🎮 Gamer**\n- **Artist**")
       end
 
       it "explains the multi-select" do
