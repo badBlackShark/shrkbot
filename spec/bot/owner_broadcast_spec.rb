@@ -1,0 +1,65 @@
+require "rails_helper"
+
+RSpec.describe OwnerBroadcast do
+  describe ".call" do
+    subject(:result) { described_class.call(bots: bots, content: "hello owners") }
+
+    let(:bots) { [shard_one, shard_two] }
+    let(:shard_one) { double("shard_one", servers: {1 => server(10), 2 => server(20)}) }
+    let(:shard_two) { double("shard_two", servers: {3 => server(10), 4 => server(30)}) }
+    let(:channel) { double("channel", send_message: nil) }
+
+    def server(owner_id)
+      double("server", owner: double("owner", id: owner_id))
+    end
+
+    before do
+      allow(shard_one).to receive(:pm_channel).and_return(channel)
+    end
+
+    it "counts every server across all shards" do
+      expect(result.server_count).to eq(4)
+    end
+
+    it "dedupes owners across shards" do
+      expect(result.owner_count).to eq(3)
+    end
+
+    it "DMs each unique owner once, through one shard's REST" do
+      expect(shard_one).to receive(:pm_channel).with(10).once.and_return(channel)
+      expect(shard_one).to receive(:pm_channel).with(20).once.and_return(channel)
+      expect(shard_one).to receive(:pm_channel).with(30).once.and_return(channel)
+      result
+    end
+
+    it "appends the explanatory footer to the content" do
+      expect(channel).to receive(:send_message)
+        .with(a_string_including("hello owners").and(a_string_including("you own at least one server")))
+        .at_least(:once)
+      result
+    end
+
+    it "reports how many were sent" do
+      expect(result.sent).to eq(3)
+    end
+
+    context "when a DM fails" do
+      before do
+        allow(shard_one).to receive(:pm_channel).with(20).and_raise("403 cannot DM")
+      end
+
+      it "skips it and still reports the rest" do
+        expect(result.sent).to eq(2)
+        expect(result.owner_count).to eq(3)
+      end
+    end
+
+    context "when a server's owner can't be resolved" do
+      let(:shard_two) { double("shard_two", servers: {3 => double("server", owner: nil)}) }
+
+      it "excludes it from the owner count" do
+        expect(result.owner_count).to eq(2)
+      end
+    end
+  end
+end

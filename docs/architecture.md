@@ -258,6 +258,14 @@ defines the application-global commands; every shard attaches handlers. Shard st
 are staggered by 5s — Discord rate-limits IDENTIFY to roughly one per 5s, and a burst
 drops later shards into reconnect backoff.
 
+Each `Bot` only knows the servers on its own shard, so anything that spans **all**
+servers (e.g. `/announce`, which DMs every unique server owner) must read every
+shard, not just `event.bot`. `bin/bot` registers the bot array with `BotRegistry`
+at boot; `OwnerBroadcast.call(bots:, …)` unions every shard's servers, dedupes owners
+across shards, and DMs through any one bot (DMs are REST, so the shard doesn't
+matter). This works because all shards share one process — no cross-process
+coordination needed.
+
 ## REST vs gateway token
 
 The gateway `Bot` prefixes the auth header itself, but direct `Discordrb::API` calls
