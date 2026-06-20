@@ -73,6 +73,14 @@ RSpec.describe ActivityLog do
     end
   end
 
+  context "when the logging channel no longer exists" do
+    before { allow(bot).to receive(:channel).with(555).and_return(nil) }
+
+    it "writes nothing and doesn't raise" do
+      expect { record }.not_to raise_error
+    end
+  end
+
   context "when the channel send fails" do
     before { allow(channel).to receive(:send_message).and_raise("403 missing access") }
 

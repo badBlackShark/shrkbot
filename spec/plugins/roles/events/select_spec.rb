@@ -45,6 +45,31 @@ RSpec.describe Roles::Select do
     end
   end
 
+  context "when the user clears their roles" do
+    let(:member) do
+      double("member", roles: [double("role", id: 100), double("role", id: 200)], modify_roles: nil, mention: "<@42>")
+    end
+    let(:event) do
+      double("event", custom_id: Roles::CustomId.select(set), server:, user:, values: [], update_message: nil, bot:)
+    end
+
+    it "logs only the lost roles" do
+      expect(ActivityLog).to receive(:record).with(
+        server_config, :role_lost, bot:, actor: "<@42>", roles: ["News", "Events"]
+      )
+      handle
+    end
+  end
+
+  context "when the selection changes nothing" do
+    let(:member) { double("member", roles: [double("role", id: 100)], modify_roles: nil, mention: "<@42>") }
+
+    it "logs nothing" do
+      expect(ActivityLog).not_to receive(:record)
+      handle
+    end
+  end
+
   context "outside a server (no member to assign)" do
     let(:server) { nil }
 

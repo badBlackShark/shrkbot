@@ -20,7 +20,7 @@ module ActivityLog
   def enabled?(server_configuration, action)
     return false unless server_configuration.plugins.enabled.exists?(key: :logging)
 
-    server_configuration.logging_setting&.action_enabled?(action) || false
+    server_configuration.logging_setting.action_enabled?(action)
   end
 
   def render(event, options)
