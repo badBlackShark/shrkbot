@@ -41,6 +41,7 @@ ActiveRecordDoctor.configure do
     ignore_attributes: [
       "PluginActivation.enabled",
       "Reminders::Reminder.deliver_via_dm",
-      "ServerConfiguration.force_dm_reminders"
+      "ServerConfiguration.force_dm_reminders",
+      "ServerRole.managed"
     ]
 end
