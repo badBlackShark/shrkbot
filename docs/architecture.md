@@ -255,6 +255,39 @@ not a stored label — Discord exposes no way to colour a button by the role's c
 the name is the only useful signal. A role missing from the sync falls back to a
 placeholder so a component is never empty.
 
+## Activity logging
+
+`ActivityLog.record(server_configuration, plugin, event, bot:, **options)` (`app/bot/`) is
+the one-line API for writing a user action to a server's logging channel. It's gated twice:
+the logging plugin must be enabled, and the specific event must be toggled on.
+
+One toggle per event, keyed `"<plugin>.<event>"` (e.g. `"roles.role_gained"`) — the same
+string is the toggle key, derived directly from the `plugin`/`event` args, so there's no
+separate event→action map to maintain. Toggles live in `logging_settings.enabled_actions`
+(a jsonb map, default `{}` = everything off); `LoggingSetting#action_enabled?` reads it. The
+Phase 7 web UI gives each plugin a logging tab listing its events as independent toggles, and
+greys the lot out when the logging plugin is off.
+
+Events are **atomic**, never composite: a role swap emits two lines (`role_gained` +
+`role_lost`), each gated by its own toggle, rather than a combined `roles_changed` — so the
+toggles compose cleanly with no hidden "swap logs nothing" gap, and each message stays a flat
+i18n string with no conditionals.
+
+Message text is `config/locales/activity_log.en.yml`, nested by plugin, looked up with
+`I18n.t("activity_log.#{plugin}.#{event}", locale: :en, raise: true)` — the bot is
+English-only, so I18n is a string registry here, not localization. `**options` are
+interpolation values; Array values are run through `to_sentence` so `roles: ["A", "B"]`
+renders "A and B". Adding a loggable event = a key in the locale file + a `record` call. A
+bad plugin/event **raises** (missing translation surfaces in the consumer's spec;
+owner-reported in prod via `BaseEvent`); only the channel send is rescued, so a delivery
+failure never breaks the user's action. Welcomes are excluded by design. Roles assignment is
+the first consumer — `Roles::ComponentHandler#log_assignment` diffs gained/lost from the
+pre-apply roles and emits one atomic event per non-empty side.
+
+The enumerable catalog of each plugin's loggable events (so the web tab can render the toggle
+list) is a Phase 7 concern — a per-plugin declaration added when that UI is built. The bot
+side doesn't need it: the i18n lookup raising on an unknown key covers typos.
+
 ## Sharding
 
 Static only (`SHARD_COUNT`, floored at 1). discordrb is one shard per `Bot` instance,
