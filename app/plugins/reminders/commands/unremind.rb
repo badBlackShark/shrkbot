@@ -25,7 +25,7 @@ module Reminders
     private
 
     def choice_label(reminder)
-      "#{reminder.message.truncate(75)} (#{reminder.remind_at.strftime("%b %-d %H:%M %Z")})"
+      "#{Discord::Truncate.call(reminder.message, 75)} (#{reminder.remind_at.strftime("%b %-d %H:%M %Z")})"
     end
   end
 end
