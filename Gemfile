@@ -32,6 +32,8 @@ gem "omniauth-discord"
 gem "omniauth-rails_csrf_protection"
 # Redis: web->bot config propagation (pub/sub) and background jobs
 gem "redis"
+# Heroicons (v2) as inline SVG for the web UI
+gem "heroicons"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
