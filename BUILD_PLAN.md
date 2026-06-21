@@ -51,17 +51,19 @@ Each phase ends with a **verification gate** — don't advance until it passes. 
 - Role sync must also capture each role's `position` + `managed`, and the bot's highest-role position, so the Phase 7 role configurator can grey out roles the bot can't assign. (Done for channels/roles/overwrites; `position`/`managed`/bot-top-role still TODO — add when building Roles.)
 - **GATE:** test server's channels/roles/overwrites reflected in DB.
 
-## Phase 6 — Web: auth
-- OmniAuth Discord (`identify email guilds`) + CSRF; `User` model + session.
-- Manageable-server list = user is admin/Manage-Server ∩ bot present.
-- **GATE:** login works; correct server list shown.
+## Phase 6 — Web: auth  ⟶ PART 1 DONE (#52), PART 2 IS THE CURRENT NEXT STEP
+- OmniAuth Discord (`identify email guilds`) + CSRF; `User` model + session. **DONE (#52)** — `User` (PK `usr_`), `SessionsController`, `current_user`. **Phlex** introduced as the view layer (`phlex-rails`; renders into the ERB layout). Live login verified by Tim.
+- Manageable-server list = user is admin/Manage-Server ∩ bot present. **← NEXT (part 2).** `GET /users/@me/guilds` with the OAuth bearer token (behind a seam, mocked in specs); manageable = owner OR ADMINISTRATOR(0x8)/MANAGE_GUILD(0x20) ∩ `ServerConfiguration.exists?`. Server-picker page in Phlex; add `require_login` + memoize `current_user`.
+- **GATE:** login works (done); correct server list shown (part 2).
 
 ## Phase 7 — Web: config UI
+- **Design brief at `docs/design-brief.md` (#54)** — hand to Claude Design (repo-connected); apply its HTML+Tailwind output as Phlex components.
 - One page per plugin: Turbo auto-save, reusable Stimulus enable-gate controller, Tom Select dropdowns (channels/roles from synced metadata).
 - Roles configurator: grey out / disable roles above the bot's highest role (and `managed` roles) in the selector, with a tooltip explaining why. UI prevention only — NOT a backend constraint; the op still fails gracefully on a forged request asking for an unassignable role.
 - Per-plugin docs page (introspect command registry + `requires_permissions`).
 - Server-level settings (`force_dm_reminders`).
 - Web UI strings go through Rails I18n (idiomatic, ~free). Bot stays English.
+- Deferred TODOs to land here: **F4 logging tab** (a setter op for `logging_settings.enabled_actions` + an enumerable per-plugin catalog of loggable events to render the toggles — none exists yet; enabling an event is DB-only until then); **owner-only admin page** (owner-DM toggle, deferred from Phase 3 awaiting auth). Roles grey-out data is ready (`bot_role_position`/`position`/`managed`, #51).
 - **GATE:** toggle a plugin, set a log channel, configure roles — all persist + validate.
 
 ## Phase 8 — Wiring: Redis pub/sub + Sidekiq
