@@ -3,11 +3,15 @@ require "rails_helper"
 RSpec.describe Discord::UserGuilds do
   subject(:fetch) { described_class.call("access-token") }
 
+  let(:http) { instance_double(Net::HTTP) }
   let(:response) { instance_double(Net::HTTPResponse, code: code, body: body) }
   let(:code) { "200" }
   let(:body) { [{"id" => "42", "name" => "Dev Refuge", "owner" => true, "permissions" => "8", "icon" => nil}].to_json }
 
-  before { allow(Net::HTTP).to receive(:start).and_return(response) }
+  before do
+    allow(http).to receive(:request).and_return(response)
+    allow(Net::HTTP).to receive(:start).and_yield(http).and_return(response)
+  end
 
   it "maps the response into guilds" do
     expect(fetch).to contain_exactly(an_instance_of(Discord::Guild))
