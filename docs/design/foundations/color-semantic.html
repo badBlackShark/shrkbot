@@ -1,0 +1,23 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Semantic" subtitle="Success · Warning · Danger — used sparingly" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--font-sans); background: var(--surface-card); color: var(--text-primary); padding: var(--space-6); }
+  .row { display: flex; gap: var(--space-4); }
+  .item { flex: 1; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-md); }
+  .dot { width: 34px; height: 34px; border-radius: var(--radius-sm); flex: none; }
+  .lbl { font-weight: var(--weight-semibold); font-size: var(--text-sm); }
+  .hx { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="item" style="background:var(--green-50)"><div class="dot" style="background:var(--success)"></div><div><div class="lbl">Success</div><div class="hx">#2faf6b</div></div></div>
+    <div class="item" style="background:var(--amber-50)"><div class="dot" style="background:var(--warning)"></div><div><div class="lbl">Warning</div><div class="hx">#e8a13a</div></div></div>
+    <div class="item" style="background:var(--red-50)"><div class="dot" style="background:var(--danger)"></div><div><div class="lbl">Danger</div><div class="hx">#e0533d</div></div></div>
+  </div>
+</body>
+</html>

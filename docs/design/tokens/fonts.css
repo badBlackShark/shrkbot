@@ -1,0 +1,65 @@
+/* shrkbot webfonts — self-hosted @font-face declarations.
+   No CDN in production; all typefaces served locally.
+
+   ── Space Grotesk (Display) ──────────────────────────────────
+   Files imported from github.com/floriankarsten/space-grotesk.
+   Variable font covers wght 300–700; static WOFF2 for older engines. */
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('../fonts/woff2/SpaceGrotesk[wght].woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('../fonts/woff2/static/SpaceGrotesk-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('../fonts/woff2/static/SpaceGrotesk-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── IBM Plex Sans (Body/UI) ─────────────────────────────────
+   Files imported from github.com/IBM/plex (OFL-1.1 license).
+   Landed at packages/plex-sans/fonts/complete/woff2/. */
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('../packages/plex-sans/fonts/complete/woff2/IBMPlexSans-Regular.woff2') format('woff2');
+  font-weight: 400; font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('../packages/plex-sans/fonts/complete/woff2/IBMPlexSans-Medium.woff2') format('woff2');
+  font-weight: 500; font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('../packages/plex-sans/fonts/complete/woff2/IBMPlexSans-SemiBold.woff2') format('woff2');
+  font-weight: 600; font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  src: url('../packages/plex-sans/fonts/complete/woff2/IBMPlexSans-Bold.woff2') format('woff2');
+  font-weight: 700; font-display: swap;
+}
+
+/* ── IBM Plex Mono (Code) ────────────────────────────────────
+   Files imported from github.com/IBM/plex (OFL-1.1 license).
+   Landed at packages/plex-mono/fonts/complete/woff2/. */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('../packages/plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2') format('woff2');
+  font-weight: 400; font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('../packages/plex-mono/fonts/complete/woff2/IBMPlexMono-Medium.woff2') format('woff2');
+  font-weight: 500; font-display: swap;
+}

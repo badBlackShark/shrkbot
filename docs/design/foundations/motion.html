@@ -1,0 +1,65 @@
+<!-- @dsCard group="Spacing" viewport="700x320" name="Motion Patterns" subtitle="CSS-only · btn-fill · card-lift · menu/toast/fade · prefers-reduced-motion" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin:0; font-family:var(--font-sans); background:var(--surface-page); color:var(--text-primary); padding:var(--space-6); }
+  .lbl { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-6); }
+  .col  { display:flex; flex-direction:column; gap:var(--space-3); }
+
+  /* btn-fill demo (mirrors tokens/motion.css) */
+  .demo-btn { height:40px; padding:0 18px; border:none; border-radius:var(--radius-md); font-family:var(--font-sans); font-size:var(--text-sm); font-weight:var(--weight-semibold); cursor:pointer; }
+  .demo-btn span { position:relative; z-index:1; }
+
+  /* card-lift demo */
+  .demo-card { background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:var(--space-4); font-size:var(--text-sm); color:var(--text-secondary); cursor:pointer; }
+
+  /* menu-enter demo */
+  .demo-menu { background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-md); box-shadow:var(--shadow-lg); padding:var(--space-2); font-size:var(--text-sm); }
+  .demo-menu-item { padding:8px 12px; border-radius:var(--radius-sm); color:var(--text-primary); }
+  .demo-menu-item:hover { background:var(--surface-sunken); }
+
+  /* token table */
+  .tok-row { display:flex; gap:var(--space-3); align-items:center; }
+  .tok-label { font-family:var(--font-mono); font-size:11px; color:var(--text-muted); flex:1; }
+  .tok-val { font-size:var(--text-xs); color:var(--text-secondary); }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <div class="col">
+      <span class="lbl">btn-fill (primary)</span>
+      <button class="demo-btn btn-fill btn-fill-primary" style="background:var(--accent);color:#fff">
+        <span>Save changes</span>
+      </button>
+
+      <span class="lbl" style="margin-top:8px">btn-fill (ghost)</span>
+      <button class="demo-btn btn-fill btn-fill-ghost" style="background:var(--surface-card);color:var(--text-primary);border:1px solid var(--border-strong)">
+        <span>Cancel</span>
+      </button>
+
+      <span class="lbl" style="margin-top:8px">card-lift</span>
+      <div class="demo-card card-lift">Hover me — lifts 2px + deeper shadow</div>
+    </div>
+
+    <div class="col">
+      <span class="lbl">anim-menu (menuEnter ↓)</span>
+      <div class="demo-menu anim-menu">
+        <div class="demo-menu-item">Dev Refuge — 2 plugins on</div>
+        <div class="demo-menu-item">Speedrun HQ — 0 plugins on</div>
+        <div style="height:1px;background:var(--border-subtle);margin:4px 0"></div>
+        <div class="demo-menu-item" style="color:var(--text-secondary)">＋ Add another server</div>
+      </div>
+
+      <span class="lbl" style="margin-top:4px">Timing tokens</span>
+      <div class="tok-row"><span class="tok-label">--dur-fast</span><span class="tok-val">120ms · micro hover</span></div>
+      <div class="tok-row"><span class="tok-label">--dur-base</span><span class="tok-val">180ms · components</span></div>
+      <div class="tok-row"><span class="tok-label">--dur-slow</span><span class="tok-val">260ms · overlays</span></div>
+      <div class="tok-row"><span class="tok-label">--ease-standard</span><span class="tok-val">cubic-bezier(.2,0,0,1)</span></div>
+    </div>
+  </div>
+</body>
+</html>

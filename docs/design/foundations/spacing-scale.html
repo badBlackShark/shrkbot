@@ -1,0 +1,29 @@
+<!-- @dsCard group="Spacing" viewport="700x170" name="Spacing Scale" subtitle="4px base grid" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--font-sans); background: var(--surface-card); color: var(--text-primary); padding: var(--space-6); }
+  .row { display: flex; align-items: flex-end; gap: var(--space-4); }
+  .col { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); }
+  .bar { background: var(--accent); border-radius: var(--radius-xs); height: 28px; }
+  .tk { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="col"><div class="bar" style="width:4px"></div><span class="tk">1·4</span></div>
+    <div class="col"><div class="bar" style="width:8px"></div><span class="tk">2·8</span></div>
+    <div class="col"><div class="bar" style="width:12px"></div><span class="tk">3·12</span></div>
+    <div class="col"><div class="bar" style="width:16px"></div><span class="tk">4·16</span></div>
+    <div class="col"><div class="bar" style="width:20px"></div><span class="tk">5·20</span></div>
+    <div class="col"><div class="bar" style="width:24px"></div><span class="tk">6·24</span></div>
+    <div class="col"><div class="bar" style="width:32px"></div><span class="tk">8·32</span></div>
+    <div class="col"><div class="bar" style="width:40px"></div><span class="tk">10·40</span></div>
+    <div class="col"><div class="bar" style="width:48px"></div><span class="tk">12·48</span></div>
+    <div class="col"><div class="bar" style="width:64px"></div><span class="tk">16·64</span></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!-- @dsCard group="Components" viewport="700x470" name="Controls" subtitle="Buttons · badges · switch · checkbox · inputs · selects" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { theme: { extend: {
+    colors: { brand:{50:'#ecf8fe',100:'#cfeefc',200:'#a6e0f9',300:'#6fccf3',400:'#4cb9ec',500:'#39afe5',600:'#1f8fc4',700:'#1a729e',800:'#1b5f80',900:'#1c506b'},
+      ink:{0:'#fff',25:'#fafbfc',50:'#f4f6f8',100:'#e9edf1',200:'#d7dee5',300:'#b9c4cf',400:'#8b99a7',500:'#677483',600:'#4d5763',700:'#3a424c',800:'#262c33',900:'#161a1f'},
+      success:'#2faf6b','success-soft':'#e8f7ef',warning:'#e8a13a','warning-soft':'#fdf3e3',danger:'#e0533d','danger-soft':'#fcecea' },
+    fontFamily:{ display:['"Space Grotesk"','"IBM Plex Sans"','system-ui','sans-serif'], sans:['"IBM Plex Sans"','system-ui','sans-serif'], mono:['"IBM Plex Mono"','ui-monospace','monospace'] },
+    borderRadius:{ sm:'6px', md:'10px', lg:'14px', xl:'20px' },
+    boxShadow:{ sm:'0 1px 3px rgba(22,26,31,.08),0 1px 2px rgba(22,26,31,.04)' } } } };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<style>body{font-family:"IBM Plex Sans",system-ui,sans-serif}.lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8b99a7}</style>
+</head>
+<body class="bg-ink-50 text-ink-900 p-6">
+  <div class="flex flex-col gap-6">
+
+    <div class="flex items-center gap-3 flex-wrap">
+      <span class="lbl w-full">Buttons</span>
+      <button class="h-10 px-4 inline-flex items-center gap-2 rounded-md bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold transition-colors">Save changes</button>
+      <button class="h-10 px-4 inline-flex items-center gap-2 rounded-md bg-white border border-ink-300 text-sm font-semibold hover:bg-ink-50 transition"><i data-lucide="plus" class="w-4 h-4"></i> Add role set</button>
+      <button class="h-10 px-4 inline-flex items-center rounded-md text-ink-600 text-sm font-semibold hover:bg-ink-100 transition">Cancel</button>
+      <button class="h-10 px-4 inline-flex items-center rounded-md bg-danger hover:bg-danger/90 text-white text-sm font-semibold transition">Remove</button>
+      <button class="h-10 px-4 inline-flex items-center rounded-md bg-brand-500 text-white text-sm font-semibold opacity-50 cursor-not-allowed" disabled>Disabled</button>
+      <button class="h-8 px-3 inline-flex items-center rounded-md bg-brand-500 text-white text-xs font-semibold">Small</button>
+    </div>
+
+    <div class="flex items-center gap-2.5 flex-wrap">
+      <span class="lbl w-full">Badges</span>
+      <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-success bg-success-soft px-2.5 py-1 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-success"></span>Enabled</span>
+      <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-500 bg-ink-100 px-2.5 py-1 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-ink-400"></span>Off</span>
+      <span class="text-xs font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-full">Global</span>
+      <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-warning bg-warning-soft px-2.5 py-1 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-warning"></span>Needs setup</span>
+      <span class="text-xs font-semibold text-danger bg-danger-soft px-2.5 py-1 rounded-full">Error</span>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6">
+      <div class="flex flex-col gap-3">
+        <span class="lbl">Switch &amp; Checkbox</span>
+        <div class="flex items-center gap-4">
+          <button role="switch" aria-checked="true" data-on="true" onclick="toggleSwitch(this)"
+            style="position:relative;width:46px;height:26px;flex:none;border:none;border-radius:999px;cursor:pointer;padding:0;background:#39afe5;transition:background 180ms cubic-bezier(.2,0,0,1);outline:none">
+            <span style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:translateX(20px);transition:transform 220ms cubic-bezier(.2,0,0,1)"></span>
+          </button>
+          <button role="switch" aria-checked="false" data-on="false" onclick="toggleSwitch(this)"
+            style="position:relative;width:46px;height:26px;flex:none;border:none;border-radius:999px;cursor:pointer;padding:0;background:#b9c4cf;transition:background 180ms cubic-bezier(.2,0,0,1);outline:none">
+            <span style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:translateX(0);transition:transform 220ms cubic-bezier(.2,0,0,1)"></span>
+          </button>
+          <button role="switch" aria-checked="true" disabled
+            style="position:relative;width:46px;height:26px;flex:none;border:none;border-radius:999px;cursor:not-allowed;padding:0;background:#39afe5;opacity:.45;outline:none">
+            <span style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:translateX(20px)"></span>
+          </button>
+        </div>
+        <label class="flex items-start gap-3 cursor-pointer">
+          <span class="w-5 h-5 mt-0.5 flex-none rounded bg-brand-500 grid place-items-center"><i data-lucide="check" class="w-3 h-3 text-white" stroke-width="3.5"></i></span>
+          <span><span class="text-sm font-medium">Force DM reminders</span><span class="block text-xs text-ink-400 mt-0.5">Deliver to DMs even when a channel is set.</span></span>
+        </label>
+      </div>
+      <div class="flex flex-col gap-3">
+        <span class="lbl">Text input</span>
+        <input value="Welcome {user}!" class="w-full h-10 px-3 rounded-md border-[1.5px] border-ink-300 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/30" />
+        <div class="h-10 px-3 rounded-md border-[1.5px] border-brand-500 ring-[3px] ring-brand-500/30 bg-white flex items-center text-sm text-ink-400">Focused field</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-6">
+      <div class="flex flex-col gap-2">
+        <span class="lbl">Channel select</span>
+        <div class="h-10 px-3 rounded-md border-[1.5px] border-ink-300 bg-white flex items-center gap-2 text-sm"><span class="font-mono text-ink-400">#</span> mod-log <i data-lucide="chevron-down" class="w-4 h-4 text-ink-400 ml-auto"></i></div>
+      </div>
+      <div class="flex flex-col gap-2">
+        <span class="lbl">Role multi-select</span>
+        <div class="min-h-10 px-2.5 py-1.5 rounded-md border-[1.5px] border-ink-300 bg-white flex items-center gap-1.5 flex-wrap text-sm">
+          <span class="inline-flex items-center gap-1.5 pl-2 pr-1.5 py-1 bg-brand-50 border border-brand-200 rounded-md text-brand-700 text-xs font-medium"><span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span>Valorant pings <span class="text-brand-600">✕</span></span>
+          <span class="inline-flex items-center gap-1.5 pl-2 pr-1.5 py-1 bg-brand-50 border border-brand-200 rounded-md text-brand-700 text-xs font-medium"><span class="w-2.5 h-2.5 rounded-full bg-success"></span>Minecraft pings <span class="text-brand-600">✕</span></span>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-ink-400 ml-auto"></i>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script>
+    lucide.createIcons();
+    function toggleSwitch(btn){
+      const on = btn.dataset.on !== 'true';
+      btn.dataset.on = on;
+      btn.setAttribute('aria-checked', on);
+      btn.style.background = on ? '#39afe5' : '#b9c4cf';
+      btn.querySelector('span').style.transform = on ? 'translateX(20px)' : 'translateX(0)';
+    }
+  </script>
+</body>
+</html>

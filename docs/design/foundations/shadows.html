@@ -1,0 +1,24 @@
+<!-- @dsCard group="Spacing" viewport="700x190" name="Elevation" subtitle="Soft cool shadows — restrained" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; font-family: var(--font-sans); background: var(--surface-page); color: var(--text-primary); padding: var(--space-8); }
+  .row { display: flex; gap: var(--space-6); }
+  .col { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
+  .box { width: 96px; height: 64px; background: var(--surface-card); border-radius: var(--radius-md); }
+  .tk { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="col"><div class="box" style="box-shadow:var(--shadow-xs)"></div><span class="tk">xs</span></div>
+    <div class="col"><div class="box" style="box-shadow:var(--shadow-sm)"></div><span class="tk">sm</span></div>
+    <div class="col"><div class="box" style="box-shadow:var(--shadow-md)"></div><span class="tk">md</span></div>
+    <div class="col"><div class="box" style="box-shadow:var(--shadow-lg)"></div><span class="tk">lg</span></div>
+    <div class="col"><div class="box" style="box-shadow:var(--shadow-accent)"></div><span class="tk">accent</span></div>
+  </div>
+</body>
+</html>

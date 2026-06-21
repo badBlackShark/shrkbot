@@ -1,0 +1,44 @@
+<!-- @dsCard group="Colors" viewport="700x220" name="Dark mode" subtitle="[data-theme=dark] token swap — accent stays #39afe5" -->
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin:0; font-family:var(--font-sans); background:var(--surface-page); color:var(--text-primary); padding:var(--space-6); }
+  .row { display:flex; gap:var(--space-4); flex-wrap:wrap; }
+  .sw  { display:flex; flex-direction:column; gap:var(--space-2); min-width:80px; }
+  .chip { height:48px; border-radius:var(--radius-md); border:1px solid var(--border-subtle); }
+  .nm { font-size:10px; font-weight:700; color:var(--text-secondary); }
+  .hx { font-family:var(--font-mono); font-size:10px; color:var(--text-muted); }
+  .acc { outline:2px solid var(--accent); outline-offset:2px; }
+  .hr { height:1px; background:var(--border-default); margin:var(--space-4) 0; }
+  .card { background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-lg); padding:var(--space-4) var(--space-5); display:flex; align-items:center; gap:var(--space-3); }
+  .note { font-size:var(--text-xs); color:var(--text-muted); margin-top:var(--space-3); }
+</style>
+</head>
+<body>
+  <div class="row">
+    <div class="sw"><div class="chip" style="background:var(--surface-page)"></div><div class="nm">Page</div></div>
+    <div class="sw"><div class="chip" style="background:var(--surface-card)"></div><div class="nm">Card</div></div>
+    <div class="sw"><div class="chip" style="background:var(--surface-sunken)"></div><div class="nm">Sunken</div></div>
+    <div class="sw"><div class="chip" style="background:var(--border-default)"></div><div class="nm">Border</div></div>
+    <div class="sw"><div class="chip acc" style="background:var(--accent)"></div><div class="nm">Accent ★</div><div class="hx">#39afe5</div></div>
+    <div class="sw"><div class="chip" style="background:var(--accent-soft)"></div><div class="nm">Acc-soft</div></div>
+    <div class="sw"><div class="chip" style="background:var(--surface-card);display:flex;align-items:center;justify-content:center;font-size:var(--text-xs);color:var(--text-primary)">Aa</div><div class="nm">Text</div></div>
+    <div class="sw"><div class="chip" style="background:var(--surface-card);display:flex;align-items:center;justify-content:center;font-size:var(--text-xs);color:var(--text-secondary)">Aa</div><div class="nm">Secondary</div></div>
+  </div>
+  <div class="hr"></div>
+  <div class="card">
+    <div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--accent);display:flex;align-items:center;justify-content:center;flex:none">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
+    <div>
+      <div style="font-weight:600;font-size:var(--text-sm)">Roles</div>
+      <div style="font-size:var(--text-xs);color:var(--text-secondary)">Self-assignable role menus · 2 sets configured.</div>
+    </div>
+    <span style="margin-left:auto;font-size:11px;font-weight:600;background:rgba(47,175,107,.15);color:#4eca87;padding:3px 10px;border-radius:999px">Enabled</span>
+  </div>
+  <p class="note">Preview rendered in dark mode. Toggle via <code style="font-family:var(--font-mono)">[data-theme="dark"]</code> on <code style="font-family:var(--font-mono)">html</code>.</p>
+</body>
+</html>
