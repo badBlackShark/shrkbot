@@ -3,32 +3,17 @@
 class Views::Home < Views::Base
   include Phlex::Rails::Helpers::ButtonTo
 
-  def initialize(user:)
-    @user = user
-  end
-
   def view_template
     div(class: "mx-auto max-w-md") do
       h1(class: "mb-2 text-3xl font-bold") { "shrkbot" }
-
-      if @user
-        p(class: "mb-6 text-gray-600") { "Signed in as #{@user.username}." }
-        button_to(
-          "Sign out",
-          logout_path,
-          method: :delete,
-          class: "rounded-md bg-gray-200 px-4 py-2 font-medium hover:bg-gray-300"
-        )
-      else
-        p(class: "mb-6 text-gray-600") { "Sign in to configure shrkbot for your servers." }
-        button_to(
-          "Sign in with Discord",
-          "/auth/discord",
-          method: :post,
-          data: {turbo: false},
-          class: "rounded-md bg-[#39afe5] px-4 py-2 font-medium text-white hover:brightness-95"
-        )
-      end
+      p(class: "mb-6 text-gray-600") { "Sign in to configure shrkbot for your servers." }
+      button_to(
+        "Sign in with Discord",
+        "/auth/discord",
+        method: :post,
+        data: {turbo: false},
+        class: "rounded-md bg-[#39afe5] px-4 py-2 font-medium text-white hover:brightness-95"
+      )
     end
   end
 end

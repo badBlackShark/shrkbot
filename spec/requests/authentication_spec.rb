@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "Authentication", type: :request do
-  let(:auth) { OmniAuth::AuthHash.new(provider: "discord", uid: "12345", info: {name: "shrk"}) }
+  let(:auth) { OmniAuth::AuthHash.new(provider: "discord", uid: "12345", info: {name: "shrk"}, credentials: {token: "discord-access-token"}) }
 
   before do
     OmniAuth.config.test_mode = true
@@ -18,10 +18,10 @@ RSpec.describe "Authentication", type: :request do
   describe "the Discord callback" do
     subject(:callback) { post "/auth/discord/callback" }
 
-    it "signs the user in and redirects home" do
+    it "signs the user in and redirects to the server picker" do
       expect { callback }.to change(User, :count).by(1)
       expect(session[:user_id]).to eq(User.find_by(discord_id: 12345).id)
-      expect(callback).to redirect_to(root_path)
+      expect(callback).to redirect_to(servers_path)
     end
   end
 
@@ -55,11 +55,11 @@ RSpec.describe "Authentication", type: :request do
       expect(response.body).to include('data-turbo="false"')
     end
 
-    it "greets the user once signed in" do
+    it "redirects a signed-in user to the server picker" do
       post "/auth/discord/callback"
       get root_path
 
-      expect(response.body).to include("Signed in as shrk")
+      expect(response).to redirect_to(servers_path)
     end
   end
 end
