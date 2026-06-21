@@ -1,0 +1,124 @@
+/* ─────────────────────────────────────────────────────────────
+   shrkbot · COLOR TOKENS
+   Brand accent is the bot's own Components-V2 container color:
+   BotConfig::ACCENT_COLOR = 0x39afe5  →  #39afe5  (sky blue).
+   Everything else is a cool slate neutral chosen to sit calmly
+   under that one bright, friendly accent.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* — Brand: Sky — */
+  --sky-50:  #ecf8fe;
+  --sky-100: #cfeefc;
+  --sky-200: #a6e0f9;
+  --sky-300: #6fccf3;
+  --sky-400: #4cb9ec;
+  --sky-500: #39afe5;   /* ← brand accent (0x39afe5) */
+  --sky-600: #1f8fc4;
+  --sky-700: #1a729e;
+  --sky-800: #1b5f80;
+  --sky-900: #1c506b;
+
+  /* — Neutral: Slate (cool) — */
+  --slate-0:   #ffffff;
+  --slate-25:  #fafbfc;
+  --slate-50:  #f4f6f8;
+  --slate-100: #e9edf1;
+  --slate-200: #d7dee5;
+  --slate-300: #b9c4cf;
+  --slate-400: #8b99a7;
+  --slate-500: #677483;
+  --slate-600: #4d5763;
+  --slate-700: #3a424c;
+  --slate-800: #262c33;
+  --slate-900: #161a1f;
+  --slate-950: #0d0f12;
+
+  /* — Semantic hues — */
+  --green-50:  #e8f7ef;
+  --green-500: #2faf6b;
+  --green-600: #228a53;
+  --amber-50:  #fdf3e3;
+  --amber-500: #e8a13a;
+  --amber-600: #c47f1e;
+  --red-50:    #fcecea;
+  --red-500:   #e0533d;
+  --red-600:   #c23a26;
+
+  /* — Discord surface refs (used only by the Bot Messages UI kit to
+       mimic Discord's environment — NOT shrkbot brand surfaces) — */
+  --discord-bg:        #313338;
+  --discord-bg-deep:   #2b2d31;
+  --discord-card:      #2b2d31;
+  --discord-text:      #dbdee1;
+  --discord-text-dim:  #b5bac1;
+  --discord-link:      #00a8fc;
+  --discord-divider:   #3f4147;
+
+  /* ── Semantic aliases ── */
+  --text-primary:   var(--slate-900);
+  --text-secondary: var(--slate-600);
+  --text-muted:     var(--slate-400);
+  --text-inverse:   var(--slate-0);
+  --text-link:      var(--sky-700);
+  --text-on-accent: #ffffff;
+
+  --surface-page:    var(--slate-50);
+  --surface-card:    var(--slate-0);
+  --surface-raised:  var(--slate-0);
+  --surface-sunken:  var(--slate-100);
+  --surface-inverse: var(--slate-900);
+
+  --border-subtle:  var(--slate-100);
+  --border-default: var(--slate-200);
+  --border-strong:  var(--slate-300);
+
+  --accent:          var(--sky-500);
+  --accent-hover:    var(--sky-600);
+  --accent-active:   var(--sky-700);
+  --accent-soft:     var(--sky-50);
+  --accent-soft-bd:  var(--sky-200);
+
+  --success: var(--green-500);
+  --warning: var(--amber-500);
+  --danger:  var(--red-500);
+
+  --focus-ring: color-mix(in srgb, var(--sky-500) 45%, transparent);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DARK PALETTE
+   Token swap under [data-theme="dark"].
+   Brand accent #39afe5 (--sky-500) is intentionally unchanged.
+
+   Tailwind v4 production path: in @theme, reference raw channel
+   variables (--ink-600-raw etc.) so that `text-ink-600` responds
+   to the selector automatically — no duplicate dark: utilities.
+   Prototype HTML uses CSS !important overrides instead (see the
+   dashboard's <style> block).
+   ───────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --text-primary:    #e6edf3;
+  --text-secondary:  #8b949e;
+  --text-muted:      #484f58;
+  --text-inverse:    #161a1f;
+  --text-link:       var(--sky-300);
+  --text-on-accent:  #ffffff;
+
+  --surface-page:    #0d1117;
+  --surface-card:    #161b22;
+  --surface-raised:  #1e2530;
+  --surface-sunken:  #090d14;
+  --surface-inverse: #e6edf3;
+
+  --border-subtle:   #21262d;
+  --border-default:  #30363d;
+  --border-strong:   #3d444d;
+
+  /* accent stays var(--sky-500) = #39afe5 */
+  --accent-hover:    var(--sky-400);
+  --accent-active:   var(--sky-300);
+  --accent-soft:     rgba(57,175,229,.13);
+  --accent-soft-bd:  rgba(57,175,229,.28);
+
+  --focus-ring: color-mix(in srgb, var(--sky-500) 35%, transparent);
+}

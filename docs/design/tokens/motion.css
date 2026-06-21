@@ -1,0 +1,63 @@
+/* ─────────────────────────────────────────────────────────────
+   shrkbot · MOTION PATTERNS
+   CSS-only. Quick + calm — no bounce, no loops, nothing flashy.
+   Honors prefers-reduced-motion: reduce.
+
+   Token reference (from spacing.css):
+     --dur-fast: 120ms   micro (hover fills, knob)
+     --dur-base: 180ms   components (menus, toasts, cards)
+     --dur-slow: 260ms   page / overlay transitions
+     --ease-standard: cubic-bezier(0.2, 0, 0, 1)
+
+   Patterns:
+   1. btn-fill        – primary/ghost button fill left→right on hover
+   2. card-lift       – interactive card lifts 2px + deeper shadow
+   3. menuEnter       – dropdown slides in from above (6px)
+   4. slideUp         – toast enters from below (8px)
+   5. fadeIn          – gate overlay / generic fade
+   6. switch knob     – already CSS transition; use --ease-standard
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Keyframes ── */
+@keyframes menuEnter {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Button fill left→right ──
+   Add class="btn-fill btn-fill-primary" (or -secondary / -ghost) to any button.
+   All direct children must have `position:relative; z-index:1` so the
+   ::after fill layer doesn't obscure them. */
+.btn-fill            { position: relative; overflow: hidden; }
+.btn-fill::after     { content: ''; position: absolute; inset: 0; transform: scaleX(0); transform-origin: left center; transition: transform var(--dur-base) var(--ease-standard); pointer-events: none; }
+.btn-fill:hover::after { transform: scaleX(1); }
+.btn-fill > *        { position: relative; z-index: 1; }
+.btn-fill-primary::after  { background: var(--accent-hover); }
+.btn-fill-secondary::after { background: var(--surface-sunken); }
+.btn-fill-ghost::after     { background: var(--surface-sunken); }
+
+/* ── Interactive card lift ── */
+.card-lift { transition: transform var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard), border-color var(--dur-base); }
+.card-lift:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(22,26,31,.1), 0 2px 6px rgba(22,26,31,.06); }
+
+/* ── Utility animation classes ── */
+.anim-menu  { animation: menuEnter var(--dur-base) var(--ease-standard); }
+.anim-toast { animation: slideUp   var(--dur-base) var(--ease-standard) forwards; }
+.anim-fade  { animation: fadeIn    var(--dur-slow); }
+
+/* ── Reduce motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .btn-fill::after    { transition: none; transform: scaleX(1); }
+  .card-lift          { transition: none; }
+  .anim-menu,
+  .anim-toast,
+  .anim-fade          { animation: none; }
+}
