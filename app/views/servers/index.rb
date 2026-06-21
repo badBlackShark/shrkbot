@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Views::Servers::Index < Views::Base
+  include Phlex::Rails::Helpers::ButtonTo
+
   def initialize(present:, absent:, error: false)
     @present = present
     @absent = absent
@@ -9,8 +11,13 @@ class Views::Servers::Index < Views::Base
 
   def view_template
     div(class: "mx-auto max-w-4xl px-6 py-10") do
-      h1(class: "mb-1 text-2xl font-bold") { "Your servers" }
-      p(class: "mb-6 text-gray-600") { "Pick a server to configure. Servers without shrkbot show an invite link instead." }
+      div(class: "mb-6 flex items-start justify-between gap-4") do
+        div do
+          h1(class: "mb-1 text-2xl font-bold") { "Your servers" }
+          p(class: "text-gray-600") { "Pick a server to configure. Servers without shrkbot show an invite link instead." }
+        end
+        sign_out_button
+      end
 
       error_banner if @error
 
@@ -26,6 +33,15 @@ class Views::Servers::Index < Views::Base
   end
 
   private
+
+  def sign_out_button
+    button_to(
+      "Sign out",
+      logout_path,
+      method: :delete,
+      class: "flex-none rounded-md border border-gray-300 px-3 py-1.5 text-sm font-semibold hover:bg-gray-50"
+    )
+  end
 
   def present_card(guild)
     # future (Phase 7): link to the server's config dashboard
@@ -44,8 +60,16 @@ class Views::Servers::Index < Views::Base
 
   def card_heading(guild)
     div(class: "flex items-center gap-3") do
-      span(class: "grid h-12 w-12 place-items-center rounded-lg bg-gray-100 font-semibold text-gray-600") { initials(guild.name) }
+      avatar(guild)
       span(class: "truncate font-semibold") { guild.name }
+    end
+  end
+
+  def avatar(guild)
+    if guild.icon_url
+      img(src: guild.icon_url, alt: "", loading: "lazy", class: "h-12 w-12 flex-none rounded-lg object-cover")
+    else
+      span(class: "grid h-12 w-12 flex-none place-items-center rounded-lg bg-gray-100 font-semibold text-gray-600") { initials(guild.name) }
     end
   end
 

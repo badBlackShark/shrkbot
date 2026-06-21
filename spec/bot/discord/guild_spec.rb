@@ -54,4 +54,22 @@ RSpec.describe Discord::Guild do
       it { is_expected.to be(false) }
     end
   end
+
+  describe "#icon_url" do
+    subject(:icon_url) { described_class.new(id: 7, name: "S", owner: false, permissions: 0, icon:).icon_url }
+
+    context "with an icon" do
+      let(:icon) { "abc123" }
+
+      it "builds the Discord CDN URL" do
+        expect(icon_url).to eq("https://cdn.discordapp.com/icons/7/abc123.png?size=64")
+      end
+    end
+
+    context "without an icon" do
+      let(:icon) { nil }
+
+      it { is_expected.to be_nil }
+    end
+  end
 end

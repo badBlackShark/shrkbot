@@ -55,11 +55,11 @@ RSpec.describe "Authentication", type: :request do
       expect(response.body).to include('data-turbo="false"')
     end
 
-    it "greets the user once signed in" do
+    it "redirects a signed-in user to the server picker" do
       post "/auth/discord/callback"
       get root_path
 
-      expect(response.body).to include("Signed in as shrk")
+      expect(response).to redirect_to(servers_path)
     end
   end
 end

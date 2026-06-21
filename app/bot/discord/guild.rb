@@ -16,5 +16,9 @@ module Discord
     def manageable?
       owner || permissions.anybits?(ADMINISTRATOR | MANAGE_GUILD)
     end
+
+    def icon_url
+      "https://cdn.discordapp.com/icons/#{id}/#{icon}.png?size=64" if icon
+    end
   end
 end

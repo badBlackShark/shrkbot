@@ -33,7 +33,7 @@ RSpec.describe "Server picker", type: :request do
     end
 
     context "when signed in" do
-      let(:present_guild) { Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil) }
+      let(:present_guild) { Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: "icyhash") }
       let(:absent_guild) { Discord::Guild.new(id: 900_000_002, name: "Speedrun HQ", owner: false, permissions: 0x20, icon: nil) }
       let(:unmanaged_guild) { Discord::Guild.new(id: 900_000_003, name: "Lurker Lounge", owner: false, permissions: 0, icon: nil) }
 
@@ -43,9 +43,15 @@ RSpec.describe "Server picker", type: :request do
         allow(Discord::UserGuilds).to receive(:call).and_return([present_guild, absent_guild, unmanaged_guild])
       end
 
-      it "lists a managed server the bot is already in" do
+      it "lists a managed server the bot is already in, with its icon" do
         get_servers
         expect(response.body).to include("Dev Refuge")
+        expect(response.body).to include("cdn.discordapp.com/icons/900000001/icyhash.png")
+      end
+
+      it "offers a way to sign out" do
+        get_servers
+        expect(response.body).to include("Sign out")
       end
 
       it "offers an invite for a managed server without the bot" do

@@ -1,5 +1,7 @@
 class PagesController < ApplicationController
   def home
-    render Views::Home.new(user: current_user)
+    return redirect_to servers_path if current_user
+
+    render Views::Home.new
   end
 end
