@@ -1,8 +1,10 @@
 class SessionsController < ApplicationController
   def create
-    user = User.from_omniauth(request.env["omniauth.auth"])
+    auth = request.env["omniauth.auth"]
+    user = User.from_omniauth(auth)
     session[:user_id] = user.id
-    redirect_to root_path, notice: "Signed in as #{user.username}."
+    session[:discord_token] = auth.credentials.token
+    redirect_to servers_path, notice: "Signed in as #{user.username}."
   end
 
   def destroy
