@@ -48,6 +48,15 @@ services:
       redis:
         condition: service_healthy
 
+  css:
+    build: .
+    command: "bin/rails tailwindcss:watch[always]"
+    restart: unless-stopped
+    environment:
+      RAILS_ENV: development
+    volumes:
+      - ./:/app
+
   bot:
     build: .
     command: bin/bot
