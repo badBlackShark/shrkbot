@@ -53,12 +53,15 @@ gem "thruster", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 gem "image_processing", "~> 2.0"
 
-group :development, :test do
-  # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[mri windows], require: "debug/prelude"
+# Load env vars from .env in dev/test (12-factor; prod uses real env). Lives in
+# the default group so the runtime image keeps it when dev/test gems are pruned;
+# dotenv-rails only auto-loads .env in dev/test, so it stays inert in production.
+gem "dotenv-rails"
 
-  # Load env vars from .env in dev/test (12-factor; prod uses real env)
-  gem "dotenv-rails"
+# See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
+gem "debug", platforms: %i[mri windows], require: "debug/prelude"
+
+group :development, :test do
   # House test framework + test-data factories
   gem "rspec-rails"
   gem "factory_bot_rails"

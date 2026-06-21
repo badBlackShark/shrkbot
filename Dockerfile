@@ -14,7 +14,7 @@ WORKDIR /app
 
 # Gems first, for layer caching.
 COPY Gemfile Gemfile.lock ./
-RUN bundle install
+RUN bundle config set --local without "development test" && bundle install
 
 COPY . .
 
