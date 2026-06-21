@@ -20,7 +20,7 @@ RSpec.describe "Authentication", type: :request do
 
     it "signs the user in and redirects home" do
       expect { callback }.to change(User, :count).by(1)
-      expect(session[:user_id]).to eq(User.last.id)
+      expect(session[:user_id]).to eq(User.find_by(discord_id: 12345).id)
       expect(callback).to redirect_to(root_path)
     end
   end
