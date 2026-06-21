@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_20_184029) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_20_185143) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -257,6 +257,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_184029) do
     t.index ["expires_at"], name: "index_solid_queue_semaphores_on_expires_at"
     t.index ["key", "value"], name: "index_solid_queue_semaphores_on_key_and_value"
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
+  end
+
+  create_table "users", id: :string, default: -> { "('usr_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "discord_id", null: false
+    t.datetime "updated_at", null: false
+    t.string "username", null: false
+    t.index ["discord_id"], name: "index_users_on_discord_id", unique: true
   end
 
   create_table "welcome_settings", id: :string, default: -> { "('wls_'::text || gen_random_uuid())" }, force: :cascade do |t|
