@@ -50,6 +50,11 @@ RSpec.describe "Authentication", type: :request do
       expect(response.body).to include("Sign in with Discord")
     end
 
+    it "submits the sign-in natively so Turbo doesn't swallow the cross-origin Discord redirect" do
+      get root_path
+      expect(response.body).to include('data-turbo="false"')
+    end
+
     it "greets the user once signed in" do
       post "/auth/discord/callback"
       get root_path
