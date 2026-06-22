@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     resources :plugins, only: :update, param: :key, module: :servers
     scope module: :servers do
       resource :welcomes, only: [:show, :update]
+      resource :logging, only: [:show, :update], controller: "logging"
     end
   end
 
