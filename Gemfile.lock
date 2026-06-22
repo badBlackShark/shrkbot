@@ -150,6 +150,9 @@ GEM
       activesupport (>= 6.1)
     hashie (5.1.0)
       logger
+    heroicons (2.2.0)
+      nokogiri
+      railties (>= 5.2)
     http-accept (1.7.0)
     http-cookie (1.1.6)
       domain_name (~> 0.5)
@@ -502,6 +505,7 @@ DEPENDENCIES
   discordrb!
   dotenv-rails
   factory_bot_rails
+  heroicons
   image_processing (~> 2.0)
   importmap-rails
   jbuilder
@@ -583,6 +587,7 @@ CHECKSUMS
   fugit (1.12.2) sha256=643f2bf28db263bd400cbf8e0dd8b76b2c9b94bdb130e12d2394de04d9c20e5e
   globalid (1.3.0) sha256=05c639ad6eb4594522a0b07983022f04aa7254626ab69445a0e493aa3786ff11
   hashie (5.1.0) sha256=c266471896f323c446ea8207f8ffac985d2718df0a0ba98651a3057096ca3870
+  heroicons (2.2.0) sha256=3205b009b18abcae1c2063e32f57418f9ffe36da02f0f7a54eed1c47f16873e7
   http-accept (1.7.0) sha256=c626860682bfbb3b46462f8c39cd470fd7b0584f61b3cc9df5b2e9eb9972a126
   http-cookie (1.1.6) sha256=ba4b82be64de61dc281243dac70e3c382c45142f20268ed9276a3670c93feaa9
   i18n (1.15.1) sha256=505ec5de1f4e6c8a2cb028ef9700ca495f117911643455721dee5abdca797255

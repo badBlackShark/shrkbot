@@ -1,10 +1,19 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "App" %></title>
+    <script>
+      (function () {
+        var t = localStorage.getItem("shrk-theme");
+        if (t !== "dark" && t !== "light") {
+          t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+    <title><%= content_for(:title) || "shrkbot" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="App">
+    <meta name="application-name" content="shrkbot">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -23,7 +32,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body class="min-h-screen bg-ink-50 font-sans text-ink-900 antialiased">
     <main class="container mx-auto mt-28 px-5">
       <%= yield %>
     </main>

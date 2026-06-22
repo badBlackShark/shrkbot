@@ -6,6 +6,7 @@ Design and how-to documentation for the Ruby/Rails rewrite of shrkbot.
 - [adding-a-plugin.md](adding-a-plugin.md) — how to add a new plugin.
 - [adding-a-command.md](adding-a-command.md) — how to add a slash command.
 - [adding-an-event.md](adding-an-event.md) — how to add a gateway event handler.
+- [design-system.md](design-system.md) — how the design system (fonts, tokens, dark mode, motion, icons) is wired into the web UI.
 
 ## Standing rule
 

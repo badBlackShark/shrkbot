@@ -1,1 +1,234 @@
 @import "tailwindcss";
+
+@source "../../views";
+@source "../../components";
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("space-grotesk-variable.woff2") format("woff2-variations");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("space-grotesk-medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("space-grotesk-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("ibm-plex-sans-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("ibm-plex-sans-medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("ibm-plex-sans-semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("ibm-plex-sans-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("ibm-plex-mono-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("ibm-plex-mono-medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+
+:root {
+  --brand-50: #ecf8fe;
+  --brand-100: #cfeefc;
+  --brand-200: #a6e0f9;
+  --brand-300: #6fccf3;
+  --brand-400: #4cb9ec;
+  --brand-500: #39afe5;
+  --brand-600: #1f8fc4;
+  --brand-700: #1a729e;
+  --brand-800: #1b5f80;
+  --brand-900: #1c506b;
+
+  --ink-0: #ffffff;
+  --ink-25: #fafbfc;
+  --ink-50: #f4f6f8;
+  --ink-100: #e9edf1;
+  --ink-200: #d7dee5;
+  --ink-300: #b9c4cf;
+  --ink-400: #8b99a7;
+  --ink-500: #677483;
+  --ink-600: #4d5763;
+  --ink-700: #3a424c;
+  --ink-800: #262c33;
+  --ink-900: #161a1f;
+
+  --success: #2faf6b;
+  --success-soft: #e8f7ef;
+  --warning: #e8a13a;
+  --warning-soft: #fdf3e3;
+  --danger: #e0533d;
+  --danger-soft: #fcecea;
+
+  --accent: var(--brand-500);
+  --accent-hover: var(--brand-600);
+  --accent-active: var(--brand-700);
+  --surface-sunken: var(--ink-100);
+  --focus-ring: color-mix(in srgb, var(--brand-500) 45%, transparent);
+
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 260ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+[data-theme="dark"] {
+  --brand-50: #0c1e2e;
+  --brand-100: #122840;
+  --brand-200: #1a3a58;
+
+  --ink-0: #161b22;
+  --ink-25: #11161d;
+  --ink-50: #0d1117;
+  --ink-100: #21262d;
+  --ink-200: #30363d;
+  --ink-300: #3d444d;
+  --ink-400: #484f58;
+  --ink-500: #6e7681;
+  --ink-600: #8b949e;
+  --ink-700: #b0bec9;
+  --ink-800: #cdd9e5;
+  --ink-900: #e6edf3;
+
+  --success-soft: #0d201a;
+  --warning-soft: #1f1500;
+  --danger-soft: #1f0e0e;
+
+  --accent-hover: var(--brand-400);
+  --accent-active: var(--brand-300);
+  --focus-ring: color-mix(in srgb, var(--brand-500) 35%, transparent);
+}
+
+@theme inline {
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+
+  --color-ink-0: var(--ink-0);
+  --color-ink-25: var(--ink-25);
+  --color-ink-50: var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-ink-900: var(--ink-900);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --font-display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+
+  --shadow-xs: 0 1px 2px rgba(22, 26, 31, 0.06);
+  --shadow-sm: 0 1px 3px rgba(22, 26, 31, 0.08), 0 1px 2px rgba(22, 26, 31, 0.04);
+  --shadow-md: 0 4px 12px rgba(22, 26, 31, 0.08), 0 2px 4px rgba(22, 26, 31, 0.04);
+  --shadow-lg: 0 12px 32px rgba(22, 26, 31, 0.12), 0 4px 8px rgba(22, 26, 31, 0.05);
+}
+
+@keyframes menuEnter {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.btn-fill { position: relative; overflow: hidden; }
+.btn-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-base) var(--ease-standard);
+  pointer-events: none;
+}
+.btn-fill:hover::after { transform: scaleX(1); }
+.btn-fill > * { position: relative; z-index: 1; }
+.btn-fill-primary::after { background: var(--accent-hover); }
+.btn-fill-secondary::after { background: var(--surface-sunken); }
+.btn-fill-ghost::after { background: var(--surface-sunken); }
+
+.card-lift {
+  transition: transform var(--dur-base) var(--ease-standard),
+    box-shadow var(--dur-base) var(--ease-standard),
+    border-color var(--dur-base);
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(22, 26, 31, 0.1), 0 2px 6px rgba(22, 26, 31, 0.06);
+}
+
+.anim-menu { animation: menuEnter var(--dur-base) var(--ease-standard); }
+.anim-toast { animation: slideUp var(--dur-base) var(--ease-standard) forwards; }
+.anim-fade { animation: fadeIn var(--dur-slow); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-fill::after { transition: none; transform: scaleX(1); }
+  .card-lift { transition: none; }
+  .anim-menu,
+  .anim-toast,
+  .anim-fade { animation: none; }
+}
+
+[data-theme="dark"] .theme-when-light { display: none; }
+:root:not([data-theme="dark"]) .theme-when-dark { display: none; }
