@@ -1,6 +1,6 @@
 class Servers::PluginsController < ApplicationController
-  before_action :require_login
-  before_action :authorize_server
+  include RequiresManageableServer
+
   before_action :set_plugin
 
   def update
@@ -9,9 +9,11 @@ class Servers::PluginsController < ApplicationController
       plugin: @plugin,
       enabled: params[:enabled]
     )
+    @row = PluginStatus.row(@server_configuration, @plugin)
+    @toast = feedback(result)
 
     respond_to do |format|
-      format.turbo_stream { render turbo_stream: [plugin_stream, toast(*feedback(result))] }
+      format.turbo_stream
       format.html { redirect_back fallback_location: server_path(params[:server_id]) }
     end
   end
@@ -19,33 +21,10 @@ class Servers::PluginsController < ApplicationController
   private
 
   def feedback(result)
-    return ["alert", result.errors.to_sentence] if result.failure?
+    return {level: "alert", message: result.errors.to_sentence} if result.failure?
 
     key = result.value.enabled? ? "servers.plugin_enabled" : "servers.plugin_disabled"
-    ["notice", t(key, plugin: @plugin.name)]
-  end
-
-  def plugin_stream
-    row = PluginStatus.row(@server_configuration, @plugin)
-    turbo_stream.replace(
-      "plugin-#{row.key}",
-      render_to_string(Components::PluginRow.new(server_id: params[:server_id], key: row.key, enabled: row.enabled, configured: row.configured), layout: false)
-    )
-  end
-
-  def toast(level, message)
-    turbo_stream.append("toasts", render_to_string(Components::Toast.new(level:, message:), layout: false))
-  end
-
-  # Authorize against the set of servers the user proved they manage the last
-  # time they loaded the picker or a dashboard, so a toggle never re-hits
-  # Discord's heavily rate-limited guild-list endpoint.
-  def authorize_server
-    @server_configuration = ServerConfiguration.find_by(discord_id: params[:server_id])
-    authorized = Array(session[:authorized_server_ids]).include?(params[:server_id].to_i)
-    return if @server_configuration && authorized
-
-    redirect_to servers_path, alert: t("servers.not_found")
+    {level: "notice", message: t(key, plugin: @plugin.name)}
   end
 
   def set_plugin

@@ -1,12 +1,16 @@
 class ServersController < ApplicationController
-  before_action :require_login
+  include SetsManageableServers
+
   before_action :load_dashboard, only: :show
+
+  rescue_from Discord::UserGuilds::Error, with: :render_error
+  rescue_from Discord::UserGuilds::Unauthorized, with: :reauthenticate
 
   def index
     manageable = manageable_guilds
     session.delete(:reauth_attempted)
     configured = configured_ids(manageable)
-    session[:authorized_server_ids] = configured
+    remember_manageable_servers(configured)
     present, absent = manageable.partition { |guild| configured.include?(guild.id) }
 
     render Views::Servers::Index.new(
@@ -15,10 +19,6 @@ class ServersController < ApplicationController
       plugin_counts: enabled_plugin_counts(configured),
       user: current_user
     )
-  rescue Discord::UserGuilds::Unauthorized
-    reauthenticate
-  rescue Discord::UserGuilds::Error
-    render_error
   end
 
   def show
@@ -41,13 +41,9 @@ class ServersController < ApplicationController
     return redirect_to(servers_path, alert: t("servers.not_found")) unless @guild && @server_configuration
 
     configured = configured_ids(manageable)
-    session[:authorized_server_ids] = configured
+    remember_manageable_servers(configured)
     @configured_guilds = manageable.select { |guild| configured.include?(guild.id) }
     @plugin_counts = enabled_plugin_counts(configured)
-  rescue Discord::UserGuilds::Unauthorized
-    redirect_to servers_path
-  rescue Discord::UserGuilds::Error
-    redirect_to servers_path, alert: t("servers.discord_error")
   end
 
   def manageable_guilds

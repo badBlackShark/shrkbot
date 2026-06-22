@@ -84,12 +84,14 @@ it on its always-on (locked) toggle.
 That split is the save model: standalone settings save instantly; **the plugin
 config pages do not auto-save** — they batch all edits behind an explicit Save
 button so a configuration can be staged before going live (toggles there are
-`Components::Toggle` fields). The instant path's mechanics — `render turbo_stream:`
-with `turbo_stream.replace`/`append` of Phlex components via `render_to_string(...,
-layout: false)`, toasts appended into the always-present `#toasts` container — are
-reused by the config-page Save. The remaining config-form controls (segmented
-control, enable-gate, Tom Select wrapper) are built with the pages that consume
-them.
+`Components::Toggle` fields). Both paths render through a Turbo Stream view
+template (`action.turbo_stream.erb`, see architecture.md "Web"): the template's
+`turbo_stream.replace`/`append` lines render our Phlex components as the content, so
+the stream markup stays in the view layer. Success re-renders the control plus a
+toast; a config-form failure re-renders the form region with inline errors — just
+more `turbo_stream.*` lines. The remaining config-form controls
+(segmented control, enable-gate, Tom Select wrapper) are built with the pages that
+consume them.
 
 ## Where it lives
 
