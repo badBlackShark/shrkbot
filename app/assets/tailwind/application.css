@@ -225,6 +225,20 @@
 .anim-toast { animation: slideUp var(--dur-base) var(--ease-standard) forwards; }
 .anim-fade { animation: fadeIn var(--dur-slow); }
 
+details[open] > .dropdown-menu {
+  animation: menuEnter var(--dur-base) var(--ease-standard);
+}
+
+/* Ease surface colours during a theme switch (the controller adds
+   .theme-switching for the duration). The morphing icons are excluded so this
+   doesn't replace their transform/opacity transition. */
+.theme-switching,
+.theme-switching *:not(.theme-morph):not(.theme-morph *) {
+  transition: background-color var(--dur-slow) var(--ease-standard),
+    border-color var(--dur-slow) var(--ease-standard),
+    color var(--dur-slow) var(--ease-standard);
+}
+
 .theme-morph { display: grid; }
 .theme-morph > * {
   grid-area: 1 / 1;
@@ -241,5 +255,8 @@
   .anim-menu,
   .anim-toast,
   .anim-fade { animation: none; }
+  details[open] > .dropdown-menu { animation: none; }
+  .theme-switching,
+  .theme-switching *,
   .theme-morph > * { transition: none; }
 }

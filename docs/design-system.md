@@ -91,11 +91,13 @@ inline script in the `<head>` (see `layouts/application.html.erb`) sets
 `data-theme` before first paint from `localStorage`, falling back to the OS
 `prefers-color-scheme`. The toggle lives in the app-shell top bar.
 
-The toggle's sun/moon icons share a grid cell (`.theme-morph`) and rotate/scale/
-fade past each other when the theme flips, so the icon morphs between states
-(skipped under reduced motion). Surface colours swap instantly — a global colour
-transition would have to override the morph's transition to apply, so it was
-dropped in favour of the morph.
+Two things animate on a theme switch. The toggle's sun/moon icons share a grid
+cell (`.theme-morph`) and rotate/scale/fade past each other, so the icon morphs
+between states. And surface colours ease rather than snap: the controller adds
+`.theme-switching` to `<html>` for the duration, which turns on a
+`background-color`/`border-color`/`color` transition — scoped to exclude the
+morphing icons, so it doesn't replace their transform/opacity transition. Both
+are skipped under reduced motion.
 
 ## Motion
 

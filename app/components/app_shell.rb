@@ -59,7 +59,7 @@ class Components::AppShell < Components::Base
         render Components::Icon.new("chevron-down", class: "size-4 rotate-90 text-ink-400 transition-transform group-open:rotate-0")
       end
 
-      div(class: "anim-menu absolute right-0 top-12 z-40 w-52 rounded-lg border border-ink-200 bg-ink-0 p-1.5 shadow-lg") do
+      div(class: "dropdown-menu absolute right-0 top-12 z-40 w-52 rounded-lg border border-ink-200 bg-ink-0 p-1.5 shadow-lg") do
         button_to(
           logout_path,
           method: :delete,
