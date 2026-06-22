@@ -1,37 +1,32 @@
 class Servers::PluginsController < ApplicationController
   before_action :require_login
   before_action :authorize_server
+  before_action :set_plugin
 
   def update
-    plugin = Plugin.find_by(key: params[:id])
-    streams = plugin ? toggle(plugin) : [toast("alert", t("servers.unknown_plugin"))]
+    result = Ops::ServerConfiguration::Plugins::Toggle.call(
+      server_configuration: @server_configuration,
+      plugin: @plugin,
+      enabled: params[:enabled]
+    )
 
     respond_to do |format|
-      format.turbo_stream { render turbo_stream: streams }
-      format.html { redirect_to server_path(params[:server_id]) }
+      format.turbo_stream { render turbo_stream: [plugin_stream, toast(*feedback(result))] }
+      format.html { redirect_back fallback_location: server_path(params[:server_id]) }
     end
   end
 
   private
 
-  def toggle(plugin)
-    result = Ops::ServerConfiguration::Plugins::Toggle.call(
-      server_configuration: @server_configuration,
-      plugin:,
-      enabled: params[:enabled]
-    )
-    [plugin_stream(plugin), toast(*feedback(plugin, result))]
-  end
-
-  def feedback(plugin, result)
+  def feedback(result)
     return ["alert", result.errors.to_sentence] if result.failure?
 
     key = result.value.enabled? ? "servers.plugin_enabled" : "servers.plugin_disabled"
-    ["notice", t(key, plugin: plugin.name)]
+    ["notice", t(key, plugin: @plugin.name)]
   end
 
-  def plugin_stream(plugin)
-    row = PluginStatus.row(@server_configuration, plugin)
+  def plugin_stream
+    row = PluginStatus.row(@server_configuration, @plugin)
     turbo_stream.replace(
       "plugin-#{row.key}",
       render_to_string(Components::PluginRow.new(server_id: params[:server_id], key: row.key, enabled: row.enabled, configured: row.configured), layout: false)
@@ -51,5 +46,10 @@ class Servers::PluginsController < ApplicationController
     return if @server_configuration && authorized
 
     redirect_to servers_path, alert: t("servers.not_found")
+  end
+
+  def set_plugin
+    @plugin = Plugin.find_by(key: params[:key])
+    redirect_to server_path(params[:server_id]), alert: t("servers.unknown_plugin") unless @plugin
   end
 end

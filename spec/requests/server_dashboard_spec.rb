@@ -172,10 +172,10 @@ RSpec.describe "Server dashboard", type: :request do
         expect(config.plugin_activations.find_by(plugin: roles).enabled).to be(false)
       end
 
-      it "reports an unknown plugin key" do
+      it "redirects an unknown plugin key back to the dashboard" do
         patch server_plugin_path(guild.id, "nope"), params: {enabled: true}, **turbo
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to include("target=\"toasts\"").and include("bg-danger-soft")
+        expect(response).to redirect_to(server_path(guild.id))
+        expect(flash[:alert]).to be_present
       end
 
       it "falls back to a redirect without Turbo" do
