@@ -1,6 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Closes a <details> dropdown on an outside click or Escape.
 export default class extends Controller {
   connect() {
     this.closeOutside = (e) => {

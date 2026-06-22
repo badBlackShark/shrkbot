@@ -107,8 +107,6 @@
 }
 
 [data-theme="dark"] {
-  /* Translucent sky so soft tints read as raised chips on any dark surface
-     (a solid dark tint disappears against the dark card). */
   --brand-50: rgba(57, 175, 229, 0.1);
   --brand-100: rgba(57, 175, 229, 0.18);
   --brand-200: rgba(57, 175, 229, 0.28);
@@ -227,8 +225,6 @@
 .anim-toast { animation: slideUp var(--dur-base) var(--ease-standard) forwards; }
 .anim-fade { animation: fadeIn var(--dur-slow); }
 
-/* Theme switch: ease every surface colour, but only during the switch — the
-   controller adds .theme-switching to <html> for the duration. */
 .theme-switching,
 .theme-switching * {
   transition: background-color var(--dur-slow) var(--ease-standard),
@@ -236,8 +232,6 @@
     color var(--dur-slow) var(--ease-standard) !important;
 }
 
-/* Sun <-> moon morph: the two icons share a slot and rotate/scale/fade past
-   each other. The one for the action a click performs is shown. */
 .theme-morph { display: grid; }
 .theme-morph > * {
   grid-area: 1 / 1;

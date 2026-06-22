@@ -78,8 +78,10 @@ handle that.
 
 `[data-theme="dark"]` on `<html>` swaps the channel variables. The brand accent
 (`--brand-500` = `#39afe5`) is constant across themes; the neutral `ink` ramp
-inverts (light surfaces ↔ dark surfaces, dark text ↔ light text) and the soft
-tints (`brand-50/100/200`, `*-soft`) darken.
+inverts (light surfaces ↔ dark surfaces, dark text ↔ light text). The soft brand
+tints (`brand-50/100/200`) become translucent sky in dark mode rather than solid
+dark hex — a solid dark tint disappears against the dark card, whereas a
+translucent one reads as a raised chip on any surface.
 
 The toggle is `theme_controller.js` (flips the attribute, persists to
 `localStorage` under `shrk-theme`). To avoid a flash of the wrong theme, an
