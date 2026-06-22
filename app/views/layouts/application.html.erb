@@ -23,9 +23,8 @@
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <%= favicon_link_tag "shrkbot-mascot.png" %>
+    <%= favicon_link_tag "shrkbot-mascot.png", rel: "apple-touch-icon" %>
 
     <%# Tailwind build (app/assets/builds/tailwind.css) + app-wide styles %>
     <%= stylesheet_link_tag "tailwind", "application", "data-turbo-track": "reload" %>
@@ -33,8 +32,7 @@
   </head>
 
   <body class="min-h-screen bg-ink-50 font-sans text-ink-900 antialiased">
-    <main class="container mx-auto mt-28 px-5">
-      <%= yield %>
-    </main>
+    <%= yield %>
+    <%= render Components::Toasts.new(flash: flash) %>
   </body>
 </html>

@@ -49,9 +49,10 @@ RSpec.describe "Server picker", type: :request do
         expect(response.body).to include("cdn.discordapp.com/icons/900000001/icyhash.png")
       end
 
-      it "offers a way to sign out" do
+      it "frames the page in the app shell with a way to log out" do
         get_servers
-        expect(response.body).to include("Sign out")
+        expect(response.body).to include("Log out")
+        expect(response.body).to include("Toggle dark mode")
       end
 
       it "offers an invite for a managed server without the bot" do

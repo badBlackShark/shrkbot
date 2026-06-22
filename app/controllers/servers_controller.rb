@@ -7,7 +7,7 @@ class ServersController < ApplicationController
     configured_ids = ServerConfiguration.where(discord_id: manageable.map(&:id)).pluck(:discord_id)
     present, absent = manageable.partition { |guild| configured_ids.include?(guild.id) }
 
-    render Views::Servers::Index.new(present:, absent:)
+    render Views::Servers::Index.new(present:, absent:, user: current_user)
   rescue Discord::UserGuilds::Unauthorized
     reauthenticate
   rescue Discord::UserGuilds::Error
@@ -25,6 +25,6 @@ class ServersController < ApplicationController
 
   def render_error
     session.delete(:reauth_attempted)
-    render Views::Servers::Index.new(present: [], absent: [], error: true)
+    render Views::Servers::Index.new(present: [], absent: [], user: current_user, error: true)
   end
 end

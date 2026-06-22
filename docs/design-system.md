@@ -6,6 +6,26 @@ under `ui_kits/` are throwaway CDN-wired prototypes). This doc records how that
 system is wired into the app. Views are Phlex; styling is Tailwind v4; behaviour
 is Stimulus.
 
+## App shell
+
+Authed pages render their content inside `Components::AppShell`, which draws the
+sticky top bar (mascot wordmark linking to the picker, the dark-mode toggle, and
+a user menu with Log out) and yields the page body into `<main>`. The view passes
+the user in explicitly — `render Components::AppShell.new(user:) { … }` — rather
+than reaching for `helpers.current_user` (phlex-rails warns on the raw `helpers`
+proxy). The login and re-auth pages are not authed, so they sit outside the shell
+and centre themselves.
+
+Flash messages render as dismissable toasts (`Components::Toasts`, rendered once
+from the layout so every page gets them). Small dropdowns (the user menu) use a
+native `<details>` element plus the `dropdown` Stimulus controller, which just
+closes it on an outside click or Escape.
+
+The server switcher and the reusable config-form controls (switch, segmented
+control, enable-gate, setting row, Tom Select wrapper, save-feedback) are built
+alongside the pages that consume them (the dashboard and plugin config pages),
+not up front.
+
 ## Where it lives
 
 - `app/assets/tailwind/application.css` — the single stylesheet. Holds the

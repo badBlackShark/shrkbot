@@ -15,11 +15,4 @@ RSpec.describe "Home", type: :request do
 
     expect(response.body).to include("font-display")
   end
-
-  it "wires up the theme toggle" do
-    home
-
-    expect(response.body).to include('data-controller="theme"')
-    expect(response.body).to include("theme#toggle")
-  end
 end
