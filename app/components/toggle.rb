@@ -1,0 +1,55 @@
+# frozen_string_literal: true
+
+class Components::Toggle < Components::Base
+  include Phlex::Rails::Helpers::FormWith
+
+  TRACK = "relative h-6 w-11 flex-none rounded-full bg-ink-300 transition-colors " \
+    "after:absolute after:start-0.5 after:top-0.5 after:size-5 after:rounded-full after:bg-white after:shadow " \
+    "motion-safe:after:transition-transform peer-checked:bg-brand-500 peer-checked:after:translate-x-5 " \
+    "peer-focus-visible:ring-3 peer-focus-visible:ring-[var(--focus-ring)]"
+
+  def initialize(name:, checked:, label:, url: nil, submit_on_change: false, dom_id: nil, disabled: false)
+    @name = name.to_s
+    @checked = checked
+    @label = label
+    @url = url
+    @submit_on_change = submit_on_change
+    @dom_id = dom_id
+    @disabled = disabled
+  end
+
+  def view_template
+    if @url && !@disabled
+      # autocomplete: off so the browser doesn't restore the checkbox to its
+      # pre-reload state and override the server-rendered value.
+      form_with(url: @url, method: :patch, id: @dom_id, class: "flex-none", autocomplete: "off") { switch }
+    else
+      switch
+    end
+  end
+
+  private
+
+  def switch
+    input(type: "hidden", name: @name, value: "0", autocomplete: "off") unless @disabled
+    label(class: "inline-flex items-center #{@disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}", aria_label: @label) do
+      input(
+        type: "checkbox",
+        name: @name,
+        value: "1",
+        checked: @checked,
+        disabled: @disabled,
+        autocomplete: "off",
+        class: "peer sr-only",
+        data: switch_data
+      )
+      div(class: TRACK)
+    end
+  end
+
+  def switch_data
+    return {} unless @submit_on_change
+
+    {controller: "toggle", action: "change->toggle#submit"}
+  end
+end

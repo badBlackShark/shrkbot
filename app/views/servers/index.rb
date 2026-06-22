@@ -44,7 +44,7 @@ class Views::Servers::Index < Views::Base
   end
 
   def present_card(guild)
-    a(href: "#", class: "card-lift flex flex-col gap-3 rounded-lg border border-ink-200 bg-ink-0 p-5 shadow-sm") do
+    a(href: server_path(guild.id), class: "card-lift flex flex-col gap-3 rounded-lg border border-ink-200 bg-ink-0 p-5 shadow-sm") do
       identity(guild)
       plugins_badge(@plugin_counts[guild.id].to_i)
     end

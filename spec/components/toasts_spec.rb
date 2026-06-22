@@ -26,8 +26,9 @@ RSpec.describe Components::Toasts do
   context "with no flash" do
     let(:flash) { {} }
 
-    it "renders nothing" do
-      expect(html.to_s.strip).to be_empty
+    it "renders an empty container (the live region streamed toasts append into)" do
+      expect(html).to include('id="toasts"')
+      expect(html).not_to include('data-controller="toast"')
     end
   end
 end

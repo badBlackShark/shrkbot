@@ -1,18 +1,18 @@
 class ServersController < ApplicationController
   before_action :require_login
+  before_action :load_dashboard, only: :show
 
   def index
-    manageable = Discord::UserGuilds.call(session[:discord_token])
-      .select(&:manageable?)
-      .sort_by { |guild| -guild.member_count.to_i }
+    manageable = manageable_guilds
     session.delete(:reauth_attempted)
-    configured_ids = ServerConfiguration.where(discord_id: manageable.map(&:id)).pluck(:discord_id)
-    present, absent = manageable.partition { |guild| configured_ids.include?(guild.id) }
+    configured = configured_ids(manageable)
+    session[:authorized_server_ids] = configured
+    present, absent = manageable.partition { |guild| configured.include?(guild.id) }
 
     render Views::Servers::Index.new(
       present:,
       absent:,
-      plugin_counts: enabled_plugin_counts(configured_ids),
+      plugin_counts: enabled_plugin_counts(configured),
       user: current_user
     )
   rescue Discord::UserGuilds::Unauthorized
@@ -21,7 +21,44 @@ class ServersController < ApplicationController
     render_error
   end
 
+  def show
+    render Views::Servers::Show.new(
+      guild: @guild,
+      server_configuration: @server_configuration,
+      plugins: PluginStatus.rows(@server_configuration),
+      user: current_user,
+      servers: @configured_guilds,
+      plugin_counts: @plugin_counts
+    )
+  end
+
   private
+
+  def load_dashboard
+    manageable = manageable_guilds
+    @guild = manageable.find { |guild| guild.id == params[:id].to_i }
+    @server_configuration = ServerConfiguration.find_by(discord_id: params[:id]) if @guild
+    return redirect_to(servers_path, alert: t("servers.not_found")) unless @guild && @server_configuration
+
+    configured = configured_ids(manageable)
+    session[:authorized_server_ids] = configured
+    @configured_guilds = manageable.select { |guild| configured.include?(guild.id) }
+    @plugin_counts = enabled_plugin_counts(configured)
+  rescue Discord::UserGuilds::Unauthorized
+    redirect_to servers_path
+  rescue Discord::UserGuilds::Error
+    redirect_to servers_path, alert: t("servers.discord_error")
+  end
+
+  def manageable_guilds
+    Discord::UserGuilds.call(session[:discord_token])
+      .select(&:manageable?)
+      .sort_by { |guild| -guild.member_count.to_i }
+  end
+
+  def configured_ids(guilds)
+    ServerConfiguration.where(discord_id: guilds.map(&:id)).pluck(:discord_id)
+  end
 
   def enabled_plugin_counts(discord_ids)
     PluginActivation

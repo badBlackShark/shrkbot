@@ -56,6 +56,24 @@ and the web app, so a given mutation is written once and called from both.
 - Operations run inside the caller's connection context (web request, or the bot's
   `with_connection` wrapper) and wrap their writes in a transaction.
 
+## Web (controllers and views)
+
+- **Standard CRUD controllers.** Reach for a new resource controller with the
+  conventional actions before adding bespoke/custom actions to an existing one —
+  an extra controller (including nested/namespaced, e.g. `Servers::PluginsController#update`
+  for toggling a server's plugin) is better than one crammed with custom actions
+  and a pile of private helpers. When a controller starts sprouting helpers, that
+  usually means a resource, or a read-side query/presenter object, wants extracting.
+- **Small, single-purpose view components.** Prefer many focused Phlex components
+  over a few that each do several things — one more component that does exactly one
+  thing beats a large multi-purpose one, *even when it is only used once*. Read-side
+  derivations (e.g. computing each plugin's enabled/needs-setup/disabled status)
+  belong in a small query/presenter object (`PluginStatus`), not inlined into a fat
+  controller or view.
+- **Booleans from forms.** Let ActiveRecord cast checkbox values — assign the raw
+  param to the model attribute (`"1"`/`"0"` → `true`/`false`) rather than coercing
+  in the controller.
+
 ## Terminology: `server`
 
 Our domain uses `server`/`server_id`, following discordrb (`Discordrb::Server`,

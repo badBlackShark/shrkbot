@@ -11,7 +11,9 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   delete "/logout", to: "sessions#destroy", as: :logout
 
-  resources :servers, only: :index
+  resources :servers, only: [:index, :show], param: :id do
+    resources :plugins, only: :update, param: :key, module: :servers
+  end
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest

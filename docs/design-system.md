@@ -59,10 +59,37 @@ back the moment a close starts (keyed off the panel's `.is-closing` via `:has`,
 so it turns with the fade-out rather than after it). Reduced motion drops both
 directions.
 
-The server switcher and the reusable config-form controls (switch, segmented
-control, enable-gate, setting row, Tom Select wrapper, save-feedback) are built
-alongside the pages that consume them (the dashboard and plugin config pages),
-not up front.
+The top bar also gains a **server switcher** when a page is scoped to one server
+(the dashboard passes `current_server:` + `servers:` to `AppShell`): a `dropdown`
+disclosure listing the user's configured servers as links to their dashboards,
+the current one marked, plus a link back to the picker. It has no search box —
+the list is a user's handful of admin servers; add filtering only if that stops
+being true.
+
+`Components::Toggle` is the reusable on/off switch: a visually-hidden `peer`
+checkbox with a Tailwind `peer-checked:` track (no custom CSS), so it stays a real
+form control. It has two modes. **Standalone** (`url:` given) owns its own form;
+with `submit_on_change: true` the `toggle` Stimulus controller submits it the
+moment it flips, and the action responds with a **Turbo Stream** that re-renders
+the control in place plus a toast — no page reload (the dashboard's plugin-enable
+and `force_dm_reminders` toggles). **Field** (no `url:`) renders just the switch to
+sit inside a larger form that saves explicitly.
+
+For a control that needs a "why" on hover (a locked toggle, later a
+disabled-with-reason select option), wrap it in `Components::Tooltip` rather than
+a native `title`: it fades in instantly with our surfaces and fonts, where the
+native tooltip is slow, tiny, and system-font. The reminders dashboard row uses
+it on its always-on (locked) toggle.
+
+That split is the save model: standalone settings save instantly; **the plugin
+config pages do not auto-save** — they batch all edits behind an explicit Save
+button so a configuration can be staged before going live (toggles there are
+`Components::Toggle` fields). The instant path's mechanics — `render turbo_stream:`
+with `turbo_stream.replace`/`append` of Phlex components via `render_to_string(...,
+layout: false)`, toasts appended into the always-present `#toasts` container — are
+reused by the config-page Save. The remaining config-form controls (segmented
+control, enable-gate, Tom Select wrapper) are built with the pages that consume
+them.
 
 ## Where it lives
 
