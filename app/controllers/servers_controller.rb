@@ -2,7 +2,9 @@ class ServersController < ApplicationController
   before_action :require_login
 
   def index
-    manageable = Discord::UserGuilds.call(session[:discord_token]).select(&:manageable?)
+    manageable = Discord::UserGuilds.call(session[:discord_token])
+      .select(&:manageable?)
+      .sort_by { |guild| -guild.member_count.to_i }
     session.delete(:reauth_attempted)
     configured_ids = ServerConfiguration.where(discord_id: manageable.map(&:id)).pluck(:discord_id)
     present, absent = manageable.partition { |guild| configured_ids.include?(guild.id) }

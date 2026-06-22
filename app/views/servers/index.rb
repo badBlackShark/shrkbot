@@ -62,7 +62,7 @@ class Views::Servers::Index < Views::Base
       avatar(guild)
       div(class: "min-w-0") do
         p(class: "text-sm font-semibold line-clamp-2") { guild.name }
-        p(class: "text-xs text-ink-400") { member_label(guild) } if guild.member_count
+        p(class: "text-xs text-ink-500") { member_label(guild) } if guild.member_count
       end
     end
   end
@@ -76,7 +76,7 @@ class Views::Servers::Index < Views::Base
   end
 
   def plugins_badge(count)
-    tone = count.positive? ? "bg-brand-100 text-accent-soft-fg" : "bg-ink-100 text-ink-500"
+    tone = count.positive? ? "bg-brand-100 text-accent-soft-fg" : "bg-ink-100 text-ink-600"
     span(class: "self-start rounded-full px-2.5 py-1 text-xs font-semibold #{tone}") do
       "#{count} #{(count == 1) ? "plugin" : "plugins"} enabled"
     end

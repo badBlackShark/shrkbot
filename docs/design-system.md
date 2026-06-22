@@ -6,6 +6,17 @@ under `ui_kits/` are throwaway CDN-wired prototypes). This doc records how that
 system is wired into the app. Views are Phlex; styling is Tailwind v4; behaviour
 is Stimulus.
 
+## Accessibility (standing rule)
+
+Be mindful of accessibility in every aspect of the UI. Contrast is enforced now:
+every text/background pairing must stay legible in **both** themes. The common
+trap is the inverting `ink` ramp — a muted step like `ink-400` is a faint grey in
+light mode but inverts to a near-black `#484f58` in dark mode, vanishing on a dark
+card. For secondary text that must read in both, use `ink-500`/`ink-600`, not
+`ink-400`; for accent text on a tint use the theme-aware `text-accent-soft-fg`.
+Check both themes when adding UI. Reduced motion is honoured throughout (keep it);
+keyboard and screen-reader passes are deferred but don't regress them.
+
 ## App shell
 
 Authed pages render their content inside `Components::AppShell`, which draws the

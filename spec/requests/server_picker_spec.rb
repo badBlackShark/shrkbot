@@ -49,6 +49,11 @@ RSpec.describe "Server picker", type: :request do
         expect(response.body).to include("Mystery Server")
       end
 
+      it "orders servers by member count, largest first" do
+        get_servers
+        expect(response.body.index("Speedrun HQ")).to be < response.body.index("Mystery Server")
+      end
+
       it "lists a managed server the bot is already in, with its icon" do
         get_servers
         expect(response.body).to include("Dev Refuge")
