@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-# An on/off switch. Two modes:
-#   - standalone (pass `url:`): owns its own form. With `submit_on_change: true`
-#     it saves the moment it flips (the dashboard's per-setting toggles).
-#   - field (no `url:`): renders just the switch, to sit inside a larger form
-#     that saves explicitly (the plugin config pages).
 class Components::Toggle < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
