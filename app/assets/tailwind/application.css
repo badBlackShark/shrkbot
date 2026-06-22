@@ -255,9 +255,10 @@ details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(90d
     color var(--dur-slow) var(--ease-standard);
 }
 
-.theme-morph { display: grid; }
+.theme-morph { position: relative; }
 .theme-morph > * {
-  grid-area: 1 / 1;
+  position: absolute;
+  inset: 0;
   transition: transform var(--dur-slow) var(--ease-standard), opacity var(--dur-slow) var(--ease-standard);
 }
 .theme-morph .theme-sun { opacity: 0; transform: rotate(-90deg) scale(0.4); }

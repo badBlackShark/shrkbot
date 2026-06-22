@@ -42,7 +42,7 @@ class Components::AppShell < Components::Base
       title: "Toggle dark mode",
       aria_label: "Toggle dark mode",
       data: {controller: "theme", action: "theme#toggle"},
-      class: "grid size-9 place-items-center rounded-md text-ink-500 transition-colors hover:bg-ink-100"
+      class: "flex size-9 items-center justify-center rounded-md text-ink-500 transition-colors hover:bg-ink-100"
     ) do
       span(class: "theme-morph size-5") do
         render Components::Icon.new("moon", class: "theme-moon size-5")
@@ -82,7 +82,7 @@ class Components::AppShell < Components::Base
     if @user.avatar_url
       image_tag(@user.avatar_url, alt: "", loading: "lazy", class: "size-8 rounded-full object-cover")
     else
-      span(class: "grid size-8 place-items-center rounded-full bg-brand-100 text-xs font-bold text-accent-soft-fg") { initials(@user.display_name) }
+      span(class: "flex size-8 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-accent-soft-fg") { initials(@user.display_name) }
     end
   end
 

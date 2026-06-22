@@ -112,6 +112,16 @@ CSS-only patterns from `docs/design/tokens/motion.css`: `btn-fill`
 `cubic-bezier(.2,0,0,1)`. A `prefers-reduced-motion: reduce` block neutralises
 them — keep it.
 
+## Layout: flex, not grid
+
+Use flexbox for layout. Reach for CSS grid only when a layout genuinely can't be
+done with flex — in practice that's a responsive multi-column **card grid** with
+equal tracks (e.g. the server picker's `grid-cols-1 sm:grid-cols-2
+lg:grid-cols-3`), where the flex equivalent needs fragile `calc()` basis values.
+Never use grid to centre a single item (`flex items-center justify-center`, not
+`grid place-items-center`) or to stack/overlap elements (`relative` + `absolute
+inset-0`).
+
 ## Icons
 
 Heroicons v2 (the `heroicons` gem), inline SVG, outline variant by default (set

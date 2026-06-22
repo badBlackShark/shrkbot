@@ -58,7 +58,7 @@ RSpec.describe "Server picker", type: :request do
       it "shows the member count and how many plugins are on" do
         get_servers
         expect(response.body).to include("2,481 members")
-        expect(response.body).to include("0 plugins on")
+        expect(response.body).to include("0 plugins enabled")
       end
 
       context "with enabled plugins" do
@@ -71,7 +71,7 @@ RSpec.describe "Server picker", type: :request do
 
         it "counts them in the badge" do
           get_servers
-          expect(response.body).to include("1 plugin on")
+          expect(response.body).to include("1 plugin enabled")
         end
       end
 

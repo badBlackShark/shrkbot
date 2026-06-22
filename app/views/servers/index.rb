@@ -58,10 +58,10 @@ class Views::Servers::Index < Views::Base
   end
 
   def identity(guild)
-    div(class: "flex items-center gap-3") do
+    div(class: "flex items-start gap-3") do
       avatar(guild)
       div(class: "min-w-0") do
-        p(class: "truncate text-sm font-semibold") { guild.name }
+        p(class: "text-sm font-semibold line-clamp-2") { guild.name }
         p(class: "text-xs text-ink-400") { member_label(guild) } if guild.member_count
       end
     end
@@ -71,14 +71,14 @@ class Views::Servers::Index < Views::Base
     if guild.icon_url
       img(src: guild.icon_url, alt: "", loading: "lazy", class: "size-12 flex-none rounded-lg object-cover")
     else
-      span(class: "grid size-12 flex-none place-items-center rounded-lg bg-ink-100 font-semibold text-ink-500") { initials(guild.name) }
+      span(class: "flex size-12 flex-none items-center justify-center rounded-lg bg-ink-100 font-semibold text-ink-500") { initials(guild.name) }
     end
   end
 
   def plugins_badge(count)
     tone = count.positive? ? "bg-brand-100 text-accent-soft-fg" : "bg-ink-100 text-ink-500"
     span(class: "self-start rounded-full px-2.5 py-1 text-xs font-semibold #{tone}") do
-      "#{count} #{(count == 1) ? "plugin" : "plugins"} on"
+      "#{count} #{(count == 1) ? "plugin" : "plugins"} enabled"
     end
   end
 
