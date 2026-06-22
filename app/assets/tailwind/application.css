@@ -236,6 +236,15 @@ details[open] > .dropdown-menu.is-closing {
   animation: menuLeave var(--dur-base) var(--ease-standard) forwards;
 }
 
+/* Trigger chevron: left when closed, down when open, and back to left the
+   moment a close starts (so it rotates with the fade-out, not after it). */
+.dropdown-chevron {
+  transform: rotate(90deg);
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+details[open] .dropdown-chevron { transform: rotate(0deg); }
+details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(90deg); }
+
 /* Ease surface colours during a theme switch (the controller adds
    .theme-switching for the duration). The morphing icons are excluded so this
    doesn't replace their transform/opacity transition. */
@@ -264,6 +273,7 @@ details[open] > .dropdown-menu.is-closing {
   .anim-fade { animation: none; }
   details[open] > .dropdown-menu,
   details[open] > .dropdown-menu.is-closing { animation: none; }
+  .dropdown-chevron { transition: none; }
   .theme-switching,
   .theme-switching *,
   .theme-morph > * { transition: none; }

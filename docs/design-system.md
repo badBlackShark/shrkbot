@@ -23,8 +23,10 @@ The panel (`.dropdown-menu`, a `menu` target) fades/slides in via CSS on `[open]
 and fades/slides back out on close — the controller intercepts the close
 (`click->dropdown#toggle`, plus outside-click and Escape) so the exit animation
 finishes before the panel is removed, then sets `open = false`. The trigger's
-chevron points left when closed and rotates down when open (via `group-open`).
-Reduced motion drops both directions.
+`.dropdown-chevron` points left when closed, rotates down when open, and rotates
+back the moment a close starts (keyed off the panel's `.is-closing` via `:has`,
+so it turns with the fade-out rather than after it). Reduced motion drops both
+directions.
 
 The server switcher and the reusable config-form controls (switch, segmented
 control, enable-gate, setting row, Tom Select wrapper, save-feedback) are built

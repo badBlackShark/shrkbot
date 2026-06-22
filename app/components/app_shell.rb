@@ -52,14 +52,14 @@ class Components::AppShell < Components::Base
   end
 
   def user_menu
-    details(class: "group relative", data: {controller: "dropdown"}) do
+    details(class: "relative", data: {controller: "dropdown"}) do
       summary(
         data: {action: "click->dropdown#toggle"},
         class: "flex h-10 cursor-pointer list-none items-center gap-2 rounded-full pl-1 pr-2.5 transition-colors hover:bg-ink-100 [&::-webkit-details-marker]:hidden"
       ) do
         avatar
         span(class: "hidden text-sm font-medium sm:block") { @user.display_name }
-        render Components::Icon.new("chevron-down", class: "size-4 rotate-90 text-ink-400 transition-transform group-open:rotate-0")
+        render Components::Icon.new("chevron-down", class: "dropdown-chevron size-4 text-ink-400")
       end
 
       div(
