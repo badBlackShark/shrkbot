@@ -39,8 +39,8 @@ class Components::AppShell < Components::Base
   def theme_toggle
     button(
       type: "button",
-      title: "Toggle dark mode",
-      aria_label: "Toggle dark mode",
+      title: t(".toggle_theme"),
+      aria_label: t(".toggle_theme"),
       data: {controller: "theme", action: "theme#toggle"},
       class: "flex size-9 items-center justify-center rounded-md text-ink-500 transition-colors hover:bg-ink-100"
     ) do
@@ -72,7 +72,7 @@ class Components::AppShell < Components::Base
           class: "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm text-danger transition-colors hover:bg-danger-soft"
         ) do
           render Components::Icon.new("arrow-left-on-rectangle", class: "size-4")
-          span { "Log out" }
+          span { t(".log_out") }
         end
       end
     end

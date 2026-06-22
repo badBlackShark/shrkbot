@@ -11,6 +11,6 @@ class ApplicationController < ActionController::Base
   end
 
   def require_login
-    redirect_to root_path, alert: "Please sign in to continue." unless current_user
+    redirect_to root_path, alert: t("authentication.login_required") unless current_user
   end
 end

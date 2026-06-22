@@ -17,6 +17,19 @@ card. For secondary text that must read in both, use `ink-500`/`ink-600`, not
 Check both themes when adding UI. Reduced motion is honoured throughout (keep it);
 keyboard and screen-reader passes are deferred but don't regress them.
 
+## Copy (I18n)
+
+All user-facing web copy goes through Rails I18n — keep strings out of the views
+so they can be edited and reused (and so a second locale stays possible; the bot
+itself stays English). `Components::Base` includes the phlex translate helper, so
+views/components call `t(".key")` with a **relative** key scoped to the class
+name (`Views::Servers::Index` → `views.servers.index.*`); controllers use the
+absolute key (e.g. `t("sessions.signed_in")`). Copy lives in
+`config/locales/web.en.yml`. Use I18n pluralisation (`one`/`other` with `count:`)
+rather than hand-rolled `count == 1` ternaries; pass a separate `formatted:`
+interpolation when the displayed number needs delimiting. Brand marks (the
+`shrkbot` wordmark) and slash-command names stay literal.
+
 ## App shell
 
 Authed pages render their content inside `Components::AppShell`, which draws the

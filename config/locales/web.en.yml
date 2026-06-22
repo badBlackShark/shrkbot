@@ -1,0 +1,36 @@
+en:
+  views:
+    home:
+      tagline: "Turn plugins on or off and set them up - all from one place."
+      sign_in: "Sign in with Discord"
+    reauth:
+      title: "Signing you back in"
+      body: "Your Discord sign-in expired. Please stand by - we're refreshing it for you."
+      continue: "Continue"
+    servers:
+      index:
+        title: "Your servers"
+        subtitle: "Pick a server to configure shrkbot."
+        plugins_enabled:
+          one: "%{count} plugin enabled"
+          other: "%{count} plugins enabled"
+        members:
+          one: "%{formatted} member"
+          other: "%{formatted} members"
+        invite: "Invite shrkbot"
+        refresh: "Refresh"
+        error: "We couldn't reach Discord to load your servers. Try again in a moment."
+        missing_title: "Don't see a server?"
+        missing_body: "You need Manage Server permissions and shrkbot must be present. Invite it, then refresh."
+        empty_title: "shrkbot isn't in any of your servers yet"
+        empty_body: "You need Manage Server permissions and shrkbot must be present. Invite it to get started."
+  components:
+    app_shell:
+      toggle_theme: "Toggle dark mode"
+      log_out: "Log out"
+  sessions:
+    signed_in: "Signed in as %{name}."
+    signed_out: "Signed out."
+    failed: "Sign-in failed or was cancelled."
+  authentication:
+    login_required: "Please sign in to continue."
