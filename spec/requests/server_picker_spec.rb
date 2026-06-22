@@ -49,9 +49,28 @@ RSpec.describe "Server picker", type: :request do
         expect(response.body).to include("cdn.discordapp.com/icons/900000001/icyhash.png")
       end
 
-      it "offers a way to sign out" do
+      it "frames the page in the app shell with a way to log out" do
         get_servers
-        expect(response.body).to include("Sign out")
+        expect(response.body).to include("Log out")
+        expect(response.body).to include("Toggle dark mode")
+      end
+
+      context "when the user has a display name and avatar" do
+        let(:auth) do
+          OmniAuth::AuthHash.new(
+            provider: "discord",
+            uid: "12345",
+            info: {name: "shrk"},
+            credentials: {token: "discord-access-token"},
+            extra: {raw_info: {"global_name" => "Shrk Display", "avatar" => "avahash"}}
+          )
+        end
+
+        it "shows them in the app shell" do
+          get_servers
+          expect(response.body).to include("Shrk Display")
+          expect(response.body).to include("cdn.discordapp.com/avatars/12345/avahash.png")
+        end
       end
 
       it "offers an invite for a managed server without the bot" do

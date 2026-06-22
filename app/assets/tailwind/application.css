@@ -96,6 +96,7 @@
   --accent: var(--brand-500);
   --accent-hover: var(--brand-600);
   --accent-active: var(--brand-700);
+  --accent-soft-fg: var(--brand-700);
   --surface-sunken: var(--ink-100);
   --focus-ring: color-mix(in srgb, var(--brand-500) 45%, transparent);
 
@@ -106,9 +107,9 @@
 }
 
 [data-theme="dark"] {
-  --brand-50: #0c1e2e;
-  --brand-100: #122840;
-  --brand-200: #1a3a58;
+  --brand-50: rgba(57, 175, 229, 0.1);
+  --brand-100: rgba(57, 175, 229, 0.18);
+  --brand-200: rgba(57, 175, 229, 0.28);
 
   --ink-0: #161b22;
   --ink-25: #11161d;
@@ -129,6 +130,7 @@
 
   --accent-hover: var(--brand-400);
   --accent-active: var(--brand-300);
+  --accent-soft-fg: var(--brand-300);
   --focus-ring: color-mix(in srgb, var(--brand-500) 35%, transparent);
 }
 
@@ -163,6 +165,7 @@
   --color-warning-soft: var(--warning-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-accent-soft-fg: var(--accent-soft-fg);
 
   --font-display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
   --font-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
@@ -182,6 +185,10 @@
 @keyframes menuEnter {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes menuLeave {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-6px); }
 }
 @keyframes slideUp {
   from { opacity: 0; transform: translate(-50%, 8px); }
@@ -222,13 +229,52 @@
 .anim-toast { animation: slideUp var(--dur-base) var(--ease-standard) forwards; }
 .anim-fade { animation: fadeIn var(--dur-slow); }
 
+details[open] > .dropdown-menu {
+  animation: menuEnter var(--dur-base) var(--ease-standard);
+}
+details[open] > .dropdown-menu.is-closing {
+  animation: menuLeave var(--dur-base) var(--ease-standard) forwards;
+}
+
+/* Trigger chevron: left when closed, down when open, and back to left the
+   moment a close starts (so it rotates with the fade-out, not after it). */
+.dropdown-chevron {
+  transform: rotate(90deg);
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+details[open] .dropdown-chevron { transform: rotate(0deg); }
+details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(90deg); }
+
+/* Ease surface colours during a theme switch (the controller adds
+   .theme-switching for the duration). The morphing icons are excluded so this
+   doesn't replace their transform/opacity transition. */
+.theme-switching,
+.theme-switching *:not(.theme-morph):not(.theme-morph *) {
+  transition: background-color var(--dur-slow) var(--ease-standard),
+    border-color var(--dur-slow) var(--ease-standard),
+    color var(--dur-slow) var(--ease-standard);
+}
+
+.theme-morph { display: grid; }
+.theme-morph > * {
+  grid-area: 1 / 1;
+  transition: transform var(--dur-slow) var(--ease-standard), opacity var(--dur-slow) var(--ease-standard);
+}
+.theme-morph .theme-sun { opacity: 0; transform: rotate(-90deg) scale(0.4); }
+.theme-morph .theme-moon { opacity: 1; transform: rotate(0) scale(1); }
+[data-theme="dark"] .theme-morph .theme-sun { opacity: 1; transform: rotate(0) scale(1); }
+[data-theme="dark"] .theme-morph .theme-moon { opacity: 0; transform: rotate(90deg) scale(0.4); }
+
 @media (prefers-reduced-motion: reduce) {
   .btn-fill::after { transition: none; transform: scaleX(1); }
   .card-lift { transition: none; }
   .anim-menu,
   .anim-toast,
   .anim-fade { animation: none; }
+  details[open] > .dropdown-menu,
+  details[open] > .dropdown-menu.is-closing { animation: none; }
+  .dropdown-chevron { transition: none; }
+  .theme-switching,
+  .theme-switching *,
+  .theme-morph > * { transition: none; }
 }
-
-[data-theme="dark"] .theme-when-light { display: none; }
-:root:not([data-theme="dark"]) .theme-when-dark { display: none; }
