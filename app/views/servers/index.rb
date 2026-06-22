@@ -52,14 +52,14 @@ class Views::Servers::Index < Views::Base
 
   def invite_card(guild)
     div(class: "flex flex-col gap-3 rounded-lg border border-dashed border-ink-300 bg-ink-0 p-5") do
-      div(class: "opacity-60") { identity(guild) }
+      identity(guild, muted: true)
       invite_button(invite_url(guild))
     end
   end
 
-  def identity(guild)
+  def identity(guild, muted: false)
     div(class: "flex items-start gap-3") do
-      avatar(guild)
+      avatar(guild, muted:)
       div(class: "min-w-0") do
         p(class: "text-sm font-semibold line-clamp-2") { guild.name }
         p(class: "text-xs text-ink-500") { member_label(guild) } if guild.member_count
@@ -67,11 +67,12 @@ class Views::Servers::Index < Views::Base
     end
   end
 
-  def avatar(guild)
+  def avatar(guild, muted: false)
+    dim = muted ? " opacity-60" : ""
     if guild.icon_url
-      img(src: guild.icon_url, alt: "", loading: "lazy", class: "size-12 flex-none rounded-lg object-cover")
+      img(src: guild.icon_url, alt: "", loading: "lazy", class: "size-12 flex-none rounded-lg object-cover#{dim}")
     else
-      span(class: "flex size-12 flex-none items-center justify-center rounded-lg bg-ink-100 font-semibold text-ink-500") { initials(guild.name) }
+      span(class: "flex size-12 flex-none items-center justify-center rounded-lg bg-ink-100 font-semibold text-ink-500#{dim}") { initials(guild.name) }
     end
   end
 
