@@ -11,6 +11,23 @@ en:
         one: "%{count} plugin on"
         other: "%{count} plugins on"
       toggle_theme: Toggle dark mode
+    plugin_row:
+      configure: Configure
+      plugin:
+        logging:
+          description: Record moderation events to a channel of your choice.
+          name: Logging
+        roles:
+          description: Let members give themselves roles from a menu.
+          name: Roles
+        welcomes:
+          description: Greet new members and say goodbye when they leave.
+          name: Welcomes
+      status:
+        enabled: Enabled
+        inactive: 'Off'
+        needs_setup: Needs setup
+      toggle: Toggle %{plugin}
   servers:
     discord_error: We couldn't reach Discord. Try again in a moment.
     not_found: That server isn't available to configure.
@@ -55,22 +72,11 @@ en:
         channels:
           one: "%{count} channel"
           other: "%{count} channels"
-        configure: Configure
         force_dm_body: Deliver every reminder in DMs, ignoring channel preferences.
         force_dm_title: Force reminder delivery via DM
         members:
           one: "%{formatted} member"
           other: "%{formatted} members"
-        plugin:
-          logging:
-            description: Record moderation events to a channel of your choice.
-            name: Logging
-          roles:
-            description: Let members give themselves roles from a menu.
-            name: Roles
-          welcomes:
-            description: Greet new members and say goodbye when they leave.
-            name: Welcomes
         plugins: Plugins
         remind_note_after: ". Nothing to configure here."
         remind_note_before: Reminders are set with
@@ -78,8 +84,3 @@ en:
           one: "%{count} role synced"
           other: "%{count} roles synced"
         server_settings: Server settings
-        status:
-          enabled: Enabled
-          inactive: 'Off'
-          needs_setup: Needs setup
-        toggle_plugin: Toggle %{plugin}

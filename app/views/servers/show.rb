@@ -3,8 +3,6 @@
 class Views::Servers::Show < Views::Base
   include Phlex::Rails::Helpers::ImageTag
 
-  PLUGIN_ICONS = {roles: "users", welcomes: "hand-raised", logging: "document-text"}.freeze
-
   def initialize(guild:, server_configuration:, plugins:, user:, servers: [], plugin_counts: {})
     @guild = guild
     @server_configuration = server_configuration
@@ -64,60 +62,9 @@ class Views::Servers::Show < Views::Base
   def plugins_section
     p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-ink-500") { t(".plugins") }
     div(class: "flex flex-col gap-3") do
-      @plugins.each { |row| plugin_row(row) }
-    end
-  end
-
-  def plugin_row(row)
-    border = row.enabled ? "border-brand-200" : "border-ink-200"
-    div(class: "flex items-center gap-4 rounded-lg border #{border} bg-ink-0 p-5 shadow-sm") do
-      plugin_icon(row)
-      div(class: "min-w-0 flex-1") do
-        div(class: "flex flex-wrap items-center gap-2") do
-          span(class: "font-display font-semibold") { t(".plugin.#{row.key}.name") }
-          status_badge(row)
-        end
-        p(class: "mt-0.5 text-sm text-ink-600") { t(".plugin.#{row.key}.description") }
+      @plugins.each do |row|
+        render Components::PluginRow.new(server_id: @guild.id, key: row.key, enabled: row.enabled, configured: row.configured)
       end
-      configure_link(row)
-      render Components::Toggle.new(
-        url: toggle_plugin_server_path(@guild.id, row.key),
-        checked: row.enabled,
-        label: t(".toggle_plugin", plugin: t(".plugin.#{row.key}.name"))
-      )
-    end
-  end
-
-  def plugin_icon(row)
-    tone = row.enabled ? "bg-brand-500 text-white" : "bg-ink-100 text-ink-400"
-    span(class: "flex size-11 flex-none items-center justify-center rounded-md #{tone}") do
-      render Components::Icon.new(PLUGIN_ICONS[row.key], class: "size-5")
-    end
-  end
-
-  def status_badge(row)
-    state, tone, dot =
-      if !row.enabled
-        [:inactive, "bg-ink-100 text-ink-600", "bg-ink-400"]
-      elsif row.configured
-        [:enabled, "bg-success-soft text-success", "bg-success"]
-      else
-        [:needs_setup, "bg-warning-soft text-warning", "bg-warning"]
-      end
-
-    span(class: "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold #{tone}") do
-      span(class: "size-1.5 rounded-full #{dot}")
-      plain t(".status.#{state}")
-    end
-  end
-
-  def configure_link(row)
-    a(
-      href: "#",
-      class: "btn-fill btn-fill-ghost inline-flex h-9 flex-none items-center gap-1.5 rounded-md border border-ink-200 px-3.5 text-sm font-semibold transition-colors hover:bg-ink-50"
-    ) do
-      span { t(".configure") }
-      render Components::Icon.new("arrow-right", class: "size-4")
     end
   end
 
@@ -129,10 +76,12 @@ class Views::Servers::Show < Views::Base
         p(class: "mt-0.5 text-sm text-ink-500") { t(".force_dm_body") }
       end
       render Components::Toggle.new(
-        url: server_path(@guild.id),
+        name: :force_dm_reminders,
         checked: @server_configuration.force_dm_reminders,
-        param: :force_dm_reminders,
-        label: t(".force_dm_title")
+        label: t(".force_dm_title"),
+        url: server_path(@guild.id),
+        submit_on_change: true,
+        dom_id: "force-dm-toggle"
       )
     end
     remind_note

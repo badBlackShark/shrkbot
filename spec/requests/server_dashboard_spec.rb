@@ -139,40 +139,64 @@ RSpec.describe "Server dashboard", type: :request do
     end
 
     describe "PATCH /servers/:id/plugins/:key" do
-      it "enables a plugin once its prerequisites are met" do
+      let(:turbo) { {headers: {"Accept" => "text/vnd.turbo-stream.html"}} }
+
+      # Loading the dashboard is what proves the user manages this server and
+      # caches that authorization for the toggle that follows.
+      before { get server_path(guild.id) }
+
+      it "enables a plugin in place without re-contacting Discord" do
         config.create_role_setting!(channel_id: 7)
         roles
-        patch toggle_plugin_server_path(guild.id, "roles"), params: {enabled: true}
-        expect(response).to redirect_to(server_path(guild.id))
+        patch toggle_plugin_server_path(guild.id, "roles"), params: {enabled: true}, **turbo
+        expect(response).to have_http_status(:ok)
+        expect(response.media_type).to eq("text/vnd.turbo-stream.html")
         expect(config.plugin_activations.find_by(plugin: roles).enabled).to be(true)
+        expect(Discord::UserGuilds).to have_received(:call).once
       end
 
       it "refuses to enable a plugin missing its prerequisites" do
         logging
-        patch toggle_plugin_server_path(guild.id, "logging"), params: {enabled: true}
-        expect(flash[:alert]).to match(/required settings/)
+        patch toggle_plugin_server_path(guild.id, "logging"), params: {enabled: true}, **turbo
+        expect(response.body).to match(/required settings/)
         expect(config.plugin_activations).to be_empty
       end
 
       it "disables an enabled plugin" do
         config.create_role_setting!(channel_id: 7)
         create(:plugin_activation, server_configuration: config, plugin: roles, enabled: true)
-        patch toggle_plugin_server_path(guild.id, "roles"), params: {enabled: false}
+        patch toggle_plugin_server_path(guild.id, "roles"), params: {enabled: false}, **turbo
         expect(config.plugin_activations.find_by(plugin: roles).enabled).to be(false)
       end
 
-      it "rejects an unknown plugin key" do
-        patch toggle_plugin_server_path(guild.id, "nope"), params: {enabled: true}
+      it "reports an unknown plugin key" do
+        patch toggle_plugin_server_path(guild.id, "nope"), params: {enabled: true}, **turbo
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("target=\"toasts\"").and include("bg-danger-soft")
+      end
+
+      it "falls back to a redirect without Turbo" do
+        config.create_role_setting!(channel_id: 7)
+        roles
+        patch toggle_plugin_server_path(guild.id, "roles"), params: {enabled: true}
         expect(response).to redirect_to(server_path(guild.id))
-        expect(flash[:alert]).to be_present
       end
     end
 
     describe "PATCH /servers/:id" do
-      it "saves the force-DM setting" do
-        patch server_path(guild.id), params: {force_dm_reminders: true}
-        expect(response).to redirect_to(server_path(guild.id))
+      before { get server_path(guild.id) }
+
+      it "saves the force-DM setting in place" do
+        patch server_path(guild.id), params: {force_dm_reminders: true}, headers: {"Accept" => "text/vnd.turbo-stream.html"}
+        expect(response).to have_http_status(:ok)
         expect(config.reload.force_dm_reminders).to be(true)
+      end
+    end
+
+    describe "mutating a server not authorized this session" do
+      it "redirects to the picker" do
+        patch server_path(guild.id), params: {force_dm_reminders: true}
+        expect(response).to redirect_to(servers_path)
       end
     end
   end
