@@ -124,19 +124,20 @@ RSpec.describe "Server dashboard", type: :request do
       context "when the Discord token has expired" do
         before { allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Unauthorized) }
 
-        it "bounces to the picker to re-authenticate" do
+        it "kicks off re-authentication" do
           get_dashboard
-          expect(response).to redirect_to(servers_path)
+          expect(response.body).to include("Signing you back in")
+          expect(session[:reauth_attempted]).to be(true)
         end
       end
 
       context "when Discord cannot be reached" do
         before { allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Error) }
 
-        it "redirects to the picker with an error" do
+        it "renders the error state without raising" do
           get_dashboard
-          expect(response).to redirect_to(servers_path)
-          expect(flash[:alert]).to be_present
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to include("reach Discord")
         end
       end
     end

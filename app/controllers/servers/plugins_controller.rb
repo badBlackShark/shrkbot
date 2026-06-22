@@ -1,8 +1,6 @@
 class Servers::PluginsController < ApplicationController
-  include ManageableServers
+  include RequiresManageableServer
 
-  before_action :require_login
-  before_action :require_manageable_server
   before_action :set_plugin
 
   def update

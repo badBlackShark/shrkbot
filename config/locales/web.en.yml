@@ -33,7 +33,6 @@ en:
         needs_setup: Needs setup
       toggle: Toggle %{plugin}
   servers:
-    discord_error: We couldn't reach Discord. Try again in a moment.
     not_found: That server isn't available to configure.
     plugin_disabled: "%{plugin} disabled."
     plugin_enabled: "%{plugin} enabled."

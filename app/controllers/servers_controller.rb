@@ -1,8 +1,12 @@
 class ServersController < ApplicationController
-  include ManageableServers
+  include SetsManageableServers
 
-  before_action :require_login
   before_action :load_dashboard, only: :show
+
+  # The user's Discord token is only used to list their guilds (here). Declared
+  # most-specific-last so Unauthorized wins over its parent Error.
+  rescue_from Discord::UserGuilds::Error, with: :render_error
+  rescue_from Discord::UserGuilds::Unauthorized, with: :reauthenticate
 
   def index
     manageable = manageable_guilds
@@ -17,10 +21,6 @@ class ServersController < ApplicationController
       plugin_counts: enabled_plugin_counts(configured),
       user: current_user
     )
-  rescue Discord::UserGuilds::Unauthorized
-    reauthenticate
-  rescue Discord::UserGuilds::Error
-    render_error
   end
 
   def show
@@ -46,10 +46,6 @@ class ServersController < ApplicationController
     remember_manageable_servers(configured)
     @configured_guilds = manageable.select { |guild| configured.include?(guild.id) }
     @plugin_counts = enabled_plugin_counts(configured)
-  rescue Discord::UserGuilds::Unauthorized
-    redirect_to servers_path
-  rescue Discord::UserGuilds::Error
-    redirect_to servers_path, alert: t("servers.discord_error")
   end
 
   def manageable_guilds
