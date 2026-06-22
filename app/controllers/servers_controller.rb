@@ -1,7 +1,7 @@
 class ServersController < ApplicationController
   before_action :require_login
   before_action :load_dashboard, only: :show
-  before_action :authorize_mutation, only: [:update, :toggle_plugin]
+  before_action :authorize_mutation, only: :toggle_plugin
 
   PluginRow = Data.define(:key, :enabled, :configured)
 
@@ -32,24 +32,6 @@ class ServersController < ApplicationController
       user: current_user,
       servers: @configured_guilds,
       plugin_counts: @plugin_counts
-    )
-  end
-
-  def update
-    Ops::ServerConfiguration::Update.call(
-      server_configuration: @server_configuration,
-      force_dm_reminders: boolean(params[:force_dm_reminders])
-    )
-    toggle = Components::Toggle.new(
-      name: :force_dm_reminders,
-      checked: @server_configuration.reload.force_dm_reminders,
-      label: t("views.servers.show.force_dm_title"),
-      url: server_path(params[:id]),
-      submit_on_change: true,
-      dom_id: "force-dm-toggle"
-    )
-    save_response(
-      [replace("force-dm-toggle", toggle), append_toast("notice", t("servers.saved"))]
     )
   end
 

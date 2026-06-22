@@ -5,7 +5,6 @@ en:
   components:
     app_shell:
       add_server: Add another server
-      configured: Configured
       log_out: Log out
       plugins_on:
         one: "%{count} plugin on"
@@ -17,6 +16,10 @@ en:
         logging:
           description: Record moderation events to a channel of your choice.
           name: Logging
+        reminders:
+          description: Members set their own reminders with /remind.
+          locked: This plugin is always enabled to preserve DM functionality.
+          name: Reminders
         roles:
           description: Let members give themselves roles from a menu.
           name: Roles
@@ -33,7 +36,6 @@ en:
     not_found: That server isn't available to configure.
     plugin_disabled: "%{plugin} disabled."
     plugin_enabled: "%{plugin} enabled."
-    saved: Saved.
     unknown_plugin: That plugin doesn't exist.
   sessions:
     failed: Sign-in failed or was cancelled.
@@ -72,15 +74,10 @@ en:
         channels:
           one: "%{count} channel"
           other: "%{count} channels"
-        force_dm_body: Deliver every reminder in DMs, ignoring channel preferences.
-        force_dm_title: Force reminder delivery via DM
         members:
           one: "%{formatted} member"
           other: "%{formatted} members"
         plugins: Plugins
-        remind_note_after: ". Nothing to configure here."
-        remind_note_before: Reminders are set with
         roles_synced:
           one: "%{count} role synced"
           other: "%{count} roles synced"
-        server_settings: Server settings

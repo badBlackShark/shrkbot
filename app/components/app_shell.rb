@@ -37,15 +37,14 @@ class Components::AppShell < Components::Base
         class: "flex h-9 cursor-pointer list-none items-center gap-2 rounded-md px-2 transition-colors hover:bg-ink-100 [&::-webkit-details-marker]:hidden"
       ) do
         server_tile(@current_server, size: :sm)
-        span(class: "hidden max-w-40 truncate text-sm font-semibold sm:block") { @current_server.name }
-        render Components::Icon.new("chevron-up-down", class: "dropdown-chevron size-4 text-ink-400")
+        span(class: "hidden whitespace-nowrap text-sm font-semibold sm:block") { @current_server.name }
+        render Components::Icon.new("chevron-down", class: "dropdown-chevron size-4 text-ink-400")
       end
 
       div(
         data: {dropdown_target: "menu"},
         class: "dropdown-menu absolute left-0 top-12 z-40 w-72 overflow-hidden rounded-lg border border-ink-200 bg-ink-0 py-1.5 shadow-lg"
       ) do
-        p(class: "px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-ink-500") { t(".configured") }
         @servers.each { |server| switcher_row(server) }
         div(class: "mx-3 my-1.5 h-px bg-ink-100")
         a(

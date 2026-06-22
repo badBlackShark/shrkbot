@@ -93,10 +93,11 @@ RSpec.describe "Server dashboard", type: :request do
         end
       end
 
-      it "shows the force-DM setting and the /remind note" do
+      it "shows reminders as an always-on plugin row" do
         get_dashboard
-        expect(response.body).to include("Force reminder delivery via DM")
-        expect(response.body).to include("/remind")
+        expect(response.body).to include("Reminders")
+        expect(response.body).to include("always enabled to preserve DM functionality")
+        expect(response.body).to include("disabled")
       end
 
       context "when Discord omits the member count" do
@@ -183,19 +184,10 @@ RSpec.describe "Server dashboard", type: :request do
       end
     end
 
-    describe "PATCH /servers/:id" do
-      before { get server_path(guild.id) }
-
-      it "saves the force-DM setting in place" do
-        patch server_path(guild.id), params: {force_dm_reminders: true}, headers: {"Accept" => "text/vnd.turbo-stream.html"}
-        expect(response).to have_http_status(:ok)
-        expect(config.reload.force_dm_reminders).to be(true)
-      end
-    end
-
-    describe "mutating a server not authorized this session" do
+    describe "toggling a server not authorized this session" do
       it "redirects to the picker" do
-        patch server_path(guild.id), params: {force_dm_reminders: true}
+        roles
+        patch toggle_plugin_server_path(guild.id, "roles"), params: {enabled: true}
         expect(response).to redirect_to(servers_path)
       end
     end

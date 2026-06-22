@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 class Components::PluginRow < Components::Base
-  ICONS = {roles: "users", welcomes: "hand-raised", logging: "document-text"}.freeze
+  ICONS = {roles: "users", welcomes: "hand-raised", logging: "document-text", reminders: "clock"}.freeze
 
-  def initialize(server_id:, key:, enabled:, configured:)
+  def initialize(server_id:, key:, enabled:, configured:, locked: false)
     @server_id = server_id
     @key = key
     @enabled = enabled
     @configured = configured
+    @locked = locked
   end
 
   def view_template
@@ -22,17 +23,32 @@ class Components::PluginRow < Components::Base
         p(class: "mt-0.5 text-sm text-ink-600") { t(".plugin.#{@key}.description") }
       end
       configure_link
+      toggle
+    end
+  end
+
+  private
+
+  def toggle
+    name = t(".plugin.#{@key}.name")
+    if @locked
+      render Components::Toggle.new(
+        name: :enabled,
+        checked: true,
+        label: t(".toggle", plugin: name),
+        disabled: true,
+        title: t(".plugin.#{@key}.locked")
+      )
+    else
       render Components::Toggle.new(
         name: :enabled,
         checked: @enabled,
-        label: t(".toggle", plugin: t(".plugin.#{@key}.name")),
+        label: t(".toggle", plugin: name),
         url: toggle_plugin_server_path(@server_id, @key),
         submit_on_change: true
       )
     end
   end
-
-  private
 
   def icon
     tone = @enabled ? "bg-brand-500 text-white" : "bg-ink-100 text-ink-400"

@@ -18,7 +18,6 @@ class Views::Servers::Show < Views::Base
         breadcrumb
         server_header
         plugins_section
-        server_settings_section
       end
     end
   end
@@ -65,36 +64,7 @@ class Views::Servers::Show < Views::Base
       @plugins.each do |row|
         render Components::PluginRow.new(server_id: @guild.id, key: row.key, enabled: row.enabled, configured: row.configured)
       end
-    end
-  end
-
-  def server_settings_section
-    p(class: "mb-3 mt-8 text-[11px] font-semibold uppercase tracking-widest text-ink-500") { t(".server_settings") }
-    div(class: "flex items-center gap-4 rounded-lg border border-ink-200 bg-ink-0 p-5 shadow-sm") do
-      div(class: "flex-1") do
-        p(class: "text-sm font-medium") { t(".force_dm_title") }
-        p(class: "mt-0.5 text-sm text-ink-500") { t(".force_dm_body") }
-      end
-      render Components::Toggle.new(
-        name: :force_dm_reminders,
-        checked: @server_configuration.force_dm_reminders,
-        label: t(".force_dm_title"),
-        url: server_path(@guild.id),
-        submit_on_change: true,
-        dom_id: "force-dm-toggle"
-      )
-    end
-    remind_note
-  end
-
-  def remind_note
-    p(class: "mt-3 flex items-start gap-1.5 text-xs text-ink-500") do
-      render Components::Icon.new("information-circle", class: "mt-0.5 size-3.5 flex-none")
-      span do
-        plain t(".remind_note_before")
-        span(class: "px-1 font-mono text-ink-600") { "/remind" }
-        plain t(".remind_note_after")
-      end
+      render Components::PluginRow.new(server_id: @guild.id, key: :reminders, enabled: true, configured: true, locked: true)
     end
   end
 

@@ -11,7 +11,7 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   delete "/logout", to: "sessions#destroy", as: :logout
 
-  resources :servers, only: [:index, :show, :update], param: :id do
+  resources :servers, only: [:index, :show], param: :id do
     patch "plugins/:key", to: "servers#toggle_plugin", on: :member, as: :toggle_plugin
   end
 
