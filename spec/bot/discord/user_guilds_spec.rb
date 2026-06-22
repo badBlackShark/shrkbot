@@ -6,7 +6,7 @@ RSpec.describe Discord::UserGuilds do
   let(:http) { instance_double(Net::HTTP) }
   let(:response) { instance_double(Net::HTTPResponse, code: code, body: body) }
   let(:code) { "200" }
-  let(:body) { [{"id" => "42", "name" => "Dev Refuge", "owner" => true, "permissions" => "8", "icon" => nil}].to_json }
+  let(:body) { [{"id" => "42", "name" => "Dev Refuge", "owner" => true, "permissions" => "8", "icon" => nil, "approximate_member_count" => 2481}].to_json }
 
   before do
     allow(http).to receive(:request).and_return(response)
@@ -18,7 +18,7 @@ RSpec.describe Discord::UserGuilds do
   end
 
   it "carries the parsed fields" do
-    expect(fetch.first).to have_attributes(id: 42, name: "Dev Refuge", owner: true, permissions: 8)
+    expect(fetch.first).to have_attributes(id: 42, name: "Dev Refuge", owner: true, permissions: 8, member_count: 2481)
   end
 
   context "when Discord rejects the access token" do

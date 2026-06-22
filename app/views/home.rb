@@ -11,9 +11,7 @@ class Views::Home < Views::Base
           plain "bot"
         end
 
-        p(class: "mb-6 text-ink-600") do
-          "Turn plugins on or off and set them up - all from one place."
-        end
+        p(class: "mb-6 text-ink-600") { t(".tagline") }
 
         button_to(
           "/auth/discord",
@@ -22,7 +20,7 @@ class Views::Home < Views::Base
           class: "btn-fill btn-fill-primary inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-500 px-4 py-3 font-semibold text-white"
         ) do
           render Components::Icon.new("arrow-right-on-rectangle", class: "size-5")
-          span { "Sign in with Discord" }
+          span { t(".sign_in") }
         end
       end
     end

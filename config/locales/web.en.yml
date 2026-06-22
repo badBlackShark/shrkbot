@@ -1,0 +1,40 @@
+---
+en:
+  authentication:
+    login_required: Please sign in to continue.
+  components:
+    app_shell:
+      log_out: Log out
+      toggle_theme: Toggle dark mode
+  sessions:
+    failed: Sign-in failed or was cancelled.
+    signed_in: Signed in as %{name}.
+    signed_out: Signed out.
+  views:
+    home:
+      sign_in: Sign in with Discord
+      tagline: Turn plugins on or off and set them up - all from one place.
+    reauth:
+      body: Your Discord sign-in expired. Please stand by - we're refreshing it for
+        you.
+      continue: Continue
+      title: Signing you back in
+    servers:
+      index:
+        empty_body: You need Manage Server permissions and shrkbot must be present.
+          Invite it to get started.
+        empty_title: shrkbot isn't in any of your servers yet
+        error: We couldn't reach Discord to load your servers. Try again in a moment.
+        invite: Invite shrkbot
+        members:
+          one: "%{formatted} member"
+          other: "%{formatted} members"
+        missing_body: You need Manage Server permissions and shrkbot must be present.
+          Invite it, then refresh.
+        missing_title: Don't see a server?
+        plugins_enabled:
+          one: "%{count} plugin enabled"
+          other: "%{count} plugins enabled"
+        refresh: Refresh
+        subtitle: Pick a server to configure shrkbot.
+        title: Your servers

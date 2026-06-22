@@ -78,6 +78,9 @@ group :development, :test do
 
   gem "active_record_doctor"
 
+  # Lints locale files: missing/unused keys, normalization
+  gem "i18n-tasks", require: false
+
   gem "simplecov", require: false
   gem "simplecov-lcov", require: false
 

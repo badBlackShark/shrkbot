@@ -5,10 +5,10 @@ class Views::Reauth < Views::Base
 
   def view_template
     div(class: "mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 text-center") do
-      h1(class: "mb-2 font-display text-xl font-bold tracking-tight") { "Signing you back in" }
-      p(class: "mb-6 text-ink-600") { "Your Discord sign-in expired. Please stand by - we're refreshing it for you." }
+      h1(class: "mb-2 font-display text-xl font-bold tracking-tight") { t(".title") }
+      p(class: "mb-6 text-ink-600") { t(".body") }
       button_to(
-        "Continue",
+        t(".continue"),
         "/auth/discord",
         method: :post,
         form: {data: {controller: "reauth", turbo: false}},
