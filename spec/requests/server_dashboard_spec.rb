@@ -96,6 +96,7 @@ RSpec.describe "Server dashboard", type: :request do
       it "shows reminders as an always-on plugin row" do
         get_dashboard
         expect(response.body).to include("Reminders")
+        expect(response.body).to include("Always enabled")
         expect(response.body).to include("always enabled to preserve DM functionality")
         expect(response.body).to include("disabled")
       end

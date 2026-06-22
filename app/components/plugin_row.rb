@@ -32,13 +32,9 @@ class Components::PluginRow < Components::Base
   def toggle
     name = t(".plugin.#{@key}.name")
     if @locked
-      render Components::Toggle.new(
-        name: :enabled,
-        checked: true,
-        label: t(".toggle", plugin: name),
-        disabled: true,
-        title: t(".plugin.#{@key}.locked")
-      )
+      render Components::Tooltip.new(text: t(".plugin.#{@key}.locked")) do
+        render Components::Toggle.new(name: :enabled, checked: true, label: t(".toggle", plugin: name), disabled: true)
+      end
     else
       render Components::Toggle.new(
         name: :enabled,
@@ -59,7 +55,9 @@ class Components::PluginRow < Components::Base
 
   def status_badge
     state, tone, dot =
-      if !@enabled
+      if @locked
+        [:always_enabled, "bg-success-soft text-success", "bg-success"]
+      elsif !@enabled
         [:inactive, "bg-ink-100 text-ink-600", "bg-ink-400"]
       elsif @configured
         [:enabled, "bg-success-soft text-success", "bg-success"]
