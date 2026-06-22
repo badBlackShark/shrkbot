@@ -30,6 +30,13 @@ rather than hand-rolled `count == 1` ternaries; pass a separate `formatted:`
 interpolation when the displayed number needs delimiting. Brand marks (the
 `shrkbot` wordmark) and slash-command names stay literal.
 
+`i18n-tasks` lints the locale files; CI runs `missing` (used-but-undefined keys)
+and `check-normalized` (files sorted/formatted — run `i18n-tasks normalize` to
+fix). `unused` is deliberately not enforced: it can't see dynamic `t("#{…}")`
+calls (e.g. the bot's `activity_log.<plugin>.<event>`). Phlex's class-name key
+scoping is configured in `config/i18n-tasks.yml` (`relative_roots: [app]` +
+`relative_exclude_method_name_paths: [app]`).
+
 ## App shell
 
 Authed pages render their content inside `Components::AppShell`, which draws the

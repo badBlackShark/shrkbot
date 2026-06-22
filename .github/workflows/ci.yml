@@ -50,6 +50,24 @@ jobs:
       - name: Lint code for consistent style
         run: bundle exec standardrb
 
+  i18n:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      # `unused` is intentionally omitted: it can't see dynamic `t("#{...}")` calls.
+      - name: Check for missing locale keys
+        run: bundle exec i18n-tasks missing
+
+      - name: Check locale files are normalized
+        run: bundle exec i18n-tasks check-normalized
+
   test:
     runs-on: ubuntu-latest
 

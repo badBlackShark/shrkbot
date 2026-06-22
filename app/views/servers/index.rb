@@ -79,7 +79,7 @@ class Views::Servers::Index < Views::Base
   def plugins_badge(count)
     tone = count.positive? ? "bg-brand-100 text-accent-soft-fg" : "bg-ink-100 text-ink-600"
     span(class: "self-start rounded-full px-2.5 py-1 text-xs font-semibold #{tone}") do
-      t(".plugins_enabled", count: count)
+      t(".plugins_enabled", count:)
     end
   end
 

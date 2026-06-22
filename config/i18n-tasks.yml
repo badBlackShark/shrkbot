@@ -1,0 +1,22 @@
+base_locale: en
+locales: [en]
+
+data:
+  read:
+    - config/locales/*.%{locale}.yml
+  write:
+    - ["activity_log.*", "config/locales/activity_log.%{locale}.yml"]
+    - "config/locales/web.%{locale}.yml"
+
+search:
+  paths:
+    - app/
+  # Phlex views/components are Ruby classes, so a relative `t(".key")` is scoped
+  # by the class name (Views::Servers::Index -> views.servers.index). Rooting at
+  # `app` makes the file path resolve to the same scope; excluding the method
+  # name stops i18n-tasks appending the enclosing method (Phlex scopes by class,
+  # not method).
+  relative_roots:
+    - app
+  relative_exclude_method_name_paths:
+    - app
