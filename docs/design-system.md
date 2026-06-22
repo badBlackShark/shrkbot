@@ -17,11 +17,14 @@ proxy). The login and re-auth pages are not authed, so they sit outside the shel
 and centre themselves.
 
 Flash messages render as dismissable toasts (`Components::Toasts`, rendered once
-from the layout so every page gets them). Small dropdowns (the user menu) use a
-native `<details>` element plus the `dropdown` Stimulus controller, which just
-closes it on an outside click or Escape. The panel fades in with `anim-menu`, and
-the trigger's chevron points left when closed and rotates down when open (via
-`group-open`).
+from the layout so every page gets them). Small dropdowns (the user menu) are the
+standard pattern: a native `<details>` with the `dropdown` Stimulus controller.
+The panel (`.dropdown-menu`, a `menu` target) fades/slides in via CSS on `[open]`
+and fades/slides back out on close — the controller intercepts the close
+(`click->dropdown#toggle`, plus outside-click and Escape) so the exit animation
+finishes before the panel is removed, then sets `open = false`. The trigger's
+chevron points left when closed and rotates down when open (via `group-open`).
+Reduced motion drops both directions.
 
 The server switcher and the reusable config-form controls (switch, segmented
 control, enable-gate, setting row, Tom Select wrapper, save-feedback) are built

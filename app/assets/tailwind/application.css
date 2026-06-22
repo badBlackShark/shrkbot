@@ -186,6 +186,10 @@
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes menuLeave {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
 @keyframes slideUp {
   from { opacity: 0; transform: translate(-50%, 8px); }
   to   { opacity: 1; transform: translate(-50%, 0); }
@@ -228,6 +232,9 @@
 details[open] > .dropdown-menu {
   animation: menuEnter var(--dur-base) var(--ease-standard);
 }
+details[open] > .dropdown-menu.is-closing {
+  animation: menuLeave var(--dur-base) var(--ease-standard) forwards;
+}
 
 /* Ease surface colours during a theme switch (the controller adds
    .theme-switching for the duration). The morphing icons are excluded so this
@@ -255,7 +262,8 @@ details[open] > .dropdown-menu {
   .anim-menu,
   .anim-toast,
   .anim-fade { animation: none; }
-  details[open] > .dropdown-menu { animation: none; }
+  details[open] > .dropdown-menu,
+  details[open] > .dropdown-menu.is-closing { animation: none; }
   .theme-switching,
   .theme-switching *,
   .theme-morph > * { transition: none; }

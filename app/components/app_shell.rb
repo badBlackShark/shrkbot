@@ -53,13 +53,19 @@ class Components::AppShell < Components::Base
 
   def user_menu
     details(class: "group relative", data: {controller: "dropdown"}) do
-      summary(class: "flex h-10 cursor-pointer list-none items-center gap-2 rounded-full pl-1 pr-2.5 transition-colors hover:bg-ink-100 [&::-webkit-details-marker]:hidden") do
+      summary(
+        data: {action: "click->dropdown#toggle"},
+        class: "flex h-10 cursor-pointer list-none items-center gap-2 rounded-full pl-1 pr-2.5 transition-colors hover:bg-ink-100 [&::-webkit-details-marker]:hidden"
+      ) do
         avatar
         span(class: "hidden text-sm font-medium sm:block") { @user.display_name }
         render Components::Icon.new("chevron-down", class: "size-4 rotate-90 text-ink-400 transition-transform group-open:rotate-0")
       end
 
-      div(class: "dropdown-menu absolute right-0 top-12 z-40 w-52 rounded-lg border border-ink-200 bg-ink-0 p-1.5 shadow-lg") do
+      div(
+        data: {dropdown_target: "menu"},
+        class: "dropdown-menu absolute right-0 top-12 z-40 w-52 rounded-lg border border-ink-200 bg-ink-0 p-1.5 shadow-lg"
+      ) do
         button_to(
           logout_path,
           method: :delete,
