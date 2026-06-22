@@ -4,8 +4,11 @@ class Components::AppShell < Components::Base
   include Phlex::Rails::Helpers::ImageTag
   include Phlex::Rails::Helpers::ButtonTo
 
-  def initialize(user:)
+  def initialize(user:, current_server: nil, servers: [], plugin_counts: {})
     @user = user
+    @current_server = current_server
+    @servers = servers
+    @plugin_counts = plugin_counts
   end
 
   def view_template(&block)
@@ -20,9 +23,63 @@ class Components::AppShell < Components::Base
   def top_bar
     header(class: "sticky top-0 z-30 flex h-16 flex-none items-center gap-3 border-b border-ink-200 bg-ink-0 px-5") do
       wordmark
+      server_switcher if @current_server
       div(class: "flex-1")
       theme_toggle
       user_menu
+    end
+  end
+
+  def server_switcher
+    details(class: "group relative", data: {controller: "dropdown"}) do
+      summary(
+        data: {action: "click->dropdown#toggle"},
+        class: "flex h-9 cursor-pointer list-none items-center gap-2 rounded-md px-2 transition-colors hover:bg-ink-100 [&::-webkit-details-marker]:hidden"
+      ) do
+        server_tile(@current_server, size: :sm)
+        span(class: "hidden max-w-40 truncate text-sm font-semibold sm:block") { @current_server.name }
+        render Components::Icon.new("chevron-up-down", class: "dropdown-chevron size-4 text-ink-400")
+      end
+
+      div(
+        data: {dropdown_target: "menu"},
+        class: "dropdown-menu absolute left-0 top-12 z-40 w-72 overflow-hidden rounded-lg border border-ink-200 bg-ink-0 py-1.5 shadow-lg"
+      ) do
+        p(class: "px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-ink-500") { t(".configured") }
+        @servers.each { |server| switcher_row(server) }
+        div(class: "mx-3 my-1.5 h-px bg-ink-100")
+        a(
+          href: servers_path,
+          class: "mx-1.5 flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-ink-600 transition-colors hover:bg-ink-100"
+        ) do
+          span(class: "flex size-6 flex-none items-center justify-center rounded bg-ink-100") do
+            render Components::Icon.new("plus", class: "size-3.5")
+          end
+          plain t(".add_server")
+        end
+      end
+    end
+  end
+
+  def switcher_row(server)
+    current = server.id == @current_server.id
+    tone = current ? "bg-brand-50 hover:bg-brand-100" : "hover:bg-ink-100"
+    a(href: server_path(server.id), class: "flex items-center gap-3 px-3 py-2 text-left transition-colors #{tone}") do
+      server_tile(server, size: :md)
+      div(class: "min-w-0 flex-1") do
+        p(class: "truncate text-sm font-semibold") { server.name }
+        p(class: "text-[11px] text-ink-500") { t(".plugins_on", count: @plugin_counts[server.id].to_i) }
+      end
+      render Components::Icon.new("check", class: "size-4 flex-none text-brand-500") if current
+    end
+  end
+
+  def server_tile(server, size:)
+    box = (size == :sm) ? "size-7" : "size-8"
+    if server.icon_url
+      image_tag(server.icon_url, alt: "", loading: "lazy", class: "#{box} flex-none rounded-md object-cover")
+    else
+      span(class: "#{box} flex flex-none items-center justify-center rounded-md bg-brand-100 text-xs font-bold text-accent-soft-fg") { initials(server.name) }
     end
   end
 

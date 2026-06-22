@@ -59,10 +59,20 @@ back the moment a close starts (keyed off the panel's `.is-closing` via `:has`,
 so it turns with the fade-out rather than after it). Reduced motion drops both
 directions.
 
-The server switcher and the reusable config-form controls (switch, segmented
-control, enable-gate, setting row, Tom Select wrapper, save-feedback) are built
-alongside the pages that consume them (the dashboard and plugin config pages),
-not up front.
+The top bar also gains a **server switcher** when a page is scoped to one server
+(the dashboard passes `current_server:` + `servers:` to `AppShell`): a `dropdown`
+disclosure listing the user's configured servers as links to their dashboards,
+the current one marked, plus a link back to the picker. It has no search box —
+the list is a user's handful of admin servers; add filtering only if that stops
+being true.
+
+`Components::Toggle` is the reusable on/off switch: a `button_to` that PATCHes the
+new value and styles itself off `aria-checked` (the `.toggle`/`.toggle-knob` rules
+in the stylesheet), so it needs no JavaScript and stays a real `role="switch"`
+control. Turbo follows the redirect and the page re-renders in the new state;
+auto-save feedback is the resulting flash toast. The remaining config-form
+controls (segmented control, enable-gate, Tom Select wrapper, the Saved pill) are
+built alongside the plugin config pages that consume them, not up front.
 
 ## Where it lives
 

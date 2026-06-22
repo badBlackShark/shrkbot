@@ -4,8 +4,20 @@ en:
     login_required: Please sign in to continue.
   components:
     app_shell:
+      add_server: Add another server
+      configured: Configured
       log_out: Log out
+      plugins_on:
+        one: "%{count} plugin on"
+        other: "%{count} plugins on"
       toggle_theme: Toggle dark mode
+  servers:
+    discord_error: We couldn't reach Discord. Try again in a moment.
+    not_found: That server isn't available to configure.
+    plugin_disabled: "%{plugin} disabled."
+    plugin_enabled: "%{plugin} enabled."
+    saved: Saved.
+    unknown_plugin: That plugin doesn't exist.
   sessions:
     failed: Sign-in failed or was cancelled.
     signed_in: Signed in as %{name}.
@@ -38,3 +50,36 @@ en:
         refresh: Refresh
         subtitle: Pick a server to configure shrkbot.
         title: Your servers
+      show:
+        breadcrumb_servers: Servers
+        channels:
+          one: "%{count} channel"
+          other: "%{count} channels"
+        configure: Configure
+        force_dm_body: Deliver every reminder in DMs, ignoring channel preferences.
+        force_dm_title: Force reminder delivery via DM
+        members:
+          one: "%{formatted} member"
+          other: "%{formatted} members"
+        plugin:
+          logging:
+            description: Record moderation events to a channel of your choice.
+            name: Logging
+          roles:
+            description: Let members give themselves roles from a menu.
+            name: Roles
+          welcomes:
+            description: Greet new members and say goodbye when they leave.
+            name: Welcomes
+        plugins: Plugins
+        remind_note_after: ". Nothing to configure here."
+        remind_note_before: Reminders are set with
+        roles_synced:
+          one: "%{count} role synced"
+          other: "%{count} roles synced"
+        server_settings: Server settings
+        status:
+          enabled: Enabled
+          inactive: 'Off'
+          needs_setup: Needs setup
+        toggle_plugin: Toggle %{plugin}
