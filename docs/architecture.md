@@ -82,14 +82,18 @@ and the web app, so a given mutation is written once and called from both.
   :require_manageable_server` (which also sets `@server_configuration`). That check
   reads the session set instead of re-hitting Discord's rate-limited guild-list
   endpoint. It is not spoofable — the session is server-signed.
-- **Turbo Stream responses are built in the view layer**, not in controller
-  helpers. `Components::TurboStream` composes a stream out of Phlex components
-  (`.replace(target, component)` / `.append(target, component)`); the controller
-  declares the operations and renders it (`render turbo_stream:
-  render_to_string(stream, layout: false)`). This is how auto-saving controls
-  re-render in place: a success re-renders the control plus a toast, and (for the
-  config forms) a failure re-renders the form region with inline errors — both are
-  just different components and targets passed to the same primitive.
+- **Turbo Stream responses live in a view template**, not in controller helpers —
+  the standard Rails `action.turbo_stream.erb` (e.g.
+  `app/views/servers/plugins/update.turbo_stream.erb`). The controller sets its
+  instance variables and `respond_to { |f| f.turbo_stream; f.html { redirect_back … } }`;
+  the template uses the `turbo_stream` tag builder with our Phlex components as the
+  content: `turbo_stream.replace "plugin-#{@plugin.key}", html: render(Components::PluginRow.new(…))`,
+  `turbo_stream.append "toasts", html: render(Components::Toast.new(**@toast))`. This
+  is how auto-saving controls re-render in place: success re-renders the control
+  plus a toast, and (for the config forms) failure re-renders the form region with
+  inline errors — just more `turbo_stream.*` lines with different components and
+  targets. (These response templates are ERB; the Phlex-for-views convention is
+  about page/component views — the stream wrapper is a thin format template.)
 
 ## Terminology: `server`
 

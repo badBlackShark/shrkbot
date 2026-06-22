@@ -11,32 +11,22 @@ class Servers::PluginsController < ApplicationController
       plugin: @plugin,
       enabled: params[:enabled]
     )
+    @row = PluginStatus.row(@server_configuration, @plugin)
+    @toast = feedback(result)
 
     respond_to do |format|
-      format.turbo_stream { render turbo_stream: render_to_string(stream(result), layout: false) }
+      format.turbo_stream
       format.html { redirect_back fallback_location: server_path(params[:server_id]) }
     end
   end
 
   private
 
-  def stream(result)
-    level, message = feedback(result)
-    Components::TurboStream.new
-      .replace("plugin-#{@plugin.key}", plugin_row)
-      .append("toasts", Components::Toast.new(level:, message:))
-  end
-
-  def plugin_row
-    row = PluginStatus.row(@server_configuration, @plugin)
-    Components::PluginRow.new(server_id: params[:server_id], key: row.key, enabled: row.enabled, configured: row.configured)
-  end
-
   def feedback(result)
-    return ["alert", result.errors.to_sentence] if result.failure?
+    return {level: "alert", message: result.errors.to_sentence} if result.failure?
 
     key = result.value.enabled? ? "servers.plugin_enabled" : "servers.plugin_disabled"
-    ["notice", t(key, plugin: @plugin.name)]
+    {level: "notice", message: t(key, plugin: @plugin.name)}
   end
 
   def set_plugin
