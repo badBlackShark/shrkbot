@@ -35,7 +35,7 @@ class Views::Servers::Index < Views::Base
   def present_card(guild)
     a(href: "#", class: "card-lift flex flex-col gap-3 rounded-lg border border-ink-200 bg-ink-0 p-5 shadow-sm") do
       card_heading(guild)
-      span(class: "self-start rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700") { "Configure" }
+      span(class: "self-start rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-accent-soft-fg") { "Configure" }
     end
   end
 

@@ -63,6 +63,13 @@ with **no `dark:` variants anywhere**. Use the token utilities — `bg-ink-0` fo
 card surfaces, `bg-ink-50` for the page, `text-ink-900/700/600`, `border-ink-*` —
 not Tailwind's built-in `white`/`slate`, which don't theme.
 
+For accent text/icons sitting on a soft brand tint (badges, the avatar initials),
+use `text-accent-soft-fg`, not a raw `brand-*` step: a fixed brand step can't read
+on both a light tint and a dark one, so this token flips (`brand-700` light /
+`brand-300` dark). Mind contrast generally — pair foreground/background tokens so
+both themes stay legible (we already honour reduced motion; full screen-reader and
+keyboard-navigation passes are deferred).
+
 Tailwind v4 must scan the Phlex `.rb` files or utilities used only in Ruby string
 literals get purged; `@source "../../views"` and `@source "../../components"`
 handle that.
@@ -78,7 +85,12 @@ The toggle is `theme_controller.js` (flips the attribute, persists to
 `localStorage` under `shrk-theme`). To avoid a flash of the wrong theme, an
 inline script in the `<head>` (see `layouts/application.html.erb`) sets
 `data-theme` before first paint from `localStorage`, falling back to the OS
-`prefers-color-scheme`. The toggle's permanent home is the app-shell top bar.
+`prefers-color-scheme`. The toggle lives in the app-shell top bar.
+
+Switching themes cross-fades the page via the View Transitions API
+(`document.startViewTransition`), tuned to the motion tokens in CSS
+(`::view-transition-old/new(root)`). It degrades to an instant swap where the API
+is unsupported, and the controller skips it under reduced motion.
 
 ## Motion
 

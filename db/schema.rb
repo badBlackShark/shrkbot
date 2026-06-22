@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_20_185143) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_22_120306) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -260,8 +260,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_185143) do
   end
 
   create_table "users", id: :string, default: -> { "('usr_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.string "avatar"
     t.datetime "created_at", null: false
     t.bigint "discord_id", null: false
+    t.string "display_name"
     t.datetime "updated_at", null: false
     t.string "username", null: false
     t.index ["discord_id"], name: "index_users_on_discord_id", unique: true

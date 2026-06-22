@@ -96,6 +96,7 @@
   --accent: var(--brand-500);
   --accent-hover: var(--brand-600);
   --accent-active: var(--brand-700);
+  --accent-soft-fg: var(--brand-700);
   --surface-sunken: var(--ink-100);
   --focus-ring: color-mix(in srgb, var(--brand-500) 45%, transparent);
 
@@ -129,6 +130,7 @@
 
   --accent-hover: var(--brand-400);
   --accent-active: var(--brand-300);
+  --accent-soft-fg: var(--brand-300);
   --focus-ring: color-mix(in srgb, var(--brand-500) 35%, transparent);
 }
 
@@ -163,6 +165,7 @@
   --color-warning-soft: var(--warning-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-accent-soft-fg: var(--accent-soft-fg);
 
   --font-display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
   --font-sans: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
@@ -221,6 +224,14 @@
 .anim-menu { animation: menuEnter var(--dur-base) var(--ease-standard); }
 .anim-toast { animation: slideUp var(--dur-base) var(--ease-standard) forwards; }
 .anim-fade { animation: fadeIn var(--dur-slow); }
+
+/* Theme switch cross-fade (View Transitions API; skipped when unsupported
+   or under reduced motion — see theme_controller.js). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dur-slow);
+  animation-timing-function: var(--ease-standard);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .btn-fill::after { transition: none; transform: scaleX(1); }

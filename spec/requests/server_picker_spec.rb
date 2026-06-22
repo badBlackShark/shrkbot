@@ -55,6 +55,24 @@ RSpec.describe "Server picker", type: :request do
         expect(response.body).to include("Toggle dark mode")
       end
 
+      context "when the user has a display name and avatar" do
+        let(:auth) do
+          OmniAuth::AuthHash.new(
+            provider: "discord",
+            uid: "12345",
+            info: {name: "shrk"},
+            credentials: {token: "discord-access-token"},
+            extra: {raw_info: {"global_name" => "Shrk Display", "avatar" => "avahash"}}
+          )
+        end
+
+        it "shows them in the app shell" do
+          get_servers
+          expect(response.body).to include("Shrk Display")
+          expect(response.body).to include("cdn.discordapp.com/avatars/12345/avahash.png")
+        end
+      end
+
       it "offers an invite for a managed server without the bot" do
         get_servers
         expect(response.body).to include("Speedrun HQ").and include("Invite shrkbot")

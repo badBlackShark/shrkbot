@@ -52,14 +52,14 @@ class Components::AppShell < Components::Base
   def user_menu
     details(class: "relative", data: {controller: "dropdown"}) do
       summary(class: "flex h-10 cursor-pointer list-none items-center gap-2 rounded-full pl-1 pr-2.5 transition-colors hover:bg-ink-100 [&::-webkit-details-marker]:hidden") do
-        span(class: "grid size-8 place-items-center rounded-full bg-brand-100 text-xs font-bold text-brand-700") { initials(@user.username) }
-        span(class: "hidden text-sm font-medium sm:block") { @user.username }
+        avatar
+        span(class: "hidden text-sm font-medium sm:block") { @user.display_name }
         render Components::Icon.new("chevron-down", class: "size-4 text-ink-400")
       end
 
       div(class: "absolute right-0 top-12 z-40 w-52 rounded-lg border border-ink-200 bg-ink-0 p-1.5 shadow-lg") do
         div(class: "mb-1 border-b border-ink-100 px-2.5 py-2") do
-          p(class: "truncate text-sm font-semibold") { @user.username }
+          p(class: "truncate text-sm font-semibold") { @user.display_name }
         end
         button_to(
           logout_path,
@@ -70,6 +70,14 @@ class Components::AppShell < Components::Base
           span { "Log out" }
         end
       end
+    end
+  end
+
+  def avatar
+    if @user.avatar_url
+      image_tag(@user.avatar_url, alt: "", loading: "lazy", class: "size-8 rounded-full object-cover")
+    else
+      span(class: "grid size-8 place-items-center rounded-full bg-brand-100 text-xs font-bold text-accent-soft-fg") { initials(@user.display_name) }
     end
   end
 
