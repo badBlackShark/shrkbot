@@ -86,11 +86,11 @@ RSpec.describe "Server dashboard", type: :request do
           logging
         end
 
-        it "shows enabled, needs-setup and off badges" do
+        it "shows enabled, needs-setup and disabled badges" do
           get_dashboard
           expect(response.body).to include("Enabled")
           expect(response.body).to include("Needs setup")
-          expect(response.body).to include("Off")
+          expect(response.body).to include(">Disabled<")
         end
       end
 

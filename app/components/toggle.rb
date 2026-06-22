@@ -25,7 +25,9 @@ class Components::Toggle < Components::Base
 
   def view_template
     if @url && !@disabled
-      form_with(url: @url, method: :patch, id: @dom_id, class: "flex-none") { switch }
+      # autocomplete: off so the browser doesn't restore the checkbox to its
+      # pre-reload state and override the server-rendered value.
+      form_with(url: @url, method: :patch, id: @dom_id, class: "flex-none", autocomplete: "off") { switch }
     else
       switch
     end
@@ -42,6 +44,7 @@ class Components::Toggle < Components::Base
         value: "1",
         checked: @checked,
         disabled: @disabled,
+        autocomplete: "off",
         class: "peer sr-only",
         data: switch_data
       )

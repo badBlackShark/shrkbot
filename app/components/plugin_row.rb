@@ -58,7 +58,7 @@ class Components::PluginRow < Components::Base
       if @locked
         [:always_enabled, "bg-success-soft text-success", "bg-success"]
       elsif !@enabled
-        [:inactive, "bg-ink-100 text-ink-600", "bg-ink-400"]
+        [:disabled, "bg-ink-100 text-ink-600", "bg-ink-400"]
       elsif @configured
         [:enabled, "bg-success-soft text-success", "bg-success"]
       else

@@ -28,8 +28,8 @@ en:
           name: Welcomes
       status:
         always_enabled: Always enabled
+        disabled: Disabled
         enabled: Enabled
-        inactive: 'Off'
         needs_setup: Needs setup
       toggle: Toggle %{plugin}
   servers:
