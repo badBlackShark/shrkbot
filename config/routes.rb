@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   delete "/logout", to: "sessions#destroy", as: :logout
 
   resources :servers, only: [:index, :show], param: :id do
-    patch "plugins/:key", to: "servers#toggle_plugin", on: :member, as: :toggle_plugin
+    resources :plugins, only: :update, module: :servers
   end
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)

@@ -141,7 +141,7 @@ RSpec.describe "Server dashboard", type: :request do
       end
     end
 
-    describe "PATCH /servers/:id/plugins/:key" do
+    describe "PATCH /servers/:server_id/plugins/:id" do
       let(:turbo) { {headers: {"Accept" => "text/vnd.turbo-stream.html"}} }
 
       # Loading the dashboard is what proves the user manages this server and
@@ -151,7 +151,7 @@ RSpec.describe "Server dashboard", type: :request do
       it "enables a plugin in place without re-contacting Discord" do
         config.create_role_setting!(channel_id: 7)
         roles
-        patch toggle_plugin_server_path(guild.id, "roles"), params: {enabled: true}, **turbo
+        patch server_plugin_path(guild.id, "roles"), params: {enabled: true}, **turbo
         expect(response).to have_http_status(:ok)
         expect(response.media_type).to eq("text/vnd.turbo-stream.html")
         expect(config.plugin_activations.find_by(plugin: roles).enabled).to be(true)
@@ -160,7 +160,7 @@ RSpec.describe "Server dashboard", type: :request do
 
       it "refuses to enable a plugin missing its prerequisites" do
         logging
-        patch toggle_plugin_server_path(guild.id, "logging"), params: {enabled: true}, **turbo
+        patch server_plugin_path(guild.id, "logging"), params: {enabled: true}, **turbo
         expect(response.body).to match(/required settings/)
         expect(config.plugin_activations).to be_empty
       end
@@ -168,12 +168,12 @@ RSpec.describe "Server dashboard", type: :request do
       it "disables an enabled plugin" do
         config.create_role_setting!(channel_id: 7)
         create(:plugin_activation, server_configuration: config, plugin: roles, enabled: true)
-        patch toggle_plugin_server_path(guild.id, "roles"), params: {enabled: false}, **turbo
+        patch server_plugin_path(guild.id, "roles"), params: {enabled: false}, **turbo
         expect(config.plugin_activations.find_by(plugin: roles).enabled).to be(false)
       end
 
       it "reports an unknown plugin key" do
-        patch toggle_plugin_server_path(guild.id, "nope"), params: {enabled: true}, **turbo
+        patch server_plugin_path(guild.id, "nope"), params: {enabled: true}, **turbo
         expect(response).to have_http_status(:ok)
         expect(response.body).to include("target=\"toasts\"").and include("bg-danger-soft")
       end
@@ -181,7 +181,7 @@ RSpec.describe "Server dashboard", type: :request do
       it "falls back to a redirect without Turbo" do
         config.create_role_setting!(channel_id: 7)
         roles
-        patch toggle_plugin_server_path(guild.id, "roles"), params: {enabled: true}
+        patch server_plugin_path(guild.id, "roles"), params: {enabled: true}
         expect(response).to redirect_to(server_path(guild.id))
       end
     end
@@ -189,7 +189,7 @@ RSpec.describe "Server dashboard", type: :request do
     describe "toggling a server not authorized this session" do
       it "redirects to the picker" do
         roles
-        patch toggle_plugin_server_path(guild.id, "roles"), params: {enabled: true}
+        patch server_plugin_path(guild.id, "roles"), params: {enabled: true}
         expect(response).to redirect_to(servers_path)
       end
     end

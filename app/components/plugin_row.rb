@@ -40,7 +40,7 @@ class Components::PluginRow < Components::Base
         name: :enabled,
         checked: @enabled,
         label: t(".toggle", plugin: name),
-        url: toggle_plugin_server_path(@server_id, @key),
+        url: server_plugin_path(@server_id, @key),
         submit_on_change: true
       )
     end

@@ -8,6 +8,28 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
   let(:roles) { create(:plugin, key: "roles", name: "Roles") }
   let(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
 
+  context "with a raw checkbox value (form param, not yet cast)" do
+    let(:plugin) { roles }
+
+    before { server.create_role_setting!(channel_id: 777) }
+
+    context "when checked" do
+      let(:enabled) { "1" }
+
+      it "enables the plugin" do
+        expect(result.value.enabled?).to be(true)
+      end
+    end
+
+    context "when unchecked" do
+      let(:enabled) { "0" }
+
+      it "leaves the plugin disabled" do
+        expect(result.value.enabled?).to be(false)
+      end
+    end
+  end
+
   context "enabling logging without a channel" do
     let(:plugin) { logging }
     let(:enabled) { true }
