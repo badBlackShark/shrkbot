@@ -1,6 +1,3 @@
-# Records which servers the user just proved they manage, so later requests can
-# authorize from the signed session instead of re-fetching from Discord. The
-# read side is RequiresManageableServer.
 module SetsManageableServers
   extend ActiveSupport::Concern
 

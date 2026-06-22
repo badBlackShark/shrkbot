@@ -1,6 +1,3 @@
-# Gates a server-scoped controller on a server the user proved manageable (see
-# SetsManageableServers) and sets @server_configuration. Including it applies the
-# before_action, so a controller can't forget to authorize.
 module RequiresManageableServer
   extend ActiveSupport::Concern
 

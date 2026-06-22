@@ -3,8 +3,6 @@ class ServersController < ApplicationController
 
   before_action :load_dashboard, only: :show
 
-  # The user's Discord token is only used to list their guilds (here). Declared
-  # most-specific-last so Unauthorized wins over its parent Error.
   rescue_from Discord::UserGuilds::Error, with: :render_error
   rescue_from Discord::UserGuilds::Unauthorized, with: :reauthenticate
 
