@@ -11,8 +11,6 @@ RSpec.describe LoggableEventCatalog do
     expect(grouped[:roles].map(&:event)).to eq([:role_gained, :role_lost])
   end
 
-  # A catalogued event the bot can't actually render (missing its log-line copy)
-  # would be a dead toggle, so keep the catalog and the activity_log locale in step.
   it "has a log-line translation for every catalogued event" do
     described_class.all.each do |definition|
       expect(I18n.exists?("activity_log.#{definition.key}", :en)).to be(true)
