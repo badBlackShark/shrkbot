@@ -7,7 +7,12 @@ class ServersController < ApplicationController
     configured_ids = ServerConfiguration.where(discord_id: manageable.map(&:id)).pluck(:discord_id)
     present, absent = manageable.partition { |guild| configured_ids.include?(guild.id) }
 
-    render Views::Servers::Index.new(present:, absent:, user: current_user)
+    render Views::Servers::Index.new(
+      present:,
+      absent:,
+      plugin_counts: enabled_plugin_counts(configured_ids),
+      user: current_user
+    )
   rescue Discord::UserGuilds::Unauthorized
     reauthenticate
   rescue Discord::UserGuilds::Error
@@ -15,6 +20,14 @@ class ServersController < ApplicationController
   end
 
   private
+
+  def enabled_plugin_counts(discord_ids)
+    PluginActivation
+      .joins(:server_configuration)
+      .where(server_configurations: {discord_id: discord_ids}, enabled: true)
+      .group("server_configurations.discord_id")
+      .count
+  end
 
   def reauthenticate
     return render_error if session[:reauth_attempted]
@@ -25,6 +38,6 @@ class ServersController < ApplicationController
 
   def render_error
     session.delete(:reauth_attempted)
-    render Views::Servers::Index.new(present: [], absent: [], user: current_user, error: true)
+    render Views::Servers::Index.new(present: [], absent: [], plugin_counts: {}, user: current_user, error: true)
   end
 end

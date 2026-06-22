@@ -1,30 +1,27 @@
 # frozen_string_literal: true
 
 class Views::Servers::Index < Views::Base
-  def initialize(present:, absent:, user:, error: false)
+  include Phlex::Rails::Helpers::ImageTag
+
+  def initialize(present:, absent:, user:, plugin_counts: {}, error: false)
     @present = present
     @absent = absent
     @user = user
+    @plugin_counts = plugin_counts
     @error = error
   end
 
   def view_template
     render Components::AppShell.new(user: @user) do
       div(class: "mx-auto max-w-4xl px-6 py-10") do
-        div(class: "mb-6") do
-          h1(class: "mb-1 font-display text-2xl font-bold tracking-tight") { "Your servers" }
-          p(class: "text-ink-600") { "Pick a server to configure. Servers without shrkbot show an invite link instead." }
-        end
-
+        heading
         error_banner if @error
 
         if @present.empty? && @absent.empty?
           empty_state
         else
-          div(class: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3") do
-            @present.each { |guild| present_card(guild) }
-            @absent.each { |guild| invite_card(guild) }
-          end
+          server_grid
+          missing_server_prompt
         end
       end
     end
@@ -32,39 +29,111 @@ class Views::Servers::Index < Views::Base
 
   private
 
+  def heading
+    div(class: "mb-6") do
+      h1(class: "mb-1 font-display text-2xl font-bold tracking-tight") { "Your servers" }
+      p(class: "text-ink-600") { "Pick a server to configure shrkbot." }
+    end
+  end
+
+  def server_grid
+    div(class: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3") do
+      @present.each { |guild| present_card(guild) }
+      @absent.each { |guild| invite_card(guild) }
+    end
+  end
+
   def present_card(guild)
     a(href: "#", class: "card-lift flex flex-col gap-3 rounded-lg border border-ink-200 bg-ink-0 p-5 shadow-sm") do
-      card_heading(guild)
-      span(class: "self-start rounded-full bg-brand-100 px-2.5 py-1 text-xs font-semibold text-accent-soft-fg") { "Configure" }
+      identity(guild)
+      plugins_badge(@plugin_counts[guild.id].to_i)
     end
   end
 
   def invite_card(guild)
     div(class: "flex flex-col gap-3 rounded-lg border border-dashed border-ink-300 bg-ink-0 p-5") do
-      card_heading(guild)
-      a(href: invite_url(guild), class: "self-start rounded-md border border-ink-300 px-3 py-1.5 text-sm font-semibold hover:bg-ink-50") { "Invite shrkbot" }
+      div(class: "opacity-60") { identity(guild) }
+      invite_button(invite_url(guild))
     end
   end
 
-  def card_heading(guild)
+  def identity(guild)
     div(class: "flex items-center gap-3") do
       avatar(guild)
-      span(class: "truncate font-semibold") { guild.name }
+      div(class: "min-w-0") do
+        p(class: "truncate text-sm font-semibold") { guild.name }
+        p(class: "text-xs text-ink-400") { member_label(guild) } if guild.member_count
+      end
     end
   end
 
   def avatar(guild)
     if guild.icon_url
-      img(src: guild.icon_url, alt: "", loading: "lazy", class: "h-12 w-12 flex-none rounded-lg object-cover")
+      img(src: guild.icon_url, alt: "", loading: "lazy", class: "size-12 flex-none rounded-lg object-cover")
     else
-      span(class: "grid h-12 w-12 flex-none place-items-center rounded-lg bg-ink-100 font-semibold text-ink-500") { initials(guild.name) }
+      span(class: "grid size-12 flex-none place-items-center rounded-lg bg-ink-100 font-semibold text-ink-500") { initials(guild.name) }
+    end
+  end
+
+  def plugins_badge(count)
+    tone = count.positive? ? "bg-brand-100 text-accent-soft-fg" : "bg-ink-100 text-ink-500"
+    span(class: "self-start rounded-full px-2.5 py-1 text-xs font-semibold #{tone}") do
+      "#{count} #{(count == 1) ? "plugin" : "plugins"} on"
+    end
+  end
+
+  def member_label(guild)
+    count = guild.member_count
+    "#{count.to_fs(:delimited)} #{(count == 1) ? "member" : "members"}"
+  end
+
+  def invite_button(url)
+    a(
+      href: url,
+      class: "btn-fill btn-fill-ghost inline-flex items-center gap-1.5 self-start rounded-md border border-ink-300 px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-ink-50"
+    ) do
+      render Components::Icon.new("plus", class: "size-4")
+      span { "Invite shrkbot" }
+    end
+  end
+
+  def missing_server_prompt
+    div(class: "mt-8 rounded-lg border border-dashed border-ink-200 bg-ink-0 p-8 text-center") do
+      p(class: "text-sm font-semibold") { "Don't see a server?" }
+      p(class: "mx-auto mt-1 max-w-md text-sm text-ink-500") do
+        plain "You need "
+        span(class: "font-medium text-ink-700") { "Manage Server" }
+        plain " permissions and shrkbot must be present. Invite it, then refresh."
+      end
+      div(class: "mt-4 flex justify-center") { invite_button(generic_invite_url) }
     end
   end
 
   def empty_state
-    div(class: "rounded-lg border border-dashed border-ink-300 bg-ink-0 p-10 text-center") do
-      h2(class: "text-lg font-bold") { "shrkbot isn't in any of your servers yet" }
-      p(class: "mx-auto mt-2 max-w-md text-sm text-ink-600") { "You need Manage Server permissions and shrkbot must be present. Invite it to a server, then come back and refresh." }
+    div(class: "flex flex-col items-center px-6 py-16 text-center") do
+      image_tag("shrkbot-mascot.png", alt: "", class: "mb-6 size-20 rounded-xl opacity-50 shadow-sm")
+      h2(class: "mb-2 font-display text-xl font-bold tracking-tight") { "shrkbot isn't in any of your servers yet" }
+      p(class: "mb-6 max-w-sm text-sm leading-relaxed text-ink-600") do
+        plain "You need "
+        span(class: "font-medium text-ink-800") { "Manage Server" }
+        plain " permissions and shrkbot must be present. Invite it to get started."
+      end
+      div(class: "flex flex-wrap justify-center gap-3") do
+        a(
+          href: generic_invite_url,
+          class: "btn-fill btn-fill-primary inline-flex h-10 items-center gap-2 rounded-md bg-brand-500 px-5 text-sm font-semibold text-white"
+        ) do
+          render Components::Icon.new("plus", class: "size-4")
+          span { "Invite shrkbot" }
+        end
+        a(
+          href: servers_path,
+          class: "btn-fill btn-fill-ghost inline-flex h-10 items-center gap-2 rounded-md border border-ink-200 px-5 text-sm font-semibold transition-colors hover:bg-ink-50"
+        ) do
+          render Components::Icon.new("arrow-path", class: "size-4")
+          span { "Refresh" }
+        end
+      end
     end
   end
 
@@ -76,8 +145,11 @@ class Views::Servers::Index < Views::Base
     name.split.filter_map { |word| word[0] }.first(2).join.upcase
   end
 
+  def generic_invite_url
+    "https://discord.com/oauth2/authorize?client_id=#{ENV["CLIENT_ID"]}&scope=bot+applications.commands"
+  end
+
   def invite_url(guild)
-    client_id = ENV["CLIENT_ID"]
-    "https://discord.com/oauth2/authorize?client_id=#{client_id}&scope=bot+applications.commands&guild_id=#{guild.id}&disable_guild_select=true"
+    "#{generic_invite_url}&guild_id=#{guild.id}&disable_guild_select=true"
   end
 end
