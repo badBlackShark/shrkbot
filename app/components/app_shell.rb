@@ -44,8 +44,10 @@ class Components::AppShell < Components::Base
       data: {controller: "theme", action: "theme#toggle"},
       class: "grid size-9 place-items-center rounded-md text-ink-500 transition-colors hover:bg-ink-100"
     ) do
-      span(class: "theme-when-light") { render Components::Icon.new("moon", class: "size-5") }
-      span(class: "theme-when-dark") { render Components::Icon.new("sun", class: "size-5") }
+      span(class: "theme-morph size-5") do
+        render Components::Icon.new("moon", class: "theme-moon size-5")
+        render Components::Icon.new("sun", class: "theme-sun size-5")
+      end
     end
   end
 

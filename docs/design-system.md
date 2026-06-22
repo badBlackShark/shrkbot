@@ -87,10 +87,15 @@ inline script in the `<head>` (see `layouts/application.html.erb`) sets
 `data-theme` before first paint from `localStorage`, falling back to the OS
 `prefers-color-scheme`. The toggle lives in the app-shell top bar.
 
-Switching themes cross-fades the page via the View Transitions API
-(`document.startViewTransition`), tuned to the motion tokens in CSS
-(`::view-transition-old/new(root)`). It degrades to an instant swap where the API
-is unsupported, and the controller skips it under reduced motion.
+Switching themes eases every surface colour for the duration of the swap — the
+controller adds `.theme-switching` to `<html>`, which turns on a scoped
+`background-color`/`border-color`/`color` transition, then removes it (so it
+never interferes with ordinary hovers). The toggle's sun/moon icons share a grid
+cell and rotate/scale/fade past each other (`.theme-morph`), so the icon morphs
+between states. Both are skipped under reduced motion.
+
+(This deliberately avoids the View Transitions API: a view transition snapshots
+the old/new page and animates the snapshots, which hides the live icon morph.)
 
 ## Motion
 

@@ -107,9 +107,11 @@
 }
 
 [data-theme="dark"] {
-  --brand-50: #0c1e2e;
-  --brand-100: #122840;
-  --brand-200: #1a3a58;
+  /* Translucent sky so soft tints read as raised chips on any dark surface
+     (a solid dark tint disappears against the dark card). */
+  --brand-50: rgba(57, 175, 229, 0.1);
+  --brand-100: rgba(57, 175, 229, 0.18);
+  --brand-200: rgba(57, 175, 229, 0.28);
 
   --ink-0: #161b22;
   --ink-25: #11161d;
@@ -225,13 +227,26 @@
 .anim-toast { animation: slideUp var(--dur-base) var(--ease-standard) forwards; }
 .anim-fade { animation: fadeIn var(--dur-slow); }
 
-/* Theme switch cross-fade (View Transitions API; skipped when unsupported
-   or under reduced motion — see theme_controller.js). */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: var(--dur-slow);
-  animation-timing-function: var(--ease-standard);
+/* Theme switch: ease every surface colour, but only during the switch — the
+   controller adds .theme-switching to <html> for the duration. */
+.theme-switching,
+.theme-switching * {
+  transition: background-color var(--dur-slow) var(--ease-standard),
+    border-color var(--dur-slow) var(--ease-standard),
+    color var(--dur-slow) var(--ease-standard) !important;
 }
+
+/* Sun <-> moon morph: the two icons share a slot and rotate/scale/fade past
+   each other. The one for the action a click performs is shown. */
+.theme-morph { display: grid; }
+.theme-morph > * {
+  grid-area: 1 / 1;
+  transition: transform var(--dur-base) var(--ease-standard), opacity var(--dur-base) var(--ease-standard);
+}
+.theme-morph .theme-sun { opacity: 0; transform: rotate(-90deg) scale(0.4); }
+.theme-morph .theme-moon { opacity: 1; transform: rotate(0) scale(1); }
+[data-theme="dark"] .theme-morph .theme-sun { opacity: 1; transform: rotate(0) scale(1); }
+[data-theme="dark"] .theme-morph .theme-moon { opacity: 0; transform: rotate(90deg) scale(0.4); }
 
 @media (prefers-reduced-motion: reduce) {
   .btn-fill::after { transition: none; transform: scaleX(1); }
@@ -239,7 +254,7 @@
   .anim-menu,
   .anim-toast,
   .anim-fade { animation: none; }
+  .theme-switching,
+  .theme-switching *,
+  .theme-morph > * { transition: none; }
 }
-
-[data-theme="dark"] .theme-when-light { display: none; }
-:root:not([data-theme="dark"]) .theme-when-dark { display: none; }
