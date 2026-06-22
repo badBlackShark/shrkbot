@@ -79,6 +79,7 @@ en:
           one: "%{formatted} member"
           other: "%{formatted} members"
         plugins: Plugins
-        roles_synced:
-          one: "%{count} role synced"
-          other: "%{count} roles synced"
+        roles:
+          one: "%{count} role"
+          other: "%{count} roles"
+        synced: "%{channels} and %{roles} synced"

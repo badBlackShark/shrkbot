@@ -51,6 +51,7 @@ RSpec.describe "Server dashboard", type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.body).to include("Dev Refuge")
         expect(response.body).to include("2,481 members")
+        expect(response.body).to include("0 channels and 0 roles synced")
         expect(response.body).to include("Add another server")
       end
 

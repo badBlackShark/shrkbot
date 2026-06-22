@@ -51,10 +51,14 @@ class Views::Servers::Show < Views::Base
   end
 
   def meta_line
+    synced = t(
+      ".synced",
+      channels: t(".channels", count: @server_configuration.server_channels.count),
+      roles: t(".roles", count: @server_configuration.server_roles.count)
+    )
     parts = []
     parts << t(".members", count: @guild.member_count, formatted: @guild.member_count.to_fs(:delimited)) if @guild.member_count
-    parts << t(".channels", count: @server_configuration.server_channels.count)
-    parts << t(".roles_synced", count: @server_configuration.server_roles.count)
+    parts << synced
     parts.join(" · ")
   end
 
