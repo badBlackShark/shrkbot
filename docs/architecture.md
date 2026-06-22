@@ -73,6 +73,23 @@ and the web app, so a given mutation is written once and called from both.
 - **Booleans from forms.** Let ActiveRecord cast checkbox values — assign the raw
   param to the model attribute (`"1"`/`"0"` → `true`/`false`) rather than coercing
   in the controller.
+- **Server-scoped authorization** lives in the `ManageableServers` concern, not in
+  individual controllers. We don't persist which servers a user manages (it's a
+  Discord fact, fetched per the metadata-sync design, not a DB relationship), so
+  authorization is cached in the signed session: the picker and dashboard call
+  `remember_manageable_servers` after proving manageability via Discord, and every
+  server-scoped controller gates its actions with `before_action
+  :require_manageable_server` (which also sets `@server_configuration`). That check
+  reads the session set instead of re-hitting Discord's rate-limited guild-list
+  endpoint. It is not spoofable — the session is server-signed.
+- **Turbo Stream responses are built in the view layer**, not in controller
+  helpers. `Components::TurboStream` composes a stream out of Phlex components
+  (`.replace(target, component)` / `.append(target, component)`); the controller
+  declares the operations and renders it (`render turbo_stream:
+  render_to_string(stream, layout: false)`). This is how auto-saving controls
+  re-render in place: a success re-renders the control plus a toast, and (for the
+  config forms) a failure re-renders the form region with inline errors — both are
+  just different components and targets passed to the same primitive.
 
 ## Terminology: `server`
 

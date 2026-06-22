@@ -1,4 +1,6 @@
 class ServersController < ApplicationController
+  include ManageableServers
+
   before_action :require_login
   before_action :load_dashboard, only: :show
 
@@ -6,7 +8,7 @@ class ServersController < ApplicationController
     manageable = manageable_guilds
     session.delete(:reauth_attempted)
     configured = configured_ids(manageable)
-    session[:authorized_server_ids] = configured
+    remember_manageable_servers(configured)
     present, absent = manageable.partition { |guild| configured.include?(guild.id) }
 
     render Views::Servers::Index.new(
@@ -41,7 +43,7 @@ class ServersController < ApplicationController
     return redirect_to(servers_path, alert: t("servers.not_found")) unless @guild && @server_configuration
 
     configured = configured_ids(manageable)
-    session[:authorized_server_ids] = configured
+    remember_manageable_servers(configured)
     @configured_guilds = manageable.select { |guild| configured.include?(guild.id) }
     @plugin_counts = enabled_plugin_counts(configured)
   rescue Discord::UserGuilds::Unauthorized
