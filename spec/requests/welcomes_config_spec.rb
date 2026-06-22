@@ -106,6 +106,13 @@ RSpec.describe "Welcomes config", type: :request do
             params: {welcomes: {channel_id: 111, join_message: "hi", leave_message: "", enabled: "1"}}
           expect(response).to redirect_to(server_welcomes_path(guild.id))
         end
+
+        it "redirects with an alert when a non-Turbo save fails" do
+          patch server_welcomes_path(guild.id),
+            params: {welcomes: {channel_id: "", join_message: "", leave_message: "", enabled: "1"}}
+          expect(response).to redirect_to(server_welcomes_path(guild.id))
+          expect(flash[:alert]).to be_present
+        end
       end
     end
   end

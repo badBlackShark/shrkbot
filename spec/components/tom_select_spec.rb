@@ -32,4 +32,18 @@ RSpec.describe Components::TomSelect do
   it "disables an option flagged disabled" do
     expect(html).to include('value="222"').and include("disabled")
   end
+
+  context "without a placeholder or blank option" do
+    subject(:plain) do
+      described_class.new(
+        name: "x",
+        options: [Components::TomSelect::Option.for(value: 1, label: "one")]
+      ).call
+    end
+
+    it "omits the blank option and the placeholder data attribute" do
+      expect(plain).to include("<select")
+      expect(plain).not_to include("tom-select-placeholder-value")
+    end
+  end
 end
