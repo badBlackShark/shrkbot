@@ -225,17 +225,10 @@
 .anim-toast { animation: slideUp var(--dur-base) var(--ease-standard) forwards; }
 .anim-fade { animation: fadeIn var(--dur-slow); }
 
-.theme-switching,
-.theme-switching * {
-  transition: background-color var(--dur-slow) var(--ease-standard),
-    border-color var(--dur-slow) var(--ease-standard),
-    color var(--dur-slow) var(--ease-standard) !important;
-}
-
 .theme-morph { display: grid; }
 .theme-morph > * {
   grid-area: 1 / 1;
-  transition: transform var(--dur-base) var(--ease-standard), opacity var(--dur-base) var(--ease-standard);
+  transition: transform var(--dur-slow) var(--ease-standard), opacity var(--dur-slow) var(--ease-standard);
 }
 .theme-morph .theme-sun { opacity: 0; transform: rotate(-90deg) scale(0.4); }
 .theme-morph .theme-moon { opacity: 1; transform: rotate(0) scale(1); }
@@ -248,7 +241,5 @@
   .anim-menu,
   .anim-toast,
   .anim-fade { animation: none; }
-  .theme-switching,
-  .theme-switching *,
   .theme-morph > * { transition: none; }
 }

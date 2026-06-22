@@ -7,8 +7,8 @@ class Views::Home < Views::Base
     div(class: "mx-auto flex min-h-screen max-w-md flex-col justify-center px-5") do
       div(class: "rounded-lg border border-ink-200 bg-ink-0 p-8 shadow-sm") do
         h1(class: "mb-2 font-display text-2xl font-bold tracking-tight text-ink-900") do
-          plain "shrk"
-          span(class: "text-brand-500") { "bot" }
+          span(class: "text-brand-500") { "shrk" }
+          plain "bot"
         end
 
         p(class: "mb-6 text-ink-600") do

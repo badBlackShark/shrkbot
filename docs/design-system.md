@@ -19,7 +19,9 @@ and centre themselves.
 Flash messages render as dismissable toasts (`Components::Toasts`, rendered once
 from the layout so every page gets them). Small dropdowns (the user menu) use a
 native `<details>` element plus the `dropdown` Stimulus controller, which just
-closes it on an outside click or Escape.
+closes it on an outside click or Escape. The panel fades in with `anim-menu`, and
+the trigger's chevron points left when closed and rotates down when open (via
+`group-open`).
 
 The server switcher and the reusable config-form controls (switch, segmented
 control, enable-gate, setting row, Tom Select wrapper, save-feedback) are built
@@ -89,15 +91,11 @@ inline script in the `<head>` (see `layouts/application.html.erb`) sets
 `data-theme` before first paint from `localStorage`, falling back to the OS
 `prefers-color-scheme`. The toggle lives in the app-shell top bar.
 
-Switching themes eases every surface colour for the duration of the swap — the
-controller adds `.theme-switching` to `<html>`, which turns on a scoped
-`background-color`/`border-color`/`color` transition, then removes it (so it
-never interferes with ordinary hovers). The toggle's sun/moon icons share a grid
-cell and rotate/scale/fade past each other (`.theme-morph`), so the icon morphs
-between states. Both are skipped under reduced motion.
-
-(This deliberately avoids the View Transitions API: a view transition snapshots
-the old/new page and animates the snapshots, which hides the live icon morph.)
+The toggle's sun/moon icons share a grid cell (`.theme-morph`) and rotate/scale/
+fade past each other when the theme flips, so the icon morphs between states
+(skipped under reduced motion). Surface colours swap instantly — a global colour
+transition would have to override the morph's transition to apply, so it was
+dropped in favour of the morph.
 
 ## Motion
 
