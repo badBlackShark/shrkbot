@@ -73,11 +73,18 @@ class Components::PluginRow < Components::Base
 
   def configure_link
     a(
-      href: "#",
+      href: configure_href,
       class: "btn-fill btn-fill-ghost inline-flex h-9 flex-none items-center gap-1.5 rounded-md border border-ink-200 px-3.5 text-sm font-semibold transition-colors hover:bg-ink-50"
     ) do
       span { t(".configure") }
       render Components::Icon.new("arrow-right", class: "size-4")
+    end
+  end
+
+  def configure_href
+    case @key.to_sym
+    when :welcomes then server_welcomes_path(@server_id)
+    else "#"
     end
   end
 end

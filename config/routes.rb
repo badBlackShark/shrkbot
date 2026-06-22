@@ -13,6 +13,9 @@ Rails.application.routes.draw do
 
   resources :servers, only: [:index, :show], param: :id do
     resources :plugins, only: :update, param: :key, module: :servers
+    scope module: :servers do
+      resource :welcomes, only: [:show, :update]
+    end
   end
 
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)

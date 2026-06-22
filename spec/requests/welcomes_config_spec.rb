@@ -1,0 +1,112 @@
+require "rails_helper"
+
+RSpec.describe "Welcomes config", type: :request do
+  let(:auth) do
+    OmniAuth::AuthHash.new(
+      provider: "discord",
+      uid: "12345",
+      info: {name: "shrk"},
+      credentials: {token: "discord-access-token"}
+    )
+  end
+
+  let(:guild) { Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil, member_count: 5) }
+  let(:config) { ServerConfiguration.find_by(discord_id: guild.id) }
+  let(:turbo) { {headers: {"Accept" => "text/vnd.turbo-stream.html"}} }
+
+  before do
+    OmniAuth.config.test_mode = true
+    OmniAuth.config.mock_auth[:discord] = auth
+    Rails.application.env_config["omniauth.auth"] = auth
+  end
+
+  after do
+    OmniAuth.config.test_mode = false
+    OmniAuth.config.mock_auth[:discord] = nil
+    Rails.application.env_config.delete("omniauth.auth")
+  end
+
+  context "when signed out" do
+    it "redirects to the sign-in page" do
+      get server_welcomes_path(900_000_001)
+      expect(response).to redirect_to(root_path)
+    end
+  end
+
+  context "when signed in" do
+    let!(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
+
+    before do
+      post "/auth/discord/callback"
+      create(:server_configuration, discord_id: guild.id)
+      config.create_welcome_settings!
+      allow(Discord::UserGuilds).to receive(:call).and_return([guild])
+    end
+
+    context "without proving the server is manageable this session" do
+      it "redirects to the picker" do
+        get server_welcomes_path(guild.id)
+        expect(response).to redirect_to(servers_path)
+      end
+    end
+
+    context "after loading the dashboard authorizes the server" do
+      before { get server_path(guild.id) }
+
+      describe "GET /servers/:server_id/welcomes" do
+        it "renders the config page in the app shell" do
+          get server_welcomes_path(guild.id)
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to include("Welcomes")
+          expect(response.body).to include("Join message")
+          expect(response.body).to include("Preview")
+        end
+
+        it "offers only text channels in the picker" do
+          create(:server_channel, server_configuration: config, name: "general", discord_id: 111, channel_type: 0)
+          create(:server_channel, server_configuration: config, name: "lounge", discord_id: 222, channel_type: 2)
+          get server_welcomes_path(guild.id)
+          expect(response.body).to include("# general")
+          expect(response.body).not_to include("# lounge")
+        end
+      end
+
+      describe "PATCH /servers/:server_id/welcomes" do
+        before { create(:server_channel, server_configuration: config, name: "general", discord_id: 111) }
+
+        it "saves the settings and enables the plugin in one request" do
+          patch server_welcomes_path(guild.id),
+            params: {welcomes: {channel_id: 111, join_message: "hi {user}", leave_message: "", enabled: "1"}},
+            **turbo
+          expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+          expect(config.welcome_settings.reload.channel_id).to eq(111)
+          expect(config.plugins.enabled.exists?(key: :welcomes)).to be(true)
+          expect(response.body).to include("saved")
+        end
+
+        it "re-renders the form with an inline error when enabling without a channel" do
+          patch server_welcomes_path(guild.id),
+            params: {welcomes: {channel_id: "", join_message: "", leave_message: "", enabled: "1"}},
+            **turbo
+          expect(config.plugins.enabled.exists?(key: :welcomes)).to be(false)
+          expect(response.body).to include("welcomes-config")
+          expect(response.body).to include("settings to be configured")
+        end
+
+        it "saves messages without enabling and reports success" do
+          patch server_welcomes_path(guild.id),
+            params: {welcomes: {channel_id: "", join_message: "hello", leave_message: "", enabled: "0"}},
+            **turbo
+          expect(config.welcome_settings.reload.join_message).to eq("hello")
+          expect(response.body).to include("saved")
+        end
+
+        it "falls back to a redirect without Turbo" do
+          patch server_welcomes_path(guild.id),
+            params: {welcomes: {channel_id: 111, join_message: "hi", leave_message: "", enabled: "1"}}
+          expect(response).to redirect_to(server_welcomes_path(guild.id))
+        end
+      end
+    end
+  end
+end

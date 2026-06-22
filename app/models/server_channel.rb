@@ -8,6 +8,10 @@ class ServerChannel < ApplicationRecord
 
   VIEW_CHANNEL = 1 << 10
 
+  TEXT_TYPES = [0, 5].freeze
+
+  scope :text, -> { where(channel_type: TEXT_TYPES).order(:name) }
+
   def everyone_visible?
     overwrite = channel_overwrites.find_by(target_id: server_configuration.discord_id)
     return true unless overwrite
