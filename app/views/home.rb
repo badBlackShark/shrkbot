@@ -26,7 +26,7 @@ class Views::Home < Views::Base
         data: {turbo: false},
         class: "btn-fill btn-fill-primary inline-flex w-full items-center justify-center gap-2 rounded-md bg-brand-500 px-4 py-3 font-semibold text-white"
       ) do
-        render Components::Icon.new("log-in", class: "size-5")
+        render Components::Icon.new("arrow-right-on-rectangle", class: "size-5")
         span { "Sign in with Discord" }
       end
     end

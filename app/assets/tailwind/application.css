@@ -3,7 +3,6 @@
 @source "../../views";
 @source "../../components";
 
-/* Webfonts */
 @font-face {
   font-family: "Space Grotesk";
   src: url("space-grotesk-variable.woff2") format("woff2-variations");
@@ -62,7 +61,6 @@
   font-display: swap;
 }
 
-/* Theme tokens — raw channel vars; see docs/design-system.md */
 :root {
   --brand-50: #ecf8fe;
   --brand-100: #cfeefc;
@@ -95,14 +93,12 @@
   --danger: #e0533d;
   --danger-soft: #fcecea;
 
-  /* Aliases for raw CSS */
   --accent: var(--brand-500);
   --accent-hover: var(--brand-600);
   --accent-active: var(--brand-700);
   --surface-sunken: var(--ink-100);
   --focus-ring: color-mix(in srgb, var(--brand-500) 45%, transparent);
 
-  /* Motion */
   --dur-fast: 120ms;
   --dur-base: 180ms;
   --dur-slow: 260ms;
@@ -136,7 +132,6 @@
   --focus-ring: color-mix(in srgb, var(--brand-500) 35%, transparent);
 }
 
-/* Tailwind theme — inline so utilities reference the channel vars directly */
 @theme inline {
   --color-brand-50: var(--brand-50);
   --color-brand-100: var(--brand-100);
@@ -184,7 +179,6 @@
   --shadow-lg: 0 12px 32px rgba(22, 26, 31, 0.12), 0 4px 8px rgba(22, 26, 31, 0.05);
 }
 
-/* Motion — see docs/design-system.md; keep the reduced-motion block */
 @keyframes menuEnter {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -236,6 +230,5 @@
   .anim-fade { animation: none; }
 }
 
-/* Theme toggle: show only the icon matching the current theme. */
 [data-theme="dark"] .theme-when-light { display: none; }
 :root:not([data-theme="dark"]) .theme-when-dark { display: none; }

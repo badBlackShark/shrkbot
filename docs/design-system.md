@@ -71,12 +71,12 @@ them — keep it.
 ## Icons
 
 Heroicons v2 (the `heroicons` gem), inline SVG, outline variant by default (set
-in `config/initializers/heroicons.rb`). `Components::Icon` renders one and maps
-the kit's Lucide names to their Heroicon equivalents (e.g. `users-round` →
-`users`, `log-in` → `arrow-right-on-rectangle`); unmapped names pass straight
-through, so Heroicon names work too. Pass a `class:` for sizing/colour (defaults
-to `size-5`):
+in `config/initializers/heroicons.rb`). `Components::Icon` renders one by its
+Heroicon name. Pass a `class:` for sizing/colour (defaults to `size-5`):
 
 ```ruby
-render Components::Icon.new("alarm-clock", class: "size-5 text-ink-500")
+render Components::Icon.new("clock", class: "size-5 text-ink-500")
 ```
+
+The mockups used Lucide names, but Lucide was never adopted; use Heroicon names
+directly (the [Heroicons site](https://heroicons.com) lists them).
