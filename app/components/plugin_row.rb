@@ -84,6 +84,7 @@ class Components::PluginRow < Components::Base
   def configure_href
     case @key.to_sym
     when :welcomes then server_welcomes_path(@server_id)
+    when :logging then server_logging_path(@server_id)
     else "#"
     end
   end

@@ -8,7 +8,7 @@ class Components::Toggle < Components::Base
     "motion-safe:after:transition-transform peer-checked:bg-brand-500 peer-checked:after:translate-x-5 " \
     "peer-focus-visible:ring-3 peer-focus-visible:ring-[var(--focus-ring)]"
 
-  def initialize(name:, checked:, label:, url: nil, submit_on_change: false, dom_id: nil, disabled: false)
+  def initialize(name:, checked:, label:, url: nil, submit_on_change: false, dom_id: nil, disabled: false, data: {})
     @name = name.to_s
     @checked = checked
     @label = label
@@ -16,6 +16,7 @@ class Components::Toggle < Components::Base
     @submit_on_change = submit_on_change
     @dom_id = dom_id
     @disabled = disabled
+    @data = data
   end
 
   def view_template
@@ -48,8 +49,7 @@ class Components::Toggle < Components::Base
   end
 
   def switch_data
-    return {} unless @submit_on_change
-
-    {controller: "toggle", action: "change->toggle#submit"}
+    base = @submit_on_change ? {controller: "toggle", action: "change->toggle#submit"} : {}
+    base.merge(@data)
   end
 end
