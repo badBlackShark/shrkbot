@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class Components::TomSelect < Components::Base
   Option = Data.define(:value, :label, :disabled) do
     def self.for(value:, label:, disabled: false)

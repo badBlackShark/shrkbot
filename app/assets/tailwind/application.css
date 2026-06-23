@@ -280,9 +280,7 @@ details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(90d
   .theme-morph > * { transition: none; }
 }
 
-/* Tom Select, themed with our tokens so the searchable dropdowns match the rest
-   of the UI and respond to dark mode (Tom Select ships only behaviour; this is
-   the whole skin). */
+/* Tom Select skin (the gem ships no CSS). */
 .ts-wrapper { font: inherit; }
 .ts-wrapper.single .ts-control,
 .ts-wrapper.multi .ts-control {

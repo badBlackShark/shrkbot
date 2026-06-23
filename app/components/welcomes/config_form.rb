@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class Components::Welcomes::ConfigForm < Components::Base
   include Phlex::Rails::Helpers::FormWith
 

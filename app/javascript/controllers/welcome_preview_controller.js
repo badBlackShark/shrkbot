@@ -1,6 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
 
-// User-entered text is inserted as text nodes, never innerHTML.
 const SAMPLE = { user: "newmember", membercount: "1,234" }
 
 export default class extends Controller {

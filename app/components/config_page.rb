@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class Components::ConfigPage < Components::Base
   def initialize(icon:, title:, description:, dashboard_path:)
     @icon = icon
