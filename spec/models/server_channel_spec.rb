@@ -27,6 +27,22 @@ RSpec.describe ServerChannel do
     end
   end
 
+  describe ".text" do
+    subject(:names) { ServerChannel.text.pluck(:name) }
+
+    let(:server) { create(:server_configuration) }
+
+    before do
+      create(:server_channel, server_configuration: server, name: "general", channel_type: 0)
+      create(:server_channel, server_configuration: server, name: "announcements", channel_type: 5)
+      create(:server_channel, server_configuration: server, name: "lounge", channel_type: 2)
+    end
+
+    it "returns only text-capable channels, ordered by name" do
+      expect(names).to eq(%w[announcements general])
+    end
+  end
+
   describe "#everyone_visible?" do
     subject(:visible) { channel.everyone_visible? }
 

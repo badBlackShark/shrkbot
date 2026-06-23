@@ -75,8 +75,8 @@ module Ops
       Result.new(true, value, [], warnings)
     end
 
-    def failure(*errors)
-      Result.new(false, nil, errors.flatten, [])
+    def failure(*errors, value: nil)
+      Result.new(false, value, errors.flatten, [])
     end
 
     def transaction(&)
