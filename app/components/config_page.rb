@@ -17,23 +17,23 @@ class Components::ConfigPage < Components::Base
   private
 
   def breadcrumb
-    nav(class: "mb-4 flex items-center gap-1.5 text-xs text-ink-500") do
-      a(href: servers_path, class: "transition-colors hover:text-ink-700") { t(".servers") }
-      render Components::Icon.new("chevron-right", class: "size-3")
-      a(href: @dashboard_path, class: "transition-colors hover:text-ink-700") { t(".dashboard") }
-      render Components::Icon.new("chevron-right", class: "size-3")
-      span(class: "font-medium text-ink-700") { @title }
+    nav(class: "mb-4 flex items-center gap-1.5 text-xs text-text-secondary") do
+      a(href: servers_path, class: "transition-colors hover:text-text-primary") { t(".servers") }
+      render Components::Icon.new("caret-right", class: "size-3")
+      a(href: @dashboard_path, class: "transition-colors hover:text-text-primary") { t(".dashboard") }
+      render Components::Icon.new("caret-right", class: "size-3")
+      span(class: "font-medium text-text-secondary") { @title }
     end
   end
 
   def header
     div(class: "mb-6 flex items-start gap-4") do
-      span(class: "flex size-12 flex-none items-center justify-center rounded-xl bg-brand-100 text-accent-soft-fg") do
+      span(class: "flex size-12 flex-none items-center justify-center rounded-xl bg-accent-soft text-accent-soft-fg") do
         render Components::Icon.new(@icon, class: "size-6")
       end
       div do
         h1(class: "font-display text-2xl font-bold tracking-tight") { @title }
-        p(class: "mt-1 text-sm text-ink-600") { @description }
+        p(class: "mt-1 text-sm text-text-secondary") { @description }
       end
     end
   end

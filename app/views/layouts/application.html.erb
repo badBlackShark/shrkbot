@@ -31,7 +31,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="min-h-screen bg-ink-50 font-sans text-ink-900 antialiased">
+  <body class="min-h-screen bg-surface-page font-sans text-text-primary antialiased">
     <%= yield %>
     <%= render Components::Toasts.new(flash: flash) %>
   </body>
