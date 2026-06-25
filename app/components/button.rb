@@ -1,10 +1,5 @@
 # frozen_string_literal: true
 
-# A button or link in the design system's button taxonomy. Renders an <a> when
-# href: is given, else a <button>. The primary variant carries the chamfered CTA
-# edge; the rest keep the rounded-control radius. Hover darkens (the fill-wipe is
-# gone). A form helper that needs the same look (button_to for a POST sign-in)
-# can borrow the class string via the .css class method.
 class Components::Button < Components::Base
   BASE = "inline-flex items-center justify-center transition-colors"
 

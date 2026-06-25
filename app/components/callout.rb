@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# A tinted, bordered notice with a leading icon. variant sets the colour and a
-# default icon (overridable); the body is yielded. Used for inline warnings,
-# info notes, and confirmations across the config pages.
 class Components::Callout < Components::Base
   VARIANTS = {
     info: {box: "bg-accent-soft border-accent-soft-bd", color: "text-accent", icon: "info"},

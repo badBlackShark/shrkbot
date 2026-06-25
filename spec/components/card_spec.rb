@@ -46,4 +46,14 @@ RSpec.describe Components::Card do
       expect(html).not_to include("p-5")
     end
   end
+
+  context "when dashed" do
+    let(:options) { {dashed: true} }
+
+    it "is a borderless-looking placeholder: dashed border, no shadow" do
+      expect(html).to include("border-dashed").and include("border-border-strong")
+      expect(html).not_to include("shadow-sm")
+      expect(html).not_to include("border-border-default")
+    end
+  end
 end

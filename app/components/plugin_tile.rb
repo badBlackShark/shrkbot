@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# The chamfered plugin-identity tile: a Phosphor glyph on a filled teal field
-# when enabled (Fill weight, per the one-tone rule), or a muted sand field when
-# not. Carries the chamfer geometry reserved for brand-forward surfaces.
 class Components::PluginTile < Components::Base
   SIZES = {
     sm: {box: "size-9", icon: "size-4"},

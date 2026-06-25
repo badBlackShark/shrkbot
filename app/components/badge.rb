@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# A small status pill or tag. variant sets the colour, dot: adds a leading
-# status dot, and shape: chooses a full pill (default) or the sharper chip.
-# Copper is a valid variant for wayfinding/personality tags — never for status.
 class Components::Badge < Components::Base
   VARIANTS = {
     success: {tone: "bg-success-soft text-success", dot: "bg-success"},
