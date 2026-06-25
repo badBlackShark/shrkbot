@@ -64,6 +64,7 @@ en:
       toggle: Toggle %{plugin}
     save_bar:
       discard: Discard
+      discarded: Changes discarded
       save: Save
       unsaved: Unsaved changes
     welcomes:

@@ -139,7 +139,10 @@ details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0de
 }
 .save-bar-anim { animation: saveBarIn 420ms cubic-bezier(0.34, 1.3, 0.64, 1) forwards; }
 .save-bar-out { animation: saveBarOut 300ms cubic-bezier(0.4, 0, 0.8, 0.8) forwards; }
-.save-bar-blocked { animation: saveBarShake 600ms var(--ease-standard), saveBarRingFade 1600ms ease-out; }
+.save-bar-blocked { animation: saveBarShake 420ms var(--ease-standard), saveBarRingFade 1600ms ease-out; }
+
+/* lift toasts clear of the save bar on config pages, where both sit bottom-centre */
+body:has(.save-bar) #toasts { bottom: 6rem; }
 
 @media (prefers-reduced-motion: reduce) {
   .card-lift { transition: none; }

@@ -5,6 +5,13 @@ export default class extends Controller {
 
   connect() {
     this.update()
+    // discard resets the form; re-veil once the toggle's checked state settles
+    this.onReset = () => requestAnimationFrame(() => this.update())
+    this.element.addEventListener("reset", this.onReset)
+  }
+
+  disconnect() {
+    this.element.removeEventListener("reset", this.onReset)
   }
 
   update() {

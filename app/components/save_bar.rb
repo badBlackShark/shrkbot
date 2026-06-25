@@ -28,5 +28,8 @@ class Components::SaveBar < Components::Base
         end
       end
     end
+    template(data: {save_bar_target: "discardedToast"}) do
+      render Components::Toast.new(level: "notice", message: t(".discarded"))
+    end
   end
 end

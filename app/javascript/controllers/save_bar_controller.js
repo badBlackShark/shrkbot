@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["bar"]
+  static targets = ["bar", "discardedToast"]
 
   connect() {
     this.baseline = this.snapshot()
@@ -40,8 +40,16 @@ export default class extends Controller {
 
   discard(event) {
     event.preventDefault()
-    this.dirty = false // let the visit past the block-nav guard
-    window.Turbo.visit(window.location.href, {action: "replace"})
+    this.element.reset() // restores saved values in place; tom-select + enable-gate repaint on the reset event
+    this.baseline = this.snapshot()
+    this.setDirty(false)
+    this.showDiscardedToast()
+  }
+
+  showDiscardedToast() {
+    if (!this.hasDiscardedToastTarget) return
+
+    document.getElementById("toasts")?.append(this.discardedToastTarget.content.cloneNode(true))
   }
 
   setDirty(value) {
