@@ -7,12 +7,13 @@ class Components::TomSelect < Components::Base
     end
   end
 
-  def initialize(name:, options:, selected: nil, placeholder: nil, include_blank: false, dom_id: nil)
+  def initialize(name:, options:, selected: nil, placeholder: nil, include_blank: false, prefix: nil, dom_id: nil)
     @name = name
     @options = options
     @selected = selected
     @placeholder = placeholder
     @include_blank = include_blank
+    @prefix = prefix
     @dom_id = dom_id
   end
 
@@ -30,6 +31,7 @@ class Components::TomSelect < Components::Base
   def data
     attrs = {controller: "tom-select"}
     attrs[:tom_select_placeholder_value] = @placeholder if @placeholder
+    attrs[:tom_select_prefix_value] = @prefix if @prefix
     attrs
   end
 

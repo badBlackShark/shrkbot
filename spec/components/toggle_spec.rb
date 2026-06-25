@@ -26,6 +26,16 @@ RSpec.describe Components::Toggle do
     end
   end
 
+  context "as a nameless control (a toggle-all that drives other fields, not a field itself)" do
+    subject(:html) { Components::Toggle.new(checked: false, label: "Toggle all Roles events").call }
+
+    it "renders no name attribute and no hidden fallback, so it never posts a stray param" do
+      expect(html).not_to include("name=")
+      expect(html).not_to include('type="hidden"')
+      expect(html).to include('aria-label="Toggle all Roles events"')
+    end
+  end
+
   context "at the mini size" do
     subject(:html) { Components::Toggle.new(name: "logging[all][roles]", checked: false, label: "Toggle all Roles events", size: :mini).call }
 

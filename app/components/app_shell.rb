@@ -21,7 +21,7 @@ class Components::AppShell < Components::Base
   private
 
   def top_bar
-    header(class: "app-bar sticky top-0 z-30 flex h-16 flex-none items-center gap-3 px-5") do
+    header(class: "app-bar z-30 flex h-16 flex-none items-center gap-3 px-5") do
       wordmark
       server_switcher if @current_server
       div(class: "flex-1")

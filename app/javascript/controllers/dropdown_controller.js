@@ -1,16 +1,21 @@
 import { Controller } from "@hotwired/stimulus"
 
-// A <details> dropdown that animates open and closed. The panel fades in via
-// CSS on [open]; closing is intercepted here so the exit animation can finish
-// before the panel is removed. Wire it up as:
+// A <details> that animates open and closed. The panel fades in via CSS on
+// [open]; closing is intercepted here so the exit animation can finish before
+// the panel is removed. Wire it up as:
 //   <details data-controller="dropdown">
 //     <summary data-action="click->dropdown#toggle">…</summary>
 //     <div data-dropdown-target="menu" class="dropdown-menu">…</div>
 //   </details>
+// dismissOnOutside=false keeps a persistent disclosure (an accordion section)
+// open until its own summary closes it, unlike a transient menu.
 export default class extends Controller {
   static targets = ["menu"]
+  static values = {dismissOnOutside: {type: Boolean, default: true}}
 
   connect() {
+    if (!this.dismissOnOutsideValue) return
+
     this.closeOutside = (e) => {
       if (!this.element.contains(e.target)) this.close()
     }
@@ -22,6 +27,8 @@ export default class extends Controller {
   }
 
   disconnect() {
+    if (!this.closeOutside) return
+
     document.removeEventListener("click", this.closeOutside)
     document.removeEventListener("keydown", this.closeOnEscape)
   }

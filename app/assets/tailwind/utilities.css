@@ -15,8 +15,21 @@
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--chamfer)), calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%, 0 calc(100% - var(--chamfer)));
 }
 
+.discord-mention {
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 500;
+  background: var(--discord-mention-bg);
+  color: var(--discord-mention-fg);
+}
+.discord-empty-hint {
+  font-style: italic;
+  color: var(--discord-muted);
+}
+
 .app-bar {
-  position: relative;
+  position: sticky;
+  top: 0;
   background: transparent;
 }
 .app-bar::before {

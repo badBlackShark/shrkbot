@@ -19,7 +19,7 @@ export default class extends Controller {
 
     if (!input.value.trim()) {
       const hint = document.createElement("span")
-      hint.className = "italic text-ink-500"
+      hint.className = "discord-empty-hint"
       hint.textContent = output.dataset.emptyHint
       output.append(hint)
       return
@@ -47,7 +47,7 @@ export default class extends Controller {
 
     if (kind === "join") {
       const pill = document.createElement("span")
-      pill.className = "rounded bg-brand-100 px-1 font-medium text-accent-soft-fg"
+      pill.className = "discord-mention"
       pill.textContent = "@" + SAMPLE.user
       return pill
     }

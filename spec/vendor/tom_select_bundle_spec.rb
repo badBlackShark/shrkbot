@@ -24,4 +24,8 @@ RSpec.describe "Vendored Tom Select bundle" do
   it "exposes Tom Select as a default export" do
     expect(Rails.root.join("vendor/javascript/tom-select.js").read).to include("as default}")
   end
+
+  it "bundles the dropdown_input plugin the channel picker relies on for its search field" do
+    expect(Rails.root.join("vendor/javascript/tom-select.js").read).to include("dropdown_input")
+  end
 end

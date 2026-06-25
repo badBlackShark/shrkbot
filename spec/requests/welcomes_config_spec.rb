@@ -61,15 +61,28 @@ RSpec.describe "Welcomes config", type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to include("Welcomes")
           expect(response.body).to include("Join message")
-          expect(response.body).to include("Preview")
+          expect(response.body).to include("Live preview")
+        end
+
+        it "labels the live preview with the saved channel" do
+          create(:server_channel, server_configuration: config, name: "general", discord_id: 111)
+          config.welcome_settings.update!(channel_id: 111)
+          get server_welcomes_path(guild.id)
+          expect(response.body).to include("# general")
+        end
+
+        it "renders without a preview channel label when the saved channel no longer exists" do
+          config.welcome_settings.update!(channel_id: 999)
+          get server_welcomes_path(guild.id)
+          expect(response).to have_http_status(:ok)
         end
 
         it "offers only text channels in the picker" do
           create(:server_channel, server_configuration: config, name: "general", discord_id: 111, channel_type: 0)
           create(:server_channel, server_configuration: config, name: "lounge", discord_id: 222, channel_type: 2)
           get server_welcomes_path(guild.id)
-          expect(response.body).to include("# general")
-          expect(response.body).not_to include("# lounge")
+          expect(response.body).to include(">general<")
+          expect(response.body).not_to include("lounge")
         end
       end
 

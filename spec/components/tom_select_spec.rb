@@ -35,6 +35,22 @@ RSpec.describe Components::TomSelect do
     expect(html).to include('value="222"').and include("disabled")
   end
 
+  context "with a prefix adornment (the channel picker's #)" do
+    subject(:prefixed) do
+      described_class.new(
+        name: "welcomes[channel_id]",
+        options: [Components::TomSelect::Option.for(value: 111, label: "general")],
+        prefix: "#"
+      ).call
+    end
+
+    it "passes the prefix to the controller and keeps it out of the option label" do
+      expect(prefixed).to include('data-tom-select-prefix-value="#"')
+      expect(prefixed).to include(">general<")
+      expect(prefixed).not_to include("# general")
+    end
+  end
+
   context "without a placeholder or blank option" do
     subject(:plain) do
       described_class.new(
