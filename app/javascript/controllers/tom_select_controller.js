@@ -8,7 +8,8 @@ export default class extends Controller {
     this.select = new TomSelect(this.element, {
       placeholder: this.placeholderValue || undefined,
       allowEmptyOption: false,
-      maxOptions: null
+      maxOptions: null,
+      plugins: ["dropdown_input"]
     })
   }
 
