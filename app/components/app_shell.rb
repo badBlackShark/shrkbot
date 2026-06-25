@@ -21,7 +21,7 @@ class Components::AppShell < Components::Base
   private
 
   def top_bar
-    header(class: "sticky top-0 z-30 flex h-16 flex-none items-center gap-3 border-b border-border-default bg-surface-card px-5") do
+    header(class: "app-bar sticky top-0 z-30 flex h-16 flex-none items-center gap-3 px-5") do
       wordmark
       server_switcher if @current_server
       div(class: "flex-1")
@@ -84,10 +84,9 @@ class Components::AppShell < Components::Base
 
   def wordmark
     a(href: servers_path, class: "flex items-center gap-2") do
-      image_tag("shrkbot-mascot.png", alt: "", class: "size-9 rounded-md")
+      image_tag("shrkbot-mascot.png", alt: "", class: "size-9 chamfer-tile-sm")
       span(class: "font-display text-lg font-bold tracking-tight") do
-        span(class: "text-accent") { "shrk" }
-        plain "bot"
+        render Components::Wordmark.new
       end
     end
   end
