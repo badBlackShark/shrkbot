@@ -1,2 +1,2 @@
-<%= turbo_stream.replace "welcomes-config", html: render(Components::Welcomes::ConfigForm.new(server_configuration: @server_configuration, enabled: @enabled, enable_error: @enable_error)) %>
+<%= turbo_stream.replace "welcomes-config", html: render(Components::Welcomes::ConfigForm.new(server_configuration: @server_configuration, enable_error: @enable_error)) %>
 <%= turbo_stream.append "toasts", html: render(Components::Toast.new(**@toast)) if @toast %>

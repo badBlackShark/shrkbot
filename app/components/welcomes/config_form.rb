@@ -1,42 +1,29 @@
 # frozen_string_literal: true
 
 class Components::Welcomes::ConfigForm < Components::Base
-  include Phlex::Rails::Helpers::FormWith
-
   FIELD = "w-full rounded-control border border-border-default bg-surface-card px-3 py-2 text-sm text-text-primary " \
     "placeholder:text-text-secondary focus:border-accent focus:outline-none focus:ring-3 focus:ring-[var(--focus-ring)]"
 
-  def initialize(server_configuration:, enabled:, enable_error: nil)
+  def initialize(server_configuration:, enable_error: nil)
     @config = server_configuration
     @settings = server_configuration.welcome_settings
-    @enabled = enabled
     @enable_error = enable_error
   end
 
   def view_template
-    div(id: "welcomes-config", data: {controller: "welcome-preview"}) do
-      form_with(url: server_welcomes_path(@config.discord_id), method: :patch, class: "flex flex-col gap-5") do
-        enable_card
-        channel_card
-        messages_card
-        save_bar
-      end
+    div(id: "welcomes-config", class: "flex flex-col gap-5", data: {controller: "welcome-preview"}) do
+      enable_error_callout
+      channel_card
+      messages_card
     end
   end
 
   private
 
-  def enable_card
-    render Components::Card.new do
-      div(class: "flex items-center justify-between gap-4") do
-        div do
-          p(class: "font-semibold") { t(".enable.label") }
-          p(class: "mt-0.5 text-sm text-text-secondary") { t(".enable.help") }
-        end
-        render Components::Toggle.new(name: "welcomes[enabled]", checked: @enabled, label: t(".enable.label"))
-      end
-      field_error(@enable_error)
-    end
+  def enable_error_callout
+    return unless @enable_error
+
+    render Components::Callout.new(variant: :danger) { @enable_error }
   end
 
   def channel_card
@@ -116,21 +103,6 @@ class Components::Welcomes::ConfigForm < Components::Base
           data: {welcome_preview_target: "#{kind}Output", empty_hint: t(".preview.empty")}
         )
       end
-    end
-  end
-
-  def save_bar
-    div(class: "flex justify-end") do
-      render Components::Button.new(variant: :primary, size: :lg, type: "submit", icon: "check", label: t(".save"))
-    end
-  end
-
-  def field_error(message)
-    return unless message
-
-    p(class: "mt-3 flex items-center gap-1.5 text-sm text-danger") do
-      render Components::Icon.new("warning", class: "size-4 flex-none")
-      span { message }
     end
   end
 

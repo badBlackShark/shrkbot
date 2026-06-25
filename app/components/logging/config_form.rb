@@ -1,44 +1,26 @@
 # frozen_string_literal: true
 
 class Components::Logging::ConfigForm < Components::Base
-  include Phlex::Rails::Helpers::FormWith
-
-  def initialize(server_configuration:, enabled:, enable_error: nil)
+  def initialize(server_configuration:, enable_error: nil)
     @config = server_configuration
     @settings = server_configuration.logging_setting
-    @enabled = enabled
     @enable_error = enable_error
   end
 
   def view_template
-    div(id: "logging-config") do
-      form_with(url: server_logging_path(@config.discord_id), method: :patch, class: "flex flex-col gap-5", data: {controller: "enable-gate"}) do
-        enable_card
-        channel_card
-        events_card
-        save_bar
-      end
+    div(id: "logging-config", class: "flex flex-col gap-5") do
+      enable_error_callout
+      channel_card
+      events_card
     end
   end
 
   private
 
-  def enable_card
-    render Components::Card.new do
-      div(class: "flex items-center justify-between gap-4") do
-        div do
-          p(class: "font-semibold") { t(".enable.label") }
-          p(class: "mt-0.5 text-sm text-text-secondary") { t(".enable.help") }
-        end
-        render Components::Toggle.new(
-          name: "logging[enabled]",
-          checked: @enabled,
-          label: t(".enable.label"),
-          data: {enable_gate_target: "toggle", action: "change->enable-gate#update"}
-        )
-      end
-      field_error(@enable_error)
-    end
+  def enable_error_callout
+    return unless @enable_error
+
+    render Components::Callout.new(variant: :danger) { @enable_error }
   end
 
   def channel_card
@@ -64,11 +46,9 @@ class Components::Logging::ConfigForm < Components::Base
     render Components::Card.new do
       p(class: "text-sm font-semibold") { t(".events.label") }
       p(class: "mb-3 mt-0.5 text-sm text-text-secondary") { t(".events.help") }
-      render Components::EnableGate.new(enabled: @enabled, message: t(".events.gated")) do
-        div(class: "flex flex-col gap-5") do
-          LoggableEventCatalog.grouped_by_plugin.each do |plugin, definitions|
-            event_group(plugin, definitions)
-          end
+      div(class: "flex flex-col gap-5") do
+        LoggableEventCatalog.grouped_by_plugin.each do |plugin, definitions|
+          event_group(plugin, definitions)
         end
       end
     end
@@ -100,21 +80,6 @@ class Components::Logging::ConfigForm < Components::Base
 
     render Components::Callout.new(variant: :warning, class: "mt-3") do
       plain t(".channel.visible_warning")
-    end
-  end
-
-  def save_bar
-    div(class: "flex justify-end") do
-      render Components::Button.new(variant: :primary, size: :lg, type: "submit", icon: "check", label: t(".save"))
-    end
-  end
-
-  def field_error(message)
-    return unless message
-
-    p(class: "mt-3 flex items-center gap-1.5 text-sm text-danger") do
-      render Components::Icon.new("warning", class: "size-4 flex-none")
-      span { message }
     end
   end
 
