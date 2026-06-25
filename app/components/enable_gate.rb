@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Components::EnableGate < Components::Base
   def initialize(enabled:, message:)
     @enabled = enabled

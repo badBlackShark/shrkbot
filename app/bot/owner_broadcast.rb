@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module OwnerBroadcast
   FOOTER = "-# You're receiving this because you own at least one server that shrkbot is in."
   Result = Data.define(:owner_count, :sent, :server_count)

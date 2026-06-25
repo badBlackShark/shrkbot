@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChannelCleanup < BaseEvent
   on :channel_delete
 

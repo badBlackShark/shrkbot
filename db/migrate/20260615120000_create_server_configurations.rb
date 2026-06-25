@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateServerConfigurations < ActiveRecord::Migration[8.1]
   def change
     create_table :server_configurations, id: false do |t|

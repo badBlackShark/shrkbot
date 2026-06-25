@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Reminders
   class List < BaseCommand
     command_name :reminders

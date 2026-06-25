@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateBotSettings < ActiveRecord::Migration[8.1]
   def change
     create_table :bot_settings, id: false do |t|

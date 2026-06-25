@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails_helper"
 require "discordrb" # the job sends over REST; load the client so we can stub it
 

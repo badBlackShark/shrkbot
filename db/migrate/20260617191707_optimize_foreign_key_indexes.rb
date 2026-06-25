@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class OptimizeForeignKeyIndexes < ActiveRecord::Migration[8.1]
   def change
     add_index :reminders, :user_id

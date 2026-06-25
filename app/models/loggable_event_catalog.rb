@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class LoggableEventCatalog
   Definition = Data.define(:plugin, :event) do
     def key

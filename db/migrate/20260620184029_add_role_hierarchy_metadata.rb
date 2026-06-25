@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddRoleHierarchyMetadata < ActiveRecord::Migration[8.1]
   def change
     add_column :server_roles, :position, :integer

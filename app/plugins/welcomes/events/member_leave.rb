@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Welcomes
   class MemberLeave < BaseEvent
     on :member_leave

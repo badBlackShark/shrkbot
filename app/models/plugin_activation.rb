@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PluginActivation < ApplicationRecord
   belongs_to :server_configuration
   belongs_to :plugin

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Reminders
   class Reminder < ApplicationRecord
     # Namespaced model would otherwise derive an ambiguous table name.

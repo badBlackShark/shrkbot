@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :role_set, class: "Roles::Set" do
     association :role_setting

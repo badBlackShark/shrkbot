@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ServerSetup < BaseEvent
   on :server_create
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Components::Logging::ConfigForm < Components::Base
   include Phlex::Rails::Helpers::FormWith
 

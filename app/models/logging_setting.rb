@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class LoggingSetting < ApplicationRecord
   belongs_to :server_configuration
 

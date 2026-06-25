@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Views::Servers::Logging::Show < Views::Base
   def initialize(server_configuration:, user:, enabled:)
     @config = server_configuration

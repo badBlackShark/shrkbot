@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RoleSync < BaseEvent
   on :server_role_create, :server_role_update, :server_role_delete
 

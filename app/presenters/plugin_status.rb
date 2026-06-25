@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PluginStatus
   Row = Data.define(:key, :enabled, :configured)
 

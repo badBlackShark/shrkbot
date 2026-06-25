@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 ActiveRecordDoctor.configure do
   global :ignore_tables, [
     "schema_migrations",

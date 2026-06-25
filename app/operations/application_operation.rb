@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Ops
   class ApplicationOperation
     Result = Struct.new(:success, :value, :errors, :warnings) do

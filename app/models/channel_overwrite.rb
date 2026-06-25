@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChannelOverwrite < ApplicationRecord
   belongs_to :server_channel
 

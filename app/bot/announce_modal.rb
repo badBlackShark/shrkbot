@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AnnounceModal < BaseEvent
   on :modal_submit, custom_id: Commands::Announce::MODAL_ID
 

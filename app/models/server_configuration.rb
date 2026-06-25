@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ServerConfiguration < ApplicationRecord
   has_many :plugin_activations, dependent: :delete_all
   has_many :plugins, through: :plugin_activations

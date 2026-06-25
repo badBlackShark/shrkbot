@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Discord
   ADMINISTRATOR = 0x8
   MANAGE_GUILD = 0x20

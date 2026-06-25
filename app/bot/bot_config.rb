@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module BotConfig
   ACCENT_COLOR = 0x39afe5
 
