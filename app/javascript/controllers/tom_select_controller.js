@@ -7,7 +7,7 @@ export default class extends Controller {
   connect() {
     this.select = new TomSelect(this.element, {
       placeholder: this.placeholderValue || undefined,
-      allowEmptyOption: true,
+      allowEmptyOption: false,
       maxOptions: null
     })
   }
