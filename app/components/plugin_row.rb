@@ -3,6 +3,13 @@
 class Components::PluginRow < Components::Base
   ICONS = {roles: "users-three", welcomes: "hand-waving", logging: "scroll", reminders: "bell-ringing"}.freeze
 
+  STATUS_VARIANTS = {
+    always_enabled: :success,
+    enabled: :success,
+    needs_setup: :warning,
+    disabled: :neutral
+  }.freeze
+
   def initialize(server_id:, key:, enabled:, configured:, locked: false)
     @server_id = server_id
     @key = key
@@ -12,9 +19,8 @@ class Components::PluginRow < Components::Base
   end
 
   def view_template
-    border = @enabled ? "border-accent-soft-bd" : "border-border-default"
-    div(id: "plugin-#{@key}", class: "flex items-center gap-4 rounded-lg border #{border} bg-surface-card p-5 shadow-sm") do
-      icon
+    render Components::Card.new(enabled: @enabled, id: "plugin-#{@key}", class: "flex items-center gap-4") do
+      render Components::PluginTile.new(icon: ICONS[@key], enabled: @enabled)
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { t(".plugin.#{@key}.name") }
@@ -46,39 +52,30 @@ class Components::PluginRow < Components::Base
     end
   end
 
-  def icon
-    tone = @enabled ? "bg-accent-fill text-white" : "bg-surface-sunken text-text-muted"
-    span(class: "flex size-11 flex-none items-center justify-center rounded-md #{tone}") do
-      render Components::Icon.new(ICONS[@key], class: "size-5")
-    end
+  def status_badge
+    render Components::Badge.new(variant: STATUS_VARIANTS.fetch(status), dot: true) { t(".status.#{status}") }
   end
 
-  def status_badge
-    state, tone, dot =
-      if @locked
-        [:always_enabled, "bg-success-soft text-success", "bg-success"]
-      elsif !@enabled
-        [:disabled, "bg-surface-sunken text-text-secondary", "bg-text-muted"]
-      elsif @configured
-        [:enabled, "bg-success-soft text-success", "bg-success"]
-      else
-        [:needs_setup, "bg-warning-soft text-warning", "bg-warning"]
-      end
-
-    span(class: "inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-semibold #{tone}") do
-      span(class: "size-1.5 rounded-full #{dot}")
-      plain t(".status.#{state}")
+  def status
+    if @locked
+      :always_enabled
+    elsif !@enabled
+      :disabled
+    elsif @configured
+      :enabled
+    else
+      :needs_setup
     end
   end
 
   def configure_link
-    a(
+    render Components::Button.new(
+      variant: :secondary,
       href: configure_href,
-      class: "btn-fill btn-fill-ghost inline-flex h-9 flex-none items-center gap-1.5 rounded-md border border-border-default px-3.5 text-sm font-semibold transition-colors hover:bg-surface-sunken"
-    ) do
-      span { t(".configure") }
-      render Components::Icon.new("arrow-right", class: "size-4")
-    end
+      label: t(".configure"),
+      trailing_icon: "arrow-right",
+      class: "flex-none"
+    )
   end
 
   def configure_href

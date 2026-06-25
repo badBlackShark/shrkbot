@@ -1,8 +1,6 @@
 class Components::Logging::ConfigForm < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
-  CARD = "rounded-lg border border-border-default bg-surface-card p-5 shadow-sm"
-
   def initialize(server_configuration:, enabled:, enable_error: nil)
     @config = server_configuration
     @settings = server_configuration.logging_setting
@@ -24,7 +22,7 @@ class Components::Logging::ConfigForm < Components::Base
   private
 
   def enable_card
-    div(class: CARD) do
+    render Components::Card.new do
       div(class: "flex items-center justify-between gap-4") do
         div do
           p(class: "font-semibold") { t(".enable.label") }
@@ -42,7 +40,7 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def channel_card
-    div(class: CARD) do
+    render Components::Card.new do
       label(class: "block text-sm font-semibold") { t(".channel.label") }
       p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".channel.help") }
       if channels.empty?
@@ -61,7 +59,7 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def events_card
-    div(class: CARD) do
+    render Components::Card.new do
       p(class: "text-sm font-semibold") { t(".events.label") }
       p(class: "mb-3 mt-0.5 text-sm text-text-secondary") { t(".events.help") }
       render Components::EnableGate.new(enabled: @enabled, message: t(".events.gated")) do
@@ -98,21 +96,14 @@ class Components::Logging::ConfigForm < Components::Base
   def visibility_warning
     return unless visible_channel?
 
-    div(class: "mt-3 flex items-start gap-1.5 text-sm text-warning") do
-      render Components::Icon.new("warning", class: "mt-0.5 size-4 flex-none")
-      span { t(".channel.visible_warning") }
+    render Components::Callout.new(variant: :warning, class: "mt-3") do
+      plain t(".channel.visible_warning")
     end
   end
 
   def save_bar
     div(class: "flex justify-end") do
-      button(
-        type: "submit",
-        class: "btn-fill btn-fill-primary inline-flex h-10 items-center gap-2 rounded-md bg-accent-fill px-5 text-sm font-semibold text-white transition-colors"
-      ) do
-        render Components::Icon.new("check", class: "size-4")
-        span { t(".save") }
-      end
+      render Components::Button.new(variant: :primary, size: :lg, type: "submit", icon: "check", label: t(".save"))
     end
   end
 

@@ -32,22 +32,6 @@
   to   { opacity: 1; }
 }
 
-.btn-fill { position: relative; overflow: hidden; }
-.btn-fill::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform var(--dur-base) var(--ease-standard);
-  pointer-events: none;
-}
-.btn-fill:hover::after { transform: scaleX(1); }
-.btn-fill > * { position: relative; z-index: 1; }
-.btn-fill-primary::after { background: var(--accent-hover); }
-.btn-fill-secondary::after { background: var(--surface-sunken); }
-.btn-fill-ghost::after { background: var(--surface-sunken); }
-
 .card-lift {
   transition: transform var(--dur-base) var(--ease-standard),
     box-shadow var(--dur-base) var(--ease-standard),
@@ -95,7 +79,6 @@ details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0de
 [data-theme="dark"] .theme-morph .theme-moon { opacity: 0; transform: rotate(90deg) scale(0.4); }
 
 @media (prefers-reduced-motion: reduce) {
-  .btn-fill::after { transition: none; transform: scaleX(1); }
   .card-lift { transition: none; }
   .anim-menu,
   .anim-toast,

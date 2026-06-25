@@ -1,9 +1,8 @@
 class Components::Welcomes::ConfigForm < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
-  FIELD = "w-full rounded-md border border-border-default bg-surface-card px-3 py-2 text-sm text-text-primary " \
+  FIELD = "w-full rounded-control border border-border-default bg-surface-card px-3 py-2 text-sm text-text-primary " \
     "placeholder:text-text-secondary focus:border-accent focus:outline-none focus:ring-3 focus:ring-[var(--focus-ring)]"
-  CARD = "rounded-lg border border-border-default bg-surface-card p-5 shadow-sm"
 
   def initialize(server_configuration:, enabled:, enable_error: nil)
     @config = server_configuration
@@ -26,7 +25,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   private
 
   def enable_card
-    div(class: CARD) do
+    render Components::Card.new do
       div(class: "flex items-center justify-between gap-4") do
         div do
           p(class: "font-semibold") { t(".enable.label") }
@@ -39,7 +38,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def channel_card
-    div(class: CARD) do
+    render Components::Card.new do
       label(class: "block text-sm font-semibold") { t(".channel.label") }
       p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".channel.help") }
       if channels.empty?
@@ -57,7 +56,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def messages_card
-    div(class: CARD) do
+    render Components::Card.new do
       message_field(:join_message, @settings.join_message)
       div(class: "my-5 border-t border-border-default")
       message_field(:leave_message, @settings.leave_message)
@@ -120,13 +119,7 @@ class Components::Welcomes::ConfigForm < Components::Base
 
   def save_bar
     div(class: "flex justify-end") do
-      button(
-        type: "submit",
-        class: "btn-fill btn-fill-primary inline-flex h-10 items-center gap-2 rounded-md bg-accent-fill px-5 text-sm font-semibold text-white transition-colors"
-      ) do
-        render Components::Icon.new("check", class: "size-4")
-        span { t(".save") }
-      end
+      render Components::Button.new(variant: :primary, size: :lg, type: "submit", icon: "check", label: t(".save"))
     end
   end
 
