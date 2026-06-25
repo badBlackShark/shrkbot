@@ -64,13 +64,20 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def event_group(plugin, definitions)
-    details(class: "relative border-b border-border-subtle last:border-b-0", open: true, data: {controller: "event-group"}) do
-      summary(class: "flex h-11 cursor-pointer list-none select-none items-center gap-3 bg-surface-sunken px-5 pr-32 [&::-webkit-details-marker]:hidden") do
+    details(
+      class: "relative border-b border-border-subtle last:border-b-0",
+      open: true,
+      data: {controller: "dropdown event-group", dropdown_dismiss_on_outside_value: false}
+    ) do
+      summary(
+        class: "flex h-11 cursor-pointer list-none select-none items-center gap-3 bg-surface-sunken px-5 pr-32 [&::-webkit-details-marker]:hidden",
+        data: {action: "click->dropdown#toggle"}
+      ) do
         render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
         span(class: "text-[11px] font-semibold uppercase tracking-widest text-text-secondary") { t(".events.plugin.#{plugin}") }
       end
       toggle_all(plugin, definitions)
-      div(class: "divide-y divide-border-subtle") do
+      div(class: "dropdown-menu divide-y divide-border-subtle", data: {dropdown_target: "menu"}) do
         definitions.each { |definition| event_row(definition) }
       end
     end
