@@ -20,9 +20,9 @@ class Components::EnableGate < Components::Base
   def overlay
     div(
       data: {enable_gate_target: "overlay"},
-      class: "absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-ink-0/70 #{"hidden" if @enabled}"
+      class: "absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-surface-page/70 #{"hidden" if @enabled}"
     ) do
-      span(class: "max-w-xs px-4 text-center text-sm font-medium text-ink-600") { @message }
+      span(class: "max-w-xs px-4 text-center text-sm font-medium text-text-secondary") { @message }
     end
   end
 end

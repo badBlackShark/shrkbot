@@ -3,9 +3,9 @@
 class Components::Toggle < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
-  TRACK = "relative h-6 w-11 flex-none rounded-full bg-ink-300 transition-colors " \
+  TRACK = "relative h-6 w-11 flex-none rounded-full bg-border-strong transition-colors " \
     "after:absolute after:start-0.5 after:top-0.5 after:size-5 after:rounded-full after:bg-white after:shadow " \
-    "motion-safe:after:transition-transform peer-checked:bg-brand-500 peer-checked:after:translate-x-5 " \
+    "motion-safe:after:transition-transform peer-checked:bg-accent-fill peer-checked:after:translate-x-5 " \
     "peer-focus-visible:ring-3 peer-focus-visible:ring-[var(--focus-ring)]"
 
   def initialize(name:, checked:, label:, url: nil, submit_on_change: false, dom_id: nil, disabled: false, data: {})

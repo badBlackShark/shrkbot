@@ -9,13 +9,17 @@ is Stimulus.
 ## Accessibility (standing rule)
 
 Be mindful of accessibility in every aspect of the UI. Contrast is enforced now:
-every text/background pairing must stay legible in **both** themes. The common
-trap is the inverting `ink` ramp — a muted step like `ink-400` is a faint grey in
-light mode but inverts to a near-black `#484f58` in dark mode, vanishing on a dark
-card. For secondary text that must read in both, use `ink-500`/`ink-600`, not
-`ink-400`; for accent text on a tint use the theme-aware `text-accent-soft-fg`.
-Check both themes when adding UI. Reduced motion is honoured throughout (keep it);
-keyboard and screen-reader passes are deferred but don't regress them.
+every text/background pairing must stay legible in **both** themes. The way to
+stay legible is to use the **semantic** tokens for anything theme-responsive —
+`text-text-primary`/`-secondary`/`-muted`, `bg-surface-*`, `border-border-*`,
+`text-accent-soft-fg` — because those flip with the theme. The trap is reaching
+for a raw `ink-*` or `brand-*` step for text or a surface: those ramps are now
+**fixed** (sand stays sand, teal stays teal in both themes), so a raw `ink-700`
+as body text is dark-on-cream in light and dark-on-espresso (invisible) in dark.
+Raw ramp steps are only for the rare element that must stay one literal colour in
+both themes. Check both themes when adding UI. Reduced motion is honoured
+throughout (keep it); keyboard and screen-reader passes are deferred but don't
+regress them.
 
 ## Copy (I18n)
 
@@ -54,10 +58,10 @@ The panel (`.dropdown-menu`, a `menu` target) fades/slides in via CSS on `[open]
 and fades/slides back out on close — the controller intercepts the close
 (`click->dropdown#toggle`, plus outside-click and Escape) so the exit animation
 finishes before the panel is removed, then sets `open = false`. The trigger's
-`.dropdown-chevron` points left when closed, rotates down when open, and rotates
-back the moment a close starts (keyed off the panel's `.is-closing` via `:has`,
-so it turns with the fade-out rather than after it). Reduced motion drops both
-directions.
+`.dropdown-chevron` points down when closed, rotates up when open, and rotates
+back down the moment a close starts (keyed off the panel's `.is-closing` via
+`:has`, so it turns with the fade-out rather than after it). Reduced motion drops
+both directions.
 
 The top bar also gains a **server switcher** when a page is scoped to one server
 (the dashboard passes `current_server:` + `servers:` to `AppShell`): a `dropdown`
@@ -95,47 +99,50 @@ consume them.
 
 ## Where it lives
 
-- `app/assets/tailwind/application.css` — the single stylesheet. Holds the
-  `@font-face` block, the design tokens, the Tailwind `@theme`, and the motion
-  patterns. Compiled to `app/assets/builds/tailwind.css` by `tailwindcss-rails`
-  (gitignored; `bin/rails tailwindcss:build`, or the `css` process in
-  `Procfile.dev`).
+- `app/assets/tailwind/` — the stylesheet, split into focused partials that
+  `application.css` imports: `fonts.css` (`@font-face`), `tokens.css` (the design
+  tokens — `:root` + `[data-theme="dark"]`), `theme.css` (the Tailwind `@theme`
+  bridge), `utilities.css` (chamfer geometry, motion patterns, dropdown/theme
+  choreography), and `tom-select.css` (the Tom Select skin). Compiled to
+  `app/assets/builds/tailwind.css` by `tailwindcss-rails` (gitignored;
+  `bin/rails tailwindcss:build`, or the `css` process in `Procfile.dev`).
 - `app/assets/fonts/` — the self-hosted woff2 files.
 - `app/components/icon.rb` — inline-SVG icon component.
 - `app/javascript/controllers/theme_controller.js` — the dark-mode toggle.
 
 ## Fonts
 
-Self-hosted, no CDN: Space Grotesk (display, variable 300-700), IBM Plex Sans
-(body, 400/500/600/700), IBM Plex Mono (mono, 400/500). The `@font-face` rules
-come from `docs/design/tokens/fonts.css`; the `url()`s use bare filenames
-(e.g. `url("space-grotesk-variable.woff2")`) which Propshaft rewrites to digested
-asset paths at serve time. Exposed as `font-display` / `font-sans` / `font-mono`.
+Self-hosted, no CDN: Space Grotesk (display, variable 300-700), **Exo 2** (body,
+variable — split into a latin and a latin-ext face so accented server/member
+names render in-face), IBM Plex Mono (mono, 400/500). The `@font-face` rules live
+in `app/assets/tailwind/fonts.css`; the `url()`s use bare filenames
+(e.g. `url("exo2-variable.woff2")`) which Propshaft rewrites to digested asset
+paths at serve time. Exposed as `font-display` / `font-sans` / `font-mono`.
 
 ## Tokens and Tailwind theme
 
-Two layers:
+Two conceptual layers (in `tokens.css`):
 
-1. **Raw channel variables** (plain custom properties in `:root` and
-   `[data-theme="dark"]`): `--brand-*`, `--ink-*`, the semantic colors, plus a
-   few aliases for raw CSS (`--accent-hover`, `--surface-sunken`, `--focus-ring`)
-   and the motion tokens (`--dur-*`, `--ease-standard`).
-2. **`@theme inline`** maps the Tailwind color utilities at those channel vars
-   (`--color-ink-600: var(--ink-600)`), plus the static font / radius / shadow
-   tokens.
+1. **Fixed reference ramps** — `--brand-*` (teal), `--ink-*` (sand), `--copper-*`.
+   These never change with theme. Use them only for an element that must stay one
+   literal colour in both themes.
+2. **Semantic aliases** — `--text-*`, `--surface-*`, `--border-*`, `--accent*`,
+   `--accent-2*` (copper), `--nav-active`, `--eyebrow`, plus motion tokens. These
+   are redefined under `[data-theme="dark"]`, so anything built on them flips.
 
-Using `@theme inline` means utilities reference the raw var directly
-(`.text-ink-600 { color: var(--ink-600) }`), so they respond to the active theme
-with **no `dark:` variants anywhere**. Use the token utilities — `bg-ink-0` for
-card surfaces, `bg-ink-50` for the page, `text-ink-900/700/600`, `border-ink-*` —
-not Tailwind's built-in `white`/`slate`, which don't theme.
+`theme.css` maps both onto Tailwind utilities with **`@theme inline`**, which
+emits `var(--token)` references rather than resolved values — so a utility on a
+semantic alias responds to the active theme with **no `dark:` variants anywhere**.
 
-For accent text/icons sitting on a soft brand tint (badges, the avatar initials),
-use `text-accent-soft-fg`, not a raw `brand-*` step: a fixed brand step can't read
-on both a light tint and a dark one, so this token flips (`brand-700` light /
-`brand-300` dark). Mind contrast generally — pair foreground/background tokens so
-both themes stay legible (we already honour reduced motion; full screen-reader and
-keyboard-navigation passes are deferred).
+Use the **semantic** utilities for theme-responsive UI: `bg-surface-card` for card
+surfaces, `bg-surface-page` for the page, `bg-surface-sunken` for washes,
+`text-text-primary`/`-secondary`/`-muted`, `border-border-subtle`/`-default`/
+`-strong`, `bg-accent-fill` for solid teal buttons (white-text-safe — **not**
+`bg-brand-500`, which fails white-on-teal contrast), `bg-accent-soft` +
+`text-accent-soft-fg` for soft-tint chips/avatars, `text-accent` for a teal icon.
+Copper is `text-accent-2-text` / `bg-accent-2-soft` / `bg-accent-2-fill` and owns
+warmth/wayfinding (donate, OSS badge, the wordmark "bot") — **never** status.
+Reach for a raw `brand-*`/`ink-*` step only when you genuinely need a fixed colour.
 
 Tailwind v4 must scan the Phlex `.rb` files or utilities used only in Ruby string
 literals get purged; `@source "../../views"` and `@source "../../components"`
@@ -143,12 +150,15 @@ handle that.
 
 ## Dark mode
 
-`[data-theme="dark"]` on `<html>` swaps the channel variables. The brand accent
-(`--brand-500` = `#39afe5`) is constant across themes; the neutral `ink` ramp
-inverts (light surfaces ↔ dark surfaces, dark text ↔ light text). The soft brand
-tints (`brand-50/100/200`) become translucent sky in dark mode rather than solid
-dark hex — a solid dark tint disappears against the dark card, whereas a
-translucent one reads as a raised chip on any surface.
+`[data-theme="dark"]` on `<html>` redefines the **semantic aliases** (text /
+surface / border / accent / copper); the reference ramps stay fixed. Dark is a
+**warm espresso** palette (`surface-page #1a130d`), the teal softens to an aged
+"patina" (`--accent #46817a`) so it harmonises with the warm field, and copper is
+used liberally — active-nav (`--nav-active`) and section eyebrows (`--eyebrow`)
+both go copper in dark. Because surfaces are espresso (not an inversion of the
+sand ramp), views must use the semantic surface/text/border tokens, not raw
+`ink-*`, or they won't theme. The semantic soft tints (`success/warning/danger
+-soft`) are re-mixed as low-alpha washes so they read on espresso.
 
 The toggle is `theme_controller.js` (flips the attribute, persists to
 `localStorage` under `shrk-theme`). To avoid a flash of the wrong theme, an
@@ -166,11 +176,16 @@ are skipped under reduced motion.
 
 ## Motion
 
-CSS-only patterns from `docs/design/tokens/motion.css`: `btn-fill`
-(hover fill left-to-right via a `::after`), `card-lift`, and the `anim-menu` /
-`anim-toast` / `anim-fade` animation classes. Durations 120/180/260ms, ease
-`cubic-bezier(.2,0,0,1)`. A `prefers-reduced-motion: reduce` block neutralises
-them — keep it.
+CSS-only patterns in `app/assets/tailwind/utilities.css`: `card-lift`, the
+`anim-menu` / `anim-toast` / `anim-fade` classes, the dropdown/chevron and
+theme-morph choreography, and the chamfer geometry helpers (`chamfer-tile`,
+`chamfer-tile-sm`, `chamfer-cta`, `chamfer-bar` — for brand-forward surfaces
+only). Durations 120/180/260ms; `--ease-standard cubic-bezier(.2,0,0,1)` for
+entering, `--ease-exit cubic-bezier(.4,0,1,1)` for leaving. A
+`prefers-reduced-motion: reduce` block neutralises them — keep it. `btn-fill`
+(hover fill via a `::after`) is still present but **transitional**: the design
+retires it for plain darken-on-hover, to be removed when the Button component
+lands.
 
 ## Layout: flex, not grid
 
@@ -184,13 +199,18 @@ inset-0`).
 
 ## Icons
 
-Heroicons v2 (the `heroicons` gem), inline SVG, outline variant by default (set
-in `config/initializers/heroicons.rb`). `Components::Icon` renders one by its
-Heroicon name. Pass a `class:` for sizing/colour (defaults to `size-5`):
+Phosphor (the `phosphor_icons` gem), inline SVG (inherits `currentColor`).
+`Components::Icon` renders one by its Phosphor name; pass a `class:` for
+sizing/colour (defaults to `size-5`) and an optional `weight:`. The one-tone rule:
+`:regular` is the workhorse, `:bold` marks active/emphasis, `:fill` is the white
+glyph inside a filled teal tile — never two-tone (teal and copper vibrate inside a
+small glyph). No initializer; an unknown name raises `IconNotFoundError`, so typos
+surface loudly.
 
 ```ruby
-render Components::Icon.new("clock", class: "size-5 text-ink-500")
+render Components::Icon.new("bell-ringing", class: "size-5 text-text-secondary")
+render Components::Icon.new("users-three", weight: :fill, class: "size-5 text-white")
 ```
 
-The mockups used Lucide names, but Lucide was never adopted; use Heroicon names
-directly (the [Heroicons site](https://heroicons.com) lists them).
+Plugin icons: roles → `users-three`, welcomes → `hand-waving`, logging → `scroll`,
+reminders → `bell-ringing`. Browse names at [phosphoricons.com](https://phosphoricons.com).

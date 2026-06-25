@@ -1,7 +1,7 @@
 class Components::Logging::ConfigForm < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
-  CARD = "rounded-lg border border-ink-200 bg-ink-0 p-5 shadow-sm"
+  CARD = "rounded-lg border border-border-default bg-surface-card p-5 shadow-sm"
 
   def initialize(server_configuration:, enabled:, enable_error: nil)
     @config = server_configuration
@@ -28,7 +28,7 @@ class Components::Logging::ConfigForm < Components::Base
       div(class: "flex items-center justify-between gap-4") do
         div do
           p(class: "font-semibold") { t(".enable.label") }
-          p(class: "mt-0.5 text-sm text-ink-600") { t(".enable.help") }
+          p(class: "mt-0.5 text-sm text-text-secondary") { t(".enable.help") }
         end
         render Components::Toggle.new(
           name: "logging[enabled]",
@@ -44,9 +44,9 @@ class Components::Logging::ConfigForm < Components::Base
   def channel_card
     div(class: CARD) do
       label(class: "block text-sm font-semibold") { t(".channel.label") }
-      p(class: "mb-2 mt-0.5 text-sm text-ink-600") { t(".channel.help") }
+      p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".channel.help") }
       if channels.empty?
-        p(class: "text-sm text-ink-500") { t(".channel.none") }
+        p(class: "text-sm text-text-secondary") { t(".channel.none") }
       else
         render Components::TomSelect.new(
           name: "logging[channel_id]",
@@ -63,7 +63,7 @@ class Components::Logging::ConfigForm < Components::Base
   def events_card
     div(class: CARD) do
       p(class: "text-sm font-semibold") { t(".events.label") }
-      p(class: "mb-3 mt-0.5 text-sm text-ink-600") { t(".events.help") }
+      p(class: "mb-3 mt-0.5 text-sm text-text-secondary") { t(".events.help") }
       render Components::EnableGate.new(enabled: @enabled, message: t(".events.gated")) do
         div(class: "flex flex-col gap-5") do
           LoggableEventCatalog.grouped_by_plugin.each do |plugin, definitions|
@@ -76,7 +76,7 @@ class Components::Logging::ConfigForm < Components::Base
 
   def event_group(plugin, definitions)
     div do
-      p(class: "mb-2 text-[11px] font-semibold uppercase tracking-widest text-ink-500") { t(".events.plugin.#{plugin}") }
+      p(class: "mb-2 text-[11px] font-semibold uppercase tracking-widest text-text-secondary") { t(".events.plugin.#{plugin}") }
       div(class: "flex flex-col gap-2") do
         definitions.each { |definition| event_row(definition) }
       end
@@ -85,7 +85,7 @@ class Components::Logging::ConfigForm < Components::Base
 
   def event_row(definition)
     name = t(".events.event.#{definition.plugin}.#{definition.event}")
-    div(class: "flex items-center justify-between gap-4 rounded-md border border-ink-200 px-3 py-2") do
+    div(class: "flex items-center justify-between gap-4 rounded-md border border-border-default px-3 py-2") do
       span(class: "text-sm") { name }
       render Components::Toggle.new(
         name: "logging[actions][#{definition.key}]",
@@ -99,7 +99,7 @@ class Components::Logging::ConfigForm < Components::Base
     return unless visible_channel?
 
     div(class: "mt-3 flex items-start gap-1.5 text-sm text-warning") do
-      render Components::Icon.new("exclamation-triangle", class: "mt-0.5 size-4 flex-none")
+      render Components::Icon.new("warning", class: "mt-0.5 size-4 flex-none")
       span { t(".channel.visible_warning") }
     end
   end
@@ -108,7 +108,7 @@ class Components::Logging::ConfigForm < Components::Base
     div(class: "flex justify-end") do
       button(
         type: "submit",
-        class: "btn-fill btn-fill-primary inline-flex h-10 items-center gap-2 rounded-md bg-brand-500 px-5 text-sm font-semibold text-white transition-colors"
+        class: "btn-fill btn-fill-primary inline-flex h-10 items-center gap-2 rounded-md bg-accent-fill px-5 text-sm font-semibold text-white transition-colors"
       ) do
         render Components::Icon.new("check", class: "size-4")
         span { t(".save") }
@@ -120,7 +120,7 @@ class Components::Logging::ConfigForm < Components::Base
     return unless message
 
     p(class: "mt-3 flex items-center gap-1.5 text-sm text-danger") do
-      render Components::Icon.new("exclamation-triangle", class: "size-4 flex-none")
+      render Components::Icon.new("warning", class: "size-4 flex-none")
       span { message }
     end
   end

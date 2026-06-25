@@ -2,7 +2,7 @@
 
 class Components::Toast < Components::Base
   LEVELS = {
-    "alert" => {icon: "exclamation-triangle", tone: "border-danger/30 bg-danger-soft text-danger"},
+    "alert" => {icon: "warning", tone: "border-danger/30 bg-danger-soft text-danger"},
     "notice" => {icon: "check-circle", tone: "border-success/30 bg-success-soft text-success"}
   }.freeze
 
@@ -24,9 +24,9 @@ class Components::Toast < Components::Base
         type: "button",
         aria_label: "Dismiss",
         data: {action: "toast#dismiss"},
-        class: "-mr-1 ml-1 flex size-5 flex-none items-center justify-center rounded transition-colors hover:bg-ink-100"
+        class: "-mr-1 ml-1 flex size-5 flex-none items-center justify-center rounded transition-colors hover:bg-surface-sunken"
       ) do
-        render Components::Icon.new("x-mark", class: "size-3.5")
+        render Components::Icon.new("x", class: "size-3.5")
       end
     end
   end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Components::PluginRow < Components::Base
-  ICONS = {roles: "users", welcomes: "hand-raised", logging: "document-text", reminders: "clock"}.freeze
+  ICONS = {roles: "users-three", welcomes: "hand-waving", logging: "scroll", reminders: "bell-ringing"}.freeze
 
   def initialize(server_id:, key:, enabled:, configured:, locked: false)
     @server_id = server_id
@@ -12,15 +12,15 @@ class Components::PluginRow < Components::Base
   end
 
   def view_template
-    border = @enabled ? "border-brand-200" : "border-ink-200"
-    div(id: "plugin-#{@key}", class: "flex items-center gap-4 rounded-lg border #{border} bg-ink-0 p-5 shadow-sm") do
+    border = @enabled ? "border-accent-soft-bd" : "border-border-default"
+    div(id: "plugin-#{@key}", class: "flex items-center gap-4 rounded-lg border #{border} bg-surface-card p-5 shadow-sm") do
       icon
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { t(".plugin.#{@key}.name") }
           status_badge
         end
-        p(class: "mt-0.5 text-sm text-ink-600") { t(".plugin.#{@key}.description") }
+        p(class: "mt-0.5 text-sm text-text-secondary") { t(".plugin.#{@key}.description") }
       end
       configure_link
       toggle
@@ -47,7 +47,7 @@ class Components::PluginRow < Components::Base
   end
 
   def icon
-    tone = @enabled ? "bg-brand-500 text-white" : "bg-ink-100 text-ink-400"
+    tone = @enabled ? "bg-accent-fill text-white" : "bg-surface-sunken text-text-muted"
     span(class: "flex size-11 flex-none items-center justify-center rounded-md #{tone}") do
       render Components::Icon.new(ICONS[@key], class: "size-5")
     end
@@ -58,7 +58,7 @@ class Components::PluginRow < Components::Base
       if @locked
         [:always_enabled, "bg-success-soft text-success", "bg-success"]
       elsif !@enabled
-        [:disabled, "bg-ink-100 text-ink-600", "bg-ink-400"]
+        [:disabled, "bg-surface-sunken text-text-secondary", "bg-text-muted"]
       elsif @configured
         [:enabled, "bg-success-soft text-success", "bg-success"]
       else
@@ -74,7 +74,7 @@ class Components::PluginRow < Components::Base
   def configure_link
     a(
       href: configure_href,
-      class: "btn-fill btn-fill-ghost inline-flex h-9 flex-none items-center gap-1.5 rounded-md border border-ink-200 px-3.5 text-sm font-semibold transition-colors hover:bg-ink-50"
+      class: "btn-fill btn-fill-ghost inline-flex h-9 flex-none items-center gap-1.5 rounded-md border border-border-default px-3.5 text-sm font-semibold transition-colors hover:bg-surface-sunken"
     ) do
       span { t(".configure") }
       render Components::Icon.new("arrow-right", class: "size-4")

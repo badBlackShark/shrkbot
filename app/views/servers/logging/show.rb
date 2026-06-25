@@ -8,7 +8,7 @@ class Views::Servers::Logging::Show < Views::Base
   def view_template
     render Components::AppShell.new(user: @user) do
       render Components::ConfigPage.new(
-        icon: "document-text",
+        icon: "scroll",
         title: t(".title"),
         description: t(".description"),
         dashboard_path: server_path(@config.discord_id)
