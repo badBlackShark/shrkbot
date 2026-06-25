@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 class Components::Welcomes::ConfigForm < Components::Base
-  FIELD = "w-full rounded-control border border-border-default bg-surface-card px-3 py-2 text-sm text-text-primary " \
-    "placeholder:text-text-secondary focus:border-accent focus:outline-none focus:ring-3 focus:ring-[var(--focus-ring)]"
+  FIELD = "w-full resize-none rounded-control border-[1.5px] border-border-strong bg-surface-card px-3 py-2 " \
+    "text-sm text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
+    "focus:ring-3 focus:ring-[var(--focus-ring)]"
 
   def initialize(server_configuration:, enable_error: nil)
     @config = server_configuration
@@ -14,7 +15,9 @@ class Components::Welcomes::ConfigForm < Components::Base
     div(id: "welcomes-config", class: "flex flex-col gap-5", data: {controller: "welcome-preview"}) do
       enable_error_callout
       channel_card
-      messages_card
+      message_cards
+      placeholder_help
+      preview
     end
   end
 
@@ -28,7 +31,10 @@ class Components::Welcomes::ConfigForm < Components::Base
 
   def channel_card
     render Components::Card.new do
-      label(class: "block text-sm font-semibold") { t(".channel.label") }
+      label(class: "block text-sm font-semibold") do
+        plain t(".channel.label")
+        required_marker
+      end
       p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".channel.help") }
       if channels.empty?
         p(class: "text-sm text-text-secondary") { t(".channel.none") }
@@ -44,18 +50,15 @@ class Components::Welcomes::ConfigForm < Components::Base
     end
   end
 
-  def messages_card
-    render Components::Card.new do
-      message_field(:join_message, @settings.join_message)
-      div(class: "my-5 border-t border-border-default")
-      message_field(:leave_message, @settings.leave_message)
-      placeholder_help
-      preview
+  def message_cards
+    div(class: "grid gap-5 sm:grid-cols-2") do
+      message_card(:join_message, @settings.join_message)
+      message_card(:leave_message, @settings.leave_message)
     end
   end
 
-  def message_field(name, value)
-    div do
+  def message_card(name, value)
+    render Components::Card.new do
       label(class: "block text-sm font-semibold") { t(".#{name}.label") }
       p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".#{name}.help") }
       textarea(
@@ -65,45 +68,59 @@ class Components::Welcomes::ConfigForm < Components::Base
         placeholder: t(".#{name}.placeholder"),
         data: {welcome_preview_target: camel(name), action: "input->welcome-preview#render"}
       ) { value }
+      info_line(name)
+    end
+  end
+
+  def info_line(name)
+    p(class: "mt-1.5 flex items-start gap-1 text-xs text-text-secondary") do
+      render Components::Icon.new("info", class: "mt-0.5 size-3 flex-none text-accent")
+      span do
+        code(class: "font-mono") { "{user}" }
+        whitespace
+        plain t(".#{name}.info")
+      end
     end
   end
 
   def placeholder_help
-    div(class: "mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-secondary") do
-      span { t(".placeholders.intro") }
-      placeholder_chip("{user}", t(".placeholders.user"))
-      placeholder_chip("{membercount}", t(".placeholders.membercount"))
+    render Components::Callout.new(variant: :neutral) do
+      span(class: "font-semibold") { t(".placeholders.intro") }
+      whitespace
+      placeholder_chip("{user}")
+      whitespace
+      placeholder_chip("{membercount}")
     end
   end
 
-  def placeholder_chip(token, description)
-    span(class: "inline-flex items-center gap-1.5") do
-      code(class: "rounded bg-surface-sunken px-1.5 py-0.5 font-mono text-accent-soft-fg") { token }
-      span { description }
-    end
+  def placeholder_chip(token)
+    code(class: "rounded bg-surface-sunken px-1.5 py-0.5 font-mono text-xs text-accent-soft-fg") { token }
   end
 
   def preview
-    div(class: "mt-5") do
-      p(class: "mb-2 text-[11px] font-semibold uppercase tracking-widest text-text-secondary") { t(".preview.label") }
-      div(class: "flex flex-col gap-3 rounded-md bg-surface-sunken p-4") do
-        preview_row(:join)
-        preview_row(:leave)
-      end
-    end
+    render Components::DiscordMessagePreview.new(
+      label: t(".preview.label"),
+      channel: preview_channel,
+      messages: [
+        {timestamp: t(".preview.timestamp"), body_data: preview_body_data(:join)},
+        {body_data: preview_body_data(:leave)}
+      ]
+    )
   end
 
-  def preview_row(kind)
-    div(class: "flex items-start gap-3") do
-      span(class: "flex size-9 flex-none items-center justify-center rounded-full bg-accent-fill text-xs font-bold text-white") { "n" }
-      div(class: "min-w-0") do
-        p(class: "text-xs font-semibold text-text-secondary") { t(".preview.#{kind}") }
-        p(
-          class: "text-sm text-text-primary",
-          data: {welcome_preview_target: "#{kind}Output", empty_hint: t(".preview.empty")}
-        )
-      end
-    end
+  def preview_body_data(kind)
+    {welcome_preview_target: "#{kind}Output", empty_hint: t(".preview.empty")}
+  end
+
+  def required_marker
+    span(class: "ml-1 text-xs font-semibold text-danger", title: t(".channel.required")) { "*" }
+  end
+
+  def preview_channel
+    return unless @settings.channel_id
+
+    name = @config.server_channels.find_by(discord_id: @settings.channel_id)&.name
+    "# #{name}" if name
   end
 
   def channels

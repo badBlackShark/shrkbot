@@ -25,6 +25,7 @@ en:
           label: Channel
           none: No channels have synced yet. shrkbot needs to be in the server first.
           placeholder: Choose a channel
+          required: This setting is required to enable the plugin.
           visible_warning: Everyone can see this channel, so the moderation log would
             be public.
         events:
@@ -36,6 +37,8 @@ en:
           label: Logged events
           plugin:
             roles: Roles
+          toggle_all: Toggle all
+          toggle_all_label: Toggle all %{plugin} events
     plugin_row:
       configure: Configure
       needs_setup_hint: Complete setup before enabling this plugin.
@@ -66,23 +69,23 @@ en:
           label: Channel
           none: No channels have synced yet. shrkbot needs to be in the server first.
           placeholder: Choose a channel
+          required: This setting is required to enable the plugin.
         join_message:
           help: Sent when a member joins. Leave empty to send nothing.
+          info: is a Discord mention in join messages.
           label: Join message
           placeholder: Welcome {user}, you're member {membercount}!
         leave_message:
           help: Sent when a member leaves. Leave empty to send nothing.
+          info: is a plain @username in leave messages.
           label: Leave message
           placeholder: "{user} has left the server."
         placeholders:
           intro: 'Placeholders:'
-          membercount: the server's member count
-          user: the member
         preview:
           empty: This message is off.
-          join: A new member joined
-          label: Preview
-          leave: A member left
+          label: Live preview
+          timestamp: Today
   servers:
     logging:
       saved: Logging settings saved.

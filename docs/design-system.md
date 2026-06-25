@@ -97,9 +97,32 @@ template (`action.turbo_stream.erb`, see architecture.md "Web"): the template's
 `turbo_stream.replace`/`append` lines render our Phlex components as the content, so
 the stream markup stays in the view layer. Success re-renders the control plus a
 toast; a config-form failure re-renders the form region with inline errors — just
-more `turbo_stream.*` lines. The remaining config-form controls
-(segmented control, enable-gate, Tom Select wrapper) are built with the pages that
-consume them.
+more `turbo_stream.*` lines. The one config-form control still unbuilt (the
+segmented control) ships with the Roles page that consumes it.
+
+## Config pages (the gated layout)
+
+A plugin config page is assembled by **`Components::ConfigPage`**, not by the
+per-plugin form. ConfigPage owns the single gated `form_with` and renders, in
+order: a header (`PluginTile` + title + description + an inline **enable
+`Toggle`**), an `EnableGate` wrapping the body, and the Save button. The
+per-plugin `Components::<Plugin>::ConfigForm` is **body-only** — it renders just
+the cards, with no form tag and no enable control of its own — and its root `div`
+carries the `#<plugin>-config` id that the Turbo Stream replaces on a failed save,
+so inline errors re-render in place. Keep that split when adding a page: layout in
+ConfigPage, fields in the body form.
+
+The enable toggle is **staged, not instant**: flipping it stages an `enabled`
+field in the same batch as the rest of the form, and nothing persists until Save —
+unlike the dashboard's standalone plugin toggle. The `enable-gate` Stimulus
+controller reveals or re-veils the body client-side as the toggle flips.
+`Components::EnableGate` is the full-page overlay (translucent blurred scrim +
+centred card with a lock icon and an "Enable …" button) shown over the body while
+the plugin is off. A setting the plugin can't be enabled without (the channel
+picker on Welcomes/Logging) carries a danger `*` marker next to its label; the
+operation enforces the requirement server-side and the form re-renders with the
+inline error if it's missing. ConfigPage is gated-only today — the non-gated case
+(Reminders) will add the plain path when that page lands.
 
 ## Core components
 

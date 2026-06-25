@@ -31,7 +31,10 @@ class Components::Logging::ConfigForm < Components::Base
         channel_warning_visible_ids_value: visible_channel_ids.to_json
       }
     ) do
-      label(class: "block text-sm font-semibold") { t(".channel.label") }
+      label(class: "block text-sm font-semibold") do
+        plain t(".channel.label")
+        required_marker
+      end
       p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".channel.help") }
       if channels.empty?
         p(class: "text-sm text-text-secondary") { t(".channel.none") }
@@ -49,34 +52,52 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def events_card
-    render Components::Card.new do
-      p(class: "text-sm font-semibold") { t(".events.label") }
-      p(class: "mb-3 mt-0.5 text-sm text-text-secondary") { t(".events.help") }
-      div(class: "flex flex-col gap-5") do
-        LoggableEventCatalog.grouped_by_plugin.each do |plugin, definitions|
-          event_group(plugin, definitions)
-        end
+    render Components::Card.new(padding: :none, class: "overflow-hidden") do
+      div(class: "border-b border-border-subtle px-5 py-4") do
+        p(class: "text-sm font-semibold") { t(".events.label") }
+        p(class: "mt-0.5 text-sm text-text-secondary") { t(".events.help") }
+      end
+      LoggableEventCatalog.grouped_by_plugin.each do |plugin, definitions|
+        event_group(plugin, definitions)
       end
     end
   end
 
   def event_group(plugin, definitions)
-    div do
-      p(class: "mb-2 text-[11px] font-semibold uppercase tracking-widest text-text-secondary") { t(".events.plugin.#{plugin}") }
-      div(class: "flex flex-col gap-2") do
+    details(class: "relative border-b border-border-subtle last:border-b-0", open: true, data: {controller: "event-group"}) do
+      summary(class: "flex h-11 cursor-pointer list-none select-none items-center gap-3 bg-surface-sunken px-5 pr-32 [&::-webkit-details-marker]:hidden") do
+        render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
+        span(class: "text-[11px] font-semibold uppercase tracking-widest text-text-secondary") { t(".events.plugin.#{plugin}") }
+      end
+      toggle_all(plugin, definitions)
+      div(class: "divide-y divide-border-subtle") do
         definitions.each { |definition| event_row(definition) }
       end
     end
   end
 
+  def toggle_all(plugin, definitions)
+    label_text = t(".events.toggle_all_label", plugin: t(".events.plugin.#{plugin}"))
+    div(class: "absolute end-5 top-0 flex h-11 items-center gap-2") do
+      span(class: "text-xs text-text-muted") { t(".events.toggle_all") }
+      render Components::Toggle.new(
+        checked: definitions.all? { |definition| @settings.action_enabled?(definition.key) },
+        label: label_text,
+        size: :mini,
+        data: {event_group_target: "all", action: "change->event-group#toggleAll"}
+      )
+    end
+  end
+
   def event_row(definition)
     name = t(".events.event.#{definition.plugin}.#{definition.event}")
-    div(class: "flex items-center justify-between gap-4 rounded-md border border-border-default px-3 py-2") do
-      span(class: "text-sm") { name }
+    div(class: "flex items-center justify-between gap-4 px-5 py-3.5") do
+      span(class: "text-sm font-medium") { name }
       render Components::Toggle.new(
         name: "logging[actions][#{definition.key}]",
         checked: @settings.action_enabled?(definition.key),
-        label: name
+        label: name,
+        data: {event_group_target: "event", action: "change->event-group#sync"}
       )
     end
   end
@@ -89,6 +110,10 @@ class Components::Logging::ConfigForm < Components::Base
     ) do
       plain t(".channel.visible_warning")
     end
+  end
+
+  def required_marker
+    span(class: "ml-1 text-xs font-semibold text-danger", title: t(".channel.required")) { "*" }
   end
 
   def visible_channel?

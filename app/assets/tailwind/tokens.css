@@ -81,6 +81,13 @@
 
   --focus-ring: color-mix(in srgb, var(--brand-500) 45%, transparent);
 
+  --discord-surface: #ffffff;
+  --discord-text: #313338;
+  --discord-muted: #5c5e66;
+  --discord-divider: #e3e5e8;
+  --discord-mention-bg: #e7e9fd;
+  --discord-mention-fg: #444fcd;
+
   --chamfer: 12px;
   --chamfer-sm: 6px;
 
@@ -133,4 +140,11 @@
   --danger-soft: rgba(224, 83, 61, 0.14);
 
   --focus-ring: color-mix(in srgb, #46817a 42%, transparent);
+
+  --discord-surface: #313338;
+  --discord-text: #dbdee1;
+  --discord-muted: #949ba4;
+  --discord-divider: #3f4147;
+  --discord-mention-bg: rgba(88, 101, 242, 0.3);
+  --discord-mention-fg: #c9cdfb;
 }
