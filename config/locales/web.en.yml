@@ -38,6 +38,7 @@ en:
         save: Save changes
     plugin_row:
       configure: Configure
+      needs_setup_hint: Complete setup before enabling this plugin.
       plugin:
         logging:
           description: Record moderation events to a channel of your choice.

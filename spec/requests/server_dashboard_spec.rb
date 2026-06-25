@@ -81,10 +81,9 @@ RSpec.describe "Server dashboard", type: :request do
           config.create_role_setting!(channel_id: 7)
           create(:plugin_activation, server_configuration: config, plugin: roles, enabled: true)
 
-          config.create_welcome_settings!(channel_id: 5)
-          create(:plugin_activation, server_configuration: config, plugin: welcomes, enabled: true)
-          config.welcome_settings.destroy
+          welcomes
 
+          config.create_logging_setting!(channel_id: 9)
           logging
         end
 
@@ -93,6 +92,11 @@ RSpec.describe "Server dashboard", type: :request do
           expect(response.body).to include("Enabled")
           expect(response.body).to include("Needs setup")
           expect(response.body).to include(">Disabled<")
+        end
+
+        it "disables the toggle for a plugin that isn't set up yet, explaining why" do
+          get_dashboard
+          expect(response.body).to include("Complete setup before enabling this plugin")
         end
       end
 
