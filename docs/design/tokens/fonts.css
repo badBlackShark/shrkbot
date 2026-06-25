@@ -1,5 +1,12 @@
+/* TODO(self-host): Exo 2 is the body/UI face but is not yet vendored
+   locally. For now it loads from Google Fonts so demos render correctly.
+   Before production, download the Exo 2 woff2 files (OFL-1.1), drop them
+   under fonts/exo2/, add @font-face blocks below, and remove this @import
+   to honour the no-CDN policy. */
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+
 /* shrkbot webfonts — self-hosted @font-face declarations.
-   No CDN in production; all typefaces served locally.
+   No CDN in production (Exo 2 excepted, temporarily — see above).
 
    ── Space Grotesk (Display) ──────────────────────────────────
    Files imported from github.com/floriankarsten/space-grotesk.

@@ -1,10 +1,10 @@
 /* ─────────────────────────────────────────────────────────────
    shrkbot · TYPE TOKENS
-   Display: Space Grotesk · UI/Body: Hanken Grotesk · Mono: JetBrains Mono
+   Display: Space Grotesk (titles) · UI/Body: Exo 2 · Mono: IBM Plex Mono
    ───────────────────────────────────────────────────────────── */
 :root {
-  --font-display: 'Space Grotesk', 'IBM Plex Sans', system-ui, sans-serif;
-  --font-sans:    'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-sans:    'Exo 2', system-ui, -apple-system, sans-serif;
   --font-mono:    'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   /* Type scale (1.20 minor-third-ish, tuned) */

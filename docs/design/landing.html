@@ -1,31 +1,61 @@
 <!-- @dsCard group="Brand" viewport="1280x760" name="Landing page" subtitle="Signed-out marketing entry point → sign in → /servers" -->
 <!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Exo+2:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./tokens/colors.css" />
+<link rel="stylesheet" href="./tokens/spacing.css" />
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config={theme:{extend:{
-  colors:{brand:{50:'#ecf8fe',100:'#cfeefc',200:'#a6e0f9',500:'#39afe5',600:'#1f8fc4',700:'#1a729e'},ink:{50:'#f4f6f8',100:'#e9edf1',200:'#d7dee5',400:'#8b99a7',500:'#677483',600:'#4d5763',700:'#3a424c',900:'#161a1f'}},
-  fontFamily:{display:['"Space Grotesk"','"IBM Plex Sans"','system-ui','sans-serif'],sans:['"IBM Plex Sans"','system-ui','sans-serif'],mono:['"IBM Plex Mono"','ui-monospace','monospace']},
-  borderRadius:{sm:'6px',md:'10px',lg:'14px',xl:'20px'},
-  boxShadow:{sm:'0 1px 3px rgba(22,26,31,.08)',md:'0 4px 12px rgba(22,26,31,.08)',lg:'0 12px 32px rgba(22,26,31,.12)'},
+  colors:{brand:{50:'#eef8f6',100:'#d2ece8',200:'#a8dcd5',300:'#73c6bd',400:'#4fb5ab',500:'#37a79e',600:'#2c867f',700:'#266c66'},copper:{50:'#fbf1ea',100:'#f5dcca',500:'#c4622d',600:'#a44f23',700:'#823f1f'},ink:{50:'#f5f0e8',100:'#ebe4d7',200:'#dcd2c0',300:'#c5b8a1',400:'#a3947d',500:'#7e7160',600:'#5f5547',700:'#473f35',900:'#1d1a15',card:'#fdfbf7'}},
+  fontFamily:{display:['"Space Grotesk"','system-ui','sans-serif'],sans:['"Exo 2"','system-ui','sans-serif'],mono:['"IBM Plex Mono"','ui-monospace','monospace']},
+  borderRadius:{sm:'5px',md:'8px',lg:'12px',xl:'16px',control:'8px',card:'12px',chip:'5px'},
+  boxShadow:{sm:'0 1px 3px rgba(29,26,21,.08)',md:'0 4px 12px rgba(29,26,21,.08)',lg:'0 12px 32px rgba(29,26,21,.12)'},
 }}};
 </script>
 <style>
 @font-face{font-family:'Space Grotesk';src:url('./fonts/woff2/SpaceGrotesk[wght].woff2') format('woff2-variations');font-weight:300 700;font-display:swap}
-.btn-fill{position:relative;overflow:hidden}.btn-fill::after{content:'';position:absolute;inset:0;transform:scaleX(0);transform-origin:left;transition:transform 200ms cubic-bezier(.2,0,0,1);pointer-events:none;background:#1f8fc4}.btn-fill:hover::after{transform:scaleX(1)}.btn-fill>*{position:relative;z-index:1}
-@media(prefers-reduced-motion:reduce){.btn-fill::after{transition:none;transform:scaleX(1)}}
+
+[data-theme="dark"] body{background:var(--surface-page);color:var(--text-primary)}
+[data-theme="dark"] .bg-ink-50{background:var(--surface-page)}
+[data-theme="dark"] .bg-ink-card{background:var(--surface-card) !important}
+[data-theme="dark"] .border-ink-200{border-color:var(--border-default) !important}
+[data-theme="dark"] .border-ink-300{border-color:var(--border-strong) !important}
+[data-theme="dark"] .border-t,[data-theme="dark"] .border-b{border-color:var(--border-default) !important}
+[data-theme="dark"] .text-ink-900{color:var(--text-primary) !important}
+[data-theme="dark"] .text-ink-700{color:var(--text-secondary) !important}
+[data-theme="dark"] .text-ink-600{color:var(--text-secondary) !important}
+[data-theme="dark"] .text-ink-500{color:var(--text-muted) !important}
+[data-theme="dark"] .text-ink-400{color:var(--text-muted) !important}
+[data-theme="dark"] .bg-brand-100{background:var(--accent-soft) !important}
+[data-theme="dark"] .text-brand-700{color:var(--accent-hover) !important}
+[data-theme="dark"] .hover\:bg-ink-100:hover{background:var(--surface-raised) !important}
+[data-theme="dark"] header{background:var(--surface-card) !important}
+.theme-transitioning *{transition:background-color 280ms ease,color 200ms ease,border-color 160ms ease !important}
+/* Chamfer */
+.chamfer-bar{clip-path:polygon(0 0,100% 0,100% calc(100% - var(--chamfer,12px)),calc(100% - var(--chamfer,12px)) 100%,var(--chamfer,12px) 100%,0 calc(100% - var(--chamfer,12px)))}
+.chamfer-cta{--cut:var(--chamfer-sm,6px);clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% var(--cut),100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,var(--cut) 100%,0 calc(100% - var(--cut)),0 var(--cut));border-radius:0 !important}
+/* Phosphor icon sizing */
+i[class*="ph-"]{display:inline-flex;align-items:center;justify-content:center;line-height:1;flex:none;font-style:normal}
+i[class*="ph-"].w-3\.5{font-size:14px;min-width:14px;height:14px}
+i[class*="ph-"].w-4{font-size:16px;min-width:16px;height:16px}
+i[class*="ph-"].w-5{font-size:20px;min-width:20px;height:20px}
+i[class*="ph-"].w-\[18px\]{font-size:18px;min-width:18px;height:18px}
 </style>
 </head>
 <body class="bg-ink-50 text-ink-900 font-sans antialiased">
 
   <!-- Header -->
-  <header class="h-16 bg-white border-b border-ink-200 flex items-center px-6 gap-3">
-    <img src="assets/shrkbot-mascot.png" alt="shrkbot" class="w-9 h-9 rounded-md" />
-    <span class="font-display text-lg font-bold tracking-tight">shrk<span class="text-brand-500">bot</span></span>
+  <header class="h-16 bg-ink-card border-b border-ink-200 flex items-center px-6 gap-3 chamfer-bar">
+    <img src="assets/shrkbot-mascot.png" alt="shrkbot" class="w-9 h-9 rounded-control" />
+    <span class="font-display text-lg font-bold tracking-tight"><span class="text-brand-600">shrk</span><span style="color:var(--accent-2-text)">bot</span></span>
     <div class="flex-1"></div>
-    <a href="ui_kits/dashboard/index.html" class="btn-fill inline-flex items-center gap-2 h-10 px-5 rounded-md bg-brand-500 text-white text-sm font-semibold">
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+    <button id="lp-dark-toggle" title="Toggle dark mode" class="w-9 h-9 rounded-md hover:bg-ink-100 grid place-items-center transition-colors mr-1">
+      <svg id="lp-dark-icon" class="w-5 h-5 text-ink-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+    </button>
+    <a href="ui_kits/dashboard/index.html" class="inline-flex items-center gap-2 h-10 px-5 chamfer-cta bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold transition-colors">
+      <i class="ph ph-sign-in w-4 h-4"></i>
       <span>Sign in with Discord</span>
     </a>
   </header>
@@ -33,61 +63,85 @@ tailwind.config={theme:{extend:{
   <!-- Hero -->
   <section class="max-w-4xl mx-auto px-6 py-20 flex flex-col sm:flex-row items-center gap-12">
     <div class="flex-1">
-      <p class="text-xs font-semibold uppercase tracking-widest text-brand-600 mb-3">Free &amp; open source</p>
+      <p class="text-xs font-semibold uppercase tracking-widest mb-3" style="color:var(--eyebrow)">Free &amp; open source</p>
       <h1 class="font-display text-4xl font-bold tracking-tight leading-tight mb-4">Turn features<br/>on.<span class="text-ink-300"> Or off.</span></h1>
       <p class="text-lg text-ink-600 leading-relaxed mb-8 max-w-md">shrkbot is a modular Discord bot. Enable just the plugins your server needs — nothing more, nothing less. Configure everything in one dashboard.</p>
       <div class="flex flex-wrap gap-3">
-        <a href="ui_kits/dashboard/index.html" class="btn-fill inline-flex items-center gap-2 h-12 px-6 rounded-md bg-brand-500 text-white font-semibold text-base">
-          <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        <a href="ui_kits/dashboard/index.html" class="inline-flex items-center gap-2 h-12 px-6 chamfer-cta bg-brand-600 hover:bg-brand-700 text-white font-semibold text-base transition-colors">
+          <i class="ph ph-sign-in w-[18px] h-[18px]"></i>
           <span>Add shrkbot to your server</span>
         </a>
-        <a href="https://github.com/badBlackShark/shrkbot" target="_blank" rel="noopener" class="inline-flex items-center gap-2 h-12 px-6 rounded-md border border-ink-200 text-sm font-semibold hover:bg-ink-50 transition text-ink-700">
+        <a href="https://github.com/badBlackShark/shrkbot" target="_blank" rel="noopener" class="inline-flex items-center gap-2 h-12 px-6 rounded-control border border-ink-300 text-sm font-semibold hover:bg-ink-100 transition text-ink-700">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.09.68-.22.68-.48v-1.7C6.73 19.91 6.14 18 6.14 18c-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.95 0-1.09.39-1.99 1.03-2.69-.1-.26-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03A9.56 9.56 0 0 1 12 6.8c.85.004 1.71.11 2.51.33 1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.39.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.85-2.34 4.7-4.57 4.95.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10.01 10.01 0 0 0 22 12C22 6.48 17.52 2 12 2Z"/></svg>
           View on GitHub
         </a>
       </div>
     </div>
     <div class="flex-none">
-      <img src="assets/shrkbot-mascot.png" alt="" class="w-48 h-48 rounded-2xl shadow-lg" />
+      <img src="assets/shrkbot-mascot.png" alt="" class="w-48 h-48 rounded-xl shadow-lg" />
     </div>
   </section>
 
   <!-- Plugins -->
   <section class="max-w-4xl mx-auto px-6 pb-20">
-    <p class="text-[11px] font-semibold uppercase tracking-widest text-ink-400 mb-5">Available plugins</p>
+    <p class="text-[11px] font-semibold uppercase tracking-widest mb-5" style="color:var(--eyebrow)">Available plugins</p>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
-        <div class="w-10 h-10 rounded-md bg-brand-100 text-brand-700 grid place-items-center mb-3">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <div class="bg-ink-card border border-ink-200 rounded-card shadow-sm p-5">
+        <div class="w-10 h-10 rounded-control bg-brand-100 text-brand-700 grid place-items-center mb-3">
+          <i class="ph ph-users-three w-5 h-5"></i>
         </div>
         <p class="font-display font-semibold text-sm">Roles</p>
         <p class="text-sm text-ink-500 mt-1 leading-relaxed">Let members self-assign roles from a tidy menu you post in a channel.</p>
       </div>
-      <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
-        <div class="w-10 h-10 rounded-md bg-brand-100 text-brand-700 grid place-items-center mb-3">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+      <div class="bg-ink-card border border-ink-200 rounded-card shadow-sm p-5">
+        <div class="w-10 h-10 rounded-control bg-brand-100 text-brand-700 grid place-items-center mb-3">
+          <i class="ph ph-hand-waving w-5 h-5"></i>
         </div>
         <p class="font-display font-semibold text-sm">Welcomes</p>
         <p class="text-sm text-ink-500 mt-1 leading-relaxed">Greet new members with a custom message, and say goodbye when they leave.</p>
       </div>
-      <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
-        <div class="w-10 h-10 rounded-md bg-brand-100 text-brand-700 grid place-items-center mb-3">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M15 8h-5"/><path d="M15 12h-5"/></svg>
+      <div class="bg-ink-card border border-ink-200 rounded-card shadow-sm p-5">
+        <div class="w-10 h-10 rounded-control bg-brand-100 text-brand-700 grid place-items-center mb-3">
+          <i class="ph ph-scroll w-5 h-5"></i>
         </div>
         <p class="font-display font-semibold text-sm">Logging</p>
         <p class="text-sm text-ink-500 mt-1 leading-relaxed">Record moderation events to a private staff channel — role changes, joins, leaves.</p>
       </div>
     </div>
-    <p class="text-xs text-ink-400 mt-6 flex items-center gap-1.5">
-      <svg class="w-3.5 h-3.5 text-brand-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <p class="text-xs text-ink-500 mt-6 flex items-center gap-1.5">
+      <i class="ph ph-info w-3.5 h-3.5 text-brand-600"></i>
       Reminders (<span class="font-mono">/remind</span>) are always available — no setup needed.
     </p>
   </section>
 
   <!-- Footer -->
-  <footer class="border-t border-ink-100 py-8 px-6 text-center text-xs text-ink-400">
-    shrkbot is <a href="https://github.com/badBlackShark/shrkbot" class="underline hover:text-ink-600">free and open source</a>. Made with ♥ by badBlackShark.
+  <footer class="border-t border-ink-200 py-8 px-6 text-center text-xs text-ink-400">
+    shrkbot is <a href="https://github.com/badBlackShark/shrkbot" class="underline hover:text-ink-600">free and open source</a>. Made with <span style="color:var(--accent-2-text)">♥</span> by badBlackShark.
   </footer>
 
+<script>
+const sunSvg=`<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>`;
+const monSvg=`<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>`;
+function lpApplyTheme(dark){
+  document.documentElement.classList.add('theme-transitioning');
+  document.documentElement.dataset.theme=dark?'dark':'light';
+  const icon=document.getElementById('lp-dark-icon');
+  if(icon){
+    icon.style.cssText='opacity:0;transform:rotate(90deg);transition:opacity 150ms,transform 150ms';
+    setTimeout(()=>{
+      icon.innerHTML=dark?sunSvg:monSvg;
+      icon.style.cssText='opacity:0;transform:rotate(-90deg);transition:none';
+      requestAnimationFrame(()=>{
+        icon.style.cssText='opacity:1;transform:rotate(0);transition:opacity 150ms,transform 150ms';
+        setTimeout(()=>icon.style.cssText='',200);
+      });
+    },150);
+  }
+  localStorage.setItem('shrk-theme',dark?'dark':'light');
+  setTimeout(()=>document.documentElement.classList.remove('theme-transitioning'),320);
+}
+document.getElementById('lp-dark-toggle').addEventListener('click',()=>lpApplyTheme(document.documentElement.dataset.theme!=='dark'));
+lpApplyTheme(localStorage.getItem('shrk-theme')==='dark');
+</script>
 </body>
 </html>

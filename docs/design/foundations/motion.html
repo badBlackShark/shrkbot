@@ -1,4 +1,4 @@
-<!-- @dsCard group="Spacing" viewport="700x320" name="Motion Patterns" subtitle="CSS-only · btn-fill · card-lift · menu/toast/fade · prefers-reduced-motion" -->
+<!-- @dsCard group="Spacing" viewport="700x420" name="Motion Patterns" subtitle="CSS-only · btn-fill · card-lift · dropdown · chevron · prefers-reduced-motion" -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,60 +6,126 @@
 <link rel="stylesheet" href="../styles.css" />
 <style>
   body { margin:0; font-family:var(--font-sans); background:var(--surface-page); color:var(--text-primary); padding:var(--space-6); }
-  .lbl { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); }
+  .lbl { font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); margin-bottom:var(--space-2); display:block; }
   .grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-6); }
-  .col  { display:flex; flex-direction:column; gap:var(--space-3); }
+  .col  { display:flex; flex-direction:column; gap:var(--space-4); }
 
-  /* btn-fill demo (mirrors tokens/motion.css) */
   .demo-btn { height:40px; padding:0 18px; border:none; border-radius:var(--radius-md); font-family:var(--font-sans); font-size:var(--text-sm); font-weight:var(--weight-semibold); cursor:pointer; }
   .demo-btn span { position:relative; z-index:1; }
 
-  /* card-lift demo */
   .demo-card { background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:var(--space-4); font-size:var(--text-sm); color:var(--text-secondary); cursor:pointer; }
 
-  /* menu-enter demo */
-  .demo-menu { background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-md); box-shadow:var(--shadow-lg); padding:var(--space-2); font-size:var(--text-sm); }
-  .demo-menu-item { padding:8px 12px; border-radius:var(--radius-sm); color:var(--text-primary); }
-  .demo-menu-item:hover { background:var(--surface-sunken); }
+  /* dropdown demo */
+  .dropdown-wrap { position:relative; display:inline-block; }
+  .dropdown-trigger { height:36px; padding:0 12px; display:inline-flex; align-items:center; gap:8px; background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-md); font-size:var(--text-sm); font-family:var(--font-sans); cursor:pointer; color:var(--text-primary); }
+  .dropdown-trigger svg { width:16px; height:16px; color:var(--text-muted); }
+  .demo-panel { position:absolute; top:calc(100% + 6px); left:0; min-width:200px; background:var(--surface-card); border:1px solid var(--border-default); border-radius:var(--radius-md); box-shadow:var(--shadow-lg); padding:var(--space-2); z-index:10; display:none; }
+  .demo-panel.visible { display:block; }
+  .demo-panel-item { padding:8px 12px; border-radius:var(--radius-sm); font-size:var(--text-sm); color:var(--text-primary); cursor:pointer; }
+  .demo-panel-item:hover { background:var(--surface-sunken); }
 
   /* token table */
-  .tok-row { display:flex; gap:var(--space-3); align-items:center; }
+  .tok-row { display:flex; gap:var(--space-3); align-items:baseline; }
   .tok-label { font-family:var(--font-mono); font-size:11px; color:var(--text-muted); flex:1; }
-  .tok-val { font-size:var(--text-xs); color:var(--text-secondary); }
+  .tok-val { font-size:var(--text-xs); color:var(--text-secondary); white-space:nowrap; }
 </style>
 </head>
 <body>
   <div class="grid">
     <div class="col">
-      <span class="lbl">btn-fill (primary)</span>
-      <button class="demo-btn btn-fill btn-fill-primary" style="background:var(--accent);color:#fff">
-        <span>Save changes</span>
-      </button>
-
-      <span class="lbl" style="margin-top:8px">btn-fill (ghost)</span>
-      <button class="demo-btn btn-fill btn-fill-ghost" style="background:var(--surface-card);color:var(--text-primary);border:1px solid var(--border-strong)">
-        <span>Cancel</span>
-      </button>
-
-      <span class="lbl" style="margin-top:8px">card-lift</span>
-      <div class="demo-card card-lift">Hover me — lifts 2px + deeper shadow</div>
+      <div>
+        <span class="lbl">btn-fill (primary)</span>
+        <button class="demo-btn btn-fill btn-fill-primary" style="background:var(--accent);color:#fff">
+          <span>Save changes</span>
+        </button>
+      </div>
+      <div>
+        <span class="lbl">btn-fill (ghost)</span>
+        <button class="demo-btn btn-fill btn-fill-ghost" style="background:var(--surface-card);color:var(--text-primary);border:1px solid var(--border-strong)">
+          <span>Cancel</span>
+        </button>
+      </div>
+      <div>
+        <span class="lbl">card-lift</span>
+        <div class="demo-card card-lift">Hover me — lifts 2px + deeper shadow</div>
+      </div>
+      <div>
+        <span class="lbl">Dropdown + chevron (click to toggle)</span>
+        <div class="dropdown-wrap">
+          <button class="dropdown-trigger" onclick="toggleDropdown(this)">
+            Select server
+            <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="demo-panel" id="demoPanel">
+            <div class="demo-panel-item">Dev Refuge</div>
+            <div class="demo-panel-item">Speedrun HQ</div>
+            <div class="demo-panel-item" style="color:var(--text-muted)">＋ Add server</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="col">
-      <span class="lbl">anim-menu (menuEnter ↓)</span>
-      <div class="demo-menu anim-menu">
-        <div class="demo-menu-item">Dev Refuge — 2 plugins on</div>
-        <div class="demo-menu-item">Speedrun HQ — 0 plugins on</div>
-        <div style="height:1px;background:var(--border-subtle);margin:4px 0"></div>
-        <div class="demo-menu-item" style="color:var(--text-secondary)">＋ Add another server</div>
+      <div>
+        <span class="lbl">Timing &amp; easing tokens</span>
+        <div style="display:flex;flex-direction:column;gap:var(--space-2)">
+          <div class="tok-row"><span class="tok-label">--dur-fast</span><span class="tok-val">120ms · micro hover</span></div>
+          <div class="tok-row"><span class="tok-label">--dur-base</span><span class="tok-val">180ms · components</span></div>
+          <div class="tok-row"><span class="tok-label">--dur-slow</span><span class="tok-val">260ms · overlays</span></div>
+          <div class="tok-row"><span class="tok-label">--ease-standard</span><span class="tok-val">cubic-bezier(.2,0,0,1) · enter</span></div>
+          <div class="tok-row"><span class="tok-label">--ease-exit</span><span class="tok-val">cubic-bezier(.4,0,1,1) · leave</span></div>
+        </div>
       </div>
-
-      <span class="lbl" style="margin-top:4px">Timing tokens</span>
-      <div class="tok-row"><span class="tok-label">--dur-fast</span><span class="tok-val">120ms · micro hover</span></div>
-      <div class="tok-row"><span class="tok-label">--dur-base</span><span class="tok-val">180ms · components</span></div>
-      <div class="tok-row"><span class="tok-label">--dur-slow</span><span class="tok-val">260ms · overlays</span></div>
-      <div class="tok-row"><span class="tok-label">--ease-standard</span><span class="tok-val">cubic-bezier(.2,0,0,1)</span></div>
+      <div>
+        <span class="lbl">Pattern notes</span>
+        <div style="display:flex;flex-direction:column;gap:var(--space-2);font-size:var(--text-xs);color:var(--text-secondary);line-height:var(--leading-normal)">
+          <div><strong style="color:var(--text-primary)">dropdownEnter</strong> — fade + 4px slide down, ease-standard</div>
+          <div><strong style="color:var(--text-primary)">dropdownExit</strong> — fade + 4px slide up, ease-exit; hide after animationend</div>
+          <div><strong style="color:var(--text-primary)">.dropdown-chevron</strong> — down-pointing icon (closed); rotates 180° to point up (open); transition on transform; transform-origin: center</div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <script>
+    var _ddCloseTimer = null;
+
+    function hidePanel(panel) {
+      panel.classList.remove('visible', 'dropdown-panel--open', 'dropdown-panel--close');
+    }
+
+    function toggleDropdown(trigger) {
+      const panel = document.getElementById('demoPanel');
+      const chevron = trigger.querySelector('.dropdown-chevron');
+      const isOpen = panel._ddOpen === true;
+
+      if (isOpen) {
+        panel._ddOpen = false;
+        chevron.classList.remove('dropdown-chevron--open');
+        panel.classList.remove('dropdown-panel--open');
+        panel.classList.add('dropdown-panel--close');
+        // Fallback: hide after animation duration regardless of animationend
+        clearTimeout(_ddCloseTimer);
+        _ddCloseTimer = setTimeout(function() { hidePanel(panel); }, 200);
+      } else {
+        panel._ddOpen = true;
+        clearTimeout(_ddCloseTimer);
+        chevron.classList.add('dropdown-chevron--open');
+        panel.classList.remove('dropdown-panel--close');
+        panel.classList.add('visible');
+        void panel.offsetWidth;
+        panel.classList.add('dropdown-panel--open');
+      }
+    }
+
+    document.getElementById('demoPanel').addEventListener('animationend', function(e) {
+      if (e.animationName === 'dropdownExit') {
+        clearTimeout(_ddCloseTimer);
+        hidePanel(this);
+      }
+    });
+  </script>
 </body>
 </html>

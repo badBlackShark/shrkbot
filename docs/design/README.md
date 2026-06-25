@@ -2,7 +2,7 @@
 
 A design system for **shrkbot** — *a modular Discord bot* by [badBlackShark](https://github.com/badBlackShark). shrkbot lets server owners turn features (plugins) on or off and configure them per server. Its tagline in spirit: **turn features on, or off.** Clean, minimalist, UX-first; simple and intuitive.
 
-> The mascot is a tool-jawed mechanical shark biting a wrench, on a sky-blue field — playful engineering. That single blue, **`#39afe5`**, is the brand's one true accent (it's literally the bot's `BotConfig::ACCENT_COLOR`, the border color of its Discord messages).
+> The mascot is a tool-jawed mechanical shark biting a wrench, on a teal field — playful engineering. The brand accent is that same **teal `#37a79e`** (the bot's `BotConfig::ACCENT_COLOR`, the border color of its Discord messages), warmed by a **copper `#c4622d`** second accent and a cream **`#f5f0e8`** canvas — the whole system reads like a workshop: warm worked metal, brass patina, the occasional copper highlight.
 
 ---
 
@@ -14,14 +14,14 @@ Everything here was derived from the product's own code and brief — explore th
   - `docs/design-brief.md` — the Phase-7 web-config-UI design brief (intent, IA, patterns). The dashboard UI kit follows it.
   - `BUILD_PLAN.md` — phased build plan; the plugin/domain model.
   - `app/bot/commands/*.rb`, `app/bot/discord/components.rb` — real bot copy + the accent-container message format.
-  - `app/bot/bot_config.rb` — `ACCENT_COLOR = 0x39afe5`.
+  - `app/bot/bot_config.rb` — `ACCENT_COLOR = 0x37a79e`.
 - **Uploaded asset:** `uploads/shrkbot_square_bg.png` → `assets/shrkbot-mascot.png` (the mascot/logo).
 
 *The reader is assumed not to have access; links are recorded in case they do. Reading the repo — especially `docs/design-brief.md` — will let you design shrkbot surfaces far more accurately.*
 
 ### Stack constraints (these shaped every decision)
 
-shrkbot's web app is **Ruby on Rails 8.1 · Phlex views · Tailwind CSS v4 · Hotwire (Turbo + Stimulus) · Tom Select**. **No React, no heavy front-end frameworks.** Deliverables are static **HTML + Tailwind** (port \~1:1 to Phlex) with **Stimulus** for behavior. This design system is authored to match: tokens are plain CSS custom properties (+ a Tailwind v4 `@theme` mirror), and every mockup is HTML + Tailwind + minimal vanilla JS.
+shrkbot's web app is **Ruby on Rails 8.1 · Phlex views · Tailwind CSS v4 · Hotwire (Turbo + Stimulus) · Tom Select**. Icons use Phosphor (gem: `maful/ruby-phosphor-icons`; HTML: `@phosphor-icons/web` CDN). **No React, no heavy front-end frameworks.** Deliverables are static **HTML + Tailwind** (port \~1:1 to Phlex) with **Stimulus** for behavior. This design system is authored to match: tokens are plain CSS custom properties (+ a Tailwind v4 `@theme` mirror), and every mockup is HTML + Tailwind + minimal vanilla JS.
 
 ---
 
@@ -45,37 +45,40 @@ The voice is the maintainer's: **warm, transparent, modest, a little playful.** 
 
 ## Visual foundations
 
-**Overall:** light, airy, friendly, low-chrome. One bright accent on a calm cool-grey canvas. Minimalist — whitespace and a clear hierarchy do the work; nothing decorative competes with the controls. Density is **friendly, not compact** (infrequent, non-technical users).
+**Overall:** warm, material, friendly. The UI is a workshop — a cream canvas of worked metal, one cool teal accent for interactive elements, and a copper second accent for highlights and personality. Minimalist — whitespace and a clear hierarchy do the work; nothing decorative competes with the controls. Density is **friendly, not compact** (infrequent, non-technical users).
 
 ### Color
 
-- **One accent:** sky **`#39afe5`** (= `--sky-500` / `brand-500`), expanded into a 50–900 ramp for hovers, tints, and text-on-tint. Hover = one step darker (`brand-600`); pressed = `brand-700`.
-- **Neutrals:** a custom **cool slate** ramp (`--slate-*` / `ink-*`), slightly blue-grey so it sits under the sky accent without going warm. Page = `slate-50`, cards = white, text = `slate-900`/`600`/`400`.
-- **Semantic** (used sparingly): success `#2faf6b`, warning `#e8a13a`, danger `#e0533d`, each with a soft tint background for callouts/badges. Info reuses the brand sky.
-- **Imagery vibe:** the only brand image is the mascot — flat, hand-drawn, black-outlined cartoon on saturated sky. Not photographic, not gradient-y. If imagery is ever needed, keep it flat, friendly, cool-toned.
+- **Brand accent:** teal **`#37a79e`** (= `--teal-500` / `brand-500`), expanded into a 50–900 ramp. **`teal-500` is the brand reference** (tints, borders, icons, focus, hero moments); **solid surfaces carrying white text use `teal-600`+** — white on `teal-500` fails contrast (this fixed the legibility complaint). Hover = one step darker; pressed = `teal-700`.
+- **Second accent:** copper **`#c4622d`** (= `--copper-500` / `accent-2`) - the fin-spring on the mascot. Warmth, community, and **wayfinding**. **Never used for status** (green/amber/red own that). Light-touch in light mode (donate button, OSS badge, wordmark "bot", personality moments). In dark it does real work: active-nav indicator (`--nav-active`), section eyebrows (`--eyebrow`), donate/support callout.
+- **Neutrals:** a warm **sand** ramp (`--sand-*` / `ink-*`). Page = `sand-50` (cream `#f5f0e8`), cards = warm near-white `#fdfbf7`, text = `sand-900`/`600`/`400`. Warm, never clinical.
+- **Semantic** (used sparingly): success `#2faf6b`, warning `#e8a13a`, danger `#e0533d`, each with a warm soft tint that sits on the cream canvas. Info reuses the brand teal.
+- **Dark mode:** warm **espresso** surfaces (#1a130d ground) with a softened "patina" teal for controls and **copper used liberally** (active-nav indicator, section eyebrows, donate/support callout). Two temperatures — espresso warmth + oxidised brass — so dark mode reads as textured, not one-note. Light mode is primary.
+- **Imagery vibe:** the only brand image is the mascot — flat, hand-drawn, black-outlined cartoon. Not photographic, not gradient-y.
 
 ### Type
 
 - **Display — Space Grotesk** (500–700): headings, plugin names, wordmark. Slightly techy/mechanical, echoing the shark-and-wrench engineering theme. Tight tracking (−0.02em).
-- **Body/UI — Hanken Grotesk** (400–700): all prose, labels, controls. Clean, friendly, neutral, highly legible at small sizes.
-- **Mono — JetBrains Mono** (400–500): slash commands, channel `#`, role IDs, durations, technical strings.
+- **Body/UI — Exo 2** (400–700): all prose, labels, controls. Quiet technical precision — slightly tapered, mechanical letterforms — while staying highly legible at small sizes.
+- **Mono — IBM Plex Mono** (400–500): slash commands, channel `#`, role IDs, durations, technical strings.
 - Scale: 12 / 14 / 16 / 18 / 22 / 28 / 36 / 48px. Body line-height 1.55; headings 1.12–1.3.
-- ⚠️ **Font note (please confirm):** the codebase ships **no custom fonts** (it uses Tailwind defaults). This type system is a *proposal*, not a recreation. All three are free Google Fonts and are loaded from the Google Fonts CDN here (binaries are **not** self-hosted). If you'd like to lock the brand to specific faces or self-host the files, send them and I'll wire them in.
+- ⚠️ **Font note:** Space Grotesk and IBM Plex Mono are self-hosted. **Exo 2 is loaded from Google Fonts for now** (see the TODO in `tokens/fonts.css`) — drop the woff2 files under `fonts/exo2/` and add `@font-face` blocks to self-host before production.
 
 ### Spacing, radius, elevation
 
 - **4px grid** (`--space-1…16`). Generous padding inside cards (20–24px).
-- **Radii:** moderate and friendly — inputs/buttons `10px` (md), cards `14px` (lg), pills full. Nothing sharp; nothing balloon-round.
-- **Shadows:** soft, cool, restrained (`shadow-sm` for resting cards, `shadow-md` on hover, `shadow-lg` for menus/overlays). No hard or colored drop shadows except the optional brand-tinted CTA glow. Borders are 1px `slate-100/200`; the brand uses a faint `brand-200` border to mark "enabled/active" cards.
+- **Radii:** moderate, differentiated by element type — controls (buttons/inputs) `8px` (`--radius-control`), cards `12px` (`--radius-card`), chips/badges `5px` (`--radius-chip`), pills full.
+- **The geometric signature is the chamfer** (machined cut-corner, `--chamfer: 12px`). Applied only to brand-forward surfaces: top app-bar, plugin-identity tiles (octagon), mascot lockup frame, primary CTA (`--chamfer-sm: 6px`). Everyday cards, inputs, chips keep their rounded radii - the soft-body vs sharp-metal contrast is the point. Use `clip-path` polygon from `tokens/spacing.css`.
+- **Shadows:** soft, warm, restrained (`shadow-sm` resting cards, `shadow-md` on hover, `shadow-lg` menus/overlays); tints use warm ink `rgba(29,26,21,…)`. No hard or colored drop shadows except the optional brand-tinted CTA glow. Borders are 1px `sand-100/200`; enabled/active cards swap to a faint `teal-200` border.
 
 ### Cards & surfaces
 
-White, 1px border, `shadow-sm`, `radius-lg`. Header (display-font title + secondary subtitle + optional right-aligned actions), body, optional tinted footer. **Enabled** plugin cards swap the neutral border for `brand-200`. Avoid the colored-left-border + rounded-corner cliché — borders are full and even.
+White warm surface (`#fdfbf7`), 1px border, `shadow-sm`, `radius-card`. Header (display-font title + secondary subtitle + optional right-aligned actions), body, optional tinted footer. **Enabled** plugin cards swap the neutral border for `teal-200`. Avoid the colored-left-border + rounded-corner cliché — borders are full and even.
 
 ### Motion, interaction states
 
-- **Motion:** quick and calm. `120–260ms`, ease `cubic-bezier(.2,0,0,1)`. Fades and short slides; **no bounce, no infinite/decorative loops.** The switch knob slides; menus/toasts fade-and-rise a few px.
-- **Hover:** buttons darken one brand step; secondary/ghost get a `slate-50/100` wash; cards lift to `shadow-md` and gain a `brand-200` border. Links → `brand-700`.
+- **Motion:** quick and calm. `120–260ms`. Enter uses `--ease-standard` `cubic-bezier(.2,0,0,1)`; leave uses `--ease-exit` `cubic-bezier(.4,0,1,1)`. Fades and short slides; **no bounce, no infinite/decorative loops.** The switch knob slides; dropdowns fade + translate (chevron rotates left→down); the fill-wipe button hover has been **retired** in favor of a simple darken-on-hover.
+- **Hover:** buttons darken one brand step; secondary/ghost get a warm `sand-50/100` wash; cards lift to `shadow-md` and gain a `teal-200` border. Links → `teal-700`.
 - **Focus:** visible `3px` brand ring at \~30% opacity plus a brand border. Always keyboard-reachable.
 - **Pressed:** primary buttons nudge down 1px; no shrink/scale gimmicks.
 - **Disabled / blocked:** \~50% opacity, `not-allowed` cursor. The signature pattern is **disabled-with-reason**: an option stays *visible but unselectable* with a lock icon and a tooltip/explanation (roles shrkbot can't assign).
@@ -83,19 +86,20 @@ White, 1px border, `shadow-sm`, `radius-lg`. Header (display-font title + second
 
 ### Backgrounds, transparency, blur
 
-- Flat `slate-50` page; flat white surfaces. **No gradients, no textures, no patterns.**
-- Transparency/blur used only functionally: the enable-gate overlay is a translucent `slate-50/70` with a 1px backdrop blur. Menus/toasts are solid.
+- Flat `sand-50` cream page; flat warm-white surfaces. **No gradients, no textures, no patterns.**
+- Transparency/blur used only functionally: the enable-gate overlay is a translucent `sand-50/70` with a 1px backdrop blur. Menus/toasts are solid.
 - Layout: centered, max-width content columns (≈760–1024px) on the canvas; a fixed top app-bar frames authed screens. Desktop-first but usable on a phone.
 
 ---
 
 ## Iconography
 
-- **Recommended set: [Lucide](https://lucide.dev)** — clean, consistent 2px-stroke line icons that match the minimalist, friendly tone. Used throughout the mockups via the Lucide CDN (`<i data-lucide="…">` + `lucide.createIcons()`).
-- ⚠️ **Substitution flag:** the codebase has **no icon set wired into views yet** (the web UI is unbuilt). Lucide is a *recommendation*. If you'd prefer the Rails-native default, **Heroicons** (also a clean line/solid set, ships as a gem) is a great alternative — say the word and I'll switch the kit over.
-- **Sizing/usage:** 16px inline with text, 18–22px in buttons/plugin tiles. Stroke icons sit in neutral `slate-400/500`, or white inside a filled brand tile. One icon per plugin (Roles = `users-round`, Welcomes = `hand`, Logging = `scroll-text`, Reminders = `alarm-clock`).
+- **Icon set: [Phosphor Icons](https://phosphoricons.com)** — production gem is `maful/ruby-phosphor-icons`; HTML prototypes load `@phosphor-icons/web` from the CDN. Clean, consistent, three-weight system.
+- **One weight rule, one tone.** Regular is the workhorse. Bold for active/emphasis states. Fill for a white icon inside a filled teal tile. **Never two-tone** — teal and copper are near-complementary and vibrate inside a small glyph.
+- **Plugin icon assignments:** Roles - `users-three`, Welcomes - `hand-waving`, Logging - `scroll`, Reminders - `bell-ringing` (was a clock icon - changed).
+- **Sizing/usage:** 16px inline with text, 18–22px in buttons/plugin tiles. Regular icons sit in neutral `sand-400/500`, or white inside a filled `teal-600` tile using Fill weight. One icon per plugin.
 - **Emoji vs emoticons:** shrkbot does **not** use emoji as UI. It *does* use typed **emoticons** (`:)`, `<3`) in warm long-form bot copy — that's a voice trait, not an icon system. Don't introduce emoji into the UI.
-- **The mascot** (`assets/shrkbot-mascot.png`) is the one brand image — app icon, login mark, server-list placeholder. Always on white or its native sky; never stretched or recolored.
+- **The mascot** (`assets/shrkbot-mascot.png`) is the one brand image — app icon, login mark, server-list placeholder. Always on cream or its native teal; never stretched or recolored.
 
 ---
 
@@ -115,7 +119,7 @@ White, 1px border, `shadow-sm`, `radius-lg`. Header (display-font title + second
 
 - `theme.css` — Tailwind **v4 `@theme`** block mirroring the tokens (`brand-*`, `ink-*`, semantic, fonts, radius, shadows). Drop into the app's stylesheet so views get `bg-brand-500`, `text-ink-600`, `font-display`, etc.
 
-**`foundations/`** — specimen cards (Design System tab): sky & slate & semantic colors; display/body/mono type + scale; spacing, radii, elevation; mascot lockup; the Discord accent-container motif.
+**`foundations/`** — specimen cards (Design System tab): teal (brand), copper (second accent) & sand (neutral) & semantic colors; dark mode; display/body/mono type + scale; spacing, radii, elevation; mascot lockup; the Discord accent-container motif.
 
 **`components/`** — component specimen cards in HTML + Tailwind
 
@@ -137,4 +141,4 @@ White, 1px border, `shadow-sm`, `radius-lg`. Header (display-font title + second
 1. Link `styles.css` (tokens + fonts) **or** copy `tokens/*` into your app.
 2. Add `tailwind/theme.css` after `@import "tailwindcss";` to get brand utilities.
 3. Build screens as HTML + Tailwind; reuse the patterns in `components/` and the dashboard kit. Behavior → Stimulus; dropdowns → Tom Select; auto-save → Turbo.
-4. Keep the voice (lowercase shrkbot, sentence case, explain *why*) and the one accent.
+4. Keep the voice (lowercase shrkbot, sentence case, explain *why*), the teal accent + copper highlight, and the warm cream canvas.

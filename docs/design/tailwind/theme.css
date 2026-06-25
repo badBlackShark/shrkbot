@@ -3,60 +3,108 @@
    Drop this into your app's main stylesheet AFTER `@import "tailwindcss";`
    (Phlex + Tailwind v4). It maps the brand tokens in tokens/*.css onto
    Tailwind utilities so views can use `bg-brand-500`, `text-ink-600`,
-   `font-display`, `rounded-lg`, `shadow-card`, etc.
+   `font-display`, `rounded-card`, `shadow-card`, etc.
 
    Values are kept identical to tokens/colors.css — that file remains the
    single source of truth; this is the Tailwind-facing mirror.
+
+   NOTE: brand-500 is the brand reference; solid surfaces with white text
+   use brand-600+ (white on brand-500 fails contrast).
    ───────────────────────────────────────────────────────────── */
 @theme {
-  /* Brand — Sky (accent = brand-500 = #39afe5, the bot's Discord accent) */
-  --color-brand-50:  #ecf8fe;
-  --color-brand-100: #cfeefc;
-  --color-brand-200: #a6e0f9;
-  --color-brand-300: #6fccf3;
-  --color-brand-400: #4cb9ec;
-  --color-brand-500: #39afe5;
-  --color-brand-600: #1f8fc4;
-  --color-brand-700: #1a729e;
-  --color-brand-800: #1b5f80;
-  --color-brand-900: #1c506b;
+  /* Brand — Teal (accent = brand-500 = #37a79e, the bot's Discord accent) */
+  --color-brand-50:  #eef8f6;
+  --color-brand-100: #d2ece8;
+  --color-brand-200: #a8dcd5;
+  --color-brand-300: #73c6bd;
+  --color-brand-400: #4fb5ab;
+  --color-brand-500: #37a79e;
+  --color-brand-600: #2c867f;
+  --color-brand-700: #266c66;
+  --color-brand-800: #235753;
+  --color-brand-900: #1f4845;
 
-  /* Neutral — cool slate (named `ink` to avoid clashing with Tailwind's slate) */
+  /* Second accent — Copper (highlights & personality, never semantic) */
+  --color-copper-50:  #fbf1ea;
+  --color-copper-100: #f5dcca;
+  --color-copper-200: #e9b99c;
+  --color-copper-300: #dc9268;
+  --color-copper-400: #d27a45;
+  --color-copper-500: #c4622d;
+  --color-copper-600: #a44f23;
+  --color-copper-700: #823f1f;
+  --color-copper-800: #6a351d;
+  --color-copper-900: #582e1b;
+
+  /* Neutral — warm sand (named `ink` to avoid clashing with Tailwind's slate) */
   --color-ink-0:   #ffffff;
-  --color-ink-25:  #fafbfc;
-  --color-ink-50:  #f4f6f8;
-  --color-ink-100: #e9edf1;
-  --color-ink-200: #d7dee5;
-  --color-ink-300: #b9c4cf;
-  --color-ink-400: #8b99a7;
-  --color-ink-500: #677483;
-  --color-ink-600: #4d5763;
-  --color-ink-700: #3a424c;
-  --color-ink-800: #262c33;
-  --color-ink-900: #161a1f;
+  --color-ink-25:  #faf7f1;
+  --color-ink-50:  #f5f0e8;
+  --color-ink-100: #ebe4d7;
+  --color-ink-200: #dcd2c0;
+  --color-ink-300: #c5b8a1;
+  --color-ink-400: #a3947d;
+  --color-ink-500: #7e7160;
+  --color-ink-600: #5f5547;
+  --color-ink-700: #473f35;
+  --color-ink-800: #2f2a23;
+  --color-ink-900: #1d1a15;
+  --color-ink-card: #fdfbf7;
 
   /* Semantic */
   --color-success: #2faf6b;
-  --color-success-soft: #e8f7ef;
+  --color-success-soft: #e7f4ec;
   --color-warning: #e8a13a;
-  --color-warning-soft: #fdf3e3;
+  --color-warning-soft: #f8efdc;
   --color-danger:  #e0533d;
-  --color-danger-soft:  #fcecea;
+  --color-danger-soft:  #f8e7e2;
 
   /* Type */
-  --font-display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
-  --font-sans:    "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-sans:    "Exo 2", system-ui, -apple-system, sans-serif;
   --font-mono:    "IBM Plex Mono", ui-monospace, Menlo, monospace;
 
-  /* Radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  /* Radius — differentiated by element type */
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-chip: 5px;
 
-  /* Elevation — soft, cool, restrained */
-  --shadow-xs: 0 1px 2px rgba(22, 26, 31, 0.06);
-  --shadow-sm: 0 1px 3px rgba(22, 26, 31, 0.08), 0 1px 2px rgba(22, 26, 31, 0.04);
-  --shadow-md: 0 4px 12px rgba(22, 26, 31, 0.08), 0 2px 4px rgba(22, 26, 31, 0.04);
-  --shadow-lg: 0 12px 32px rgba(22, 26, 31, 0.12), 0 4px 8px rgba(22, 26, 31, 0.05);
+  /* Chamfer — brand-forward surfaces (app-bar, plugin tiles, mascot frame, primary CTA) */
+  --chamfer:    12px;   /* tiles, brand surfaces */
+  --chamfer-sm: 6px;    /* primary CTA, small controls */
+
+  /* Semantic aliases — dark mode: these vars resolve via the [data-theme="dark"] selector
+     in tokens/colors.css, so Tailwind utilities referencing them respond automatically. */
+  --color-surface-page:    var(--surface-page);
+  --color-surface-card:    var(--surface-card);
+  --color-surface-raised:  var(--surface-raised);
+  --color-surface-sunken:  var(--surface-sunken);
+  --color-text-primary:    var(--text-primary);
+  --color-text-secondary:  var(--text-secondary);
+  --color-text-muted:      var(--text-muted);
+  --color-border-subtle:   var(--border-subtle);
+  --color-border-default:  var(--border-default);
+  --color-border-strong:   var(--border-strong);
+  --color-accent-base:     var(--accent);
+  --color-accent-fill:     var(--accent-fill);
+  --color-accent-soft:     var(--accent-soft);
+
+  /* Copper expanded aliases — wayfinding, community, warmth; never status */
+  --color-accent-2:        var(--accent-2);
+  --color-accent-2-text:   var(--accent-2-text);   /* readable copper text */
+  --color-accent-2-fill:   var(--accent-2-fill);   /* solid Donate/support btn */
+  --color-accent-2-soft:   var(--accent-2-soft);   /* copper tint bg */
+  --color-nav-active:      var(--nav-active);       /* active-nav: teal light, copper dark */
+  --color-eyebrow:         var(--eyebrow);          /* section labels: muted light, copper dark */
+
+  /* Elevation — soft, restrained */
+  --shadow-xs: 0 1px 2px rgba(29, 26, 21, 0.06);
+  --shadow-sm: 0 1px 3px rgba(29, 26, 21, 0.08), 0 1px 2px rgba(29, 26, 21, 0.04);
+  --shadow-md: 0 4px 12px rgba(29, 26, 21, 0.08), 0 2px 4px rgba(29, 26, 21, 0.04);
+  --shadow-lg: 0 12px 32px rgba(29, 26, 21, 0.12), 0 4px 8px rgba(29, 26, 21, 0.05);
 }

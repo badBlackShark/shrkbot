@@ -1,46 +1,68 @@
 /* ─────────────────────────────────────────────────────────────
    shrkbot · COLOR TOKENS
-   Brand accent is the bot's own Components-V2 container color:
-   BotConfig::ACCENT_COLOR = 0x39afe5  →  #39afe5  (sky blue).
-   Everything else is a cool slate neutral chosen to sit calmly
-   under that one bright, friendly accent.
+   Material story: a workshop. The UI is warm worked metal (cream
+   "sand" neutrals); the brand is oxidised brass/ocean teal; copper
+   is the warm second accent for highlights and personality.
+
+   Brand accent  = Teal   #37a79e  (the new mascot's water + brass-patina)
+   Page base     = Sand    #f5f0e8 (warm cream, never clinical white)
+   Second accent = Copper  #c4622d (the fin-spring on the mascot) — warmth,
+                   community & wayfinding. NEVER status. Light-touch in light
+                   mode; used liberally in dark mode (see dark block).
+
+   LEGIBILITY NOTE: teal-500 is the BRAND reference (tints, borders,
+   icons, focus, hero moments). Solid surfaces that carry white text
+   use --accent-fill (teal-600+) — white on teal-500 fails contrast.
    ───────────────────────────────────────────────────────────── */
 :root {
-  /* — Brand: Sky — */
-  --sky-50:  #ecf8fe;
-  --sky-100: #cfeefc;
-  --sky-200: #a6e0f9;
-  --sky-300: #6fccf3;
-  --sky-400: #4cb9ec;
-  --sky-500: #39afe5;   /* ← brand accent (0x39afe5) */
-  --sky-600: #1f8fc4;
-  --sky-700: #1a729e;
-  --sky-800: #1b5f80;
-  --sky-900: #1c506b;
+  /* — Brand: Teal — */
+  --teal-50:  #eef8f6;
+  --teal-100: #d2ece8;
+  --teal-200: #a8dcd5;
+  --teal-300: #73c6bd;
+  --teal-400: #4fb5ab;
+  --teal-500: #37a79e;   /* ← brand accent */
+  --teal-600: #2c867f;   /* ← solid fills w/ white text */
+  --teal-700: #266c66;
+  --teal-800: #235753;
+  --teal-900: #1f4845;
 
-  /* — Neutral: Slate (cool) — */
-  --slate-0:   #ffffff;
-  --slate-25:  #fafbfc;
-  --slate-50:  #f4f6f8;
-  --slate-100: #e9edf1;
-  --slate-200: #d7dee5;
-  --slate-300: #b9c4cf;
-  --slate-400: #8b99a7;
-  --slate-500: #677483;
-  --slate-600: #4d5763;
-  --slate-700: #3a424c;
-  --slate-800: #262c33;
-  --slate-900: #161a1f;
-  --slate-950: #0d0f12;
+  /* — Second accent: Copper — */
+  --copper-50:  #fbf1ea;
+  --copper-100: #f5dcca;
+  --copper-200: #e9b99c;
+  --copper-300: #dc9268;
+  --copper-400: #d27a45;
+  --copper-500: #c4622d;   /* ← second accent */
+  --copper-600: #a44f23;
+  --copper-700: #823f1f;
+  --copper-800: #6a351d;
+  --copper-900: #582e1b;
 
-  /* — Semantic hues — */
-  --green-50:  #e8f7ef;
+  /* — Neutral: Sand (warm) — base is sand-50 = the cream page — */
+  --sand-0:   #ffffff;
+  --sand-25:  #faf7f1;
+  --sand-50:  #f5f0e8;   /* ← page base (warm cream) */
+  --sand-100: #ebe4d7;
+  --sand-200: #dcd2c0;
+  --sand-300: #c5b8a1;
+  --sand-400: #a3947d;
+  --sand-500: #7e7160;
+  --sand-600: #5f5547;
+  --sand-700: #473f35;
+  --sand-800: #2f2a23;
+  --sand-900: #1d1a15;
+  --sand-950: #110f0c;
+  --sand-card: #fdfbf7;  /* warm near-white — cards lift off the cream page */
+
+  /* — Semantic hues — kept green/amber/red, soft tints warmed to sit on cream — */
+  --green-50:  #e7f4ec;
   --green-500: #2faf6b;
   --green-600: #228a53;
-  --amber-50:  #fdf3e3;
+  --amber-50:  #f8efdc;
   --amber-500: #e8a13a;
   --amber-600: #c47f1e;
-  --red-50:    #fcecea;
+  --red-50:    #f8e7e2;
   --red-500:   #e0533d;
   --red-600:   #c23a26;
 
@@ -55,70 +77,104 @@
   --discord-divider:   #3f4147;
 
   /* ── Semantic aliases ── */
-  --text-primary:   var(--slate-900);
-  --text-secondary: var(--slate-600);
-  --text-muted:     var(--slate-400);
-  --text-inverse:   var(--slate-0);
-  --text-link:      var(--sky-700);
+  --text-primary:   var(--sand-900);
+  --text-secondary: var(--sand-600);
+  --text-muted:     var(--sand-400);
+  --text-inverse:   var(--sand-0);
+  --text-link:      var(--teal-700);
   --text-on-accent: #ffffff;
 
-  --surface-page:    var(--slate-50);
-  --surface-card:    var(--slate-0);
-  --surface-raised:  var(--slate-0);
-  --surface-sunken:  var(--slate-100);
-  --surface-inverse: var(--slate-900);
+  --surface-page:    var(--sand-50);
+  --surface-card:    var(--sand-card);
+  --surface-raised:  var(--sand-card);
+  --surface-sunken:  var(--sand-100);
+  --surface-inverse: var(--sand-900);
 
-  --border-subtle:  var(--slate-100);
-  --border-default: var(--slate-200);
-  --border-strong:  var(--slate-300);
+  --border-subtle:  var(--sand-100);
+  --border-default: var(--sand-200);
+  --border-strong:  var(--sand-300);
 
-  --accent:          var(--sky-500);
-  --accent-hover:    var(--sky-600);
-  --accent-active:   var(--sky-700);
-  --accent-soft:     var(--sky-50);
-  --accent-soft-bd:  var(--sky-200);
+  /* Brand accent (teal). --accent = brand reference; --accent-fill = white-text-safe. */
+  --accent:           var(--teal-500);
+  --accent-fill:      var(--teal-600);
+  --accent-fill-hover:var(--teal-700);
+  --accent-hover:     var(--teal-600);
+  --accent-active:    var(--teal-700);
+  --accent-soft:      var(--teal-50);
+  --accent-soft-bd:   var(--teal-200);
+
+  /* Second accent (copper) — warmth, community & wayfinding, never status. */
+  --accent-2:         var(--copper-500);
+  --accent-2-hover:   var(--copper-600);
+  --accent-2-soft:    var(--copper-50);
+  --accent-2-soft-bd: var(--copper-200);
+  /* Copper expanded-role aliases. Light mode keeps copper light-touch: it owns
+     donate / open-source / personality moments, while teal owns wayfinding. */
+  --accent-2-text:      var(--copper-600);   /* readable copper text on cream */
+  --accent-2-fill:      var(--copper-500);   /* solid warm button (Donate) + white text */
+  --accent-2-fill-hover:var(--copper-600);
+  --nav-active:         var(--accent);       /* teal owns active-nav in light */
+  --eyebrow:            var(--text-muted);   /* section eyebrows: muted in light */
 
   --success: var(--green-500);
   --warning: var(--amber-500);
   --danger:  var(--red-500);
 
-  --focus-ring: color-mix(in srgb, var(--sky-500) 45%, transparent);
+  --focus-ring: color-mix(in srgb, var(--teal-500) 45%, transparent);
 }
 
 /* ─────────────────────────────────────────────────────────────
-   DARK PALETTE
-   Token swap under [data-theme="dark"].
-   Brand accent #39afe5 (--sky-500) is intentionally unchanged.
+   DARK PALETTE — warm espresso (the workshop at night)
+   Token swap under [data-theme="dark"]. The ground is WARM (low-chroma
+   espresso brown), the teal is softened to an aged "patina" so it harmonises
+   with the warm field instead of clashing as a bright cool spot, and copper
+   does real work (wayfinding + section labels + warmth) so dark mode reads as
+   TWO temperatures, not one-note teal. Brand teal stays EXACTLY #37a79e in
+   light mode — dark uses an aged variant for surfaces' sake, not a new color.
 
    Tailwind v4 production path: in @theme, reference raw channel
-   variables (--ink-600-raw etc.) so that `text-ink-600` responds
-   to the selector automatically — no duplicate dark: utilities.
-   Prototype HTML uses CSS !important overrides instead (see the
-   dashboard's <style> block).
+   variables so utilities respond to the selector automatically.
+   Prototype HTML uses CSS !important overrides instead.
    ───────────────────────────────────────────────────────────── */
 [data-theme="dark"] {
-  --text-primary:    #e6edf3;
-  --text-secondary:  #8b949e;
-  --text-muted:      #484f58;
-  --text-inverse:    #161a1f;
-  --text-link:       var(--sky-300);
+  --text-primary:    #efe7db;
+  --text-secondary:  #b1a08a;
+  --text-muted:      #7c6e5b;
+  --text-inverse:    #1a130d;
+  --text-link:       #6fb3aa;
   --text-on-accent:  #ffffff;
 
-  --surface-page:    #0d1117;
-  --surface-card:    #161b22;
-  --surface-raised:  #1e2530;
-  --surface-sunken:  #090d14;
-  --surface-inverse: #e6edf3;
+  /* Warm espresso surfaces */
+  --surface-page:    #1a130d;
+  --surface-card:    #261c14;
+  --surface-raised:  #30241a;
+  --surface-sunken:  #120d08;
+  --surface-inverse: #efe7db;
 
-  --border-subtle:   #21262d;
-  --border-default:  #30363d;
-  --border-strong:   #3d444d;
+  --border-subtle:   #33271f;
+  --border-default:  #3d2f22;
+  --border-strong:   #4d3c2c;
 
-  /* accent stays var(--sky-500) = #39afe5 */
-  --accent-hover:    var(--sky-400);
-  --accent-active:   var(--sky-300);
-  --accent-soft:     rgba(57,175,229,.13);
-  --accent-soft-bd:  rgba(57,175,229,.28);
+  /* Softened "patina" teal — controls, toggles, icons, primary action. */
+  --accent:           #46817a;
+  --accent-fill:      #2c736d;   /* solid fills w/ white text */
+  --accent-fill-hover:#36877f;
+  --accent-hover:     #56938b;
+  --accent-active:    #2c6b65;
+  --accent-soft:      rgba(70,129,122,.12);
+  --accent-soft-bd:   rgba(70,129,122,.30);
 
-  --focus-ring: color-mix(in srgb, var(--sky-500) 35%, transparent);
+  /* Copper — LIBERAL in dark: wayfinding, section eyebrows, warmth/community. */
+  --accent-2:           #e8a06d;
+  --accent-2-hover:     #f0ad7e;
+  --accent-2-text:      #e8a06d;
+  --accent-2-fill:      var(--copper-500);   /* Donate / support — white text */
+  --accent-2-fill-hover:var(--copper-600);
+  --accent-2-soft:      rgba(196,98,45,.15);
+  --accent-2-soft-bd:   rgba(196,98,45,.34);
+
+  --nav-active:       #e8a06d;   /* copper owns active-nav in dark */
+  --eyebrow:          #e8a06d;   /* section eyebrows warm in dark */
+
+  --focus-ring: color-mix(in srgb, #46817a 42%, transparent);
 }
