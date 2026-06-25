@@ -29,6 +29,7 @@ en:
           visible_warning: Everyone can see this channel, so the moderation log would
             be public.
         events:
+          enabled_count: enabled
           event:
             roles:
               role_gained: Member gained a role

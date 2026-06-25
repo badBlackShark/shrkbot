@@ -64,31 +64,42 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def event_group(plugin, definitions)
-    details(
-      class: "relative border-b border-border-subtle last:border-b-0",
-      open: true,
-      data: {controller: "dropdown event-group", dropdown_dismiss_on_outside_value: false}
-    ) do
-      summary(
-        class: "flex h-11 cursor-pointer list-none select-none items-center gap-3 bg-surface-sunken px-5 pr-32 [&::-webkit-details-marker]:hidden",
-        data: {action: "click->dropdown#toggle"}
+    enabled = definitions.count { |definition| @settings.action_enabled?(definition.key) }
+    div(class: "relative border-b border-border-subtle last:border-b-0", data: {controller: "event-group"}) do
+      details(
+        open: true,
+        data: {controller: "dropdown", dropdown_dismiss_on_outside_value: false}
       ) do
-        render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
-        span(class: "text-[11px] font-semibold uppercase tracking-widest text-text-secondary") { t(".events.plugin.#{plugin}") }
+        summary(
+          class: "flex h-11 cursor-pointer list-none select-none items-center gap-3 bg-surface-sunken px-5 pr-36 [&::-webkit-details-marker]:hidden",
+          data: {action: "click->dropdown#toggle"}
+        ) do
+          render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
+          span(class: "text-[11px] font-semibold uppercase tracking-widest text-text-secondary") { t(".events.plugin.#{plugin}") }
+          event_count(enabled, definitions.size)
+        end
+        div(class: "dropdown-menu divide-y divide-border-subtle", data: {dropdown_target: "menu"}) do
+          definitions.each { |definition| event_row(definition) }
+        end
       end
-      toggle_all(plugin, definitions)
-      div(class: "dropdown-menu divide-y divide-border-subtle", data: {dropdown_target: "menu"}) do
-        definitions.each { |definition| event_row(definition) }
-      end
+      toggle_all(plugin, enabled == definitions.size)
     end
   end
 
-  def toggle_all(plugin, definitions)
+  def event_count(enabled, total)
+    span(class: "ml-auto whitespace-nowrap text-xs text-text-muted") do
+      span(data: {event_group_target: "count"}) { "#{enabled}/#{total}" }
+      whitespace
+      plain t(".events.enabled_count")
+    end
+  end
+
+  def toggle_all(plugin, all_enabled)
     label_text = t(".events.toggle_all_label", plugin: t(".events.plugin.#{plugin}"))
     div(class: "absolute end-5 top-0 flex h-11 items-center gap-2") do
       span(class: "text-xs text-text-muted") { t(".events.toggle_all") }
       render Components::Toggle.new(
-        checked: definitions.all? { |definition| @settings.action_enabled?(definition.key) },
+        checked: all_enabled,
         label: label_text,
         size: :mini,
         data: {event_group_target: "all", action: "change->event-group#toggleAll"}
