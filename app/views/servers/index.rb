@@ -44,14 +44,14 @@ class Views::Servers::Index < Views::Base
   end
 
   def present_card(guild)
-    a(href: server_path(guild.id), class: "card-lift flex flex-col gap-3 rounded-lg border border-border-default bg-surface-card p-5 shadow-sm") do
+    render Components::Card.new(href: server_path(guild.id), lift: true, class: "flex flex-col gap-3") do
       identity(guild)
       plugins_badge(@plugin_counts[guild.id].to_i)
     end
   end
 
   def invite_card(guild)
-    div(class: "flex flex-col gap-3 rounded-lg border border-dashed border-border-strong bg-surface-card p-5") do
+    render Components::Card.new(dashed: true, class: "flex flex-col gap-3") do
       identity(guild, muted: true)
       invite_button(invite_url(guild))
     end
@@ -77,8 +77,7 @@ class Views::Servers::Index < Views::Base
   end
 
   def plugins_badge(count)
-    tone = count.positive? ? "bg-accent-soft text-accent-soft-fg" : "bg-surface-sunken text-text-secondary"
-    span(class: "self-start rounded-full px-2.5 py-1 text-xs font-semibold #{tone}") do
+    render Components::Badge.new(variant: count.positive? ? :brand : :neutral, class: "self-start") do
       t(".plugins_enabled", count:)
     end
   end
@@ -88,17 +87,17 @@ class Views::Servers::Index < Views::Base
   end
 
   def invite_button(url)
-    a(
+    render Components::Button.new(
+      variant: :secondary,
       href: url,
-      class: "btn-fill btn-fill-ghost inline-flex items-center gap-1.5 self-start rounded-md border border-border-strong px-3 py-1.5 text-sm font-semibold transition-colors hover:bg-surface-sunken"
-    ) do
-      render Components::Icon.new("plus", class: "size-4")
-      span { t(".invite") }
-    end
+      icon: "plus",
+      label: t(".invite"),
+      class: "self-start"
+    )
   end
 
   def missing_server_prompt
-    div(class: "mt-8 rounded-lg border border-dashed border-border-default bg-surface-card p-8 text-center") do
+    render Components::Card.new(dashed: true, padding: :lg, class: "mt-8 text-center") do
       p(class: "text-sm font-semibold") { t(".missing_title") }
       p(class: "mx-auto mt-1 max-w-md text-sm text-text-secondary") { t(".missing_body") }
       div(class: "mt-4 flex justify-center") { invite_button(generic_invite_url) }
@@ -111,20 +110,8 @@ class Views::Servers::Index < Views::Base
       h2(class: "mb-2 font-display text-xl font-bold tracking-tight") { t(".empty_title") }
       p(class: "mb-6 max-w-sm text-sm leading-relaxed text-text-secondary") { t(".empty_body") }
       div(class: "flex flex-wrap justify-center gap-3") do
-        a(
-          href: generic_invite_url,
-          class: "btn-fill btn-fill-primary inline-flex h-10 items-center gap-2 rounded-md bg-accent-fill px-5 text-sm font-semibold text-white"
-        ) do
-          render Components::Icon.new("plus", class: "size-4")
-          span { t(".invite") }
-        end
-        a(
-          href: servers_path,
-          class: "btn-fill btn-fill-ghost inline-flex h-10 items-center gap-2 rounded-md border border-border-default px-5 text-sm font-semibold transition-colors hover:bg-surface-sunken"
-        ) do
-          render Components::Icon.new("arrows-clockwise", class: "size-4")
-          span { t(".refresh") }
-        end
+        render Components::Button.new(variant: :primary, size: :lg, href: generic_invite_url, icon: "plus", label: t(".invite"))
+        render Components::Button.new(variant: :secondary, size: :lg, href: servers_path, icon: "arrows-clockwise", label: t(".refresh"))
       end
     end
   end

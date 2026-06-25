@@ -28,9 +28,7 @@ class Components::ConfigPage < Components::Base
 
   def header
     div(class: "mb-6 flex items-start gap-4") do
-      span(class: "flex size-12 flex-none items-center justify-center rounded-xl bg-accent-soft text-accent-soft-fg") do
-        render Components::Icon.new(@icon, class: "size-6")
-      end
+      render Components::PluginTile.new(icon: @icon, size: :lg)
       div do
         h1(class: "font-display text-2xl font-bold tracking-tight") { @title }
         p(class: "mt-1 text-sm text-text-secondary") { @description }

@@ -97,6 +97,28 @@ more `turbo_stream.*` lines. The remaining config-form controls
 (segmented control, enable-gate, Tom Select wrapper) are built with the pages that
 consume them.
 
+## Core components
+
+Reach for these before hand-rolling markup — more small components beats
+duplicated class strings:
+
+- **`Components::Button`** — `variant:` (`:primary` chamfered CTA, `:secondary`
+  bordered, `:ghost`, `:danger`), `size:` (`:sm`/`:md`/`:lg`), `icon:` /
+  `trailing_icon:`, `full:`. Renders an `<a>` when `href:` is given, else a
+  `<button>` (`type:` defaults to `"button"`; pass `"submit"` for forms). A form
+  helper that needs the look without the component (the OAuth `button_to`) borrows
+  `Components::Button.css(...)`.
+- **`Components::Card`** — the standard warm surface. `enabled:` swaps to the teal
+  border, `padding:` (`:none`/`:sm`/`:md`/`:lg`), `href:` renders a link card,
+  `lift:` adds the hover-raise, `dashed:` is the placeholder/add affordance.
+- **`Components::Badge`** — status pill or tag. `variant:` (`:success`/`:warning`/
+  `:danger`/`:neutral`/`:brand`/`:copper`), `dot:`, `shape:` (`:pill`/`:chip`).
+  Copper is for wayfinding/personality, never status.
+- **`Components::PluginTile`** — the chamfered identity tile (icon on teal when
+  `enabled:`, muted sand otherwise). `size:` (`:sm`/`:md`/`:lg`).
+- **`Components::Callout`** — tinted bordered notice. `variant:` (`:info`/
+  `:neutral`/`:warning`/`:danger`/`:success`) sets colour + default icon.
+
 ## Where it lives
 
 - `app/assets/tailwind/` — the stylesheet, split into focused partials that
@@ -182,10 +204,9 @@ theme-morph choreography, and the chamfer geometry helpers (`chamfer-tile`,
 `chamfer-tile-sm`, `chamfer-cta`, `chamfer-bar` — for brand-forward surfaces
 only). Durations 120/180/260ms; `--ease-standard cubic-bezier(.2,0,0,1)` for
 entering, `--ease-exit cubic-bezier(.4,0,1,1)` for leaving. A
-`prefers-reduced-motion: reduce` block neutralises them — keep it. `btn-fill`
-(hover fill via a `::after`) is still present but **transitional**: the design
-retires it for plain darken-on-hover, to be removed when the Button component
-lands.
+`prefers-reduced-motion: reduce` block neutralises them — keep it. Buttons
+darken on hover (`hover:bg-accent-fill-hover` for primary, a sand wash for the
+rest) rather than the old fill-wipe, which has been removed.
 
 ## Layout: flex, not grid
 
