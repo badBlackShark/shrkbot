@@ -72,6 +72,22 @@ RSpec.describe Components::Button do
     end
   end
 
+  context "with a label instead of a block" do
+    subject(:html) { described_class.new(label: "Save").call }
+
+    it "renders the label in a span" do
+      expect(html).to include("<span>Save</span>")
+    end
+  end
+
+  context "at the small size with an icon" do
+    subject(:html) { described_class.new(icon: "plus", size: :sm).call }
+
+    it "shrinks the glyph" do
+      expect(html).to include("size-3.5")
+    end
+  end
+
   describe ".css" do
     it "exposes the class string for form helpers to borrow" do
       expect(described_class.css(variant: :primary, full: true))
