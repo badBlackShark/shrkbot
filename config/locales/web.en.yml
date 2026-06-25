@@ -12,6 +12,11 @@ en:
       toggle_theme: Toggle dark mode
     config_page:
       dashboard: Dashboard
+      disabled: Disabled
+      disabled_title: "%{plugin} is disabled"
+      enable: Enable %{plugin}
+      enabled: Enabled
+      save: Save changes
       servers: Servers
     logging:
       config_form:
@@ -22,22 +27,18 @@ en:
           placeholder: Choose a channel
           visible_warning: Everyone can see this channel, so the moderation log would
             be public.
-        enable:
-          help: Record moderation events to a channel.
-          label: Enable logging
         events:
           event:
             roles:
               role_gained: Member gained a role
               role_lost: Member lost a role
-          gated: Enable logging to choose which events are recorded.
           help: Pick which events shrkbot writes to the log channel.
           label: Logged events
           plugin:
             roles: Roles
-        save: Save changes
     plugin_row:
       configure: Configure
+      needs_setup_hint: Complete setup before enabling this plugin.
       plugin:
         logging:
           description: Record moderation events to a channel of your choice.
@@ -65,9 +66,6 @@ en:
           label: Channel
           none: No channels have synced yet. shrkbot needs to be in the server first.
           placeholder: Choose a channel
-        enable:
-          help: Post a message when members join or leave.
-          label: Enable welcomes
         join_message:
           help: Sent when a member joins. Leave empty to send nothing.
           label: Join message
@@ -85,7 +83,6 @@ en:
           join: A new member joined
           label: Preview
           leave: A member left
-        save: Save changes
   servers:
     logging:
       saved: Logging settings saved.
@@ -133,6 +130,7 @@ en:
       logging:
         show:
           description: Record moderation events to a channel of your choice.
+          gate_message: Enable the plugin to choose a channel and pick events.
           title: Logging
       show:
         breadcrumb_servers: Servers
@@ -150,4 +148,5 @@ en:
       welcomes:
         show:
           description: Greet new members and say goodbye when they leave.
+          gate_message: Enable the plugin to configure messages.
           title: Welcomes

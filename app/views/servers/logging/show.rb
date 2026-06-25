@@ -13,9 +13,15 @@ class Views::Servers::Logging::Show < Views::Base
         icon: "scroll",
         title: t(".title"),
         description: t(".description"),
-        dashboard_path: server_path(@config.discord_id)
+        dashboard_path: server_path(@config.discord_id),
+        gate: {
+          url: server_logging_path(@config.discord_id),
+          field: "logging[enabled]",
+          enabled: @enabled,
+          message: t(".gate_message")
+        }
       ) do
-        render Components::Logging::ConfigForm.new(server_configuration: @config, enabled: @enabled)
+        render Components::Logging::ConfigForm.new(server_configuration: @config)
       end
     end
   end

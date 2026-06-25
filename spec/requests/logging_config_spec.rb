@@ -94,11 +94,12 @@ RSpec.describe "Logging config", type: :request do
           expect(response.body).to include("saved")
         end
 
-        it "warns when the chosen channel is visible to everyone" do
+        it "exposes which channels are public so it can warn before saving" do
           patch server_logging_path(guild.id),
             params: {logging: {channel_id: 200, enabled: "1", actions: {}}},
             **turbo
           expect(response.body).to include("public")
+          expect(response.body).to include("channel-warning-visible-ids-value")
         end
 
         it "re-renders with an inline error when enabling without a channel" do

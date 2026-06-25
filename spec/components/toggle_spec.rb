@@ -20,5 +20,18 @@ RSpec.describe Components::Toggle do
     it "does not wire up auto-submit" do
       expect(html).not_to include("change->toggle#submit")
     end
+
+    it "uses the standard track size by default" do
+      expect(html).to include("w-11").and include("after:size-5")
+    end
+  end
+
+  context "at the mini size" do
+    subject(:html) { Components::Toggle.new(name: "logging[all][roles]", checked: false, label: "Toggle all Roles events", size: :mini).call }
+
+    it "renders the smaller track and knob" do
+      expect(html).to include("w-8").and include("after:size-3.5")
+      expect(html).not_to include("w-11")
+    end
   end
 end

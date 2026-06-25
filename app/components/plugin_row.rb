@@ -23,7 +23,7 @@ class Components::PluginRow < Components::Base
       render Components::PluginTile.new(icon: ICONS[@key], enabled: @enabled)
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
-          span(class: "font-display font-semibold") { t(".plugin.#{@key}.name") }
+          span(class: "font-display font-semibold") { name }
           status_badge
         end
         p(class: "mt-0.5 text-sm text-text-secondary") { t(".plugin.#{@key}.description") }
@@ -36,11 +36,10 @@ class Components::PluginRow < Components::Base
   private
 
   def toggle
-    name = t(".plugin.#{@key}.name")
     if @locked
-      render Components::Tooltip.new(text: t(".plugin.#{@key}.locked")) do
-        render Components::Toggle.new(name: :enabled, checked: true, label: t(".toggle", plugin: name), disabled: true)
-      end
+      locked_toggle(checked: true, tooltip: t(".plugin.#{@key}.locked"))
+    elsif blocked_until_setup?
+      locked_toggle(checked: false, tooltip: t(".needs_setup_hint"))
     else
       render Components::Toggle.new(
         name: :enabled,
@@ -52,20 +51,28 @@ class Components::PluginRow < Components::Base
     end
   end
 
+  def locked_toggle(checked:, tooltip:)
+    render Components::Tooltip.new(text: tooltip) do
+      render Components::Toggle.new(name: :enabled, checked:, label: t(".toggle", plugin: name), disabled: true)
+    end
+  end
+
+  def blocked_until_setup?
+    !@configured && !@enabled
+  end
+
+  def name
+    t(".plugin.#{@key}.name")
+  end
+
   def status_badge
     render Components::Badge.new(variant: STATUS_VARIANTS.fetch(status), dot: true) { t(".status.#{status}") }
   end
 
   def status
-    if @locked
-      :always_enabled
-    elsif !@enabled
-      :disabled
-    elsif @configured
-      :enabled
-    else
-      :needs_setup
-    end
+    return :always_enabled if @locked
+    return :needs_setup unless @configured
+    @enabled ? :enabled : :disabled
   end
 
   def configure_link

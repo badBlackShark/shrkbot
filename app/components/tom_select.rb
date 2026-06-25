@@ -18,7 +18,7 @@ class Components::TomSelect < Components::Base
 
   def view_template
     select(name: @name, id: @dom_id, autocomplete: "off", class: "w-full", data: data) do
-      option(value: "") { @placeholder.to_s } if @include_blank
+      option(value: "") if @include_blank
       @options.each do |opt|
         option(**option_attrs(opt)) { opt.label }
       end
