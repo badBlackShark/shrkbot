@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PluginCatalog
   Definition = Data.define(:key, :name, :description, :channel_setting) do
     def channel_backed?

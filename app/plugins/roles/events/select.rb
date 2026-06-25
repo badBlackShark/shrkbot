@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Roles
   class Select < ComponentHandler
     on :string_select, custom_id: /\Aroles:select:/

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateRoleSettings < ActiveRecord::Migration[8.1]
   def change
     create_table :role_settings, id: false do |t|

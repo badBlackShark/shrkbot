@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Ops
   module Reminders
     class Delete < ApplicationOperation

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Reminders
   class DeliverJob < ApplicationJob
     include ActionView::Helpers::DateHelper

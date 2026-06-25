@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RestructureRolesForMultipleSets < ActiveRecord::Migration[8.1]
   def up
     remove_column :role_settings, :message_id

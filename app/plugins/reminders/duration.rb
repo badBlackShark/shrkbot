@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Reminders
   module Duration
     UNITS = {"w" => :weeks, "d" => :days, "h" => :hours, "m" => :minutes, "s" => :seconds}.freeze

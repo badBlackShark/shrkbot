@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Plugin < ApplicationRecord
   has_many :plugin_activations, dependent: :delete_all
 

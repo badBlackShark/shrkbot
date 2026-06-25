@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Ops
   module Logging
     class Configure < ApplicationOperation

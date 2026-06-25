@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChannelSync < BaseEvent
   on :channel_create, :channel_update, :channel_delete
 

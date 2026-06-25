@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Welcomes
   class Settings < ApplicationRecord
     self.table_name = "welcome_settings"

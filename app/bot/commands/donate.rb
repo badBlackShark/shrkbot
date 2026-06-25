@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module Commands
   class Donate < BaseCommand
     command_name :donate
     description "Find out what it costs to run shrkbot and how you can support the project."
     register_in :global
 
-    MESSAGE = <<~DONATE.freeze
+    MESSAGE = <<~DONATE
       Thank you for considering supporting the shrkbot project! For full transparency, here's what it currently costs to keep shrkbot running:
       • Hosting: 10.60€ / month
 

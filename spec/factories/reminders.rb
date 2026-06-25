@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   # server_id stays nil by default (DM-style); set it explicitly for server reminders.
   factory :reminder, class: "Reminders::Reminder" do

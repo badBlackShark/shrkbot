@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Roles
   # Until Phase 8 (Redis config-change trigger), callers invoke this on demand.
   class MessagePoster

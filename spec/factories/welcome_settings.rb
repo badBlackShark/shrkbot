@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :welcome_settings, class: "Welcomes::Settings" do
     association :server_configuration

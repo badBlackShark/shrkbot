@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ServerOnboarder
   WELCOME_MESSAGE = <<~MSG.strip
     👋 Thanks for adding shrkbot!

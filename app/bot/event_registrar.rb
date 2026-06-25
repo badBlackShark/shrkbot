@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class EventRegistrar
   def initialize(bot, events:)
     @bot = bot

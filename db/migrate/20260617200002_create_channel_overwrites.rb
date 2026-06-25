@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateChannelOverwrites < ActiveRecord::Migration[8.1]
   def change
     create_table :channel_overwrites, id: false do |t|

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreatePlugins < ActiveRecord::Migration[8.1]
   def change
     create_table :plugins, id: false do |t|

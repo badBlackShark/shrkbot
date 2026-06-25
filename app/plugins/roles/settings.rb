@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Roles
   class Settings < ApplicationRecord
     self.table_name = "role_settings"

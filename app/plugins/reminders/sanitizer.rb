@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Reminders
   module Sanitizer
     ZERO_WIDTH = "​"

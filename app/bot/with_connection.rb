@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module WithConnection
   def with_connection(&)
     ActiveRecord::Base.connection_pool.with_connection(&)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ServerChannel < ApplicationRecord
   belongs_to :server_configuration
   has_many :channel_overwrites, dependent: :delete_all

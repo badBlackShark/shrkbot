@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Welcomes
   module Message
     module_function

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CommandRegistrar
   def initialize(bot, commands:, instant_global: false, define_commands: true)
     @bot = bot

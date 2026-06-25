@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Servers::LoggingController < ApplicationController
   include RequiresManageableServer
 

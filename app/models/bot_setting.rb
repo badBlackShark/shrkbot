@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class BotSetting < ApplicationRecord
   validates :key, presence: true, uniqueness: true
 
