@@ -1,14 +1,3 @@
-/* Hand-written classes that Tailwind utilities can't express: the chamfer
-   geometry, motion keyframes + animation helpers, the dropdown/theme-toggle
-   choreography, and the Tom Select-adjacent button fill. All honour
-   prefers-reduced-motion (see the block at the foot). */
-
-/* ── Chamfer — machined cut-corner. Brand-forward surfaces only (app-bar,
-   plugin-identity tiles, mascot lockup, primary CTA). Everyday cards, inputs
-   and chips keep their rounded radii: the soft-body/sharp-metal contrast is
-   the point. For a bordered chamfered element, wrap two layers (outer = border
-   colour + 1px padding + chamfer(c); inner = fill + chamfer(c - 1px)) — a lone
-   clip-path slices the border off the diagonals. ── */
 .chamfer-tile {
   --cut: var(--chamfer);
   clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
@@ -22,12 +11,10 @@
   clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
   border-radius: 0;
 }
-/* Bar — top two corners square, bottom two chamfered (the app-bar shape). */
 .chamfer-bar {
   clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--chamfer)), calc(100% - var(--chamfer)) 100%, var(--chamfer) 100%, 0 calc(100% - var(--chamfer)));
 }
 
-/* ── Motion keyframes ── */
 @keyframes menuEnter {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -45,8 +32,6 @@
   to   { opacity: 1; }
 }
 
-/* ── Button fill (transitional — to be replaced by darken-on-hover when the
-   Button component lands) ── */
 .btn-fill { position: relative; overflow: hidden; }
 .btn-fill::after {
   content: "";
@@ -63,7 +48,6 @@
 .btn-fill-secondary::after { background: var(--surface-sunken); }
 .btn-fill-ghost::after { background: var(--surface-sunken); }
 
-/* ── Interactive card lift — rises and gains a faint teal border on hover ── */
 .card-lift {
   transition: transform var(--dur-base) var(--ease-standard),
     box-shadow var(--dur-base) var(--ease-standard),
@@ -79,8 +63,6 @@
 .anim-toast { animation: slideUp var(--dur-base) var(--ease-standard) forwards; }
 .anim-fade { animation: fadeIn var(--dur-slow); }
 
-/* ── Dropdown panel — fades/slides in on [open], and back out while .is-closing
-   (the controller keeps the panel mounted until the exit animation ends). ── */
 details[open] > .dropdown-menu {
   animation: menuEnter var(--dur-base) var(--ease-standard);
 }
@@ -88,19 +70,12 @@ details[open] > .dropdown-menu.is-closing {
   animation: menuLeave var(--dur-base) var(--ease-exit) forwards;
 }
 
-/* Trigger chevron: left when closed, down when open, and back to left the
-   moment a close starts (so it rotates with the fade-out, not after it). */
 .dropdown-chevron {
-  transform: rotate(90deg);
   transition: transform var(--dur-base) var(--ease-standard);
 }
-details[open] .dropdown-chevron { transform: rotate(0deg); }
-details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(90deg); }
+details[open] .dropdown-chevron { transform: rotate(180deg); }
+details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0deg); }
 
-/* ── Theme toggle ── */
-/* Ease surface colours during a theme switch (the controller adds
-   .theme-switching for the duration). The morphing icons are excluded so this
-   doesn't replace their transform/opacity transition. */
 .theme-switching,
 .theme-switching *:not(.theme-morph):not(.theme-morph *) {
   transition: background-color var(--dur-slow) var(--ease-standard),

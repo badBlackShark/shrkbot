@@ -58,10 +58,10 @@ The panel (`.dropdown-menu`, a `menu` target) fades/slides in via CSS on `[open]
 and fades/slides back out on close — the controller intercepts the close
 (`click->dropdown#toggle`, plus outside-click and Escape) so the exit animation
 finishes before the panel is removed, then sets `open = false`. The trigger's
-`.dropdown-chevron` points left when closed, rotates down when open, and rotates
-back the moment a close starts (keyed off the panel's `.is-closing` via `:has`,
-so it turns with the fade-out rather than after it). Reduced motion drops both
-directions.
+`.dropdown-chevron` points down when closed, rotates up when open, and rotates
+back down the moment a close starts (keyed off the panel's `.is-closing` via
+`:has`, so it turns with the fade-out rather than after it). Reduced motion drops
+both directions.
 
 The top bar also gains a **server switcher** when a page is scoped to one server
 (the dashboard passes `current_server:` + `servers:` to `AppShell`): a `dropdown`
