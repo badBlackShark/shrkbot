@@ -7,10 +7,8 @@ import { Controller } from "@hotwired/stimulus"
 //     <summary data-action="click->dropdown#toggle">…</summary>
 //     <div data-dropdown-target="menu" class="dropdown-menu">…</div>
 //   </details>
-// A transient menu dismisses on outside-click/Escape (the default); a
-// persistent disclosure (e.g. an accordion section) sets
-// data-dropdown-dismiss-on-outside-value="false" so it only closes via its own
-// summary.
+// dismissOnOutside=false keeps a persistent disclosure (an accordion section)
+// open until its own summary closes it, unlike a transient menu.
 export default class extends Controller {
   static targets = ["menu"]
   static values = {dismissOnOutside: {type: Boolean, default: true}}
