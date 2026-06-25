@@ -28,7 +28,8 @@
 }
 
 .app-bar {
-  position: relative;
+  position: sticky;
+  top: 0;
   background: transparent;
 }
 .app-bar::before {
