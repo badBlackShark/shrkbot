@@ -71,6 +71,13 @@ RSpec.describe "Welcomes config", type: :request do
           expect(response.body).to include("turbo:submit-end-&gt;save-bar#saved").or include("turbo:submit-end->save-bar#saved")
         end
 
+        it "renders the plugin sidebar with a link to the other config page" do
+          get server_welcomes_path(guild.id)
+          expect(response.body).to include("<aside").and include("Plugins")
+          expect(response.body).to include(server_logging_path(guild.id))
+          expect(response.body).to include('aria-current="page"')
+        end
+
         it "labels the live preview with the saved channel" do
           create(:server_channel, server_configuration: config, name: "general", discord_id: 111)
           config.welcome_settings.update!(channel_id: 111)

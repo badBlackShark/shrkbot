@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Components::PluginRow < Components::Base
-  ICONS = {roles: "users-three", welcomes: "hand-waving", logging: "scroll", reminders: "bell-ringing"}.freeze
+  include Components::PluginNav
 
   STATUS_VARIANTS = {
     always_enabled: :success,
@@ -20,7 +20,7 @@ class Components::PluginRow < Components::Base
 
   def view_template
     render Components::Card.new(enabled: @enabled, id: "plugin-#{@key}", class: "flex items-center gap-4") do
-      render Components::PluginTile.new(icon: ICONS[@key], enabled: @enabled)
+      render Components::PluginTile.new(icon: plugin_icon(@key), enabled: @enabled)
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { name }
@@ -86,10 +86,6 @@ class Components::PluginRow < Components::Base
   end
 
   def configure_href
-    case @key.to_sym
-    when :welcomes then server_welcomes_path(@server_id)
-    when :logging then server_logging_path(@server_id)
-    else "#"
-    end
+    plugin_config_path(@server_id, @key) || "#"
   end
 end

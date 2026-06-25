@@ -8,7 +8,10 @@ class Views::Servers::Logging::Show < Views::Base
   end
 
   def view_template
-    render Components::AppShell.new(user: @user) do
+    render Components::AppShell.new(
+      user: @user,
+      sidebar: Components::PluginSidebar.new(server_configuration: @config, active_key: :logging)
+    ) do
       render Components::ConfigPage.new(
         icon: "scroll",
         title: t(".title"),

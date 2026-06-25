@@ -62,6 +62,9 @@ en:
         enabled: Enabled
         needs_setup: Needs setup
       toggle: Toggle %{plugin}
+    plugin_sidebar:
+      dashboard: Dashboard
+      plugins: Plugins
     save_bar:
       discard: Discard
       discarded: Changes discarded

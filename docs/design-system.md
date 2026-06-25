@@ -124,6 +124,15 @@ operation enforces the requirement server-side and the form re-renders with the
 inline error if it's missing. ConfigPage is gated-only today — the non-gated case
 (Reminders) will add the plain path when that page lands.
 
+On config pages the app shell also renders a left **`Components::PluginSidebar`**
+(passed to `AppShell` via `sidebar:`, which switches the shell to a sidebar+main
+layout). It lists the plugins that have a config page — resolved through the
+shared `Components::PluginNav` mixin (plugin→icon and plugin→config-path, shared
+with `PluginRow` so the two can't drift) — with a status dot, an active highlight
+(`aria-current="page"`), and a back-to-dashboard link. It's `hidden md:block`
+(the breadcrumb covers navigation on narrow screens). Roles/Reminders join the
+list automatically once they have config routes.
+
 `Components::SaveBar` is the commit affordance: a fixed bottom bar, hidden until
 the form differs from its initial state. The `save-bar` Stimulus controller (on
 the form alongside `enable-gate`) snapshots the form on connect and compares on

@@ -8,7 +8,10 @@ class Views::Servers::Welcomes::Show < Views::Base
   end
 
   def view_template
-    render Components::AppShell.new(user: @user) do
+    render Components::AppShell.new(
+      user: @user,
+      sidebar: Components::PluginSidebar.new(server_configuration: @config, active_key: :welcomes)
+    ) do
       render Components::ConfigPage.new(
         icon: "hand-waving",
         title: t(".title"),

@@ -4,17 +4,25 @@ class Components::AppShell < Components::Base
   include Phlex::Rails::Helpers::ImageTag
   include Phlex::Rails::Helpers::ButtonTo
 
-  def initialize(user:, current_server: nil, servers: [], plugin_counts: {})
+  def initialize(user:, current_server: nil, servers: [], plugin_counts: {}, sidebar: nil)
     @user = user
     @current_server = current_server
     @servers = servers
     @plugin_counts = plugin_counts
+    @sidebar = sidebar
   end
 
   def view_template(&block)
     div(class: "flex min-h-screen flex-col") do
       top_bar
-      main(class: "flex-1") { yield }
+      if @sidebar
+        div(class: "flex flex-1") do
+          render @sidebar
+          main(class: "min-w-0 flex-1") { yield }
+        end
+      else
+        main(class: "flex-1") { yield }
+      end
     end
   end
 
