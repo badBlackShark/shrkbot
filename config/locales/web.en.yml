@@ -16,7 +16,6 @@ en:
       disabled_title: "%{plugin} is disabled"
       enable: Enable %{plugin}
       enabled: Enabled
-      save: Save changes
       servers: Servers
     logging:
       config_form:
@@ -63,6 +62,10 @@ en:
         enabled: Enabled
         needs_setup: Needs setup
       toggle: Toggle %{plugin}
+    save_bar:
+      discard: Discard
+      save: Save
+      unsaved: Unsaved changes
     welcomes:
       config_form:
         channel:

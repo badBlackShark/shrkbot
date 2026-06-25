@@ -20,7 +20,14 @@ class Components::ConfigPage < Components::Base
           {label: @title}
         ]
       )
-      form_with(url: @gate[:url], method: :patch, data: {controller: "enable-gate"}) do
+      form_with(
+        url: @gate[:url],
+        method: :patch,
+        data: {
+          controller: "enable-gate save-bar",
+          action: "input->save-bar#check change->save-bar#check turbo:submit-end->save-bar#saved"
+        }
+      ) do
         header
         render Components::EnableGate.new(
           enabled: @gate[:enabled],
@@ -28,7 +35,7 @@ class Components::ConfigPage < Components::Base
           message: @gate[:message],
           enable_label: t(".enable", plugin: @title)
         ) { yield }
-        save_bar
+        render Components::SaveBar.new
       end
     end
   end
@@ -58,12 +65,6 @@ class Components::ConfigPage < Components::Base
         label: t(".enable", plugin: @title),
         data: {enable_gate_target: "toggle", action: "change->enable-gate#update"}
       )
-    end
-  end
-
-  def save_bar
-    div(class: "mt-5 flex justify-end") do
-      render Components::Button.new(variant: :primary, size: :lg, type: "submit", icon: "check", label: t(".save"))
     end
   end
 end

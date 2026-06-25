@@ -19,6 +19,8 @@ export default class extends Controller {
 
   enable() {
     this.toggleTarget.checked = true
-    this.update()
+    // a programmatic .checked fires no change event; dispatch one so the gate
+    // and the save bar both react as they do to a real toggle click
+    this.toggleTarget.dispatchEvent(new Event("change", {bubbles: true}))
   }
 }
