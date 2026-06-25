@@ -24,7 +24,13 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def channel_card
-    render Components::Card.new do
+    render Components::Card.new(
+      data: {
+        controller: "channel-warning",
+        action: "change->channel-warning#update",
+        channel_warning_visible_ids_value: visible_channel_ids.to_json
+      }
+    ) do
       label(class: "block text-sm font-semibold") { t(".channel.label") }
       p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".channel.help") }
       if channels.empty?
@@ -76,9 +82,11 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def visibility_warning
-    return unless visible_channel?
-
-    render Components::Callout.new(variant: :warning, class: "mt-3") do
+    render Components::Callout.new(
+      variant: :warning,
+      class: "mt-3 #{"hidden" unless visible_channel?}",
+      data: {channel_warning_target: "warning"}
+    ) do
       plain t(".channel.visible_warning")
     end
   end
@@ -87,6 +95,10 @@ class Components::Logging::ConfigForm < Components::Base
     return false unless @settings.channel_id
 
     @config.server_channels.find_by(discord_id: @settings.channel_id)&.everyone_visible?
+  end
+
+  def visible_channel_ids
+    @config.server_channels.text.select(&:everyone_visible?).map { |channel| channel.discord_id.to_s }
   end
 
   def channels
