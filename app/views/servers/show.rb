@@ -60,7 +60,7 @@ class Views::Servers::Show < Views::Base
   end
 
   def plugins_section
-    p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-text-secondary") { t(".plugins") }
+    p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins") }
     div(class: "flex flex-col gap-3") do
       @plugins.each do |row|
         render Components::PluginRow.new(server_id: @guild.id, key: row.key, enabled: row.enabled, configured: row.configured)
