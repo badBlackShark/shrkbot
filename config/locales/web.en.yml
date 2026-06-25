@@ -83,6 +83,8 @@ en:
           placeholder: "{user} has left the server."
         placeholders:
           intro: 'Placeholders:'
+          membercount: Expands to the server's current member count.
+          user: Expands to the member who joined or left.
         preview:
           empty: This message is off.
           label: Live preview

@@ -87,14 +87,20 @@ class Components::Welcomes::ConfigForm < Components::Base
     render Components::Callout.new(variant: :neutral) do
       span(class: "font-semibold") { t(".placeholders.intro") }
       whitespace
-      placeholder_chip("{user}")
+      placeholder_chip("{user}", t(".placeholders.user"))
       whitespace
-      placeholder_chip("{membercount}")
+      placeholder_chip("{membercount}", t(".placeholders.membercount"))
     end
   end
 
-  def placeholder_chip(token)
-    code(class: "rounded bg-surface-sunken px-1.5 py-0.5 font-mono text-xs text-accent-soft-fg") { token }
+  def placeholder_chip(token, description)
+    render Components::Tooltip.new(text: description) do
+      code(
+        tabindex: "0",
+        class: "cursor-help rounded bg-surface-sunken px-1.5 py-0.5 font-mono text-xs text-accent-soft-fg " \
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+      ) { token }
+    end
   end
 
   def preview
