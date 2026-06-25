@@ -44,7 +44,8 @@ class Components::Logging::ConfigForm < Components::Base
           options: channels,
           selected: @settings.channel_id,
           placeholder: t(".channel.placeholder"),
-          include_blank: true
+          include_blank: true,
+          prefix: "#"
         )
       end
       visibility_warning
@@ -146,7 +147,7 @@ class Components::Logging::ConfigForm < Components::Base
 
   def channels
     @channels ||= @config.server_channels.text.map do |channel|
-      Components::TomSelect::Option.for(value: channel.discord_id, label: "# #{channel.name}")
+      Components::TomSelect::Option.for(value: channel.discord_id, label: channel.name)
     end
   end
 end

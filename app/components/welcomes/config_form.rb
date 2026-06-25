@@ -44,7 +44,8 @@ class Components::Welcomes::ConfigForm < Components::Base
           options: channels,
           selected: @settings.channel_id,
           placeholder: t(".channel.placeholder"),
-          include_blank: true
+          include_blank: true,
+          prefix: "#"
         )
       end
     end
@@ -131,7 +132,7 @@ class Components::Welcomes::ConfigForm < Components::Base
 
   def channels
     @channels ||= @config.server_channels.text.map do |channel|
-      Components::TomSelect::Option.for(value: channel.discord_id, label: "# #{channel.name}")
+      Components::TomSelect::Option.for(value: channel.discord_id, label: channel.name)
     end
   end
 

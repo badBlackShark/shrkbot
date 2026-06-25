@@ -1,4 +1,13 @@
 .ts-wrapper { font: inherit; }
+.ts-control,
+.ts-control input,
+.ts-dropdown { font-size: 0.875rem; }
+.ts-prefix {
+  margin-right: 0.3125rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+}
 .ts-wrapper.single .ts-control,
 .ts-wrapper.multi .ts-control {
   min-height: 2.5rem;

@@ -81,8 +81,8 @@ RSpec.describe "Welcomes config", type: :request do
           create(:server_channel, server_configuration: config, name: "general", discord_id: 111, channel_type: 0)
           create(:server_channel, server_configuration: config, name: "lounge", discord_id: 222, channel_type: 2)
           get server_welcomes_path(guild.id)
-          expect(response.body).to include("# general")
-          expect(response.body).not_to include("# lounge")
+          expect(response.body).to include(">general<")
+          expect(response.body).not_to include("lounge")
         end
       end
 
