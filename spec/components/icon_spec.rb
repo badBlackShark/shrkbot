@@ -35,4 +35,12 @@ RSpec.describe Components::Icon do
       expect(svg).to eq(PhosphorIcons::Icon.new("users-three", style: :fill, class: "size-5").to_svg)
     end
   end
+
+  context "with an unknown name" do
+    let(:name) { "definitely-not-an-icon" }
+
+    it "raises rather than rendering a blank, so typos surface loudly" do
+      expect { svg }.to raise_error(PhosphorIcons::IconNotFoundError)
+    end
+  end
 end

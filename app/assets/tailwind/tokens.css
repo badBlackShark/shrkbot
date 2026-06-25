@@ -1,25 +1,4 @@
-/* ─────────────────────────────────────────────────────────────
-   Design tokens — the source of truth (mirrored into Tailwind
-   utilities by theme.css).
-
-   Material story: a workshop. Warm worked metal (cream "sand"
-   neutrals), one cool teal brand accent, copper as the warm second
-   accent for highlights and wayfinding.
-
-   Two layers:
-   1. Fixed reference ramps — brand (teal), ink (sand), copper.
-      These never change with theme.
-   2. Semantic aliases — text/surface/border/accent. These swap
-      under [data-theme="dark"], so theme-responsive utilities flip
-      automatically. Views use the aliases; the ramps are for the
-      rare element that must stay a fixed colour in both themes.
-
-   Legibility: brand-500 is the brand REFERENCE (tints, borders,
-   icons, focus). Solid surfaces carrying white text use --accent-fill
-   (brand-600+) — white on brand-500 fails contrast.
-   ───────────────────────────────────────────────────────────── */
 :root {
-  /* — Brand: Teal (the bot's Discord accent, #37a79e) — */
   --brand-50: #eef8f6;
   --brand-100: #d2ece8;
   --brand-200: #a8dcd5;
@@ -31,7 +10,6 @@
   --brand-800: #235753;
   --brand-900: #1f4845;
 
-  /* — Second accent: Copper (warmth, community, wayfinding — never status) — */
   --copper-50: #fbf1ea;
   --copper-100: #f5dcca;
   --copper-200: #e9b99c;
@@ -43,7 +21,6 @@
   --copper-800: #6a351d;
   --copper-900: #582e1b;
 
-  /* — Neutral: Sand (warm). ink-50 is the cream page; ink-card lifts off it. — */
   --ink-0: #ffffff;
   --ink-25: #faf7f1;
   --ink-50: #f5f0e8;
@@ -59,7 +36,6 @@
   --ink-950: #110f0c;
   --ink-card: #fdfbf7;
 
-  /* — Semantic hues — green/amber/red, soft tints warmed to sit on cream — */
   --success: #2faf6b;
   --success-soft: #e7f4ec;
   --warning: #e8a13a;
@@ -67,7 +43,6 @@
   --danger: #e0533d;
   --danger-soft: #f8e7e2;
 
-  /* ── Semantic aliases — text ── */
   --text-primary: var(--ink-900);
   --text-secondary: var(--ink-600);
   --text-muted: var(--ink-400);
@@ -75,19 +50,16 @@
   --text-link: var(--brand-700);
   --text-on-accent: #ffffff;
 
-  /* ── Semantic aliases — surface ── */
   --surface-page: var(--ink-50);
   --surface-card: var(--ink-card);
   --surface-raised: var(--ink-card);
   --surface-sunken: var(--ink-100);
   --surface-inverse: var(--ink-900);
 
-  /* ── Semantic aliases — border ── */
   --border-subtle: var(--ink-100);
   --border-default: var(--ink-200);
   --border-strong: var(--ink-300);
 
-  /* ── Brand accent: --accent = reference; --accent-fill = white-text-safe ── */
   --accent: var(--brand-500);
   --accent-fill: var(--brand-600);
   --accent-fill-hover: var(--brand-700);
@@ -95,28 +67,23 @@
   --accent-active: var(--brand-700);
   --accent-soft: var(--brand-50);
   --accent-soft-bd: var(--brand-200);
-  --accent-soft-fg: var(--brand-700); /* teal text on a teal tint */
+  --accent-soft-fg: var(--brand-700);
 
-  /* ── Second accent: Copper. Light mode keeps it light-touch (donate, OSS
-     badge, wordmark "bot"); teal owns wayfinding. Dark mode uses it liberally. ── */
   --accent-2: var(--copper-500);
   --accent-2-hover: var(--copper-600);
   --accent-2-soft: var(--copper-50);
   --accent-2-soft-bd: var(--copper-200);
-  --accent-2-text: var(--copper-600); /* readable copper text on cream */
-  --accent-2-fill: var(--copper-500); /* solid Donate/support button + white text */
+  --accent-2-text: var(--copper-600);
+  --accent-2-fill: var(--copper-500);
   --accent-2-fill-hover: var(--copper-600);
-  --nav-active: var(--accent); /* teal owns active-nav in light */
-  --eyebrow: var(--text-muted); /* section eyebrows: muted in light */
+  --nav-active: var(--accent);
+  --eyebrow: var(--text-muted);
 
   --focus-ring: color-mix(in srgb, var(--brand-500) 45%, transparent);
 
-  /* ── Geometry — the chamfer (machined cut-corner). Brand-forward surfaces
-     only: app-bar, plugin-identity tiles, mascot lockup, primary CTA. ── */
   --chamfer: 12px;
   --chamfer-sm: 6px;
 
-  /* ── Motion — quick, calm, no bounce. ── */
   --dur-fast: 120ms;
   --dur-base: 180ms;
   --dur-slow: 260ms;
@@ -124,12 +91,6 @@
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);
 }
 
-/* ─────────────────────────────────────────────────────────────
-   Dark — warm espresso (the workshop at night). Only the semantic
-   aliases swap; the brand/ink/copper ramps stay fixed. The teal is
-   softened to an aged "patina" so it harmonises with the warm field,
-   and copper does real work (active-nav, eyebrows, warmth).
-   ───────────────────────────────────────────────────────────── */
 [data-theme="dark"] {
   --text-primary: #efe7db;
   --text-secondary: #b1a08a;
@@ -148,7 +109,6 @@
   --border-default: #3d2f22;
   --border-strong: #4d3c2c;
 
-  /* Softened "patina" teal — controls, toggles, icons, primary action. */
   --accent: #46817a;
   --accent-fill: #2c736d;
   --accent-fill-hover: #36877f;
@@ -158,18 +118,16 @@
   --accent-soft-bd: rgba(70, 129, 122, 0.3);
   --accent-soft-fg: #9fd6cd;
 
-  /* Copper — liberal in dark: wayfinding, section eyebrows, warmth. */
   --accent-2: #e8a06d;
   --accent-2-hover: #f0ad7e;
   --accent-2-text: #e8a06d;
-  --accent-2-fill: var(--copper-500); /* Donate/support — white text */
+  --accent-2-fill: var(--copper-500);
   --accent-2-fill-hover: var(--copper-600);
   --accent-2-soft: rgba(196, 98, 45, 0.15);
   --accent-2-soft-bd: rgba(196, 98, 45, 0.34);
   --nav-active: #e8a06d;
   --eyebrow: #e8a06d;
 
-  /* Semantic soft tints, re-mixed to read on espresso instead of cream. */
   --success-soft: rgba(47, 175, 107, 0.14);
   --warning-soft: rgba(232, 161, 58, 0.14);
   --danger-soft: rgba(224, 83, 61, 0.14);

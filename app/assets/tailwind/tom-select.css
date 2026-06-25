@@ -1,5 +1,3 @@
-/* Tom Select skin (the gem ships no CSS). Built on the semantic tokens so it
-   tracks both themes automatically. */
 .ts-wrapper { font: inherit; }
 .ts-wrapper.single .ts-control,
 .ts-wrapper.multi .ts-control {
