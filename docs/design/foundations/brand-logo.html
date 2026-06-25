@@ -1,4 +1,4 @@
-<!-- @dsCard group="Brand" viewport="700x230" name="Mascot & Logo" subtitle="Mechanical shark biting a wrench — on brand sky" -->
+<!-- @dsCard group="Brand" viewport="700x230" name="Mascot & Logo" subtitle="Mechanical shark biting a wrench — on brand teal" -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +10,8 @@
   .lockup { display: flex; align-items: center; gap: var(--space-3); }
   .badge { width: 44px; height: 44px; border-radius: var(--radius-md); object-fit: cover; }
   .word { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: var(--weight-bold); letter-spacing: var(--tracking-tight); }
-  .word b { color: var(--accent); }
+  .word .shrk { color: var(--accent); }
+  .word .bot  { color: var(--accent-2); }
   .note { font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-3); max-width: 42ch; line-height: var(--leading-normal); }
 </style>
 </head>
@@ -19,9 +20,9 @@
   <div>
     <div class="lockup">
       <img class="badge" src="../assets/shrkbot-mascot.png" alt="" />
-      <div class="word">shrk<b>bot</b></div>
+      <div class="word"><span class="shrk">shrk</span><span class="bot">bot</span></div>
     </div>
-    <div class="note">A tool-jawed shark: equal parts playful and mechanical. Always lowercase. The wordmark sits on white or sky — never stretched, never recolored.</div>
+    <div class="note">A tool-jawed shark: equal parts playful and mechanical. Always lowercase. <span class="shrk">shrk</span> in teal (the brand), <span class="bot">bot</span> in copper (the tool). The wordmark sits on cream or brand teal — never stretched, never recolored.</div>
   </div>
 </body>
 </html>

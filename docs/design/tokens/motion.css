@@ -8,20 +8,31 @@
      --dur-base: 180ms   components (menus, toasts, cards)
      --dur-slow: 260ms   page / overlay transitions
      --ease-standard: cubic-bezier(0.2, 0, 0, 1)
+   --ease-exit:     cubic-bezier(0.4, 0, 1, 1)
 
    Patterns:
-   1. btn-fill        – primary/ghost button fill left→right on hover
+   1. btn-fill        – primary/ghost button hover fill (opacity fade)
    2. card-lift       – interactive card lifts 2px + deeper shadow
    3. menuEnter       – dropdown slides in from above (6px)
    4. slideUp         – toast enters from below (8px)
    5. fadeIn          – gate overlay / generic fade
    6. switch knob     – already CSS transition; use --ease-standard
+   7. dropdownEnter/Exit – dropdown panel fade + translate (4px)
+   8. dropdown-chevron   – left→down 90° rotation on open
    ───────────────────────────────────────────────────────────── */
 
 /* ── Keyframes ── */
 @keyframes menuEnter {
   from { opacity: 0; transform: translateY(-6px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes dropdownEnter {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes dropdownExit {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-4px); }
 }
 @keyframes slideUp {
   from { opacity: 0; transform: translate(-50%, 8px); }
@@ -32,13 +43,13 @@
   to   { opacity: 1; }
 }
 
-/* ── Button fill left→right ──
+/* ── Button hover fill ──
    Add class="btn-fill btn-fill-primary" (or -secondary / -ghost) to any button.
    All direct children must have `position:relative; z-index:1` so the
    ::after fill layer doesn't obscure them. */
 .btn-fill            { position: relative; overflow: hidden; }
-.btn-fill::after     { content: ''; position: absolute; inset: 0; transform: scaleX(0); transform-origin: left center; transition: transform var(--dur-base) var(--ease-standard); pointer-events: none; }
-.btn-fill:hover::after { transform: scaleX(1); }
+.btn-fill::after     { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity var(--dur-base) var(--ease-standard); pointer-events: none; }
+.btn-fill:hover::after { opacity: 1; }
 .btn-fill > *        { position: relative; z-index: 1; }
 .btn-fill-primary::after  { background: var(--accent-hover); }
 .btn-fill-secondary::after { background: var(--surface-sunken); }
@@ -53,11 +64,40 @@
 .anim-toast { animation: slideUp   var(--dur-base) var(--ease-standard) forwards; }
 .anim-fade  { animation: fadeIn    var(--dur-slow); }
 
+/* ── Dropdown panel ──
+   Apply .dropdown-panel to the panel element (consumer controls display).
+   To OPEN:  set display, then add .dropdown-panel--open  (enter animation fires)
+   To CLOSE: remove --open, add .dropdown-panel--close; hide on animationend
+   Both are add-on-demand classes so the keyframe animation restarts each time.
+   Track open state on the element (panel._ddOpen) rather than inferring from
+   classes — class-inference is unreliable mid-animation. Use animationend
+   filtered by animationName === 'dropdownExit' to hide, plus a setTimeout
+   fallback (≥ --dur-base) so reduced-motion / early-clear cases also hide. */
+.dropdown-panel--open  { animation: dropdownEnter var(--dur-base) var(--ease-standard) forwards; }
+.dropdown-panel--close { animation: dropdownExit  var(--dur-base) var(--ease-exit)     forwards; }
+
+/* ── Dropdown chevron ──
+   Apply .dropdown-chevron to a DOWN-pointing chevron icon.
+   Closed = rotated 90° (points left); add .dropdown-chevron--open to rotate to 0° (points down). */
+.dropdown-chevron {
+  display: inline-block;
+  transform: rotate(90deg);
+  transform-origin: center;
+  transition: transform var(--dur-base) var(--ease-standard);
+}
+.dropdown-chevron--open {
+  transform: rotate(0deg);
+}
+
 /* ── Reduce motion ── */
 @media (prefers-reduced-motion: reduce) {
-  .btn-fill::after    { transition: none; transform: scaleX(1); }
+  .btn-fill::after    { transition: none; opacity: 1; }
   .card-lift          { transition: none; }
   .anim-menu,
   .anim-toast,
-  .anim-fade          { animation: none; }
+  .anim-fade,
+  .dropdown-panel--open,
+  .dropdown-panel--close { animation: none; }
+  .dropdown-chevron,
+  .dropdown-chevron--open { transition: none; }
 }

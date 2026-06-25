@@ -1,73 +1,183 @@
-<!-- @dsCard group="Dashboard" viewport="1280x820" name="Config dashboard" subtitle="Full interactive kit: login → servers → plugins → Roles · Welcomes · Logging" -->
+<!-- @dsCard group="Dashboard" viewport="1280x820" name="Config dashboard" subtitle="Full interactive kit: login → servers → plugins → Roles · Welcomes · Logging · Reminders" -->
 <!DOCTYPE html>
 <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<!-- IBM Plex: CDN placeholder; self-host per tokens/fonts.css TODO -->
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Exo+2:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../tokens/colors.css" />
+<link rel="stylesheet" href="../../tokens/spacing.css" />
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config={theme:{extend:{
-  colors:{brand:{50:'#ecf8fe',100:'#cfeefc',200:'#a6e0f9',300:'#6fccf3',400:'#4cb9ec',500:'#39afe5',600:'#1f8fc4',700:'#1a729e',800:'#1b5f80',900:'#1c506b'},ink:{0:'#fff',25:'#fafbfc',50:'#f4f6f8',100:'#e9edf1',200:'#d7dee5',300:'#b9c4cf',400:'#8b99a7',500:'#677483',600:'#4d5763',700:'#3a424c',800:'#262c33',900:'#161a1f'},success:'#2faf6b','success-soft':'#e8f7ef',warning:'#e8a13a','warning-soft':'#fdf3e3',danger:'#e0533d','danger-soft':'#fcecea'},
-  fontFamily:{display:['"Space Grotesk"','"IBM Plex Sans"','system-ui','sans-serif'],sans:['"IBM Plex Sans"','system-ui','sans-serif'],mono:['"IBM Plex Mono"','ui-monospace','monospace']},
-  borderRadius:{sm:'6px',md:'10px',lg:'14px',xl:'20px'},
-  boxShadow:{sm:'0 1px 3px rgba(22,26,31,.08),0 1px 2px rgba(22,26,31,.04)',md:'0 4px 12px rgba(22,26,31,.08),0 2px 4px rgba(22,26,31,.04)',lg:'0 12px 32px rgba(22,26,31,.12),0 4px 8px rgba(22,26,31,.05)'},
+  colors:{brand:{50:'#eef8f6',100:'#d2ece8',200:'#a8dcd5',300:'#73c6bd',400:'#4fb5ab',500:'#37a79e',600:'#2c867f',700:'#266c66',800:'#235753',900:'#1f4845'},copper:{50:'#fbf1ea',100:'#f5dcca',200:'#e9b99c',500:'#c4622d',600:'#a44f23',700:'#823f1f'},ink:{0:'#fff',25:'#faf7f1',50:'#f5f0e8',100:'#ebe4d7',200:'#dcd2c0',300:'#c5b8a1',400:'#a3947d',500:'#7e7160',600:'#5f5547',700:'#473f35',800:'#2f2a23',900:'#1d1a15',card:'#fdfbf7'},success:'#2faf6b','success-soft':'#e7f4ec',warning:'#e8a13a','warning-soft':'#f8efdc',danger:'#e0533d','danger-soft':'#f8e7e2'},
+  fontFamily:{display:['"Space Grotesk"','system-ui','sans-serif'],sans:['"Exo 2"','system-ui','sans-serif'],mono:['"IBM Plex Mono"','ui-monospace','monospace']},
+  borderRadius:{sm:'5px',md:'8px',lg:'12px',xl:'16px',control:'8px',card:'12px',chip:'5px'},
+  boxShadow:{sm:'0 1px 3px rgba(29,26,21,.08),0 1px 2px rgba(29,26,21,.04)',md:'0 4px 12px rgba(29,26,21,.08),0 2px 4px rgba(29,26,21,.04)',lg:'0 12px 32px rgba(29,26,21,.12),0 4px 8px rgba(29,26,21,.05)'},
 }}};
 </script>
 <style>
-/* Space Grotesk self-hosted (IBM Plex: see tokens/fonts.css TODO) */
 @font-face{font-family:'Space Grotesk';src:url('../../fonts/woff2/SpaceGrotesk[wght].woff2') format('woff2-variations');font-weight:300 700;font-display:swap}
 
-/* Routing */
 [data-screen]:not(.active){display:none !important}
 .menu{display:none}.menu.open{display:block;animation:menuEnter 180ms cubic-bezier(.2,0,0,1)}
 
-/* Motion — CSS-only; mirrors tokens/motion.css */
 @keyframes menuEnter{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideUp{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes saveBarIn{from{opacity:0;transform:translateX(-50%) translateY(28px)}65%{opacity:1;transform:translateX(-50%) translateY(-7px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes saveBarOut{0%{opacity:1;transform:translateX(-50%) translateY(0)}20%{transform:translateX(-50%) translateY(-6px)}100%{opacity:0;transform:translateX(-50%) translateY(28px)}}
+
 .btn-fill{position:relative;overflow:hidden}
-.btn-fill::after{content:'';position:absolute;inset:0;transform:scaleX(0);transform-origin:left;transition:transform 200ms cubic-bezier(.2,0,0,1);pointer-events:none}
-.btn-fill:hover::after{transform:scaleX(1)}
+.btn-fill::after{content:'';position:absolute;inset:0;opacity:0;transition:opacity 160ms cubic-bezier(.2,0,0,1);pointer-events:none;border-radius:inherit}
+.btn-fill:hover::after{opacity:1}
 .btn-fill>*{position:relative;z-index:1}
-.btn-fill-primary::after{background:#1f8fc4}
-.btn-fill-ghost::after{background:#e9edf1}
+.btn-fill-primary::after{background:#266c66}
+.btn-fill-ghost::after{background:rgba(95,85,71,.10)}
 .card-lift{transition:transform 200ms cubic-bezier(.2,0,0,1),box-shadow 200ms cubic-bezier(.2,0,0,1),border-color 200ms}
-.card-lift:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(22,26,31,.1),0 2px 6px rgba(22,26,31,.06)}
+.card-lift:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(29,26,21,.1),0 2px 6px rgba(29,26,21,.06);border-color:#a8dcd5}
 .anim-toast{animation:slideUp 200ms cubic-bezier(.2,0,0,1) forwards}
 .anim-fade{animation:fadeIn 250ms}
+.save-bar-anim{animation:saveBarIn 420ms cubic-bezier(.34,1.3,.64,1) forwards}
+.save-bar-out{animation:saveBarOut 300ms cubic-bezier(.4,0,.8,.8) forwards}
 
-/* Dark mode — [data-theme="dark"] class overrides.
-   Tailwind v4 production: use @theme channel vars so utilities respond automatically. */
-[data-theme="dark"] body{background:#0d1117;color:#e6edf3}
-[data-theme="dark"] .bg-white{background:#161b22 !important}
-[data-theme="dark"] .bg-ink-50{background:#0d1117 !important}
-[data-theme="dark"] .bg-ink-25{background:#0f1420 !important}
-[data-theme="dark"] .bg-ink-100{background:#1e2530 !important}
-[data-theme="dark"] .text-ink-900{color:#e6edf3 !important}
-[data-theme="dark"] .text-ink-700{color:#b0bec9 !important}
-[data-theme="dark"] .text-ink-600{color:#8b949e !important}
-[data-theme="dark"] .text-ink-500{color:#6e7681 !important}
-[data-theme="dark"] .text-ink-400{color:#484f58 !important}
-[data-theme="dark"] .border-ink-100{border-color:#21262d !important}
-[data-theme="dark"] .border-ink-200{border-color:#30363d !important}
-[data-theme="dark"] .border-ink-300{border-color:#3d444d !important}
-[data-theme="dark"] .bg-brand-50{background:#0c1e2e !important}
-[data-theme="dark"] .bg-brand-100{background:#122840 !important}
-[data-theme="dark"] .bg-brand-200{background:#1a3a58 !important}
-[data-theme="dark"] .bg-success-soft{background:#0d201a !important}
-[data-theme="dark"] .bg-warning-soft{background:#1f1500 !important}
-[data-theme="dark"] .bg-danger-soft{background:#1f0e0e !important}
-[data-theme="dark"] input,[data-theme="dark"] textarea{background:#0d1117 !important;color:#e6edf3 !important;border-color:#30363d !important}
-[data-theme="dark"] input::placeholder,[data-theme="dark"] textarea::placeholder{color:#484f58}
-[data-theme="dark"] .hover\:bg-ink-50:hover{background:#1c2430 !important}
-[data-theme="dark"] .hover\:bg-ink-100:hover{background:#232e3d !important}
-[data-theme="dark"] .hover\:bg-brand-100:hover{background:#122840 !important}
-[data-theme="dark"] .btn-fill-ghost::after{background:#1e2530}
+/* Mini toggle switch */
+.shrk-switch-mini{position:relative;width:32px;height:18px;flex:none;border:none;border-radius:999px;cursor:pointer;padding:0;background:#c5b8a1;transition:background 180ms cubic-bezier(.2,0,0,1);outline:none}
+.shrk-switch-mini[data-on="true"]{background:#2c867f}
+.shrk-switch-mini::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform 220ms cubic-bezier(.2,0,0,1)}
+.shrk-switch-mini[data-on="true"]::after{transform:translateX(14px)}
+[data-theme="dark"] .shrk-switch-mini{background:#5e4a37}
+[data-theme="dark"] .shrk-switch-mini[data-on="true"]{background:var(--accent-fill)}
+.shrk-tooltip{position:relative;display:inline-flex}
+.shrk-tooltip-pop{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);white-space:normal;width:220px;background:#2f2a23;color:#fff;font-size:12px;line-height:1.45;padding:7px 10px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity 150ms;z-index:60;text-align:center}
+.shrk-tooltip:hover .shrk-tooltip-pop{opacity:1}
+
+@keyframes logCollapse{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-4px)}}
+@keyframes logExpand{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fieldShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+.field-error{animation:fieldShake 320ms cubic-bezier(.2,0,0,1)}
+.field-error-ring{border-color:#e0533d !important;box-shadow:0 0 0 3px rgba(224,83,61,.2) !important}
+
+/* Plugin sidebar nav */
+.plugin-nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;transition:background 140ms}
+.plugin-nav-item:hover{background:var(--surface-sunken)}
+.plugin-nav-item.active{background:var(--accent-soft)}
+
+[data-theme="light"] .bg-white{background-color:#fdfbf7}
+
+/* ── Dark mode — warm espresso ── */
+[data-theme="dark"] body{background:var(--surface-page);color:var(--text-primary)}
+[data-theme="dark"] .bg-white{background:var(--surface-card) !important}
+[data-theme="dark"] .bg-ink-50{background:var(--surface-page) !important}
+[data-theme="dark"] .bg-ink-25{background:var(--surface-sunken) !important}
+[data-theme="dark"] .bg-ink-100{background:var(--surface-raised) !important}
+[data-theme="dark"] .text-ink-900{color:var(--text-primary) !important}
+[data-theme="dark"] .text-ink-700{color:var(--text-secondary) !important}
+[data-theme="dark"] .text-ink-600{color:var(--text-secondary) !important}
+[data-theme="dark"] .text-ink-500{color:var(--text-secondary) !important}
+[data-theme="dark"] .text-ink-400{color:var(--text-secondary) !important}
+[data-theme="dark"] .border-ink-100{border-color:var(--border-subtle) !important}
+[data-theme="dark"] .border-ink-200{border-color:var(--border-default) !important}
+[data-theme="dark"] .border-ink-300{border-color:var(--border-strong) !important}
+[data-theme="dark"] .bg-brand-50{background:var(--accent-soft) !important}
+[data-theme="dark"] .bg-brand-100{background:var(--accent-soft) !important}
+[data-theme="dark"] .bg-brand-200{background:rgba(95,160,153,.25) !important}
+[data-theme="dark"] .bg-success-soft{background:rgba(47,175,107,.12) !important}
+[data-theme="dark"] .bg-warning-soft{background:rgba(232,161,58,.12) !important}
+[data-theme="dark"] .bg-danger-soft{background:rgba(224,83,61,.12) !important}
+[data-theme="dark"] input,[data-theme="dark"] textarea{background:var(--surface-sunken) !important;color:var(--text-primary) !important;border-color:var(--border-default) !important}
+[data-theme="dark"] input::placeholder,[data-theme="dark"] textarea::placeholder{color:var(--text-muted)}
+[data-theme="dark"] .hover\:bg-ink-50:hover{background:var(--surface-raised) !important}
+[data-theme="dark"] .hover\:bg-ink-100:hover{background:var(--surface-raised) !important}
+[data-theme="dark"] .hover\:bg-brand-100:hover{background:var(--accent-soft) !important}
+/* Brand teal classes are static hex in Tailwind config — remap to the dark patina teal */
+[data-theme="dark"] .hover\:bg-brand-50:hover{background:var(--accent-soft) !important}
+[data-theme="dark"] .bg-brand-600{background:var(--accent-fill) !important}
+/* Plugin identity tiles carry an icon (not a text label) — use the brand reference
+   --accent (#46817a), not the white-text-safe fill --accent-fill (#2c736d). */
+[data-theme="dark"] .chamfer-tile.bg-brand-600{background:var(--accent) !important}
+[data-theme="dark"] .text-brand-600{color:var(--accent) !important}
+[data-theme="dark"] .border-brand-500{border-color:var(--accent) !important}
+[data-theme="dark"] .border-brand-400{border-color:var(--accent) !important}
+[data-theme="dark"] .hover\:text-brand-600:hover{color:var(--accent) !important}
+[data-theme="dark"] .hover\:border-brand-400:hover{border-color:var(--accent) !important}
+[data-theme="dark"] .focus\:border-brand-500:focus{border-color:var(--accent) !important}
+[data-theme="dark"] .btn-fill-primary::after{background:var(--accent-fill-hover)}
+[data-theme="dark"] .btn-fill-ghost::after{background:rgba(255,255,255,.06)}
+[data-theme="dark"] .plugin-nav-item:hover{background:var(--surface-raised)}
+[data-theme="dark"] .plugin-nav-item.active{background:var(--accent-soft)}
 
 @media(prefers-reduced-motion:reduce){
-  .btn-fill::after{transition:none;transform:scaleX(1)}
+  .btn-fill::after{transition:none}
   .card-lift{transition:none}
-  .menu.open,.anim-toast,.anim-fade{animation:none}
+  .menu.open,.anim-toast,.anim-fade,.save-bar-anim{animation:none}
 }
+
+/* ── Dark mode continued ── */
+[data-theme="dark"] .text-brand-700{color:var(--accent-hover) !important}
+[data-theme="dark"] .text-brand-800{color:var(--accent) !important}
+[data-theme="dark"] .divide-ink-100>*+*{border-color:var(--border-subtle) !important}
+[data-theme="dark"] .card-lift:hover{border-color:var(--accent-soft-bd) !important}
+[data-theme="dark"] .border-brand-200{border-color:var(--accent-soft-bd) !important}
+[data-theme="dark"] [class*="border-[#ecd6a6]"]{border-color:rgba(232,161,58,.25) !important}
+[data-theme="dark"] [data-gate-overlay]{background:rgba(26,19,13,.82) !important}
+
+/* Copper badge — warm second accent, theme-aware via tokens */
+.copper-badge{color:var(--accent-2-text);background:var(--accent-2-soft);border:1px solid var(--accent-2-soft-bd)}
+
+/* Count badge — "N enabled" summary on server cards (theme-aware) */
+.badge-count-on{color:#1f4845;background:#d2ece8}
+[data-theme="dark"] .badge-count-on{color:#a8dcd5;background:rgba(95,160,153,.16)}
+
+/* App-bar — chamfer lives on a background layer so the dropdowns (which hang
+   below the header) are NOT clipped by the clip-path. */
+.app-bar{position:relative;background:transparent}
+.app-bar::before{content:'';position:absolute;inset:0;z-index:0;background:var(--surface-card);border-bottom:1px solid var(--border-default);clip-path:polygon(0 0,100% 0,100% calc(100% - var(--chamfer,12px)),calc(100% - var(--chamfer,12px)) 100%,var(--chamfer,12px) 100%,0 calc(100% - var(--chamfer,12px)))}
+.app-bar>*{position:relative;z-index:1}
+
+/* ── Chamfer geometry — brand-forward surfaces only ── */
+.chamfer-bar{clip-path:polygon(0 0,100% 0,100% calc(100% - var(--chamfer,12px)),calc(100% - var(--chamfer,12px)) 100%,var(--chamfer,12px) 100%,0 calc(100% - var(--chamfer,12px)))}
+.chamfer-tile{--cut:var(--chamfer,12px);clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% var(--cut),100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,var(--cut) 100%,0 calc(100% - var(--cut)),0 var(--cut))}
+.chamfer-tile-sm{--cut:var(--chamfer-sm,6px);clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% var(--cut),100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,var(--cut) 100%,0 calc(100% - var(--cut)),0 var(--cut))}
+.chamfer-cta{--cut:var(--chamfer-sm,6px);clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% var(--cut),100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,var(--cut) 100%,0 calc(100% - var(--cut)),0 var(--cut));border-radius:0 !important}
+
+/* ── Phosphor icon sizing ── */
+i[class*="ph-"]{display:inline-flex;align-items:center;justify-content:center;line-height:1;flex:none;font-style:normal;vertical-align:middle}
+i[class*="ph-"].w-3{font-size:12px;min-width:12px;height:12px}
+i[class*="ph-"].w-3\.5{font-size:14px;min-width:14px;height:14px}
+i[class*="ph-"].w-4{font-size:16px;min-width:16px;height:16px}
+i[class*="ph-"].w-5{font-size:20px;min-width:20px;height:20px}
+i[class*="ph-"].w-6{font-size:24px;min-width:24px;height:24px}
+i[class*="ph-"].w-7{font-size:28px;min-width:28px;height:28px}
+i[class*="ph-"].w-\[18px\]{font-size:18px;min-width:18px;height:18px}
+
+/* ── Save-bar blocked shake + copper ring (self-contained & restartable) ──
+   Two layered keyframes on one element: the shake animates ONLY transform and
+   stays snappy; the copper ring holds full strength through the shake, then
+   dissolves over ~1s. JS keys cleanup off the ring-fade (the longer) animation
+   so the fade isn't cut short. Re-trigger = remove-class → reflow → add-class. */
+@keyframes saveBarShake{
+  0%{transform:translateX(-50%)}
+  13%{transform:translateX(calc(-50% - 9px))}
+  29%{transform:translateX(calc(-50% + 9px))}
+  45%{transform:translateX(calc(-50% - 7px))}
+  61%{transform:translateX(calc(-50% + 7px))}
+  77%{transform:translateX(calc(-50% - 4px))}
+  90%{transform:translateX(calc(-50% + 4px))}
+  100%{transform:translateX(-50%)}
+}
+@keyframes saveBarRingFade{
+  0%,38%{box-shadow:0 0 0 2.5px var(--accent-2)}
+  100%{box-shadow:0 0 0 2.5px color-mix(in srgb, var(--accent-2), transparent 100%)}
+}
+.save-bar-blocked{animation:saveBarShake 600ms cubic-bezier(.2,0,0,1),saveBarRingFade 1600ms ease-out;border-radius:14px}
+
+/* ── Theme transition ── */
+.theme-transitioning *,.theme-transitioning *::before,.theme-transitioning *::after{transition:background-color 280ms ease,color 200ms ease,border-color 160ms ease !important}
+
+/* ── Menu close animation ── */
+@keyframes menuLeave{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-5px)}}
+.menu.open,.menu.closing{display:block}
+.menu.closing{animation:menuLeave 150ms cubic-bezier(.2,0,0,1) forwards}
+[data-menu-toggle] svg{transition:transform 200ms cubic-bezier(.2,0,0,1)}
 </style>
 </head>
 <body class="bg-ink-50 text-ink-900 antialiased min-h-screen font-sans">
@@ -75,10 +185,10 @@ tailwind.config={theme:{extend:{
 <!-- ═══ LOGIN ═══ -->
 <section data-screen="login" class="active min-h-screen grid place-items-center p-8">
   <div class="w-[420px] max-w-full bg-white border border-ink-200 rounded-xl shadow-lg p-10 text-center">
-    <img src="../../assets/shrkbot-mascot.png" alt="shrkbot" class="w-20 h-20 rounded-lg shadow-md mx-auto" />
-    <h1 class="font-display text-2xl font-bold tracking-tight mt-5 mb-2">Configure shrk<span class="text-brand-500">bot</span></h1>
+    <img src="../../assets/shrkbot-mascot.png" alt="shrkbot" class="w-20 h-20 chamfer-tile shadow-md mx-auto" />
+    <h1 class="font-display text-2xl font-bold tracking-tight mt-5 mb-2">Configure <span class="text-brand-600">shrk</span><span style="color:var(--accent-2-text)">bot</span></h1>
     <p class="text-sm text-ink-600 leading-relaxed mb-6">Turn plugins on or off and set them up — all from one place. Log in to manage the servers you moderate.</p>
-    <button data-goto="servers" class="btn-fill btn-fill-primary w-full h-12 inline-flex items-center justify-center gap-2 rounded-md bg-brand-500 text-white font-semibold">
+    <button data-goto="servers" class="btn-fill btn-fill-primary w-full h-12 inline-flex items-center justify-center gap-2 chamfer-cta bg-brand-600 text-white font-semibold">
       <span data-icon="lin" class="w-[18px] h-[18px]"></span><span>Continue with Discord</span>
     </button>
     <p class="text-xs text-ink-400 mt-5">Free &amp; open source. shrkbot only reads servers you can manage.</p>
@@ -88,10 +198,10 @@ tailwind.config={theme:{extend:{
 <!-- ═══ APP SHELL ═══ -->
 <section data-screen="app" class="min-h-screen flex flex-col">
 
-  <header class="h-16 flex-none bg-white border-b border-ink-200 flex items-center gap-3 px-5 sticky top-0 z-30">
+  <header class="app-bar h-16 flex-none flex items-center gap-3 px-5 sticky top-0 z-30">
     <button data-goto="servers" class="flex items-center gap-2">
-      <img src="../../assets/shrkbot-mascot.png" alt="" class="w-9 h-9 rounded-md" />
-      <span class="font-display text-lg font-bold tracking-tight">shrk<span class="text-brand-500">bot</span></span>
+      <img src="../../assets/shrkbot-mascot.png" alt="" class="w-9 h-9 chamfer-tile-sm" />
+      <span class="font-display text-lg font-bold tracking-tight"><span class="text-brand-600">shrk</span><span style="color:var(--accent-2-text)">bot</span></span>
     </button>
 
     <!-- Server switcher -->
@@ -99,7 +209,7 @@ tailwind.config={theme:{extend:{
       <button data-menu-toggle="server-menu" class="h-10 flex items-center gap-2 pl-1.5 pr-3 rounded-md border border-ink-200 hover:bg-ink-50 transition-colors">
         <span class="w-7 h-7 rounded-md bg-brand-100 text-brand-700 grid place-items-center text-xs font-bold flex-none">DR</span>
         <span class="text-sm font-semibold" data-current-server>Dev Refuge</span>
-        <span data-icon="chvu" class="w-4 h-4 text-ink-400"></span>
+        <span data-icon="chvd" class="w-4 h-4 text-ink-400"></span>
       </button>
       <div id="server-menu" class="menu absolute left-0 top-12 w-72 bg-white border border-ink-200 rounded-lg shadow-lg z-40 overflow-hidden">
         <div class="px-3 pt-3 pb-2">
@@ -111,13 +221,13 @@ tailwind.config={theme:{extend:{
         <p class="px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-ink-400">Configured</p>
         <button data-pick-server="Dev Refuge" class="w-full flex items-center gap-3 px-3 py-2 bg-brand-50 hover:bg-brand-100 text-left transition-colors">
           <span class="w-8 h-8 rounded-md bg-brand-200 text-brand-800 grid place-items-center text-xs font-bold flex-none">DR</span>
-          <div class="flex-1 min-w-0"><p class="text-sm font-semibold truncate">Dev Refuge</p><p class="text-[11px] text-ink-500">2,481 members</p></div>
+          <div class="flex-1 min-w-0"><p class="text-sm font-semibold" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">Dev Refuge</p><p class="text-[11px] text-ink-500">2,481 members</p></div>
           <span class="text-[11px] font-semibold text-brand-700 bg-brand-100 px-1.5 py-0.5 rounded-full flex-none">2 on</span>
-          <span data-icon="chk" class="w-4 h-4 text-brand-500 flex-none"></span>
+          <span data-icon="chk" class="w-4 h-4 text-brand-600 flex-none"></span>
         </button>
-        <button data-pick-server="Speedrun HQ" class="w-full flex items-center gap-3 px-3 py-2 hover:bg-ink-50 text-left transition-colors">
-          <span class="w-8 h-8 rounded-md bg-ink-100 text-ink-500 grid place-items-center text-xs font-bold flex-none">SH</span>
-          <div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">Speedrun HQ</p><p class="text-[11px] text-ink-500">8,902 members</p></div>
+        <button data-pick-server="ShellShock Live Community Discord" class="w-full flex items-center gap-3 px-3 py-2 hover:bg-ink-50 text-left transition-colors">
+          <span class="w-8 h-8 rounded-md bg-ink-100 text-ink-500 grid place-items-center text-xs font-bold flex-none">SS</span>
+          <div class="flex-1 min-w-0"><p class="text-sm font-medium" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">ShellShock Live Community Discord</p><p class="text-[11px] text-ink-500">14,302 members</p></div>
           <span class="text-[11px] font-semibold text-ink-500 bg-ink-100 px-1.5 py-0.5 rounded-full flex-none">0 on</span>
         </button>
         <div class="h-px bg-ink-100 mx-3 my-1.5"></div>
@@ -131,9 +241,6 @@ tailwind.config={theme:{extend:{
     </div>
 
     <div class="flex-1"></div>
-    <span id="save-pill" class="hidden items-center gap-1.5 text-xs font-medium text-success bg-success-soft px-2.5 py-1.5 rounded-full">
-      <span data-icon="chk" class="w-3.5 h-3.5"></span> Saved
-    </span>
 
     <!-- Dark mode toggle -->
     <button id="dark-toggle" title="Toggle dark mode" class="w-9 h-9 rounded-md hover:bg-ink-50 grid place-items-center transition-colors">
@@ -147,15 +254,29 @@ tailwind.config={theme:{extend:{
         <span class="text-sm font-medium hidden sm:block">badBlackShark</span>
         <span data-icon="chvd" class="w-4 h-4 text-ink-400"></span>
       </button>
-      <div id="user-menu" class="menu absolute right-0 top-12 w-52 bg-white border border-ink-200 rounded-lg shadow-lg p-1.5 z-40">
-        <div class="px-2.5 py-2 border-b border-ink-100 mb-1"><p class="text-sm font-semibold">badBlackShark</p><p class="text-xs text-ink-400">Owner · 2 servers</p></div>
-        <button class="btn-fill btn-fill-ghost w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-ink-50 text-sm text-ink-600 transition-colors text-left"><span data-icon="shd" class="w-4 h-4"></span><span>Owner admin</span></button>
+      <div id="user-menu" class="menu absolute right-0 top-12 w-44 bg-white border border-ink-200 rounded-lg shadow-lg p-1.5 z-40">
+        <button class="btn-fill btn-fill-ghost w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-ink-50 text-sm text-ink-600 transition-colors text-left"><span data-icon="shd" class="w-4 h-4"></span><span>Admin panel</span></button>
         <button data-goto="login" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md hover:bg-danger-soft text-sm text-danger transition-colors text-left"><span data-icon="lot" class="w-4 h-4"></span><span>Log out</span></button>
       </div>
     </div>
   </header>
 
-  <main class="flex-1 overflow-y-auto">
+  <div class="flex flex-1 min-h-0">
+
+    <!-- ─── Plugin sidebar ─── -->
+    <aside id="app-sidebar" class="hidden w-56 flex-none bg-ink-25 border-r border-ink-200 sticky top-16 overflow-y-auto" style="height:calc(100vh - 4rem)">
+      <div class="p-4 pt-5">
+        <button data-open-dashboard class="flex items-center gap-2 w-full text-left mb-4 px-2 py-1.5 rounded-md hover:bg-ink-50 transition-colors group">
+          <span data-icon="arl" class="w-4 h-4 text-ink-400 flex-none"></span>
+          <span class="text-sm font-medium text-ink-700 group-hover:text-ink-900 truncate" data-sidebar-server>Dev Refuge</span>
+        </button>
+        <div class="h-px bg-ink-100 mb-3"></div>
+        <p class="text-[10px] font-semibold uppercase tracking-widest px-2 mb-2" style="color:var(--eyebrow)">Plugins</p>
+        <nav id="app-sidebar-nav" class="flex flex-col gap-0.5"></nav>
+      </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto pb-24">
 
     <!-- ─── Servers ─── -->
     <div data-view="servers" class="max-w-4xl mx-auto px-6 py-10">
@@ -164,22 +285,22 @@ tailwind.config={theme:{extend:{
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <button data-pick-server="Dev Refuge" data-open-dashboard class="card-lift text-left bg-white border border-ink-200 rounded-lg shadow-sm p-5 flex flex-col gap-3">
           <div class="flex items-center gap-3"><span class="w-12 h-12 rounded-lg bg-brand-100 text-brand-700 grid place-items-center font-bold">DR</span><div class="min-w-0"><p class="font-semibold text-sm truncate">Dev Refuge</p><p class="text-xs text-ink-400">2,481 members</p></div></div>
-          <span class="self-start text-xs font-semibold text-brand-700 bg-brand-50 px-2.5 py-1 rounded-full">2 plugins on</span>
+          <span class="self-start text-xs font-semibold px-2.5 py-1 rounded-full badge-count-on">2 enabled</span>
         </button>
-        <button data-pick-server="Speedrun HQ" data-open-dashboard class="card-lift text-left bg-white border border-ink-200 rounded-lg shadow-sm p-5 flex flex-col gap-3">
-          <div class="flex items-center gap-3"><span class="w-12 h-12 rounded-lg bg-ink-100 text-ink-500 grid place-items-center font-bold">SH</span><div class="min-w-0"><p class="font-semibold text-sm truncate">Speedrun HQ</p><p class="text-xs text-ink-400">8,902 members</p></div></div>
-          <span class="self-start text-xs font-semibold text-ink-500 bg-ink-100 px-2.5 py-1 rounded-full">0 plugins on</span>
+        <button data-pick-server="ShellShock Live Community Discord" data-open-dashboard class="card-lift text-left bg-white border border-ink-200 rounded-lg shadow-sm p-5 flex flex-col gap-3">
+          <div class="flex items-center gap-3"><span class="w-12 h-12 rounded-lg bg-ink-100 text-ink-500 grid place-items-center font-bold flex-none">SS</span><div class="min-w-0"><p class="font-semibold text-sm" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">ShellShock Live Community Discord</p><p class="text-xs text-ink-400">14,302 members</p></div></div>
+          <span class="self-start text-xs font-semibold text-ink-500 bg-ink-100 px-2.5 py-1 rounded-full">0 enabled</span>
         </button>
         <div class="bg-white border border-dashed border-ink-300 rounded-lg p-5 flex flex-col gap-3">
-          <div class="flex items-center gap-3 opacity-60"><span class="w-12 h-12 rounded-lg bg-ink-100 text-ink-400 grid place-items-center font-bold">AH</span><div class="min-w-0"><p class="font-semibold text-sm truncate">Action Henk</p><p class="text-xs text-ink-400">512 members</p></div></div>
+          <div class="flex items-center gap-3"><span class="w-12 h-12 rounded-lg bg-ink-100 text-ink-400 grid place-items-center font-bold">AH</span><div class="min-w-0"><p class="font-semibold text-sm truncate">Action Henk</p><p class="text-xs text-ink-500">512 members</p></div></div>
           <button class="btn-fill btn-fill-ghost self-start inline-flex items-center gap-1.5 h-8 px-3 rounded-sm border border-ink-300 text-sm font-semibold hover:bg-ink-50 transition"><span data-icon="pls" class="w-3.5 h-3.5"></span><span>Invite shrkbot</span></button>
         </div>
       </div>
       <div class="mt-8 border border-ink-200 border-dashed rounded-lg bg-white p-8 text-center">
-        <span data-icon="anc" class="w-7 h-7 text-ink-300 mx-auto block"></span>
+        <span data-icon="wrnch" class="w-7 h-7 text-ink-300 mx-auto block"></span>
         <p class="font-semibold text-sm mt-2">Don't see a server?</p>
         <p class="text-sm text-ink-500 mt-1 max-w-md mx-auto">You need <span class="font-medium text-ink-700">Manage Server</span> permissions and shrkbot must be present. Invite it, then refresh.</p>
-        <button data-open-empty class="mt-4 btn-fill btn-fill-primary inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-brand-500 text-white text-sm font-semibold"><span data-icon="pls" class="w-4 h-4"></span><span>Invite shrkbot</span></button>
+        <button data-open-empty class="mt-4 btn-fill btn-fill-primary inline-flex items-center gap-1.5 h-9 px-4 chamfer-cta bg-brand-600 text-white text-sm font-semibold"><span data-icon="pls" class="w-4 h-4"></span><span>Invite shrkbot</span></button>
         <p class="text-xs text-ink-400 mt-2">or <button data-open-empty class="underline hover:text-ink-600">preview the no-servers flow</button></p>
       </div>
     </div>
@@ -190,16 +311,8 @@ tailwind.config={theme:{extend:{
       <h1 class="font-display text-xl font-bold tracking-tight mb-2">shrkbot isn't in any of your servers yet</h1>
       <p class="text-sm text-ink-600 max-w-sm leading-relaxed mb-6">You need <span class="font-medium text-ink-800">Manage Server</span> permissions <em>and</em> shrkbot must be present. Invite it to get started.</p>
       <div class="flex flex-wrap justify-center gap-3">
-        <button class="btn-fill btn-fill-primary h-10 inline-flex items-center gap-2 px-5 rounded-md bg-brand-500 text-white text-sm font-semibold"><span data-icon="pls" class="w-4 h-4"></span><span>Invite shrkbot</span></button>
+        <button class="btn-fill btn-fill-primary h-10 inline-flex items-center gap-2 px-5 chamfer-cta bg-brand-600 text-white text-sm font-semibold"><span data-icon="pls" class="w-4 h-4"></span><span>Invite shrkbot</span></button>
         <button class="btn-fill btn-fill-ghost h-10 inline-flex items-center gap-2 px-5 rounded-md border border-ink-200 text-sm font-semibold hover:bg-ink-50 transition"><span data-icon="rfr" class="w-4 h-4"></span><span>Refresh</span></button>
-      </div>
-      <div class="mt-12 w-full max-w-lg text-left">
-        <p class="text-[10px] font-semibold uppercase tracking-widest text-ink-400 mb-3">Your servers — no shrkbot yet</p>
-        <div class="flex flex-col gap-2">
-          <div class="flex items-center gap-3 bg-white border border-ink-100 rounded-lg px-4 py-3 opacity-55"><span class="w-9 h-9 rounded-md bg-ink-100 text-ink-400 grid place-items-center text-xs font-bold flex-none">DR</span><div class="flex-1"><p class="text-sm font-medium">Dev Refuge</p><p class="text-xs text-ink-400">2,481 members</p></div><button class="h-7 px-2.5 rounded-sm border border-ink-200 text-xs font-semibold hover:bg-ink-50 transition">Invite</button></div>
-          <div class="flex items-center gap-3 bg-white border border-ink-100 rounded-lg px-4 py-3 opacity-55"><span class="w-9 h-9 rounded-md bg-ink-100 text-ink-400 grid place-items-center text-xs font-bold flex-none">SH</span><div class="flex-1"><p class="text-sm font-medium">Speedrun HQ</p><p class="text-xs text-ink-400">8,902 members</p></div><button class="h-7 px-2.5 rounded-sm border border-ink-200 text-xs font-semibold hover:bg-ink-50 transition">Invite</button></div>
-        </div>
-        <p class="text-xs text-ink-400 mt-4">Once shrkbot is in a server, come back and refresh — it'll appear above.</p>
       </div>
       <button data-goto="servers" class="mt-8 text-xs text-ink-400 hover:text-ink-600 flex items-center gap-1"><span data-icon="arl" class="w-3 h-3"></span> Back to servers</button>
     </div>
@@ -209,199 +322,262 @@ tailwind.config={theme:{extend:{
       <nav class="text-xs text-ink-400 mb-4 flex items-center gap-1.5"><button data-goto="servers" class="hover:text-ink-700">Servers</button><span data-icon="chvr" class="w-3 h-3"></span><span class="text-ink-600 font-medium" data-current-server>Dev Refuge</span></nav>
       <div class="flex items-center gap-4 mb-6">
         <span class="w-14 h-14 rounded-xl bg-brand-100 text-brand-700 grid place-items-center text-xl font-bold flex-none">DR</span>
-        <div><h1 class="font-display text-2xl font-bold tracking-tight" data-current-server>Dev Refuge</h1><p class="text-sm text-ink-500">2,481 members · 18 channels · 9 roles synced</p></div>
+        <div><h1 class="font-display text-2xl font-bold tracking-tight" data-current-server>Dev Refuge</h1><p class="text-sm text-ink-500">2,481 members · 18 channels &amp; 9 roles synced</p></div>
       </div>
-      <p class="text-[11px] font-semibold uppercase tracking-widest text-ink-400 mb-3">Plugins</p>
+      <p class="text-[11px] font-semibold uppercase tracking-widest mb-3" style="color:var(--eyebrow)">Plugins</p>
       <div class="flex flex-col gap-3">
+        <!-- Roles -->
         <div class="bg-white border border-brand-200 rounded-lg shadow-sm p-5 flex items-center gap-4">
-          <span class="w-11 h-11 rounded-md bg-brand-500 text-white grid place-items-center flex-none"><span data-icon="usr" class="w-5 h-5"></span></span>
+          <span class="w-11 h-11 chamfer-tile bg-brand-600 text-white grid place-items-center flex-none"><span data-icon="usr" class="w-5 h-5"></span></span>
           <div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-display font-semibold">Roles</span><span class="inline-flex items-center gap-1.5 text-xs font-semibold text-success bg-success-soft px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-success"></span>Enabled</span></div><p class="text-sm text-ink-600 mt-0.5">Self-assignable role menus. 2 sets configured.</p></div>
           <button data-open-roles class="btn-fill btn-fill-ghost inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md border border-ink-200 text-sm font-semibold hover:bg-ink-50 transition"><span>Configure</span><span data-icon="ari" class="w-4 h-4"></span></button>
-          <button class="shrk-switch" data-on="true" role="switch" aria-label="Roles"></button>
+          <button class="shrk-switch" data-on="true" data-plugin="roles" role="switch" aria-label="Roles"></button>
         </div>
-        <div class="bg-white border border-brand-200 rounded-lg shadow-sm p-5 flex items-center gap-4">
-          <span class="w-11 h-11 rounded-md bg-brand-500 text-white grid place-items-center flex-none"><span data-icon="hnd" class="w-5 h-5"></span></span>
-          <div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-display font-semibold">Welcomes</span><span class="inline-flex items-center gap-1.5 text-xs font-semibold text-success bg-success-soft px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-success"></span>Enabled</span><span class="inline-flex items-center gap-1.5 text-xs font-semibold text-warning bg-warning-soft px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-warning"></span>Needs setup</span></div><p class="text-sm text-ink-600 mt-0.5">Greet new members and say goodbye when they leave.</p></div>
-          <button data-open-welcomes class="btn-fill btn-fill-ghost inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md border border-ink-200 text-sm font-semibold hover:bg-ink-50 transition"><span>Configure</span><span data-icon="ari" class="w-4 h-4"></span></button>
-          <button class="shrk-switch" data-on="true" role="switch" aria-label="Welcomes"></button>
-        </div>
+        <!-- Welcomes -->
         <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5 flex items-center gap-4">
-          <span class="w-11 h-11 rounded-md bg-ink-100 text-ink-400 grid place-items-center flex-none"><span data-icon="scr" class="w-5 h-5"></span></span>
-          <div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-display font-semibold">Logging</span><span class="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-500 bg-ink-100 px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-ink-400"></span>Off</span></div><p class="text-sm text-ink-600 mt-0.5">Record moderation events to a channel of your choice.</p></div>
+          <span class="w-11 h-11 chamfer-tile bg-ink-100 text-ink-400 grid place-items-center flex-none"><span data-icon="hnd" class="w-5 h-5"></span></span>
+          <div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-display font-semibold">Welcomes</span><span class="inline-flex items-center gap-1.5 text-xs font-semibold text-warning bg-warning-soft px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-warning"></span>Needs setup</span></div><p class="text-sm text-ink-600 mt-0.5">Greet new members and say goodbye when they leave.</p></div>
+          <button data-open-welcomes class="btn-fill btn-fill-ghost inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md border border-ink-200 text-sm font-semibold hover:bg-ink-50 transition"><span>Configure</span><span data-icon="ari" class="w-4 h-4"></span></button>
+          <div class="shrk-tooltip">
+            <button class="shrk-switch" data-on="false" data-plugin="welcomes" data-needs-setup role="switch" aria-label="Welcomes"></button>
+            <div class="shrk-tooltip-pop">Complete setup before enabling this plugin.</div>
+          </div>
+        </div>
+        <!-- Logging -->
+        <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5 flex items-center gap-4">
+          <span class="w-11 h-11 chamfer-tile bg-ink-100 text-ink-400 grid place-items-center flex-none"><span data-icon="scr" class="w-5 h-5"></span></span>
+          <div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-display font-semibold">Logging</span><span class="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-500 bg-ink-100 px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-ink-400"></span>Disabled</span></div><p class="text-sm text-ink-600 mt-0.5">Record moderation events to a channel of your choice.</p></div>
           <button data-open-logging class="btn-fill btn-fill-ghost inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md border border-ink-200 text-sm font-semibold hover:bg-ink-50 transition"><span>Configure</span><span data-icon="ari" class="w-4 h-4"></span></button>
-          <button class="shrk-switch" data-on="false" role="switch" aria-label="Logging"></button>
+          <button class="shrk-switch" data-on="false" data-plugin="logging" role="switch" aria-label="Logging"></button>
+        </div>
+        <!-- Reminders — always on -->
+        <div class="bg-white border border-brand-200 rounded-lg shadow-sm p-5 flex items-center gap-4">
+          <span class="w-11 h-11 chamfer-tile bg-brand-600 text-white grid place-items-center flex-none"><span data-icon="clk" class="w-5 h-5"></span></span>
+          <div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-display font-semibold">Reminders</span><span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full copper-badge">Global</span></div><p class="text-sm text-ink-600 mt-0.5">Members set their own reminders with /remind.</p></div>
+          <button data-open-reminders class="btn-fill btn-fill-ghost inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md border border-ink-200 text-sm font-semibold hover:bg-ink-50 transition"><span>Configure</span><span data-icon="ari" class="w-4 h-4"></span></button>
+          <div class="shrk-tooltip">
+            <button class="shrk-switch" data-on="true" data-always-on role="switch" aria-label="Reminders" style="cursor:not-allowed"></button>
+            <div class="shrk-tooltip-pop">This plugin is always enabled to preserve DM functionality.</div>
+          </div>
         </div>
       </div>
-      <p class="text-[11px] font-semibold uppercase tracking-widest text-ink-400 mb-3 mt-8">Server settings</p>
-      <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5 flex items-center gap-4">
-        <div class="flex-1"><p class="font-medium text-sm">Force reminder delivery via DM</p><p class="text-sm text-ink-500 mt-0.5">Deliver every reminder in DMs, ignoring channel preferences.</p></div>
-        <button class="shrk-switch" data-on="false" role="switch" aria-label="Force DM"></button>
-      </div>
-      <p class="text-xs text-ink-400 mt-3 flex items-start gap-1.5"><span data-icon="inf" class="w-3.5 h-3.5 mt-0.5 flex-none"></span> Reminders are set with <span class="font-mono text-ink-600 px-1">/remind</span> — nothing to configure here.</p>
     </div>
 
     <!-- ─── Roles ─── -->
     <div data-view="roles" class="hidden max-w-3xl mx-auto px-6 py-8">
-      <nav class="text-xs text-ink-400 mb-4 flex items-center gap-1.5"><button data-goto="servers" class="hover:text-ink-700">Servers</button><span data-icon="chvr" class="w-3 h-3"></span><button data-open-dashboard class="hover:text-ink-700" data-current-server>Dev Refuge</button><span data-icon="chvr" class="w-3 h-3"></span><span class="text-ink-600 font-medium">Roles</span></nav>
-      <div class="flex items-start gap-4 mb-6">
-        <span class="w-12 h-12 rounded-md bg-brand-500 text-white grid place-items-center flex-none"><span data-icon="usr" class="w-6 h-6"></span></span>
-        <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Roles</h1><p class="text-sm text-ink-600 mt-0.5">Let members give themselves roles from a menu you post in a channel.</p></div>
-        <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-ink-500" data-gate-label>Enabled</span><button class="shrk-switch" data-on="true" role="switch" data-gate-toggle aria-label="Enable Roles"></button></div>
-      </div>
-      <div class="relative" data-gate-body>
-        <div data-gate-overlay class="hidden absolute inset-0 z-20 bg-ink-50/70 backdrop-blur-[1px] rounded-lg grid place-items-center anim-fade">
-          <div class="text-center bg-white border border-ink-200 rounded-lg shadow-md px-6 py-5"><span data-icon="lck" class="w-5 h-5 text-ink-400 mx-auto block"></span><p class="text-sm font-semibold mt-2">Roles is off</p><p class="text-xs text-ink-500 mt-1 mb-3 max-w-xs">Enable the plugin to configure role sets.</p><button data-gate-enable class="btn-fill btn-fill-primary inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-brand-500 text-white text-sm font-semibold"><span>Enable Roles</span></button></div>
-        </div>
-        <div data-gate-content class="flex flex-col gap-5">
-          <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
-            <label class="block text-sm font-semibold mb-1.5">Default channel for role menus</label>
-            <div class="shrk-select max-w-sm" data-kind="channel" data-value="rules" data-options='[{"v":"rules","l":"rules"},{"v":"roles","l":"get-roles"},{"v":"general","l":"general"}]'></div>
-            <p class="text-xs text-ink-400 mt-1.5">Each role set posts here unless it has its own channel override.</p>
+          <nav class="text-xs text-ink-400 mb-4 flex items-center gap-1.5"><button data-goto="servers" class="hover:text-ink-700">Servers</button><span data-icon="chvr" class="w-3 h-3"></span><button data-open-dashboard class="hover:text-ink-700" data-current-server>Dev Refuge</button><span data-icon="chvr" class="w-3 h-3"></span><span class="text-ink-600 font-medium">Roles</span></nav>
+          <div class="flex items-start gap-4 mb-6">
+            <span class="w-12 h-12 chamfer-tile bg-brand-600 text-white grid place-items-center flex-none"><span data-icon="usr" class="w-6 h-6"></span></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Roles</h1><p class="text-sm text-ink-600 mt-0.5">Let members give themselves roles from a menu you post in a channel.</p></div>
+            <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-ink-500" data-gate-label>Enabled</span><button class="shrk-switch" data-on="true" role="switch" data-gate-toggle aria-label="Enable Roles"></button></div>
           </div>
-          <div>
-            <div class="flex items-center justify-between mb-3"><p class="text-[11px] font-semibold uppercase tracking-widest text-ink-400">Role sets</p><button class="btn-fill btn-fill-primary inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-brand-500 text-white text-sm font-semibold"><span data-icon="pls" class="w-3.5 h-3.5"></span><span>Add role set</span></button></div>
-            <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-4 mb-3 flex items-center gap-3">
-              <span data-icon="grp" class="w-4 h-4 text-ink-300"></span>
-              <div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-semibold text-sm">Pronouns</span><span class="text-[11px] font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full">multi</span></div><p class="text-xs text-ink-400 mt-0.5">#get-roles · 3 roles</p></div>
-              <button class="w-8 h-8 rounded-md hover:bg-ink-50 grid place-items-center text-ink-500 transition"><span data-icon="rfr" class="w-4 h-4"></span></button>
-              <button class="w-8 h-8 rounded-md hover:bg-ink-50 grid place-items-center text-ink-500 transition"><span data-icon="pnc" class="w-4 h-4"></span></button>
+          <div class="relative" data-gate-body>
+            <div data-gate-overlay class="hidden absolute inset-0 z-20 bg-ink-50/70 backdrop-blur-[1px] rounded-lg grid place-items-center anim-fade">
+              <div class="text-center bg-white border border-ink-200 rounded-lg shadow-md px-6 py-5"><span data-icon="lck" class="w-5 h-5 text-ink-400 mx-auto block"></span><p class="text-sm font-semibold mt-2">Roles is disabled</p><p class="text-xs text-ink-500 mt-1 mb-3 max-w-xs">Enable the plugin to configure role sets.</p><button data-gate-enable class="btn-fill btn-fill-primary inline-flex items-center gap-1.5 h-9 px-4 chamfer-cta bg-brand-600 text-white text-sm font-semibold"><span>Enable Roles</span></button></div>
             </div>
-            <!-- Expanded set editor -->
-            <div class="bg-white border border-brand-200 rounded-lg shadow-md overflow-hidden">
-              <div class="flex items-center gap-3 px-4 py-3 border-b border-ink-100 bg-ink-25">
-                <span data-icon="grp" class="w-4 h-4 text-ink-300"></span>
-                <span class="font-semibold text-sm flex-1">Game notifications</span>
-                <button class="w-8 h-8 rounded-md hover:bg-danger-soft grid place-items-center text-ink-400 hover:text-danger transition"><span data-icon="tsh" class="w-4 h-4"></span></button>
-                <button class="w-8 h-8 rounded-md hover:bg-ink-50 grid place-items-center text-ink-500 transition"><span data-icon="chvd" class="w-4 h-4 rotate-180"></span></button>
+            <div data-gate-content class="flex flex-col gap-5">
+              <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
+                <label class="block text-sm font-semibold mb-1.5">Default channel for role menus</label>
+                <div class="shrk-select max-w-sm" data-kind="channel" data-value="rules" data-options='[{"v":"rules","l":"rules"},{"v":"roles","l":"get-roles"},{"v":"general","l":"general"}]'></div>
+                <p class="text-xs text-ink-400 mt-1.5">Each role set posts here unless it has its own channel override.</p>
               </div>
-              <div class="p-5 grid gap-5">
-                <div class="grid sm:grid-cols-2 gap-5">
-                  <div><label class="block text-sm font-semibold mb-1.5">Set name</label><input value="Game notifications" class="w-full h-10 px-3 rounded-md border-[1.5px] border-ink-300 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/30 transition" /></div>
-                  <div><label class="block text-sm font-semibold mb-1.5">Selection type</label>
-                    <div class="flex gap-2" data-segmented>
-                      <button data-seg="single" class="flex-1 h-10 rounded-md border-[1.5px] border-ink-200 text-sm font-medium text-ink-600">Single</button>
-                      <button data-seg="multi" data-seg-active class="flex-1 h-10 rounded-md border-[1.5px] border-brand-500 bg-brand-50 text-sm font-semibold text-brand-700">Multi</button>
+              <div>
+                <div class="flex items-center justify-between mb-3"><p class="text-[11px] font-semibold uppercase tracking-widest text-ink-400">Role sets</p></div>
+                <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-4 mb-3 flex items-center gap-3">
+                  <div class="flex-1 min-w-0"><div class="flex items-center gap-2"><span class="font-semibold text-sm">Pronouns</span><span class="text-[11px] font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full">multi</span></div><p class="text-xs text-ink-400 mt-0.5">#get-roles · 3 roles</p></div>
+                  <button class="w-8 h-8 rounded-md hover:bg-ink-50 grid place-items-center text-ink-500 transition" title="Resync"><span data-icon="rfr" class="w-4 h-4"></span></button>
+                  <button class="w-8 h-8 rounded-md hover:bg-ink-50 grid place-items-center text-ink-500 transition" title="Expand"><span data-icon="chvd" class="w-4 h-4"></span></button>
+                  <button class="w-8 h-8 rounded-md hover:bg-danger-soft grid place-items-center text-ink-400 hover:text-danger transition" title="Delete"><span data-icon="tsh" class="w-4 h-4"></span></button>
+                </div>
+                <div class="bg-white border border-ink-200 rounded-lg shadow-md overflow-hidden">
+                  <div class="flex items-center gap-3 px-4 py-3 border-b border-ink-100 bg-ink-25">
+                    <span class="font-semibold text-sm flex-1">Game notifications</span>
+                    <button class="w-8 h-8 rounded-md hover:bg-ink-50 grid place-items-center text-ink-500 transition" title="Resync"><span data-icon="rfr" class="w-4 h-4"></span></button>
+                    <button class="w-8 h-8 rounded-md hover:bg-ink-50 grid place-items-center text-ink-500 transition" title="Collapse"><span data-icon="chvd" class="w-4 h-4 rotate-180"></span></button>
+                    <button class="w-8 h-8 rounded-md hover:bg-danger-soft grid place-items-center text-ink-400 hover:text-danger transition" title="Delete"><span data-icon="tsh" class="w-4 h-4"></span></button>
+                  </div>
+                  <div class="p-5 grid gap-5">
+                    <div class="grid sm:grid-cols-2 gap-5">
+                      <div><label class="block text-sm font-semibold mb-1.5">Set name</label><input value="Game notifications" class="w-full h-10 px-3 rounded-md border-[1.5px] border-ink-300 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/30 transition" /></div>
+                      <div><label class="block text-sm font-semibold mb-1.5">Selection type</label>
+                        <div class="flex gap-2" data-segmented>
+                          <button data-seg="single" class="flex-1 h-10 rounded-md border-[1.5px] border-ink-200 text-sm font-medium text-ink-600">Single</button>
+                          <button data-seg="multi" data-seg-active class="flex-1 h-10 rounded-md border-[1.5px] border-brand-500 bg-brand-50 text-sm font-semibold text-brand-700">Multi</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div><label class="block text-sm font-semibold mb-1.5">Channel override <span class="font-normal text-ink-400">(optional)</span></label>
+                      <div class="shrk-select max-w-sm" data-kind="channel" data-value="" data-placeholder="Use plugin default (#rules)" data-options='[{"v":"","l":"Use plugin default (#rules)"},{"v":"ann","l":"announcements"},{"v":"games","l":"game-pings"}]'></div>
+                    </div>
+                    <div><label class="block text-sm font-semibold mb-1.5">Assignable roles</label>
+                      <div class="shrk-select" data-kind="role" data-multi="true" data-value='["pings-valorant","pings-mc"]' data-options='[{"v":"pings-valorant","l":"Valorant pings","c":"#2c867f"},{"v":"pings-mc","l":"Minecraft pings","c":"#2faf6b"},{"v":"pings-deadlock","l":"Deadlock pings","c":"#e8a13a"},{"v":"mod","l":"Moderator","c":"#e0533d","disabled":"Above shrkbot — it ranks below this role."},{"v":"booster","l":"Server Booster","c":"#b14aed","disabled":"Managed by Discord — bots can\u0027t assign integration roles."}]'></div>
+                      <div class="mt-2.5 flex items-start gap-2.5 bg-warning-soft border border-[#ecd6a6] rounded-md px-3 py-2.5"><span data-icon="wrn" class="w-[18px] h-[18px] text-warning flex-none mt-0.5"></span><p class="text-sm leading-relaxed">Two roles are greyed out. shrkbot can only assign roles <span class="font-medium">below its own highest role</span> and never Discord-managed ones.</p></div>
                     </div>
                   </div>
                 </div>
-                <div><label class="block text-sm font-semibold mb-1.5">Channel override <span class="font-normal text-ink-400">(optional)</span></label>
-                  <div class="shrk-select max-w-sm" data-kind="channel" data-value="" data-placeholder="Use plugin default (#rules)" data-options='[{"v":"","l":"Use plugin default (#rules)"},{"v":"ann","l":"announcements"},{"v":"games","l":"game-pings"}]'></div>
-                </div>
-                <div><label class="block text-sm font-semibold mb-1.5">Assignable roles</label>
-                  <div class="shrk-select" data-kind="role" data-multi="true" data-value='["pings-valorant","pings-mc"]' data-options='[{"v":"pings-valorant","l":"Valorant pings","c":"#39afe5"},{"v":"pings-mc","l":"Minecraft pings","c":"#2faf6b"},{"v":"pings-deadlock","l":"Deadlock pings","c":"#e8a13a"},{"v":"mod","l":"Moderator","c":"#e0533d","disabled":"Above shrkbot — it ranks below this role."},{"v":"booster","l":"Server Booster","c":"#b14aed","disabled":"Managed by Discord — bots can\u0027t assign integration roles."}]'></div>
-                  <div class="mt-2.5 flex items-start gap-2.5 bg-warning-soft border border-[#f3dcae] rounded-md px-3 py-2.5"><span data-icon="wrn" class="w-[18px] h-[18px] text-warning flex-none mt-0.5"></span><p class="text-sm leading-relaxed">Two roles are greyed out. shrkbot can only assign roles <span class="font-medium">below its own highest role</span> and never Discord-managed ones.</p></div>
-                </div>
-                <div class="flex items-center justify-between pt-1 border-t border-ink-100">
-                  <button class="btn-fill btn-fill-ghost inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:text-brand-800 mt-3"><span data-icon="rfr" class="w-4 h-4"></span><span>Re-post menu message</span></button>
-                  <span class="text-xs text-ink-400 mt-3 flex items-center gap-1.5"><span data-icon="chkc" class="w-3.5 h-3.5 text-success"></span> Changes save automatically</span>
-                </div>
+                <button class="mt-3 w-full h-11 flex items-center justify-center gap-2 border border-dashed border-ink-300 rounded-lg text-sm font-semibold text-ink-500 hover:border-brand-400 hover:text-brand-600 hover:bg-brand-100 transition-colors"><span data-icon="pls" class="w-4 h-4"></span><span>Add role set</span></button>
               </div>
             </div>
           </div>
-        </div>
-      </div>
     </div>
 
     <!-- ─── Welcomes ─── -->
     <div data-view="welcomes" class="hidden max-w-3xl mx-auto px-6 py-8">
-      <nav class="text-xs text-ink-400 mb-4 flex items-center gap-1.5"><button data-goto="servers" class="hover:text-ink-700">Servers</button><span data-icon="chvr" class="w-3 h-3"></span><button data-open-dashboard class="hover:text-ink-700" data-current-server>Dev Refuge</button><span data-icon="chvr" class="w-3 h-3"></span><span class="text-ink-600 font-medium">Welcomes</span></nav>
-      <div class="flex items-start gap-4 mb-6">
-        <span class="w-12 h-12 rounded-md bg-brand-500 text-white grid place-items-center flex-none"><span data-icon="hnd" class="w-6 h-6"></span></span>
-        <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Welcomes</h1><p class="text-sm text-ink-600 mt-0.5">Greet new members and say goodbye when they leave.</p></div>
-        <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-ink-500" data-gate-label>Enabled</span><button class="shrk-switch" data-on="true" role="switch" data-gate-toggle aria-label="Enable Welcomes"></button></div>
-      </div>
-      <div class="relative" data-gate-body>
-        <div data-gate-overlay class="hidden absolute inset-0 z-20 bg-ink-50/70 backdrop-blur-[1px] rounded-lg grid place-items-center anim-fade">
-          <div class="text-center bg-white border border-ink-200 rounded-lg shadow-md px-6 py-5"><span data-icon="lck" class="w-5 h-5 text-ink-400 mx-auto block"></span><p class="text-sm font-semibold mt-2">Welcomes is off</p><p class="text-xs text-ink-500 mt-1 mb-3 max-w-xs">Enable the plugin to configure messages.</p><button data-gate-enable class="btn-fill btn-fill-primary inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-brand-500 text-white text-sm font-semibold"><span>Enable Welcomes</span></button></div>
-        </div>
-        <div data-gate-content class="flex flex-col gap-5">
-          <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
-            <label class="block text-sm font-semibold mb-1.5">Channel</label>
-            <div class="shrk-select max-w-sm" data-kind="channel" data-value="welcome" data-options='[{"v":"welcome","l":"welcome"},{"v":"general","l":"general"},{"v":"introductions","l":"introductions"}]'></div>
-            <p class="text-xs text-ink-400 mt-1.5">Both join and leave messages post here. Leave the field empty to disable both.</p>
+          <nav class="text-xs text-ink-400 mb-4 flex items-center gap-1.5"><button data-goto="servers" class="hover:text-ink-700">Servers</button><span data-icon="chvr" class="w-3 h-3"></span><button data-open-dashboard class="hover:text-ink-700" data-current-server>Dev Refuge</button><span data-icon="chvr" class="w-3 h-3"></span><span class="text-ink-600 font-medium">Welcomes</span></nav>
+          <div class="flex items-start gap-4 mb-6">
+            <span class="w-12 h-12 chamfer-tile bg-brand-600 text-white grid place-items-center flex-none"><span data-icon="hnd" class="w-6 h-6"></span></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Welcomes</h1><p class="text-sm text-ink-600 mt-0.5">Greet new members and say goodbye when they leave.</p></div>
+            <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-ink-500" data-gate-label>Enabled</span><button class="shrk-switch" data-on="true" role="switch" data-gate-toggle aria-label="Enable Welcomes"></button></div>
           </div>
-          <div class="grid sm:grid-cols-2 gap-5">
-            <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
-              <label class="block text-sm font-semibold mb-1.5">Join message</label>
-              <textarea id="join-msg" rows="3" class="w-full px-3 py-2 rounded-md border-[1.5px] border-ink-300 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/30 transition resize-none font-sans">Welcome {user}! You're member #{membercount}.</textarea>
-              <p class="text-xs text-ink-400 mt-1.5">Empty message = join announcements disabled.</p>
-              <p class="text-xs text-ink-500 mt-1 flex items-start gap-1"><span data-icon="inf" class="w-3 h-3 mt-0.5 flex-none text-brand-500"></span><span><span class="font-mono">{user}</span> is a <span class="font-medium">Discord mention</span> in join messages.</span></p>
+          <div class="relative" data-gate-body>
+            <div data-gate-overlay class="hidden absolute inset-0 z-20 bg-ink-50/70 backdrop-blur-[1px] rounded-lg grid place-items-center anim-fade">
+              <div class="text-center bg-white border border-ink-200 rounded-lg shadow-md px-6 py-5"><span data-icon="lck" class="w-5 h-5 text-ink-400 mx-auto block"></span><p class="text-sm font-semibold mt-2">Welcomes is disabled</p><p class="text-xs text-ink-500 mt-1 mb-3 max-w-xs">Enable the plugin to configure messages.</p><button data-gate-enable class="btn-fill btn-fill-primary inline-flex items-center gap-1.5 h-9 px-4 chamfer-cta bg-brand-600 text-white text-sm font-semibold"><span>Enable Welcomes</span></button></div>
             </div>
-            <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
-              <label class="block text-sm font-semibold mb-1.5">Leave message</label>
-              <textarea id="leave-msg" rows="3" class="w-full px-3 py-2 rounded-md border-[1.5px] border-ink-300 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/30 transition resize-none font-sans">{user} has left the server. Goodbye!</textarea>
-              <p class="text-xs text-ink-400 mt-1.5">Empty message = leave announcements disabled.</p>
-              <p class="text-xs text-ink-500 mt-1 flex items-start gap-1"><span data-icon="inf" class="w-3 h-3 mt-0.5 flex-none text-brand-500"></span><span><span class="font-mono">{user}</span> is a <span class="font-medium">plain @username</span> in leave messages.</span></p>
-            </div>
-          </div>
-          <!-- Placeholders reference -->
-          <div class="flex items-start gap-2.5 bg-brand-50 border border-brand-200 rounded-md px-4 py-3">
-            <span data-icon="inf" class="w-[18px] h-[18px] text-brand-600 flex-none mt-0.5"></span>
-            <div class="text-sm"><span class="font-semibold text-brand-700">Placeholders: </span><span class="font-mono bg-brand-100 text-brand-800 px-1.5 py-0.5 rounded text-xs">{user}</span> &nbsp;<span class="font-mono bg-brand-100 text-brand-800 px-1.5 py-0.5 rounded text-xs">{membercount}</span></div>
-          </div>
-          <!-- Discord preview -->
-          <div class="rounded-lg overflow-hidden shadow-md" style="background:#313338">
-            <div class="px-4 py-2.5 flex items-center gap-2" style="border-bottom:1px solid #3f4147">
-              <span class="text-xs font-semibold" style="color:#949ba4">Live preview</span>
-              <span class="text-xs" style="color:#484f58">· #welcome</span>
-            </div>
-            <div class="p-4 flex gap-3 items-start">
-              <img src="../../assets/shrkbot-mascot.png" class="w-10 h-10 rounded-full flex-none" alt="" />
-              <div>
-                <div class="flex items-center gap-2 mb-1"><span class="font-semibold text-sm" style="color:#fff">shrkbot</span><span class="text-[10px] font-semibold px-1.5 py-0.5 rounded" style="background:#39afe5;color:#fff">BOT</span><span class="text-[11px]" style="color:#949ba4">Today</span></div>
-                <p id="preview-join" class="text-sm leading-relaxed" style="color:#dbdee1"></p>
+            <div data-gate-content class="flex flex-col gap-5">
+              <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5" id="welcomes-channel-field">
+                <label class="block text-sm font-semibold mb-1.5">Channel <span class="text-danger text-xs font-semibold">*</span></label>
+                <div class="shrk-select max-w-sm" data-kind="channel" data-value="" data-placeholder="Pick a channel…" data-options='[{"v":"welcome","l":"welcome"},{"v":"general","l":"general"},{"v":"introductions","l":"introductions"}]' data-required-when-enabled></div>
+                <p class="text-xs text-ink-400 mt-1.5" id="welcomes-channel-hint">Both join and leave messages post here.</p>
+              </div>
+              <div class="grid sm:grid-cols-2 gap-5">
+                <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
+                  <label class="block text-sm font-semibold mb-1.5">Join message</label>
+                  <textarea id="join-msg" rows="3" class="w-full px-3 py-2 rounded-md border-[1.5px] border-ink-300 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/30 transition resize-none font-sans">Welcome {user}! You're member #{membercount}.</textarea>
+                  <p class="text-xs text-ink-400 mt-1.5">Empty = join announcements disabled.</p>
+                  <p class="text-xs text-ink-500 mt-1 flex items-start gap-1"><span data-icon="inf" class="w-3 h-3 mt-0.5 flex-none text-brand-600"></span><span><span class="font-mono">{user}</span> is a <span class="font-medium">Discord mention</span> in join messages.</span></p>
+                </div>
+                <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
+                  <label class="block text-sm font-semibold mb-1.5">Leave message</label>
+                  <textarea id="leave-msg" rows="3" class="w-full px-3 py-2 rounded-md border-[1.5px] border-ink-300 text-sm focus:border-brand-500 focus:outline-none focus:ring-[3px] focus:ring-brand-500/30 transition resize-none font-sans">{user} has left the server. Goodbye!</textarea>
+                  <p class="text-xs text-ink-400 mt-1.5">Empty = leave announcements disabled.</p>
+                  <p class="text-xs text-ink-500 mt-1 flex items-start gap-1"><span data-icon="inf" class="w-3 h-3 mt-0.5 flex-none text-brand-600"></span><span><span class="font-mono">{user}</span> is a <span class="font-medium">plain @username</span> in leave messages.</span></p>
+                </div>
+              </div>
+              <div class="flex items-start gap-2.5 bg-ink-50 border border-ink-200 rounded-md px-4 py-3">
+                <span data-icon="inf" class="w-[18px] h-[18px] text-ink-500 flex-none mt-0.5"></span>
+                <div class="text-sm text-ink-600"><span class="font-semibold">Placeholders: </span><span class="font-mono bg-ink-100 text-ink-700 px-1.5 py-0.5 rounded text-xs">{user}</span> &nbsp;<span class="font-mono bg-ink-100 text-ink-700 px-1.5 py-0.5 rounded text-xs">{membercount}</span></div>
+              </div>
+              <!-- Discord preview -->
+              <div class="rounded-lg overflow-hidden shadow-md" style="background:#313338">
+                <div class="px-4 py-2.5 flex items-center gap-2" style="border-bottom:1px solid #3f4147">
+                  <span class="text-xs font-semibold" style="color:#949ba4">Live preview</span>
+                  <span class="text-xs" style="color:#484f58">· #welcome</span>
+                </div>
+                <div class="p-4 flex gap-3 items-start">
+                  <img src="../../assets/shrkbot-mascot.png" class="w-10 h-10 rounded-full flex-none" alt="" />
+                  <div>
+                    <div class="flex items-center gap-2 mb-1"><span class="font-semibold text-sm" style="color:#fff">shrkbot</span><span class="text-[10px] font-semibold px-1.5 py-0.5 rounded" style="background:#2c867f;color:#fff">BOT</span><span class="text-[11px]" style="color:#949ba4">Today</span></div>
+                    <p id="preview-join" class="text-sm leading-relaxed" style="color:#dbdee1"></p>
+                  </div>
+                </div>
+                <div class="mx-4" style="height:1px;background:#3f4147"></div>
+                <div class="p-4 flex gap-3 items-start">
+                  <img src="../../assets/shrkbot-mascot.png" class="w-10 h-10 rounded-full flex-none" alt="" />
+                  <div>
+                    <div class="flex items-center gap-2 mb-1"><span class="font-semibold text-sm" style="color:#fff">shrkbot</span><span class="text-[10px] font-semibold px-1.5 py-0.5 rounded" style="background:#2c867f;color:#fff">BOT</span></div>
+                    <p id="preview-leave" class="text-sm leading-relaxed" style="color:#dbdee1"></p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="mx-4" style="height:1px;background:#3f4147"></div>
-            <div class="p-4 flex gap-3 items-start">
-              <img src="../../assets/shrkbot-mascot.png" class="w-10 h-10 rounded-full flex-none" alt="" />
-              <div>
-                <div class="flex items-center gap-2 mb-1"><span class="font-semibold text-sm" style="color:#fff">shrkbot</span><span class="text-[10px] font-semibold px-1.5 py-0.5 rounded" style="background:#39afe5;color:#fff">BOT</span></div>
-                <p id="preview-leave" class="text-sm leading-relaxed" style="color:#dbdee1"></p>
-              </div>
-            </div>
           </div>
-        </div>
-      </div>
     </div>
 
     <!-- ─── Logging ─── -->
     <div data-view="logging" class="hidden max-w-3xl mx-auto px-6 py-8">
-      <nav class="text-xs text-ink-400 mb-4 flex items-center gap-1.5"><button data-goto="servers" class="hover:text-ink-700">Servers</button><span data-icon="chvr" class="w-3 h-3"></span><button data-open-dashboard class="hover:text-ink-700" data-current-server>Dev Refuge</button><span data-icon="chvr" class="w-3 h-3"></span><span class="text-ink-600 font-medium">Logging</span></nav>
-      <div class="flex items-start gap-4 mb-6">
-        <span class="w-12 h-12 rounded-md bg-ink-100 text-ink-400 grid place-items-center flex-none"><span data-icon="scr" class="w-6 h-6"></span></span>
-        <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Logging</h1><p class="text-sm text-ink-600 mt-0.5">Record moderation and plugin events to a channel of your choice.</p></div>
-        <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-ink-500" data-gate-label>Off</span><button class="shrk-switch" data-on="false" role="switch" data-gate-toggle aria-label="Enable Logging"></button></div>
-      </div>
-      <div class="relative" data-gate-body>
-        <div data-gate-overlay class="anim-fade absolute inset-0 z-20 bg-ink-50/70 backdrop-blur-[1px] rounded-lg grid place-items-center">
-          <div class="text-center bg-white border border-ink-200 rounded-lg shadow-md px-6 py-5"><span data-icon="lck" class="w-5 h-5 text-ink-400 mx-auto block"></span><p class="text-sm font-semibold mt-2">Logging is off</p><p class="text-xs text-ink-500 mt-1 mb-3 max-w-xs">Enable the plugin to choose a channel and pick events.</p><button data-gate-enable class="btn-fill btn-fill-primary inline-flex items-center gap-1.5 h-9 px-4 rounded-md bg-brand-500 text-white text-sm font-semibold"><span>Enable Logging</span></button></div>
-        </div>
-        <div data-gate-content class="flex flex-col gap-5" style="opacity:.45;pointer-events:none">
-          <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
-            <label class="block text-sm font-semibold mb-1.5">Log channel</label>
-            <div class="shrk-select max-w-sm" data-kind="channel" data-value="" data-placeholder="Pick a channel…" data-options='[{"v":"mod-log","l":"mod-log"},{"v":"audit","l":"audit-log"},{"v":"staff","l":"staff-chat"}]'></div>
-            <div class="mt-3 flex items-start gap-2.5 bg-warning-soft border border-[#f3dcae] rounded-md px-3 py-2.5"><span data-icon="wrn" class="w-[18px] h-[18px] text-warning flex-none mt-0.5"></span><p class="text-sm leading-relaxed">This channel is visible to <span class="font-medium">@everyone</span>. Use a private staff-only channel for your mod log.</p></div>
+          <nav class="text-xs text-ink-400 mb-4 flex items-center gap-1.5"><button data-goto="servers" class="hover:text-ink-700">Servers</button><span data-icon="chvr" class="w-3 h-3"></span><button data-open-dashboard class="hover:text-ink-700" data-current-server>Dev Refuge</button><span data-icon="chvr" class="w-3 h-3"></span><span class="text-ink-600 font-medium">Logging</span></nav>
+          <div class="flex items-start gap-4 mb-6">
+            <span class="w-12 h-12 chamfer-tile bg-ink-100 text-ink-400 grid place-items-center flex-none" id="logging-icon"><span data-icon="scr" class="w-6 h-6"></span></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Logging</h1><p class="text-sm text-ink-600 mt-0.5">Record moderation and plugin events to a channel of your choice.</p></div>
+            <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-ink-500" data-gate-label>Disabled</span><button class="shrk-switch" data-on="false" role="switch" data-gate-toggle aria-label="Enable Logging"></button></div>
           </div>
-          <div class="bg-white border border-ink-200 rounded-lg shadow-sm overflow-hidden">
-            <div class="px-5 py-4 border-b border-ink-100"><p class="font-semibold text-sm">Events to log</p><p class="text-sm text-ink-500 mt-0.5">All events are off by default. Toggle what you need.</p></div>
-            <div class="px-5 py-2.5 bg-ink-25 border-b border-ink-100"><span class="text-[10px] font-semibold uppercase tracking-widest text-ink-400">Roles</span></div>
-            <div class="divide-y divide-ink-100">
-              <div class="flex items-center gap-4 px-5 py-3.5"><div class="flex-1"><p class="text-sm font-medium">Role gained</p><p class="text-xs text-ink-500 mt-0.5">A member assigns themselves a role.</p></div><button class="shrk-switch" data-on="false" role="switch" aria-label="Log: role gained"></button></div>
-              <div class="flex items-center gap-4 px-5 py-3.5"><div class="flex-1"><p class="text-sm font-medium">Role lost</p><p class="text-xs text-ink-500 mt-0.5">A member removes a self-service role.</p></div><button class="shrk-switch" data-on="false" role="switch" aria-label="Log: role lost"></button></div>
+          <div class="relative" data-gate-body>
+            <div data-gate-overlay class="anim-fade absolute inset-0 z-20 bg-ink-50/70 backdrop-blur-[1px] rounded-lg grid place-items-center">
+              <div class="text-center bg-white border border-ink-200 rounded-lg shadow-md px-6 py-5"><span data-icon="lck" class="w-5 h-5 text-ink-400 mx-auto block"></span><p class="text-sm font-semibold mt-2">Logging is disabled</p><p class="text-xs text-ink-500 mt-1 mb-3 max-w-xs">Enable the plugin to choose a channel and pick events.</p><button data-gate-enable class="btn-fill btn-fill-primary inline-flex items-center gap-1.5 h-9 px-4 chamfer-cta bg-brand-600 text-white text-sm font-semibold"><span>Enable Logging</span></button></div>
             </div>
-            <div class="px-5 py-2.5 bg-ink-25 border-b border-ink-100 border-t border-t-ink-100"><span class="text-[10px] font-semibold uppercase tracking-widest text-ink-400">Welcomes</span></div>
-            <div class="divide-y divide-ink-100">
-              <div class="flex items-center gap-4 px-5 py-3.5"><div class="flex-1"><p class="text-sm font-medium">Member joined</p><p class="text-xs text-ink-500 mt-0.5">A new member joins the server.</p></div><button class="shrk-switch" data-on="false" role="switch" aria-label="Log: member joined"></button></div>
-              <div class="flex items-center gap-4 px-5 py-3.5"><div class="flex-1"><p class="text-sm font-medium">Member left</p><p class="text-xs text-ink-500 mt-0.5">A member leaves or is removed.</p></div><button class="shrk-switch" data-on="false" role="switch" aria-label="Log: member left"></button></div>
+            <div data-gate-content class="flex flex-col gap-5" style="opacity:.45;pointer-events:none">
+              <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5" id="logging-channel-field">
+                <label class="block text-sm font-semibold mb-1.5">Log channel <span class="text-danger text-xs font-semibold">*</span></label>
+                <div class="shrk-select max-w-sm" data-kind="channel" data-value="" data-placeholder="Pick a channel…" data-options='[{"v":"mod-log","l":"mod-log"},{"v":"audit","l":"audit-log"},{"v":"staff","l":"staff-chat"}]' data-required-when-enabled></div>
+                <div class="mt-3 flex items-start gap-2.5 bg-warning-soft border border-[#ecd6a6] rounded-md px-3 py-2.5"><span data-icon="wrn" class="w-[18px] h-[18px] text-warning flex-none mt-0.5"></span><p class="text-sm leading-relaxed">This channel is visible to <span class="font-medium">@everyone</span>. Use a private staff-only channel for your mod log.</p></div>
+              </div>
+              <div class="bg-white border border-ink-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="px-5 py-4 border-b border-ink-100"><p class="font-semibold text-sm">Events to log</p><p class="text-sm text-ink-500 mt-0.5">All events are off by default. Toggle what you need.</p></div>
+                <!-- Roles section -->
+                <div data-log-section="roles">
+                  <div data-log-toggle="roles" class="w-full flex items-center gap-3 px-5 py-2.5 bg-ink-25 border-b border-ink-100 hover:bg-ink-50 transition-colors cursor-pointer select-none">
+                    <svg data-log-chv="roles" class="w-4 h-4 text-ink-400 flex-none transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    <span class="text-[10px] font-semibold uppercase tracking-widest text-ink-400 flex-1">Roles</span>
+                    <span class="text-xs text-ink-400 mr-1">Toggle all</span>
+                    <button data-log-all="roles" class="shrk-switch-mini" role="switch" aria-label="Toggle all Roles events"></button>
+                  </div>
+                  <div data-log-body="roles" class="divide-y divide-ink-100">
+                    <div class="flex items-center gap-4 px-5 py-3.5"><div class="flex-1"><p class="text-sm font-medium">Role gained</p><p class="text-xs text-ink-500 mt-0.5">A member assigns themselves a role.</p></div><button class="shrk-switch" data-on="false" role="switch" aria-label="Log: role gained"></button></div>
+                    <div class="flex items-center gap-4 px-5 py-3.5"><div class="flex-1"><p class="text-sm font-medium">Role lost</p><p class="text-xs text-ink-500 mt-0.5">A member removes a self-service role.</p></div><button class="shrk-switch" data-on="false" role="switch" aria-label="Log: role lost"></button></div>
+                  </div>
+                </div>
+                <!-- Welcomes section -->
+                <div data-log-section="welcomes">
+                  <div data-log-toggle="welcomes" class="w-full flex items-center gap-3 px-5 py-2.5 bg-ink-25 border-b border-ink-100 border-t border-t-ink-100 hover:bg-ink-50 transition-colors cursor-pointer select-none">
+                    <svg data-log-chv="welcomes" class="w-4 h-4 text-ink-400 flex-none transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    <span class="text-[10px] font-semibold uppercase tracking-widest text-ink-400 flex-1">Welcomes</span>
+                    <span class="text-xs text-ink-400 mr-1">Toggle all</span>
+                    <button data-log-all="welcomes" class="shrk-switch-mini" role="switch" aria-label="Toggle all Welcomes events"></button>
+                  </div>
+                  <div data-log-body="welcomes" class="divide-y divide-ink-100">
+                    <div class="flex items-center gap-4 px-5 py-3.5"><div class="flex-1"><p class="text-sm font-medium">Member joined</p><p class="text-xs text-ink-500 mt-0.5">A new member joins the server.</p></div><button class="shrk-switch" data-on="false" role="switch" aria-label="Log: member joined"></button></div>
+                    <div class="flex items-center gap-4 px-5 py-3.5"><div class="flex-1"><p class="text-sm font-medium">Member left</p><p class="text-xs text-ink-500 mt-0.5">A member leaves or is removed.</p></div><button class="shrk-switch" data-on="false" role="switch" aria-label="Log: member left"></button></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
     </div>
 
-  </main>
+    <!-- ─── Reminders ─── -->
+    <div data-view="reminders" class="hidden max-w-3xl mx-auto px-6 py-8">
+          <nav class="text-xs text-ink-400 mb-4 flex items-center gap-1.5"><button data-goto="servers" class="hover:text-ink-700">Servers</button><span data-icon="chvr" class="w-3 h-3"></span><button data-open-dashboard class="hover:text-ink-700" data-current-server>Dev Refuge</button><span data-icon="chvr" class="w-3 h-3"></span><span class="text-ink-600 font-medium">Reminders</span></nav>
+          <div class="flex items-start gap-4 mb-6">
+            <span class="w-12 h-12 chamfer-tile bg-brand-600 text-white grid place-items-center flex-none"><span data-icon="clk" class="w-6 h-6"></span></span>
+            <div class="flex-1">
+              <div class="flex items-center gap-3 flex-wrap"><h1 class="font-display text-2xl font-bold tracking-tight">Reminders</h1><span class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full copper-badge">Global</span></div>
+              <p class="text-sm text-ink-600 mt-0.5">Members set their own reminders with /remind. This plugin can't be turned off.</p>
+            </div>
+          </div>
+          <div class="flex flex-col gap-5">
+            <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5 flex items-center gap-4">
+              <div class="flex-1">
+                <p class="font-semibold text-sm">Force reminder delivery via DM</p>
+                <p class="text-sm text-ink-500 mt-0.5">Deliver every reminder in DMs, ignoring channel preferences set by members.</p>
+              </div>
+              <button class="shrk-switch" data-on="false" role="switch" aria-label="Force DM delivery"></button>
+            </div>
+            <div class="flex items-start gap-2.5 bg-brand-50 border border-brand-200 rounded-md px-4 py-3">
+              <span data-icon="inf" class="w-[18px] h-[18px] text-brand-600 flex-none mt-0.5"></span>
+              <p class="text-sm text-brand-800">Reminders are triggered by members using <span class="font-mono bg-brand-100 px-1.5 py-0.5 rounded text-xs">/remind</span> — there's nothing more to configure here.</p>
+            </div>
+          </div>
+    </div>
+
+    </main>
+  </div>
 </section>
+
+<!-- ─── Save bar ─── -->
+<div id="save-bar" class="hidden fixed bottom-6 z-40" style="left:50%;transform:translateX(-50%)">
+  <div class="bg-white border border-ink-200 rounded-xl shadow-lg px-5 py-3 flex items-center justify-between gap-6 whitespace-nowrap w-[480px] max-w-[calc(100vw-2.5rem)]">
+    <p class="text-sm text-ink-600 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-warning inline-block flex-none"></span>
+      Unsaved changes
+    </p>
+    <div class="flex items-center gap-2">
+      <button id="discard-btn" class="btn-fill btn-fill-ghost h-8 px-3.5 rounded-lg border border-ink-200 text-sm font-semibold hover:bg-ink-50 transition">Discard</button>
+      <button id="save-btn" class="btn-fill btn-fill-primary h-8 px-4 rounded-lg bg-brand-600 text-white text-sm font-semibold inline-flex items-center gap-1.5">
+        <span data-icon="chk" class="w-4 h-4"></span><span>Save</span>
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Toast -->
 <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 opacity-0 translate-y-1 pointer-events-none transition-all duration-200 z-50">
@@ -409,93 +585,249 @@ tailwind.config={theme:{extend:{
 </div>
 
 <script>
-/* ── Icon system ── */
-const I={
-  chvd:`<polyline points="6 9 12 15 18 9"/>`,
-  chvr:`<polyline points="9 18 15 12 9 6"/>`,
-  chvu:`<path d="M7 15l5 5 5-5M7 9l5-5 5 5"/>`,
-  chk: `<polyline points="20 6 9 17 4 12"/>`,
-  pls: `<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>`,
-  ari: `<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>`,
-  arl: `<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>`,
-  lin: `<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>`,
-  lot: `<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>`,
-  shd: `<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>`,
-  lck: `<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>`,
-  inf: `<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>`,
-  wrn: `<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>`,
-  usr: `<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>`,
-  hnd: `<path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>`,
-  scr: `<path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M15 8h-5"/><path d="M15 12h-5"/>`,
-  rfr: `<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>`,
-  srh: `<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>`,
-  grp: `<circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/>`,
-  pnc: `<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/>`,
-  tsh: `<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>`,
-  grd: `<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>`,
-  chkc:`<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>`,
-  sun: `<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>`,
-  mon: `<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>`,
-  anc: `<circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/>`,
+/* ── Icons (Phosphor) ── */
+const PHOS={
+  usr:'users-three',hnd:'hand-waving',scr:'scroll',clk:'bell-ringing',
+  chvd:'caret-down',chvr:'caret-right',chvu:'caret-up',chk:'check',
+  pls:'plus',ari:'arrow-right',arl:'arrow-left',lin:'sign-in',
+  lot:'sign-out',shd:'shield',lck:'lock',inf:'info',wrn:'warning',
+  rfr:'arrows-clockwise',srh:'magnifying-glass',tsh:'trash',
+  chkc:'check-circle',sun:'sun',mon:'moon',wrnch:'wrench',
+  pnc:'pencil-simple',grp:'dots-six-vertical',anc:'anchor',
 };
-function ic(n,cls='w-5 h-5'){return `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]||''}</svg>`;}
-function renderIcons(root){[...(root||document).querySelectorAll('[data-icon]')].forEach(el=>{const n=el.dataset.icon;if(!I[n])return;const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('fill','none');s.setAttribute('stroke','currentColor');s.setAttribute('stroke-width','2');s.setAttribute('stroke-linecap','round');s.setAttribute('stroke-linejoin','round');s.setAttribute('aria-hidden','true');el.className.split(' ').filter(c=>c).forEach(c=>s.classList.add(c));s.innerHTML=I[n];el.replaceWith(s);});}
+const SUN_PATH=`<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>`;
+const MON_PATH=`<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>`;
+function renderIcons(root){
+  [...(root||document).querySelectorAll('[data-icon]')].forEach(el=>{
+    const n=el.dataset.icon,ph=PHOS[n];if(!ph)return;
+    const i=document.createElement('i');
+    i.className='ph ph-'+ph;
+    el.className.split(' ').filter(c=>c).forEach(c=>i.classList.add(c));
+    el.replaceWith(i);
+  });
+  window.PhosphorIcons?.refresh();
+}
+function ic(n,cls){const ph=PHOS[n]||n;return `<i class="ph ph-${ph} ${cls||'w-4 h-4'}"></i>`;}
+
+/* ── Plugin registry ── */
+const PLUGINS = [
+  {id:'roles',    label:'Roles',     icon:'usr', alwaysOn:false, enabled:true},
+  {id:'welcomes', label:'Welcomes',  icon:'hnd', alwaysOn:false, enabled:false},
+  {id:'logging',  label:'Logging',   icon:'scr', alwaysOn:false, enabled:false},
+  {id:'reminders',label:'Reminders', icon:'clk', alwaysOn:true,  enabled:true},
+];
+function pluginState(id){return PLUGINS.find(p=>p.id===id);}
 
 /* ── Routing ── */
 const $=(s,r=document)=>r.querySelector(s);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 function showScreen(id){$$('[data-screen]').forEach(s=>s.classList.toggle('active',s.dataset.screen===id));}
-function showView(v){$$('[data-view]').forEach(el=>el.classList.toggle('hidden',el.dataset.view!==v));if(v==='welcomes')updateWelcomePreview();window.scrollTo(0,0);}
+function showView(v){
+  $$('[data-view]').forEach(el=>el.classList.toggle('hidden',el.dataset.view!==v));
+  if(v==='welcomes')updateWelcomePreview();
+  const pluginViews=['roles','welcomes','logging','reminders'];
+  const sidebar=$('#app-sidebar');
+  if(pluginViews.includes(v)){
+    sidebar.classList.remove('hidden');
+    renderPluginSidebar(v);
+  } else {
+    sidebar.classList.add('hidden');
+  }
+  window.scrollTo(0,0);
+}
 
+/* ── Plugin sidebar ── */
+function renderPluginSidebar(activeId){
+  $$('[data-sidebar-server]').forEach(el=>el.textContent=$$('[data-current-server]')[0]?.textContent||'Server');
+  const nav=$('#app-sidebar-nav');
+  if(!nav)return;
+  const dk=document.documentElement.dataset.theme==='dark';
+  const textActive=dk?'var(--nav-active)':'#266c66';
+  const textInactive=dk?'var(--text-secondary)':'#473f35';
+  const iconBgEnabled='var(--accent)';
+  const iconBgDisabled=dk?'var(--surface-raised)':'#dcd2c0';
+  const dotOff=dk?'var(--border-strong)':'#c5b8a1';
+  nav.innerHTML=PLUGINS.map(p=>{
+    const isActive=p.id===activeId;
+    const dot=p.alwaysOn
+      ?`<span style="margin-left:auto;font-size:10px;font-weight:600;color:var(--accent-2-text);background:var(--accent-2-soft);padding:1px 7px;border-radius:20px">Global</span>`
+      :p.enabled
+        ?`<span style="margin-left:auto;width:7px;height:7px;border-radius:50%;background:#2faf6b;flex:none"></span>`
+        :`<span style="margin-left:auto;width:7px;height:7px;border-radius:50%;background:${dotOff};flex:none"></span>`;
+    return `<button class="plugin-nav-item${isActive?' active':''}" data-nav-to="${p.id}" style="${isActive?`color:${textActive};font-weight:600`:`color:${textInactive}`}">
+      <span style="width:28px;height:28px;border-radius:7px;background:${isActive||p.enabled?iconBgEnabled:iconBgDisabled};color:#fff;display:inline-flex;align-items:center;justify-content:center;flex:none">${ic(p.icon,'w-3.5 h-3.5')}</span>
+      <span style="font-size:13px">${p.label}</span>
+      ${dot}
+    </button>`;
+  }).join('');
+  window.PhosphorIcons?.refresh();
+  $$('[data-nav-to]',nav).forEach(btn=>btn.addEventListener('click',()=>{
+    const id=btn.dataset.navTo;
+    if(isDirty){shakeSaveBar();return;}
+    showView(id);
+  }));
+}
+
+/* ── Save bar / dirty state ── */
+let isDirty=false;
+function shakeSaveBar(){
+  const bar=$('#save-bar');
+  if(bar._ringEnd)bar.removeEventListener('animationend',bar._ringEnd);
+  bar.classList.remove('save-bar-blocked');
+  void bar.offsetWidth;            // reflow so the animation restarts cleanly
+  bar.classList.add('save-bar-blocked');
+  bar._ringEnd=e=>{                // only clean up once the ring-fade (longer) ends
+    if(e.animationName!=='saveBarRingFade')return;
+    bar.classList.remove('save-bar-blocked');
+    bar.removeEventListener('animationend',bar._ringEnd);
+    bar._ringEnd=null;
+  };
+  bar.addEventListener('animationend',bar._ringEnd);
+}
+function markDirty(){
+  if(isDirty)return;
+  isDirty=true;
+  const bar=$('#save-bar');
+  bar.classList.remove('hidden','save-bar-out');
+  void bar.offsetWidth;
+  bar.classList.add('save-bar-anim');
+  bar.addEventListener('animationend',()=>bar.classList.remove('save-bar-anim'),{once:true});
+}
+function clearDirty(onDone){
+  isDirty=false;
+  const bar=$('#save-bar');
+  if(bar.classList.contains('hidden')){onDone&&onDone();return;}
+  bar.classList.remove('save-bar-anim');
+  bar.classList.add('save-bar-out');
+  bar.addEventListener('animationend',()=>{bar.classList.add('hidden');bar.classList.remove('save-bar-out');onDone&&onDone();},{once:true});
+}
+function validateAndSave(){
+  // Find which plugin view is active
+  const activeView=$$('[data-view]').find(v=>!v.classList.contains('hidden'));
+  if(activeView){
+    const toggle=activeView.querySelector('[data-gate-toggle]');
+    const isEnabled=toggle?toggle.dataset.on==='true':true;
+    if(isEnabled){
+      const reqFields=activeView.querySelectorAll('[data-required-when-enabled]');
+      for(const sel of reqFields){
+        const val=sel.dataset.multi==='true'?JSON.parse(sel.dataset.value||'[]'):sel.dataset.value||'';
+        const isEmpty=Array.isArray(val)?val.length===0:!val;
+        if(isEmpty){
+          // Show validation error
+          const card=sel.closest('[id]')||sel.parentElement;
+          card.classList.add('field-error');
+          const selectTrig=sel.querySelector('[data-trig]');
+          if(selectTrig){selectTrig.style.borderColor='#e0533d';selectTrig.style.boxShadow='0 0 0 3px rgba(224,83,61,.2)';}
+          // Error message
+          let errMsg=card.querySelector('.field-err-msg');
+          if(!errMsg){errMsg=document.createElement('p');errMsg.className='field-err-msg';errMsg.style.cssText='font-size:12px;color:#e0533d;margin-top:6px;font-weight:500;display:flex;align-items:center;gap:4px';errMsg.innerHTML=ic('wrn','w-3.5 h-3.5')+' A channel is required to enable this plugin.';card.appendChild(errMsg);window.PhosphorIcons?.refresh();}
+          setTimeout(()=>card.classList.remove('field-error'),320);
+          card.scrollIntoView({behavior:'smooth',block:'nearest'});
+          return;
+        }
+      }
+    }
+  }
+  // All good — commit; toast fires after the save bar finishes leaving
+  clearDirty(()=>toast('Changes saved'));
+}
+
+$('#save-btn').addEventListener('click',validateAndSave);
+$('#discard-btn').addEventListener('click',()=>{clearDirty(()=>toast('Changes discarded'));});
+
+/* ── Navigation ── */
 document.addEventListener('click',e=>{
   const g=e.target.closest('[data-goto]');
-  if(g){const t=g.dataset.goto;t==='login'?showScreen('login'):(showScreen('app'),showView('servers'));closeMenus();return;}
-  if(e.target.closest('[data-open-dashboard]')){showScreen('app');showView('dashboard');closeMenus();return;}
+  if(g){
+    if(isDirty){shakeSaveBar();return;}
+    clearDirty();
+    const t=g.dataset.goto;
+    t==='login'?showScreen('login'):(showScreen('app'),showView('servers'));
+    closeMenus();return;
+  }
+  if(e.target.closest('[data-open-dashboard]')){
+    if(isDirty){shakeSaveBar();return;}
+    clearDirty();showScreen('app');showView('dashboard');closeMenus();return;
+  }
   if(e.target.closest('[data-open-roles]')){showScreen('app');showView('roles');return;}
   if(e.target.closest('[data-open-welcomes]')){showScreen('app');showView('welcomes');return;}
   if(e.target.closest('[data-open-logging]')){showScreen('app');showView('logging');return;}
+  if(e.target.closest('[data-open-reminders]')){showScreen('app');showView('reminders');return;}
   if(e.target.closest('[data-open-empty]')){showScreen('app');showView('empty');return;}
+
   const ge=e.target.closest('[data-gate-enable]');
-  if(ge){const v=ge.closest('[data-view]'),t=v?.querySelector('[data-gate-toggle]');if(t){t.dataset.on='true';paintSwitch(t);syncGate(v);toast('Enabled');}return;}
+  if(ge){const v=ge.closest('[data-view]'),t=v?.querySelector('[data-gate-toggle]');if(t){t.dataset.on='true';paintSwitch(t);syncGate(v);markDirty();}return;}
   const gt=e.target.closest('[data-gate-toggle]');
-  if(gt){gt.dataset.on=gt.dataset.on==='true'?'false':'true';paintSwitch(gt);syncGate(gt.closest('[data-view]'));toast(gt.dataset.on==='true'?'Enabled':'Saved');return;}
+  if(gt){
+    gt.dataset.on=gt.dataset.on==='true'?'false':'true';
+    paintSwitch(gt);syncGate(gt.closest('[data-view]'));
+    // Clear any stale validation errors when disabling
+    if(gt.dataset.on==='false'){
+      const view=gt.closest('[data-view]');
+      $$('.field-err-msg',view).forEach(el=>el.remove());
+      $$('[data-trig]',view).forEach(el=>{el.style.borderColor='';el.style.boxShadow='';});
+    }
+    markDirty();return;
+  }
 });
 
 /* ── Menus ── */
-function closeMenus(){$$('.menu').forEach(m=>m.classList.remove('open'));}
+function closeMenus(){
+  $$('.menu.open').forEach(m=>{
+    m.classList.remove('open');
+    m.classList.add('closing');
+    setTimeout(()=>m.classList.remove('closing'),160);
+  });
+  $$('[data-menu-toggle]').forEach(btn=>{
+    const chv=btn.querySelector('svg:last-of-type');
+    if(chv)chv.style.transform='';
+  });
+}
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-menu-toggle]');
-  if(t){const m=$('#'+t.dataset.menuToggle),was=m.classList.contains('open');closeMenus();if(!was)m.classList.add('open');e.stopPropagation();return;}
+  if(t){const m=$('#'+t.dataset.menuToggle),was=m.classList.contains('open');closeMenus();if(!was){m.classList.add('open');const chv=t.querySelector('svg:last-of-type');if(chv)chv.style.transform='rotate(180deg)';}e.stopPropagation();return;}
   if(!e.target.closest('.menu'))closeMenus();
 });
-$$('[data-pick-server]').forEach(b=>b.addEventListener('click',()=>{$$('[data-current-server]').forEach(el=>el.textContent=b.dataset.pickServer);closeMenus();}));
+$$('[data-pick-server]').forEach(b=>b.addEventListener('click',()=>{const n=b.dataset.pickServer;$$('[data-current-server]').forEach(el=>el.textContent=n);$$('[data-sidebar-server]').forEach(el=>el.textContent=n);closeMenus();}));
 
 /* ── Toast ── */
 let tt;
 function toast(msg='Saved'){
-  const t=$('#toast'),p=$('#save-pill'),m=$('#toast-msg');
+  const t=$('#toast'),m=$('#toast-msg');
   if(m)m.textContent=msg;
   t.style.cssText='position:fixed;bottom:24px;left:50%;opacity:1;transform:translate(-50%,0);z-index:50;pointer-events:none';
   t.classList.add('anim-toast');
-  if(p){p.classList.remove('hidden');p.classList.add('inline-flex');}
   clearTimeout(tt);
-  tt=setTimeout(()=>{t.style.opacity='0';t.style.transform='translate(-50%,4px)';t.classList.remove('anim-toast');},1900);
+  tt=setTimeout(()=>{t.style.opacity='0';t.style.transform='translate(-50%,4px)';t.classList.remove('anim-toast');},2000);
 }
 
 /* ── Switches ── */
 function paintSwitch(btn){
   const on=btn.dataset.on==='true';
+  const alwaysOn=btn.hasAttribute('data-always-on');
+  const needsSetup=btn.hasAttribute('data-needs-setup');
+  const dk=document.documentElement.dataset.theme==='dark';
+  const offBg=dk?'#5e4a37':'#c5b8a1';
   btn.setAttribute('aria-checked',on);
-  btn.style.cssText=`position:relative;width:46px;height:26px;flex:none;border:none;border-radius:999px;cursor:pointer;padding:0;background:${on?'#39afe5':'#b9c4cf'};transition:background 180ms cubic-bezier(.2,0,0,1);outline:none`;
+  btn.style.cssText=`position:relative;width:46px;height:26px;flex:none;border:none;border-radius:999px;cursor:${alwaysOn||needsSetup?'not-allowed':'pointer'};padding:0;background:${on?'var(--accent-fill)':offBg};transition:background 180ms cubic-bezier(.2,0,0,1);outline:none;opacity:${alwaysOn||needsSetup?.5:1}`;
   btn.innerHTML=`<span style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:translateX(${on?'20px':'0'});transition:transform 220ms cubic-bezier(.2,0,0,1)"></span>`;
 }
 $$('.shrk-switch').forEach(btn=>{
   paintSwitch(btn);
-  btn.addEventListener('click',()=>{
-    if(btn.hasAttribute('data-gate-toggle'))return;
-    btn.dataset.on=btn.dataset.on==='true'?'false':'true';
-    paintSwitch(btn);toast(btn.dataset.on==='true'?'Enabled':'Saved');
-  });
+  if(!btn.hasAttribute('data-always-on')&&!btn.hasAttribute('data-gate-toggle')&&!btn.hasAttribute('data-plugin')){
+    btn.addEventListener('click',()=>{
+      btn.dataset.on=btn.dataset.on==='true'?'false':'true';
+      paintSwitch(btn);markDirty();
+    });
+  }
+  // Dashboard plugin toggles — mark dirty but don't navigate
+  if(btn.hasAttribute('data-plugin')){
+    btn.addEventListener('click',()=>{
+      if(btn.hasAttribute('data-always-on')||btn.hasAttribute('data-needs-setup'))return;
+      btn.dataset.on=btn.dataset.on==='true'?'false':'true';
+      paintSwitch(btn);markDirty();
+    });
+  }
 });
 
 /* ── Gate ── */
@@ -506,9 +838,12 @@ function syncGate(viewEl){
   const ov=viewEl.querySelector('[data-gate-overlay]');
   const ct=viewEl.querySelector('[data-gate-content]');
   const lb=viewEl.querySelector('[data-gate-label]');
+  // Icon header tint for logging
+  const logIcon=viewEl.querySelector('#logging-icon');
+  if(logIcon){logIcon.className=`w-12 h-12 rounded-md ${on?'bg-brand-600 text-white':'bg-ink-100 text-ink-400'} grid place-items-center flex-none`;}
   if(ov){const was=ov.classList.contains('hidden');ov.classList.toggle('hidden',on);if(!on&&was)ov.classList.add('anim-fade');if(on)ov.classList.remove('anim-fade');}
   if(ct){ct.style.opacity=on?'1':'.45';ct.style.pointerEvents=on?'auto':'none';}
-  if(lb)lb.textContent=on?'Enabled':'Off';
+  if(lb)lb.textContent=on?'Enabled':'Disabled';
 }
 $$('[data-view]').forEach(v=>syncGate(v));
 
@@ -517,55 +852,90 @@ $$('[data-segmented]').forEach(g=>g.addEventListener('click',e=>{
   const b=e.target.closest('[data-seg]');if(!b)return;
   $$('[data-seg]',g).forEach(x=>{x.removeAttribute('data-seg-active');x.className='flex-1 h-10 rounded-md border-[1.5px] border-ink-200 text-sm font-medium text-ink-600';});
   b.setAttribute('data-seg-active','');b.className='flex-1 h-10 rounded-md border-[1.5px] border-brand-500 bg-brand-50 text-sm font-semibold text-brand-700';
-  toast('Saved');
+  markDirty();
 }));
 
 /* ── Custom select ── */
-function dot(c){return `<span style="width:10px;height:10px;border-radius:50%;background:${c||'#8b99a7'};flex:none;display:inline-block"></span>`;}
+function dot(c){return `<span style="width:10px;height:10px;border-radius:50%;background:${c||'#a3947d'};flex:none;display:inline-block"></span>`;}
+const _selectRenderers=[];
 function buildSelect(root){
   const kind=root.dataset.kind,multi=root.dataset.multi==='true';
   const opts=JSON.parse(root.dataset.options);
   let value=multi?JSON.parse(root.dataset.value||'[]'):(root.dataset.value||'');
   const ph=root.dataset.placeholder||'Select…';
+  const searchable=kind==='channel'||kind==='role';
+  let searchQuery='';
   root.style.position='relative';
   function optByV(v){return opts.find(o=>o.v===v);}
-  function adorn(o){if(kind==='channel')return`<span style="color:#8b99a7;font-family:monospace">#</span>`;if(kind==='role'&&o)return dot(o.c);return'';}
+  function adorn(o){if(kind==='channel')return`<span style="color:#a3947d;font-family:monospace">#</span>`;if(kind==='role'&&o)return dot(o.c);return '';}
   function render(){
     const dk=document.documentElement.dataset.theme==='dark';
-    const bd=dk?'#30363d':'#b9c4cf',bdf='#39afe5',bgC=dk?'#161b22':'#fff',bgM=dk?'#161b22':'#fff',tp=dk?'#e6edf3':'#161a1f',tm=dk?'#6e7681':'#8b99a7';
+    const bd=dk?'var(--border-strong)':'#c5b8a1',bdf='var(--accent-fill)',bgC=dk?'var(--surface-card)':'#fdfbf7',bgM=dk?'var(--surface-card)':'#fdfbf7',tp=dk?'var(--text-primary)':'#1d1a15',tm=dk?'#9d8d75':'#a3947d';
+    const tl=dk?'#46817a':'#2c867f',tlText=dk?'#9fd6cd':'#266c66',tlChipBg=dk?'rgba(70,129,122,.16)':'rgba(44,134,127,.12)',tlChipBd=dk?'rgba(70,129,122,.34)':'rgba(44,134,127,.28)';
     const chosen=multi?value.map(optByV).filter(Boolean):[];
     const sel=multi?null:optByV(value);
     const chvSvg=`<svg style="width:16px;height:16px;flex:none;margin-left:auto;transform:rotate(${root.dataset.open?180:0}deg);transition:transform 150ms" viewBox="0 0 24 24" fill="none" stroke="${tm}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
-    const trig=`<div data-trig style="width:100%;box-sizing:border-box;min-height:40px;padding:${multi&&chosen.length?'5px 10px':'0 12px'};display:flex;align-items:center;gap:6px;flex-wrap:wrap;border:1.5px solid ${root.dataset.open?bdf:bd};border-radius:10px;background:${bgC};cursor:pointer;font-size:14px;${root.dataset.open?'box-shadow:0 0 0 3px rgba(57,175,229,.28)':''};transition:border-color 150ms,box-shadow 150ms">`
-      +(multi?(chosen.length?chosen.map(o=>`<span style="display:inline-flex;align-items:center;gap:6px;padding:3px 6px 3px 8px;background:rgba(57,175,229,.12);border:1px solid rgba(57,175,229,.28);border-radius:6px;color:#1a729e;font-size:12px;font-weight:500">${adorn(o)}${o.l}<span data-rm="${o.v}" style="cursor:pointer;color:#1f8fc4;line-height:1">✕</span></span>`).join(''):`<span style="color:${tm};padding:4px 0">${ph}</span>`):`${sel?adorn(sel):''}<span style="flex:1;text-align:left;color:${sel?tp:tm};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sel?sel.l:ph}</span>`)
+    const trig=`<div data-trig style="width:100%;box-sizing:border-box;min-height:40px;padding:${multi&&chosen.length?'5px 10px':'0 12px'};display:flex;align-items:center;gap:6px;flex-wrap:wrap;border:1.5px solid ${root.dataset.open?bdf:bd};border-radius:10px;background:${bgC};cursor:pointer;font-size:14px;${root.dataset.open?'box-shadow:0 0 0 3px '+(dk?'rgba(95,160,153,.30)':'rgba(44,134,127,.28)'):''};transition:border-color 150ms,box-shadow 150ms">`
+      +(multi?(chosen.length?chosen.map(o=>`<span style="display:inline-flex;align-items:center;gap:6px;padding:3px 6px 3px 8px;background:${tlChipBg};border:1px solid ${tlChipBd};border-radius:6px;color:${tlText};font-size:12px;font-weight:500">${adorn(o)}${o.l}<span data-rm="${o.v}" style="cursor:pointer;color:${tlText};line-height:1">✕</span></span>`).join(''):`<span style="color:${tm};padding:4px 0">${ph}</span>`):`${sel?adorn(sel):''}<span style="flex:1;text-align:left;color:${sel?tp:tm};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sel?sel.l:ph}</span>`)
       +chvSvg+`</div>`;
-    const menu=root.dataset.open?`<div data-menu style="position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:30;background:${bgM};border:1px solid ${bd};border-radius:10px;box-shadow:0 12px 32px rgba(22,26,31,.12);padding:6px;max-height:248px;overflow:auto">`
-      +opts.map(o=>{const active=multi?value.includes(o.v):o.v===value,dis=!!o.disabled;
-        return`<div data-opt="${o.v}" title="${dis?o.disabled:''}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:${dis?'not-allowed':'pointer'};opacity:${dis?.6:1};background:${active?'rgba(57,175,229,.1)':'transparent'};font-size:14px;color:${tp}">`
-          +(multi?`<span style="width:16px;height:16px;flex:none;border-radius:4px;border:${active?'1px solid #39afe5':'1.5px solid '+bd};background:${active?'#39afe5':'transparent'};display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:11px">${active?'✓':''}</span>`:'')
+    const filteredOpts=searchable&&searchQuery?opts.filter(o=>o.l.toLowerCase().includes(searchQuery.toLowerCase())):opts;
+    const searchBar=searchable?`<div style="padding:6px 6px 2px"><div style="display:flex;align-items:center;gap:6px;height:30px;padding:0 8px;border-radius:6px;border:1px solid ${bd};background:${dk?'var(--surface-sunken)':bgC}"><svg style="width:12px;height:12px;flex:none" viewBox="0 0 24 24" fill="none" stroke="${tm}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input data-search value="${searchQuery.replace(/"/g,'&quot;')}" placeholder="Search…" style="flex:1;background:transparent;border:none;outline:none;font-size:12px;color:${tp};font-family:inherit" /></div></div>`:''
+    const menu=root.dataset.open?`<div data-menu style="position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:30;background:${bgM};border:1px solid ${bd};border-radius:10px;box-shadow:0 12px 32px rgba(29,26,21,.12);padding:6px;max-height:248px;overflow:auto">`
+      +searchBar
+      +filteredOpts.map(o=>{const active=multi?value.includes(o.v):o.v===value,dis=!!o.disabled;
+        return`<div data-opt="${o.v}" title="${dis?o.disabled:''}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:${dis?'not-allowed':'pointer'};opacity:${dis?.6:1};background:${active?tlChipBg:'transparent'};font-size:14px;color:${tp}">`
+          +(multi?`<span style="width:16px;height:16px;flex:none;border-radius:4px;border:${active?'1px solid '+tl:'1.5px solid '+bd};background:${active?tl:'transparent'};display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:11px">${active?'✓':''}</span>`:'')
           +adorn(o)+`<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.l}</span>`
           +(dis?`<svg style="width:13px;height:13px;flex:none" viewBox="0 0 24 24" fill="none" stroke="${tm}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`:'')
-          +(!multi&&active?`<svg style="width:14px;height:14px;flex:none" viewBox="0 0 24 24" fill="none" stroke="#39afe5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`:'')
-          +`</div>`;}).join('')+`</div>`:'' ;
+          +(!multi&&active?`<svg style="width:14px;height:14px;flex:none" viewBox="0 0 24 24" fill="none" stroke="${tl}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`:'')
+          +`</div>`;}).join('')+`</div>`:''
     root.innerHTML=trig+menu;
+    if(root.hasAttribute('data-required-when-enabled')&&value){
+      const card=root.closest('[id]')||root.parentElement;
+      const errMsg=card.querySelector('.field-err-msg');if(errMsg)errMsg.remove();
+    }
   }
   render();
-  root.addEventListener('click',e=>{
-    const rm=e.target.closest('[data-rm]');if(rm){value=value.filter(v=>v!==rm.dataset.rm);render();toast('Saved');e.stopPropagation();return;}
-    const opt=e.target.closest('[data-opt]');
-    if(opt){const o=optByV(opt.dataset.opt);if(!o||o.disabled)return;multi?value=value.includes(o.v)?value.filter(v=>v!==o.v):[...value,o.v]:(value=o.v,delete root.dataset.open);render();toast('Saved');e.stopPropagation();return;}
-    if(e.target.closest('[data-trig]')){root.dataset.open?delete root.dataset.open:root.dataset.open='1';render();e.stopPropagation();}
+  _selectRenderers.push(render);
+  root.addEventListener('input',e=>{
+    const si=e.target.closest('[data-search]');if(!si)return;
+    searchQuery=si.value;render();
+    const nsi=root.querySelector('[data-search]');if(nsi){nsi.focus();nsi.setSelectionRange(nsi.value.length,nsi.value.length);}
+    e.stopPropagation();
   });
-  document.addEventListener('click',e=>{if(!root.contains(e.target)&&root.dataset.open){delete root.dataset.open;render();}});
+  root.addEventListener('click',e=>{
+    const rm=e.target.closest('[data-rm]');if(rm){value=value.filter(v=>v!==rm.dataset.rm);render();markDirty();e.stopPropagation();return;}
+    const opt=e.target.closest('[data-opt]');
+    if(opt){const o=optByV(opt.dataset.opt);if(!o||o.disabled)return;multi?value=value.includes(o.v)?value.filter(v=>v!==o.v):[...value,o.v]:(value=o.v,delete root.dataset.open);render();markDirty();e.stopPropagation();return;}
+    if(e.target.closest('[data-trig]')){root.dataset.open?delete root.dataset.open:root.dataset.open='1';if(root.dataset.open)searchQuery='';render();e.stopPropagation();}
+  });
+  document.addEventListener('click',e=>{if(!root.contains(e.target)&&root.dataset.open){delete root.dataset.open;searchQuery='';render();}});
 }
 $$('.shrk-select').forEach(buildSelect);
 
 /* ── Dark mode ── */
 function applyTheme(dark){
+  document.documentElement.classList.add('theme-transitioning');
   document.documentElement.dataset.theme=dark?'dark':'light';
   const icon=document.getElementById('dark-icon');
-  if(icon)icon.innerHTML=dark?I.sun:I.mon;
+  if(icon){
+    icon.style.cssText='opacity:0;transform:rotate(90deg);transition:opacity 150ms,transform 150ms';
+    setTimeout(()=>{
+      icon.innerHTML=dark?SUN_PATH:MON_PATH;
+      icon.style.cssText='opacity:0;transform:rotate(-90deg);transition:none';
+      requestAnimationFrame(()=>{
+        icon.style.cssText='opacity:1;transform:rotate(0);transition:opacity 150ms,transform 150ms';
+        setTimeout(()=>icon.style.cssText='',200);
+      });
+    },150);
+  }
   localStorage.setItem('shrk-theme',dark?'dark':'light');
+  $$('.shrk-switch').forEach(paintSwitch);
+  $$('.shrk-switch-mini').forEach(paintMiniSwitch);
+  _selectRenderers.forEach(r=>r());
+  const activeView=$$('[data-view]').find(v=>!v.classList.contains('hidden'));
+  if(activeView){const pv=['roles','welcomes','logging','reminders'];if(pv.includes(activeView.dataset.view))renderPluginSidebar(activeView.dataset.view);}
+  setTimeout(()=>document.documentElement.classList.remove('theme-transitioning'),320);
 }
 document.getElementById('dark-toggle').addEventListener('click',()=>applyTheme(document.documentElement.dataset.theme!=='dark'));
 applyTheme(localStorage.getItem('shrk-theme')==='dark');
@@ -579,11 +949,69 @@ function updateWelcomePreview(){
   const pj=document.getElementById('preview-join'),pl=document.getElementById('preview-leave');
   if(pj)pj.innerHTML=fj;if(pl)pl.innerHTML=fl;
 }
-document.addEventListener('input',e=>{if(e.target.id==='join-msg'||e.target.id==='leave-msg')updateWelcomePreview();});
+document.addEventListener('input',e=>{
+  if(e.target.id==='join-msg'||e.target.id==='leave-msg'){updateWelcomePreview();markDirty();}
+  else if(e.target.tagName==='INPUT'&&!e.target.closest('[data-menu-toggle]'))markDirty();
+});
 
 /* ── Init ── */
 renderIcons();
 updateWelcomePreview();
+
+/* ── Logging collapsible sections ── */
+function paintMiniSwitch(btn){
+  const on=btn.dataset.on==='true';
+  const dk=document.documentElement.dataset.theme==='dark';
+  btn.setAttribute('aria-checked',on);
+  btn.style.background=on?'var(--accent-fill)':dk?'#5e4a37':'#c5b8a1';
+}
+function syncLogAllSwitch(section){
+  const body=document.querySelector(`[data-log-body="${section}"]`);
+  if(!body)return;
+  const switches=[...body.querySelectorAll('.shrk-switch')];
+  const allOn=switches.length>0&&switches.every(s=>s.dataset.on==='true');
+  const btn=document.querySelector(`[data-log-all="${section}"]`);
+  if(btn){btn.dataset.on=allOn?'true':'false';paintMiniSwitch(btn);}
+}
+['roles','welcomes'].forEach(section=>{
+  const togBtn=document.querySelector(`[data-log-toggle="${section}"]`);
+  const body=document.querySelector(`[data-log-body="${section}"]`);
+  const chv=document.querySelector(`[data-log-chv="${section}"]`);
+  const allBtn=document.querySelector(`[data-log-all="${section}"]`);
+  if(!togBtn||!body)return;
+  let open=true;
+  paintMiniSwitch(allBtn);
+  togBtn.addEventListener('click',()=>{
+    open=!open;
+    if(open){
+      body.style.display='';
+      body.style.animation='logExpand 180ms cubic-bezier(.2,0,0,1)';
+    } else {
+      body.style.animation='logCollapse 150ms cubic-bezier(.4,0,1,1) forwards';
+      body.addEventListener('animationend',()=>{body.style.display='none';},{once:true});
+    }
+    if(chv)chv.style.transform=open?'':'rotate(-90deg)';
+  });
+  if(allBtn){
+    allBtn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const newState=allBtn.dataset.on!=='true';
+      allBtn.dataset.on=newState?'true':'false';
+      paintMiniSwitch(allBtn);
+      [...body.querySelectorAll('.shrk-switch')].forEach(sw=>{
+        sw.dataset.on=newState?'true':'false';
+        paintSwitch(sw);
+      });
+      markDirty();
+    });
+  }
+  // keep toggle-all in sync when individual switches change
+  body.addEventListener('click',e=>{
+    const sw=e.target.closest('.shrk-switch');
+    if(sw)setTimeout(()=>syncLogAllSwitch(section),0);
+  });
+  syncLogAllSwitch(section);
+});
 </script>
 </body>
 </html>

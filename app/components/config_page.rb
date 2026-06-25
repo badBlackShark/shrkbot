@@ -10,23 +10,19 @@ class Components::ConfigPage < Components::Base
 
   def view_template(&block)
     div(class: "mx-auto max-w-3xl px-6 py-8") do
-      breadcrumb
+      render Components::Breadcrumb.new(
+        [
+          {label: t(".servers"), href: servers_path},
+          {label: t(".dashboard"), href: @dashboard_path},
+          {label: @title}
+        ]
+      )
       header
       yield
     end
   end
 
   private
-
-  def breadcrumb
-    nav(class: "mb-4 flex items-center gap-1.5 text-xs text-text-secondary") do
-      a(href: servers_path, class: "transition-colors hover:text-text-primary") { t(".servers") }
-      render Components::Icon.new("caret-right", class: "size-3")
-      a(href: @dashboard_path, class: "transition-colors hover:text-text-primary") { t(".dashboard") }
-      render Components::Icon.new("caret-right", class: "size-3")
-      span(class: "font-medium text-text-secondary") { @title }
-    end
-  end
 
   def header
     div(class: "mb-6 flex items-start gap-4") do

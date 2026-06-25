@@ -49,7 +49,7 @@ RSpec.describe "Authentication", type: :request do
   describe "the home page" do
     it "offers a sign-in button when signed out" do
       get root_path
-      expect(response.body).to include("Sign in with Discord")
+      expect(response.body).to include("Continue with Discord")
     end
 
     it "submits the sign-in natively so Turbo doesn't swallow the cross-origin Discord redirect" do

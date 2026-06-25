@@ -45,7 +45,11 @@ scoping is configured in `config/i18n-tasks.yml` (`relative_roots: [app]` +
 
 Authed pages render their content inside `Components::AppShell`, which draws the
 sticky top bar (mascot wordmark linking to the picker, the dark-mode toggle, and
-a user menu with Log out) and yields the page body into `<main>`. The view passes
+a user menu with Log out) and yields the page body into `<main>`. The bar carries
+the chamfer (cut bottom corners) via the `.app-bar` utility, which paints the
+surface + chamfer on a `::before` layer rather than `clip-path`-ing the header
+itself — clipping the header would slice off the switcher/user-menu dropdowns that
+hang below it. The view passes
 the user in explicitly — `render Components::AppShell.new(user:) { … }` — rather
 than reaching for `helpers.current_user` (phlex-rails warns on the raw `helpers`
 proxy). The login and re-auth pages are not authed, so they sit outside the shell

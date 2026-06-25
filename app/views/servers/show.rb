@@ -15,7 +15,12 @@ class Views::Servers::Show < Views::Base
   def view_template
     render Components::AppShell.new(user: @user, current_server: @guild, servers: @servers, plugin_counts: @plugin_counts) do
       div(class: "mx-auto max-w-3xl px-6 py-8") do
-        breadcrumb
+        render Components::Breadcrumb.new(
+          [
+            {label: t(".breadcrumb_servers"), href: servers_path},
+            {label: @guild.name}
+          ]
+        )
         server_header
         plugins_section
       end
@@ -23,14 +28,6 @@ class Views::Servers::Show < Views::Base
   end
 
   private
-
-  def breadcrumb
-    nav(class: "mb-4 flex items-center gap-1.5 text-xs text-text-secondary") do
-      a(href: servers_path, class: "transition-colors hover:text-text-primary") { t(".breadcrumb_servers") }
-      render Components::Icon.new("caret-right", class: "size-3")
-      span(class: "font-medium text-text-secondary") { @guild.name }
-    end
-  end
 
   def server_header
     div(class: "mb-6 flex items-center gap-4") do
@@ -63,7 +60,7 @@ class Views::Servers::Show < Views::Base
   end
 
   def plugins_section
-    p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-text-secondary") { t(".plugins") }
+    p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins") }
     div(class: "flex flex-col gap-3") do
       @plugins.each do |row|
         render Components::PluginRow.new(server_id: @guild.id, key: row.key, enabled: row.enabled, configured: row.configured)

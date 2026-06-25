@@ -3,57 +3,66 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&family=IBM+Plex+Sans&family=IBM+Plex+Mono&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Exo+2:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../tokens/colors.css" />
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
 <script>
   tailwind.config = { theme: { extend: {
-    colors: { brand:{50:'#ecf8fe',100:'#cfeefc',200:'#a6e0f9',300:'#6fccf3',400:'#4cb9ec',500:'#39afe5',600:'#1f8fc4',700:'#1a729e',800:'#1b5f80',900:'#1c506b'},
-      ink:{0:'#fff',25:'#fafbfc',50:'#f4f6f8',100:'#e9edf1',200:'#d7dee5',300:'#b9c4cf',400:'#8b99a7',500:'#677483',600:'#4d5763',700:'#3a424c',800:'#262c33',900:'#161a1f'},
-      success:'#2faf6b','success-soft':'#e8f7ef',warning:'#e8a13a','warning-soft':'#fdf3e3',danger:'#e0533d','danger-soft':'#fcecea' },
-    fontFamily:{ display:['"Space Grotesk"','"IBM Plex Sans"','system-ui','sans-serif'], sans:['"IBM Plex Sans",'sans-serif'], mono:['"IBM Plex Mono",'monospace'] },
-    borderRadius:{ sm:'6px', md:'10px', lg:'14px', xl:'20px' },
-    boxShadow:{ sm:'0 1px 3px rgba(22,26,31,.08),0 1px 2px rgba(22,26,31,.04)' } } } };
+    colors: { brand:{50:'#eef8f6',100:'#d2ece8',200:'#a8dcd5',300:'#73c6bd',400:'#4fb5ab',500:'#37a79e',600:'#2c867f',700:'#266c66',800:'#235753',900:'#1f4845'},
+      copper:{50:'#fbf1ea',100:'#f5dcca',200:'#e9b99c',300:'#dc9268',400:'#d27a45',500:'#c4622d',600:'#a44f23',700:'#823f1f'},
+      ink:{0:'#fff',25:'#faf7f1',50:'#f5f0e8',100:'#ebe4d7',200:'#dcd2c0',300:'#c5b8a1',400:'#a3947d',500:'#7e7160',600:'#5f5547',700:'#473f35',800:'#2f2a23',900:'#1d1a15',card:'#fdfbf7'},
+      success:'#2faf6b','success-soft':'#e7f4ec',warning:'#e8a13a','warning-soft':'#f8efdc',danger:'#e0533d','danger-soft':'#f8e7e2' },
+    fontFamily:{ display:['"Space Grotesk"','system-ui','sans-serif'], sans:['"Exo 2"','system-ui','sans-serif'], mono:['"IBM Plex Mono"','ui-monospace','monospace'] },
+    borderRadius:{ sm:'5px', md:'8px', lg:'12px', xl:'16px', chip:'5px', control:'8px', card:'12px' },
+    boxShadow:{ sm:'0 1px 3px rgba(29,26,21,.08),0 1px 2px rgba(29,26,21,.04)' } } } };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-<style>body{font-family:"IBM Plex Sans",system-ui,sans-serif}.lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#8b99a7}</style>
+<style>
+  body{font-family:"Exo 2",system-ui,sans-serif}
+  .lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#a3947d}
+  .chamfer-tile{--cut:var(--chamfer,12px);clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% var(--cut),100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,var(--cut) 100%,0 calc(100% - var(--cut)),0 var(--cut))}
+  i[class*="ph-"]{display:inline-flex;align-items:center;justify-content:center;line-height:1;flex:none;font-style:normal}
+  i[class*="ph-"].w-4{font-size:16px;min-width:16px;height:16px}
+  i[class*="ph-"].w-5{font-size:20px;min-width:20px;height:20px}
+  i[class*="ph-"].w-\\[18px\\]{font-size:18px;min-width:18px;height:18px}
+</style>
 </head>
 <body class="bg-ink-50 text-ink-900 p-6">
   <div class="flex flex-col gap-5">
 
     <span class="lbl">Callouts</span>
     <div class="grid grid-cols-2 gap-3">
-      <div class="flex gap-3 bg-brand-50 border border-brand-200 rounded-md px-4 py-3"><i data-lucide="info" class="w-[18px] h-[18px] text-brand-700 flex-none mt-0.5"></i><p class="text-sm leading-relaxed">Reminders work in DMs and any server shrkbot is in.</p></div>
-      <div class="flex gap-3 bg-warning-soft border border-[#f3dcae] rounded-md px-4 py-3"><i data-lucide="triangle-alert" class="w-[18px] h-[18px] text-warning flex-none mt-0.5"></i><p class="text-sm leading-relaxed"><b class="text-warning">Heads up.</b> This channel is visible to @everyone.</p></div>
-      <div class="flex gap-3 bg-danger-soft border border-[#f3c6bd] rounded-md px-4 py-3"><i data-lucide="triangle-alert" class="w-[18px] h-[18px] text-danger flex-none mt-0.5"></i><p class="text-sm leading-relaxed">You can't enable Logging without choosing a channel.</p></div>
-      <div class="flex gap-3 bg-success-soft border border-[#bfe6d0] rounded-md px-4 py-3"><i data-lucide="check" class="w-[18px] h-[18px] text-success flex-none mt-0.5"></i><p class="text-sm leading-relaxed">Saved. shrkbot re-registered commands for this server.</p></div>
+      <div class="flex gap-3 bg-brand-50 border border-brand-200 rounded-md px-4 py-3"><i class="ph ph-info w-[18px] h-[18px] text-brand-700 flex-none mt-0.5"></i><p class="text-sm leading-relaxed">Reminders work in DMs and any server shrkbot is in.</p></div>
+      <div class="flex gap-3 bg-warning-soft border border-[#ecd6a6] rounded-md px-4 py-3"><i class="ph ph-warning w-[18px] h-[18px] text-warning flex-none mt-0.5"></i><p class="text-sm leading-relaxed"><b class="text-warning">Heads up.</b> This channel is visible to @everyone.</p></div>
+      <div class="flex gap-3 bg-danger-soft border border-[#eec3b8] rounded-md px-4 py-3"><i class="ph ph-warning w-[18px] h-[18px] text-danger flex-none mt-0.5"></i><p class="text-sm leading-relaxed">You can't enable Logging without choosing a channel.</p></div>
+      <div class="flex gap-3 bg-success-soft border border-[#bfe6d0] rounded-md px-4 py-3"><i class="ph ph-check w-[18px] h-[18px] text-success flex-none mt-0.5"></i><p class="text-sm leading-relaxed">Saved. shrkbot re-registered commands for this server.</p></div>
     </div>
 
     <span class="lbl mt-1">Setting row (label · control · help · inline warning)</span>
-    <div class="bg-white border border-ink-200 rounded-lg shadow-sm p-5">
+    <div class="bg-ink-card border border-ink-200 rounded-card shadow-sm p-5">
       <div class="flex items-center justify-between gap-4">
-        <div><div class="text-sm font-semibold">Log channel</div><div class="text-xs text-ink-400 mt-0.5">Where moderation events are recorded.</div></div>
-        <div class="h-10 px-3 rounded-md border-[1.5px] border-ink-300 bg-white flex items-center gap-2 text-sm w-56"><span class="font-mono text-ink-400">#</span> mod-log <i data-lucide="chevron-down" class="w-4 h-4 text-ink-400 ml-auto"></i></div>
+        <div><div class="text-sm font-semibold">Log channel</div><div class="text-xs text-ink-500 mt-0.5">Where moderation events are recorded.</div></div>
+        <div class="h-10 px-3 rounded-control border-[1.5px] border-ink-300 bg-ink-card flex items-center gap-2 text-sm w-56"><span class="font-mono text-ink-400">#</span> mod-log <i class="ph ph-caret-down w-4 h-4 text-ink-400 ml-auto"></i></div>
       </div>
-      <div class="mt-3 flex items-start gap-2.5 bg-warning-soft border border-[#f3dcae] rounded-md px-3 py-2.5"><i data-lucide="triangle-alert" class="w-4 h-4 text-warning flex-none mt-0.5"></i><p class="text-sm">This channel is visible to <b>@everyone</b> — anyone can read your mod log.</p></div>
+      <div class="mt-3 flex items-start gap-2.5 bg-warning-soft border border-[#ecd6a6] rounded-md px-3 py-2.5"><i class="ph ph-warning w-4 h-4 text-warning flex-none mt-0.5"></i><p class="text-sm">This channel is visible to <b>@everyone</b> - anyone can read your mod log.</p></div>
     </div>
 
     <span class="lbl mt-1">Plugin row &amp; enable-gate</span>
     <div class="grid grid-cols-2 gap-3">
-      <!-- enabled -->
-      <div class="bg-white border border-brand-200 rounded-lg shadow-sm p-4 flex items-center gap-3">
-        <span class="w-10 h-10 rounded-md bg-brand-500 text-white grid place-items-center flex-none"><i data-lucide="users-round" class="w-5 h-5"></i></span>
+      <!-- enabled — chamfer-tile + Fill icon -->
+      <div class="bg-ink-card border border-brand-200 rounded-card shadow-sm p-4 flex items-center gap-3">
+        <span class="w-10 h-10 chamfer-tile bg-brand-600 text-white grid place-items-center flex-none"><i class="ph-fill ph-users-three w-5 h-5"></i></span>
         <div class="flex-1 min-w-0"><div class="font-display font-semibold text-sm">Roles</div><div class="text-xs text-ink-500">2 sets configured.</div></div>
-        <span class="relative w-[46px] h-[26px] rounded-full bg-brand-500 flex-none"><span class="absolute top-[3px] left-[3px] w-5 h-5 rounded-full bg-white shadow translate-x-5"></span></span>
+        <span class="relative w-[46px] h-[26px] rounded-full bg-brand-600 flex-none"><span class="absolute top-[3px] left-[3px] w-5 h-5 rounded-full bg-white shadow translate-x-5"></span></span>
       </div>
       <!-- gated/off -->
-      <div class="relative bg-white border border-ink-200 rounded-lg shadow-sm p-4 flex items-center gap-3">
-        <span class="w-10 h-10 rounded-md bg-ink-100 text-ink-400 grid place-items-center flex-none"><i data-lucide="scroll-text" class="w-5 h-5"></i></span>
+      <div class="relative bg-ink-card border border-ink-200 rounded-card shadow-sm p-4 flex items-center gap-3">
+        <span class="w-10 h-10 chamfer-tile bg-ink-100 text-ink-400 grid place-items-center flex-none"><i class="ph ph-scroll w-5 h-5"></i></span>
         <div class="flex-1 min-w-0 opacity-50"><div class="font-display font-semibold text-sm">Logging</div><div class="text-xs text-ink-500">Enable to configure.</div></div>
         <span class="relative w-[46px] h-[26px] rounded-full bg-ink-300 flex-none"><span class="absolute top-[3px] left-[3px] w-5 h-5 rounded-full bg-white shadow"></span></span>
       </div>
     </div>
 
   </div>
-  <script>lucide.createIcons();</script>
 </body>
 </html>

@@ -9,7 +9,7 @@ RSpec.describe "Home", type: :request do
     home
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Sign in with Discord")
+    expect(response.body).to include("Continue with Discord")
   end
 
   it "uses the brand display type for the wordmark" do

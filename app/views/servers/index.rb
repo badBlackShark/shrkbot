@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Views::Servers::Index < Views::Base
-  include Phlex::Rails::Helpers::ImageTag
-
   def initialize(present:, absent:, user:, plugin_counts: {}, error: false)
     @present = present
     @absent = absent
@@ -105,14 +103,9 @@ class Views::Servers::Index < Views::Base
   end
 
   def empty_state
-    div(class: "flex flex-col items-center px-6 py-16 text-center") do
-      image_tag("shrkbot-mascot.png", alt: "", class: "mb-6 size-20 rounded-xl opacity-50 shadow-sm")
-      h2(class: "mb-2 font-display text-xl font-bold tracking-tight") { t(".empty_title") }
-      p(class: "mb-6 max-w-sm text-sm leading-relaxed text-text-secondary") { t(".empty_body") }
-      div(class: "flex flex-wrap justify-center gap-3") do
-        render Components::Button.new(variant: :primary, size: :lg, href: generic_invite_url, icon: "plus", label: t(".invite"))
-        render Components::Button.new(variant: :secondary, size: :lg, href: servers_path, icon: "arrows-clockwise", label: t(".refresh"))
-      end
+    render Components::EmptyState.new(title: t(".empty_title"), body: t(".empty_body")) do
+      render Components::Button.new(variant: :primary, size: :lg, href: generic_invite_url, icon: "plus", label: t(".invite"))
+      render Components::Button.new(variant: :secondary, size: :lg, href: servers_path, icon: "arrows-clockwise", label: t(".refresh"))
     end
   end
 

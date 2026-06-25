@@ -1,4 +1,4 @@
-<!-- @dsCard group="Spacing" viewport="700x170" name="Corner Radii" subtitle="xs → pill" -->
+<!-- @dsCard group="Spacing" viewport="700x260" name="Corner radii &amp; chamfer" subtitle="xs → pill · plus the machined cut-corner for brand-forward surfaces" -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,20 +6,50 @@
 <link rel="stylesheet" href="../styles.css" />
 <style>
   body { margin: 0; font-family: var(--font-sans); background: var(--surface-card); color: var(--text-primary); padding: var(--space-6); }
-  .row { display: flex; gap: var(--space-4); align-items: flex-end; }
+  .row { display: flex; gap: var(--space-4); align-items: flex-end; flex-wrap: wrap; }
   .col { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); }
-  .box { width: 72px; height: 56px; background: var(--accent-soft); border: 1.5px solid var(--accent); }
-  .tk { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+  .box { width: 64px; height: 52px; background: var(--accent-soft); border: 1.5px solid var(--accent); }
+  .tk { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); text-align:center; }
+  .hr { height: 1px; background: var(--border-default); margin: var(--space-4) 0; }
+  .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: var(--space-3); }
+  /* Chamfer for demo */
+  .chamfer-full { --cut: var(--chamfer,12px); clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)); }
+  .chamfer-sm-demo { --cut: var(--chamfer-sm,6px); clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut)); }
 </style>
 </head>
 <body>
+  <div class="section-label">Rounded radii — everyday cards, inputs, chips</div>
   <div class="row">
-    <div class="col"><div class="box" style="border-radius:var(--radius-xs)"></div><span class="tk">xs · 4</span></div>
-    <div class="col"><div class="box" style="border-radius:var(--radius-sm)"></div><span class="tk">sm · 6</span></div>
-    <div class="col"><div class="box" style="border-radius:var(--radius-md)"></div><span class="tk">md · 10</span></div>
-    <div class="col"><div class="box" style="border-radius:var(--radius-lg)"></div><span class="tk">lg · 14</span></div>
-    <div class="col"><div class="box" style="border-radius:var(--radius-xl)"></div><span class="tk">xl · 20</span></div>
-    <div class="col"><div class="box" style="border-radius:var(--radius-pill);width:96px"></div><span class="tk">pill</span></div>
+    <div class="col"><div class="box" style="border-radius:var(--radius-xs)"></div><span class="tk">xs · 3</span></div>
+    <div class="col"><div class="box" style="border-radius:var(--radius-sm)"></div><span class="tk">sm · 5<br>chip</span></div>
+    <div class="col"><div class="box" style="border-radius:var(--radius-md)"></div><span class="tk">md · 8<br>control</span></div>
+    <div class="col"><div class="box" style="border-radius:var(--radius-lg)"></div><span class="tk">lg · 12<br>card</span></div>
+    <div class="col"><div class="box" style="border-radius:var(--radius-xl)"></div><span class="tk">xl · 16</span></div>
+    <div class="col"><div class="box" style="border-radius:var(--radius-pill);width:88px"></div><span class="tk">pill</span></div>
+  </div>
+  <div class="hr"></div>
+  <div class="section-label">Chamfer — the geometric signature. Brand-forward surfaces only.</div>
+  <div class="row" style="align-items:center">
+    <div class="col">
+      <div class="box chamfer-full" style="width:64px;height:64px;background:var(--accent-fill);border:none"></div>
+      <span class="tk">--chamfer · 12px<br>plugin tile / mascot</span>
+    </div>
+    <div class="col">
+      <div class="box chamfer-sm-demo" style="width:96px;height:36px;background:var(--accent-fill);border:none;display:flex;align-items:center;justify-content:center">
+        <span style="color:#fff;font-size:12px;font-weight:600">Save changes</span>
+      </div>
+      <span class="tk">--chamfer-sm · 6px<br>primary CTA</span>
+    </div>
+    <div class="col">
+      <!-- Two-layer even-border demo -->
+      <div style="width:64px;height:64px;background:var(--accent);padding:1px;" class="chamfer-full">
+        <div style="width:100%;height:100%;background:var(--surface-card);" class="chamfer-full"></div>
+      </div>
+      <span class="tk">two-layer border<br>outer=color, inner=fill</span>
+    </div>
+    <div style="font-size:11px;color:var(--text-secondary);max-width:200px;line-height:1.5;margin-left:8px">
+      The chamfer (machined cut-corner) is the mascot's geometry — faceted body, wrench box-end. Use <code style="font-family:var(--font-mono);font-size:10px">clip-path</code> with the polygon from <code style="font-family:var(--font-mono);font-size:10px">tokens/spacing.css</code>. Everyday cards and inputs keep rounded radii — the soft/sharp contrast is the point.
+    </div>
   </div>
 </body>
 </html>

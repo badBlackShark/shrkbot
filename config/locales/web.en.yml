@@ -101,8 +101,11 @@ en:
     signed_out: Signed out.
   views:
     home:
-      sign_in: Sign in with Discord
-      tagline: Turn plugins on or off and set them up - all from one place.
+      configure: Configure
+      footer: Free & open source. shrkbot only reads servers you can manage.
+      sign_in: Continue with Discord
+      tagline: Turn plugins on or off and set them up — all from one place. Log in
+        to manage the servers you moderate.
     reauth:
       body: Your Discord sign-in expired. Please stand by - we're refreshing it for
         you.
