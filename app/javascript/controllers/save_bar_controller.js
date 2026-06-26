@@ -40,7 +40,7 @@ export default class extends Controller {
 
   discard(event) {
     event.preventDefault()
-    this.element.reset() // restores saved values in place; tom-select + enable-gate repaint on the reset event
+    this.element.reset() // tom-select + enable-gate repaint on the reset event
     this.baseline = this.snapshot()
     this.setDirty(false)
     this.showDiscardedToast()

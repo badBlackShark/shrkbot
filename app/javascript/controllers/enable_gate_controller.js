@@ -5,7 +5,7 @@ export default class extends Controller {
 
   connect() {
     this.update()
-    // discard resets the form; re-veil once the toggle's checked state settles
+    // reset fires before the control's value updates, so re-veil on the next frame
     this.onReset = () => requestAnimationFrame(() => this.update())
     this.element.addEventListener("reset", this.onReset)
   }

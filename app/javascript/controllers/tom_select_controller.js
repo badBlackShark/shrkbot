@@ -12,8 +12,7 @@ export default class extends Controller {
       plugins: ["dropdown_input"],
       render: this.prefixValue ? this.prefixRenderers() : {}
     })
-    // a form reset restores the underlying <select> but not Tom Select's UI;
-    // re-sync after the reset settles (the discard button resets the form)
+    // a form reset restores the <select> but not Tom Select's UI; re-sync once it settles
     this.form = this.element.form
     this.onReset = () => requestAnimationFrame(() => this.select?.sync())
     this.form?.addEventListener("reset", this.onReset)
