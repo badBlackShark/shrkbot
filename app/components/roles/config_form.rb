@@ -22,13 +22,12 @@ class Components::Roles::ConfigForm < Components::Base
       if channels.empty?
         p(class: "text-sm text-text-secondary") { t(".channel.none") }
       else
-        render Components::TomSelect.new(
+        render Components::ChannelSelect.new(
           name: "roles[channel_id]",
           options: channels,
           selected: @setting.channel_id,
           placeholder: t(".channel.placeholder"),
-          include_blank: true,
-          prefix: "#"
+          include_blank: true
         )
       end
     end

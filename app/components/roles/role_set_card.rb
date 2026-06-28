@@ -122,13 +122,12 @@ class Components::Roles::RoleSetCard < Components::Base
         plain t(".channel.label")
         span(class: "font-normal text-text-muted") { " #{t(".channel.optional")}" }
       end
-      render Components::TomSelect.new(
+      render Components::ChannelSelect.new(
         name: field(:channel_override),
         options: @channels,
         selected: @channel_override,
         placeholder: t(".channel.placeholder", channel: default_channel_label),
-        include_blank: true,
-        prefix: "#"
+        include_blank: true
       )
     end
   end
@@ -136,13 +135,11 @@ class Components::Roles::RoleSetCard < Components::Base
   def roles_field
     div do
       label(class: "mb-1.5 block text-sm font-semibold") { t(".roles.label") }
-      render Components::TomSelect.new(
+      render Components::RoleSelect.new(
         name: "#{field(:role_ids)}[]",
         options: @role_options,
         selected: @selected_role_ids,
-        placeholder: t(".roles.placeholder"),
-        multiple: true,
-        color_dots: true
+        placeholder: t(".roles.placeholder")
       )
       unassignable_callout
     end
