@@ -76,3 +76,19 @@
 .ts-dropdown .option[data-selectable].disabled,
 .ts-dropdown .option.disabled { color: var(--text-muted); cursor: not-allowed; opacity: 0.7; }
 .ts-dropdown .no-results { padding: 0.5rem 0.75rem; color: var(--text-muted); }
+.ts-dot {
+  width: 0.625rem;
+  height: 0.625rem;
+  flex: none;
+  margin-right: 0.5rem;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-primary) 18%, transparent);
+}
+.ts-wrapper.multi .ts-control > .item .ts-dot { margin-right: 0.3125rem; }
+.ts-lock {
+  display: inline-flex;
+  margin-left: auto;
+  padding-left: 0.5rem;
+  color: var(--text-muted);
+}
+.ts-lock svg { width: 0.875rem; height: 0.875rem; }
