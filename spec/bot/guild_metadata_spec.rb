@@ -27,10 +27,10 @@ RSpec.describe GuildMetadata do
   describe ".roles" do
     subject(:roles) { described_class.roles(server) }
 
-    let(:server) { double("server", roles: [double("role", id: 222, name: "Admin", position: 3, managed?: false)]) }
+    let(:server) { double("server", roles: [double("role", id: 222, name: "Admin", position: 3, managed?: false, color: double(combined: 0x37a79e))]) }
 
-    it "maps each role to a plain hash with its position and managed flag" do
-      expect(roles).to eq([{discord_id: 222, name: "Admin", position: 3, managed: false}])
+    it "maps each role to a plain hash with its position, managed flag, and colour" do
+      expect(roles).to eq([{discord_id: 222, name: "Admin", position: 3, managed: false, color: 0x37a79e}])
     end
   end
 

@@ -24,7 +24,7 @@ module GuildMetadata
 
   def roles(server)
     server.roles.map do |role|
-      {discord_id: role.id, name: role.name, position: role.position, managed: role.managed?}
+      {discord_id: role.id, name: role.name, position: role.position, managed: role.managed?, color: role.color.combined}
     end
   end
 

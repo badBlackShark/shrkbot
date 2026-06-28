@@ -18,6 +18,7 @@ Rails.application.routes.draw do
     scope module: :servers do
       resource :welcomes, only: [:show, :update]
       resource :logging, only: [:show, :update], controller: "logging"
+      resource :roles, only: [:show, :update]
     end
   end
 
