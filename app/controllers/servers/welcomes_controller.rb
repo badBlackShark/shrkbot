@@ -25,7 +25,7 @@ class Servers::WelcomesController < ApplicationController
     @toast = {level: "notice", message: t("servers.welcomes.saved")} if result.success?
 
     respond_to do |format|
-      format.turbo_stream
+      format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
       format.html { redirect_to server_welcomes_path(params[:server_id]), **flash_for(result) }
     end
   end

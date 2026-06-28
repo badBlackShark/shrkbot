@@ -64,6 +64,20 @@ RSpec.describe "Welcomes config", type: :request do
           expect(response.body).to include("Live preview")
         end
 
+        it "renders the save bar wired to the form" do
+          get server_welcomes_path(guild.id)
+          expect(response.body).to include("save-bar").and include("Unsaved changes")
+          expect(response.body).to include("save-bar#discard")
+          expect(response.body).to include("turbo:submit-end-&gt;save-bar#saved").or include("turbo:submit-end->save-bar#saved")
+        end
+
+        it "renders the plugin sidebar with a link to the other config page" do
+          get server_welcomes_path(guild.id)
+          expect(response.body).to include("<aside").and include("Plugins")
+          expect(response.body).to include(server_logging_path(guild.id))
+          expect(response.body).to include('aria-current="page"')
+        end
+
         it "labels the live preview with the saved channel" do
           create(:server_channel, server_configuration: config, name: "general", discord_id: 111)
           config.welcome_settings.update!(channel_id: 111)
@@ -103,6 +117,7 @@ RSpec.describe "Welcomes config", type: :request do
           patch server_welcomes_path(guild.id),
             params: {welcomes: {channel_id: "", join_message: "", leave_message: "", enabled: "1"}},
             **turbo
+          expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :welcomes)).to be(false)
           expect(response.body).to include("welcomes-config")
           expect(response.body).to include("settings to be configured")

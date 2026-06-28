@@ -106,6 +106,7 @@ RSpec.describe "Logging config", type: :request do
           patch server_logging_path(guild.id),
             params: {logging: {channel_id: "", enabled: "1", actions: {}}},
             **turbo
+          expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :logging)).to be(false)
           expect(response.body).to include("logging-config")
           expect(response.body).to include("settings to be configured")

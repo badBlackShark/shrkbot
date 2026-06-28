@@ -12,6 +12,10 @@ export default class extends Controller {
       plugins: ["dropdown_input"],
       render: this.prefixValue ? this.prefixRenderers() : {}
     })
+    // a form reset restores the <select> but not Tom Select's UI; re-sync once it settles
+    this.form = this.element.form
+    this.onReset = () => requestAnimationFrame(() => this.select?.sync())
+    this.form?.addEventListener("reset", this.onReset)
   }
 
   prefixRenderers() {
@@ -25,6 +29,7 @@ export default class extends Controller {
   }
 
   disconnect() {
+    this.form?.removeEventListener("reset", this.onReset)
     this.select?.destroy()
   }
 }

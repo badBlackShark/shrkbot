@@ -90,9 +90,9 @@ native tooltip is slow, tiny, and system-font. The reminders dashboard row uses
 it on its always-on (locked) toggle.
 
 That split is the save model: standalone settings save instantly; **the plugin
-config pages do not auto-save** — they batch all edits behind an explicit Save
-button so a configuration can be staged before going live (toggles there are
-`Components::Toggle` fields). Both paths render through a Turbo Stream view
+config pages do not auto-save** — they batch all edits behind an explicit save
+(the global `SaveBar`, below) so a configuration can be staged before going live
+(toggles there are `Components::Toggle` fields). Both paths render through a Turbo Stream view
 template (`action.turbo_stream.erb`, see architecture.md "Web"): the template's
 `turbo_stream.replace`/`append` lines render our Phlex components as the content, so
 the stream markup stays in the view layer. Success re-renders the control plus a
@@ -105,7 +105,7 @@ segmented control) ships with the Roles page that consumes it.
 A plugin config page is assembled by **`Components::ConfigPage`**, not by the
 per-plugin form. ConfigPage owns the single gated `form_with` and renders, in
 order: a header (`PluginTile` + title + description + an inline **enable
-`Toggle`**), an `EnableGate` wrapping the body, and the Save button. The
+`Toggle`**), an `EnableGate` wrapping the body, and the global `SaveBar`. The
 per-plugin `Components::<Plugin>::ConfigForm` is **body-only** — it renders just
 the cards, with no form tag and no enable control of its own — and its root `div`
 carries the `#<plugin>-config` id that the Turbo Stream replaces on a failed save,
@@ -123,6 +123,27 @@ picker on Welcomes/Logging) carries a danger `*` marker next to its label; the
 operation enforces the requirement server-side and the form re-renders with the
 inline error if it's missing. ConfigPage is gated-only today — the non-gated case
 (Reminders) will add the plain path when that page lands.
+
+On config pages the app shell also renders a left **`Components::PluginSidebar`**
+(passed to `AppShell` via `sidebar:`, which switches the shell to a sidebar+main
+layout). It lists the plugins that have a config page — resolved through the
+shared `Components::PluginNav` mixin (plugin→icon and plugin→config-path, shared
+with `PluginRow` so the two can't drift) — with a status dot, an active highlight
+(`aria-current="page"`), and a back-to-dashboard link. It's `hidden md:block`
+(the breadcrumb covers navigation on narrow screens). Roles/Reminders join the
+list automatically once they have config routes.
+
+`Components::SaveBar` is the commit affordance: a fixed bottom bar, hidden until
+the form differs from its initial state. The `save-bar` Stimulus controller (on
+the form alongside `enable-gate`) snapshots the form on connect and compares on
+every `input`/`change`, revealing or hiding the bar. Its Save button is a plain
+`type="submit"` — there's no JS save path; Discard reloads the saved state via a
+Turbo visit. A dirty form **blocks navigation**: `turbo:before-visit` is
+cancelled (the bar does a copper shake instead) and `beforeunload` warns, so
+edits can't be lost by clicking away. The bar re-baselines only on a **successful**
+save — config controllers return **422** (not 200) when a save fails validation,
+which is both the correct status and the signal (`turbo:submit-end` reports
+`success: false`) that tells the bar to stay dirty.
 
 ## Core components
 

@@ -69,7 +69,7 @@ class Components::Logging::ConfigForm < Components::Base
     div(class: "relative border-b border-border-subtle last:border-b-0", data: {controller: "event-group"}) do
       details(
         open: true,
-        data: {controller: "dropdown", dropdown_dismiss_on_outside_value: false}
+        data: {controller: "dropdown", dropdown_dismiss_on_outside_value: "false"}
       ) do
         summary(
           class: "flex h-11 cursor-pointer list-none select-none items-center gap-3 bg-surface-sunken px-5 pr-36 [&::-webkit-details-marker]:hidden",

@@ -5,6 +5,13 @@ export default class extends Controller {
 
   connect() {
     this.update()
+    // reset fires before the control's value updates, so re-veil on the next frame
+    this.onReset = () => requestAnimationFrame(() => this.update())
+    this.element.addEventListener("reset", this.onReset)
+  }
+
+  disconnect() {
+    this.element.removeEventListener("reset", this.onReset)
   }
 
   update() {
@@ -19,6 +26,8 @@ export default class extends Controller {
 
   enable() {
     this.toggleTarget.checked = true
-    this.update()
+    // a programmatic .checked fires no change event; dispatch one so the gate
+    // and the save bar both react as they do to a real toggle click
+    this.toggleTarget.dispatchEvent(new Event("change", {bubbles: true}))
   }
 }
