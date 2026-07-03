@@ -121,8 +121,10 @@ centred card with a lock icon and an "Enable …" button) shown over the body wh
 the plugin is off. A setting the plugin can't be enabled without (the channel
 picker on Welcomes/Logging) carries a danger `*` marker next to its label; the
 operation enforces the requirement server-side and the form re-renders with the
-inline error if it's missing. ConfigPage is gated-only today — the non-gated case
-(Reminders) will add the plain path when that page lands.
+inline error if it's missing. ConfigPage also has a plain, non-gated path for
+always-on plugins: pass no `gate:` and it drops the enable toggle and overlay,
+optionally rendering a copper `badge:` ("Global") next to the title instead —
+Reminders is the one consumer.
 
 On config pages the app shell also renders a left **`Components::PluginSidebar`**
 (passed to `AppShell` via `sidebar:`, which switches the shell to a sidebar+main
@@ -130,8 +132,10 @@ layout). It lists the plugins that have a config page — resolved through the
 shared `Components::PluginNav` mixin (plugin→icon and plugin→config-path, shared
 with `PluginRow` so the two can't drift) — with a status dot, an active highlight
 (`aria-current="page"`), and a back-to-dashboard link. It's `hidden md:block`
-(the breadcrumb covers navigation on narrow screens). Roles/Reminders join the
-list automatically once they have config routes.
+(the breadcrumb covers navigation on narrow screens). Catalog plugins join the
+list automatically once they have config routes; Reminders isn't in the catalog
+(it has no activation to toggle), so the sidebar appends it as a static always-on
+row — the same special case the dashboard makes for its Reminders `PluginRow`.
 
 `Components::SaveBar` is the commit affordance: a fixed bottom bar, hidden until
 the form differs from its initial state. The `save-bar` Stimulus controller (on

@@ -17,6 +17,7 @@ module Components::PluginNav
     when :roles then server_roles_path(server_id)
     when :welcomes then server_welcomes_path(server_id)
     when :logging then server_logging_path(server_id)
+    when :reminders then server_reminders_path(server_id)
     end
   end
 end

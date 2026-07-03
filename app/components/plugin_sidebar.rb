@@ -24,7 +24,12 @@ class Components::PluginSidebar < Components::Base
   private
 
   def items
-    PluginStatus.rows(@config).select { |row| plugin_config_path(@config.discord_id, row.key) }
+    rows = PluginStatus.rows(@config) + [reminders_row]
+    rows.select { |row| plugin_config_path(@config.discord_id, row.key) }
+  end
+
+  def reminders_row
+    PluginStatus::Row.new(key: :reminders, enabled: true, configured: true)
   end
 
   def back_link

@@ -1,0 +1,2 @@
+<%= turbo_stream.replace "reminders-config", html: render(Components::Reminders::ConfigForm.new(server_configuration: @server_configuration)) %>
+<%= turbo_stream.append "toasts", html: render(Components::Toast.new(**@toast)) if @toast %>
