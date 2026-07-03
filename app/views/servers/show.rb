@@ -63,9 +63,8 @@ class Views::Servers::Show < Views::Base
     p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins") }
     div(class: "flex flex-col gap-3") do
       @plugins.each do |row|
-        render Components::PluginRow.new(server_id: @guild.id, key: row.key, enabled: row.enabled, configured: row.configured)
+        render Components::PluginRow.new(server_id: @guild.id, key: row.key, enabled: row.enabled, configured: row.configured, locked: row.locked)
       end
-      render Components::PluginRow.new(server_id: @guild.id, key: :reminders, enabled: true, configured: true, locked: true)
     end
   end
 

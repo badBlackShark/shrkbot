@@ -134,8 +134,8 @@ with `PluginRow` so the two can't drift) — with a status dot, an active highli
 (`aria-current="page"`), and a back-to-dashboard link. It's `hidden md:block`
 (the breadcrumb covers navigation on narrow screens). Catalog plugins join the
 list automatically once they have config routes; Reminders isn't in the catalog
-(it has no activation to toggle), so the sidebar appends it as a static always-on
-row — the same special case the dashboard makes for its Reminders `PluginRow`.
+(it has no activation to toggle) — `PluginStatus::ALWAYS_ON` appends it as a
+locked, always-enabled row, which both the dashboard and the sidebar render.
 
 `Components::SaveBar` is the commit affordance: a fixed bottom bar, hidden until
 the form differs from its initial state. The `save-bar` Stimulus controller (on
