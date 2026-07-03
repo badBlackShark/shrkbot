@@ -60,9 +60,9 @@ en:
           description: Greet new members and say goodbye when they leave.
           name: Welcomes
       status:
-        always_enabled: Always enabled
         disabled: Disabled
         enabled: Enabled
+        global: Global
         needs_setup: Needs setup
       toggle: Toggle %{plugin}
     plugin_sidebar:

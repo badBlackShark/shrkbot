@@ -4,7 +4,6 @@ class Components::PluginRow < Components::Base
   include Components::PluginNav
 
   STATUS_VARIANTS = {
-    always_enabled: :success,
     enabled: :success,
     needs_setup: :warning,
     disabled: :neutral
@@ -66,11 +65,14 @@ class Components::PluginRow < Components::Base
   end
 
   def status_badge
-    render Components::Badge.new(variant: STATUS_VARIANTS.fetch(status), dot: true) { t(".status.#{status}") }
+    if @locked
+      render Components::Badge.new(variant: :copper) { t(".status.global") }
+    else
+      render Components::Badge.new(variant: STATUS_VARIANTS.fetch(status), dot: true) { t(".status.#{status}") }
+    end
   end
 
   def status
-    return :always_enabled if @locked
     return :needs_setup unless @configured
     @enabled ? :enabled : :disabled
   end

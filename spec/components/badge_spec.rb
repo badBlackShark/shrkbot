@@ -36,8 +36,9 @@ RSpec.describe Components::Badge do
   context "copper variant" do
     let(:options) { {variant: :copper} }
 
-    it "uses the copper wayfinding tone" do
+    it "uses the copper wayfinding tone with a border for contrast on cream surfaces" do
       expect(html).to include("bg-accent-2-soft").and include("text-accent-2-text")
+      expect(html).to include("border-accent-2-soft-bd")
     end
   end
 end
