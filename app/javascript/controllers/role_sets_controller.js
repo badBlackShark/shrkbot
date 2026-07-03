@@ -7,11 +7,16 @@ export default class extends Controller {
     // <details> toggle events don't bubble, so capture them to keep the open-set current
     this.onToggle = () => this.persistOpen()
     this.element.addEventListener("toggle", this.onToggle, true)
+    // a default-open new set never fires toggle, so also snapshot right before a save
+    this.form = this.element.closest("form")
+    this.onSubmit = () => this.persistOpen()
+    this.form?.addEventListener("submit", this.onSubmit)
     this.restoreOpen()
   }
 
   disconnect() {
     this.element.removeEventListener("toggle", this.onToggle, true)
+    this.form?.removeEventListener("submit", this.onSubmit)
   }
 
   add() {
@@ -41,19 +46,20 @@ export default class extends Controller {
     this.element.dispatchEvent(new Event("input", {bubbles: true}))
   }
 
-  // Open/closed state is client-only, so it's lost when a save re-renders this
-  // list or a discard reloads the page. Persist the open sets (by id) so the
-  // same ones reopen. New unsaved sets have no id yet and collapse on save.
+  // Open/closed state is client-only, so it's lost when a save re-renders this list
+  // or a discard reloads the page. Persist the open sets and restore on connect.
+  // Existing sets key on their id; a brand-new set has none yet, so it keys on its
+  // name until the save assigns an id (two sets sharing a name could both reopen).
   restoreOpen() {
     const open = this.openSet()
     this.cards().forEach((card) => {
-      if (open.has(this.cardId(card))) card.open = true
+      if (this.cardKeys(card).some((key) => open.has(key))) card.open = true
     })
   }
 
   persistOpen() {
-    const ids = this.cards().filter((card) => card.open).map((card) => this.cardId(card)).filter(Boolean)
-    sessionStorage.setItem(this.storageKey, JSON.stringify(ids))
+    const keys = this.cards().filter((card) => card.open).map((card) => this.cardKeys(card)[0]).filter(Boolean)
+    sessionStorage.setItem(this.storageKey, JSON.stringify(keys))
   }
 
   openSet() {
@@ -68,8 +74,8 @@ export default class extends Controller {
     return Array.from(this.element.querySelectorAll("[data-role-set]"))
   }
 
-  cardId(card) {
-    return card.querySelector("[data-role-set-id]")?.value
+  cardKeys(card) {
+    return [card.querySelector("[data-role-set-id]")?.value, card.querySelector("[data-role-set-name]")?.value].filter(Boolean)
   }
 
   get storageKey() {
