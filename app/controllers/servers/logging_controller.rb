@@ -2,6 +2,7 @@
 
 class Servers::LoggingController < ApplicationController
   include RequiresManageableServer
+  include ConfiguresPlugin
 
   def show
     render Views::Servers::Logging::Show.new(
@@ -31,10 +32,6 @@ class Servers::LoggingController < ApplicationController
 
   private
 
-  def plugin_enabled?
-    @server_configuration.plugins.enabled.exists?(key: :logging)
-  end
-
   def submitted_actions
     raw = logging_params[:actions] || {}
     LoggableEventCatalog.all.to_h { |definition| [definition.key, ActiveModel::Type::Boolean.new.cast(raw[definition.key])] }
@@ -42,11 +39,5 @@ class Servers::LoggingController < ApplicationController
 
   def logging_params
     params.require(:logging).permit(:channel_id, :enabled, actions: {})
-  end
-
-  def flash_for(result)
-    return {notice: t("servers.logging.saved")} if result.success?
-
-    {alert: result.errors.to_sentence}
   end
 end

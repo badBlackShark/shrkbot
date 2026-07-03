@@ -39,13 +39,12 @@ class Components::Logging::ConfigForm < Components::Base
       if channels.empty?
         p(class: "text-sm text-text-secondary") { t(".channel.none") }
       else
-        render Components::TomSelect.new(
+        render Components::ChannelSelect.new(
           name: "logging[channel_id]",
           options: channels,
           selected: @settings.channel_id,
           placeholder: t(".channel.placeholder"),
-          include_blank: true,
-          prefix: "#"
+          include_blank: true
         )
       end
       visibility_warning
@@ -146,8 +145,6 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def channels
-    @channels ||= @config.server_channels.text.map do |channel|
-      Components::TomSelect::Option.for(value: channel.discord_id, label: channel.name)
-    end
+    @channels ||= ChannelOptions.new(@config).options
   end
 end

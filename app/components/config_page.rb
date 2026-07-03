@@ -12,7 +12,7 @@ class Components::ConfigPage < Components::Base
   end
 
   def view_template(&block)
-    div(class: "mx-auto max-w-3xl px-6 py-8") do
+    div(class: "mx-auto max-w-3xl px-6 pb-28 pt-8") do
       render Components::Breadcrumb.new(
         [
           {label: t(".servers"), href: servers_path},

@@ -1,24 +1,27 @@
 # frozen_string_literal: true
 
 class Components::TomSelect < Components::Base
-  Option = Data.define(:value, :label, :disabled) do
-    def self.for(value:, label:, disabled: false)
-      new(value: value, label: label, disabled: disabled)
+  Option = Data.define(:value, :label, :disabled, :color, :reason) do
+    def self.for(value:, label:, disabled: false, color: nil, reason: nil)
+      new(value: value, label: label, disabled: disabled, color: color, reason: reason)
+    end
+
+    def adornment
+      {color: color, reason: reason}.compact
     end
   end
 
-  def initialize(name:, options:, selected: nil, placeholder: nil, include_blank: false, prefix: nil, dom_id: nil)
+  def initialize(name:, options:, selected: nil, multiple: false, include_blank: false, controller_data: {})
     @name = name
     @options = options
     @selected = selected
-    @placeholder = placeholder
+    @multiple = multiple
     @include_blank = include_blank
-    @prefix = prefix
-    @dom_id = dom_id
+    @controller_data = controller_data
   end
 
   def view_template
-    select(name: @name, id: @dom_id, autocomplete: "off", class: "w-full", data: data) do
+    select(name: @name, multiple: @multiple, autocomplete: "off", class: "w-full", data: {controller: "tom-select", **@controller_data}) do
       option(value: "") if @include_blank
       @options.each do |opt|
         option(**option_attrs(opt)) { opt.label }
@@ -28,17 +31,17 @@ class Components::TomSelect < Components::Base
 
   private
 
-  def data
-    attrs = {controller: "tom-select"}
-    attrs[:tom_select_placeholder_value] = @placeholder if @placeholder
-    attrs[:tom_select_prefix_value] = @prefix if @prefix
+  def option_attrs(opt)
+    attrs = {value: opt.value}
+    attrs[:selected] = true if selected?(opt)
+    attrs[:disabled] = true if opt.disabled
+    attrs[:data] = opt.adornment if opt.adornment.any?
     attrs
   end
 
-  def option_attrs(opt)
-    attrs = {value: opt.value}
-    attrs[:selected] = true if @selected.present? && opt.value.to_s == @selected.to_s
-    attrs[:disabled] = true if opt.disabled
-    attrs
+  def selected?(opt)
+    return false if @selected.blank?
+
+    Array(@selected).map(&:to_s).include?(opt.value.to_s)
   end
 end

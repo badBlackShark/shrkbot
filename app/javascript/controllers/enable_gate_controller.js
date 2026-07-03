@@ -5,13 +5,6 @@ export default class extends Controller {
 
   connect() {
     this.update()
-    // reset fires before the control's value updates, so re-veil on the next frame
-    this.onReset = () => requestAnimationFrame(() => this.update())
-    this.element.addEventListener("reset", this.onReset)
-  }
-
-  disconnect() {
-    this.element.removeEventListener("reset", this.onReset)
   }
 
   update() {

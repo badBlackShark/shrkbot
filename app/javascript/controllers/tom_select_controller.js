@@ -2,20 +2,26 @@ import { Controller } from "@hotwired/stimulus"
 import TomSelect from "tom-select"
 
 export default class extends Controller {
-  static values = { placeholder: String, prefix: String }
+  static values = { placeholder: String, prefix: String, colorDots: Boolean, lockIcon: String }
 
   connect() {
     this.select = new TomSelect(this.element, {
       placeholder: this.placeholderValue || undefined,
       allowEmptyOption: false,
       maxOptions: null,
-      plugins: ["dropdown_input"],
-      render: this.prefixValue ? this.prefixRenderers() : {}
+      plugins: this.plugins(),
+      render: this.renderers()
     })
-    // a form reset restores the <select> but not Tom Select's UI; re-sync once it settles
-    this.form = this.element.form
-    this.onReset = () => requestAnimationFrame(() => this.select?.sync())
-    this.form?.addEventListener("reset", this.onReset)
+  }
+
+  plugins() {
+    return this.colorDotsValue ? ["dropdown_input", "remove_button"] : ["dropdown_input", "clear_button"]
+  }
+
+  renderers() {
+    if (this.colorDotsValue) return this.roleRenderers()
+    if (this.prefixValue) return this.prefixRenderers()
+    return {}
   }
 
   prefixRenderers() {
@@ -28,8 +34,16 @@ export default class extends Controller {
     return { option: row, item: row }
   }
 
+  roleRenderers() {
+    const row = (data, escape) => {
+      const dot = data.color ? `<span class="ts-dot" style="background:${escape(data.color)}"></span>` : ""
+      const lock = data.reason ? `<span class="ts-lock" title="${escape(data.reason)}">${this.lockIconValue}</span>` : ""
+      return `<div title="${data.reason ? escape(data.reason) : ""}">${dot}${escape(data.text)}${lock}</div>`
+    }
+    return { option: row, item: row }
+  }
+
   disconnect() {
-    this.form?.removeEventListener("reset", this.onReset)
     this.select?.destroy()
   }
 }

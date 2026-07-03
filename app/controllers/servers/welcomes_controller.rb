@@ -2,6 +2,7 @@
 
 class Servers::WelcomesController < ApplicationController
   include RequiresManageableServer
+  include ConfiguresPlugin
 
   def show
     render Views::Servers::Welcomes::Show.new(
@@ -32,17 +33,7 @@ class Servers::WelcomesController < ApplicationController
 
   private
 
-  def plugin_enabled?
-    @server_configuration.plugins.enabled.exists?(key: :welcomes)
-  end
-
   def welcomes_params
     params.expect(welcomes: [:channel_id, :join_message, :leave_message, :enabled])
-  end
-
-  def flash_for(result)
-    return {notice: t("servers.welcomes.saved")} if result.success?
-
-    {alert: result.errors.to_sentence}
   end
 end

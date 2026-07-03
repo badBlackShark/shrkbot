@@ -9,7 +9,7 @@ module Ops
         def call
           roles.each do |data|
             role = server_configuration.server_roles.find_or_initialize_by(discord_id: data[:discord_id])
-            role.update!(name: data[:name], position: data[:position], managed: data[:managed])
+            role.update!(name: data[:name], position: data[:position], managed: data[:managed], color: data[:color] || 0)
           end
           server_configuration.server_roles.where.not(discord_id: roles.map { |r| r[:discord_id] }).delete_all
           server_configuration.update!(bot_role_position: bot_role_position)

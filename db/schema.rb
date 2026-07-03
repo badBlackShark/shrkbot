@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_22_120306) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_28_220015) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,7 +42,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120306) do
     t.string "target_type", null: false
     t.datetime "updated_at", null: false
     t.index ["server_channel_id", "target_id"], name: "index_channel_overwrites_on_server_channel_id_and_target_id", unique: true
-    t.check_constraint "target_type::text = ANY (ARRAY['role'::character varying, 'member'::character varying]::text[])", name: "channel_overwrites_target_type_check"
+    t.check_constraint "target_type::text = ANY (ARRAY['role'::character varying::text, 'member'::character varying::text])", name: "channel_overwrites_target_type_check"
   end
 
   create_table "logging_settings", id: :string, default: -> { "('lgs_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -96,7 +96,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120306) do
     t.string "selection_mode", null: false
     t.datetime "updated_at", null: false
     t.index ["role_setting_id"], name: "index_role_sets_on_role_setting_id"
-    t.check_constraint "selection_mode::text = ANY (ARRAY['single'::character varying, 'multi'::character varying]::text[])", name: "role_sets_selection_mode_check"
+    t.check_constraint "selection_mode::text = ANY (ARRAY['single'::character varying::text, 'multi'::character varying::text])", name: "role_sets_selection_mode_check"
   end
 
   create_table "role_settings", id: :string, default: -> { "('rls_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -128,6 +128,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120306) do
   end
 
   create_table "server_roles", id: :string, default: -> { "('srl_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.integer "color", default: 0, null: false
     t.datetime "created_at", null: false
     t.bigint "discord_id", null: false
     t.boolean "managed", default: false, null: false

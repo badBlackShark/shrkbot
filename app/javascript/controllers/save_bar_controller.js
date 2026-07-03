@@ -6,6 +6,11 @@ export default class extends Controller {
   connect() {
     this.baseline = this.snapshot()
     this.dirty = false
+    if (sessionStorage.getItem("save-bar-discarded")) {
+      sessionStorage.removeItem("save-bar-discarded")
+      this.showDiscardedToast()
+      this.restoreScroll()
+    }
     this.blockVisit = (event) => {
       if (!this.dirty) return
       event.preventDefault()
@@ -40,10 +45,19 @@ export default class extends Controller {
 
   discard(event) {
     event.preventDefault()
-    this.element.reset() // tom-select + enable-gate repaint on the reset event
-    this.baseline = this.snapshot()
-    this.setDirty(false)
-    this.showDiscardedToast()
+    // reload from the server, not form.reset(): reset reverts to stale render-time defaults and can't undo card add/remove
+    this.dirty = false
+    sessionStorage.setItem("save-bar-discarded", "1")
+    sessionStorage.setItem("save-bar-scroll", String(window.scrollY))
+    window.Turbo.visit(window.location.href, {action: "replace"})
+  }
+
+  restoreScroll() {
+    const y = sessionStorage.getItem("save-bar-scroll")
+    sessionStorage.removeItem("save-bar-scroll")
+    if (y === null) return
+    // after the reopened cards have laid out, so the offset still lands right
+    requestAnimationFrame(() => window.scrollTo(0, parseInt(y, 10)))
   }
 
   showDiscardedToast() {

@@ -7,11 +7,10 @@ RSpec.describe Components::TomSelect do
     described_class.new(
       name: "welcomes[channel_id]",
       options: [
-        Components::TomSelect::Option.for(value: 111, label: "# general"),
-        Components::TomSelect::Option.for(value: 222, label: "# announcements", disabled: true)
+        Components::TomSelect::Option.for(value: 111, label: "general"),
+        Components::TomSelect::Option.for(value: 222, label: "announcements", disabled: true)
       ],
       selected: 111,
-      placeholder: "Choose a channel",
       include_blank: true
     ).call
   end
@@ -20,10 +19,9 @@ RSpec.describe Components::TomSelect do
     expect(html).to include("<select")
     expect(html).to include('name="welcomes[channel_id]"')
     expect(html).to include('data-controller="tom-select"')
-    expect(html).to include('data-tom-select-placeholder-value="Choose a channel"')
   end
 
-  it "renders a blank option for the placeholder" do
+  it "renders a blank option when include_blank is set" do
     expect(html).to include('value=""')
   end
 
@@ -35,33 +33,35 @@ RSpec.describe Components::TomSelect do
     expect(html).to include('value="222"').and include("disabled")
   end
 
-  context "with a prefix adornment (the channel picker's #)" do
-    subject(:prefixed) do
-      described_class.new(
-        name: "welcomes[channel_id]",
-        options: [Components::TomSelect::Option.for(value: 111, label: "general")],
-        prefix: "#"
-      ).call
-    end
-
-    it "passes the prefix to the controller and keeps it out of the option label" do
-      expect(prefixed).to include('data-tom-select-prefix-value="#"')
-      expect(prefixed).to include(">general<")
-      expect(prefixed).not_to include("# general")
-    end
+  it "merges caller-supplied controller data onto the select" do
+    html = described_class.new(name: "x", options: [], controller_data: {tom_select_prefix_value: "#"}).call
+    expect(html).to include('data-tom-select-prefix-value="#"')
   end
 
-  context "without a placeholder or blank option" do
-    subject(:plain) do
+  it "renders a multi-select when asked" do
+    html = described_class.new(name: "x", options: [], multiple: true).call
+    expect(html).to include("multiple")
+  end
+
+  context "with per-option adornment data" do
+    subject(:adorned) do
       described_class.new(
-        name: "x",
-        options: [Components::TomSelect::Option.for(value: 1, label: "one")]
+        name: "roles[]",
+        options: [
+          Components::TomSelect::Option.for(value: 1, label: "Admin", color: "#37a79e"),
+          Components::TomSelect::Option.for(value: 2, label: "Plain")
+        ]
       ).call
     end
 
-    it "omits the blank option and the placeholder data attribute" do
-      expect(plain).to include("<select")
-      expect(plain).not_to include("tom-select-placeholder-value")
+    it "emits data-* attributes Tom Select copies onto the option for colour or a reason" do
+      expect(adorned).to include('data-color="#37a79e"')
+    end
+
+    it "leaves plain options without adornment attributes" do
+      plain = described_class.new(name: "x", options: [Components::TomSelect::Option.for(value: 2, label: "Plain")]).call
+      expect(plain).to include(">Plain<")
+      expect(plain).not_to include("data-color")
     end
   end
 end
