@@ -35,7 +35,7 @@ class Components::TomSelect < Components::Base
     attrs = {value: opt.value}
     attrs[:selected] = true if selected?(opt)
     attrs[:disabled] = true if opt.disabled
-    attrs[:data] = {data: opt.adornment.to_json} if opt.adornment.any?
+    attrs[:data] = opt.adornment if opt.adornment.any?
     attrs
   end
 

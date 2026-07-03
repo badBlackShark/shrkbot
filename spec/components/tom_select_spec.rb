@@ -54,12 +54,14 @@ RSpec.describe Components::TomSelect do
       ).call
     end
 
-    it "emits a data-data blob for options that carry colour or a reason" do
-      expect(adorned).to include("#37a79e")
+    it "emits data-* attributes Tom Select copies onto the option for colour or a reason" do
+      expect(adorned).to include('data-color="#37a79e"')
     end
 
-    it "leaves plain options without a data-data blob" do
-      expect(adorned).to include(">Plain<")
+    it "leaves plain options without adornment attributes" do
+      plain = described_class.new(name: "x", options: [Components::TomSelect::Option.for(value: 2, label: "Plain")]).call
+      expect(plain).to include(">Plain<")
+      expect(plain).not_to include("data-color")
     end
   end
 end

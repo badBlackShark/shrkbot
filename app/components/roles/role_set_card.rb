@@ -34,7 +34,7 @@ class Components::Roles::RoleSetCard < Components::Base
   def view_template
     details(
       open: @open,
-      data: {role_set: true},
+      data: {role_set: true, controller: "dropdown", dropdown_dismiss_on_outside_value: "false"},
       class: "rounded-card border border-border-default bg-surface-card shadow-sm"
     ) do
       hidden_fields
@@ -55,7 +55,10 @@ class Components::Roles::RoleSetCard < Components::Base
   end
 
   def summary_row
-    summary(class: "flex cursor-pointer list-none select-none items-center gap-2 px-4 py-3 [&::-webkit-details-marker]:hidden") do
+    summary(
+      class: "flex cursor-pointer list-none select-none items-center gap-2 px-4 py-3 [&::-webkit-details-marker]:hidden",
+      data: {action: "click->dropdown#toggle"}
+    ) do
       div(class: "min-w-0 flex-1") do
         div(class: "flex items-center gap-2") do
           span(class: "truncate text-sm font-semibold") { @name.presence || t(".unnamed") }
@@ -79,7 +82,7 @@ class Components::Roles::RoleSetCard < Components::Base
   end
 
   def editor
-    div(class: "grid gap-5 border-t border-border-subtle p-5") do
+    div(class: "dropdown-menu grid gap-5 border-t border-border-subtle p-5", data: {dropdown_target: "menu"}) do
       top_fields
       channel_override_field
       roles_field
