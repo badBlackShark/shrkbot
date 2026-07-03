@@ -3,6 +3,8 @@
 module Ops
   module Welcomes
     class Configure < ApplicationOperation
+      include Ops::PluginConfiguration
+
       receives :server_configuration, :channel_id, :join_message, :leave_message, :enabled
 
       def call
@@ -19,14 +21,8 @@ module Ops
 
       private
 
-      def staged_activation
-        activation = server_configuration.plugin_activations.find_or_initialize_by(plugin: Plugin.find_by!(key: :welcomes))
-        activation.enabled = enabled
-        activation
-      end
-
-      def messages(*records)
-        records.flat_map { |record| record.errors.full_messages }
+      def plugin_key
+        :welcomes
       end
     end
   end

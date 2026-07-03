@@ -3,6 +3,8 @@
 module Ops
   module Roles
     class Configure < ApplicationOperation
+      include Ops::PluginConfiguration
+
       receives :server_configuration, :channel_id, :enabled, :role_sets
 
       def call
@@ -68,18 +70,12 @@ module Ops
         server_configuration.role_setting.role_sets.maximum(:position) || -1
       end
 
-      def staged_activation
-        activation = server_configuration.plugin_activations.find_or_initialize_by(plugin: Plugin.find_by!(key: :roles))
-        activation.enabled = enabled
-        activation
+      def plugin_key
+        :roles
       end
 
       def truthy?(value)
         ActiveModel::Type::Boolean.new.cast(value)
-      end
-
-      def messages(*records)
-        records.flat_map { |record| record.errors.full_messages }
       end
     end
   end

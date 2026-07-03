@@ -2,6 +2,7 @@
 
 class Servers::RolesController < ApplicationController
   include RequiresManageableServer
+  include ConfiguresPlugin
 
   def show
     render Views::Servers::Roles::Show.new(
@@ -34,10 +35,6 @@ class Servers::RolesController < ApplicationController
 
   private
 
-  def plugin_enabled?
-    @server_configuration.plugins.enabled.exists?(key: :roles)
-  end
-
   def submitted_sets
     raw = roles_params[:role_sets]
     list = raw.respond_to?(:values) ? raw.values : Array(raw)
@@ -50,11 +47,5 @@ class Servers::RolesController < ApplicationController
       :enabled,
       role_sets: [:id, :name, :selection_mode, :channel_override, :_destroy, {role_ids: []}]
     )
-  end
-
-  def flash_for(result)
-    return {notice: t("servers.roles.saved")} if result.success?
-
-    {alert: result.errors.to_sentence}
   end
 end

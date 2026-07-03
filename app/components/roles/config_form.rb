@@ -84,9 +84,7 @@ class Components::Roles::ConfigForm < Components::Base
   end
 
   def channels
-    @channels ||= @config.server_channels.text.map do |channel|
-      Components::TomSelect::Option.for(value: channel.discord_id, label: channel.name)
-    end
+    @channels ||= ChannelOptions.new(@config).options
   end
 
   def channels_by_id
