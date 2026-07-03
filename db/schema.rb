@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_28_220015) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_03_225437) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -112,6 +112,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_220015) do
     t.datetime "created_at", null: false
     t.bigint "discord_id", null: false
     t.string "name", null: false
+    t.bigint "parent_id"
+    t.integer "position"
     t.string "server_configuration_id", null: false
     t.datetime "updated_at", null: false
     t.index ["server_configuration_id", "discord_id"], name: "idx_on_server_configuration_id_discord_id_610352a54e", unique: true

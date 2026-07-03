@@ -10,13 +10,19 @@ RSpec.describe Ops::ServerConfiguration::ServerChannels::Sync do
   describe "upserting channels" do
     let(:channels) do
       [
-        {discord_id: 111, name: "general", channel_type: 0, overwrites: []},
-        {discord_id: 222, name: "Voice", channel_type: 2, overwrites: []}
+        {discord_id: 111, name: "general", channel_type: 0, position: 2, parent_id: 999, overwrites: []},
+        {discord_id: 222, name: "Voice", channel_type: 2, position: 0, parent_id: nil, overwrites: []}
       ]
     end
 
     it "creates a row per incoming channel" do
       expect { result }.to change { server.server_channels.count }.from(0).to(2)
+    end
+
+    it "stores each channel's position and category" do
+      result
+
+      expect(server.server_channels.find_by(discord_id: 111)).to have_attributes(position: 2, parent_id: 999)
     end
 
     context "when a channel was renamed since the last sync" do

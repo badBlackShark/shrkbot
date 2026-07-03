@@ -31,6 +31,7 @@ ActiveRecordDoctor.configure do
       "welcome_settings.channel_id",
       "assignable_roles.role_id",
       "server_channels.discord_id",
+      "server_channels.parent_id",
       "server_roles.discord_id",
       "channel_overwrites.target_id"
     ]

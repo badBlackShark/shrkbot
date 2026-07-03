@@ -45,6 +45,45 @@ RSpec.describe ServerChannel do
     end
   end
 
+  describe ".in_discord_order" do
+    subject(:names) { server.server_channels.text.in_discord_order.pluck(:name) }
+
+    let(:server) { create(:server_configuration) }
+
+    before do
+      create(:server_channel, server_configuration: server, name: "info", channel_type: 4, discord_id: 10, position: 1)
+      create(:server_channel, server_configuration: server, name: "chat", channel_type: 4, discord_id: 20, position: 0)
+      create(:server_channel, server_configuration: server, name: "rules", channel_type: 0, discord_id: 11, position: 0, parent_id: 10)
+      create(:server_channel, server_configuration: server, name: "general", channel_type: 0, discord_id: 21, position: 1, parent_id: 20)
+      create(:server_channel, server_configuration: server, name: "memes", channel_type: 0, discord_id: 22, position: 0, parent_id: 20)
+      create(:server_channel, server_configuration: server, name: "welcome", channel_type: 0, discord_id: 1, position: 0)
+    end
+
+    it "lists uncategorised channels first, then each category's children by position" do
+      expect(names).to eq(%w[welcome memes general rules])
+    end
+
+    context "when positions within a group collide" do
+      before do
+        create(:server_channel, server_configuration: server, name: "announcements", channel_type: 5, discord_id: 2, position: 0)
+      end
+
+      it "breaks the tie by name" do
+        expect(names).to eq(%w[announcements welcome memes general rules])
+      end
+    end
+
+    context "with rows from before ordering was synced" do
+      before do
+        server.server_channels.update_all(position: nil, parent_id: nil)
+      end
+
+      it "falls back to alphabetical order" do
+        expect(names).to eq(%w[general memes rules welcome])
+      end
+    end
+  end
+
   describe "#everyone_visible?" do
     subject(:visible) { channel.everyone_visible? }
 

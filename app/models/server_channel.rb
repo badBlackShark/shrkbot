@@ -12,7 +12,19 @@ class ServerChannel < ApplicationRecord
 
   TEXT_TYPES = [0, 5].freeze
 
+  CATEGORY_TYPE = 4
+
   scope :text, -> { where(channel_type: TEXT_TYPES).order(:name) }
+  scope :in_discord_order, -> {
+    joins(<<~SQL)
+      LEFT JOIN server_channels categories
+        ON categories.server_configuration_id = server_channels.server_configuration_id
+        AND categories.discord_id = server_channels.parent_id
+    SQL
+      .reorder(Arel.sql(
+        "categories.position NULLS FIRST, categories.name, server_channels.position, server_channels.name"
+      ))
+  }
 
   def everyone_visible?
     overwrite = channel_overwrites.find_by(target_id: server_configuration.discord_id)

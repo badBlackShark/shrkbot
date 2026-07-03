@@ -10,14 +10,14 @@ RSpec.describe GuildMetadata do
       double("overwrite", id: 555, type: :role, allow: double(bits: 1024), deny: double(bits: 2048))
     end
     let(:channel) do
-      double("channel", id: 111, name: "general", type: 0,
+      double("channel", id: 111, name: "general", type: 0, position: 3, parent_id: 999,
         permission_overwrites: {555 => overwrite})
     end
     let(:server) { double("server", channels: [channel]) }
 
-    it "maps each channel to a plain hash" do
+    it "maps each channel to a plain hash with its position and category" do
       expect(channels).to eq([
-        {discord_id: 111, name: "general", channel_type: 0, overwrites: [
+        {discord_id: 111, name: "general", channel_type: 0, position: 3, parent_id: 999, overwrites: [
           {target_id: 555, target_type: "role", allow: 1024, deny: 2048}
         ]}
       ])
