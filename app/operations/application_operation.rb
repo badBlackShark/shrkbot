@@ -25,7 +25,7 @@ module Ops
         end
 
         names.each do |name|
-          receive_declarations[name] = {required: !optional && !has_default, has_default: has_default, default: default}
+          receive_declarations[name] = {required: !optional && !has_default, has_default:, default:}
           attr_reader(name)
         end
       end

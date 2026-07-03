@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe OwnerBroadcast do
   describe ".call" do
-    subject(:result) { described_class.call(bots: bots, content: "hello owners") }
+    subject(:result) { described_class.call(bots:, content: "hello owners") }
 
     let(:bots) { [shard_one, shard_two] }
     let(:shard_one) { double("shard_one", servers: {1 => server(10), 2 => server(20)}) }

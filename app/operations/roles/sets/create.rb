@@ -10,9 +10,9 @@ module Ops
         def call
           setting = server_configuration.role_setting
           set = setting.role_sets.create!(
-            name: name,
-            selection_mode: selection_mode,
-            channel_override: channel_override,
+            name:,
+            selection_mode:,
+            channel_override:,
             position: next_position(setting)
           )
           ok(set)

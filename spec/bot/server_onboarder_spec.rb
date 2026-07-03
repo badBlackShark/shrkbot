@@ -9,7 +9,7 @@ RSpec.describe ServerOnboarder do
   let(:owner) { double("owner", id: 999) }
   let(:server) { double("server", id: 77, owner:) }
   let(:pm_channel) { double("pm_channel", send_message: nil) }
-  let(:bot) { double("bot", pm_channel: pm_channel) }
+  let(:bot) { double("bot", pm_channel:) }
 
   context "when the server has not been onboarded" do
     it "DMs the guild owner the welcome message" do

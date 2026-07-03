@@ -18,7 +18,7 @@ RSpec.describe Roles::Pick do
 
   let(:user) { double("user", id: 42) }
   let(:member) { double("member", roles: [], modify_roles: nil, mention: "<@42>") }
-  let(:server) { double("server", member: member) }
+  let(:server) { double("server", member:) }
   let(:bot) { double("bot") }
   let(:event) do
     double("event", custom_id: Roles::CustomId.pick(set, blue), server:, user:, respond: nil, bot:)

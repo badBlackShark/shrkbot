@@ -6,9 +6,9 @@ RSpec.describe Ops::Roles::Configure do
   subject(:result) do
     described_class.call(
       server_configuration: config,
-      channel_id: channel_id,
-      enabled: enabled,
-      role_sets: role_sets
+      channel_id:,
+      enabled:,
+      role_sets:
     )
   end
 
@@ -50,7 +50,7 @@ RSpec.describe Ops::Roles::Configure do
     it "assigns increasing positions across several new sets in one save" do
       described_class.call(
         server_configuration: config,
-        channel_id: channel_id,
+        channel_id:,
         enabled: "0",
         role_sets: [
           {name: "First", selection_mode: "multi", role_ids: []},
@@ -83,7 +83,7 @@ RSpec.describe Ops::Roles::Configure do
     end
 
     it "deletes a set that is no longer submitted" do
-      expect { described_class.call(server_configuration: config, channel_id: channel_id, enabled: "0", role_sets: []) }
+      expect { described_class.call(server_configuration: config, channel_id:, enabled: "0", role_sets: []) }
         .to change { setting.role_sets.count }.by(-1)
     end
   end
@@ -109,7 +109,7 @@ RSpec.describe Ops::Roles::Configure do
 
     it "won't touch a set id that belongs to another server" do
       other = create(:role_set, name: "Theirs")
-      described_class.call(server_configuration: config, channel_id: channel_id, enabled: "0", role_sets: [{id: other.id, name: "Hijacked", selection_mode: "multi", role_ids: []}])
+      described_class.call(server_configuration: config, channel_id:, enabled: "0", role_sets: [{id: other.id, name: "Hijacked", selection_mode: "multi", role_ids: []}])
       expect(other.reload.name).to eq("Theirs")
     end
   end

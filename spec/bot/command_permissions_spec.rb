@@ -6,9 +6,9 @@ RSpec.describe CommandPermissions do
   def event_for(user_id:, member: :unset)
     user = double("user", id: user_id)
     if member == :unset
-      double("event", user: user) # DM-style: no member
+      double("event", user:) # DM-style: no member
     else
-      double("event", user: user, member: member)
+      double("event", user:, member:)
     end
   end
 

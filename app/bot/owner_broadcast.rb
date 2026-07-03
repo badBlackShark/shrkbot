@@ -12,7 +12,7 @@ module OwnerBroadcast
     messenger = bots.first
     sent = owner_ids.count { |owner_id| deliver(messenger, owner_id, content) }
 
-    Result.new(owner_count: owner_ids.size, sent: sent, server_count: servers.size)
+    Result.new(owner_count: owner_ids.size, sent:, server_count: servers.size)
   end
 
   def deliver(bot, owner_id, content)

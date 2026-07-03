@@ -11,7 +11,7 @@ module GuildMetadata
       roles: roles(server),
       bot_role_position: bot_role_position(server, bot)
     )
-    Ops::ServerConfiguration::Channels::Reconcile.call(server_configuration: config, bot: bot)
+    Ops::ServerConfiguration::Channels::Reconcile.call(server_configuration: config, bot:)
     ServerOnboarder.notify(bot, server, config)
     config
   end

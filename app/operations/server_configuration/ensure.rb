@@ -9,14 +9,14 @@ module Ops
 
       def call
         config = transaction do
-          sc = ::ServerConfiguration.find_or_create_by!(discord_id: discord_id)
+          sc = ::ServerConfiguration.find_or_create_by!(discord_id:)
           ensure_activations(sc)
           ensure_settings(sc)
           sc
         end
         ok(config)
       rescue ActiveRecord::RecordNotUnique
-        ok(::ServerConfiguration.find_by!(discord_id: discord_id))
+        ok(::ServerConfiguration.find_by!(discord_id:))
       end
 
       private

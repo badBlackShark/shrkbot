@@ -46,7 +46,7 @@ module Roles
     end
 
     def action_row(components)
-      {type: ACTION_ROW, components: components}
+      {type: ACTION_ROW, components:}
     end
 
     def single_content(set)
@@ -83,7 +83,7 @@ module Roles
         custom_id: CustomId.select(set),
         min_values: 0,
         max_values: options.size,
-        options: options
+        options:
       }
     end
 

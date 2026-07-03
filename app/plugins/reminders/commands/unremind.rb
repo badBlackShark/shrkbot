@@ -13,7 +13,7 @@ module Reminders
       reminder = Reminders::Reminder.find_by(id: event.options["reminder"], user_id: event.user.id)
       return event.respond(content: "⚠️ That reminder doesn't exist.", ephemeral: true) unless reminder
 
-      Ops::Reminders::Delete.call(reminder: reminder)
+      Ops::Reminders::Delete.call(reminder:)
       event.respond(content: "🗑️ Reminder cancelled.", ephemeral: true)
     end
 
@@ -21,7 +21,7 @@ module Reminders
       choices = Reminders::Reminder.for_user(event.user.id).limit(25).map do |reminder|
         {name: choice_label(reminder), value: reminder.id}
       end
-      event.respond(choices: choices)
+      event.respond(choices:)
     end
 
     private

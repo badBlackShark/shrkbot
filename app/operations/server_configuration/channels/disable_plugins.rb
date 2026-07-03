@@ -23,14 +23,14 @@ module Ops
           plugin = Plugin.find_by(key: definition.key)
           transaction do
             setting.update!(channel_id: nil)
-            Plugins::Toggle.call(server_configuration: server_configuration, plugin:, enabled: false)
+            Plugins::Toggle.call(server_configuration:, plugin:, enabled: false)
           end
           plugin
         end
 
         def notify_owner(plugin)
           OwnerNotifier.notify(
-            bot: bot,
+            bot:,
             message: "⚠️ **#{plugin.name}** was disabled because its configured channel was deleted. Reconfigure it to turn it back on."
           )
         end

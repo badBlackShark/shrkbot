@@ -50,7 +50,7 @@ class BaseCommand
     def registration
       Registration.new(
         name: command_name,
-        description: description,
+        description:,
         permissions: requires_permissions,
         owner_only: owner_only?,
         context: register_in,
@@ -112,7 +112,7 @@ class BaseCommand
 
   def permitted?
     CommandPermissions.permitted?(
-      event: event,
+      event:,
       required: self.class.requires_permissions,
       owner_only: self.class.owner_only?
     )

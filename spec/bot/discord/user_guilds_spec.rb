@@ -6,7 +6,7 @@ RSpec.describe Discord::UserGuilds do
   subject(:fetch) { described_class.call("access-token") }
 
   let(:http) { instance_double(Net::HTTP) }
-  let(:response) { instance_double(Net::HTTPResponse, code: code, body: body) }
+  let(:response) { instance_double(Net::HTTPResponse, code:, body:) }
   let(:code) { "200" }
   let(:body) { [{"id" => "42", "name" => "Dev Refuge", "owner" => true, "permissions" => "8", "icon" => nil, "approximate_member_count" => 2481}].to_json }
 

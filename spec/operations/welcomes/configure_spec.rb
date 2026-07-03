@@ -6,10 +6,10 @@ RSpec.describe Ops::Welcomes::Configure do
   subject(:result) do
     described_class.call(
       server_configuration: config,
-      channel_id: channel_id,
+      channel_id:,
       join_message: "hi {user}",
       leave_message: "bye",
-      enabled: enabled
+      enabled:
     )
   end
 
@@ -24,7 +24,7 @@ RSpec.describe Ops::Welcomes::Configure do
       expect(result).to be_success
       expect(config.welcome_settings.reload.channel_id).to eq(111)
       expect(config.welcome_settings.join_message).to eq("hi {user}")
-      expect(config.plugin_activations.find_by(plugin: plugin).enabled).to be(true)
+      expect(config.plugin_activations.find_by(plugin:).enabled).to be(true)
     end
   end
 
@@ -46,7 +46,7 @@ RSpec.describe Ops::Welcomes::Configure do
     it "saves the messages and leaves the plugin disabled" do
       expect(result).to be_success
       expect(config.welcome_settings.reload.join_message).to eq("hi {user}")
-      expect(config.plugin_activations.find_by(plugin: plugin)&.enabled).to be_falsey
+      expect(config.plugin_activations.find_by(plugin:)&.enabled).to be_falsey
     end
   end
 end

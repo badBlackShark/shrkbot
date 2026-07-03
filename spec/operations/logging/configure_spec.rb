@@ -6,9 +6,9 @@ RSpec.describe Ops::Logging::Configure do
   subject(:result) do
     described_class.call(
       server_configuration: config,
-      channel_id: channel_id,
-      enabled_actions: enabled_actions,
-      enabled: enabled
+      channel_id:,
+      enabled_actions:,
+      enabled:
     )
   end
 
@@ -25,7 +25,7 @@ RSpec.describe Ops::Logging::Configure do
       expect(config.logging_setting.reload.channel_id).to eq(200)
       expect(config.logging_setting.action_enabled?("roles.role_gained")).to be(true)
       expect(config.logging_setting.action_enabled?("roles.role_lost")).to be(false)
-      expect(config.plugin_activations.find_by(plugin: plugin).enabled).to be(true)
+      expect(config.plugin_activations.find_by(plugin:).enabled).to be(true)
     end
   end
 
@@ -46,7 +46,7 @@ RSpec.describe Ops::Logging::Configure do
     it "stores the toggles and leaves the plugin disabled" do
       expect(result).to be_success
       expect(config.logging_setting.reload.action_enabled?("roles.role_gained")).to be(true)
-      expect(config.plugin_activations.find_by(plugin: plugin)&.enabled).to be_falsey
+      expect(config.plugin_activations.find_by(plugin:)&.enabled).to be_falsey
     end
   end
 end

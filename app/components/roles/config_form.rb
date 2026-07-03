@@ -46,7 +46,7 @@ class Components::Roles::ConfigForm < Components::Base
 
   def card_for(set, index)
     card(
-      index: index,
+      index:,
       set_id: set.id,
       name: set.name,
       selection_mode: set.selection_mode,
@@ -61,9 +61,9 @@ class Components::Roles::ConfigForm < Components::Base
 
   def card(**attrs)
     Components::Roles::RoleSetCard.new(
-      channels: channels,
-      role_options: role_options,
-      channels_by_id: channels_by_id,
+      channels:,
+      role_options:,
+      channels_by_id:,
       default_channel_id: @setting.channel_id,
       any_unassignable: assignable_options.any_unassignable?,
       **attrs

@@ -10,9 +10,9 @@ module Ops
 
         def call
           role = role_set.assignable_roles.create!(
-            role_id: role_id,
-            description: description,
-            emoji: emoji,
+            role_id:,
+            description:,
+            emoji:,
             position: next_position
           )
           ok(role)

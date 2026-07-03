@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe Ops::Roles::Messages::Repost do
-  subject(:result) { described_class.call(bot: bot, role_set: set) }
+  subject(:result) { described_class.call(bot:, role_set: set) }
 
   let(:bot) { double("bot") }
   let(:channel) { double("channel") }

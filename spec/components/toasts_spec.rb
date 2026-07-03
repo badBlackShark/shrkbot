@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe Components::Toasts do
-  subject(:html) { described_class.new(flash: flash).call }
+  subject(:html) { described_class.new(flash:).call }
 
   context "with a notice" do
     let(:flash) { {"notice" => "Signed in as shrk."} }
