@@ -30,24 +30,14 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def channel_card
-    render Components::Card.new do
-      label(class: "block text-sm font-semibold") do
-        plain t(".channel.label")
-        required_marker
-      end
-      p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".channel.help") }
-      if channels.empty?
-        p(class: "text-sm text-text-secondary") { t(".channel.none") }
-      else
-        render Components::ChannelSelect.new(
-          name: "welcomes[channel_id]",
-          options: channels,
-          selected: @settings.channel_id,
-          placeholder: t(".channel.placeholder"),
-          include_blank: true
-        )
-      end
-    end
+    render Components::ChannelCard.new(
+      name: "welcomes[channel_id]",
+      channels:,
+      selected: @settings.channel_id,
+      label: t(".channel.label"),
+      help: t(".channel.help"),
+      required: true
+    )
   end
 
   def message_cards
@@ -116,10 +106,6 @@ class Components::Welcomes::ConfigForm < Components::Base
 
   def preview_body_data(kind)
     {welcome_preview_target: "#{kind}Output", empty_hint: t(".preview.empty")}
-  end
-
-  def required_marker
-    span(class: "ml-1 text-xs font-semibold text-danger", title: t(".channel.required")) { "*" }
   end
 
   def preview_channel

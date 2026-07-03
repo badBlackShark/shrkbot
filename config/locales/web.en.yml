@@ -13,6 +13,10 @@ en:
         one: "%{count} plugin on"
         other: "%{count} plugins on"
       toggle_theme: Toggle dark mode
+    channel_card:
+      none: No channels have synced yet. shrkbot needs to be in the server first.
+      placeholder: Choose a channel
+      required: This setting is required to enable the plugin.
     config_page:
       dashboard: Dashboard
       disabled: Disabled
@@ -25,9 +29,6 @@ en:
         channel:
           help: Where moderation events are recorded.
           label: Channel
-          none: No channels have synced yet. shrkbot needs to be in the server first.
-          placeholder: Choose a channel
-          required: This setting is required to enable the plugin.
           visible_warning: Everyone can see this channel, so the moderation log would
             be public.
         events:
@@ -82,8 +83,6 @@ en:
         channel:
           help: Each role set posts here unless it has its own channel override.
           label: Default channel for role menus
-          none: No channels have synced yet. shrkbot needs to be in the server first.
-          placeholder: Choose a channel
         sets:
           add: Add role set
           label: Role sets
@@ -120,9 +119,6 @@ en:
         channel:
           help: Where join and leave messages are posted.
           label: Channel
-          none: No channels have synced yet. shrkbot needs to be in the server first.
-          placeholder: Choose a channel
-          required: This setting is required to enable the plugin.
         join_message:
           help: Sent when a member joins. Leave empty to send nothing.
           info: is a Discord mention in join messages.

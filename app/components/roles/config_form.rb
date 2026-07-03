@@ -16,21 +16,13 @@ class Components::Roles::ConfigForm < Components::Base
   private
 
   def default_channel_card
-    render Components::Card.new do
-      label(class: "block text-sm font-semibold") { t(".channel.label") }
-      p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".channel.help") }
-      if channels.empty?
-        p(class: "text-sm text-text-secondary") { t(".channel.none") }
-      else
-        render Components::ChannelSelect.new(
-          name: "roles[channel_id]",
-          options: channels,
-          selected: @setting.channel_id,
-          placeholder: t(".channel.placeholder"),
-          include_blank: true
-        )
-      end
-    end
+    render Components::ChannelCard.new(
+      name: "roles[channel_id]",
+      channels:,
+      selected: @setting.channel_id,
+      label: t(".channel.label"),
+      help: t(".channel.help")
+    )
   end
 
   def role_sets_section
