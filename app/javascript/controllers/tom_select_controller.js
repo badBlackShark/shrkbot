@@ -11,13 +11,18 @@ export default class extends Controller {
       placeholder: this.placeholderValue || undefined,
       allowEmptyOption: false,
       maxOptions: null,
-      plugins: ["dropdown_input"],
+      dataAttr: "data-data",
+      plugins: this.plugins(),
       render: this.renderers()
     })
     // a form reset restores the <select> but not Tom Select's UI; re-sync once it settles
     this.form = this.element.form
     this.onReset = () => requestAnimationFrame(() => this.select?.sync())
     this.form?.addEventListener("reset", this.onReset)
+  }
+
+  plugins() {
+    return this.colorDotsValue ? ["dropdown_input", "remove_button"] : ["dropdown_input", "clear_button"]
   }
 
   renderers() {

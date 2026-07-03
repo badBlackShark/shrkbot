@@ -35,11 +35,10 @@ class Components::Roles::RoleSetCard < Components::Base
     details(
       open: @open,
       data: {role_set: true},
-      class: "group relative overflow-hidden rounded-card border border-border-default bg-surface-card shadow-sm"
+      class: "rounded-card border border-border-default bg-surface-card shadow-sm"
     ) do
       hidden_fields
       summary_row
-      delete_button
       editor
     end
   end
@@ -56,7 +55,7 @@ class Components::Roles::RoleSetCard < Components::Base
   end
 
   def summary_row
-    summary(class: "flex cursor-pointer list-none items-center gap-2 px-4 py-3 pr-24") do
+    summary(class: "flex cursor-pointer list-none select-none items-center gap-2 px-4 py-3 [&::-webkit-details-marker]:hidden") do
       div(class: "min-w-0 flex-1") do
         div(class: "flex items-center gap-2") do
           span(class: "truncate text-sm font-semibold") { @name.presence || t(".unnamed") }
@@ -64,20 +63,19 @@ class Components::Roles::RoleSetCard < Components::Base
         end
         p(class: "mt-0.5 truncate text-xs text-text-muted") { subtitle }
       end
-      render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted group-open:rotate-180")
+      delete_button
+      render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
     end
   end
 
   def delete_button
-    div(class: "absolute right-3 top-2.5") do
-      button(
-        type: "button",
-        title: t(".delete"),
-        aria_label: t(".delete"),
-        data: {action: "role-sets#remove"},
-        class: "#{ICON_BUTTON} hover:bg-danger-soft hover:text-danger"
-      ) { render Components::Icon.new("trash", class: "size-4") }
-    end
+    button(
+      type: "button",
+      title: t(".delete"),
+      aria_label: t(".delete"),
+      data: {action: "role-sets#remove"},
+      class: "#{ICON_BUTTON} flex-none hover:bg-danger-soft hover:text-danger"
+    ) { render Components::Icon.new("trash", class: "size-4") }
   end
 
   def editor

@@ -12,6 +12,7 @@ export default class extends Controller {
   }
 
   remove(event) {
+    event.preventDefault() // the button lives inside <summary>; don't toggle the disclosure
     const card = event.currentTarget.closest("[data-role-set]")
     const id = card.querySelector("[data-role-set-id]")
     if (id?.value) {

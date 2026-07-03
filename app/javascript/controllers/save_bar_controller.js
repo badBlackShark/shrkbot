@@ -6,6 +6,10 @@ export default class extends Controller {
   connect() {
     this.baseline = this.snapshot()
     this.dirty = false
+    if (sessionStorage.getItem("save-bar-discarded")) {
+      sessionStorage.removeItem("save-bar-discarded")
+      this.showDiscardedToast()
+    }
     this.blockVisit = (event) => {
       if (!this.dirty) return
       event.preventDefault()
@@ -40,10 +44,10 @@ export default class extends Controller {
 
   discard(event) {
     event.preventDefault()
-    this.element.reset() // tom-select + enable-gate repaint on the reset event
-    this.baseline = this.snapshot()
-    this.setDirty(false)
-    this.showDiscardedToast()
+    // reload from the server, not form.reset(): reset reverts to stale render-time defaults and can't undo card add/remove
+    this.dirty = false
+    sessionStorage.setItem("save-bar-discarded", "1")
+    window.Turbo.visit(window.location.href, {action: "replace"})
   }
 
   showDiscardedToast() {
