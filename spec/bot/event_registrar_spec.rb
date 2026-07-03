@@ -27,7 +27,7 @@ RSpec.describe EventRegistrar do
       end
 
       def button(attributes = {}, &block)
-        @handlers[:button] = {attributes: attributes, block: block}
+        @handlers[:button] = {attributes:, block:}
       end
     end.new
   end

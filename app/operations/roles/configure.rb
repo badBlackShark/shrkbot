@@ -47,7 +47,7 @@ module Ops
       def reconcile_roles(set, role_ids)
         existing = set.assignable_roles.index_by { |role| role.role_id }
         role_ids.each_with_index do |role_id, index|
-          role = existing[role_id] || set.assignable_roles.new(role_id: role_id)
+          role = existing[role_id] || set.assignable_roles.new(role_id:)
           role.update!(position: index)
         end
         set.assignable_roles.where.not(role_id: role_ids).destroy_all

@@ -20,7 +20,7 @@ module Roles
 
     def parse(custom_id)
       _prefix, action, set_id, role_id = custom_id.split(":")
-      {action: action&.to_sym, set_id: set_id, role_id: role_id&.to_i}
+      {action: action&.to_sym, set_id:, role_id: role_id&.to_i}
     end
   end
 end

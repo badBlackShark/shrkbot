@@ -9,7 +9,7 @@ module Ops
 
       def call
         settings = server_configuration.logging_setting
-        settings.assign_attributes(channel_id: channel_id, enabled_actions: enabled_actions)
+        settings.assign_attributes(channel_id:, enabled_actions:)
         activation = staged_activation
 
         return failure(messages(settings, activation), value: activation) unless settings.valid? && activation.valid?

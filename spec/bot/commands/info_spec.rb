@@ -6,7 +6,7 @@ RSpec.describe Commands::Info do
   subject(:execute) { described_class.new(event).execute }
 
   let(:profile) { double("profile", username: "shrkbot") }
-  let(:event) { double("event", bot: double("bot", profile: profile), respond: nil) }
+  let(:event) { double("event", bot: double("bot", profile:), respond: nil) }
 
   def texts(args)
     args[:components].first[:components].filter_map { |block| block[:content] }

@@ -10,7 +10,7 @@ module Discord
     module_function
 
     def container(blocks, accent_color: BotConfig::ACCENT_COLOR)
-      {components: [{type: CONTAINER, accent_color: accent_color, components: blocks}], flags: COMPONENTS_V2}
+      {components: [{type: CONTAINER, accent_color:, components: blocks}], flags: COMPONENTS_V2}
     end
 
     def text(body)

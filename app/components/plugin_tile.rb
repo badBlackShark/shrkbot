@@ -15,7 +15,7 @@ class Components::PluginTile < Components::Base
 
   def view_template
     span(class: "chamfer-tile flex flex-none items-center justify-center #{box}") do
-      render Components::Icon.new(@icon, weight: weight, class: @size[:icon])
+      render Components::Icon.new(@icon, weight:, class: @size[:icon])
     end
   end
 

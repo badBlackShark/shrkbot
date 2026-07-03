@@ -7,7 +7,7 @@ RSpec.describe Roles::Message do
   let(:setting) { create(:role_setting, server_configuration: server_config) }
 
   def sync_role(discord_id, name)
-    create(:server_role, server_configuration: server_config, discord_id: discord_id, name: name)
+    create(:server_role, server_configuration: server_config, discord_id:, name:)
   end
 
   def container_blocks(rendered)

@@ -42,6 +42,6 @@ class ConfigSubscriber
     set = Roles::Set.find_by(id: set_id)
     return unless set
 
-    Ops::Roles::Messages::Repost.call(bot: bot, role_set: set)
+    Ops::Roles::Messages::Repost.call(bot:, role_set: set)
   end
 end

@@ -14,12 +14,12 @@ module Ops
 
         remind_at = Time.current + span
         reminder = ::Reminders::Reminder.create!(
-          user_id: user_id,
-          channel_id: channel_id,
-          server_id: server_id,
+          user_id:,
+          channel_id:,
+          server_id:,
           message: ::Reminders::Sanitizer.call(message),
-          remind_at: remind_at,
-          deliver_via_dm: deliver_via_dm
+          remind_at:,
+          deliver_via_dm:
         )
         ::Reminders::DeliverJob.set(wait_until: remind_at).perform_later(reminder.id)
         ok(reminder)

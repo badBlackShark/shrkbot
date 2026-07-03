@@ -7,7 +7,7 @@ class AnnounceModal < BaseEvent
     return reject unless owner?
 
     event.defer(ephemeral: true)
-    result = OwnerBroadcast.call(bots: BotRegistry.all, content: content)
+    result = OwnerBroadcast.call(bots: BotRegistry.all, content:)
     event.edit_response(
       content: "📣 Sent to #{result.sent}/#{result.owner_count} unique owner(s) across #{result.server_count} server(s)."
     )
@@ -20,7 +20,7 @@ class AnnounceModal < BaseEvent
   end
 
   def owner?
-    CommandPermissions.permitted?(event: event, required: [], owner_only: true)
+    CommandPermissions.permitted?(event:, required: [], owner_only: true)
   end
 
   def reject

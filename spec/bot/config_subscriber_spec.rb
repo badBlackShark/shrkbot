@@ -29,7 +29,7 @@ RSpec.describe ConfigSubscriber do
       let(:payload) { JSON.generate(type: "roles_repost", set_id: set.id) }
 
       it "runs the repost operation for that set with the bot" do
-        expect(Ops::Roles::Messages::Repost).to receive(:call).with(bot: bot, role_set: set)
+        expect(Ops::Roles::Messages::Repost).to receive(:call).with(bot:, role_set: set)
 
         subscriber.handle(payload)
       end

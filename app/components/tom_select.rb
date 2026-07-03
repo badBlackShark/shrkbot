@@ -3,11 +3,11 @@
 class Components::TomSelect < Components::Base
   Option = Data.define(:value, :label, :disabled, :color, :reason) do
     def self.for(value:, label:, disabled: false, color: nil, reason: nil)
-      new(value: value, label: label, disabled: disabled, color: color, reason: reason)
+      new(value:, label:, disabled:, color:, reason:)
     end
 
     def adornment
-      {color: color, reason: reason}.compact
+      {color:, reason:}.compact
     end
   end
 

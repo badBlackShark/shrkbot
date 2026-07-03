@@ -8,7 +8,7 @@ module Ops
 
         def call
           setting = server_configuration.role_setting
-          setting.update!(channel_id: channel_id)
+          setting.update!(channel_id:)
           ok(setting)
         end
       end

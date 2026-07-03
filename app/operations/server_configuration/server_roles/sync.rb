@@ -12,7 +12,7 @@ module Ops
             role.update!(name: data[:name], position: data[:position], managed: data[:managed], color: data[:color] || 0)
           end
           server_configuration.server_roles.where.not(discord_id: roles.map { |r| r[:discord_id] }).delete_all
-          server_configuration.update!(bot_role_position: bot_role_position)
+          server_configuration.update!(bot_role_position:)
           ok(server_configuration.server_roles.reload)
         end
       end
