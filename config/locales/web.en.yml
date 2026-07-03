@@ -60,14 +60,23 @@ en:
           description: Greet new members and say goodbye when they leave.
           name: Welcomes
       status:
-        always_enabled: Always enabled
         disabled: Disabled
         enabled: Enabled
+        global: Global
         needs_setup: Needs setup
       toggle: Toggle %{plugin}
     plugin_sidebar:
       dashboard: Dashboard
       plugins: Plugins
+    reminders:
+      config_form:
+        callout:
+          after: "— there's nothing more to configure here."
+          before: Reminders are triggered by members using
+        force_dm:
+          help: Deliver every reminder in DMs, ignoring channel preferences set by
+            members.
+          label: Force reminder delivery via DM
     roles:
       config_form:
         channel:
@@ -138,6 +147,8 @@ en:
     not_found: That server isn't available to configure.
     plugin_disabled: "%{plugin} disabled."
     plugin_enabled: "%{plugin} enabled."
+    reminders:
+      saved: Reminder settings saved.
     roles:
       failed: Couldn't save the role settings.
       saved: Role settings saved.
@@ -184,6 +195,12 @@ en:
           description: Record moderation events to a channel of your choice.
           gate_message: Enable the plugin to choose a channel and pick events.
           title: Logging
+      reminders:
+        show:
+          badge: Global
+          description: Members set their own reminders with /remind. This plugin can't
+            be turned off.
+          title: Reminders
       roles:
         show:
           description: Let members give themselves roles from a menu you post in a

@@ -1,17 +1,26 @@
 # frozen_string_literal: true
 
 class PluginStatus
-  Row = Data.define(:key, :enabled, :configured)
+  Row = Data.define(:key, :enabled, :configured, :locked) do
+    def initialize(key:, enabled:, configured:, locked: false)
+      super
+    end
+  end
+
+  ALWAYS_ON = [
+    Row.new(key: :reminders, enabled: true, configured: true, locked: true)
+  ].freeze
 
   def self.rows(server_configuration)
     activations = server_configuration.plugin_activations.includes(:plugin).index_by { |activation| activation.plugin.key }
-    PluginCatalog.all.map do |definition|
+    catalog_rows = PluginCatalog.all.map do |definition|
       Row.new(
         key: definition.key,
         enabled: activations[definition.key]&.enabled? || false,
         configured: definition.prerequisites_met?(server_configuration)
       )
     end
+    catalog_rows + ALWAYS_ON
   end
 
   def self.row(server_configuration, plugin)

@@ -17,8 +17,8 @@ class Views::Servers::Welcomes::Show < Views::Base
         title: t(".title"),
         description: t(".description"),
         dashboard_path: server_path(@config.discord_id),
+        url: server_welcomes_path(@config.discord_id),
         gate: {
-          url: server_welcomes_path(@config.discord_id),
           field: "welcomes[enabled]",
           enabled: @enabled,
           message: t(".gate_message")
