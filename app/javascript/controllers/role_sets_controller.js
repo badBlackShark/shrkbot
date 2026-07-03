@@ -20,8 +20,9 @@ export default class extends Controller {
   }
 
   add() {
-    const uid = Date.now()
-    const html = this.templateTarget.innerHTML.replaceAll("NEW_RECORD", uid)
+    // monotonic so two adds in the same millisecond can't share a field-name index
+    this.seq = this.seq === undefined ? Date.now() : this.seq + 1
+    const html = this.templateTarget.innerHTML.replaceAll("NEW_RECORD", this.seq)
     this.listTarget.insertAdjacentHTML("beforeend", html)
     this.notifyDirty()
     this.listTarget.lastElementChild?.querySelector("[data-role-set-name]")?.focus()

@@ -90,7 +90,7 @@ class Components::Roles::ConfigForm < Components::Base
   end
 
   def channels_by_id
-    @channels_by_id ||= @config.server_channels.text.pluck(:discord_id, :name).to_h
+    @channels_by_id ||= channels.to_h { |option| [option.value.to_i, option.label] }
   end
 
   def assignable_options

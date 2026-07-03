@@ -46,6 +46,20 @@ RSpec.describe Ops::Roles::Configure do
       result
       expect(setting.role_sets.last.assignable_roles.map(&:role_id)).to contain_exactly(10)
     end
+
+    it "assigns increasing positions across several new sets in one save" do
+      described_class.call(
+        server_configuration: config,
+        channel_id: channel_id,
+        enabled: "0",
+        role_sets: [
+          {name: "First", selection_mode: "multi", role_ids: []},
+          {name: "Second", selection_mode: "single", role_ids: []}
+        ]
+      )
+      expect(setting.role_sets.order(:position).pluck(:name)).to eq(["First", "Second"])
+      expect(setting.role_sets.pluck(:position).uniq.size).to eq(2)
+    end
   end
 
   context "with an existing set" do
@@ -81,6 +95,22 @@ RSpec.describe Ops::Roles::Configure do
       expect { result }.not_to change { setting.role_sets.count }
       expect(result).to be_failure
       expect(result.errors).to be_present
+    end
+  end
+
+  context "with a stale or forged set id" do
+    let(:role_sets) { [{id: "rst_missing", name: "Ghost", selection_mode: "multi", role_ids: []}] }
+
+    it "skips it instead of raising RecordNotFound" do
+      expect { result }.not_to raise_error
+      expect(result).to be_success
+      expect(setting.role_sets).to be_empty
+    end
+
+    it "won't touch a set id that belongs to another server" do
+      other = create(:role_set, name: "Theirs")
+      described_class.call(server_configuration: config, channel_id: channel_id, enabled: "0", role_sets: [{id: other.id, name: "Hijacked", selection_mode: "multi", role_ids: []}])
+      expect(other.reload.name).to eq("Theirs")
     end
   end
 

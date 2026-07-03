@@ -82,7 +82,7 @@ class Components::Roles::RoleSetCard < Components::Base
   end
 
   def editor
-    div(class: "dropdown-menu grid gap-5 border-t border-border-subtle p-5", data: {dropdown_target: "menu"}) do
+    div(class: "dropdown-menu flex flex-col gap-5 border-t border-border-subtle p-5", data: {dropdown_target: "menu"}) do
       top_fields
       channel_override_field
       roles_field

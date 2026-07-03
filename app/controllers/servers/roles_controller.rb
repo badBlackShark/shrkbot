@@ -18,7 +18,6 @@ class Servers::RolesController < ApplicationController
       enabled: roles_params[:enabled],
       role_sets: submitted_sets
     )
-    @enabled = result.value.enabled?
     @success = result.success?
     @toast =
       if result.success?

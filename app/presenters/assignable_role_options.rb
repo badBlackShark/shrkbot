@@ -33,13 +33,13 @@ class AssignableRoleOptions
 
   def reason_for(role)
     return I18n.t("assignable_roles.managed") if role.managed?
-    return I18n.t("assignable_roles.above_bot") if role.position.to_i >= bot_position
+    return I18n.t("assignable_roles.above_bot") if bot_position && role.position.to_i >= bot_position
 
     nil
   end
 
   def bot_position
-    @bot_position ||= @config.bot_role_position || 0
+    @config.bot_role_position
   end
 
   def color_hex(color)

@@ -40,7 +40,7 @@ RSpec.describe "Roles config", type: :request do
 
     before do
       post "/auth/discord/callback"
-      create(:server_configuration, discord_id: guild.id)
+      create(:server_configuration, discord_id: guild.id, bot_role_position: 100)
       config.create_role_setting!
       create(:server_channel, server_configuration: config, name: "get-roles", discord_id: 111)
       create(:server_role, server_configuration: config, discord_id: 222, name: "Member", position: 1)
@@ -86,12 +86,12 @@ RSpec.describe "Roles config", type: :request do
         end
 
         it "warns about roles shrkbot can't assign" do
+          create(:server_role, server_configuration: config, name: "Integration", discord_id: 333, managed: true)
           get server_roles_path(guild.id)
           expect(response.body).to include("Greyed-out roles")
         end
 
         it "omits the warning when every role is assignable" do
-          config.update!(bot_role_position: 100)
           get server_roles_path(guild.id)
           expect(response.body).not_to include("Greyed-out roles")
         end

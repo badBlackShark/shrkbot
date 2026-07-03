@@ -50,4 +50,15 @@ RSpec.describe AssignableRoleOptions do
   it "reports when any role is unassignable" do
     expect(described_class.new(config).any_unassignable?).to be(true)
   end
+
+  context "when the bot's role position hasn't synced yet" do
+    let(:config) { create(:server_configuration, discord_id: 900, bot_role_position: nil) }
+
+    it "greys managed roles but not by position" do
+      admin = options.find { |option| option.label == "Admin" }
+      booster = options.find { |option| option.label == "Booster" }
+      expect(admin.disabled).to be(false)
+      expect(booster.disabled).to be(true)
+    end
+  end
 end
