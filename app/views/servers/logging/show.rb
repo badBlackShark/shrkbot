@@ -17,8 +17,8 @@ class Views::Servers::Logging::Show < Views::Base
         title: t(".title"),
         description: t(".description"),
         dashboard_path: server_path(@config.discord_id),
+        url: server_logging_path(@config.discord_id),
         gate: {
-          url: server_logging_path(@config.discord_id),
           field: "logging[enabled]",
           enabled: @enabled,
           message: t(".gate_message")
