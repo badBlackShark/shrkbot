@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe Ops::Reminders::Settings::Update do
   subject(:result) do
-    described_class.call(server_configuration: server, force_dm_reminders: force_dm_reminders)
+    described_class.call(server_configuration: server, force_dm_reminders:)
   end
 
   let(:server) { create(:server_configuration, discord_id: 1) }

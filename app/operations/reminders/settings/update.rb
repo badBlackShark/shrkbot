@@ -7,7 +7,7 @@ module Ops
         receives :server_configuration, :force_dm_reminders
 
         def call
-          server_configuration.update!(force_dm_reminders: force_dm_reminders)
+          server_configuration.update!(force_dm_reminders:)
           ok(server_configuration)
         end
       end
