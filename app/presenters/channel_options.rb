@@ -6,7 +6,7 @@ class ChannelOptions
   end
 
   def options
-    @config.server_channels.text.map do |channel|
+    @config.server_channels.text.in_discord_order.map do |channel|
       Components::TomSelect::Option.for(value: channel.discord_id, label: channel.name)
     end
   end

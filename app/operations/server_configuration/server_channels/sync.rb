@@ -16,7 +16,12 @@ module Ops
 
         def sync_channel(data)
           channel = server_configuration.server_channels.find_or_initialize_by(discord_id: data[:discord_id])
-          channel.update!(name: data[:name], channel_type: data[:channel_type])
+          channel.update!(
+            name: data[:name],
+            channel_type: data[:channel_type],
+            position: data[:position],
+            parent_id: data[:parent_id]
+          )
           sync_overwrites(channel, data[:overwrites])
         end
 

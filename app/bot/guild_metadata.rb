@@ -18,7 +18,14 @@ module GuildMetadata
 
   def channels(server)
     server.channels.map do |channel|
-      {discord_id: channel.id, name: channel.name, channel_type: channel.type, overwrites: overwrites(channel)}
+      {
+        discord_id: channel.id,
+        name: channel.name,
+        channel_type: channel.type,
+        position: channel.position,
+        parent_id: channel.parent_id,
+        overwrites: overwrites(channel)
+      }
     end
   end
 
