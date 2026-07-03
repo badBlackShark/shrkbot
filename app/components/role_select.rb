@@ -14,7 +14,11 @@ class Components::RoleSelect < Components::Base
       options: @options,
       selected: @selected,
       multiple: true,
-      controller_data: {tom_select_color_dots_value: true, tom_select_placeholder_value: @placeholder}
+      controller_data: {
+        tom_select_color_dots_value: true,
+        tom_select_placeholder_value: @placeholder,
+        tom_select_lock_icon_value: Components::Icon.new("lock", class: "size-3.5").call
+      }
     )
   end
 end
