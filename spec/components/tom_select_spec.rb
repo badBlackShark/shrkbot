@@ -43,6 +43,34 @@ RSpec.describe Components::TomSelect do
     expect(html).to include("multiple")
   end
 
+  context "with grouped options" do
+    subject(:grouped) do
+      described_class.new(
+        name: "roles[channel_id]",
+        options: [
+          Components::TomSelect::Option.for(value: 1, label: "welcome"),
+          Components::TomSelect::Group.for(
+            label: "Info",
+            options: [Components::TomSelect::Option.for(value: 2, label: "rules")]
+          )
+        ],
+        selected: 2
+      ).call
+    end
+
+    it "wraps a group's options in an optgroup with its label" do
+      expect(grouped).to match(%r{<optgroup label="Info"><option [^>]*value="2"[^>]*>rules</option></optgroup>})
+    end
+
+    it "renders ungrouped options outside any optgroup" do
+      expect(grouped).to match(%r{<option value="1">welcome</option><optgroup})
+    end
+
+    it "still marks selection inside a group" do
+      expect(grouped).to match(/value="2" selected/)
+    end
+  end
+
   context "with per-option adornment data" do
     subject(:adorned) do
       described_class.new(

@@ -76,6 +76,16 @@
 .ts-dropdown .option[data-selectable].disabled,
 .ts-dropdown .option.disabled { color: var(--text-muted); cursor: not-allowed; opacity: 0.7; }
 .ts-dropdown .no-results { padding: 0.5rem 0.75rem; color: var(--text-muted); }
+.ts-dropdown .optgroup-header {
+  padding: 0.5rem 0.75rem 0.25rem;
+  border: none;
+  background: var(--surface-card);
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
 .ts-dot {
   width: 0.625rem;
   height: 0.625rem;

@@ -11,6 +11,12 @@ class Components::TomSelect < Components::Base
     end
   end
 
+  Group = Data.define(:label, :options) do
+    def self.for(label:, options:)
+      new(label:, options:)
+    end
+  end
+
   def initialize(name:, options:, selected: nil, multiple: false, include_blank: false, controller_data: {})
     @name = name
     @options = options
@@ -23,13 +29,26 @@ class Components::TomSelect < Components::Base
   def view_template
     select(name: @name, multiple: @multiple, autocomplete: "off", class: "w-full", data: {controller: "tom-select", **@controller_data}) do
       option(value: "") if @include_blank
-      @options.each do |opt|
-        option(**option_attrs(opt)) { opt.label }
+      @options.each do |entry|
+        render_entry(entry)
       end
     end
   end
 
   private
+
+  def render_entry(entry)
+    case entry
+    when Group
+      optgroup(label: entry.label) do
+        entry.options.each do |opt|
+          option(**option_attrs(opt)) { opt.label }
+        end
+      end
+    else
+      option(**option_attrs(entry)) { entry.label }
+    end
+  end
 
   def option_attrs(opt)
     attrs = {value: opt.value}

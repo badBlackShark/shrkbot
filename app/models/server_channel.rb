@@ -12,6 +12,8 @@ class ServerChannel < ApplicationRecord
 
   TEXT_TYPES = [0, 5].freeze
 
+  CATEGORY_TYPE = 4
+
   scope :text, -> { where(channel_type: TEXT_TYPES).order(:name) }
   scope :in_discord_order, -> {
     joins(<<~SQL)
