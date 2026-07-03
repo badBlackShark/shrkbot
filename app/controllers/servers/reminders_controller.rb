@@ -2,7 +2,6 @@
 
 class Servers::RemindersController < ApplicationController
   include RequiresManageableServer
-  include ConfiguresPlugin
 
   def show
     render Views::Servers::Reminders::Show.new(
@@ -12,15 +11,15 @@ class Servers::RemindersController < ApplicationController
   end
 
   def update
-    result = Ops::Reminders::Settings::Update.call(
+    Ops::Reminders::Settings::Update.call(
       server_configuration: @server_configuration,
       force_dm_reminders: reminders_params[:force_dm_reminders]
     )
-    @toast = {level: "notice", message: t("servers.reminders.saved")} if result.success?
+    @toast = {level: "notice", message: t("servers.reminders.saved")}
 
     respond_to do |format|
-      format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
-      format.html { redirect_to server_reminders_path(params[:server_id]), **flash_for(result) }
+      format.turbo_stream
+      format.html { redirect_to server_reminders_path(params[:server_id]), notice: @toast[:message] }
     end
   end
 
