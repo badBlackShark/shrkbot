@@ -24,31 +24,19 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def channel_card
-    render Components::Card.new(
+    render Components::ChannelCard.new(
+      name: "logging[channel_id]",
+      channels:,
+      selected: @settings.channel_id,
+      label: t(".channel.label"),
+      help: t(".channel.help"),
+      required: true,
       data: {
         controller: "channel-warning",
         action: "change->channel-warning#update",
         channel_warning_visible_ids_value: visible_channel_ids.to_json
       }
-    ) do
-      label(class: "block text-sm font-semibold") do
-        plain t(".channel.label")
-        required_marker
-      end
-      p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".channel.help") }
-      if channels.empty?
-        p(class: "text-sm text-text-secondary") { t(".channel.none") }
-      else
-        render Components::ChannelSelect.new(
-          name: "logging[channel_id]",
-          options: channels,
-          selected: @settings.channel_id,
-          placeholder: t(".channel.placeholder"),
-          include_blank: true
-        )
-      end
-      visibility_warning
-    end
+    ) { visibility_warning }
   end
 
   def events_card
@@ -128,10 +116,6 @@ class Components::Logging::ConfigForm < Components::Base
     ) do
       plain t(".channel.visible_warning")
     end
-  end
-
-  def required_marker
-    span(class: "ml-1 text-xs font-semibold text-danger", title: t(".channel.required")) { "*" }
   end
 
   def visible_channel?
