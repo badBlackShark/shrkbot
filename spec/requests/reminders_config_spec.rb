@@ -3,30 +3,11 @@
 require "rails_helper"
 
 RSpec.describe "Reminders config", type: :request do
-  let(:auth) do
-    OmniAuth::AuthHash.new(
-      provider: "discord",
-      uid: "12345",
-      info: {name: "shrk"},
-      credentials: {token: "discord-access-token"}
-    )
-  end
+  include_context "discord auth"
 
   let(:guild) { Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil, member_count: 5) }
   let(:config) { ServerConfiguration.find_by(discord_id: guild.id) }
   let(:turbo) { {headers: {"Accept" => "text/vnd.turbo-stream.html"}} }
-
-  before do
-    OmniAuth.config.test_mode = true
-    OmniAuth.config.mock_auth[:discord] = auth
-    Rails.application.env_config["omniauth.auth"] = auth
-  end
-
-  after do
-    OmniAuth.config.test_mode = false
-    OmniAuth.config.mock_auth[:discord] = nil
-    Rails.application.env_config.delete("omniauth.auth")
-  end
 
   context "when signed out" do
     it "redirects to the sign-in page" do
