@@ -8,6 +8,7 @@ class ServerConfiguration < ApplicationRecord
   has_one :role_setting, class_name: "Roles::Settings", dependent: :destroy
   has_one :welcome_settings, class_name: "Welcomes::Settings", dependent: :delete
 
+  has_many :notifications, dependent: :delete_all
   has_many :server_channels, dependent: :destroy
   has_many :server_roles, dependent: :delete_all
 
