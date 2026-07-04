@@ -15,7 +15,8 @@ class Components::Roles::RoleSetCard < Components::Base
     selection_mode: "single",
     channel_override: nil,
     selected_role_ids: [],
-    open: false
+    open: false,
+    repost_path: nil
   )
     @index = index
     @channels = channels
@@ -29,16 +30,18 @@ class Components::Roles::RoleSetCard < Components::Base
     @channel_override = channel_override
     @selected_role_ids = selected_role_ids
     @open = open
+    @repost_path = repost_path
   end
 
   def view_template
     details(
       open: @open,
       data: {role_set: true, controller: "dropdown", dropdown_dismiss_on_outside_value: "false"},
-      class: "rounded-card border border-border-default bg-surface-card shadow-sm"
+      class: "relative rounded-card border border-border-default bg-surface-card shadow-sm"
     ) do
       hidden_fields
       summary_row
+      repost_link
       editor
     end
   end
@@ -66,6 +69,7 @@ class Components::Roles::RoleSetCard < Components::Base
         end
         p(class: "mt-0.5 truncate text-xs text-text-muted") { subtitle }
       end
+      div(class: "size-8 flex-none") if @repost_path
       delete_button
       render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
     end
@@ -79,6 +83,18 @@ class Components::Roles::RoleSetCard < Components::Base
       data: {action: "role-sets#remove"},
       class: "#{ICON_BUTTON} flex-none hover:bg-danger-soft hover:text-danger"
     ) { render Components::Icon.new("trash", class: "size-4") }
+  end
+
+  def repost_link
+    return if @repost_path.nil?
+
+    a(
+      href: @repost_path,
+      title: t(".resync"),
+      aria_label: t(".resync"),
+      data: {turbo_method: :post},
+      class: "#{ICON_BUTTON} absolute right-20 top-3 hover:bg-accent-soft hover:text-accent-soft-fg"
+    ) { render Components::Icon.new("arrows-clockwise", class: "size-4") }
   end
 
   def editor

@@ -9,7 +9,21 @@ module ConfigBus
     publish(type: "roles_repost", set_id: role_set.id)
   end
 
+  def post_roles(role_set)
+    publish(type: "roles_post", set_id: role_set.id)
+  end
+
+  def delete_roles_message(channel_id:, message_id:)
+    publish(type: "roles_message_delete", channel_id:, message_id:)
+  end
+
   def publish(payload)
-    Redis.new(url: BotConfig.redis_url).publish(CHANNEL, JSON.generate(payload))
+    url = BotConfig.redis_url
+    if url.nil?
+      Rails.logger.warn("[ConfigBus] REDIS_URL not set — dropping #{payload[:type]}")
+      return
+    end
+
+    Redis.new(url:).publish(CHANNEL, JSON.generate(payload))
   end
 end

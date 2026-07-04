@@ -98,6 +98,7 @@ en:
           single: Single
         name:
           label: Set name
+        resync: Resync menu
         roles:
           count:
             one: "%{count} role"
@@ -145,6 +146,10 @@ en:
     plugin_enabled: "%{plugin} enabled."
     reminders:
       saved: Reminder settings saved.
+    role_sets:
+      reposts:
+        disabled: Enable the Roles plugin to post role menus.
+        queued: Reposting the role menu…
     roles:
       failed: Couldn't save the role settings.
       saved: Role settings saved.

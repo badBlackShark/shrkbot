@@ -131,4 +131,173 @@ RSpec.describe Ops::Roles::Configure do
       end
     end
   end
+
+  context "with ConfigBus publication" do
+    before do
+      allow(ConfigBus).to receive(:post_roles)
+      allow(ConfigBus).to receive(:delete_roles_message)
+    end
+
+    context "when enabled with a new set" do
+      let(:enabled) { "1" }
+      let(:role_sets) { [{name: "Pings", selection_mode: "multi", channel_override: "", role_ids: []}] }
+
+      it "publishes a post event for the new set" do
+        result
+        expect(ConfigBus).to have_received(:post_roles).with(an_instance_of(Roles::Set))
+      end
+
+      it "does not publish a delete event" do
+        result
+        expect(ConfigBus).not_to have_received(:delete_roles_message)
+      end
+    end
+
+    context "when enabled with an existing set whose channel does not change" do
+      let(:enabled) { "1" }
+      let!(:existing) { create(:role_set, role_setting: setting, message_id: 111, channel_override: nil) }
+      let(:role_sets) { [{id: existing.id, name: existing.name, selection_mode: existing.selection_mode, channel_override: "", role_ids: []}] }
+
+      before { setting.update!(channel_id: 555) }
+
+      it "publishes a post event (bot edits in place)" do
+        result
+        expect(ConfigBus).to have_received(:post_roles).with(existing)
+      end
+
+      it "does not delete (message_id preserved)" do
+        result
+        expect(ConfigBus).not_to have_received(:delete_roles_message)
+        expect(existing.reload.message_id).to eq(111)
+      end
+    end
+
+    context "when enabled with an existing set whose channel_override changes" do
+      let(:enabled) { "1" }
+      let!(:existing) { create(:role_set, role_setting: setting, message_id: 111, channel_override: 777) }
+      let(:role_sets) { [{id: existing.id, name: existing.name, selection_mode: existing.selection_mode, channel_override: "888", role_ids: []}] }
+
+      it "publishes a delete event for the old channel/message" do
+        result
+        expect(ConfigBus).to have_received(:delete_roles_message).with(channel_id: 777, message_id: 111)
+      end
+
+      it "clears message_id so bot creates fresh in the new channel" do
+        result
+        expect(existing.reload.message_id).to be_nil
+      end
+
+      it "publishes a post event" do
+        result
+        expect(ConfigBus).to have_received(:post_roles).with(existing)
+      end
+    end
+
+    context "when disabled with existing sets that have message_ids" do
+      let(:enabled) { "0" }
+      let!(:set_a) { create(:role_set, role_setting: setting, message_id: 111, channel_override: nil) }
+      let!(:set_b) { create(:role_set, role_setting: setting, message_id: 222, channel_override: nil) }
+      let(:role_sets) do
+        [
+          {id: set_a.id, name: set_a.name, selection_mode: set_a.selection_mode, channel_override: "", role_ids: []},
+          {id: set_b.id, name: set_b.name, selection_mode: set_b.selection_mode, channel_override: "", role_ids: []}
+        ]
+      end
+
+      before { setting.update!(channel_id: 555) }
+
+      it "publishes delete events for all sets with messages" do
+        result
+        expect(ConfigBus).to have_received(:delete_roles_message).twice
+      end
+
+      it "does not publish any post events" do
+        result
+        expect(ConfigBus).not_to have_received(:post_roles)
+      end
+
+      it "clears message_ids" do
+        result
+        expect(set_a.reload.message_id).to be_nil
+        expect(set_b.reload.message_id).to be_nil
+      end
+    end
+
+    context "when a set is destroyed and had a message" do
+      let(:enabled) { "1" }
+      let!(:existing) { create(:role_set, role_setting: setting, message_id: 111, channel_override: nil) }
+      let(:role_sets) { [] }
+
+      before { setting.update!(channel_id: 555) }
+
+      it "publishes a delete event for the destroyed set" do
+        result
+        expect(ConfigBus).to have_received(:delete_roles_message).with(
+          channel_id: 555,
+          message_id: 111
+        )
+      end
+    end
+
+    context "when the default channel changes (set has no channel_override)" do
+      let(:enabled) { "1" }
+      let!(:old_setting) { setting.tap { |s| s.update!(channel_id: 100) } }
+      let!(:existing) { create(:role_set, role_setting: setting, message_id: 111, channel_override: nil) }
+      let(:channel_id) { "200" }
+      let(:role_sets) { [{id: existing.id, name: existing.name, selection_mode: existing.selection_mode, channel_override: "", role_ids: []}] }
+
+      it "publishes a delete event using the OLD default channel" do
+        result
+        expect(ConfigBus).to have_received(:delete_roles_message).with(channel_id: 100, message_id: 111)
+      end
+    end
+
+    context "when the same channel is submitted as a String (Integer/String coercion guard)" do
+      let(:enabled) { "1" }
+      let!(:existing) { create(:role_set, role_setting: setting, message_id: 111, channel_override: nil) }
+      let(:channel_id) { "555" }
+      let(:role_sets) { [{id: existing.id, name: existing.name, selection_mode: existing.selection_mode, channel_override: "", role_ids: []}] }
+
+      before { setting.update!(channel_id: 555) }
+
+      it "does NOT produce a delete (channel unchanged)" do
+        result
+        expect(ConfigBus).not_to have_received(:delete_roles_message)
+      end
+    end
+
+    context "when an existing set uses a channel_override (set-level channel, not default)" do
+      let(:enabled) { "1" }
+      let!(:existing) { create(:role_set, role_setting: setting, message_id: 111, channel_override: 777) }
+      let(:channel_id) { "555" }
+      let(:role_sets) { [{id: existing.id, name: existing.name, selection_mode: existing.selection_mode, channel_override: "777", role_ids: []}] }
+
+      it "does not delete (channel_override unchanged)" do
+        result
+        expect(ConfigBus).not_to have_received(:delete_roles_message)
+        expect(existing.reload.message_id).to eq(111)
+      end
+    end
+
+    context "when no channel_override and no default channel submitted (both nil)" do
+      let(:enabled) { "0" }
+      let(:channel_id) { "" }
+      let!(:existing) { create(:role_set, role_setting: setting, message_id: 111, channel_override: nil) }
+      let(:role_sets) { [{id: existing.id, name: existing.name, selection_mode: existing.selection_mode, channel_override: "", role_ids: []}] }
+
+      it "succeeds without raising" do
+        expect { result }.not_to raise_error
+      end
+    end
+
+    context "on validation failure" do
+      let(:role_sets) { [{name: "", selection_mode: "multi", role_ids: []}] }
+
+      it "publishes nothing" do
+        result
+        expect(ConfigBus).not_to have_received(:post_roles)
+        expect(ConfigBus).not_to have_received(:delete_roles_message)
+      end
+    end
+  end
 end

@@ -30,6 +30,7 @@ RSpec.describe ConfigSubscriber do
 
       it "runs the repost operation for that set with the bot" do
         expect(Ops::Roles::Messages::Repost).to receive(:call).with(bot:, role_set: set)
+          .and_return(instance_double(Ops::ApplicationOperation::Result, success?: true))
 
         subscriber.handle(payload)
       end
@@ -59,6 +60,54 @@ RSpec.describe ConfigSubscriber do
         allow(OwnerNotifier).to receive(:report)
         expect { subscriber.handle(payload) }.not_to raise_error
         expect(OwnerNotifier).to have_received(:report)
+      end
+    end
+
+    context "with a roles_post event for an existing set" do
+      let(:set) { create(:role_set) }
+      let(:payload) { JSON.generate(type: "roles_post", set_id: set.id) }
+
+      it "runs the Post operation for that set with the bot" do
+        expect(Ops::Roles::Messages::Post).to receive(:call).with(bot:, role_set: set)
+          .and_return(instance_double(Ops::ApplicationOperation::Result, success?: true))
+        subscriber.handle(payload)
+      end
+    end
+
+    context "with a roles_post event for a missing set" do
+      let(:payload) { JSON.generate(type: "roles_post", set_id: "rls_missing") }
+
+      it "does not run the Post operation" do
+        expect(Ops::Roles::Messages::Post).not_to receive(:call)
+        subscriber.handle(payload)
+      end
+    end
+
+    context "with a roles_message_delete event" do
+      let(:payload) { JSON.generate(type: "roles_message_delete", channel_id: 111, message_id: 222) }
+
+      it "runs the Delete operation with the raw ids" do
+        expect(Ops::Roles::Messages::Delete).to receive(:call).with(bot:, channel_id: 111, message_id: 222)
+          .and_return(instance_double(Ops::ApplicationOperation::Result, success?: true))
+        subscriber.handle(payload)
+      end
+    end
+
+    context "when a Post operation returns a failure Result" do
+      let(:set) { create(:role_set) }
+      let(:payload) { JSON.generate(type: "roles_post", set_id: set.id) }
+      let(:failure_result) do
+        instance_double(Ops::ApplicationOperation::Result, success?: false, errors: ["channel not found"])
+      end
+
+      before do
+        allow(Ops::Roles::Messages::Post).to receive(:call).and_return(failure_result)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it "logs the failure" do
+        subscriber.handle(payload)
+        expect(Rails.logger).to have_received(:error).with(a_string_including("roles_post failed"))
       end
     end
   end

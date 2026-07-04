@@ -35,6 +35,10 @@ class ConfigSubscriber
     case event[:type]
     when "roles_repost"
       repost_roles(event[:set_id])
+    when "roles_post"
+      post_roles(event[:set_id])
+    when "roles_message_delete"
+      delete_message(event[:channel_id], event[:message_id])
     end
   end
 
@@ -42,6 +46,26 @@ class ConfigSubscriber
     set = Roles::Set.find_by(id: set_id)
     return unless set
 
-    Ops::Roles::Messages::Repost.call(bot:, role_set: set)
+    report(Ops::Roles::Messages::Repost.call(bot:, role_set: set), source: "roles_repost")
+  end
+
+  def post_roles(set_id)
+    set = Roles::Set.find_by(id: set_id)
+    return unless set
+
+    report(Ops::Roles::Messages::Post.call(bot:, role_set: set), source: "roles_post")
+  end
+
+  def delete_message(channel_id, message_id)
+    report(
+      Ops::Roles::Messages::Delete.call(bot:, channel_id:, message_id:),
+      source: "roles_message_delete"
+    )
+  end
+
+  def report(result, source:)
+    return if result.success?
+
+    Rails.logger.error("[ConfigSubscriber] #{source} failed: #{result.errors.to_sentence}")
   end
 end
