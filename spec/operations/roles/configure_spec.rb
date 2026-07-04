@@ -330,4 +330,33 @@ RSpec.describe Ops::Roles::Configure do
       end
     end
   end
+
+  context "when a managed role is posted in role_ids" do
+    before do
+      create(:server_role, server_configuration: config, discord_id: 12, position: 3, managed: true)
+    end
+
+    let(:role_sets) do
+      [{name: "Pings", selection_mode: "multi", channel_override: "", role_ids: ["10", "12"]}]
+    end
+
+    it "rejects the managed role and keeps only the assignable one" do
+      result
+      expect(setting.role_sets.last.assignable_roles.map(&:role_id)).to contain_exactly(10)
+    end
+  end
+
+  context "when an above-bot role is posted in role_ids" do
+    let(:config) { create(:server_configuration, bot_role_position: 2) }
+    let!(:setting) { create(:role_setting, server_configuration: config, channel_id: nil) }
+
+    let(:role_sets) do
+      [{name: "Pings", selection_mode: "multi", channel_override: "", role_ids: ["10", "11"]}]
+    end
+
+    it "rejects the above-bot role and keeps only the assignable one" do
+      result
+      expect(setting.role_sets.last.assignable_roles.map(&:role_id)).to contain_exactly(10)
+    end
+  end
 end

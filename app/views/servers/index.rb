@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Views::Servers::Index < Views::Base
+  include Components::Initials
+
   def initialize(present:, absent:, user:, plugin_counts: {}, error: false)
     @present = present
     @absent = absent
@@ -111,10 +113,6 @@ class Views::Servers::Index < Views::Base
 
   def error_banner
     div(class: "mb-6 rounded-md border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning") { t(".error") }
-  end
-
-  def initials(name)
-    name.split.filter_map { |word| word[0] }.first(2).join.upcase
   end
 
   def generic_invite_url

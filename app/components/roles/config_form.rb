@@ -37,29 +37,35 @@ class Components::Roles::ConfigForm < Components::Base
   end
 
   def card_for(set, index)
-    card(
-      index:,
-      set_id: set.id,
-      name: set.name,
-      selection_mode: set.selection_mode,
-      channel_override: set.channel_override,
-      selected_role_ids: set.assignable_roles.map(&:role_id),
-      repost_path: repost_path_for(set)
+    Components::Roles::RoleSetCard.new(
+      data: Components::Roles::RoleSetCardData.new(
+        index:,
+        set_id: set.id,
+        name: set.name,
+        selection_mode: set.selection_mode,
+        channel_override: set.channel_override,
+        selected_role_ids: set.assignable_roles.map(&:role_id),
+        open: false,
+        repost_path: repost_path_for(set)
+      ),
+      context: card_context
     )
   end
 
   def new_card
-    card(index: "NEW_RECORD", open: true)
+    Components::Roles::RoleSetCard.new(
+      data: Components::Roles::RoleSetCardData.empty,
+      context: card_context
+    )
   end
 
-  def card(**attrs)
-    Components::Roles::RoleSetCard.new(
+  def card_context
+    @card_context ||= Components::Roles::RoleFormContext.new(
       channels:,
       role_options:,
       channels_by_id:,
       default_channel_id: @setting.channel_id,
-      any_unassignable: assignable_options.any_unassignable?,
-      **attrs
+      any_unassignable: assignable_options.any_unassignable?
     )
   end
 

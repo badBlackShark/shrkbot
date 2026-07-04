@@ -3,6 +3,7 @@
 class Components::AppShell < Components::Base
   include Phlex::Rails::Helpers::ImageTag
   include Phlex::Rails::Helpers::ButtonTo
+  include Components::Initials
 
   def initialize(user:, current_server: nil, servers: [], plugin_counts: {}, sidebar: nil)
     @user = user
@@ -147,9 +148,5 @@ class Components::AppShell < Components::Base
     else
       span(class: "flex size-8 items-center justify-center rounded-full bg-accent-soft text-xs font-bold text-accent-soft-fg") { initials(@user.display_name) }
     end
-  end
-
-  def initials(name)
-    name.split.filter_map { |word| word[0] }.first(2).join.upcase
   end
 end

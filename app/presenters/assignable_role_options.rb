@@ -3,43 +3,37 @@
 class AssignableRoleOptions
   DEFAULT_COLOR = "#99aab5"
 
+  REASON_KEYS = {
+    managed: "assignable_roles.managed",
+    above_bot: "assignable_roles.above_bot"
+  }.freeze
+
   def initialize(server_configuration)
-    @config = server_configuration
+    @roles = Roles::AssignableServerRoles.new(server_configuration)
   end
 
   def options
-    assignable_roles.map do |role|
+    @roles.candidates.map do |role|
+      reason = reason_text(role)
       Components::TomSelect::Option.for(
         value: role.discord_id,
         label: role.name,
         color: color_hex(role.color),
-        disabled: reason_for(role).present?,
-        reason: reason_for(role)
+        disabled: reason.present?,
+        reason:
       )
     end
   end
 
   def any_unassignable?
-    assignable_roles.any? { |role| reason_for(role).present? }
+    @roles.any_unassignable?
   end
 
   private
 
-  def assignable_roles
-    @assignable_roles ||= @config.server_roles
-      .where.not(discord_id: @config.discord_id)
-      .order(position: :desc)
-  end
-
-  def reason_for(role)
-    return I18n.t("assignable_roles.managed") if role.managed?
-    return I18n.t("assignable_roles.above_bot") if bot_position && role.position.to_i >= bot_position
-
-    nil
-  end
-
-  def bot_position
-    @config.bot_role_position
+  def reason_text(role)
+    key = REASON_KEYS[@roles.reason_for(role)]
+    key && I18n.t(key)
   end
 
   def color_hex(color)

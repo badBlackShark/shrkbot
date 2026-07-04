@@ -3,39 +3,14 @@
 class Components::Roles::RoleSetCard < Components::Base
   ICON_BUTTON = "flex size-8 flex-none items-center justify-center rounded-md text-text-muted transition-colors"
 
-  def initialize(
-    index:,
-    channels:,
-    role_options:,
-    channels_by_id:,
-    default_channel_id:,
-    any_unassignable:,
-    set_id: nil,
-    name: "",
-    selection_mode: "single",
-    channel_override: nil,
-    selected_role_ids: [],
-    open: false,
-    repost_path: nil
-  )
-    @index = index
-    @channels = channels
-    @role_options = role_options
-    @channels_by_id = channels_by_id
-    @default_channel_id = default_channel_id
-    @any_unassignable = any_unassignable
-    @set_id = set_id
-    @name = name
-    @selection_mode = selection_mode
-    @channel_override = channel_override
-    @selected_role_ids = selected_role_ids
-    @open = open
-    @repost_path = repost_path
+  def initialize(data:, context:)
+    @data = data
+    @context = context
   end
 
   def view_template
     details(
-      open: @open,
+      open: @data.open,
       data: {role_set: true, controller: "dropdown", dropdown_dismiss_on_outside_value: "false"},
       class: "rounded-card border border-border-default bg-surface-card shadow-sm"
     ) do
@@ -48,11 +23,11 @@ class Components::Roles::RoleSetCard < Components::Base
   private
 
   def field(name)
-    "roles[role_sets][#{@index}][#{name}]"
+    "roles[role_sets][#{@data.index}][#{name}]"
   end
 
   def hidden_fields
-    input(type: "hidden", name: field(:id), value: @set_id, data: {role_set_id: true})
+    input(type: "hidden", name: field(:id), value: @data.set_id, data: {role_set_id: true})
     input(type: "hidden", name: field(:_destroy), value: "0", data: {role_set_destroy: true})
   end
 
@@ -63,8 +38,8 @@ class Components::Roles::RoleSetCard < Components::Base
     ) do
       div(class: "min-w-0 flex-1") do
         div(class: "flex items-center gap-2") do
-          span(class: "truncate text-sm font-semibold") { @name.presence || t(".unnamed") }
-          render Components::Badge.new(variant: :brand, shape: :pill) { t(".mode.#{@selection_mode}") }
+          span(class: "truncate text-sm font-semibold") { @data.name.presence || t(".unnamed") }
+          render Components::Badge.new(variant: :brand, shape: :pill) { t(".mode.#{@data.selection_mode}") }
         end
         p(class: "mt-0.5 truncate text-xs text-text-muted") { subtitle }
       end
@@ -86,7 +61,7 @@ class Components::Roles::RoleSetCard < Components::Base
   end
 
   def repost_button
-    return if @repost_path.nil?
+    return if @data.repost_path.nil?
 
     render Components::Tooltip.new(text: t(".resync")) do
       button(
@@ -94,7 +69,7 @@ class Components::Roles::RoleSetCard < Components::Base
         aria_label: t(".resync"),
         data: {
           action: "role-sets#repost",
-          repost_url: @repost_path
+          repost_url: @data.repost_path
         },
         class: "#{ICON_BUTTON} hover:bg-accent-soft hover:text-accent-soft-fg"
       ) { render Components::Icon.new("arrows-clockwise", class: "size-4") }
@@ -116,7 +91,7 @@ class Components::Roles::RoleSetCard < Components::Base
         input(
           type: "text",
           name: field(:name),
-          value: @name,
+          value: @data.name,
           required: true,
           data: {role_set_name: true},
           class: "h-10 w-full rounded-control border-[1.5px] border-border-strong bg-surface-card px-3 text-sm " \
@@ -127,7 +102,7 @@ class Components::Roles::RoleSetCard < Components::Base
         label(class: "mb-1.5 block text-sm font-semibold") { t(".selection.label") }
         render Components::SegmentedControl.new(
           name: field(:selection_mode),
-          value: @selection_mode,
+          value: @data.selection_mode,
           options: [
             {value: "single", label: t(".mode.single")},
             {value: "multi", label: t(".mode.multi")}
@@ -145,8 +120,8 @@ class Components::Roles::RoleSetCard < Components::Base
       end
       render Components::ChannelSelect.new(
         name: field(:channel_override),
-        options: @channels,
-        selected: @channel_override,
+        options: @context.channels,
+        selected: @data.channel_override,
         placeholder: t(".channel.placeholder", channel: default_channel_label),
         include_blank: true
       )
@@ -158,8 +133,8 @@ class Components::Roles::RoleSetCard < Components::Base
       label(class: "mb-1.5 block text-sm font-semibold") { t(".roles.label") }
       render Components::RoleSelect.new(
         name: "#{field(:role_ids)}[]",
-        options: @role_options,
-        selected: @selected_role_ids,
+        options: @context.role_options,
+        selected: @data.selected_role_ids,
         placeholder: t(".roles.placeholder")
       )
       unassignable_callout
@@ -167,7 +142,7 @@ class Components::Roles::RoleSetCard < Components::Base
   end
 
   def unassignable_callout
-    return unless @any_unassignable
+    return unless @context.any_unassignable
 
     div(class: "mt-2.5") do
       render Components::Callout.new(variant: :warning) { t(".roles.unassignable") }
@@ -175,17 +150,17 @@ class Components::Roles::RoleSetCard < Components::Base
   end
 
   def subtitle
-    count = t(".roles.count", count: @selected_role_ids.size)
+    count = t(".roles.count", count: @data.selected_role_ids.size)
     label = channel_label
     label ? "##{label} · #{count}" : count
   end
 
   def channel_label
-    @channels_by_id[(@channel_override || @default_channel_id).to_i]
+    @context.channels_by_id[(@data.channel_override || @context.default_channel_id).to_i]
   end
 
   def default_channel_label
-    name = @channels_by_id[@default_channel_id.to_i]
+    name = @context.channels_by_id[@context.default_channel_id.to_i]
     name ? "##{name}" : t(".channel.no_default")
   end
 end
