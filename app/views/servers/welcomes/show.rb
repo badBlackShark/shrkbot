@@ -8,15 +8,12 @@ class Views::Servers::Welcomes::Show < Views::Base
   end
 
   def view_template
-    render Components::AppShell.new(
-      user: @user,
-      sidebar: Components::PluginSidebar.new(server_configuration: @config, active_key: :welcomes)
-    ) do
+    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :welcomes) do
       render Components::ConfigPage.new(
         icon: "hand-waving",
         title: t(".title"),
         description: t(".description"),
-        dashboard_path: server_path(@config.discord_id),
+        server_configuration: @config,
         url: server_welcomes_path(@config.discord_id),
         gate: {
           field: "welcomes[enabled]",

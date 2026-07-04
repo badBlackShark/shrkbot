@@ -62,13 +62,14 @@ RSpec.describe GuildMetadata do
   describe ".sync" do
     subject(:sync) { described_class.sync(server, bot) }
 
-    let(:server) { double("server", id: 77, channels: [], roles: []) }
+    let(:server) { double("server", id: 77, channels: [], roles: [], name: "Dev Refuge", icon_id: "icyhash", member_count: 2481) }
     let(:bot) { double("bot") }
     let(:config) { instance_double(ServerConfiguration) }
 
     before do
       allow(Ops::ServerConfiguration::Ensure).to receive(:call)
         .with(discord_id: 77).and_return(double(value: config))
+      allow(Ops::ServerConfiguration::Metadata::Sync).to receive(:call)
       allow(described_class).to receive(:bot_role_position).with(server, bot).and_return(7)
       allow(ServerOnboarder).to receive(:notify)
     end
@@ -77,6 +78,19 @@ RSpec.describe GuildMetadata do
       expect(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call).with(server_configuration: config, channels: [])
       expect(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call).with(server_configuration: config, roles: [], bot_role_position: 7)
       expect(Ops::ServerConfiguration::Channels::Reconcile).to receive(:call).with(server_configuration: config, bot:)
+      sync
+    end
+
+    it "syncs the server's display metadata" do
+      allow(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::Channels::Reconcile).to receive(:call)
+      expect(Ops::ServerConfiguration::Metadata::Sync).to receive(:call).with(
+        server_configuration: config,
+        name: "Dev Refuge",
+        icon_hash: "icyhash",
+        member_count: 2481
+      )
       sync
     end
 

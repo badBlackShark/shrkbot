@@ -5,6 +5,12 @@ module GuildMetadata
 
   def sync(server, bot)
     config = Ops::ServerConfiguration::Ensure.call(discord_id: server.id).value
+    Ops::ServerConfiguration::Metadata::Sync.call(
+      server_configuration: config,
+      name: server.name,
+      icon_hash: server.icon_id,
+      member_count: server.member_count
+    )
     Ops::ServerConfiguration::ServerChannels::Sync.call(server_configuration: config, channels: channels(server))
     Ops::ServerConfiguration::ServerRoles::Sync.call(
       server_configuration: config,

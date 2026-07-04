@@ -18,7 +18,7 @@ class ServersController < ApplicationController
     render Views::Servers::Index.new(
       present:,
       absent:,
-      plugin_counts: enabled_plugin_counts(configured),
+      plugin_counts: PluginActivation.enabled_counts_for(configured),
       user: current_user
     )
   end
@@ -45,7 +45,25 @@ class ServersController < ApplicationController
     configured = configured_ids(manageable)
     remember_manageable_servers(configured)
     @configured_guilds = manageable.select { |guild| configured.include?(guild.id) }
-    @plugin_counts = enabled_plugin_counts(configured)
+    @plugin_counts = PluginActivation.enabled_counts_for(configured)
+  rescue Discord::UserGuilds::Unauthorized
+    raise
+  rescue Discord::UserGuilds::Error
+    raise unless load_dashboard_from_cache
+  end
+
+  def load_dashboard_from_cache
+    dashboard = CachedDashboard.for(
+      discord_id: params[:id].to_i,
+      manageable_ids: manageable_server_ids
+    )
+    return false unless dashboard
+
+    @server_configuration = dashboard.server_configuration
+    @guild = dashboard.guild
+    @configured_guilds = dashboard.configured_guilds
+    @plugin_counts = dashboard.plugin_counts
+    true
   end
 
   def manageable_guilds
@@ -56,14 +74,6 @@ class ServersController < ApplicationController
 
   def configured_ids(guilds)
     ServerConfiguration.where(discord_id: guilds.map(&:id)).pluck(:discord_id)
-  end
-
-  def enabled_plugin_counts(discord_ids)
-    PluginActivation
-      .joins(:server_configuration)
-      .where(server_configurations: {discord_id: discord_ids}, enabled: true)
-      .group("server_configurations.discord_id")
-      .count
   end
 
   def reauthenticate

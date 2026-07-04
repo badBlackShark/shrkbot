@@ -119,12 +119,44 @@ RSpec.describe "Server dashboard", type: :request do
       end
 
       context "when Discord cannot be reached" do
-        before { allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Error) }
+        before do
+          get server_path(guild.id)
+          allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Error)
+        end
 
-        it "renders the error state without raising" do
+        context "when cached metadata is present" do
+          before { config.update!(name: "Dev Refuge", icon_hash: "icyhash", member_count: 2481) }
+
+          it "serves a 200 from the cache" do
+            get_dashboard
+            expect(response).to have_http_status(:ok)
+          end
+
+          it "renders the server name from the cache" do
+            get_dashboard
+            expect(response.body).to include("Dev Refuge")
+          end
+        end
+
+        context "when no cached metadata is available" do
+          it "renders the error state" do
+            get_dashboard
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to include("reach Discord")
+          end
+        end
+      end
+
+      context "when the Discord token has expired and Discord is also unreachable" do
+        before do
+          get server_path(guild.id)
+          allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Unauthorized)
+          config.update!(name: "Dev Refuge", icon_hash: "icyhash", member_count: 2481)
+        end
+
+        it "still kicks off re-authentication without falling back to cache" do
           get_dashboard
-          expect(response).to have_http_status(:ok)
-          expect(response.body).to include("reach Discord")
+          expect(response.body).to include("Signing you back in")
         end
       end
     end

@@ -3,11 +3,11 @@
 class Components::ConfigPage < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
-  def initialize(icon:, title:, description:, dashboard_path:, url:, gate: nil, badge: nil)
+  def initialize(icon:, title:, description:, server_configuration:, url:, gate: nil, badge: nil)
     @icon = icon
     @title = title
     @description = description
-    @dashboard_path = dashboard_path
+    @server_configuration = server_configuration
     @url = url
     @gate = gate
     @badge = badge
@@ -18,7 +18,7 @@ class Components::ConfigPage < Components::Base
       render Components::Breadcrumb.new(
         [
           {label: t(".servers"), href: servers_path},
-          {label: t(".dashboard"), href: @dashboard_path},
+          {label: @server_configuration.name || t(".dashboard"), href: server_path(@server_configuration.discord_id)},
           {label: @title}
         ]
       )

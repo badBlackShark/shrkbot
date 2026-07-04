@@ -3,6 +3,8 @@
 module RequiresManageableServer
   extend ActiveSupport::Concern
 
+  include SetsManageableServers
+
   included do
     before_action :require_manageable_server
   end
@@ -17,6 +19,6 @@ module RequiresManageableServer
   end
 
   def manageable_server?(discord_id)
-    Array(session[SetsManageableServers::SESSION_KEY]).include?(discord_id.to_i)
+    manageable_server_ids.include?(discord_id.to_i)
   end
 end
