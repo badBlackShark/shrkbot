@@ -8,16 +8,12 @@ class Views::Servers::Logging::Show < Views::Base
   end
 
   def view_template
-    render Components::AppShell.new(
-      user: @user,
-      sidebar: Components::PluginSidebar.new(server_configuration: @config, active_key: :logging)
-    ) do
+    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :logging) do
       render Components::ConfigPage.new(
         icon: "scroll",
         title: t(".title"),
         description: t(".description"),
-        dashboard_path: server_path(@config.discord_id),
-        dashboard_label: @config.name,
+        server_configuration: @config,
         url: server_logging_path(@config.discord_id),
         gate: {
           field: "logging[enabled]",
