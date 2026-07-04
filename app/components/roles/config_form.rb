@@ -75,12 +75,16 @@ class Components::Roles::ConfigForm < Components::Base
     end
   end
 
+  def channel_options
+    @channel_options ||= ChannelOptions.new(@config)
+  end
+
   def channels
-    @channels ||= ChannelOptions.new(@config).options
+    @channels ||= channel_options.options
   end
 
   def channels_by_id
-    @channels_by_id ||= channels.to_h { |option| [option.value.to_i, option.label] }
+    @channels_by_id ||= channel_options.labels_by_id
   end
 
   def assignable_options

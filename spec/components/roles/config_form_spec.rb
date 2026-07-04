@@ -19,4 +19,15 @@ RSpec.describe Components::Roles::ConfigForm do
   it "shows the none-message when no channels have synced" do
     expect(html).to include("No channels have synced yet")
   end
+
+  context "when a guild has a category with child text channels" do
+    before do
+      create(:server_channel, server_configuration: config, name: "General", channel_type: 4, discord_id: 900, position: 0)
+      create(:server_channel, server_configuration: config, name: "chat", channel_type: 0, discord_id: 901, position: 0, parent_id: 900)
+    end
+
+    it "renders without raising NoMethodError" do
+      expect { html }.not_to raise_error
+    end
+  end
 end

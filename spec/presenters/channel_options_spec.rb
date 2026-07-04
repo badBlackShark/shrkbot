@@ -30,4 +30,21 @@ RSpec.describe ChannelOptions do
 
     expect(labels).not_to include("info")
   end
+
+  describe "#labels_by_id" do
+    subject(:labels_by_id) { described_class.new(server).labels_by_id }
+
+    it "maps discord_id to name for uncategorised text channels" do
+      expect(labels_by_id[1]).to eq("welcome")
+    end
+
+    it "maps discord_id to name for text channels inside a category" do
+      expect(labels_by_id[11]).to eq("rules")
+      expect(labels_by_id[12]).to eq("faq")
+    end
+
+    it "excludes the category channel itself" do
+      expect(labels_by_id).not_to have_key(10)
+    end
+  end
 end
