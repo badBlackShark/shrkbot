@@ -10,9 +10,11 @@ class Views::Servers::Welcomes::Show < Views::Base
   def view_template
     render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :welcomes) do
       render Components::ConfigPage.new(
-        icon: "hand-waving",
-        title: t(".title"),
-        description: t(".description"),
+        header: Components::ConfigPageHeader.new(
+          icon: "hand-waving",
+          title: t(".title"),
+          description: t(".description")
+        ),
         server_configuration: @config,
         url: server_welcomes_path(@config.discord_id),
         gate: {

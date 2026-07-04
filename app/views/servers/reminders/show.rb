@@ -9,12 +9,14 @@ class Views::Servers::Reminders::Show < Views::Base
   def view_template
     render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :reminders) do
       render Components::ConfigPage.new(
-        icon: "bell-ringing",
-        title: t(".title"),
-        description: t(".description"),
+        header: Components::ConfigPageHeader.new(
+          icon: "bell-ringing",
+          title: t(".title"),
+          description: t(".description"),
+          badge: t(".badge")
+        ),
         server_configuration: @config,
-        url: server_reminders_path(@config.discord_id),
-        badge: t(".badge")
+        url: server_reminders_path(@config.discord_id)
       ) do
         render Components::Reminders::ConfigForm.new(server_configuration: @config)
       end

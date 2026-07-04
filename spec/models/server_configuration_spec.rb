@@ -46,6 +46,21 @@ RSpec.describe ServerConfiguration do
     end
   end
 
+  describe ".configured_ids_among" do
+    subject(:ids) { described_class.configured_ids_among(discord_ids) }
+
+    let!(:config_a) { create(:server_configuration, discord_id: 111_111_111) }
+    let!(:config_b) { create(:server_configuration, discord_id: 222_222_222) }
+
+    context "with a mix of present and absent discord_ids" do
+      let(:discord_ids) { [111_111_111, 999_999_999] }
+
+      it "returns only the discord_ids present in the database" do
+        expect(ids).to contain_exactly(111_111_111)
+      end
+    end
+  end
+
   describe "#icon_url" do
     subject(:icon_url) { server.icon_url }
 

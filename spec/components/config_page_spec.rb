@@ -7,9 +7,11 @@ RSpec.describe Components::ConfigPage do
 
   subject(:html) do
     described_class.new(
-      icon: "bell",
-      title: "Reminders",
-      description: "Manage reminders.",
+      header: Components::ConfigPageHeader.new(
+        icon: "bell",
+        title: "Reminders",
+        description: "Manage reminders."
+      ),
       server_configuration: config,
       url: "/servers/900000001/reminders"
     ).render_in(view_context) { "" }
