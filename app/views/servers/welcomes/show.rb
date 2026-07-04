@@ -21,7 +21,8 @@ class Views::Servers::Welcomes::Show < Views::Base
           field: "welcomes[enabled]",
           enabled: @enabled,
           message: t(".gate_message")
-        }
+        },
+        channel_lost: @enabled && @config.welcome_settings.channel_id.nil?
       ) do
         render Components::Welcomes::ConfigForm.new(server_configuration: @config)
       end

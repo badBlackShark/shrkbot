@@ -21,7 +21,8 @@ class Views::Servers::Logging::Show < Views::Base
           field: "logging[enabled]",
           enabled: @enabled,
           message: t(".gate_message")
-        }
+        },
+        channel_lost: @enabled && @config.logging_setting.channel_id.nil?
       ) do
         render Components::Logging::ConfigForm.new(server_configuration: @config)
       end

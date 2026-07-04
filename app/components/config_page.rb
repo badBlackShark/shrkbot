@@ -3,11 +3,12 @@
 class Components::ConfigPage < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
-  def initialize(header:, server_configuration:, url:, gate: nil)
+  def initialize(header:, server_configuration:, url:, gate: nil, channel_lost: false)
     @header = header
     @server_configuration = server_configuration
     @url = url
     @gate = gate
+    @channel_lost = channel_lost
   end
 
   def view_template(&block)
@@ -41,14 +42,28 @@ class Components::ConfigPage < Components::Base
   end
 
   def body(&block)
-    return yield unless gated?
+    unless gated?
+      channel_lost_banner
+      return yield
+    end
 
     render Components::EnableGate.new(
       enabled: @gate[:enabled],
       title: t(".disabled_title", plugin: @header.title),
       message: @gate[:message],
       enable_label: t(".enable", plugin: @header.title)
-    ) { yield }
+    ) do
+      channel_lost_banner
+      yield
+    end
+  end
+
+  def channel_lost_banner
+    return unless @channel_lost
+
+    div(class: "mb-5") do
+      render Components::Callout.new(variant: :warning) { t(".channel_lost", plugin: @header.title) }
+    end
   end
 
   def header

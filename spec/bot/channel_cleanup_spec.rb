@@ -9,7 +9,7 @@ RSpec.describe ChannelCleanup do
   let(:server) { double("server", id: 1) }
   let(:event) { double("event", server:, id: 555, bot:) }
 
-  let(:op) { Ops::ServerConfiguration::Channels::DisablePlugins }
+  let(:op) { Ops::ServerConfiguration::Channels::HandleDeletion }
 
   context "for a guild channel of a configured server" do
     let!(:config) { create(:server_configuration, discord_id: 1) }

@@ -16,10 +16,12 @@ RSpec.describe Ops::ServerConfiguration::Channels::Reconcile do
   end
 
   context "when the configured channel is gone from the synced metadata" do
-    it "disables the plugin and reports the stale channel" do
+    it "keeps the plugin enabled, nulls its channel, and reports the stale channel" do
       result
 
-      expect(server.plugin_activations.find_by(plugin: welcomes).enabled).to be(false)
+      activation = server.plugin_activations.find_by(plugin: welcomes)
+      expect(activation.enabled).to be(true)
+      expect(server.welcome_settings.reload.channel_id).to be_nil
       expect(result.value).to eq([555])
     end
   end
