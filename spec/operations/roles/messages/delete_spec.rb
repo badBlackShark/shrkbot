@@ -27,7 +27,9 @@ RSpec.describe Ops::Roles::Messages::Delete do
   end
 
   context "when the channel cannot be resolved" do
-    before { allow(bot).to receive(:channel).with(111).and_return(nil) }
+    before do
+      allow(bot).to receive(:channel).with(111).and_return(nil)
+    end
 
     it "succeeds without raising" do
       expect { result }.not_to raise_error

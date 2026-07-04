@@ -42,7 +42,9 @@ RSpec.describe ActivityLog do
     let(:event) { :role_lost }
     let(:options) { {actor: "<@42>", roles: ["Artist"]} }
 
-    before { server_config.logging_setting.update!(enabled_actions: {"roles.role_lost" => true}) }
+    before do
+      server_config.logging_setting.update!(enabled_actions: {"roles.role_lost" => true})
+    end
 
     it "renders that event's own line" do
       expect(channel).to receive(:send_message).with("<@42> lost Artist.")
@@ -51,7 +53,9 @@ RSpec.describe ActivityLog do
   end
 
   context "when the logging plugin is disabled" do
-    before { PluginActivation.update_all(enabled: false) }
+    before do
+      PluginActivation.update_all(enabled: false)
+    end
 
     it "writes nothing" do
       expect(channel).not_to receive(:send_message)
@@ -60,7 +64,9 @@ RSpec.describe ActivityLog do
   end
 
   context "when this event's toggle is off" do
-    before { server_config.logging_setting.update!(enabled_actions: {"roles.role_lost" => true}) }
+    before do
+      server_config.logging_setting.update!(enabled_actions: {"roles.role_lost" => true})
+    end
 
     it "writes nothing" do
       expect(channel).not_to receive(:send_message)
@@ -69,7 +75,9 @@ RSpec.describe ActivityLog do
   end
 
   context "when no logging channel is set" do
-    before { server_config.logging_setting.update!(channel_id: nil) }
+    before do
+      server_config.logging_setting.update!(channel_id: nil)
+    end
 
     it "writes nothing" do
       expect(channel).not_to receive(:send_message)
@@ -78,7 +86,9 @@ RSpec.describe ActivityLog do
   end
 
   context "when the logging channel no longer exists" do
-    before { allow(bot).to receive(:channel).with(555).and_return(nil) }
+    before do
+      allow(bot).to receive(:channel).with(555).and_return(nil)
+    end
 
     it "writes nothing and doesn't raise" do
       expect { record }.not_to raise_error
@@ -86,7 +96,9 @@ RSpec.describe ActivityLog do
   end
 
   context "when the channel send fails" do
-    before { allow(channel).to receive(:send_message).and_raise("403 missing access") }
+    before do
+      allow(channel).to receive(:send_message).and_raise("403 missing access")
+    end
 
     it "swallows the error so the user's action is unaffected" do
       expect { record }.not_to raise_error
@@ -96,7 +108,9 @@ RSpec.describe ActivityLog do
   context "for an unregistered event" do
     let(:event) { :not_a_real_event }
 
-    before { server_config.logging_setting.update!(enabled_actions: {"roles.not_a_real_event" => true}) }
+    before do
+      server_config.logging_setting.update!(enabled_actions: {"roles.not_a_real_event" => true})
+    end
 
     it "raises so the wiring mistake surfaces" do
       expect { record }.to raise_error(I18n::MissingTranslationData)

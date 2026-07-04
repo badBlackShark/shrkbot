@@ -65,7 +65,9 @@ RSpec.describe Ops::Roles::Configure do
   context "with an existing set" do
     let!(:existing) { create(:role_set, role_setting: setting, name: "Old", selection_mode: "single") }
 
-    before { create(:assignable_role, role_set: existing, role_id: 10) }
+    before do
+      create(:assignable_role, role_set: existing, role_id: 10)
+    end
 
     let(:role_sets) do
       [{id: existing.id, name: "New", selection_mode: "multi", channel_override: "777", role_ids: ["11"]}]
@@ -165,7 +167,9 @@ RSpec.describe Ops::Roles::Configure do
       let!(:existing) { create(:role_set, role_setting: setting, message_id: 111, channel_override: nil) }
       let(:role_sets) { [{id: existing.id, name: existing.name, selection_mode: existing.selection_mode, channel_override: "", role_ids: []}] }
 
-      before { setting.update!(channel_id: 555) }
+      before do
+        setting.update!(channel_id: 555)
+      end
 
       it "publishes a post event (bot edits in place)" do
         result
@@ -211,7 +215,9 @@ RSpec.describe Ops::Roles::Configure do
         ]
       end
 
-      before { setting.update!(channel_id: 555) }
+      before do
+        setting.update!(channel_id: 555)
+      end
 
       it "publishes remove_roles_menu for each set" do
         result
@@ -263,7 +269,9 @@ RSpec.describe Ops::Roles::Configure do
       let!(:existing) { create(:role_set, role_setting: setting, message_id: 111, channel_override: nil) }
       let(:role_sets) { [] }
 
-      before { setting.update!(channel_id: 555) }
+      before do
+        setting.update!(channel_id: 555)
+      end
 
       it "publishes a delete event for the destroyed set" do
         result
@@ -293,7 +301,9 @@ RSpec.describe Ops::Roles::Configure do
       let(:channel_id) { "555" }
       let(:role_sets) { [{id: existing.id, name: existing.name, selection_mode: existing.selection_mode, channel_override: "", role_ids: []}] }
 
-      before { setting.update!(channel_id: 555) }
+      before do
+        setting.update!(channel_id: 555)
+      end
 
       it "does NOT produce a delete (channel unchanged)" do
         result

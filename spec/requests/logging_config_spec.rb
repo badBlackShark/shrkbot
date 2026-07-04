@@ -34,7 +34,9 @@ RSpec.describe "Logging config", type: :request do
     end
 
     context "after loading the dashboard authorizes the server" do
-      before { get server_path(guild.id) }
+      before do
+        get server_path(guild.id)
+      end
 
       describe "GET /servers/:server_id/logging" do
         it "renders the config page with the event matrix" do
@@ -62,7 +64,9 @@ RSpec.describe "Logging config", type: :request do
       end
 
       describe "PATCH /servers/:server_id/logging" do
-        before { create(:server_channel, server_configuration: config, name: "mod-log", discord_id: 200) }
+        before do
+          create(:server_channel, server_configuration: config, name: "mod-log", discord_id: 200)
+        end
 
         it "saves the channel, event toggles, and enables the plugin" do
           patch server_logging_path(guild.id),

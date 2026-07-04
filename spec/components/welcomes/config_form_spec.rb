@@ -10,7 +10,9 @@ RSpec.describe Components::Welcomes::ConfigForm do
   let(:view_context) { ApplicationController.new.view_context }
   let(:config) { create(:server_configuration) }
 
-  before { config.create_welcome_settings! }
+  before do
+    config.create_welcome_settings!
+  end
 
   it "renders the channel card with the required marker" do
     expect(html).to include("This setting is required to enable the plugin")

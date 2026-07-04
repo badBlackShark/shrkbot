@@ -34,7 +34,9 @@ RSpec.describe "Welcomes config", type: :request do
     end
 
     context "after loading the dashboard authorizes the server" do
-      before { get server_path(guild.id) }
+      before do
+        get server_path(guild.id)
+      end
 
       describe "GET /servers/:server_id/welcomes" do
         it "renders the config page in the app shell" do
@@ -82,7 +84,9 @@ RSpec.describe "Welcomes config", type: :request do
       end
 
       describe "PATCH /servers/:server_id/welcomes" do
-        before { create(:server_channel, server_configuration: config, name: "general", discord_id: 111) }
+        before do
+          create(:server_channel, server_configuration: config, name: "general", discord_id: 111)
+        end
 
         it "saves the settings and enables the plugin in one request" do
           patch server_welcomes_path(guild.id),

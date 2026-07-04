@@ -100,7 +100,9 @@ RSpec.describe "Server dashboard", type: :request do
       end
 
       context "when the server is not manageable by the user" do
-        before { allow(Discord::UserGuilds).to receive(:call).and_return([]) }
+        before do
+          allow(Discord::UserGuilds).to receive(:call).and_return([])
+        end
 
         it "redirects back to the picker" do
           get_dashboard
@@ -109,7 +111,9 @@ RSpec.describe "Server dashboard", type: :request do
       end
 
       context "when the Discord token has expired" do
-        before { allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Unauthorized) }
+        before do
+          allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Unauthorized)
+        end
 
         it "kicks off re-authentication" do
           get_dashboard
@@ -125,7 +129,9 @@ RSpec.describe "Server dashboard", type: :request do
         end
 
         context "when cached metadata is present" do
-          before { config.update!(name: "Dev Refuge", icon_hash: "icyhash", member_count: 2481) }
+          before do
+            config.update!(name: "Dev Refuge", icon_hash: "icyhash", member_count: 2481)
+          end
 
           it "serves a 200 from the cache" do
             get_dashboard
@@ -166,7 +172,9 @@ RSpec.describe "Server dashboard", type: :request do
 
       # Loading the dashboard is what proves the user manages this server and
       # caches that authorization for the toggle that follows.
-      before { get server_path(guild.id) }
+      before do
+        get server_path(guild.id)
+      end
 
       it "enables a plugin in place without re-contacting Discord" do
         config.create_role_setting!(channel_id: 7)

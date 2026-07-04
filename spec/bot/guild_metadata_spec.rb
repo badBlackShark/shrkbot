@@ -40,7 +40,9 @@ RSpec.describe GuildMetadata do
     let(:bot) { double("bot", profile: double("profile", id: 99)) }
     let(:server) { double("server") }
 
-    before { allow(server).to receive(:member).with(99).and_return(member) }
+    before do
+      allow(server).to receive(:member).with(99).and_return(member)
+    end
 
     context "when the bot has roles above @everyone" do
       let(:member) { double("member", roles: [double("role", position: 2), double("role", position: 5)]) }
