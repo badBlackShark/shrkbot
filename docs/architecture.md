@@ -268,8 +268,8 @@ shared sync path, it fires from both triggers — so every server is onboarded e
 once, including servers that were already present when the rewrite first goes live
 (the `:ready` sweep). The `onboarded_at` stamp is what keeps it once-per-server rather
 than once-per-boot, and a send failure (owner blocks DMs) is swallowed and left
-un-stamped so a later boot retries. The welcome copy is a placeholder until the config
-website ships, when it gains the real setup link.
+un-stamped so a later boot retries. The DM links the owner to `WEB_BASE_URL/servers/:discord_id`
+(their guild's dashboard); the link is omitted when `WEB_BASE_URL` is unset.
 
 ## Roles self-assignment
 

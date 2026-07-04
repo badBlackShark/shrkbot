@@ -32,4 +32,8 @@ module BotConfig
   def client_id
     ENV["CLIENT_ID"]
   end
+
+  def web_base_url
+    ENV["WEB_BASE_URL"]
+  end
 end

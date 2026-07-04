@@ -30,6 +30,12 @@ RSpec.describe BotConfig do
     end
   end
 
+  describe ".web_base_url" do
+    it "reads WEB_BASE_URL from the environment" do
+      with_env("WEB_BASE_URL", "https://shrkbot.gg") { expect(described_class.web_base_url).to eq("https://shrkbot.gg") }
+    end
+  end
+
   describe ".rest_token" do
     subject(:rest_token) { described_class.rest_token }
 
