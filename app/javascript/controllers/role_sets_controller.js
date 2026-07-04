@@ -43,6 +43,26 @@ export default class extends Controller {
     this.notifyDirty()
   }
 
+  repost(event) {
+    event.preventDefault()
+    event.stopPropagation() // inside <summary>; don't toggle the disclosure
+    const form = document.createElement("form")
+    form.method = "post"
+    form.action = event.currentTarget.dataset.repostUrl
+    form.hidden = true
+    const token = document.querySelector('meta[name="csrf-token"]')?.content
+    if (token) {
+      const input = document.createElement("input")
+      input.type = "hidden"
+      input.name = "authenticity_token"
+      input.value = token
+      form.appendChild(input)
+    }
+    document.body.appendChild(form)
+    form.addEventListener("turbo:submit-end", () => form.remove(), { once: true })
+    form.requestSubmit()
+  }
+
   notifyDirty() {
     this.element.dispatchEvent(new Event("input", {bubbles: true}))
   }

@@ -15,7 +15,8 @@ class Components::Roles::RoleSetCard < Components::Base
     selection_mode: "single",
     channel_override: nil,
     selected_role_ids: [],
-    open: false
+    open: false,
+    repost_path: nil
   )
     @index = index
     @channels = channels
@@ -29,6 +30,7 @@ class Components::Roles::RoleSetCard < Components::Base
     @channel_override = channel_override
     @selected_role_ids = selected_role_ids
     @open = open
+    @repost_path = repost_path
   end
 
   def view_template
@@ -66,19 +68,37 @@ class Components::Roles::RoleSetCard < Components::Base
         end
         p(class: "mt-0.5 truncate text-xs text-text-muted") { subtitle }
       end
+      repost_button
       delete_button
       render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
     end
   end
 
   def delete_button
-    button(
-      type: "button",
-      title: t(".delete"),
-      aria_label: t(".delete"),
-      data: {action: "role-sets#remove"},
-      class: "#{ICON_BUTTON} flex-none hover:bg-danger-soft hover:text-danger"
-    ) { render Components::Icon.new("trash", class: "size-4") }
+    render Components::Tooltip.new(text: t(".delete")) do
+      button(
+        type: "button",
+        aria_label: t(".delete"),
+        data: {action: "role-sets#remove"},
+        class: "#{ICON_BUTTON} hover:bg-danger-soft hover:text-danger"
+      ) { render Components::Icon.new("trash", class: "size-4") }
+    end
+  end
+
+  def repost_button
+    return if @repost_path.nil?
+
+    render Components::Tooltip.new(text: t(".resync")) do
+      button(
+        type: "button",
+        aria_label: t(".resync"),
+        data: {
+          action: "role-sets#repost",
+          repost_url: @repost_path
+        },
+        class: "#{ICON_BUTTON} hover:bg-accent-soft hover:text-accent-soft-fg"
+      ) { render Components::Icon.new("arrows-clockwise", class: "size-4") }
+    end
   end
 
   def editor

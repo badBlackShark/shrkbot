@@ -9,6 +9,7 @@ module Ops
 
       def call
         setting = server_configuration.role_setting
+        @old_default_channel_id = setting.channel_id
         setting.channel_id = channel_id.presence
         activation = staged_activation
 
@@ -19,6 +20,7 @@ module Ops
           reconcile_sets(setting)
           activation.save!
         end
+        plan.publish
         ok(activation)
       rescue ActiveRecord::RecordInvalid => error
         failure([error.record.errors.full_messages.to_sentence], value: activation)
@@ -31,11 +33,32 @@ module Ops
           set = find_or_build_set(setting, attrs)
           next unless set
 
-          set.update!(name: attrs[:name], selection_mode: attrs[:selection_mode], channel_override: attrs[:channel_override].presence)
+          old_channel = set.channel_override || @old_default_channel_id
+          set.assign_attributes(
+            name: attrs[:name],
+            selection_mode: attrs[:selection_mode],
+            channel_override: attrs[:channel_override].presence
+          )
+          reconcile_menu(set, old_channel)
+          set.save!
           reconcile_roles(set, assignable_ids(attrs))
+          plan.post(set) if menus_enabled?
           set.id
         end
-        setting.role_sets.where.not(id: kept).destroy_all
+        destroy_dropped_sets(setting, kept)
+      end
+
+      def destroy_dropped_sets(setting, kept)
+        doomed = setting.role_sets.where.not(id: kept)
+        doomed.each do |set|
+          next if set.message_id.nil?
+
+          plan.delete(
+            channel_id: set.channel_override || @old_default_channel_id,
+            message_id: set.message_id
+          )
+        end
+        doomed.destroy_all
       end
 
       def find_or_build_set(setting, attrs)
@@ -72,6 +95,29 @@ module Ops
 
       def plugin_key
         :roles
+      end
+
+      def reconcile_menu(set, old_channel)
+        return if set.message_id.nil?
+
+        if effective_channel(set) != old_channel
+          plan.delete(channel_id: old_channel, message_id: set.message_id)
+          set.message_id = nil
+        elsif !menus_enabled?
+          plan.remove(set)
+        end
+      end
+
+      def effective_channel(set)
+        set.channel_override || channel_id.to_i
+      end
+
+      def menus_enabled?
+        truthy?(enabled)
+      end
+
+      def plan
+        @plan ||= ::Roles::MenuSyncPlan.new
       end
 
       def truthy?(value)

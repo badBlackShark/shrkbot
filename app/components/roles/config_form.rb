@@ -43,7 +43,8 @@ class Components::Roles::ConfigForm < Components::Base
       name: set.name,
       selection_mode: set.selection_mode,
       channel_override: set.channel_override,
-      selected_role_ids: set.assignable_roles.map(&:role_id)
+      selected_role_ids: set.assignable_roles.map(&:role_id),
+      repost_path: repost_path_for(set)
     )
   end
 
@@ -93,5 +94,9 @@ class Components::Roles::ConfigForm < Components::Base
 
   def role_options
     @role_options ||= assignable_options.options
+  end
+
+  def repost_path_for(set)
+    server_role_set_repost_path(@config.discord_id, set.id)
   end
 end

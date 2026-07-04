@@ -20,6 +20,9 @@ Rails.application.routes.draw do
       resource :logging, only: [:show, :update], controller: "logging"
       resource :roles, only: [:show, :update]
       resource :reminders, only: [:show, :update]
+      resources :role_sets, only: [] do
+        resource :repost, only: :create, module: :role_sets
+      end
     end
   end
 
