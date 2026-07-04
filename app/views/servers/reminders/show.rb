@@ -16,6 +16,7 @@ class Views::Servers::Reminders::Show < Views::Base
         title: t(".title"),
         description: t(".description"),
         dashboard_path: server_path(@config.discord_id),
+        dashboard_label: @config.name,
         url: server_reminders_path(@config.discord_id),
         badge: t(".badge")
       ) do

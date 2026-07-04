@@ -46,6 +46,21 @@ class ServersController < ApplicationController
     remember_manageable_servers(configured)
     @configured_guilds = manageable.select { |guild| configured.include?(guild.id) }
     @plugin_counts = enabled_plugin_counts(configured)
+  rescue Discord::UserGuilds::Unauthorized
+    raise
+  rescue Discord::UserGuilds::Error
+    raise unless load_dashboard_from_cache
+  end
+
+  def load_dashboard_from_cache
+    configs = ServerConfiguration.where(discord_id: manageable_server_ids).where.not(name: nil)
+    @server_configuration = configs.find { |config| config.discord_id == params[:id].to_i }
+    return false unless @server_configuration
+
+    @guild = CachedGuild.from(@server_configuration)
+    @configured_guilds = configs.sort_by { |config| -config.member_count.to_i }.map { |config| CachedGuild.from(config) }
+    @plugin_counts = enabled_plugin_counts(configs.map(&:discord_id))
+    true
   end
 
   def manageable_guilds

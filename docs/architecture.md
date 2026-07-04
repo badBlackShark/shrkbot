@@ -222,7 +222,10 @@ upsert + prune of stale rows.
 
 `GuildMetadata.sync` ensures the config, then syncs channels and roles, then
 reconciles deleted channels — in one method, because the `server_create` handler
-order isn't fixed and the populate ops always need a config to attach to.
+order isn't fixed and the populate ops always need a config to attach to. It also
+caches guild display metadata (name, icon hash, member count) on `server_configurations`
+via `Ops::ServerConfiguration::Metadata::Sync`, so the web UI can render server identity
+without a live Discord API call when the API is temporarily unreachable.
 
 `ServerChannel#everyone_visible?` is the @everyone-visibility heuristic behind the
 logging-channel warning. The @everyone role's id equals the guild id. It checks the

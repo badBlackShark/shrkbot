@@ -17,6 +17,7 @@ class Views::Servers::Roles::Show < Views::Base
         title: t(".title"),
         description: t(".description"),
         dashboard_path: server_path(@config.discord_id),
+        dashboard_label: @config.name,
         url: server_roles_path(@config.discord_id),
         gate: {
           field: "roles[enabled]",

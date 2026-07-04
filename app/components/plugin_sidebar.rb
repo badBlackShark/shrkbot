@@ -33,7 +33,7 @@ class Components::PluginSidebar < Components::Base
       class: "group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-surface-card"
     ) do
       render Components::Icon.new("arrow-left", class: "size-4 flex-none text-text-muted")
-      span(class: "truncate text-sm font-medium text-text-secondary group-hover:text-text-primary") { t(".dashboard") }
+      span(class: "truncate text-sm font-medium text-text-secondary group-hover:text-text-primary") { @config.name || t(".dashboard") }
     end
   end
 

@@ -10,4 +10,8 @@ module SetsManageableServers
   def remember_manageable_servers(discord_ids)
     session[SESSION_KEY] = discord_ids
   end
+
+  def manageable_server_ids
+    Array(session[SESSION_KEY])
+  end
 end

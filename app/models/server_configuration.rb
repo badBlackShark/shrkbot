@@ -12,4 +12,8 @@ class ServerConfiguration < ApplicationRecord
   has_many :server_roles, dependent: :delete_all
 
   validates :discord_id, presence: true, uniqueness: true
+
+  def icon_url
+    Discord::CdnUrl.guild_icon(discord_id, icon_hash)
+  end
 end

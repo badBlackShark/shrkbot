@@ -3,7 +3,7 @@
 class Components::ConfigPage < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
-  def initialize(icon:, title:, description:, dashboard_path:, url:, gate: nil, badge: nil)
+  def initialize(icon:, title:, description:, dashboard_path:, url:, gate: nil, badge: nil, dashboard_label: nil)
     @icon = icon
     @title = title
     @description = description
@@ -11,6 +11,7 @@ class Components::ConfigPage < Components::Base
     @url = url
     @gate = gate
     @badge = badge
+    @dashboard_label = dashboard_label
   end
 
   def view_template(&block)
@@ -18,7 +19,7 @@ class Components::ConfigPage < Components::Base
       render Components::Breadcrumb.new(
         [
           {label: t(".servers"), href: servers_path},
-          {label: t(".dashboard"), href: @dashboard_path},
+          {label: @dashboard_label || t(".dashboard"), href: @dashboard_path},
           {label: @title}
         ]
       )

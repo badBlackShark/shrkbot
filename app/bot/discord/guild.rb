@@ -25,7 +25,7 @@ module Discord
     end
 
     def icon_url
-      "https://cdn.discordapp.com/icons/#{id}/#{icon}.png?size=64" if icon
+      CdnUrl.guild_icon(id, icon)
     end
   end
 end
