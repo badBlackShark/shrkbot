@@ -35,8 +35,9 @@ RSpec.describe Components::NotificationItem do
       expect(html).to include("Dismiss")
     end
 
-    it "renders a deep-link href to the logging plugin page" do
-      expect(html).to include("/servers/#{config.discord_id}/logging")
+    it "links to the notification show path, escaping the turbo frame" do
+      expect(html).to include("/notifications/#{notification.id}")
+      expect(html).to include('data-turbo-frame="_top"')
     end
   end
 
@@ -64,8 +65,9 @@ RSpec.describe Components::NotificationItem do
       expect(html).to include("Dismiss")
     end
 
-    it "renders a deep-link href to the logging plugin page" do
-      expect(html).to include("/servers/#{config.discord_id}/logging")
+    it "links to the notification show path, escaping the turbo frame" do
+      expect(html).to include("/notifications/#{notification.id}")
+      expect(html).to include('data-turbo-frame="_top"')
     end
   end
 end

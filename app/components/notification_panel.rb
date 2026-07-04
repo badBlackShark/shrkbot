@@ -34,7 +34,7 @@ class Components::NotificationPanel < Components::Base
     button_to(
       notifications_read_path(server_id: @server_id, scope: @scope),
       method: :post,
-      class: "text-xs font-semibold text-text-link hover:underline"
+      class: "cursor-pointer text-xs font-semibold text-text-link hover:underline"
     ) { t(".mark_all_read") }
   end
 
