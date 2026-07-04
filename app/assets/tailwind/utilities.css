@@ -84,6 +84,13 @@ details[open] > .dropdown-menu {
 details[open] > .dropdown-menu.is-closing {
   animation: menuLeave var(--dur-base) var(--ease-exit) forwards;
 }
+/* A menu rendered already-open (e.g. a Turbo Frame reloading the notification
+   bell) must not replay the entrance animation — that reads as a flicker. The
+   dropdown controller adds .no-enter on connect when it wakes up already open;
+   :not(.is-closing) keeps the close animation working. */
+details[open] > .dropdown-menu.no-enter:not(.is-closing) {
+  animation: none;
+}
 
 .dropdown-chevron {
   transition: transform var(--dur-base) var(--ease-standard);

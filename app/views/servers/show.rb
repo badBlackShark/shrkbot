@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 class Views::Servers::Show < Views::Base
-  include Phlex::Rails::Helpers::ImageTag
-  include Components::Initials
-
   def initialize(guild:, server_configuration:, plugins:, user:, servers: [], plugin_counts: {})
     @guild = guild
     @server_configuration = server_configuration
@@ -41,11 +38,7 @@ class Views::Servers::Show < Views::Base
   end
 
   def avatar
-    if @guild.icon_url
-      image_tag(@guild.icon_url, alt: "", loading: "lazy", class: "size-14 flex-none rounded-xl object-cover")
-    else
-      span(class: "flex size-14 flex-none items-center justify-center rounded-xl bg-accent-soft text-xl font-bold text-accent-soft-fg") { initials(@guild.name) }
-    end
+    render Components::ServerAvatar.new(server: @guild, size: :xl)
   end
 
   def meta_line

@@ -287,3 +287,36 @@ render Components::Icon.new("users-three", weight: :fill, class: "size-5 text-wh
 
 Plugin icons: roles → `users-three`, welcomes → `hand-waving`, logging → `scroll`,
 reminders → `bell-ringing`. Browse names at [phosphoricons.com](https://phosphoricons.com).
+
+## Notification bell
+
+The bell lives in the `Components::AppShell` top bar. It renders as an eager
+Turbo Frame (`id: "notifications"`) that loads `GET /notifications` immediately
+on page load — no data is threaded through other controllers or views. Until the
+frame resolves a placeholder bell button is shown.
+
+**Dropdown pattern:** `Components::NotificationBell` wraps the bell in a native
+`<details>` element with a `data-controller="dropdown"` summary toggle, mirroring
+the server-switcher and user-menu. The summary holds the bell icon and the
+unread-count badge (only when count > 0, solid accent fill with a surface-card
+ring). The menu target holds `Components::NotificationPanel`.
+
+**Panel layout:** header (title, "Mark all read" button_to, scope toggle) +
+scrollable body (grouped by server, or flat for the this-server scope) + empty
+state when no active notifications.
+
+**Scope toggle:** two links targeting the `notifications` frame —
+`notifications_path(server_id: <current>)` for "This server" and
+`notifications_path` (no server_id) for "All servers". Active tab = solid card
+bg + shadow; inactive = muted text.
+
+**Grouping:** "All servers" renders server-tile headers (initials tile + name)
+between groups, sorted by server name. "This server" skips the headers.
+
+**Item:** `Components::NotificationItem` renders a deep link to the plugin config
+page, a warning icon circle (full-opacity unread, 60% opacity read), title
+(hash icon prefix from the mockup), message, relative time, an unread dot on the
+left rail, and a dismiss `button_to` (PATCH to `notification_path`).
+
+**Mobile:** below `sm` the panel becomes a full-width sheet fixed under the app
+bar (CSS only — same HTML structure; no JS changes).

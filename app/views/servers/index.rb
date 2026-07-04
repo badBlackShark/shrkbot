@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Views::Servers::Index < Views::Base
-  include Components::Initials
-
   def initialize(present:, absent:, user:, plugin_counts: {}, error: false)
     @present = present
     @absent = absent
@@ -68,12 +66,7 @@ class Views::Servers::Index < Views::Base
   end
 
   def avatar(guild, muted: false)
-    dim = muted ? " opacity-60" : ""
-    if guild.icon_url
-      img(src: guild.icon_url, alt: "", loading: "lazy", class: "size-12 flex-none rounded-lg object-cover#{dim}")
-    else
-      span(class: "flex size-12 flex-none items-center justify-center rounded-lg bg-surface-sunken font-semibold text-text-secondary#{dim}") { initials(guild.name) }
-    end
+    render Components::ServerAvatar.new(server: guild, size: :lg, tone: :sunken, dim: muted)
   end
 
   def plugins_badge(count)

@@ -14,6 +14,12 @@ export default class extends Controller {
   static values = {dismissOnOutside: {type: Boolean, default: true}}
 
   connect() {
+    // Woke up already open (a Turbo Frame reloaded the panel in place): skip the
+    // entrance animation so it doesn't flicker. Cleared on the next close.
+    if (this.element.open && this.hasMenuTarget) {
+      this.menuTarget.classList.add("no-enter")
+    }
+
     if (!this.dismissOnOutsideValue) return
 
     this.closeOutside = (e) => {
@@ -56,6 +62,7 @@ export default class extends Controller {
       if (event.animationName !== "menuLeave") return
       menu.removeEventListener("animationend", done)
       menu.classList.remove("is-closing")
+      menu.classList.remove("no-enter")
       this.element.open = false
       this.closing = false
     }

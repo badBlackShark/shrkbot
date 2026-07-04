@@ -3,11 +3,13 @@
 class Components::AppShell < Components::Base
   include Phlex::Rails::Helpers::ImageTag
   include Phlex::Rails::Helpers::ButtonTo
+  include Phlex::Rails::Helpers::TurboFrameTag
   include Components::Initials
 
-  def initialize(user:, current_server: nil, servers: [], plugin_counts: {}, sidebar: nil)
+  def initialize(user:, current_server: nil, current_server_id: nil, servers: [], plugin_counts: {}, sidebar: nil)
     @user = user
     @current_server = current_server
+    @current_server_id = current_server_id
     @servers = servers
     @plugin_counts = plugin_counts
     @sidebar = sidebar
@@ -34,6 +36,7 @@ class Components::AppShell < Components::Base
       wordmark
       server_switcher if @current_server
       div(class: "flex-1")
+      notification_frame
       theme_toggle
       user_menu
     end
@@ -45,7 +48,7 @@ class Components::AppShell < Components::Base
         data: {action: "click->dropdown#toggle"},
         class: "flex h-9 cursor-pointer list-none items-center gap-2 rounded-md px-2 transition-colors hover:bg-surface-sunken [&::-webkit-details-marker]:hidden"
       ) do
-        server_tile(@current_server, size: :sm)
+        render Components::ServerAvatar.new(server: @current_server, size: :sm)
         span(class: "hidden whitespace-nowrap text-sm font-semibold sm:block") { @current_server.name }
         render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 text-text-muted")
       end
@@ -73,21 +76,12 @@ class Components::AppShell < Components::Base
     current = server.id == @current_server.id
     tone = current ? "bg-accent-soft hover:bg-accent-soft" : "hover:bg-surface-sunken"
     a(href: server_path(server.id), class: "flex items-center gap-3 px-3 py-2 text-left transition-colors #{tone}") do
-      server_tile(server, size: :md)
+      render Components::ServerAvatar.new(server:, size: :md)
       div(class: "min-w-0 flex-1") do
         p(class: "truncate text-sm font-semibold") { server.name }
         p(class: "text-[11px] text-text-secondary") { t(".plugins_on", count: @plugin_counts[server.id].to_i) }
       end
       render Components::Icon.new("check", class: "size-4 flex-none text-accent") if current
-    end
-  end
-
-  def server_tile(server, size:)
-    box = (size == :sm) ? "size-7" : "size-8"
-    if server.icon_url
-      image_tag(server.icon_url, alt: "", loading: "lazy", class: "#{box} flex-none rounded-md object-cover")
-    else
-      span(class: "#{box} flex flex-none items-center justify-center rounded-md bg-accent-soft text-xs font-bold text-accent-soft-fg") { initials(server.name) }
     end
   end
 
@@ -97,6 +91,26 @@ class Components::AppShell < Components::Base
       span(class: "font-display text-lg font-bold tracking-tight") do
         render Components::Wordmark.new
       end
+    end
+  end
+
+  def notification_frame
+    turbo_frame_tag(
+      "notifications",
+      src: notifications_path(server_id: @current_server_id || @current_server&.id),
+      loading: "eager"
+    ) do
+      placeholder_bell
+    end
+  end
+
+  def placeholder_bell
+    button(
+      type: "button",
+      aria_label: t(".notifications"),
+      class: "flex size-9 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-surface-sunken"
+    ) do
+      render Components::Icon.new("bell", class: "size-5")
     end
   end
 

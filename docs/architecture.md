@@ -422,3 +422,24 @@ doesn't depend on Redis).
 
 `BotSetting` is the global KV/flags table (e.g. `owner_error_dms`) — bot-wide, string
 keys. `ServerConfiguration` is per-server. Don't confuse the two.
+
+## Notifications
+
+Notifications are written by bot-side ops (`Ops::Notifications::Create`) when a
+Discord event invalidates plugin configuration (e.g. a watched channel is deleted).
+The web side reads them cross-server, scoped to the session's authorized server ids.
+
+**Routes:** `resources :notifications, only: [:index, :update]` + a nested
+`namespace :notifications { resource :read, only: :create }`. No server nesting
+— notifications span all manageable servers.
+
+**Auth scope:** `NotificationsController` and `Notifications::ReadsController`
+include `SetsManageableServers`. The query object `AuthorizedNotifications`
+(app/presenters/) joins `server_configurations` and filters by
+`manageable_server_ids` from the session, preventing cross-server data leaks.
+An optional `server_id` param narrows to one server ("this server" scope).
+
+**Ops:** `Ops::Notifications::Dismiss` sets `dismissed_at` on a single
+notification. `Ops::Notifications::MarkRead` bulk-updates `read_at` via
+`update_all` for the caller-supplied `ServerConfiguration` objects (never raw
+ids — the controller loads and authorizes them first).
