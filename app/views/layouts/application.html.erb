@@ -15,6 +15,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="shrkbot">
     <meta name="mobile-web-app-capable" content="yes">
+    <%# Notification links are GET click-throughs that mark the notification read; hover-prefetch would fire that side effect early. %>
+    <meta name="turbo-prefetch" content="false">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
