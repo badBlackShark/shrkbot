@@ -50,7 +50,9 @@ RSpec.describe Roles::MenuSyncPlan do
     end
 
     context "when channel_id is nil" do
-      before { plan.delete(channel_id: nil, message_id: 456) }
+      before do
+        plan.delete(channel_id: nil, message_id: 456)
+      end
 
       it "skips the delete" do
         plan.publish
@@ -59,7 +61,9 @@ RSpec.describe Roles::MenuSyncPlan do
     end
 
     context "when message_id is nil" do
-      before { plan.delete(channel_id: 123, message_id: nil) }
+      before do
+        plan.delete(channel_id: 123, message_id: nil)
+      end
 
       it "skips the delete" do
         plan.publish

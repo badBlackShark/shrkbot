@@ -10,7 +10,9 @@ RSpec.describe Components::Roles::ConfigForm do
   let(:view_context) { ApplicationController.new.view_context }
   let(:config) { create(:server_configuration) }
 
-  before { create(:role_setting, server_configuration: config) }
+  before do
+    create(:role_setting, server_configuration: config)
+  end
 
   it "renders the default channel card without a required marker" do
     expect(html).not_to include("This setting is required to enable the plugin")

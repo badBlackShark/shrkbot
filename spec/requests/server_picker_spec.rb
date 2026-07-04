@@ -99,7 +99,9 @@ RSpec.describe "Server picker", type: :request do
       end
 
       context "with no manageable servers" do
-        before { allow(Discord::UserGuilds).to receive(:call).and_return([unmanaged_guild]) }
+        before do
+          allow(Discord::UserGuilds).to receive(:call).and_return([unmanaged_guild])
+        end
 
         it "shows the empty state" do
           get_servers
@@ -108,7 +110,9 @@ RSpec.describe "Server picker", type: :request do
       end
 
       context "when Discord cannot be reached" do
-        before { allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Error) }
+        before do
+          allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Error)
+        end
 
         it "renders the error state without raising" do
           get_servers
@@ -118,7 +122,9 @@ RSpec.describe "Server picker", type: :request do
       end
 
       context "when the Discord access token has expired" do
-        before { allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Unauthorized) }
+        before do
+          allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Unauthorized)
+        end
 
         it "kicks off automatic re-authentication" do
           get_servers

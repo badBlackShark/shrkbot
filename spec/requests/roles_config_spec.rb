@@ -36,7 +36,9 @@ RSpec.describe "Roles config", type: :request do
     end
 
     context "after loading the dashboard authorizes the server" do
-      before { get server_path(guild.id) }
+      before do
+        get server_path(guild.id)
+      end
 
       describe "GET /servers/:server_id/roles" do
         it "renders the config page in the app shell" do

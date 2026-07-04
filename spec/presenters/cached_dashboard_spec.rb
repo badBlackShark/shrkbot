@@ -36,7 +36,9 @@ RSpec.describe CachedDashboard do
     end
 
     context "when the matching config has a nil name" do
-      before { config.update!(name: nil) }
+      before do
+        config.update!(name: nil)
+      end
 
       it { is_expected.to be_nil }
     end

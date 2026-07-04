@@ -16,7 +16,9 @@ RSpec.describe "Authentication", type: :request do
   end
 
   describe "signing out" do
-    before { post "/auth/discord/callback" }
+    before do
+      post "/auth/discord/callback"
+    end
 
     it "clears the session" do
       delete logout_path

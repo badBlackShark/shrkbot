@@ -31,7 +31,9 @@ RSpec.describe "Reminders config", type: :request do
     end
 
     context "after loading the dashboard authorizes the server" do
-      before { get server_path(guild.id) }
+      before do
+        get server_path(guild.id)
+      end
 
       describe "GET /servers/:server_id/reminders" do
         it "renders the config page with the force-DM toggle and callout" do

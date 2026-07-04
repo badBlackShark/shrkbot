@@ -13,7 +13,9 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
   context "with a raw checkbox value (form param, not yet cast)" do
     let(:plugin) { roles }
 
-    before { server.create_role_setting!(channel_id: 777) }
+    before do
+      server.create_role_setting!(channel_id: 777)
+    end
 
     context "when checked" do
       let(:enabled) { "1" }

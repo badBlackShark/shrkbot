@@ -65,7 +65,9 @@ RSpec.describe ConfigBus do
     context "when BotConfig.redis_url is nil" do
       let(:set) { create(:role_set) }
 
-      before { allow(BotConfig).to receive(:redis_url).and_return(nil) }
+      before do
+        allow(BotConfig).to receive(:redis_url).and_return(nil)
+      end
 
       it "does not instantiate Redis" do
         described_class.post_roles(set)

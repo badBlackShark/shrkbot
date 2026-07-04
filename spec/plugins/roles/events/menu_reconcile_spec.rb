@@ -43,7 +43,9 @@ RSpec.describe Roles::MenuReconcile do
   end
 
   context "when the roles plugin is disabled and the set has a message_id" do
-    before { activation.update!(enabled: false) }
+    before do
+      activation.update!(enabled: false)
+    end
 
     let!(:set) { create(:role_set, role_setting: setting, message_id: 777) }
 
@@ -59,7 +61,9 @@ RSpec.describe Roles::MenuReconcile do
   end
 
   context "when the roles plugin is disabled but the set has no message_id" do
-    before { activation.update!(enabled: false) }
+    before do
+      activation.update!(enabled: false)
+    end
 
     let!(:set) { create(:role_set, role_setting: setting, message_id: nil) }
 
@@ -70,7 +74,9 @@ RSpec.describe Roles::MenuReconcile do
   end
 
   context "when the guild is not in bot.servers" do
-    before { allow(bot).to receive(:servers).and_return({}) }
+    before do
+      allow(bot).to receive(:servers).and_return({})
+    end
 
     let!(:set) { create(:role_set, role_setting: setting, message_id: nil) }
 

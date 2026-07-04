@@ -10,7 +10,9 @@ RSpec.describe Components::Logging::ConfigForm do
   let(:view_context) { ApplicationController.new.view_context }
   let(:config) { create(:server_configuration) }
 
-  before { create(:logging_setting, server_configuration: config) }
+  before do
+    create(:logging_setting, server_configuration: config)
+  end
 
   it "renders the channel card with the required marker" do
     expect(html).to include("This setting is required to enable the plugin")
