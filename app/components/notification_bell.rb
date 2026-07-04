@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 class Components::NotificationBell < Components::Base
-  def initialize(authorized:, server_id: nil)
+  def initialize(authorized:, server_id: nil, open: false)
     @authorized = authorized
     @server_id = server_id
+    @open = open
   end
 
   def view_template
     details(
+      open: @open,
       class: "relative",
       data: {controller: "dropdown"}
     ) do

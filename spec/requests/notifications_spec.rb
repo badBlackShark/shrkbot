@@ -50,6 +50,20 @@ RSpec.describe "Notifications", type: :request do
         expect(response.body).not_to include("chat was deleted")
       end
 
+      context "with open param" do
+        it "renders the details element with the open attribute" do
+          get notifications_path(open: true)
+          expect(response.body).to match(/<details[^>]*\bopen\b/)
+        end
+      end
+
+      context "without open param" do
+        it "renders the details element without the open attribute" do
+          get notifications_path
+          expect(response.body).not_to match(/<details[^>]*\bopen\b/)
+        end
+      end
+
       context "with server_id param (this-server scope)" do
         it "shows only notifications for that server" do
           get notifications_path(server_id: guild_a.id)
@@ -60,9 +74,9 @@ RSpec.describe "Notifications", type: :request do
     end
 
     describe "PATCH /notifications/:id (dismiss)" do
-      it "dismisses the notification and redirects" do
+      it "dismisses the notification and redirects with open: true" do
         patch notification_path(notif_a)
-        expect(response).to redirect_to(notifications_path(server_id: nil))
+        expect(response).to redirect_to(notifications_path(server_id: nil, open: true))
         expect(notif_a.reload.dismissed_at).not_to be_nil
       end
 
@@ -73,14 +87,14 @@ RSpec.describe "Notifications", type: :request do
 
       it "preserves the server_id param in the redirect" do
         patch notification_path(notif_a, server_id: guild_a.id)
-        expect(response).to redirect_to(notifications_path(server_id: guild_a.id))
+        expect(response).to redirect_to(notifications_path(server_id: guild_a.id, open: true))
       end
     end
 
     describe "POST /notifications/read (mark all read)" do
-      it "marks all authorized notifications as read and redirects" do
+      it "marks all authorized notifications as read and redirects with open: true" do
         post notifications_read_path
-        expect(response).to redirect_to(notifications_path(server_id: nil))
+        expect(response).to redirect_to(notifications_path(server_id: nil, open: true))
         expect(notif_a.reload.read_at).not_to be_nil
         expect(notif_b.reload.read_at).not_to be_nil
       end

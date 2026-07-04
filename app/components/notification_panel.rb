@@ -2,7 +2,6 @@
 
 class Components::NotificationPanel < Components::Base
   include Phlex::Rails::Helpers::ButtonTo
-  include Components::Initials
 
   def initialize(authorized:, server_id: nil)
     @authorized = authorized
@@ -43,13 +42,13 @@ class Components::NotificationPanel < Components::Base
       this_server_active = @server_id.present?
 
       a(
-        href: notifications_path(server_id: current_server_id),
+        href: notifications_path(server_id: current_server_id, open: true),
         data: {turbo_frame: "notifications"},
         class: toggle_tab_class(this_server_active)
       ) { t(".this_server") }
 
       a(
-        href: notifications_path,
+        href: notifications_path(open: true),
         data: {turbo_frame: "notifications"},
         class: toggle_tab_class(!this_server_active)
       ) { t(".all_servers") }
@@ -97,7 +96,7 @@ class Components::NotificationPanel < Components::Base
   def grouped_items
     @groups.each_with_index do |(config, notifications), index|
       div(class: group_header_class(index)) do
-        server_tile(config)
+        render Components::ServerAvatar.new(server: config, size: :xs)
         span(class: "text-[11px] font-semibold text-text-secondary truncate") { config.name }
       end
       ul do
@@ -114,21 +113,6 @@ class Components::NotificationPanel < Components::Base
   def group_header_class(index)
     base = "flex items-center gap-2 px-4 pb-1.5 pt-3"
     (index > 0) ? "#{base} mt-1 border-t border-border-subtle" : base
-  end
-
-  def server_tile(config)
-    if config.icon_url
-      img(
-        src: config.icon_url,
-        alt: "",
-        loading: "lazy",
-        class: "size-5 flex-none rounded-[5px] object-cover"
-      )
-    else
-      span(class: "flex size-5 flex-none items-center justify-center rounded-[5px] bg-accent-soft text-[9px] font-bold text-accent-soft-fg") do
-        plain initials(config.name.to_s)
-      end
-    end
   end
 
   def current_server_id

@@ -10,7 +10,8 @@ class NotificationsController < ApplicationController
     )
     render Views::Notifications::Index.new(
       authorized:,
-      server_id: params[:server_id]
+      server_id: params[:server_id],
+      open: params[:open].present?
     )
   end
 
@@ -19,7 +20,7 @@ class NotificationsController < ApplicationController
     return head(:not_found) unless notification
 
     Ops::Notifications::Dismiss.call(notification:)
-    redirect_to notifications_path(server_id: params[:server_id])
+    redirect_to notifications_path(server_id: params[:server_id], open: true)
   end
 
   private
