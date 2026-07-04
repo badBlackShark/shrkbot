@@ -34,6 +34,6 @@ module BotConfig
   end
 
   def web_base_url
-    ENV["WEB_BASE_URL"]
+    ENV.fetch("WEB_BASE_URL")
   end
 end

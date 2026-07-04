@@ -13,31 +13,17 @@ module ServerOnboarder
   end
 
   def message(server)
-    url = dashboard_url(server)
-    return message_without_link(server) if url.nil?
-
     <<~MSG.strip
       👋 Thanks for adding shrkbot!
 
       shrkbot is configured through the web dashboard. Set up #{server.name} here:
-      #{url}
+      #{dashboard_url(server)}
 
       Sign in with Discord to enable plugins and manage settings.
     MSG
   end
 
-  def message_without_link(server)
-    <<~MSG.strip
-      👋 Thanks for adding shrkbot!
-
-      shrkbot is configured through the web dashboard. Sign in with Discord there to set up #{server.name} — enable plugins and manage settings.
-    MSG
-  end
-
   def dashboard_url(server)
-    base = BotConfig.web_base_url
-    return if base.blank?
-
-    "#{base.chomp("/")}/servers/#{server.id}"
+    "#{BotConfig.web_base_url.chomp("/")}/servers/#{server.id}"
   end
 end

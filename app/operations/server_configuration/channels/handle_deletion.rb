@@ -32,10 +32,15 @@ module Ops
         end
 
         def notify_owner(plugin)
-          OwnerNotifier.notify(
-            bot:,
-            message: "⚠️ **#{plugin.name}**'s configured channel was deleted. Pick a new channel on the dashboard to keep it working."
-          )
+          OwnerNotifier.notify(bot:, message: owner_message(plugin))
+        end
+
+        def owner_message(plugin)
+          "⚠️ **#{plugin.name}**'s configured channel was deleted. Pick a new channel to keep it working.\n#{config_url(plugin)}"
+        end
+
+        def config_url(plugin)
+          "#{BotConfig.web_base_url.chomp("/")}/servers/#{server_configuration.discord_id}/#{plugin.key}"
         end
       end
     end

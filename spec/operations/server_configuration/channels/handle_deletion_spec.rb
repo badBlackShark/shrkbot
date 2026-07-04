@@ -28,6 +28,17 @@ RSpec.describe Ops::ServerConfiguration::Channels::HandleDeletion do
       expect(OwnerNotifier).to have_received(:notify).with(hash_including(bot:))
     end
 
+    context "when a web base URL is configured" do
+      before { allow(BotConfig).to receive(:web_base_url).and_return("https://shrkbot.gg") }
+
+      it "links the owner DM to the plugin's config page" do
+        result
+        expect(OwnerNotifier).to have_received(:notify).with(
+          hash_including(message: include("https://shrkbot.gg/servers/1/welcomes"))
+        )
+      end
+    end
+
     it "creates a channel_deleted notification for the server" do
       expect { result }.to change(Notification, :count).by(1)
 

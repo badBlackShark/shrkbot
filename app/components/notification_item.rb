@@ -74,7 +74,7 @@ class Components::NotificationItem < Components::Base
       notification_path(@presenter.notification.id, server_id: @server_id, scope: @scope),
       method: :patch,
       aria_label: "Dismiss",
-      class: "absolute right-2 top-1/2 flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-raised hover:text-text-primary"
+      class: "absolute inset-y-0 right-1 flex w-8 cursor-pointer items-center justify-center text-text-muted transition-colors hover:text-text-primary"
     ) do
       render Components::Icon.new("x", class: "size-3.5")
     end
