@@ -71,6 +71,27 @@ RSpec.describe "Notifications", type: :request do
           expect(response.body).not_to include("general was deleted")
         end
       end
+
+      context "with a server context but the all-servers scope" do
+        it "shows notifications from every authorized server" do
+          get notifications_path(server_id: guild_a.id, scope: "all")
+          expect(response.body).to include("mod-log was deleted")
+          expect(response.body).to include("general was deleted")
+        end
+      end
+
+      context "the scope toggle" do
+        it "renders both scope links when a server context is present" do
+          get notifications_path(server_id: guild_a.id)
+          expect(response.body).to include("scope=server")
+          expect(response.body).to include("scope=all")
+        end
+
+        it "is omitted without a server context (no this-server link)" do
+          get notifications_path
+          expect(response.body).not_to include("scope=server")
+        end
+      end
     end
 
     describe "PATCH /notifications/:id (dismiss)" do
@@ -104,11 +125,19 @@ RSpec.describe "Notifications", type: :request do
         expect(notif_other.reload.read_at).to be_nil
       end
 
-      context "with server_id param" do
+      context "scoped to the current server" do
         it "marks only that server's notifications as read" do
-          post notifications_read_path(server_id: guild_a.id)
+          post notifications_read_path(server_id: guild_a.id, scope: "server")
           expect(notif_a.reload.read_at).not_to be_nil
           expect(notif_b.reload.read_at).to be_nil
+        end
+      end
+
+      context "with a server context but the all-servers scope" do
+        it "marks every authorized server's notifications as read" do
+          post notifications_read_path(server_id: guild_a.id, scope: "all")
+          expect(notif_a.reload.read_at).not_to be_nil
+          expect(notif_b.reload.read_at).not_to be_nil
         end
       end
     end

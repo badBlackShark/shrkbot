@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 class Components::NotificationBell < Components::Base
-  def initialize(authorized:, server_id: nil, open: false)
+  def initialize(authorized:, server_id: nil, scope: "all", open: false)
     @authorized = authorized
     @server_id = server_id
+    @scope = scope
     @open = open
   end
 
@@ -26,7 +27,7 @@ class Components::NotificationBell < Components::Base
         data: {dropdown_target: "menu"},
         class: "dropdown-menu absolute right-0 top-12 z-50 w-[380px] max-w-[calc(100vw-2rem)]"
       ) do
-        render Components::NotificationPanel.new(authorized: @authorized, server_id: @server_id)
+        render Components::NotificationPanel.new(authorized: @authorized, server_id: @server_id, scope: @scope)
       end
     end
   end

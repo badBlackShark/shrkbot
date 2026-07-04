@@ -3,9 +3,10 @@
 class Components::NotificationPanel < Components::Base
   include Phlex::Rails::Helpers::ButtonTo
 
-  def initialize(authorized:, server_id: nil)
+  def initialize(authorized:, server_id: nil, scope: "all")
     @authorized = authorized
     @server_id = server_id
+    @scope = scope
     @groups = authorized.groups
     @presenters = @groups.flat_map { |_config, notifications| notifications.map { |n| NotificationPresenter.new(n) } }
   end
@@ -31,26 +32,26 @@ class Components::NotificationPanel < Components::Base
 
   def mark_all_read_button
     button_to(
-      notifications_read_path(server_id: @server_id),
+      notifications_read_path(server_id: @server_id, scope: @scope),
       method: :post,
       class: "text-xs font-semibold text-text-link hover:underline"
     ) { t(".mark_all_read") }
   end
 
   def scope_toggle
-    div(class: "inline-flex self-start rounded-md bg-surface-sunken p-0.5 text-xs") do
-      this_server_active = @server_id.present?
+    return if @server_id.blank?
 
+    div(class: "inline-flex self-start rounded-md bg-surface-sunken p-0.5 text-xs") do
       a(
-        href: notifications_path(server_id: current_server_id, open: true),
+        href: notifications_path(server_id: @server_id, scope: "server", open: true),
         data: {turbo_frame: "notifications"},
-        class: toggle_tab_class(this_server_active)
+        class: toggle_tab_class(@scope == "server")
       ) { t(".this_server") }
 
       a(
-        href: notifications_path(open: true),
+        href: notifications_path(server_id: @server_id, scope: "all", open: true),
         data: {turbo_frame: "notifications"},
-        class: toggle_tab_class(!this_server_active)
+        class: toggle_tab_class(@scope != "server")
       ) { t(".all_servers") }
     end
   end
@@ -68,7 +69,7 @@ class Components::NotificationPanel < Components::Base
     div(class: "notif-scroll max-h-[330px] overflow-y-auto") do
       if @presenters.empty?
         empty_state
-      elsif @server_id.present?
+      elsif @scope == "server"
         flat_items
       else
         grouped_items
@@ -89,7 +90,7 @@ class Components::NotificationPanel < Components::Base
 
   def flat_items
     ul do
-      @presenters.each { |presenter| render Components::NotificationItem.new(presenter:, server_id: @server_id) }
+      @presenters.each { |presenter| render Components::NotificationItem.new(presenter:, server_id: @server_id, scope: @scope) }
     end
   end
 
@@ -103,7 +104,8 @@ class Components::NotificationPanel < Components::Base
         notifications.each do |notification|
           render Components::NotificationItem.new(
             presenter: NotificationPresenter.new(notification),
-            server_id: @server_id
+            server_id: @server_id,
+            scope: @scope
           )
         end
       end
@@ -113,9 +115,5 @@ class Components::NotificationPanel < Components::Base
   def group_header_class(index)
     base = "flex items-center gap-2 px-4 pb-1.5 pt-3"
     (index > 0) ? "#{base} mt-1 border-t border-border-subtle" : base
-  end
-
-  def current_server_id
-    @server_id
   end
 end

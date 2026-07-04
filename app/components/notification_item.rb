@@ -4,9 +4,10 @@ class Components::NotificationItem < Components::Base
   include Phlex::Rails::Helpers::ButtonTo
   include Components::PluginNav
 
-  def initialize(presenter:, server_id: nil)
+  def initialize(presenter:, server_id: nil, scope: "all")
     @presenter = presenter
     @server_id = server_id
+    @scope = scope
   end
 
   def view_template
@@ -70,7 +71,7 @@ class Components::NotificationItem < Components::Base
 
   def dismiss_button
     button_to(
-      notification_path(@presenter.notification.id, server_id: @server_id),
+      notification_path(@presenter.notification.id, server_id: @server_id, scope: @scope),
       method: :patch,
       aria_label: "Dismiss",
       class: "absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-raised hover:text-text-primary"

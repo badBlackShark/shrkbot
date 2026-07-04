@@ -6,9 +6,10 @@ class Components::AppShell < Components::Base
   include Phlex::Rails::Helpers::TurboFrameTag
   include Components::Initials
 
-  def initialize(user:, current_server: nil, servers: [], plugin_counts: {}, sidebar: nil)
+  def initialize(user:, current_server: nil, current_server_id: nil, servers: [], plugin_counts: {}, sidebar: nil)
     @user = user
     @current_server = current_server
+    @current_server_id = current_server_id
     @servers = servers
     @plugin_counts = plugin_counts
     @sidebar = sidebar
@@ -96,7 +97,7 @@ class Components::AppShell < Components::Base
   def notification_frame
     turbo_frame_tag(
       "notifications",
-      src: notifications_path(server_id: @current_server&.id),
+      src: notifications_path(server_id: @current_server_id || @current_server&.id),
       loading: "eager"
     ) do
       placeholder_bell
