@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_03_232733) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_04_155534) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,6 +52,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_03_232733) do
     t.string "server_configuration_id", null: false
     t.datetime "updated_at", null: false
     t.index ["server_configuration_id"], name: "index_logging_settings_on_server_configuration_id", unique: true
+  end
+
+  create_table "notifications", id: :string, default: -> { "('ntf_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.jsonb "data", default: {}, null: false
+    t.datetime "dismissed_at"
+    t.string "kind", null: false
+    t.datetime "read_at"
+    t.string "server_configuration_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["server_configuration_id", "created_at"], name: "index_notifications_on_server_configuration_id_and_created_at"
   end
 
   create_table "plugin_activations", id: :string, default: -> { "('pac_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -288,6 +299,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_03_232733) do
   add_foreign_key "assignable_roles", "role_sets"
   add_foreign_key "channel_overwrites", "server_channels"
   add_foreign_key "logging_settings", "server_configurations"
+  add_foreign_key "notifications", "server_configurations"
   add_foreign_key "plugin_activations", "plugins"
   add_foreign_key "plugin_activations", "server_configurations"
   add_foreign_key "role_sets", "role_settings"

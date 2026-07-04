@@ -27,6 +27,34 @@ RSpec.describe Ops::ServerConfiguration::Channels::DisablePlugins do
       expect(server.welcome_settings.reload.channel_id).to be_nil
       expect(OwnerNotifier).to have_received(:notify).with(hash_including(bot:))
     end
+
+    it "creates a channel_deleted notification for the server" do
+      expect { result }.to change(Notification, :count).by(1)
+
+      notification = server.notifications.last
+      expect(notification.kind).to eq("channel_deleted")
+      expect(notification.data["plugin_key"]).to eq("welcomes")
+    end
+
+    context "when the server_channels row exists for the deleted channel" do
+      before do
+        create(:server_channel, server_configuration: server, discord_id: 555, name: "general")
+      end
+
+      it "stores the channel_name in the notification data" do
+        result
+
+        expect(server.notifications.last.data["channel_name"]).to eq("general")
+      end
+    end
+
+    context "when the server_channels row is absent (offline delete)" do
+      it "stores nil channel_name in the notification data" do
+        result
+
+        expect(server.notifications.last.data["channel_name"]).to be_nil
+      end
+    end
   end
 
   context "when the deleted channel isn't used by any plugin" do
@@ -39,6 +67,10 @@ RSpec.describe Ops::ServerConfiguration::Channels::DisablePlugins do
 
       expect(server.welcome_settings.reload.channel_id).to eq(999)
       expect(OwnerNotifier).not_to have_received(:notify)
+    end
+
+    it "creates no notifications" do
+      expect { result }.not_to change(Notification, :count)
     end
   end
 end

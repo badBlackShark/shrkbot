@@ -21,10 +21,16 @@ module Ops
           return unless setting&.channel_id == channel_id
 
           plugin = Plugin.find_by(key: definition.key)
+          channel_name = server_configuration.server_channels.find_by(discord_id: channel_id)&.name
           transaction do
             setting.update!(channel_id: nil)
             Plugins::Toggle.call(server_configuration:, plugin:, enabled: false)
           end
+          Ops::Notifications::Create.call(
+            server_configuration:,
+            kind: "channel_deleted",
+            data: {plugin_key: definition.key.to_s, plugin_name: plugin.name, channel_name:}
+          )
           plugin
         end
 
