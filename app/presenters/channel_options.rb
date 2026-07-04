@@ -11,6 +11,10 @@ class ChannelOptions
     end
   end
 
+  def labels_by_id
+    channels.to_h { |channel| [channel.discord_id, channel.name] }
+  end
+
   private
 
   def grouped(category, group)
@@ -27,7 +31,7 @@ class ChannelOptions
   end
 
   def channels
-    @config.server_channels.text.in_discord_order
+    @channels ||= @config.server_channels.text.in_discord_order
   end
 
   def categories
