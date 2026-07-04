@@ -2,6 +2,7 @@
 
 class Views::Servers::Show < Views::Base
   include Phlex::Rails::Helpers::ImageTag
+  include Components::Initials
 
   def initialize(guild:, server_configuration:, plugins:, user:, servers: [], plugin_counts: {})
     @guild = guild
@@ -66,9 +67,5 @@ class Views::Servers::Show < Views::Base
         render Components::PluginRow.new(server_id: @guild.id, key: row.key, enabled: row.enabled, configured: row.configured, locked: row.locked)
       end
     end
-  end
-
-  def initials(name)
-    name.split.filter_map { |word| word[0] }.first(2).join.upcase
   end
 end

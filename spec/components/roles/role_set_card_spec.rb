@@ -5,19 +5,31 @@ require "rails_helper"
 RSpec.describe Components::Roles::RoleSetCard do
   let(:view_context) { ApplicationController.new.view_context }
 
-  let(:base_attrs) do
-    {
-      index: 0,
+  let(:context) do
+    Components::Roles::RoleFormContext.new(
       channels: [],
       role_options: [],
       channels_by_id: {},
       default_channel_id: nil,
       any_unassignable: false
-    }
+    )
   end
 
   context "when repost_path is given" do
-    subject(:html) { described_class.new(**base_attrs, repost_path: "/servers/123/role_sets/456/repost").render_in(view_context) }
+    let(:card_data) do
+      Components::Roles::RoleSetCardData.new(
+        index: 0,
+        set_id: nil,
+        name: "",
+        selection_mode: "single",
+        channel_override: nil,
+        selected_role_ids: [],
+        open: false,
+        repost_path: "/servers/123/role_sets/456/repost"
+      )
+    end
+
+    subject(:html) { described_class.new(data: card_data, context:).render_in(view_context) }
 
     it "renders a button with data-action role-sets#repost" do
       expect(html).to include('data-action="role-sets#repost"')
@@ -41,7 +53,9 @@ RSpec.describe Components::Roles::RoleSetCard do
   end
 
   context "when repost_path is nil (default)" do
-    subject(:html) { described_class.new(**base_attrs).render_in(view_context) }
+    let(:card_data) { Components::Roles::RoleSetCardData.empty }
+
+    subject(:html) { described_class.new(data: card_data, context:).render_in(view_context) }
 
     it "omits the repost button" do
       expect(html).not_to include('data-action="role-sets#repost"')

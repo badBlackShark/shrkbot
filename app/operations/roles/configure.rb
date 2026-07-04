@@ -81,7 +81,7 @@ module Ops
       end
 
       def valid_role_ids
-        @valid_role_ids ||= server_configuration.server_roles.pluck(:discord_id)
+        @valid_role_ids ||= ::Roles::AssignableServerRoles.new(server_configuration).assignable_ids
       end
 
       def next_position
