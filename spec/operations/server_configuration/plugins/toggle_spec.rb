@@ -120,4 +120,77 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
       expect(server.plugin_activations.where(plugin: logging).count).to eq(1)
     end
   end
+
+  context "toggling roles publishes menu sync" do
+    let(:plugin) { roles }
+
+    before do
+      allow(ConfigBus).to receive(:post_roles)
+      allow(ConfigBus).to receive(:remove_roles_menu)
+      allow(ConfigBus).to receive(:delete_roles_message)
+    end
+
+    context "when enabling with a role_set" do
+      let(:enabled) { true }
+      let!(:role_setting) { create(:role_setting, server_configuration: server) }
+      let!(:role_set) { create(:role_set, role_setting:) }
+
+      it "publishes post_roles for the set" do
+        result
+        expect(ConfigBus).to have_received(:post_roles).with(
+          have_attributes(id: role_set.id)
+        )
+      end
+    end
+
+    context "when disabling with a role_set that has a message" do
+      let(:enabled) { false }
+      let!(:role_setting) { create(:role_setting, server_configuration: server) }
+      let!(:role_set) { create(:role_set, role_setting:, message_id: 111) }
+
+      before do
+        create(:plugin_activation, server_configuration: server, plugin: roles, enabled: true)
+      end
+
+      it "publishes remove_roles_menu for the set" do
+        result
+        expect(ConfigBus).to have_received(:remove_roles_menu).with(
+          have_attributes(id: role_set.id)
+        )
+      end
+    end
+  end
+
+  context "toggling a non-roles plugin" do
+    let(:plugin) { logging }
+    let(:enabled) { true }
+
+    before do
+      allow(ConfigBus).to receive(:post_roles)
+      allow(ConfigBus).to receive(:remove_roles_menu)
+      server.create_logging_setting!(channel_id: 999)
+    end
+
+    it "publishes neither post_roles nor remove_roles_menu" do
+      result
+      expect(ConfigBus).not_to have_received(:post_roles)
+      expect(ConfigBus).not_to have_received(:remove_roles_menu)
+    end
+  end
+
+  context "a refused roles enable (no role_setting)" do
+    let(:plugin) { roles }
+    let(:enabled) { true }
+
+    before do
+      allow(ConfigBus).to receive(:post_roles)
+      allow(ConfigBus).to receive(:remove_roles_menu)
+    end
+
+    it "publishes nothing when the operation is refused" do
+      result
+      expect(ConfigBus).not_to have_received(:post_roles)
+      expect(ConfigBus).not_to have_received(:remove_roles_menu)
+    end
+  end
 end
