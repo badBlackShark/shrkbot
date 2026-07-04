@@ -5,6 +5,8 @@ module Ops
     class Configure < ApplicationOperation
       include Ops::PluginConfiguration
 
+      self.transactional = false
+
       receives :server_configuration, :channel_id, :enabled, :role_sets
 
       def call
@@ -15,7 +17,7 @@ module Ops
 
         return failure(messages(setting, activation), value: activation) unless setting.valid? && activation.valid?
 
-        ActiveRecord::Base.transaction do
+        transaction do
           setting.save!
           reconcile_sets(setting)
           activation.save!
