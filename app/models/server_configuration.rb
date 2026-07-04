@@ -13,6 +13,10 @@ class ServerConfiguration < ApplicationRecord
 
   validates :discord_id, presence: true, uniqueness: true
 
+  def self.configured_ids_among(discord_ids)
+    where(discord_id: discord_ids).pluck(:discord_id)
+  end
+
   def icon_url
     Discord::CdnUrl.guild_icon(discord_id, icon_hash)
   end

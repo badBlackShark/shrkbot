@@ -10,9 +10,11 @@ class Views::Servers::Logging::Show < Views::Base
   def view_template
     render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :logging) do
       render Components::ConfigPage.new(
-        icon: "scroll",
-        title: t(".title"),
-        description: t(".description"),
+        header: Components::ConfigPageHeader.new(
+          icon: "scroll",
+          title: t(".title"),
+          description: t(".description")
+        ),
         server_configuration: @config,
         url: server_logging_path(@config.discord_id),
         gate: {

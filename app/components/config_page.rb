@@ -3,14 +3,11 @@
 class Components::ConfigPage < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
-  def initialize(icon:, title:, description:, server_configuration:, url:, gate: nil, badge: nil)
-    @icon = icon
-    @title = title
-    @description = description
+  def initialize(header:, server_configuration:, url:, gate: nil)
+    @header = header
     @server_configuration = server_configuration
     @url = url
     @gate = gate
-    @badge = badge
   end
 
   def view_template(&block)
@@ -19,7 +16,7 @@ class Components::ConfigPage < Components::Base
         [
           {label: t(".servers"), href: servers_path},
           {label: @server_configuration.name || t(".dashboard"), href: server_path(@server_configuration.discord_id)},
-          {label: @title}
+          {label: @header.title}
         ]
       )
       form_with(
@@ -48,21 +45,21 @@ class Components::ConfigPage < Components::Base
 
     render Components::EnableGate.new(
       enabled: @gate[:enabled],
-      title: t(".disabled_title", plugin: @title),
+      title: t(".disabled_title", plugin: @header.title),
       message: @gate[:message],
-      enable_label: t(".enable", plugin: @title)
+      enable_label: t(".enable", plugin: @header.title)
     ) { yield }
   end
 
   def header
     div(class: "mb-6 flex items-start gap-4") do
-      render Components::PluginTile.new(icon: @icon, size: :lg)
+      render Components::PluginTile.new(icon: @header.icon, size: :lg)
       div(class: "flex-1") do
         div(class: "flex flex-wrap items-center gap-3") do
-          h1(class: "font-display text-2xl font-bold tracking-tight") { @title }
-          render Components::Badge.new(variant: :copper) { @badge } if @badge
+          h1(class: "font-display text-2xl font-bold tracking-tight") { @header.title }
+          render Components::Badge.new(variant: :copper) { @header.badge } if @header.badge
         end
-        p(class: "mt-1 text-sm text-text-secondary") { @description }
+        p(class: "mt-1 text-sm text-text-secondary") { @header.description }
       end
       enable_control if gated?
     end
@@ -77,7 +74,7 @@ class Components::ConfigPage < Components::Base
       render Components::Toggle.new(
         name: @gate[:field],
         checked: @gate[:enabled],
-        label: t(".enable", plugin: @title),
+        label: t(".enable", plugin: @header.title),
         data: {enable_gate_target: "toggle", action: "change->enable-gate#update"}
       )
     end

@@ -116,7 +116,7 @@ class Views::Servers::Index < Views::Base
   end
 
   def generic_invite_url
-    "https://discord.com/oauth2/authorize?client_id=#{ENV["CLIENT_ID"]}&scope=bot+applications.commands"
+    "https://discord.com/oauth2/authorize?client_id=#{BotConfig.client_id}&scope=bot+applications.commands"
   end
 
   def invite_url(guild)

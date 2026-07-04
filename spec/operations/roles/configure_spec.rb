@@ -107,10 +107,16 @@ RSpec.describe Ops::Roles::Configure do
       expect(setting.role_sets).to be_empty
     end
 
-    it "won't touch a set id that belongs to another server" do
-      other = create(:role_set, name: "Theirs")
-      described_class.call(server_configuration: config, channel_id:, enabled: "0", role_sets: [{id: other.id, name: "Hijacked", selection_mode: "multi", role_ids: []}])
-      expect(other.reload.name).to eq("Theirs")
+    context "with a set id that belongs to another server" do
+      let!(:other) { create(:role_set, name: "Theirs") }
+      let(:role_sets) do
+        [{id: other.id, name: "Hijacked", selection_mode: "multi", role_ids: []}]
+      end
+
+      it "leaves the other server's set untouched" do
+        result
+        expect(other.reload.name).to eq("Theirs")
+      end
     end
   end
 

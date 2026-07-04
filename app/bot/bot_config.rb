@@ -28,4 +28,8 @@ module BotConfig
   def shard_count
     [ENV.fetch("SHARD_COUNT", "1").to_i, 1].max
   end
+
+  def client_id
+    ENV["CLIENT_ID"]
+  end
 end

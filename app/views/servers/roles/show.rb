@@ -10,9 +10,11 @@ class Views::Servers::Roles::Show < Views::Base
   def view_template
     render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :roles) do
       render Components::ConfigPage.new(
-        icon: "users-three",
-        title: t(".title"),
-        description: t(".description"),
+        header: Components::ConfigPageHeader.new(
+          icon: "users-three",
+          title: t(".title"),
+          description: t(".description")
+        ),
         server_configuration: @config,
         url: server_roles_path(@config.discord_id),
         gate: {
