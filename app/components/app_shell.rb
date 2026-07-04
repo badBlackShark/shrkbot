@@ -3,6 +3,7 @@
 class Components::AppShell < Components::Base
   include Phlex::Rails::Helpers::ImageTag
   include Phlex::Rails::Helpers::ButtonTo
+  include Phlex::Rails::Helpers::TurboFrameTag
   include Components::Initials
 
   def initialize(user:, current_server: nil, servers: [], plugin_counts: {}, sidebar: nil)
@@ -34,6 +35,7 @@ class Components::AppShell < Components::Base
       wordmark
       server_switcher if @current_server
       div(class: "flex-1")
+      notification_frame
       theme_toggle
       user_menu
     end
@@ -97,6 +99,26 @@ class Components::AppShell < Components::Base
       span(class: "font-display text-lg font-bold tracking-tight") do
         render Components::Wordmark.new
       end
+    end
+  end
+
+  def notification_frame
+    turbo_frame_tag(
+      "notifications",
+      src: notifications_path(server_id: @current_server&.id),
+      loading: "eager"
+    ) do
+      placeholder_bell
+    end
+  end
+
+  def placeholder_bell
+    button(
+      type: "button",
+      aria_label: t(".notifications"),
+      class: "flex size-9 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-surface-sunken"
+    ) do
+      render Components::Icon.new("bell", class: "size-5")
     end
   end
 

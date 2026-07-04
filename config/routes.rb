@@ -13,6 +13,11 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   delete "/logout", to: "sessions#destroy", as: :logout
 
+  resources :notifications, only: [:index, :update]
+  namespace :notifications do
+    resource :read, only: :create
+  end
+
   resources :servers, only: [:index, :show], param: :id do
     resources :plugins, only: :update, param: :key, module: :servers
     scope module: :servers do

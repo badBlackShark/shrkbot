@@ -9,6 +9,7 @@ en:
     app_shell:
       add_server: Add another server
       log_out: Log out
+      notifications: Notifications
       plugins_on:
         one: "%{count} plugin on"
         other: "%{count} plugins on"
@@ -43,6 +44,16 @@ en:
             roles: Roles
           toggle_all: Toggle all
           toggle_all_label: Toggle all %{plugin} events
+    notification_bell:
+      label: Notifications
+      unread: Notifications, %{count} unread
+    notification_panel:
+      all_servers: All servers
+      empty_subtitle: Alerts about your servers will show up here.
+      empty_title: You're all caught up
+      mark_all_read: Mark all read
+      this_server: This server
+      title: Notifications
     plugin_row:
       configure: Configure
       needs_setup_hint: Complete setup before enabling this plugin.
@@ -138,6 +149,12 @@ en:
           empty: This message is off.
           label: Live preview
           timestamp: Today
+  notifications:
+    kinds:
+      channel_deleted:
+        message: "%{plugin_name} was affected — choose a new channel"
+        title: "%{channel_name} was deleted"
+        title_unknown: A channel was deleted
   servers:
     logging:
       saved: Logging settings saved.

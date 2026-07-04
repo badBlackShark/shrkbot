@@ -1,0 +1,437 @@
+<!-- @dsCard group="Dashboard" viewport="1360x900" name="Notifications" subtitle="Bell + unread badge · grouped dropdown · empty & mobile states · plugin-config warning banner — light & dark" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>shrkbot — Notifications surfaces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Exo+2:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../../tokens/colors.css" />
+<link rel="stylesheet" href="../../tokens/spacing.css" />
+<link rel="stylesheet" href="../../tokens/motion.css" />
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+/* Semantic-token Tailwind wiring — every color maps to a CSS var from
+   tokens/colors.css, so [data-theme="dark"] flips both panes for free.
+   Class names come out as bg-surface-card, text-text-primary, etc. */
+tailwind.config={theme:{extend:{
+  colors:{
+    'surface-page':'var(--surface-page)','surface-card':'var(--surface-card)','surface-raised':'var(--surface-raised)','surface-sunken':'var(--surface-sunken)',
+    'text-primary':'var(--text-primary)','text-secondary':'var(--text-secondary)','text-muted':'var(--text-muted)','text-link':'var(--text-link)',
+    'border-subtle':'var(--border-subtle)','border-default':'var(--border-default)','border-strong':'var(--border-strong)',
+    accent:'var(--accent)','accent-fill':'var(--accent-fill)','accent-soft':'var(--accent-soft)','accent-soft-bd':'var(--accent-soft-bd)','accent-soft-fg':'var(--accent-soft-fg)',
+    'accent-2-text':'var(--accent-2-text)','accent-2-soft':'var(--accent-2-soft)','accent-2-soft-bd':'var(--accent-2-soft-bd)',
+    warning:'var(--warning)','warning-soft':'var(--warning-soft-x)','warning-soft-bd':'var(--warning-soft-bd)',
+    danger:'var(--danger)','danger-soft':'var(--danger-soft-x)','danger-soft-bd':'var(--danger-soft-bd)'
+  },
+  fontFamily:{display:['"Space Grotesk"','system-ui','sans-serif'],sans:['"Exo 2"','system-ui','sans-serif'],mono:['"IBM Plex Mono"','ui-monospace','monospace']},
+  borderRadius:{sm:'5px',md:'8px',lg:'12px',xl:'16px',control:'8px',card:'12px',chip:'5px'},
+  boxShadow:{sm:'0 1px 3px rgba(29,26,21,.08),0 1px 2px rgba(29,26,21,.04)',md:'0 4px 12px rgba(29,26,21,.08),0 2px 4px rgba(29,26,21,.04)',lg:'0 12px 32px rgba(29,26,21,.18),0 4px 8px rgba(29,26,21,.08)'}
+}}};
+</script>
+<style>
+/* ── Local semantic extensions (theme-aware, mirrors dashboard kit) ── */
+:root{
+  --accent-soft-fg: var(--teal-700);            /* text on accent-soft washes */
+  --warning-soft-x: var(--amber-50);
+  --warning-soft-bd:#ecd6a6;
+  --danger-soft-x:  var(--red-50);
+  --danger-soft-bd: #eec3b8;
+  --plugin-tile:    var(--accent-fill);         /* icon identity tiles: white-text-safe teal */
+}
+[data-theme="dark"]{
+  --accent-soft-fg: #6fb3aa;
+  --warning-soft-x: rgba(232,161,58,.12);
+  --warning-soft-bd:rgba(232,161,58,.25);
+  --danger-soft-x:  rgba(224,83,61,.12);
+  --danger-soft-bd: rgba(224,83,61,.28);
+  --plugin-tile:    var(--accent);              /* dark: tiles use patina reference teal */
+}
+
+body{font-family:"Exo 2",system-ui,sans-serif;background:#161310}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
+
+/* App-bar — chamfer lives on a ::before layer so dropdowns hanging below
+   the header are NOT clipped by the clip-path (same as dashboard kit). */
+.app-bar{position:relative;background:transparent}
+.app-bar::before{content:'';position:absolute;inset:0;z-index:0;background:var(--surface-card);border-bottom:1px solid var(--border-default);clip-path:polygon(0 0,100% 0,100% calc(100% - var(--chamfer,12px)),calc(100% - var(--chamfer,12px)) 100%,var(--chamfer,12px) 100%,0 calc(100% - var(--chamfer,12px)))}
+.app-bar>*{position:relative;z-index:1}
+
+/* Chamfer geometry — brand-forward surfaces only */
+.chamfer-tile{--cut:var(--chamfer,12px);clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% var(--cut),100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,var(--cut) 100%,0 calc(100% - var(--cut)),0 var(--cut))}
+.chamfer-tile-sm{--cut:var(--chamfer-sm,6px);clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% var(--cut),100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,var(--cut) 100%,0 calc(100% - var(--cut)),0 var(--cut))}
+.chamfer-cta{--cut:var(--chamfer-sm,6px);clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% var(--cut),100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,var(--cut) 100%,0 calc(100% - var(--cut)),0 var(--cut));border-radius:0 !important}
+
+/* ── Dropdown pattern — native <details> + .dropdown-menu panel.
+   Panel gets .anim-menu (fade + 6px slide, tokens/motion.css) each open;
+   chevron uses .dropdown-chevron rotation from tokens/motion.css. ── */
+details.dropdown{position:relative}
+details.dropdown>summary{list-style:none;cursor:pointer}
+details.dropdown>summary::-webkit-details-marker{display:none}
+details.dropdown[open]>summary>.dropdown-chevron,
+details.dropdown[open] .js-bell-chevron{transform:rotate(0deg)}
+.dropdown-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:50}
+
+/* Phosphor icon sizing */
+i[class*="ph-"]{display:inline-flex;align-items:center;justify-content:center;line-height:1;flex:none;font-style:normal;vertical-align:middle}
+i[class*="ph-"].w-3{font-size:12px;min-width:12px;height:12px}
+i[class*="ph-"].w-3\.5{font-size:14px;min-width:14px;height:14px}
+i[class*="ph-"].w-4{font-size:16px;min-width:16px;height:16px}
+i[class*="ph-"].w-5{font-size:20px;min-width:20px;height:20px}
+i[class*="ph-"].w-\[18px\]{font-size:18px;min-width:18px;height:18px}
+
+/* Panel body scrollbar — quiet */
+.notif-scroll{scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
+
+@media(prefers-reduced-motion:reduce){
+  .transition-colors,.transition{transition:none !important}
+}
+</style>
+</head>
+<body class="antialiased">
+
+<!-- ════════════════════════════════════════════════════════════════
+     LIGHT PANE — authored source of truth.
+     The DARK pane at the bottom is a JS clone under [data-theme="dark"];
+     every color below is a semantic token, so it flips automatically.
+     ════════════════════════════════════════════════════════════════ -->
+<section data-theme="light" data-pane-light class="bg-surface-page text-text-primary py-10 px-6">
+  <div class="max-w-[1200px] mx-auto">
+    <p class="font-mono text-xs text-text-muted mb-8">shrkbot · notifications surfaces — LIGHT</p>
+
+    <div data-pane-content class="flex flex-col gap-12">
+
+      <!-- ═══════════════ SURFACE 1a — APP BAR · BELL WITH UNREAD COUNT ("2") ═══════════════
+           Bell sits between the flex spacer and the theme toggle.
+           Unread count = Badge (brand variant, solid fill) ringed with the bar surface. -->
+      <div>
+        <span class="lbl">Surface 1 — bell in app bar · unread count "2"</span>
+        <header class="app-bar h-16 mt-3 flex items-center gap-3 px-5">
+          <a href="#" class="flex items-center gap-2">
+            <img src="../../assets/shrkbot-mascot.png" alt="" class="w-9 h-9 chamfer-tile-sm" />
+            <span class="font-display text-lg font-bold tracking-tight"><span class="text-accent-fill">shrk</span><span class="text-accent-2-text">bot</span></span>
+          </a>
+          <!-- server switcher (context only — closed state, .dropdown-chevron points left when closed) -->
+          <button class="h-10 flex items-center gap-2 pl-1.5 pr-3 rounded-md border border-border-default hover:bg-surface-sunken transition-colors ml-1">
+            <span class="w-7 h-7 rounded-md bg-accent-soft text-accent-soft-fg grid place-items-center text-xs font-bold flex-none">DR</span>
+            <span class="text-sm font-semibold">Dev Refuge</span>
+            <i class="ph ph-caret-down dropdown-chevron w-4 h-4 text-text-muted"></i>
+          </button>
+
+          <div class="flex-1"></div>
+
+          <!-- NOTIFICATION BELL · unread -->
+          <details class="dropdown">
+            <summary class="relative w-9 h-9 rounded-md hover:bg-surface-sunken grid place-items-center text-text-secondary transition-colors" aria-label="Notifications, 2 unread">
+              <i class="ph ph-bell w-5 h-5"></i>
+              <!-- unread-count Badge — brand solid; ring cuts it against the bar -->
+              <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-accent-fill text-white text-[10px] leading-4 font-bold text-center" style="box-shadow:0 0 0 2px var(--surface-card)">2</span>
+            </summary>
+            <!-- (panel omitted here — see Surface 2 below for the open rendering) -->
+            <div class="dropdown-menu anim-menu w-[380px] bg-surface-card border border-border-default rounded-lg shadow-lg p-6 text-sm text-text-secondary">Panel — see Surface 2.</div>
+          </details>
+
+          <!-- theme toggle -->
+          <button class="w-9 h-9 rounded-md hover:bg-surface-sunken grid place-items-center text-text-secondary transition-colors" aria-label="Toggle dark mode"><i class="ph ph-moon js-theme-icon w-5 h-5"></i></button>
+
+          <!-- user menu (context only) -->
+          <button class="flex items-center gap-2 h-10 pl-1 pr-2.5 rounded-full hover:bg-surface-sunken transition-colors">
+            <span class="w-8 h-8 rounded-full bg-accent-soft text-accent-soft-fg grid place-items-center text-xs font-bold">bb</span>
+            <span class="text-sm font-medium">badBlackShark</span>
+            <i class="ph ph-caret-down dropdown-chevron w-4 h-4 text-text-muted"></i>
+          </button>
+        </header>
+      </div>
+
+      <!-- ═══════════════ SURFACE 1b — APP BAR · BELL WITH NO UNREAD ═══════════════ -->
+      <div>
+        <span class="lbl">Surface 1 — bell in app bar · no unread</span>
+        <header class="app-bar h-16 mt-3 flex items-center gap-3 px-5">
+          <a href="#" class="flex items-center gap-2">
+            <img src="../../assets/shrkbot-mascot.png" alt="" class="w-9 h-9 chamfer-tile-sm" />
+            <span class="font-display text-lg font-bold tracking-tight"><span class="text-accent-fill">shrk</span><span class="text-accent-2-text">bot</span></span>
+          </a>
+          <button class="h-10 flex items-center gap-2 pl-1.5 pr-3 rounded-md border border-border-default hover:bg-surface-sunken transition-colors ml-1">
+            <span class="w-7 h-7 rounded-md bg-accent-soft text-accent-soft-fg grid place-items-center text-xs font-bold flex-none">DR</span>
+            <span class="text-sm font-semibold">Dev Refuge</span>
+            <i class="ph ph-caret-down dropdown-chevron w-4 h-4 text-text-muted"></i>
+          </button>
+          <div class="flex-1"></div>
+          <!-- NOTIFICATION BELL · no badge -->
+          <button class="w-9 h-9 rounded-md hover:bg-surface-sunken grid place-items-center text-text-secondary transition-colors" aria-label="Notifications"><i class="ph ph-bell w-5 h-5"></i></button>
+          <button class="w-9 h-9 rounded-md hover:bg-surface-sunken grid place-items-center text-text-secondary transition-colors" aria-label="Toggle dark mode"><i class="ph ph-moon js-theme-icon w-5 h-5"></i></button>
+          <button class="flex items-center gap-2 h-10 pl-1 pr-2.5 rounded-full hover:bg-surface-sunken transition-colors">
+            <span class="w-8 h-8 rounded-full bg-accent-soft text-accent-soft-fg grid place-items-center text-xs font-bold">bb</span>
+            <span class="text-sm font-medium">badBlackShark</span>
+            <i class="ph ph-caret-down dropdown-chevron w-4 h-4 text-text-muted"></i>
+          </button>
+        </header>
+      </div>
+
+      <!-- ═══════════════ SURFACE 2a — BELL DROPDOWN · OPEN, GROUPED BY SERVER ═══════════════
+           Native <details open> — panel hangs below the .app-bar unclipped
+           (chamfer is on ::before, not the header box). Pinned open for review;
+           clicking the bell still toggles it. Toggle shown set to "This server"
+           per spec; server grouping is how the "All servers" scope renders. -->
+      <div>
+        <span class="lbl">Surface 2 — dropdown panel · open · two server groups · read/unread mix</span>
+        <div class="relative mt-3 pb-[470px]">
+          <header class="app-bar h-16 flex items-center gap-3 px-5">
+            <a href="#" class="flex items-center gap-2">
+              <img src="../../assets/shrkbot-mascot.png" alt="" class="w-9 h-9 chamfer-tile-sm" />
+              <span class="font-display text-lg font-bold tracking-tight"><span class="text-accent-fill">shrk</span><span class="text-accent-2-text">bot</span></span>
+            </a>
+            <div class="flex-1"></div>
+
+            <details class="dropdown" data-pinned open>
+              <summary class="relative w-9 h-9 rounded-md bg-surface-sunken grid place-items-center text-text-primary transition-colors" aria-label="Notifications, 2 unread">
+                <i class="ph ph-bell w-5 h-5"></i>
+                <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-accent-fill text-white text-[10px] leading-4 font-bold text-center" style="box-shadow:0 0 0 2px var(--surface-card)">2</span>
+              </summary>
+
+              <!-- THE PANEL (.dropdown-menu) — ~380px, internal scroll -->
+              <div class="dropdown-menu anim-menu w-[380px] max-w-[calc(100vw-2rem)] bg-surface-card border border-border-default rounded-lg shadow-lg overflow-hidden">
+
+                <!-- panel header: title · mark-all-read · scope toggle -->
+                <div class="px-4 pt-3.5 pb-3 border-b border-border-subtle flex flex-col gap-2.5">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-display text-sm font-bold tracking-tight">Notifications</h3>
+                    <button class="text-xs font-semibold text-text-link hover:underline">Mark all read</button>
+                  </div>
+                  <!-- segmented scope toggle — "This server" active -->
+                  <div class="inline-flex self-start p-0.5 rounded-md bg-surface-sunken text-xs">
+                    <button class="px-2.5 py-1 rounded-[6px] bg-surface-card shadow-sm font-semibold text-text-primary">This server</button>
+                    <button class="px-2.5 py-1 rounded-[6px] font-medium text-text-secondary hover:text-text-primary transition-colors">All servers</button>
+                  </div>
+                </div>
+
+                <!-- scrollable body, grouped by server -->
+                <div class="notif-scroll max-h-[330px] overflow-y-auto">
+
+                  <!-- ── server group: Dev Refuge ── -->
+                  <div class="flex items-center gap-2 px-4 pt-3 pb-1.5">
+                    <span class="w-5 h-5 rounded-[5px] bg-accent-soft text-accent-soft-fg grid place-items-center text-[9px] font-bold flex-none">DR</span>
+                    <span class="text-[11px] font-semibold text-text-secondary">Dev Refuge</span>
+                  </div>
+                  <ul>
+                    <!-- item · UNREAD (accent dot on left edge, full-strength text) -->
+                    <li class="relative group/item">
+                      <a href="#" class="flex gap-3 pl-5 pr-9 py-3 hover:bg-surface-sunken transition-colors">
+                        <span class="absolute left-[7px] top-[27px] w-1.5 h-1.5 rounded-full bg-accent" aria-label="Unread"></span>
+                        <span class="w-8 h-8 rounded-full bg-warning-soft grid place-items-center flex-none"><i class="ph ph-warning w-4 h-4 text-warning"></i></span>
+                        <span class="flex-1 min-w-0">
+                          <span class="block text-[13px] font-semibold text-text-primary leading-snug"><i class="ph ph-hash w-3 h-3 text-text-muted"></i>general was deleted</span>
+                          <span class="block text-xs text-text-secondary mt-0.5 leading-snug">Logging was affected — choose a new channel</span>
+                          <span class="block text-[11px] text-text-muted mt-1">2h ago</span>
+                        </span>
+                      </a>
+                      <button class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md grid place-items-center text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors" aria-label="Dismiss"><i class="ph ph-x w-3.5 h-3.5"></i></button>
+                    </li>
+                    <!-- item · READ (muted, no dot) -->
+                    <li class="relative group/item">
+                      <a href="#" class="flex gap-3 pl-5 pr-9 py-3 hover:bg-surface-sunken transition-colors">
+                        <span class="w-8 h-8 rounded-full bg-warning-soft opacity-60 grid place-items-center flex-none"><i class="ph ph-warning w-4 h-4 text-warning"></i></span>
+                        <span class="flex-1 min-w-0">
+                          <span class="block text-[13px] font-medium text-text-secondary leading-snug"><i class="ph ph-hash w-3 h-3 text-text-muted"></i>welcome-hall was deleted</span>
+                          <span class="block text-xs text-text-muted mt-0.5 leading-snug">Welcomes was affected — choose a new channel</span>
+                          <span class="block text-[11px] text-text-muted mt-1">1d ago</span>
+                        </span>
+                      </a>
+                      <button class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md grid place-items-center text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors" aria-label="Dismiss"><i class="ph ph-x w-3.5 h-3.5"></i></button>
+                    </li>
+                  </ul>
+
+                  <!-- ── server group: ShellShock Live ── -->
+                  <div class="flex items-center gap-2 px-4 pt-3 pb-1.5 border-t border-border-subtle mt-1">
+                    <span class="w-5 h-5 rounded-[5px] bg-surface-sunken text-text-secondary grid place-items-center text-[9px] font-bold flex-none">SS</span>
+                    <span class="text-[11px] font-semibold text-text-secondary">ShellShock Live Community Discord</span>
+                  </div>
+                  <ul>
+                    <!-- item · UNREAD — hover state FORCED for illustration (bg-surface-sunken) -->
+                    <li class="relative group/item">
+                      <a href="#" class="flex gap-3 pl-5 pr-9 py-3 bg-surface-sunken transition-colors">
+                        <span class="absolute left-[7px] top-[27px] w-1.5 h-1.5 rounded-full bg-accent" aria-label="Unread"></span>
+                        <span class="w-8 h-8 rounded-full bg-warning-soft grid place-items-center flex-none"><i class="ph ph-warning w-4 h-4 text-warning"></i></span>
+                        <span class="flex-1 min-w-0">
+                          <span class="block text-[13px] font-semibold text-text-primary leading-snug"><i class="ph ph-hash w-3 h-3 text-text-muted"></i>tourney-announcements was deleted</span>
+                          <span class="block text-xs text-text-secondary mt-0.5 leading-snug">Logging was affected — choose a new channel</span>
+                          <span class="block text-[11px] text-text-muted mt-1">3d ago</span>
+                        </span>
+                      </a>
+                      <button class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md grid place-items-center text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors" aria-label="Dismiss"><i class="ph ph-x w-3.5 h-3.5"></i></button>
+                    </li>
+                  </ul>
+                  <div class="h-2"></div>
+                </div>
+              </div>
+            </details>
+
+            <button class="w-9 h-9 rounded-md hover:bg-surface-sunken grid place-items-center text-text-secondary transition-colors" aria-label="Toggle dark mode"><i class="ph ph-moon js-theme-icon w-5 h-5"></i></button>
+            <button class="flex items-center gap-2 h-10 pl-1 pr-2.5 rounded-full hover:bg-surface-sunken transition-colors">
+              <span class="w-8 h-8 rounded-full bg-accent-soft text-accent-soft-fg grid place-items-center text-xs font-bold">bb</span>
+              <span class="text-sm font-medium">badBlackShark</span>
+              <i class="ph ph-caret-down dropdown-chevron w-4 h-4 text-text-muted"></i>
+            </button>
+          </header>
+        </div>
+      </div>
+
+      <!-- ═══════════════ SURFACE 2b + 2c — EMPTY STATE · MOBILE SHEET ═══════════════ -->
+      <div class="flex flex-wrap items-start gap-10">
+
+        <!-- SURFACE 2b — empty state ("You're all caught up") — panel rendered standalone -->
+        <div>
+          <span class="lbl">Surface 2 — empty state</span>
+          <div class="mt-3 w-[380px] bg-surface-card border border-border-default rounded-lg shadow-lg overflow-hidden">
+            <div class="px-4 pt-3.5 pb-3 border-b border-border-subtle flex flex-col gap-2.5">
+              <div class="flex items-center justify-between">
+                <h3 class="font-display text-sm font-bold tracking-tight">Notifications</h3>
+              </div>
+              <div class="inline-flex self-start p-0.5 rounded-md bg-surface-sunken text-xs">
+                <button class="px-2.5 py-1 rounded-[6px] bg-surface-card shadow-sm font-semibold text-text-primary">This server</button>
+                <button class="px-2.5 py-1 rounded-[6px] font-medium text-text-secondary hover:text-text-primary transition-colors">All servers</button>
+              </div>
+            </div>
+            <div class="py-10 px-6 text-center">
+              <span class="w-10 h-10 rounded-full bg-surface-sunken grid place-items-center mx-auto"><i class="ph ph-bell w-5 h-5 text-text-muted"></i></span>
+              <p class="text-sm font-semibold mt-3">You're all caught up</p>
+              <p class="text-xs text-text-muted mt-1">Alerts about your servers will show up here.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SURFACE 2c — narrow/mobile rendering.
+             Below the sm breakpoint the panel stops hugging the bell (right:0)
+             and becomes an edge-to-edge sheet pinned under the .app-bar:
+             position:fixed; left:0; right:0; top:<bar height>; max-height:70vh;
+             square top corners, rounded bottom, same internal scroll. -->
+        <div>
+          <span class="lbl">Surface 2 — narrow viewport · full-width sheet under the bar</span>
+          <div class="mt-3 w-[390px] border border-border-strong rounded-xl overflow-hidden bg-surface-page shadow-md">
+            <header class="app-bar h-14 flex items-center gap-2 px-4">
+              <img src="../../assets/shrkbot-mascot.png" alt="" class="w-8 h-8 chamfer-tile-sm" />
+              <span class="font-display text-base font-bold tracking-tight"><span class="text-accent-fill">shrk</span><span class="text-accent-2-text">bot</span></span>
+              <div class="flex-1"></div>
+              <button class="relative w-9 h-9 rounded-md bg-surface-sunken grid place-items-center text-text-primary" aria-label="Notifications, 2 unread">
+                <i class="ph ph-bell w-5 h-5"></i>
+                <span class="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-accent-fill text-white text-[10px] leading-4 font-bold text-center" style="box-shadow:0 0 0 2px var(--surface-card)">2</span>
+              </button>
+              <span class="w-8 h-8 rounded-full bg-accent-soft text-accent-soft-fg grid place-items-center text-xs font-bold">bb</span>
+            </header>
+            <!-- the sheet: full-width, pinned under the bar -->
+            <div class="bg-surface-card border-b border-border-default shadow-lg rounded-b-lg">
+              <div class="px-4 pt-3.5 pb-3 border-b border-border-subtle flex items-center justify-between">
+                <h3 class="font-display text-sm font-bold tracking-tight">Notifications</h3>
+                <button class="text-xs font-semibold text-text-link hover:underline">Mark all read</button>
+              </div>
+              <div class="flex items-center gap-2 px-4 pt-3 pb-1.5">
+                <span class="w-5 h-5 rounded-[5px] bg-accent-soft text-accent-soft-fg grid place-items-center text-[9px] font-bold flex-none">DR</span>
+                <span class="text-[11px] font-semibold text-text-secondary">Dev Refuge</span>
+              </div>
+              <ul>
+                <li class="relative">
+                  <a href="#" class="flex gap-3 pl-5 pr-9 py-3 hover:bg-surface-sunken transition-colors">
+                    <span class="absolute left-[7px] top-[27px] w-1.5 h-1.5 rounded-full bg-accent" aria-label="Unread"></span>
+                    <span class="w-8 h-8 rounded-full bg-warning-soft grid place-items-center flex-none"><i class="ph ph-warning w-4 h-4 text-warning"></i></span>
+                    <span class="flex-1 min-w-0">
+                      <span class="block text-[13px] font-semibold text-text-primary leading-snug"><i class="ph ph-hash w-3 h-3 text-text-muted"></i>general was deleted</span>
+                      <span class="block text-xs text-text-secondary mt-0.5 leading-snug">Logging was affected — choose a new channel</span>
+                      <span class="block text-[11px] text-text-muted mt-1">2h ago</span>
+                    </span>
+                  </a>
+                  <button class="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md grid place-items-center text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors" aria-label="Dismiss"><i class="ph ph-x w-3.5 h-3.5"></i></button>
+                </li>
+              </ul>
+              <div class="h-2"></div>
+            </div>
+            <div class="h-24"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════ SURFACE 3 — PLUGIN CONFIG · INLINE WARNING BANNER ═══════════════
+           Callout (warning) at the top of the Logging settings form.
+           "Choose a new channel below" reads as an inline link to the picker. -->
+      <div>
+        <span class="lbl">Surface 3 — plugin config · channel-deleted warning banner</span>
+        <div class="mt-3 max-w-2xl">
+          <!-- plugin header (context) -->
+          <div class="flex items-start gap-4 mb-5">
+            <span class="w-12 h-12 chamfer-tile text-white grid place-items-center flex-none" style="background:var(--plugin-tile)"><i class="ph ph-scroll w-5 h-5"></i></span>
+            <div class="flex-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h1 class="font-display text-2xl font-bold tracking-tight">Logging</h1>
+                <!-- Badge · warning variant with dot -->
+                <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-warning bg-warning-soft px-2.5 py-1 rounded-chip"><span class="w-1.5 h-1.5 rounded-full bg-warning"></span>Needs attention</span>
+              </div>
+              <p class="text-sm text-text-secondary mt-0.5">Record moderation events to a channel of your choice.</p>
+            </div>
+          </div>
+
+          <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5 flex flex-col gap-4">
+            <!-- THE BANNER — Callout (warning) -->
+            <div class="flex gap-3 bg-warning-soft border border-warning-soft-bd rounded-md px-4 py-3">
+              <i class="ph ph-warning w-[18px] h-[18px] text-warning flex-none mt-0.5"></i>
+              <p class="text-sm leading-relaxed text-text-primary">The channel you configured for Logging was deleted. <a href="#" class="font-semibold text-text-link underline underline-offset-2 hover:no-underline">Choose a new channel below</a> to keep it working.</p>
+            </div>
+
+            <!-- setting row: the channel picker the banner points at -->
+            <div>
+              <label class="block text-sm font-semibold mb-1.5">Log channel</label>
+              <div class="h-10 px-3 rounded-control border-[1.5px] border-border-strong bg-surface-card flex items-center gap-2 text-sm w-64 cursor-pointer">
+                <span class="font-mono text-text-muted">#</span>
+                <span class="text-text-muted">Choose a channel…</span>
+                <i class="ph ph-caret-down w-4 h-4 text-text-muted ml-auto"></i>
+              </div>
+              <p class="text-xs text-text-muted mt-1.5">Moderation events will be posted here.</p>
+            </div>
+
+            <div class="flex justify-end border-t border-border-subtle pt-4">
+              <button class="h-10 px-4 inline-flex items-center chamfer-cta bg-accent-fill hover:brightness-110 text-white text-sm font-semibold transition">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /pane-content -->
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     DARK PANE — same markup cloned under [data-theme="dark"];
+     semantic tokens flip everything (espresso surfaces, patina teal,
+     copper eyebrows, translucent warning washes).
+     ════════════════════════════════════════════════════════════════ -->
+<section data-theme="dark" data-pane-dark class="bg-surface-page text-text-primary py-10 px-6">
+  <div class="max-w-[1200px] mx-auto">
+    <p class="font-mono text-xs text-text-muted mb-8">shrkbot · notifications surfaces — DARK</p>
+    <div data-pane-slot></div>
+  </div>
+</section>
+
+<script>
+// Clone the light pane's content into the dark pane so both stay identical.
+(function(){
+  var src = document.querySelector('[data-pane-content]');
+  var slot = document.querySelector('[data-pane-slot]');
+  var clone = src.cloneNode(true);
+  clone.removeAttribute('data-pane-content');
+  // theme toggle shows sun in dark mode
+  clone.querySelectorAll('.js-theme-icon').forEach(function(i){ i.classList.remove('ph-moon'); i.classList.add('ph-sun'); });
+  slot.appendChild(clone);
+})();
+
+// Close open dropdowns on outside click / Escape (pinned demos stay open).
+document.addEventListener('click', function(e){
+  document.querySelectorAll('details.dropdown[open]:not([data-pinned])').forEach(function(d){
+    if(!d.contains(e.target)) d.removeAttribute('open');
+  });
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') document.querySelectorAll('details.dropdown[open]:not([data-pinned])').forEach(function(d){ d.removeAttribute('open'); });
+});
+</script>
+</body>
+</html>
