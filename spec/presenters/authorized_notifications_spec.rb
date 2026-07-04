@@ -53,6 +53,26 @@ RSpec.describe AuthorizedNotifications do
         other_scoped = described_class.new(manageable_ids:, server_id: config_other.discord_id)
         expect(other_scoped.groups).to be_empty
       end
+
+      it "returns empty when server_id is manageable but no ServerConfiguration row exists" do
+        phantom_id = 999_888_777
+        phantom_scoped = described_class.new(manageable_ids: [phantom_id], server_id: phantom_id)
+        expect(phantom_scoped.groups).to be_empty
+      end
+    end
+
+    context "when a notification's server_configuration_id is not in the configs index" do
+      it "skips the orphaned group via the next-unless-config guard" do
+        # Force configs to return an empty hash while scoped still returns notifications.
+        # This exercises the `next unless config` branch (a defensive guard).
+        ordered_double = double("relation", index_by: {})
+        relation_double = double("relation", order: ordered_double)
+        allow(ServerConfiguration).to receive(:where).and_call_original
+        allow(ServerConfiguration).to receive(:where).with(discord_id: manageable_ids).and_return(relation_double)
+
+        groups = authorized.groups
+        expect(groups).to be_empty
+      end
     end
 
     context "when a notification is dismissed" do

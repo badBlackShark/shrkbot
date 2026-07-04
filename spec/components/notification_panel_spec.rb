@@ -41,4 +41,38 @@ RSpec.describe Components::NotificationPanel do
       expect(html).to include("general was deleted")
     end
   end
+
+  context "when rendered in all-servers scope (server_id: nil) with grouped notifications" do
+    let(:config_a) { create(:server_configuration, name: "Alpha Server") }
+    let(:config_b) { create(:server_configuration, name: "Beta Server", icon_hash: "abc123hash") }
+    let(:manageable_ids) { [config_a.discord_id, config_b.discord_id] }
+    let(:notification_data) { {"plugin_key" => "logging", "plugin_name" => "Logging", "channel_name" => "general"} }
+    let!(:notification_a) { create(:notification, server_configuration: config_a, data: notification_data) }
+    let!(:notification_b) { create(:notification, server_configuration: config_b, data: notification_data) }
+
+    subject(:html) { described_class.new(authorized:).render_in(view_context) }
+
+    it "renders grouped notifications for all servers" do
+      expect(html).to include("general was deleted")
+    end
+
+    it "renders the mark-all-read button when items exist" do
+      expect(html).to include("Mark all read")
+    end
+
+    it "renders server group headers" do
+      expect(html).to include("Alpha Server")
+      expect(html).to include("Beta Server")
+    end
+
+    it "renders an img tag for a server with an icon_hash" do
+      expect(html).to include("<img")
+      expect(html).to include("abc123hash")
+    end
+
+    it "renders initials fallback for a server without an icon_hash" do
+      # config_a has no icon_hash — falls back to initials span
+      expect(html).to include("bg-accent-soft")
+    end
+  end
 end
