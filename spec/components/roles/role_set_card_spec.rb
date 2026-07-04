@@ -19,20 +19,32 @@ RSpec.describe Components::Roles::RoleSetCard do
   context "when repost_path is given" do
     subject(:html) { described_class.new(**base_attrs, repost_path: "/servers/123/role_sets/456/repost").render_in(view_context) }
 
-    it "renders the resync link with data-turbo-method=post" do
-      expect(html).to include('data-turbo-method="post"')
+    it "renders a button with data-action role-sets#repost" do
+      expect(html).to include('data-action="role-sets#repost"')
     end
 
-    it "links to the repost path" do
-      expect(html).to include('href="/servers/123/role_sets/456/repost"')
+    it "sets data-repost-url to the given path" do
+      expect(html).to include('data-repost-url="/servers/123/role_sets/456/repost"')
+    end
+
+    it "wraps the button in a tooltip" do
+      expect(html).to include('role="tooltip"')
+    end
+
+    it "does not render a title attribute on the repost button" do
+      expect(html).not_to include("title=")
+    end
+
+    it "does not render a turbo-method link" do
+      expect(html).not_to include("data-turbo-method")
     end
   end
 
   context "when repost_path is nil (default)" do
     subject(:html) { described_class.new(**base_attrs).render_in(view_context) }
 
-    it "omits the resync link" do
-      expect(html).not_to include('data-turbo-method="post"')
+    it "omits the repost button" do
+      expect(html).not_to include('data-action="role-sets#repost"')
     end
   end
 end

@@ -93,6 +93,45 @@ RSpec.describe ConfigSubscriber do
       end
     end
 
+    context "with a roles_menu_remove event for an existing set" do
+      let(:set) { create(:role_set, message_id: 999) }
+      let(:payload) { JSON.generate(type: "roles_menu_remove", set_id: set.id) }
+
+      it "runs the Remove operation for that set with the bot" do
+        expect(Ops::Roles::Messages::Remove).to receive(:call).with(bot:, role_set: set)
+          .and_return(instance_double(Ops::ApplicationOperation::Result, success?: true))
+
+        subscriber.handle(payload)
+      end
+    end
+
+    context "with a roles_menu_remove event for a missing set" do
+      let(:payload) { JSON.generate(type: "roles_menu_remove", set_id: "rls_missing") }
+
+      it "does not run the Remove operation" do
+        expect(Ops::Roles::Messages::Remove).not_to receive(:call)
+        subscriber.handle(payload)
+      end
+    end
+
+    context "when a Remove operation returns a failure Result" do
+      let(:set) { create(:role_set, message_id: 999) }
+      let(:payload) { JSON.generate(type: "roles_menu_remove", set_id: set.id) }
+      let(:failure_result) do
+        instance_double(Ops::ApplicationOperation::Result, success?: false, errors: ["channel not found"])
+      end
+
+      before do
+        allow(Ops::Roles::Messages::Remove).to receive(:call).and_return(failure_result)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it "logs the failure" do
+        subscriber.handle(payload)
+        expect(Rails.logger).to have_received(:error).with(a_string_including("roles_menu_remove failed"))
+      end
+    end
+
     context "when a Post operation returns a failure Result" do
       let(:set) { create(:role_set) }
       let(:payload) { JSON.generate(type: "roles_post", set_id: set.id) }

@@ -136,6 +136,7 @@ RSpec.describe Ops::Roles::Configure do
     before do
       allow(ConfigBus).to receive(:post_roles)
       allow(ConfigBus).to receive(:delete_roles_message)
+      allow(ConfigBus).to receive(:remove_roles_menu)
     end
 
     context "when enabled with a new set" do
@@ -193,7 +194,7 @@ RSpec.describe Ops::Roles::Configure do
       end
     end
 
-    context "when disabled with existing sets that have message_ids" do
+    context "when disabled with existing sets that have message_ids (channel unchanged)" do
       let(:enabled) { "0" }
       let!(:set_a) { create(:role_set, role_setting: setting, message_id: 111, channel_override: nil) }
       let!(:set_b) { create(:role_set, role_setting: setting, message_id: 222, channel_override: nil) }
@@ -206,9 +207,14 @@ RSpec.describe Ops::Roles::Configure do
 
       before { setting.update!(channel_id: 555) }
 
-      it "publishes delete events for all sets with messages" do
+      it "publishes remove_roles_menu for each set" do
         result
-        expect(ConfigBus).to have_received(:delete_roles_message).twice
+        expect(ConfigBus).to have_received(:remove_roles_menu).twice
+      end
+
+      it "does not publish delete_roles_message" do
+        result
+        expect(ConfigBus).not_to have_received(:delete_roles_message)
       end
 
       it "does not publish any post events" do
@@ -216,10 +222,33 @@ RSpec.describe Ops::Roles::Configure do
         expect(ConfigBus).not_to have_received(:post_roles)
       end
 
-      it "clears message_ids" do
+      it "keeps message_ids in the DB (bot clears after deleting)" do
         result
-        expect(set_a.reload.message_id).to be_nil
-        expect(set_b.reload.message_id).to be_nil
+        expect(set_a.reload.message_id).to eq(111)
+        expect(set_b.reload.message_id).to eq(222)
+      end
+    end
+
+    context "when disabled with an existing set whose channel changes" do
+      let(:enabled) { "0" }
+      let!(:existing) { create(:role_set, role_setting: setting, message_id: 111, channel_override: 777) }
+      let(:role_sets) do
+        [{id: existing.id, name: existing.name, selection_mode: existing.selection_mode, channel_override: "888", role_ids: []}]
+      end
+
+      it "publishes a delete event for the old channel/message" do
+        result
+        expect(ConfigBus).to have_received(:delete_roles_message).with(channel_id: 777, message_id: 111)
+      end
+
+      it "clears message_id" do
+        result
+        expect(existing.reload.message_id).to be_nil
+      end
+
+      it "does not publish remove_roles_menu" do
+        result
+        expect(ConfigBus).not_to have_received(:remove_roles_menu)
       end
     end
 
@@ -297,6 +326,7 @@ RSpec.describe Ops::Roles::Configure do
         result
         expect(ConfigBus).not_to have_received(:post_roles)
         expect(ConfigBus).not_to have_received(:delete_roles_message)
+        expect(ConfigBus).not_to have_received(:remove_roles_menu)
       end
     end
   end

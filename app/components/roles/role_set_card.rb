@@ -37,11 +37,10 @@ class Components::Roles::RoleSetCard < Components::Base
     details(
       open: @open,
       data: {role_set: true, controller: "dropdown", dropdown_dismiss_on_outside_value: "false"},
-      class: "relative rounded-card border border-border-default bg-surface-card shadow-sm"
+      class: "rounded-card border border-border-default bg-surface-card shadow-sm"
     ) do
       hidden_fields
       summary_row
-      repost_link
       editor
     end
   end
@@ -69,32 +68,37 @@ class Components::Roles::RoleSetCard < Components::Base
         end
         p(class: "mt-0.5 truncate text-xs text-text-muted") { subtitle }
       end
-      div(class: "size-8 flex-none") if @repost_path
+      repost_button
       delete_button
       render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
     end
   end
 
   def delete_button
-    button(
-      type: "button",
-      title: t(".delete"),
-      aria_label: t(".delete"),
-      data: {action: "role-sets#remove"},
-      class: "#{ICON_BUTTON} flex-none hover:bg-danger-soft hover:text-danger"
-    ) { render Components::Icon.new("trash", class: "size-4") }
+    render Components::Tooltip.new(text: t(".delete")) do
+      button(
+        type: "button",
+        aria_label: t(".delete"),
+        data: {action: "role-sets#remove"},
+        class: "#{ICON_BUTTON} hover:bg-danger-soft hover:text-danger"
+      ) { render Components::Icon.new("trash", class: "size-4") }
+    end
   end
 
-  def repost_link
+  def repost_button
     return if @repost_path.nil?
 
-    a(
-      href: @repost_path,
-      title: t(".resync"),
-      aria_label: t(".resync"),
-      data: {turbo_method: :post},
-      class: "#{ICON_BUTTON} absolute right-20 top-3 hover:bg-accent-soft hover:text-accent-soft-fg"
-    ) { render Components::Icon.new("arrows-clockwise", class: "size-4") }
+    render Components::Tooltip.new(text: t(".resync")) do
+      button(
+        type: "button",
+        aria_label: t(".resync"),
+        data: {
+          action: "role-sets#repost",
+          repost_url: @repost_path
+        },
+        class: "#{ICON_BUTTON} hover:bg-accent-soft hover:text-accent-soft-fg"
+      ) { render Components::Icon.new("arrows-clockwise", class: "size-4") }
+    end
   end
 
   def editor

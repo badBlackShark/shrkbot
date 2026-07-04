@@ -99,10 +99,13 @@ module Ops
 
       def reconcile_menu(set, old_channel)
         return if set.message_id.nil?
-        return if menus_enabled? && effective_channel(set) == old_channel
 
-        plan.delete(channel_id: old_channel, message_id: set.message_id)
-        set.message_id = nil
+        if effective_channel(set) != old_channel
+          plan.delete(channel_id: old_channel, message_id: set.message_id)
+          set.message_id = nil
+        elsif !menus_enabled?
+          plan.remove(set)
+        end
       end
 
       def effective_channel(set)

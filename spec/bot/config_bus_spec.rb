@@ -37,6 +37,19 @@ RSpec.describe ConfigBus do
     end
   end
 
+  describe ".remove_roles_menu" do
+    let(:set) { create(:role_set) }
+
+    it "publishes a roles_menu_remove event carrying the set id" do
+      described_class.remove_roles_menu(set)
+
+      expect(redis).to have_received(:publish).with(
+        described_class::CHANNEL,
+        JSON.generate(type: "roles_menu_remove", set_id: set.id)
+      )
+    end
+  end
+
   describe ".delete_roles_message" do
     it "publishes a roles_message_delete event with channel and message ids" do
       described_class.delete_roles_message(channel_id: 111, message_id: 222)

@@ -17,6 +17,10 @@ module ConfigBus
     publish(type: "roles_message_delete", channel_id:, message_id:)
   end
 
+  def remove_roles_menu(role_set)
+    publish(type: "roles_menu_remove", set_id: role_set.id)
+  end
+
   def publish(payload)
     url = BotConfig.redis_url
     if url.nil?
