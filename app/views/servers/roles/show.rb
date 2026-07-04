@@ -21,7 +21,8 @@ class Views::Servers::Roles::Show < Views::Base
           field: "roles[enabled]",
           enabled: @enabled,
           message: t(".gate_message")
-        }
+        },
+        channel_lost: @enabled && @config.role_setting.channel_id.nil?
       ) do
         render Components::Roles::ConfigForm.new(server_configuration: @config)
       end

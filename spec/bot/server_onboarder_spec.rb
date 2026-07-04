@@ -11,7 +11,7 @@ RSpec.describe ServerOnboarder do
   let(:pm_channel) { double("pm_channel", send_message: nil) }
   let(:bot) { double("bot", pm_channel:) }
 
-  context "when the server has not been onboarded and WEB_BASE_URL is set" do
+  context "when the server has not been onboarded" do
     before do
       allow(BotConfig).to receive(:web_base_url).and_return("https://shrkbot.gg")
     end
@@ -23,31 +23,6 @@ RSpec.describe ServerOnboarder do
 
     it "includes the deep dashboard link in the message" do
       expect(pm_channel).to receive(:send_message).with(include("https://shrkbot.gg/servers/77"))
-      notify
-    end
-
-    it "includes the server name in the message" do
-      expect(pm_channel).to receive(:send_message).with(include("Dev Refuge"))
-      notify
-    end
-
-    it "records when the server was onboarded" do
-      expect { notify }.to change { config.reload.onboarded_at }.from(nil)
-    end
-  end
-
-  context "when the server has not been onboarded and WEB_BASE_URL is unset" do
-    before do
-      allow(BotConfig).to receive(:web_base_url).and_return(nil)
-    end
-
-    it "DMs the guild owner" do
-      expect(bot).to receive(:pm_channel).with(999).and_return(pm_channel)
-      notify
-    end
-
-    it "does not include an http link in the message" do
-      expect(pm_channel).to receive(:send_message).with(satisfy { |m| !m.include?("http") })
       notify
     end
 

@@ -5,6 +5,10 @@
 # your test database is "scratch space" for the test suite and is wiped
 # and recreated between test runs. Don't rely on the data there!
 
+# WEB_BASE_URL is a required production env var; provide a stand-in so the bot
+# code that builds dashboard links (onboarding DM, channel-loss DM) runs in specs.
+ENV["WEB_BASE_URL"] ||= "https://shrkbot.test"
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 

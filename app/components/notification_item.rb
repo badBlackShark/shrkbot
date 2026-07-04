@@ -2,7 +2,6 @@
 
 class Components::NotificationItem < Components::Base
   include Phlex::Rails::Helpers::ButtonTo
-  include Components::PluginNav
 
   def initialize(presenter:, server_id: nil, scope: "all")
     @presenter = presenter
@@ -21,7 +20,8 @@ class Components::NotificationItem < Components::Base
 
   def item_link
     a(
-      href: deep_link,
+      href: notification_path(@presenter.notification.id),
+      data: {turbo_frame: "_top"},
       class: "flex gap-3 py-3 pl-5 pr-9 transition-colors hover:bg-surface-sunken"
     ) do
       unread_dot if @presenter.unread?
@@ -74,16 +74,9 @@ class Components::NotificationItem < Components::Base
       notification_path(@presenter.notification.id, server_id: @server_id, scope: @scope),
       method: :patch,
       aria_label: "Dismiss",
-      class: "absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-raised hover:text-text-primary"
+      class: "absolute inset-y-0 right-1 flex w-8 cursor-pointer items-center justify-center text-text-muted transition-colors hover:text-text-primary"
     ) do
       render Components::Icon.new("x", class: "size-3.5")
     end
-  end
-
-  def deep_link
-    plugin_config_path(
-      @presenter.server_configuration.discord_id,
-      @presenter.notification.data["plugin_key"]
-    )
   end
 end

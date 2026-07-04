@@ -235,12 +235,19 @@ channel-level overwrite only and ignores category inheritance, so it's advisory.
 
 Two paths, kept as separate handlers:
 
-- Live: `ChannelCleanup` (on `:channel_delete`) disables channel-backed plugins whose
-  channel was deleted, and DMs the owner.
-- Startup: `Ops::ServerConfiguration::ReconcileDeletedChannels` catches channels
-  deleted while the bot was offline (no live event fired). It runs after a metadata
-  sync, so `server_channels` reflects what still exists, and delegates each stale
-  channel to the same disable path.
+- Live: `ChannelCleanup` (on `:channel_delete`) handles channel-backed plugins whose
+  channel was deleted.
+- Startup: `Ops::ServerConfiguration::Channels::Reconcile` catches channels deleted
+  while the bot was offline (no live event fired). It runs after a metadata sync, so
+  `server_channels` reflects what still exists, and delegates each stale channel to
+  the same handler.
+
+Both paths call `Ops::ServerConfiguration::Channels::HandleDeletion`, which: clears
+the setting's `channel_id` (nulls it), keeps the plugin **enabled**, creates a
+`channel_deleted` notification, and DMs the guild owner. The plugin stays enabled so
+the config page stays accessible; `enabled && channel_id.nil?` is the "channel lost"
+signal. The config page shows an inline warning banner until the owner picks a new
+channel.
 
 ## Server onboarding
 

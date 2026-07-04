@@ -17,6 +17,14 @@ class NotificationsController < ApplicationController
     )
   end
 
+  def show
+    notification = authorized_notification
+    return head(:not_found) unless notification
+
+    Ops::Notifications::Read.call(notification:)
+    redirect_to plugin_config_path_for(notification)
+  end
+
   def update
     notification = authorized_notification
     return head(:not_found) unless notification
@@ -26,6 +34,16 @@ class NotificationsController < ApplicationController
   end
 
   private
+
+  CONFIGURABLE_PLUGINS = %w[roles welcomes logging reminders].freeze
+
+  def plugin_config_path_for(notification)
+    discord_id = notification.server_configuration.discord_id
+    key = notification.data["plugin_key"].to_s
+    return server_path(discord_id) unless CONFIGURABLE_PLUGINS.include?(key)
+
+    public_send("server_#{key}_path", discord_id)
+  end
 
   def notification_scope
     return params[:scope] if params[:scope].present?

@@ -112,6 +112,12 @@ carries the `#<plugin>-config` id that the Turbo Stream replaces on a failed sav
 so inline errors re-render in place. Keep that split when adding a page: layout in
 ConfigPage, fields in the body form.
 
+Pass `channel_lost: true` to `ConfigPage` when the plugin is enabled but its
+configured channel is gone (`enabled && setting.channel_id.nil?`). ConfigPage
+renders a warning `Callout` banner above the form body so the owner sees the prompt
+to pick a replacement channel. The banner only renders in the non-gated path (plugin
+enabled); a disabled plugin shows the `EnableGate` overlay instead.
+
 The enable toggle is **staged, not instant**: flipping it stages an `enabled`
 field in the same batch as the rest of the form, and nothing persists until Save —
 unlike the dashboard's standalone plugin toggle. The `enable-gate` Stimulus

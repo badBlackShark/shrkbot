@@ -13,7 +13,7 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   delete "/logout", to: "sessions#destroy", as: :logout
 
-  resources :notifications, only: [:index, :update]
+  resources :notifications, only: [:index, :show, :update]
   namespace :notifications do
     resource :read, only: :create
   end

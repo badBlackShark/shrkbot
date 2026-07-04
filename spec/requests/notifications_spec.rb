@@ -94,6 +94,25 @@ RSpec.describe "Notifications", type: :request do
       end
     end
 
+    describe "GET /notifications/:id (click-through)" do
+      it "marks the notification read and redirects to the plugin config page" do
+        get notification_path(notif_a)
+        expect(notif_a.reload.read_at).not_to be_nil
+        expect(response).to redirect_to(server_logging_path(guild_a.id))
+      end
+
+      it "returns 404 for a notification on a non-authorized server" do
+        get notification_path(notif_other)
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it "falls back to the server dashboard for an unrecognised plugin key" do
+        stray = create(:notification, server_configuration: config_a, data: {"plugin_key" => "mystery"})
+        get notification_path(stray)
+        expect(response).to redirect_to(server_path(guild_a.id))
+      end
+    end
+
     describe "PATCH /notifications/:id (dismiss)" do
       it "dismisses the notification and redirects with open: true" do
         patch notification_path(notif_a)

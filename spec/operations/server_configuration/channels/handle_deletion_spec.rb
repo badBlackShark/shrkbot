@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Ops::ServerConfiguration::Channels::DisablePlugins do
+RSpec.describe Ops::ServerConfiguration::Channels::HandleDeletion do
   subject(:result) { described_class.call(server_configuration: server, channel_id:, bot:) }
 
   let(:server) { create(:server_configuration, discord_id: 1) }
@@ -20,12 +20,23 @@ RSpec.describe Ops::ServerConfiguration::Channels::DisablePlugins do
       create(:plugin_activation, server_configuration: server, plugin: welcomes, enabled: true)
     end
 
-    it "disables the plugin, clears the dead channel, and notifies the owner" do
+    it "keeps the plugin enabled, clears the dead channel, and notifies the owner" do
       result
 
-      expect(server.plugin_activations.find_by(plugin: welcomes).enabled).to be(false)
+      expect(server.plugin_activations.find_by(plugin: welcomes).enabled).to be(true)
       expect(server.welcome_settings.reload.channel_id).to be_nil
       expect(OwnerNotifier).to have_received(:notify).with(hash_including(bot:))
+    end
+
+    context "when a web base URL is configured" do
+      before { allow(BotConfig).to receive(:web_base_url).and_return("https://shrkbot.gg") }
+
+      it "links the owner DM to the plugin's config page" do
+        result
+        expect(OwnerNotifier).to have_received(:notify).with(
+          hash_including(message: include("https://shrkbot.gg/servers/1/welcomes"))
+        )
+      end
     end
 
     it "creates a channel_deleted notification for the server" do

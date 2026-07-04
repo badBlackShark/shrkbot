@@ -19,6 +19,8 @@ en:
       placeholder: Choose a channel
       required: This setting is required to enable the plugin.
     config_page:
+      channel_lost: The channel you configured for %{plugin} was deleted. Choose a
+        new channel below to keep it working.
       dashboard: Dashboard
       disabled: Disabled
       disabled_title: "%{plugin} is disabled"
