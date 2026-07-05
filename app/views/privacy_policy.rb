@@ -48,7 +48,10 @@ class Views::PrivacyPolicy < Views::Base
 
   def messages_section
     heading(t(".messages_h"))
-    paragraph(t(".messages_p"))
+    paragraph(t(".messages_p_1"))
+    paragraph(t(".messages_p_2"))
+    paragraph(t(".messages_p_3"))
+    paragraph(t(".messages_p_4"))
   end
 
   def not_section

@@ -288,10 +288,25 @@ en:
       intro_2: The Service is operated by Tim Engelhardt, the data controller under
         the EU General Data Protection Regulation (GDPR).
       messages_h: Message content
-      messages_p: shrkbot does not read your messages. It does not request Discord's
-        message-content intent, and no feature stores, scans or logs what anyone writes.
-        The bot does receive member join and leave events to deliver welcome messages;
-        the username shown there is rendered into the message and not stored.
+      messages_p_1: shrkbot uses Discord's message-content intent so that servers
+        can enable automated moderation. When an admin turns that feature on, shrkbot
+        reads new messages — including, using optical character recognition (OCR),
+        text contained in posted images — to check them against the server's rules.
+        On servers that don't enable moderation, messages aren't processed at all.
+      messages_p_2: 'This scanning happens in real time and in memory only: we do
+        not store or retain message content, images, or text extracted from images.
+        Once a message has been checked, its content is discarded. We keep no message
+        history, no message logs, and no copies of your server''s conversations.'
+      messages_p_3: If automated moderation acts on a message, shrkbot can post a
+        moderation log entry to a channel your admins designate. That entry may include
+        the offending message or the text extracted from an image so moderators can
+        review it — it is delivered as an ordinary Discord message and is therefore
+        stored by Discord in that channel, not retained by shrkbot. A short record
+        that an action occurred (without the message content) may also appear in the
+        dashboard.
+      messages_p_4: The bot also receives member join and leave events to deliver
+        welcome messages; the username shown there is rendered into the message and
+        not stored.
       not_h: What we don't do
       not_p: We don't sell data, we don't advertise, we don't profile you, we don't
         run analytics, and we don't store your servers' member lists or conversations.
@@ -423,9 +438,9 @@ en:
       privacy_pre: 'Our handling of data is described in our '
       service_h: The service
       service_p: shrkbot is a general-purpose Discord bot whose features — self-assignable
-        roles, reminders, welcome and leave messages, activity logging — are enabled
-        per server and configured through commands and this website. The Service is
-        provided free of charge.
+        roles, reminders, welcome and leave messages, activity logging and automated
+        moderation — are enabled per server and configured through commands and this
+        website. The Service is provided free of charge.
       source_h: Open source
       source_p: shrkbot's source code is published under the MIT licence. That licence
         covers the code; your use of the instance we operate is governed by these
