@@ -1,0 +1,73 @@
+service: shrkbot
+image: badblackshark/shrkbot
+
+servers:
+  web:
+    hosts:
+      - <%= ENV["DEPLOY_HOST"] %>
+    env:
+      clear:
+        RUN_DB_PREPARE: "1"
+  bot:
+    hosts:
+      - <%= ENV["DEPLOY_HOST"] %>
+    cmd: bin/bot
+    proxy: false
+  jobs:
+    hosts:
+      - <%= ENV["DEPLOY_HOST"] %>
+    cmd: bin/jobs
+    proxy: false
+
+proxy:
+  ssl: true
+  hosts:
+    - shrkbot.com
+    - www.shrkbot.com
+  app_port: 80
+
+registry:
+  server: ghcr.io
+  username: badBlackShark
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+builder:
+  arch: amd64
+  dockerfile: Dockerfile.prod
+
+env:
+  clear:
+    RAILS_ENV: production
+    WEB_BASE_URL: https://shrkbot.com
+    DB_HOST: shrkbot-db
+    REDIS_URL: redis://shrkbot-redis:6379/0
+    SHARD_COUNT: "1"
+  secret:
+    - SECRET_KEY_BASE
+    - APP_DATABASE_PASSWORD
+    - DISCORD_TOKEN
+    - CLIENT_ID
+    - OWNER_ID
+    - DISCORD_CLIENT_ID
+    - DISCORD_CLIENT_SECRET
+
+accessories:
+  db:
+    image: postgres:18
+    host: <%= ENV["DEPLOY_HOST"] %>
+    network: kamal
+    env:
+      clear:
+        POSTGRES_USER: app
+        POSTGRES_DB: app_production
+      secret:
+        - POSTGRES_PASSWORD
+    volumes:
+      - shrkbot_pg_data:/var/lib/postgresql
+  redis:
+    image: redis:7
+    host: <%= ENV["DEPLOY_HOST"] %>
+    network: kamal
+    volumes:
+      - shrkbot_redis_data:/data

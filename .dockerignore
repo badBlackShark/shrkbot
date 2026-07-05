@@ -12,3 +12,4 @@ storage/*
 .claude
 # Sandbox Postgres data volume
 src/database
+.kamal

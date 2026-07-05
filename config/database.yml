@@ -92,6 +92,7 @@ production:
     database: app_production
     username: app
     password: <%= ENV["APP_DATABASE_PASSWORD"] %>
+    host: <%= ENV.fetch("DB_HOST", "shrkbot-db") %>
   cache:
     <<: *primary_production
     database: app_production_cache
