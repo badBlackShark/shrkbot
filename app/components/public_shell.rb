@@ -43,9 +43,8 @@ class Components::PublicShell < Components::Base
       plain t(".footer_mid")
       span(class: "text-accent-2-text") { "♥" }
       plain t(".footer_post")
-      nav(class: "mt-3 flex items-center justify-center gap-4") do
-        a(href: privacy_policy_path, class: "underline transition-colors hover:text-text-secondary") { t(".privacy") }
-        a(href: terms_of_service_path, class: "underline transition-colors hover:text-text-secondary") { t(".terms") }
+      div(class: "mt-3") do
+        render Components::LegalLinks.new
       end
     end
   end
