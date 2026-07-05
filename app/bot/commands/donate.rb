@@ -10,8 +10,10 @@ module Commands
       ### Support shrkbot
       Thank you for considering supporting the project! For full transparency, here's what it currently costs to keep shrkbot running:
       - Hosting: 10.60€ / month
+      - Email hosting: 4.99€ / month
+      - Website domain: 17.37€ / year
 
-      That's the entire monthly cost as things stand. I'd love to keep growing the project - adding features and improving the ones that are there - and any support makes that easier.
+      That's everything as things stand - roughly 17€ a month all told. I'd love to keep growing the project - adding features and improving the ones that are there - and any support makes that easier.
     COSTS
 
     PLEDGE = "To be clear: shrkbot is and always will be completely free and open source. " \

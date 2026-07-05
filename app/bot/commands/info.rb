@@ -55,10 +55,7 @@ module Commands
     def credits
       [
         "**[discordrb](https://github.com/shardlab/discordrb)** *by shardlab*",
-        "**[Ruby on Rails](https://rubyonrails.org/)** *by the Rails team*",
-        "**[Solid Queue](https://github.com/rails/solid_queue)** *by the Rails team*",
-        "**[pg](https://github.com/ged/ruby-pg)** *by Michael Granger et al.*",
-        "**[redis-rb](https://github.com/redis/redis-rb)** *by the redis-rb team*"
+        "**[Ruby on Rails](https://rubyonrails.org/)** *by the Rails team*"
       ].join("\n")
     end
   end

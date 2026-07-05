@@ -24,6 +24,8 @@ RSpec.describe Commands::Donate do
     it { is_expected.to include("https://paypal.me/trueblackshark") }
     it { is_expected.to include("https://liberapay.com/badBlackShark") }
     it { is_expected.to include("10.60€") }
+    it { is_expected.to include("4.99€") }
+    it { is_expected.to include("17.37€") }
     it { is_expected.not_to match(/yahoo/i) }
   end
 end
