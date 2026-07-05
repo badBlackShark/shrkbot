@@ -3,12 +3,7 @@
 require "rails_helper"
 
 RSpec.describe ActivityLog do
-  subject(:record) { described_class.record(server_config, :roles, event, bot:, **options) }
-
   let(:server_config) { create(:server_configuration) }
-  let(:event) { :role_gained }
-  let(:options) { {actor: "<@42>", roles: ["Gamer"]} }
-
   let(:channel) { double("channel", send_message: nil) }
   let(:bot) { double("bot") }
 
@@ -24,96 +19,92 @@ RSpec.describe ActivityLog do
     allow(bot).to receive(:channel).with(555).and_return(channel)
   end
 
-  it "writes the rendered line to the logging channel" do
-    expect(channel).to receive(:send_message).with("<@42> gained Gamer.")
-    record
-  end
+  describe ".post" do
+    subject(:post) do
+      described_class.post(
+        server_config,
+        bot:,
+        title: "Roles updated",
+        body: "<@42> gained **Gamer**.",
+        meta: 'Self-assigned via the "Pronouns" role menu'
+      )
+    end
 
-  context "with several roles" do
-    let(:options) { {actor: "<@42>", roles: ["Gamer", "Artist"]} }
+    it "writes a branded container with title, body, and muted meta line" do
+      expect(channel).to receive(:send_message) do |*args|
+        expect(args[7]).to eq(Discord::Components::COMPONENTS_V2)
+        content = args[6].first[:components].first[:content]
+        expect(content).to eq(
+          "**Roles updated**\n<@42> gained **Gamer**.\n-# Self-assigned via the \"Pronouns\" role menu"
+        )
+      end
+      post
+    end
 
-    it "joins the list into a sentence" do
-      expect(channel).to receive(:send_message).with("<@42> gained Gamer and Artist.")
-      record
+    it "suppresses mention pings in the log channel" do
+      expect(channel).to receive(:send_message) do |*args|
+        expect(args[4]).to eq({parse: []})
+      end
+      post
+    end
+
+    context "when no logging channel is set" do
+      before do
+        server_config.logging_setting.update!(channel_id: nil)
+      end
+
+      it "writes nothing" do
+        expect(channel).not_to receive(:send_message)
+        post
+      end
+    end
+
+    context "when the logging channel no longer exists" do
+      before do
+        allow(bot).to receive(:channel).with(555).and_return(nil)
+      end
+
+      it "writes nothing and doesn't raise" do
+        expect { post }.not_to raise_error
+      end
+    end
+
+    context "when the channel send fails" do
+      before do
+        allow(channel).to receive(:send_message).and_raise("403 missing access")
+      end
+
+      it "swallows the error so the user's action is unaffected" do
+        expect { post }.not_to raise_error
+      end
     end
   end
 
-  context "for an event gated by its own toggle" do
-    let(:event) { :role_lost }
-    let(:options) { {actor: "<@42>", roles: ["Artist"]} }
+  describe ".enabled?" do
+    subject(:enabled) { described_class.enabled?(server_config, action) }
 
-    before do
-      server_config.logging_setting.update!(enabled_actions: {"roles.role_lost" => true})
+    let(:action) { "roles.role_gained" }
+
+    it "is true when the plugin is on and the action is toggled on" do
+      expect(enabled).to be(true)
     end
 
-    it "renders that event's own line" do
-      expect(channel).to receive(:send_message).with("<@42> lost Artist.")
-      record
-    end
-  end
+    context "when the logging plugin is disabled" do
+      before do
+        PluginActivation.update_all(enabled: false)
+      end
 
-  context "when the logging plugin is disabled" do
-    before do
-      PluginActivation.update_all(enabled: false)
-    end
-
-    it "writes nothing" do
-      expect(channel).not_to receive(:send_message)
-      record
-    end
-  end
-
-  context "when this event's toggle is off" do
-    before do
-      server_config.logging_setting.update!(enabled_actions: {"roles.role_lost" => true})
+      it "is false" do
+        expect(enabled).to be(false)
+      end
     end
 
-    it "writes nothing" do
-      expect(channel).not_to receive(:send_message)
-      record
-    end
-  end
+    context "when the action's toggle is off" do
+      let(:action) { "roles.role_lost" }
 
-  context "when no logging channel is set" do
-    before do
-      server_config.logging_setting.update!(channel_id: nil)
-    end
-
-    it "writes nothing" do
-      expect(channel).not_to receive(:send_message)
-      record
-    end
-  end
-
-  context "when the logging channel no longer exists" do
-    before do
-      allow(bot).to receive(:channel).with(555).and_return(nil)
-    end
-
-    it "writes nothing and doesn't raise" do
-      expect { record }.not_to raise_error
-    end
-  end
-
-  context "when the channel send fails" do
-    before do
-      allow(channel).to receive(:send_message).and_raise("403 missing access")
-    end
-
-    it "swallows the error so the user's action is unaffected" do
-      expect { record }.not_to raise_error
-    end
-  end
-
-  context "for an unregistered event" do
-    let(:event) { :not_a_real_event }
-
-    before do
-      server_config.logging_setting.update!(enabled_actions: {"roles.not_a_real_event" => true})
-    end
-
-    it "raises so the wiring mistake surfaces" do
-      expect { record }.to raise_error(I18n::MissingTranslationData)
+      it "is false" do
+        expect(enabled).to be(false)
+      end
     end
   end
 end

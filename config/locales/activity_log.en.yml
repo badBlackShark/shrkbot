@@ -3,4 +3,7 @@ en:
   activity_log:
     roles:
       role_gained: "%{actor} gained %{roles}."
+      role_gained_and_lost: "%{actor} gained %{gained} and lost %{lost}."
       role_lost: "%{actor} lost %{roles}."
+      source: Self-assigned via the "%{set}" role menu
+      title: Roles updated

@@ -13,7 +13,8 @@ RSpec.describe Roles::Select do
   before do
     create(:server_role, server_configuration: server_config, discord_id: 100, name: "News")
     create(:server_role, server_configuration: server_config, discord_id: 200, name: "Events")
-    allow(ActivityLog).to receive(:record)
+    allow(ActivityLog).to receive(:enabled?).and_return(true)
+    allow(ActivityLog).to receive(:post)
   end
 
   let(:user) { double("user", id: 42) }
@@ -30,8 +31,12 @@ RSpec.describe Roles::Select do
   end
 
   it "logs the gained role" do
-    expect(ActivityLog).to receive(:record).with(
-      server_config, :roles, :role_gained, bot:, actor: "<@42>", roles: ["News"]
+    expect(ActivityLog).to receive(:post).with(
+      server_config,
+      bot:,
+      title: "Roles updated",
+      body: "<@42> gained **News**.",
+      meta: "Self-assigned via the \"#{set.name}\" role menu"
     )
     handle
   end
@@ -39,14 +44,32 @@ RSpec.describe Roles::Select do
   context "when the user swaps one role for another" do
     let(:member) { double("member", roles: [double("role", id: 200)], modify_roles: nil, mention: "<@42>") }
 
-    it "logs the gained and lost roles as separate lines" do
-      expect(ActivityLog).to receive(:record).with(
-        server_config, :roles, :role_gained, bot:, actor: "<@42>", roles: ["News"]
-      )
-      expect(ActivityLog).to receive(:record).with(
-        server_config, :roles, :role_lost, bot:, actor: "<@42>", roles: ["Events"]
+    it "logs one combined entry for the gained and lost roles" do
+      expect(ActivityLog).to receive(:post).with(
+        server_config,
+        bot:,
+        title: "Roles updated",
+        body: "<@42> gained **News** and lost **Events**.",
+        meta: "Self-assigned via the \"#{set.name}\" role menu"
       )
       handle
+    end
+
+    context "when only the gained toggle is enabled" do
+      before do
+        allow(ActivityLog).to receive(:enabled?).with(server_config, "roles.role_lost").and_return(false)
+      end
+
+      it "logs only the gained side" do
+        expect(ActivityLog).to receive(:post).with(
+          server_config,
+          bot:,
+          title: "Roles updated",
+          body: "<@42> gained **News**.",
+          meta: "Self-assigned via the \"#{set.name}\" role menu"
+        )
+        handle
+      end
     end
   end
 
@@ -59,9 +82,12 @@ RSpec.describe Roles::Select do
     end
 
     it "logs only the lost roles" do
-      expect(ActivityLog).not_to receive(:record).with(server_config, :roles, :role_gained, any_args)
-      expect(ActivityLog).to receive(:record).with(
-        server_config, :roles, :role_lost, bot:, actor: "<@42>", roles: ["News", "Events"]
+      expect(ActivityLog).to receive(:post).with(
+        server_config,
+        bot:,
+        title: "Roles updated",
+        body: "<@42> lost **News** and **Events**.",
+        meta: "Self-assigned via the \"#{set.name}\" role menu"
       )
       handle
     end
@@ -71,7 +97,20 @@ RSpec.describe Roles::Select do
     let(:member) { double("member", roles: [double("role", id: 100)], modify_roles: nil, mention: "<@42>") }
 
     it "logs nothing" do
-      expect(ActivityLog).not_to receive(:record)
+      expect(ActivityLog).not_to receive(:post)
+      handle
+    end
+  end
+
+  context "when both log toggles are off" do
+    let(:member) { double("member", roles: [double("role", id: 200)], modify_roles: nil, mention: "<@42>") }
+
+    before do
+      allow(ActivityLog).to receive(:enabled?).and_return(false)
+    end
+
+    it "logs nothing" do
+      expect(ActivityLog).not_to receive(:post)
       handle
     end
   end

@@ -300,8 +300,8 @@ pure `Roles::Assignment` diff with `member.modify_roles` as the seam.
 `Discord::Components` (`app/bot/discord/`) holds the shared Components V2 primitives —
 the `CONTAINER`/`TEXT_DISPLAY`/`SEPARATOR` type ids, the `COMPONENTS_V2` flag, and the
 `container`/`text`/`separator` builders — so every sender (role messages, `/info`, the
-owner broadcast) renders the same way and the brand colour lives in one place
-(`BotConfig::ACCENT_COLOR`, the container default).
+owner broadcast, the onboarding DM, activity-log entries) renders the same way and the
+brand colour lives in one place (`BotConfig::ACCENT_COLOR`, the container default).
 
 `Roles::Message` composes those builders into a **Components V2** payload, so
 `public_message`/`multi_picker` return `{components:, flags:}` with the `COMPONENTS_V2`
@@ -318,32 +318,38 @@ placeholder so a component is never empty.
 
 ## Activity logging
 
-`ActivityLog.record(server_configuration, plugin, event, bot:, **options)` (`app/bot/`) is
-the one-line API for writing a user action to a server's logging channel. It's gated twice:
-the logging plugin must be enabled, and the specific event must be toggled on.
+`ActivityLog` (`app/bot/`) is the seam for writing a user action to a server's logging
+channel, split into two queries: `ActivityLog.enabled?(server_configuration, action)` answers
+whether an event should be logged (the logging plugin must be enabled *and* the specific
+event toggled on), and `ActivityLog.post(server_configuration, bot:, title:, body:, meta:)`
+renders and delivers one entry. The split lets a consumer gate the *parts* of a composite
+entry individually while still sending a single message.
 
-One toggle per event, keyed `"<plugin>.<event>"` (e.g. `"roles.role_gained"`) — the same
-string is the toggle key, derived directly from the `plugin`/`event` args, so there's no
-separate event→action map to maintain. Toggles live in `logging_settings.enabled_actions`
-(a jsonb map, default `{}` = everything off); `LoggingSetting#action_enabled?` reads it. The
-Phase 7 web UI gives each plugin a logging tab listing its events as independent toggles, and
-greys the lot out when the logging plugin is off.
+One toggle per event, keyed `"<plugin>.<event>"` (e.g. `"roles.role_gained"`) — a plain
+string, so there's no separate event→action map to maintain. Toggles live in
+`logging_settings.enabled_actions` (a jsonb map, default `{}` = everything off);
+`LoggingSetting#action_enabled?` reads it. The Phase 7 web UI gives each plugin a logging
+tab listing its events as independent toggles, and greys the lot out when the logging
+plugin is off.
 
-Events are **atomic**, never composite: a role swap emits two lines (`role_gained` +
-`role_lost`), each gated by its own toggle, rather than a combined `roles_changed` — so the
-toggles compose cleanly with no hidden "swap logs nothing" gap, and each message stays a flat
-i18n string with no conditionals.
+Entries render as the shared **accent container** (`Discord::Components`), one text block in
+three parts: a bold **title** (the action), a **body** sentence (who was affected and what
+happened), and a muted `-#` **meta** line (who/what triggered it — e.g. `Self-assigned via
+the "Pronouns" role menu`). Mention pings are suppressed (`allowed_mentions: {parse: []}`)
+so logging a member's action never notifies them. Toggles still gate atomically, but
+delivery is composite: one interaction = one entry. A role swap with both toggles on logs a
+single "gained X and lost Y" sentence; turn one toggle off and only the other side renders —
+so the toggles compose with no "swap logs nothing" gap and no double message.
 
-Message text is `config/locales/activity_log.en.yml`, nested by plugin, looked up with
-`I18n.t("activity_log.#{plugin}.#{event}", locale: :en, raise: true)` — the bot is
-English-only, so I18n is a string registry here, not localization. `**options` are
-interpolation values; Array values are run through `to_sentence` so `roles: ["A", "B"]`
-renders "A and B". Adding a loggable event = a key in the locale file + a `record` call. A
-bad plugin/event **raises** (missing translation surfaces in the consumer's spec;
-owner-reported in prod via `BaseEvent`); only the channel send is rescued, so a delivery
-failure never breaks the user's action. Welcomes are excluded by design. Roles assignment is
-the first consumer — `Roles::ComponentHandler#log_assignment` diffs gained/lost from the
-pre-apply roles and emits one atomic event per non-empty side.
+Message text is `config/locales/activity_log.en.yml`, nested by plugin — the bot is
+English-only, so I18n is a string registry here, not localization. Per-plugin entry
+builders (e.g. `Roles::ActivityEntry`) look the strings up with `raise: true`, so a bad key
+**raises** (surfaces in the consumer's spec; owner-reported in prod via `BaseEvent`); only
+the channel send is rescued, so a delivery failure never breaks the user's action. Welcomes
+are excluded by design. Roles assignment is the first consumer —
+`Roles::ComponentHandler#log_assignment` diffs gained/lost from the pre-apply roles, drops
+any side whose toggle is off via `enabled?`, and posts one entry built by
+`Roles::ActivityEntry`.
 
 The enumerable catalog of each plugin's loggable events (so the web tab can render the toggle
 list) is a Phase 7 concern — a per-plugin declaration added when that UI is built. The bot
