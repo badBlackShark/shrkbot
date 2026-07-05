@@ -36,4 +36,8 @@ module BotConfig
   def web_base_url
     ENV.fetch("WEB_BASE_URL")
   end
+
+  def server_config_url(discord_id)
+    "#{web_base_url.chomp("/")}/servers/#{discord_id}"
+  end
 end

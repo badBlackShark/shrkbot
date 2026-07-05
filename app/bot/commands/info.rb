@@ -20,9 +20,29 @@ module Commands
           Discord::Components.text(header),
           Discord::Components.separator,
           Discord::Components.text("**Built with**\n#{credits}"),
+          *configuration_section,
           Discord::Components.separator,
           Discord::Components.text("-# Want to support the project? Use /donate.")
         ]
+      )
+    end
+
+    def configuration_section
+      return [] unless configurable?
+
+      [
+        Discord::Components.separator,
+        Discord::Components.text("**Configure me**\n[Manage this server's settings](#{BotConfig.server_config_url(event.server_id)})")
+      ]
+    end
+
+    def configurable?
+      return false unless event.server_id
+
+      CommandPermissions.permitted?(
+        event:,
+        required: [:manage_server],
+        owner_only: false
       )
     end
 
