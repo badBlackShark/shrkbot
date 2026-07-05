@@ -13,7 +13,8 @@ class Components::Button < Components::Base
   SIZES = {
     sm: "h-8 gap-1.5 px-3 text-xs",
     md: "h-9 gap-1.5 px-3.5 text-sm",
-    lg: "h-10 gap-2 px-5 text-sm"
+    lg: "h-10 gap-2 px-5 text-sm",
+    xl: "h-12 gap-2 px-6 text-base"
   }.freeze
 
   def self.css(variant: :primary, size: :md, full: false, disabled: false, extra: nil)
