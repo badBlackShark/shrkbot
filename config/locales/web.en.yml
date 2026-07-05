@@ -208,15 +208,16 @@ en:
       headline_muted: Or off.
       lede: shrkbot is a modular Discord bot. Enable just the plugins your server
         needs, nothing more, nothing less. Configure everything in one dashboard.
+      more_plugins: More plugins are on the way.
       plugins:
         logging: 'Record moderation events to a private staff channel: role changes,
           joins, leaves.'
+        reminders: Let members set personal reminders, delivered in the channel or
+          by DM.
         roles: Let members self-assign roles from a tidy menu you post in a channel.
         welcomes: Greet new members with a custom message, and say goodbye when they
           leave.
-      plugins_eyebrow: Available plugins
-      reminders_post: ") are always available, no setup needed."
-      reminders_pre: Reminders (
+      plugins_eyebrow: Example plugins
       sign_in: Sign in with Discord
       view_source: View on GitHub
     reauth:

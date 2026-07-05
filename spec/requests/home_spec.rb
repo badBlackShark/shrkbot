@@ -35,18 +35,24 @@ RSpec.describe "Home", type: :request do
     expect(response.body).to include('href="https://github.com/badBlackShark/shrkbot"')
   end
 
-  it "renders the three plugin cards" do
+  it "renders the four plugin cards" do
     home
 
-    %w[Roles Welcomes Logging].each do |name|
+    %w[Roles Welcomes Logging Reminders].each do |name|
       expect(response.body).to include(name)
     end
   end
 
-  it "renders the reminders note with /remind" do
+  it "renders the more-plugins line" do
     home
 
-    expect(response.body).to include("/remind")
+    expect(response.body).to include(I18n.t("views.home.more_plugins"))
+  end
+
+  it "renders the marquee wrapper" do
+    home
+
+    expect(response.body).to include("plugin-marquee")
   end
 
   it "renders the footer link" do
