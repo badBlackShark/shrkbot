@@ -2,6 +2,7 @@
 
 module BotConfig
   ACCENT_COLOR = 0x39afe5
+  API_VERSION = "v10"
 
   module_function
 

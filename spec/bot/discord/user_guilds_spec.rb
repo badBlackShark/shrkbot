@@ -24,7 +24,7 @@ RSpec.describe Discord::UserGuilds do
   end
 
   it "targets the pinned Discord API version" do
-    expect(described_class::ENDPOINT.to_s).to include("/api/#{described_class::API_VERSION}/")
+    expect(described_class::ENDPOINT.to_s).to include("/api/#{BotConfig::API_VERSION}/")
   end
 
   context "when Discord rejects the access token" do
