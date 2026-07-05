@@ -40,6 +40,7 @@ en:
       enabled: Enabled
       servers: Servers
     legal_links:
+      imprint: Imprint
       privacy: Privacy policy
       terms: Terms of service
     logging:
@@ -98,6 +99,7 @@ en:
       dashboard: Dashboard
       plugins: Plugins
     public_shell:
+      dashboard: Dashboard
       footer_link: free and open source
       footer_mid: ". Made with "
       footer_post: " by badBlackShark."

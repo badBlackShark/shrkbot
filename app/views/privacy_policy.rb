@@ -3,8 +3,12 @@
 class Views::PrivacyPolicy < Views::Base
   include Components::LegalProse
 
+  def initialize(user:)
+    @user = user
+  end
+
   def view_template
-    render Components::LegalPage.new(title: t(".title"), updated: t(".updated")) do
+    render Components::LegalPage.new(title: t(".title"), updated: t(".updated"), user: @user) do
       intro_section
       audience_section
       data_section

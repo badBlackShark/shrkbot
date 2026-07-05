@@ -5,6 +5,7 @@ class Components::LegalLinks < Components::Base
     nav(class: "flex items-center justify-center gap-4 text-xs text-text-muted") do
       a(href: privacy_policy_path, class: link_classes) { t(".privacy") }
       a(href: terms_of_service_path, class: link_classes) { t(".terms") }
+      a(href: imprint_path, class: link_classes) { t(".imprint") }
     end
   end
 
