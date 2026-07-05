@@ -69,5 +69,4 @@ accessories:
     image: redis:7
     host: <%= ENV["DEPLOY_HOST"] %>
     network: kamal
-    volumes:
-      - shrkbot_redis_data:/data
+    cmd: redis-server --save ""
