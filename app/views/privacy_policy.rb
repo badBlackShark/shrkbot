@@ -1,16 +1,23 @@
 # frozen_string_literal: true
 
 class Views::PrivacyPolicy < Views::Base
+  include Components::LegalProse
+
   def view_template
     render Components::LegalPage.new(title: t(".title"), updated: t(".updated")) do
       intro_section
-      controller_section
+      audience_section
       data_section
-      purpose_section
+      messages_section
+      not_section
+      basis_section
       sharing_section
       retention_section
+      deletion_section
       rights_section
+      security_section
       cookies_section
+      children_section
       changes_section
     end
   end
@@ -18,60 +25,90 @@ class Views::PrivacyPolicy < Views::Base
   private
 
   def intro_section
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".intro") }
+    paragraph(t(".intro_1"))
+    paragraph(t(".intro_2"))
   end
 
-  def controller_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".controller_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".controller_p") }
+  def audience_section
+    heading(t(".audience_h"))
+    bullets(t(".audience_members"), t(".audience_dashboard"))
   end
 
   def data_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".data_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".data_lead") }
-    ul(class: "mb-4 list-disc space-y-2 pl-6 text-text-secondary") do
-      li { t(".data_account") }
-      li { t(".data_guild") }
-      li { t(".data_reminders") }
-      li { t(".data_overwrites") }
-      li { t(".data_session") }
-    end
+    heading(t(".data_h"))
+    paragraph(t(".data_lead"))
+    bullets(
+      t(".data_guild"),
+      t(".data_account"),
+      t(".data_reminders"),
+      t(".data_notifications"),
+      t(".data_operational")
+    )
   end
 
-  def purpose_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".purpose_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".purpose_p") }
+  def messages_section
+    heading(t(".messages_h"))
+    paragraph(t(".messages_p"))
+  end
+
+  def not_section
+    heading(t(".not_h"))
+    paragraph(t(".not_p"))
+  end
+
+  def basis_section
+    heading(t(".basis_h"))
+    paragraph(t(".basis_p"))
   end
 
   def sharing_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".sharing_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".sharing_p") }
+    heading(t(".sharing_h"))
+    paragraph(t(".sharing_p"))
   end
 
   def retention_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".retention_h") }
-    ul(class: "mb-4 list-disc space-y-2 pl-6 text-text-secondary") do
-      li { t(".retention_delivery") }
-      li { t(".retention_guild") }
-      li { t(".retention_account") }
-      li { t(".retention_infra") }
-    end
+    heading(t(".retention_h"))
+    bullets(
+      t(".retention_guild"),
+      t(".retention_reminders"),
+      t(".retention_account"),
+      t(".retention_infra")
+    )
+  end
+
+  def deletion_section
+    heading(t(".deletion_h"))
+    paragraph(t(".deletion_lead"))
+    bullets(
+      t(".deletion_guild"),
+      t(".deletion_reminders"),
+      t(".deletion_account"),
+      t(".deletion_contact")
+    )
   end
 
   def rights_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".rights_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".rights_p") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".rights_delete") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".rights_contact") }
+    heading(t(".rights_h"))
+    paragraph(t(".rights_p"))
+  end
+
+  def security_section
+    heading(t(".security_h"))
+    paragraph(t(".security_p"))
   end
 
   def cookies_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".cookies_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".cookies_p") }
+    heading(t(".cookies_h"))
+    paragraph(t(".cookies_p"))
+  end
+
+  def children_section
+    heading(t(".children_h"))
+    paragraph(t(".children_p"))
   end
 
   def changes_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".changes_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".changes_p") }
+    heading(t(".changes_h"))
+    paragraph(t(".changes_p"))
   end
 end

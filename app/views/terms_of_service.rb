@@ -1,61 +1,93 @@
 # frozen_string_literal: true
 
 class Views::TermsOfService < Views::Base
+  include Components::LegalProse
+
   def view_template
     render Components::LegalPage.new(title: t(".title"), updated: t(".updated")) do
       intro_section
       service_section
+      eligibility_section
       use_section
+      admin_section
       availability_section
-      termination_section
       liability_section
+      privacy_section
+      source_section
+      termination_section
+      changes_section
       law_section
-      contact_section
     end
   end
 
   private
 
   def intro_section
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".intro") }
+    paragraph(t(".intro"))
   end
 
   def service_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".service_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".service_p") }
+    heading(t(".service_h"))
+    paragraph(t(".service_p"))
+  end
+
+  def eligibility_section
+    heading(t(".eligibility_h"))
+    paragraph(t(".eligibility_p"))
   end
 
   def use_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".use_h") }
-    ul(class: "mb-4 list-disc space-y-2 pl-6 text-text-secondary") do
-      li { t(".use_items_1") }
-      li { t(".use_items_2") }
-      li { t(".use_items_3") }
-    end
+    heading(t(".use_h"))
+    paragraph(t(".use_lead"))
+    bullets(
+      t(".use_items_1"),
+      t(".use_items_2"),
+      t(".use_items_3"),
+      t(".use_items_4")
+    )
+  end
+
+  def admin_section
+    heading(t(".admin_h"))
+    paragraph(t(".admin_p"))
   end
 
   def availability_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".availability_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".availability_p") }
-  end
-
-  def termination_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".termination_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".termination_p") }
+    heading(t(".availability_h"))
+    paragraph(t(".availability_p"))
   end
 
   def liability_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".liability_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".liability_p") }
+    heading(t(".liability_h"))
+    paragraph(t(".liability_p"))
+  end
+
+  def privacy_section
+    heading(t(".privacy_h"))
+    p(class: "mb-4 leading-relaxed text-text-secondary") do
+      plain t(".privacy_pre")
+      a(href: privacy_policy_path, class: "underline transition-colors hover:text-text-primary") { t(".privacy_link") }
+      plain t(".privacy_post")
+    end
+  end
+
+  def source_section
+    heading(t(".source_h"))
+    paragraph(t(".source_p"))
+  end
+
+  def termination_section
+    heading(t(".termination_h"))
+    paragraph(t(".termination_p"))
+  end
+
+  def changes_section
+    heading(t(".changes_h"))
+    paragraph(t(".changes_p"))
   end
 
   def law_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".law_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".law_p") }
-  end
-
-  def contact_section
-    h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".contact_h") }
-    p(class: "mb-4 leading-relaxed text-text-secondary") { t(".contact_p") }
+    heading(t(".law_h"))
+    paragraph(t(".law_p"))
   end
 end
