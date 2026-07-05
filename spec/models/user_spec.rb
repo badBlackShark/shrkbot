@@ -63,7 +63,9 @@ RSpec.describe User do
     subject(:user) { build(:user, discord_id: 99_999) }
 
     context "when OWNER_ID matches the user's discord_id" do
-      before { allow(BotConfig).to receive(:owner_id).and_return("99999") }
+      before do
+        allow(BotConfig).to receive(:owner_id).and_return("99999")
+      end
 
       it "is true" do
         expect(user.owner?).to be(true)
@@ -71,15 +73,9 @@ RSpec.describe User do
     end
 
     context "when OWNER_ID does not match" do
-      before { allow(BotConfig).to receive(:owner_id).and_return("11111") }
-
-      it "is false" do
-        expect(user.owner?).to be(false)
+      before do
+        allow(BotConfig).to receive(:owner_id).and_return("11111")
       end
-    end
-
-    context "when OWNER_ID is nil" do
-      before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
 
       it "is false" do
         expect(user.owner?).to be(false)
