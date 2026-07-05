@@ -2,28 +2,20 @@
 
 class Views::PrivacyPolicy < Views::Base
   def view_template
-    render Components::PublicShell.new do
-      article(class: "mx-auto max-w-2xl px-6 py-16") do
-        h1(class: "mb-2 font-display text-3xl font-bold tracking-tight") { t(".title") }
-        p(class: "mb-10 text-sm text-text-muted") { t(".updated") }
-        sections
-      end
+    render Components::LegalPage.new(title: t(".title"), updated: t(".updated")) do
+      intro_section
+      controller_section
+      data_section
+      purpose_section
+      sharing_section
+      retention_section
+      rights_section
+      cookies_section
+      changes_section
     end
   end
 
   private
-
-  def sections
-    intro_section
-    controller_section
-    data_section
-    purpose_section
-    sharing_section
-    retention_section
-    rights_section
-    cookies_section
-    changes_section
-  end
 
   def intro_section
     p(class: "mb-4 leading-relaxed text-text-secondary") { t(".intro") }
