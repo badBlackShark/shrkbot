@@ -23,7 +23,6 @@ en:
       plugins_on:
         one: "%{count} plugin on"
         other: "%{count} plugins on"
-      toggle_theme: Toggle dark mode
     channel_card:
       none: No channels have synced yet. shrkbot needs to be in the server first.
       placeholder: Choose a channel
@@ -138,6 +137,8 @@ en:
       discarded: Changes discarded
       save: Save
       unsaved: Unsaved changes
+    theme_toggle:
+      toggle_theme: Toggle dark mode
     welcomes:
       config_form:
         channel:
@@ -196,11 +197,29 @@ en:
           subtitle: Global settings for shrkbot's owner.
           title: Owner settings
     home:
-      configure: Configure
-      footer: Free & open source. shrkbot only reads servers you can manage.
-      sign_in: Continue with Discord
-      tagline: Turn plugins on or off and set them up — all from one place. Log in
-        to manage the servers you moderate.
+      add_to_server: Sign in to add shrkbot to your servers
+      eyebrow: Free & open source
+      footer_link: free and open source
+      footer_mid: ". Made with "
+      footer_post: " by badBlackShark."
+      footer_pre: 'shrkbot is '
+      headline: Turn features
+      headline_end: on.
+      headline_muted: Or off.
+      lede: shrkbot is a modular Discord bot. Enable just the plugins your server
+        needs, nothing more, nothing less. Configure everything in one dashboard.
+      more_plugins: More plugins are on the way.
+      plugins:
+        logging: 'Record moderation events to a private staff channel: role changes,
+          joins, leaves.'
+        reminders: Let members set personal reminders, delivered in the channel or
+          by DM.
+        roles: Let members self-assign roles from a tidy menu you post in a channel.
+        welcomes: Greet new members with a custom message, and say goodbye when they
+          leave.
+      plugins_eyebrow: Example plugins
+      sign_in: Sign in with Discord
+      view_source: View on GitHub
     reauth:
       body: Your Discord sign-in expired. Please stand by - we're refreshing it for
         you.

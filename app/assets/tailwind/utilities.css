@@ -116,6 +116,38 @@ details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0de
 [data-theme="dark"] .theme-morph .theme-sun { opacity: 1; transform: rotate(0) scale(1); }
 [data-theme="dark"] .theme-morph .theme-moon { opacity: 0; transform: rotate(90deg) scale(0.4); }
 
+.plugin-marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.plugin-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: plugin-marquee 40s linear infinite;
+}
+
+.plugin-marquee:hover .plugin-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes plugin-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plugin-marquee {
+    overflow-x: auto;
+    mask-image: none;
+  }
+
+  .plugin-marquee-track {
+    animation: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .card-lift { transition: none; }
   .anim-menu,
