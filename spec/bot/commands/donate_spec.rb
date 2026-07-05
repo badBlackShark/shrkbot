@@ -7,13 +7,19 @@ RSpec.describe Commands::Donate do
 
   let(:event) { double("event", respond: nil) }
 
-  it "responds with the donation message, ephemerally" do
-    expect(event).to receive(:respond).with(hash_including(content: described_class::MESSAGE, ephemeral: true))
+  it "responds with a branded container, ephemerally" do
+    expect(event).to receive(:respond) do |components:, ephemeral:, has_components:|
+      expect(ephemeral).to be(true)
+      expect(has_components).to be(true)
+      expect(components.first[:type]).to eq(Discord::Components::CONTAINER)
+    end
     execute
   end
 
   describe "the message content" do
-    subject(:message) { described_class::MESSAGE }
+    subject(:message) do
+      [described_class::COSTS, described_class::PLEDGE, described_class::LINKS, described_class::FOOTER].join("\n")
+    end
 
     it { is_expected.to include("https://paypal.me/trueblackshark") }
     it { is_expected.to include("https://liberapay.com/badBlackShark") }

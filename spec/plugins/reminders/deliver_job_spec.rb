@@ -6,7 +6,6 @@ require "discordrb" # the job sends over REST; load the client so we can stub it
 RSpec.describe Reminders::DeliverJob do
   subject(:perform) { described_class.perform_now(reminder_id) }
 
-  # REST calls must use the "Bot <token>" form (BotConfig.rest_token).
   let(:reminder) do
     create(:reminder, user_id: 10, channel_id: 20, server_id: 30, remind_at: 1.minute.ago, message: "hello")
   end
@@ -17,8 +16,16 @@ RSpec.describe Reminders::DeliverJob do
   end
 
   context "in a channel" do
-    it "posts the reminder to its channel and then deletes it" do
-      expect(Discordrb::API::Channel).to receive(:create_message).with("Bot tok", 20, a_string_including("hello"))
+    it "posts the reminder as a branded container and then deletes it" do
+      expect(Discordrb::API::Channel).to receive(:create_message) do |token, channel_id, content, _tts, _embeds, _nonce, _attachments, _allowed_mentions, _message_reference, components, flags|
+        expect(token).to eq("Bot tok")
+        expect(channel_id).to eq(20)
+        expect(content).to be_nil
+        expect(flags).to eq(Discord::Components::COMPONENTS_V2)
+        body = components.first[:components].first[:content]
+        expect(body).to include("<@10>")
+        expect(body).to include("hello")
+      end
       perform
       expect(Reminders::Reminder.exists?(reminder.id)).to be(false)
     end
@@ -39,7 +46,7 @@ RSpec.describe Reminders::DeliverJob do
     end
 
     it "delivers to the original channel" do
-      expect(Discordrb::API::Channel).to receive(:create_message).with("Bot tok", 20, anything)
+      expect(Discordrb::API::Channel).to receive(:create_message).with("Bot tok", 20, any_args)
       perform
     end
   end
@@ -51,7 +58,7 @@ RSpec.describe Reminders::DeliverJob do
     end
 
     it "delivers via DM" do
-      expect(Discordrb::API::Channel).to receive(:create_message).with("Bot tok", 77, anything)
+      expect(Discordrb::API::Channel).to receive(:create_message).with("Bot tok", 77, any_args)
       perform
     end
   end
@@ -63,7 +70,7 @@ RSpec.describe Reminders::DeliverJob do
     end
 
     it "delivers via DM" do
-      expect(Discordrb::API::Channel).to receive(:create_message).with("Bot tok", 88, anything)
+      expect(Discordrb::API::Channel).to receive(:create_message).with("Bot tok", 88, any_args)
       perform
     end
   end
