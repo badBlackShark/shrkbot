@@ -29,7 +29,7 @@ RSpec.describe NotificationPresenter do
 
   describe "#message" do
     it "returns the localised message" do
-      expect(presenter.message).to eq("Logging was affected — choose a new channel")
+      expect(presenter.message).to eq("Logging was affected - choose a new channel")
     end
   end
 

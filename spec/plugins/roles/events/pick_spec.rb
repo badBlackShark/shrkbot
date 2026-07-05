@@ -25,7 +25,8 @@ RSpec.describe Roles::Pick do
   end
 
   before do
-    allow(ActivityLog).to receive(:record)
+    allow(ActivityLog).to receive(:enabled?).and_return(true)
+    allow(ActivityLog).to receive(:post)
   end
 
   it "adds the picked role and removes the other roles in the set" do
@@ -34,15 +35,28 @@ RSpec.describe Roles::Pick do
   end
 
   it "logs the role the user gained" do
-    expect(ActivityLog).to receive(:record).with(
-      server_config, :roles, :role_gained, bot:, actor: "<@42>", roles: ["Blue"]
+    expect(ActivityLog).to receive(:post).with(
+      server_config,
+      bot:,
+      title: "Roles updated",
+      body: "<@42> gained **Blue**.",
+      meta: "Self-assigned via the \"#{set.name}\" role menu"
     )
     handle
   end
 
-  it "confirms the new selection ephemerally" do
-    expect(event).to receive(:respond).with(content: "**#{set.name}**: Blue", ephemeral: true)
+  it "confirms what changed ephemerally" do
+    expect(event).to receive(:respond).with(content: "You now have **Blue**.", ephemeral: true)
     handle
+  end
+
+  context "when the pick replaces a role the member has" do
+    let(:member) { double("member", roles: [double("role", id: 100)], modify_roles: nil, mention: "<@42>") }
+
+    it "names the swapped-out role in the confirmation" do
+      expect(event).to receive(:respond).with(content: "You now have **Blue** - swapped out **Red**.", ephemeral: true)
+      handle
+    end
   end
 
   context "when the custom id references a role outside the set" do

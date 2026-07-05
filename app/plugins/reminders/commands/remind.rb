@@ -23,7 +23,7 @@ module Reminders
       )
 
       if result.success?
-        event.respond(content: "👍 I'll remind you <t:#{result.value.remind_at.to_i}:R>.", ephemeral: true)
+        event.respond(content: "I'll remind you <t:#{result.value.remind_at.to_i}:R>.", ephemeral: true)
       else
         event.respond(content: "⚠️ #{result.errors.first}", ephemeral: true)
       end

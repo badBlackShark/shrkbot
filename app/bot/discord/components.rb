@@ -20,5 +20,9 @@ module Discord
     def separator
       {type: SEPARATOR, divider: true}
     end
+
+    def send_to(channel, rendered, allowed_mentions: nil)
+      channel.send_message(nil, false, nil, nil, allowed_mentions, nil, rendered[:components], rendered[:flags])
+    end
   end
 end

@@ -13,7 +13,7 @@ module Ops
 
           ::Roles::MessagePoster.post(bot, role_set)
 
-          return failure("Could not post the role message — check the channel.") if role_set.message_id.nil?
+          return failure("Could not post the role message - check the channel.") if role_set.message_id.nil?
 
           ok(role_set)
         end

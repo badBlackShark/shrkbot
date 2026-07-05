@@ -54,7 +54,7 @@ RSpec.describe Roles::Message do
       end
 
       it "explains the multi-select" do
-        expect(text_block(rendered)[:content]).to include("Select all roles that apply")
+        expect(text_block(rendered)[:content]).to include("Pick any of these roles")
       end
 
       it "separates the text from the controls" do
@@ -167,10 +167,12 @@ RSpec.describe Roles::Message do
     end
   end
 
-  describe ".selection_summary" do
-    subject(:summary) { described_class.selection_summary(set, active) }
+  describe ".pick_confirmation" do
+    subject(:confirmation) { described_class.pick_confirmation(set, picked, had) }
 
     let(:set) { create(:role_set, role_setting: setting, name: "Color") }
+    let(:picked) { 200 }
+    let(:had) { [] }
 
     before do
       create(:assignable_role, role_set: set, role_id: 100, position: 0)
@@ -179,19 +181,33 @@ RSpec.describe Roles::Message do
       sync_role(200, "Blue")
     end
 
-    context "with roles selected" do
-      let(:active) { [200] }
-
-      it "lists the chosen synced role names" do
-        expect(summary).to eq("**Color**: Blue")
+    context "when the member had no role from the set" do
+      it "confirms the new role" do
+        expect(confirmation).to eq("You now have **Blue**.")
       end
     end
 
-    context "with nothing selected" do
-      let(:active) { [] }
+    context "when the pick replaces another role" do
+      let(:had) { [100] }
 
-      it "says none" do
-        expect(summary).to eq("**Color**: none")
+      it "names what was swapped out" do
+        expect(confirmation).to eq("You now have **Blue** - swapped out **Red**.")
+      end
+    end
+
+    context "when the member picks the role they already have" do
+      let(:had) { [200] }
+
+      it "says nothing changed" do
+        expect(confirmation).to eq("No change - you already have **Blue**.")
+      end
+    end
+
+    context "when a picked role is missing from the sync" do
+      let(:picked) { 300 }
+
+      it "falls back to the placeholder" do
+        expect(confirmation).to eq("You now have **Unknown role**.")
       end
     end
   end

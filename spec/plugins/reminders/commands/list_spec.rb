@@ -19,8 +19,14 @@ RSpec.describe Reminders::List do
       create(:reminder, user_id: 1, channel_id: 2, remind_at: 1.hour.from_now, message: "buy milk")
     end
 
-    it "lists them" do
-      expect(event).to receive(:respond).with(hash_including(content: a_string_including("buy milk")))
+    it "lists them in a branded container" do
+      expect(event).to receive(:respond) do |components:, ephemeral:, has_components:|
+        expect(ephemeral).to be(true)
+        expect(has_components).to be(true)
+        content = components.first[:components].first[:content]
+        expect(content).to include("### Your reminders")
+        expect(content).to include("buy milk")
+      end
       execute
     end
   end

@@ -29,18 +29,24 @@ module Roles
       )
     end
 
-    def selection_summary(set, active_role_ids)
+    def pick_confirmation(set, picked_id, had_role_ids)
       names = role_names(set)
-      chosen = set.assignable_roles
-        .select { |role| active_role_ids.include?(role.role_id) }
-        .map { |role| names[role.role_id] || UNKNOWN_ROLE }
-      "**#{set.name}**: #{chosen.any? ? chosen.join(", ") : "none"}"
+      picked = "**#{names[picked_id] || UNKNOWN_ROLE}**"
+      replaced = (had_role_ids - [picked_id]).map { |role_id| "**#{names[role_id] || UNKNOWN_ROLE}**" }
+
+      if replaced.any?
+        "You now have #{picked} - swapped out #{replaced.to_sentence}."
+      elsif had_role_ids.include?(picked_id)
+        "No change - you already have #{picked}."
+      else
+        "You now have #{picked}."
+      end
     end
 
     def manage_section(set)
       {
         type: SECTION,
-        components: [Discord::Components.text("-# Click this button to edit your roles ->")],
+        components: [Discord::Components.text("-# Manage your roles with the button.")],
         accessory: manage_button(set)
       }
     end
@@ -50,13 +56,13 @@ module Roles
     end
 
     def single_content(set)
-      "### #{set.name}\nPick a role below — you can only have one, so choosing a role replaces your current one."
+      "### #{set.name}\nPick a role below - you can only have one, so choosing a role replaces your current one."
     end
 
     def multi_content(set)
       names = role_names(set)
       roles = set.assignable_roles.map { |role| "- **#{role_label(role, names)}**" }.join("\n")
-      "### #{set.name}\nSelect all roles that apply. You will have the following options:\n#{roles}"
+      "### #{set.name}\nPick any of these roles - as many as you like:\n#{roles}"
     end
 
     def picker_content(set)

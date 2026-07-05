@@ -6,8 +6,8 @@ en:
       dms_disabled: Error DMs disabled.
       dms_enabled: Error DMs enabled.
   assignable_roles:
-    above_bot: Above shrkbot — it ranks below this role.
-    managed: Managed by Discord — bots can't assign integration roles.
+    above_bot: Above shrkbot - it ranks below this role.
+    managed: Managed by Discord - bots can't assign integration roles.
   authentication:
     login_required: Please sign in to continue.
   components:
@@ -94,7 +94,7 @@ en:
     reminders:
       config_form:
         callout:
-          after: "— there's nothing more to configure here."
+          after: "- there's nothing more to configure here."
           before: Reminders are triggered by members using
         force_dm:
           help: Deliver every reminder in DMs, ignoring channel preferences set by
@@ -127,7 +127,7 @@ en:
             other: "%{count} roles"
           label: Assignable roles
           placeholder: Choose roles members can pick
-          unassignable: Greyed-out roles can't be assigned. shrkbot can only assign
+          unassignable: Grayed-out roles can't be assigned. shrkbot can only assign
             roles below its own highest role, and never Discord-managed ones.
         selection:
           label: Selection type
@@ -165,7 +165,7 @@ en:
   notifications:
     kinds:
       channel_deleted:
-        message: "%{plugin_name} was affected — choose a new channel"
+        message: "%{plugin_name} was affected - choose a new channel"
         title: "%{channel_name} was deleted"
         title_unknown: A channel was deleted
   servers:
@@ -187,7 +187,7 @@ en:
     welcomes:
       saved: Welcomes settings saved.
   sessions:
-    failed: Sign-in failed or was cancelled.
+    failed: Sign-in failed or was canceled.
     signed_in: Signed in as %{name}.
     signed_out: Signed out.
   views:
@@ -203,11 +203,12 @@ en:
       footer_mid: ". Made with "
       footer_post: " by badBlackShark."
       footer_pre: 'shrkbot is '
-      headline: Turn features
-      headline_end: on.
-      headline_muted: Or off.
-      lede: shrkbot is a modular Discord bot. Enable just the plugins your server
-        needs, nothing more, nothing less. Configure everything in one dashboard.
+      headline: You pick the parts.
+      headline_end: shrkbot
+      headline_muted: does the rest.
+      lede: 'shrkbot is your server''s mechanic: a modular Discord bot that keeps
+        exactly the plugins you want running, nothing more, nothing less. Configure
+        everything from one dashboard.'
       more_plugins: More plugins are on the way.
       plugins:
         logging: 'Record moderation events to a private staff channel: role changes,

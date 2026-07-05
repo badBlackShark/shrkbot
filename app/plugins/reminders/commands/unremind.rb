@@ -14,7 +14,7 @@ module Reminders
       return event.respond(content: "⚠️ That reminder doesn't exist.", ephemeral: true) unless reminder
 
       Ops::Reminders::Delete.call(reminder:)
-      event.respond(content: "🗑️ Reminder cancelled.", ephemeral: true)
+      event.respond(content: "Reminder canceled.", ephemeral: true)
     end
 
     def autocomplete

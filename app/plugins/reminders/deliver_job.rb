@@ -18,7 +18,24 @@ module Reminders
 
     def deliver(reminder)
       channel_id = deliver_via_dm?(reminder) ? dm_channel_id(reminder.user_id) : reminder.channel_id
-      Discordrb::API::Channel.create_message(BotConfig.rest_token, channel_id, content(reminder))
+      rendered = message(reminder)
+      Discordrb::API::Channel.create_message(
+        BotConfig.rest_token,
+        channel_id,
+        nil,
+        false,
+        nil,
+        nil,
+        nil,
+        nil,
+        nil,
+        rendered[:components],
+        rendered[:flags]
+      )
+    end
+
+    def message(reminder)
+      Discord::Components.container([Discord::Components.text(content(reminder))])
     end
 
     def deliver_via_dm?(reminder)
@@ -34,7 +51,7 @@ module Reminders
 
     def content(reminder)
       ago = distance_of_time_in_words(reminder.created_at, reminder.remind_at)
-      "⏰ <@#{reminder.user_id}> you asked me #{ago} ago to remind you:\n> #{reminder.message}"
+      "<@#{reminder.user_id}>, you asked me #{ago} ago to remind you:\n> #{reminder.message}"
     end
   end
 end

@@ -28,14 +28,21 @@ module Roles
 
     def log_assignment(had, diff)
       names = role_names(diff[:add] + diff[:remove])
-      log_role_change(:role_gained, label(diff[:add] - had, names))
-      log_role_change(:role_lost, label(diff[:remove] & had, names))
+      gained = logged_roles(:role_gained, diff[:add] - had, names)
+      lost = logged_roles(:role_lost, diff[:remove] & had, names)
+      return if gained.empty? && lost.empty?
+
+      ActivityLog.post(
+        server_configuration,
+        bot: event.bot,
+        **ActivityEntry.build(set:, actor: member.mention, gained:, lost:)
+      )
     end
 
-    def log_role_change(name, roles)
-      return if roles.empty?
+    def logged_roles(name, role_ids, names)
+      return [] unless ActivityLog.enabled?(server_configuration, "roles.#{name}")
 
-      ActivityLog.record(server_configuration, :roles, name, bot: event.bot, actor: member.mention, roles:)
+      label(role_ids, names)
     end
 
     def member_set_role_ids

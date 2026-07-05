@@ -14,7 +14,7 @@ RSpec.describe "Home", type: :request do
   it "shows the hero headline" do
     home
 
-    expect(response.body).to include("Turn features")
+    expect(response.body).to include("You pick the parts.")
   end
 
   it "uses the brand display type for the wordmark" do

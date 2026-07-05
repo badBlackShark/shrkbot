@@ -21,13 +21,14 @@ RSpec.describe ServerOnboarder do
       notify
     end
 
-    it "includes the deep dashboard link in the message" do
-      expect(pm_channel).to receive(:send_message).with(include("https://shrkbot.gg/servers/77"))
-      notify
-    end
-
-    it "includes the server name in the message" do
-      expect(pm_channel).to receive(:send_message).with(include("Dev Refuge"))
+    it "sends a branded container with the deep dashboard link and server name" do
+      expect(pm_channel).to receive(:send_message) do |*args|
+        components = args[6]
+        flags = args[7]
+        expect(flags).to eq(Discord::Components::COMPONENTS_V2)
+        expect(components.to_s).to include("https://shrkbot.gg/servers/77")
+        expect(components.to_s).to include("Dev Refuge")
+      end
       notify
     end
 

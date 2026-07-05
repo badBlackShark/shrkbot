@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 module ActivityLog
+  SUPPRESS_MENTIONS = {parse: []}.freeze
+
   module_function
 
-  def record(server_configuration, plugin, event, bot:, **options)
-    return unless enabled?(server_configuration, "#{plugin}.#{event}")
-
+  def post(server_configuration, bot:, title:, body:, meta:)
     channel_id = server_configuration.logging_setting.channel_id
     return unless channel_id
 
-    deliver(bot, channel_id, render(plugin, event, options))
+    deliver(bot, channel_id, entry(title, body, meta))
   end
 
   def enabled?(server_configuration, action)
@@ -18,21 +18,20 @@ module ActivityLog
     server_configuration.logging_setting.action_enabled?(action)
   end
 
-  def render(plugin, event, options)
-    I18n.t("activity_log.#{plugin}.#{event}", locale: :en, raise: true, **humanize(options))
+  def entry(title, body, meta)
+    Discord::Components.container(
+      [Discord::Components.text("**#{title}**\n#{body}\n-# #{meta}")]
+    )
   end
 
-  def humanize(options)
-    options.transform_values do |value|
-      value.is_a?(Array) ? value.to_sentence : value
-    end
-  end
+  def deliver(bot, channel_id, entry)
+    channel = bot.channel(channel_id)
+    return unless channel
 
-  def deliver(bot, channel_id, text)
-    bot.channel(channel_id)&.send_message(text)
+    Discord::Components.send_to(channel, entry, allowed_mentions: SUPPRESS_MENTIONS)
   rescue => e
     Rails.logger.warn("[ActivityLog] could not write to ##{channel_id}: #{e.class}: #{e.message}")
   end
 
-  private_class_method :enabled?, :render, :humanize, :deliver
+  private_class_method :entry, :deliver
 end

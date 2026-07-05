@@ -6,7 +6,7 @@ module BotPresence
   module_function
 
   def activity_text(server_count)
-    "/help • #{server_count} #{"server".pluralize(server_count)}"
+    "/info • #{server_count} #{"server".pluralize(server_count)}"
   end
 
   def update(bot, server_count)
