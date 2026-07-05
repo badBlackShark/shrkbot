@@ -203,11 +203,12 @@ en:
       footer_mid: ". Made with "
       footer_post: " by badBlackShark."
       footer_pre: 'shrkbot is '
-      headline: Turn features
-      headline_end: on.
-      headline_muted: Or off.
-      lede: shrkbot is a modular Discord bot. Enable just the plugins your server
-        needs, nothing more, nothing less. Configure everything in one dashboard.
+      headline: You pick the parts.
+      headline_end: shrkbot
+      headline_muted: does the rest.
+      lede: 'shrkbot is your server''s mechanic: a modular Discord bot that keeps
+        exactly the plugins you want running, nothing more, nothing less. Configure
+        everything from one dashboard.'
       more_plugins: More plugins are on the way.
       plugins:
         logging: 'Record moderation events to a private staff channel: role changes,
