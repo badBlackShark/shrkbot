@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Components::LegalPage < Components::Base
+  include Components::LegalProse
+
   CONTACT_EMAIL = "info@shrkbot.com"
   SUPPORT_URL = "https://discord.gg/3gwFMTY"
 
@@ -32,9 +34,5 @@ class Components::LegalPage < Components::Base
       plain " / "
       a(href: SUPPORT_URL, class: link_classes) { t(".contact_support") }
     end
-  end
-
-  def link_classes
-    "underline transition-colors hover:text-text-primary"
   end
 end

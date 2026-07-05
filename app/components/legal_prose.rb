@@ -3,6 +3,10 @@
 module Components::LegalProse
   private
 
+  def link_classes
+    "underline transition-colors hover:text-text-primary"
+  end
+
   def heading(text)
     h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { text }
   end

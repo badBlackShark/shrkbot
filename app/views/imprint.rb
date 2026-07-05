@@ -35,7 +35,7 @@ class Views::Imprint < Views::Base
     paragraph(t(".contact_phone"))
     p(class: "mb-4 leading-relaxed text-text-secondary") do
       plain t(".contact_email_pre")
-      a(href: "mailto:#{Components::LegalPage::CONTACT_EMAIL}", class: "underline transition-colors hover:text-text-primary") { Components::LegalPage::CONTACT_EMAIL }
+      a(href: "mailto:#{Components::LegalPage::CONTACT_EMAIL}", class: link_classes) { Components::LegalPage::CONTACT_EMAIL }
     end
   end
 end
