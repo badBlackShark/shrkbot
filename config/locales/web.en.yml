@@ -1,7 +1,7 @@
 ---
 en:
   accounts:
-    deleted: Your account and reminders have been deleted.
+    deleted: Your account and all associated data have been deleted.
   admin:
     owner_only: Only the bot owner can open that page.
     settings:
@@ -197,10 +197,10 @@ en:
     accounts:
       show:
         button: Delete my account
-        confirm: Delete your account and all your reminders? This cannot be undone.
-        danger_body: Permanently deletes your account and all your pending reminders.
-          Role assignments and server settings belong to their servers and are not
-          affected. This cannot be undone.
+        confirm: Delete your account and all associated data? This cannot be undone.
+        danger_body: Permanently deletes your account and all data associated with
+          it. Role assignments and server settings belong to their servers and are
+          not affected. This cannot be undone.
         danger_title: Delete account
         reminders:
           one: 1 pending reminder
