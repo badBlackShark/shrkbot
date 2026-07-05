@@ -1,5 +1,7 @@
 ---
 en:
+  accounts:
+    deleted: Your account and all associated data have been deleted.
   admin:
     owner_only: Only the bot owner can open that page.
     settings:
@@ -16,6 +18,7 @@ en:
         description: Sends you a Discord DM when shrkbot hits an unexpected error.
         label: DM me on errors
     app_shell:
+      account: Account
       add_server: Add another server
       admin_settings: Admin settings
       log_out: Log out
@@ -200,6 +203,20 @@ en:
     signed_in: Signed in as %{name}.
     signed_out: Signed out.
   views:
+    accounts:
+      show:
+        button: Delete my account
+        confirm: Delete your account and all associated data? This cannot be undone.
+        danger_body: Permanently deletes your account and all data associated with
+          it. Role assignments and server settings belong to their servers and are
+          not affected. This cannot be undone.
+        danger_title: Delete account
+        reminders:
+          one: 1 pending reminder
+          other: "%{count} pending reminders"
+          zero: No pending reminders
+        subtitle: What shrkbot stores about you.
+        title: Account
     admin:
       settings:
         show:

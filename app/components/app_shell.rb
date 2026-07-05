@@ -4,7 +4,6 @@ class Components::AppShell < Components::Base
   include Phlex::Rails::Helpers::ImageTag
   include Phlex::Rails::Helpers::ButtonTo
   include Phlex::Rails::Helpers::TurboFrameTag
-  include Components::Initials
 
   def initialize(user:, current_server: nil, current_server_id: nil, servers: [], plugin_counts: {}, sidebar: nil)
     @user = user
@@ -127,7 +126,7 @@ class Components::AppShell < Components::Base
         data: {action: "click->dropdown#toggle"},
         class: "flex h-10 cursor-pointer list-none items-center gap-2 rounded-full pl-1 pr-2.5 transition-colors hover:bg-surface-sunken [&::-webkit-details-marker]:hidden"
       ) do
-        avatar
+        render Components::UserAvatar.new(user: @user, size: :sm)
         span(class: "hidden text-sm font-medium sm:block") { @user.display_name }
         render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 text-text-muted")
       end
@@ -136,6 +135,14 @@ class Components::AppShell < Components::Base
         data: {dropdown_target: "menu"},
         class: "dropdown-menu absolute right-0 top-12 z-40 w-52 rounded-lg border border-border-default bg-surface-card p-1.5 shadow-lg"
       ) do
+        a(
+          href: account_path,
+          class: "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-text-secondary transition-colors hover:bg-surface-sunken"
+        ) do
+          render Components::Icon.new("user", class: "size-4")
+          span { t(".account") }
+        end
+        div(class: "mx-1 my-1 h-px bg-surface-sunken")
         if @user.owner?
           a(
             href: admin_settings_path,
@@ -155,14 +162,6 @@ class Components::AppShell < Components::Base
           span { t(".log_out") }
         end
       end
-    end
-  end
-
-  def avatar
-    if @user.avatar_url
-      image_tag(@user.avatar_url, alt: "", loading: "lazy", class: "size-8 rounded-full object-cover")
-    else
-      span(class: "flex size-8 items-center justify-center rounded-full bg-accent-soft text-xs font-bold text-accent-soft-fg") { initials(@user.display_name) }
     end
   end
 end
