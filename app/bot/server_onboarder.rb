@@ -24,6 +24,6 @@ module ServerOnboarder
   end
 
   def dashboard_url(server)
-    "#{BotConfig.web_base_url.chomp("/")}/servers/#{server.id}"
+    BotConfig.server_config_url(server.id)
   end
 end

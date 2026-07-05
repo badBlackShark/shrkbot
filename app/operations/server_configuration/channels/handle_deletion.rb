@@ -40,7 +40,7 @@ module Ops
         end
 
         def config_url(plugin)
-          "#{BotConfig.web_base_url.chomp("/")}/servers/#{server_configuration.discord_id}/#{plugin.key}"
+          "#{BotConfig.server_config_url(server_configuration.discord_id)}/#{plugin.key}"
         end
       end
     end
