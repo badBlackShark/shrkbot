@@ -21,6 +21,7 @@
   align-items: center;
 }
 .ts-wrapper.single .ts-control { cursor: pointer; }
+.ts-wrapper.single.input-active .ts-control { background: var(--surface-card); }
 .ts-wrapper .ts-control::placeholder,
 .ts-wrapper .ts-control input::placeholder { color: var(--text-muted); }
 .ts-wrapper.focus .ts-control,
@@ -95,6 +96,7 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-primary) 18%, transparent);
 }
 .ts-wrapper.multi .ts-control > .item .ts-dot { margin-right: 0.3125rem; }
+.ts-wrapper.plugin-remove_button:not(.rtl) .item .remove { border-left-color: var(--accent-soft-bd); }
 .ts-lock {
   display: inline-flex;
   margin-left: auto;

@@ -35,6 +35,7 @@ registry:
 builder:
   arch: amd64
   dockerfile: Dockerfile.prod
+  remote: ssh://root@<%= ENV["DEPLOY_HOST"] %>
 
 env:
   clear:
