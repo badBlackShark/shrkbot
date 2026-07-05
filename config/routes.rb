@@ -12,6 +12,7 @@ Rails.application.routes.draw do
 
   resource :privacy_policy, only: :show, path: "privacy"
   resource :terms_of_service, only: :show, path: "terms"
+  resource :imprint, only: :show
 
   resources :notifications, only: [:index, :show, :update]
   namespace :notifications do

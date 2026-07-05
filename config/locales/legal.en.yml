@@ -6,6 +6,17 @@ en:
       contact_operator: Tim Engelhardt
       contact_support: support server
   views:
+    imprint:
+      contact_email_pre: 'Email: '
+      contact_h: Contact
+      contact_phone: 'Phone: [PHONE_NUMBER]'
+      legal_ref: Information in accordance with § 5 DDG (German Digital Services Act).
+      provider_city: "[POSTAL_CODE_AND_CITY]"
+      provider_country: Germany
+      provider_h: Service provider
+      provider_name: Tim Engelhardt
+      provider_street: "[STREET_ADDRESS]"
+      title: Imprint
     privacy_policy:
       audience_dashboard: 'Dashboard users: people (usually server admins) who sign
         in to this website with Discord to configure the bot.'

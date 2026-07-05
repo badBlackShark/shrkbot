@@ -4,6 +4,6 @@ class PrivacyPoliciesController < ApplicationController
   skip_before_action :require_login
 
   def show
-    render Views::PrivacyPolicy.new
+    render Views::PrivacyPolicy.new(user: current_user)
   end
 end
