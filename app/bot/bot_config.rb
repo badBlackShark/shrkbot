@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module BotConfig
-  ACCENT_COLOR = 0x39afe5
+  ACCENT_COLOR = 0x37a79e
   API_VERSION = "v10"
 
   module_function
