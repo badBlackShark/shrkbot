@@ -23,6 +23,10 @@ RSpec.describe Discord::UserGuilds do
     expect(fetch.first).to have_attributes(id: 42, name: "Dev Refuge", owner: true, permissions: 8, member_count: 2481)
   end
 
+  it "targets the pinned Discord API version" do
+    expect(described_class::ENDPOINT.to_s).to include("/api/#{described_class::API_VERSION}/")
+  end
+
   context "when Discord rejects the access token" do
     let(:code) { "401" }
     let(:body) { "" }

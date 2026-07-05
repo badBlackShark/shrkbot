@@ -5,7 +5,8 @@ require "json"
 
 module Discord
   class UserGuilds
-    ENDPOINT = URI("https://discord.com/api/v10/users/@me/guilds?with_counts=true")
+    API_VERSION = "v10"
+    ENDPOINT = URI("https://discord.com/api/#{API_VERSION}/users/@me/guilds?with_counts=true")
 
     class Error < StandardError; end
 
