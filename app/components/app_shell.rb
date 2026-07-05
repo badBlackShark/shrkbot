@@ -4,7 +4,6 @@ class Components::AppShell < Components::Base
   include Phlex::Rails::Helpers::ImageTag
   include Phlex::Rails::Helpers::ButtonTo
   include Phlex::Rails::Helpers::TurboFrameTag
-  include Components::Initials
 
   def initialize(user:, current_server: nil, current_server_id: nil, servers: [], plugin_counts: {}, sidebar: nil)
     @user = user
@@ -120,7 +119,7 @@ class Components::AppShell < Components::Base
         data: {action: "click->dropdown#toggle"},
         class: "flex h-10 cursor-pointer list-none items-center gap-2 rounded-full pl-1 pr-2.5 transition-colors hover:bg-surface-sunken [&::-webkit-details-marker]:hidden"
       ) do
-        avatar
+        render Components::UserAvatar.new(user: @user, size: :sm)
         span(class: "hidden text-sm font-medium sm:block") { @user.display_name }
         render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 text-text-muted")
       end
@@ -156,14 +155,6 @@ class Components::AppShell < Components::Base
           span { t(".log_out") }
         end
       end
-    end
-  end
-
-  def avatar
-    if @user.avatar_url
-      image_tag(@user.avatar_url, alt: "", loading: "lazy", class: "size-8 rounded-full object-cover")
-    else
-      span(class: "flex size-8 items-center justify-center rounded-full bg-accent-soft text-xs font-bold text-accent-soft-fg") { initials(@user.display_name) }
     end
   end
 end

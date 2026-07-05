@@ -2,8 +2,6 @@
 
 class Views::Accounts::Show < Views::Base
   include Phlex::Rails::Helpers::ButtonTo
-  include Phlex::Rails::Helpers::ImageTag
-  include Components::Initials
 
   def initialize(user:, reminder_count:)
     @user = user
@@ -32,7 +30,7 @@ class Views::Accounts::Show < Views::Base
   def data_card
     render Components::Card.new(class: "mb-6 flex flex-col gap-4") do
       div(class: "flex items-center gap-4") do
-        avatar
+        render Components::UserAvatar.new(user: @user, size: :lg)
         div do
           p(class: "font-semibold") { @user.display_name }
           p(class: "text-sm text-text-secondary") { @user.username }
@@ -53,16 +51,6 @@ class Views::Accounts::Show < Views::Base
         data: {turbo_confirm: t(".confirm")},
         class: "rounded-md border border-danger px-4 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger-soft"
       ) { t(".button") }
-    end
-  end
-
-  def avatar
-    if @user.avatar_url
-      image_tag(@user.avatar_url, alt: "", loading: "lazy", class: "size-16 rounded-full object-cover")
-    else
-      span(class: "flex size-16 items-center justify-center rounded-full bg-accent-soft text-lg font-bold text-accent-soft-fg") do
-        initials(@user.display_name)
-      end
     end
   end
 end

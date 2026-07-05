@@ -6,7 +6,7 @@ module Ops
       receives :user
 
       def call
-        ::Reminders::Reminder.where(user_id: user.discord_id).delete_all
+        ::Reminders::Reminder.for_user(user.discord_id).delete_all
         user.destroy!
         ok(user)
       end

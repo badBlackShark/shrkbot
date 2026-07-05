@@ -23,7 +23,7 @@ RSpec.describe "Accounts", type: :request do
     end
 
     describe "DELETE /account" do
-      let(:user) { User.find_by(discord_id: 12345) }
+      let(:user) { User.find_by(discord_id: auth.uid) }
       let!(:reminder) { create(:reminder, user_id: user.discord_id) }
 
       it "destroys the user" do
