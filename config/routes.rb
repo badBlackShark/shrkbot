@@ -13,6 +13,9 @@ Rails.application.routes.draw do
   get "/auth/failure", to: "sessions#failure"
   delete "/logout", to: "sessions#destroy", as: :logout
 
+  resource :privacy_policy, only: :show, path: "privacy"
+  resource :terms_of_service, only: :show, path: "terms"
+
   resources :notifications, only: [:index, :show, :update]
   namespace :notifications do
     resource :read, only: :create
