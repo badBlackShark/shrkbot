@@ -25,7 +25,10 @@ module ActivityLog
   end
 
   def deliver(bot, channel_id, entry)
-    bot.channel(channel_id)&.send_message(nil, false, nil, nil, SUPPRESS_MENTIONS, nil, entry[:components], entry[:flags])
+    channel = bot.channel(channel_id)
+    return unless channel
+
+    Discord::Components.send_to(channel, entry, allowed_mentions: SUPPRESS_MENTIONS)
   rescue => e
     Rails.logger.warn("[ActivityLog] could not write to ##{channel_id}: #{e.class}: #{e.message}")
   end

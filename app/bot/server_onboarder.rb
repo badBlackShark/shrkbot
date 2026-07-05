@@ -6,8 +6,7 @@ module ServerOnboarder
   def notify(bot, server, config)
     return if config.onboarded_at?
 
-    rendered = message(server)
-    bot.pm_channel(server.owner.id).send_message(nil, false, nil, nil, nil, nil, rendered[:components], rendered[:flags])
+    Discord::Components.send_to(bot.pm_channel(server.owner.id), message(server))
     config.update!(onboarded_at: Time.current)
   rescue => e
     Rails.logger.error("[ServerOnboarder] could not onboard server #{server.id}: #{e.class}: #{e.message}")

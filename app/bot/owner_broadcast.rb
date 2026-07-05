@@ -16,8 +16,7 @@ module OwnerBroadcast
   end
 
   def deliver(bot, owner_id, content)
-    rendered = message(content)
-    bot.pm_channel(owner_id).send_message(nil, false, nil, nil, nil, nil, rendered[:components], rendered[:flags])
+    Discord::Components.send_to(bot.pm_channel(owner_id), message(content))
     true
   rescue => e
     Rails.logger.warn("[OwnerBroadcast] could not DM owner #{owner_id}: #{e.class}: #{e.message}")
