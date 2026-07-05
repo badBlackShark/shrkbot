@@ -1,0 +1,183 @@
+---
+en:
+  components:
+    legal_page:
+      contact_h: Contact
+      contact_operator: Tim Engelhardt
+      contact_support: support server
+  views:
+    privacy_policy:
+      audience_dashboard: 'Dashboard users: people (usually server admins) who sign
+        in to this website with Discord to configure the bot.'
+      audience_h: Who this applies to
+      audience_members: 'Server members: people in a Discord server that shrkbot has
+        been added to. shrkbot may process limited data about you because of features
+        an admin has enabled.'
+      basis_h: Legal bases
+      basis_p: Where the GDPR applies we rely on performance of the service (Art.
+        6(1)(b) — providing the features you or your admins enable) and legitimate
+        interests (Art. 6(1)(f) — operating, securing and debugging the Service).
+        You can object to processing based on legitimate interests — see "Your rights".
+      changes_h: Changes
+      changes_p: If this policy changes, the new version is published here with an
+        updated date; for significant changes we'll try to give notice through the
+        Service.
+      children_h: Children
+      children_p: shrkbot isn't directed at children. You must meet Discord's minimum
+        age requirement (at least 13, or older where your country requires) to use
+        Discord and the Service.
+      cookies_h: Cookies
+      cookies_p: 'We set exactly one cookie: the essential encrypted session cookie
+        described above. No tracking, no third-party cookies.'
+      data_account: 'Dashboard account: when you sign in with Discord we store your
+        Discord ID, username, display name and avatar reference. We request only the
+        identify and guilds OAuth scopes — we never receive your email, password or
+        messages. Your Discord access token is held only in an encrypted session cookie
+        in your browser (valid two weeks), never in our database, and is used solely
+        to read which servers you manage.'
+      data_guild: 'Server configuration: the server''s Discord ID, name, icon reference
+        and approximate member count, plus a cached copy of its channels and roles
+        (IDs, names, types, colours, positions) and their permission overwrites —
+        which can reference member Discord IDs — mirrored from Discord so the dashboard
+        can display and apply your setup. Also which plugins are enabled, and the
+        welcome, logging and role-menu settings admins configure.'
+      data_h: What we store and why
+      data_lead: 'We store only what the enabled features need:'
+      data_notifications: 'Dashboard notifications: short activity entries (an event
+        type plus details such as a plugin or channel name) so admins can see recent
+        changes.'
+      data_operational: 'Operational data: background jobs briefly process the data
+        above while running; a failed job may keep a short error record for up to
+        30 days. The web server keeps standard technical logs (IP address, timestamp,
+        browser type) for security and troubleshooting.'
+      data_reminders: 'Reminders: the reminder text you write, your Discord ID, the
+        target channel and server, whether to deliver by DM, and the due time — kept
+        until delivered or deleted by you with /unremind.'
+      deletion_account: Delete your dashboard account and your reminders with the
+        "Delete my account" button on your account page.
+      deletion_contact: Or contact us (see below) and we'll take care of it.
+      deletion_guild: Remove the bot from a server to delete that server's configuration.
+      deletion_h: Deleting your data
+      deletion_lead: 'Erasure is self-service:'
+      deletion_reminders: Delete individual reminders with /unremind.
+      intro_1: This policy explains what the shrkbot Discord bot and its web dashboard
+        (together, the "Service") store, why, and the choices you have. It's written
+        to be readable rather than dense — if anything is unclear, contact us.
+      intro_2: The Service is operated by Tim Engelhardt, the data controller under
+        the EU General Data Protection Regulation (GDPR).
+      messages_h: Message content
+      messages_p_1: shrkbot uses Discord's message-content intent so that servers
+        can enable automated moderation. When an admin turns that feature on, shrkbot
+        reads new messages — including, using optical character recognition (OCR),
+        text contained in posted images — to check them against the server's rules.
+        On servers that don't enable moderation, messages aren't processed at all.
+      messages_p_2: 'This scanning happens in real time and in memory only: we do
+        not store or retain message content, images, or text extracted from images.
+        Once a message has been checked, its content is discarded. We keep no message
+        history, no message logs, and no copies of your server''s conversations.'
+      messages_p_3: If automated moderation acts on a message, shrkbot can post a
+        moderation log entry to a channel your admins designate. That entry may include
+        the offending message or the text extracted from an image so moderators can
+        review it — it is delivered as an ordinary Discord message and is therefore
+        stored by Discord in that channel, not retained by shrkbot. A short record
+        that an action occurred (without the message content) may also appear in the
+        dashboard.
+      messages_p_4: The bot also receives member join and leave events to deliver
+        welcome messages; the username shown there is rendered into the message and
+        not stored.
+      not_h: What we don't do
+      not_p: We don't sell data, we don't advertise, we don't profile you, we don't
+        run analytics, and we don't store your servers' member lists or conversations.
+      retention_account: 'Dashboard account: kept until you delete it on your account
+        page.'
+      retention_guild: 'Server configuration: deleted automatically, in full, the
+        moment the bot is removed from the server.'
+      retention_h: How long we keep it
+      retention_infra: Caches, background-job records and logs are cleared automatically
+        (at most 60 days, 30 days and briefly, respectively). Deleted data also drops
+        out of database backups as they rotate.
+      retention_reminders: 'Reminders: deleted once delivered, or earlier if you delete
+        them.'
+      rights_h: Your rights
+      rights_p: Under the GDPR you have the right to access, correct, delete, restrict
+        or object to our use of your personal data, and the right to data portability.
+        You also have the right to complain to a supervisory authority — in Germany,
+        your regional data protection authority. To exercise any of these, contact
+        us (see below).
+      security_h: Security
+      security_p: Data travels over encrypted (HTTPS/TLS) connections and database
+        access is restricted to the operator. No system is perfectly secure, so we
+        can't guarantee absolute security, but we take reasonable measures and will
+        notify affected users of a serious breach where the law requires it.
+      sharing_h: Who we share data with
+      sharing_p: 'Only the infrastructure that runs the Service: Discord itself, through
+        its API (your use of Discord is governed by Discord''s own privacy policy),
+        and our hosting provider Hetzner (Helsinki, Finland — within the EEA), where
+        the Service and its database run. We may disclose data where required by law.'
+      title: Privacy policy
+      updated: 'Last updated: July 5th, 2026'
+    terms_of_service:
+      admin_h: Your responsibilities as a server admin
+      admin_p: If you add shrkbot to a server or configure it, you're responsible
+        for how it's used there — including any messages you configure it to send
+        (such as welcome messages) and any logging you enable. Where you enable features
+        that process other members' data, you're responsible for having a proper basis
+        to do so and for informing your members as applicable law requires.
+      availability_h: Availability and changes
+      availability_p: The Service is provided "as is" and "as available", without
+        warranties of any kind. We may change, suspend, add or remove features, or
+        take the Service offline, at any time and without notice. We don't guarantee
+        that the Service will be uninterrupted or error-free, or that data will never
+        be lost.
+      changes_h: Changes to these terms
+      changes_p: We may update these terms. We'll update the "last updated" date and,
+        for significant changes, try to give notice through the Service. Continued
+        use after changes means you accept them.
+      eligibility_h: Eligibility
+      eligibility_p: You must meet Discord's minimum age requirement and comply with
+        Discord's Terms of Service and Community Guidelines when using the Service.
+      intro: These terms govern your use of the shrkbot Discord bot and its web dashboard
+        (the "Service"), operated by Tim Engelhardt. By adding shrkbot to a server,
+        using its features or signing in to the dashboard, you agree to them. If you
+        don't agree, please don't use the Service.
+      law_h: Governing law
+      law_p: These terms are governed by the laws of Germany, without regard to conflict-of-laws
+        rules and subject to any mandatory consumer protections that apply where you
+        live.
+      liability_h: Limitation of liability
+      liability_p: We are liable without limit for damages caused by intent or gross
+        negligence and for culpable injury to life, body or health. Beyond that, and
+        to the extent legally permissible, we are not liable for indirect, incidental
+        or consequential damages or for loss of data arising from your use of, or
+        inability to use, the free Service. Nothing in these terms limits liability
+        that cannot be limited by law.
+      privacy_h: Privacy
+      privacy_link: privacy policy
+      privacy_post: ", which forms part of these terms."
+      privacy_pre: 'Our handling of data is described in our '
+      service_h: The service
+      service_p: shrkbot is a general-purpose Discord bot whose features — self-assignable
+        roles, reminders, welcome and leave messages, activity logging and automated
+        moderation — are enabled per server and configured through commands and this
+        website. The Service is provided free of charge.
+      source_h: Open source
+      source_p: shrkbot's source code is published under the MIT licence. That licence
+        covers the code; your use of the instance we operate is governed by these
+        terms.
+      termination_h: Termination
+      termination_p: You can stop using the Service at any time by removing shrkbot
+        from your server — which permanently deletes that server's data — or by deleting
+        your dashboard account. We may restrict or terminate access for any server
+        or user that breaches these terms or that we reasonably believe is misusing
+        the Service.
+      title: Terms of service
+      updated: 'Last updated: July 5th, 2026'
+      use_h: Acceptable use
+      use_items_1: use the Service to violate Discord's Terms of Service, Community
+        Guidelines or any applicable law;
+      use_items_2: abuse, disrupt, overload or attempt to gain unauthorised access
+        to the Service or its infrastructure;
+      use_items_3: use the Service to harass others or to store or distribute unlawful
+        content;
+      use_items_4: attempt to circumvent limits, security or access controls.
+      use_lead: 'You agree not to:'

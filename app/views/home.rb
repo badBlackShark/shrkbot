@@ -5,40 +5,14 @@ class Views::Home < Views::Base
   include Phlex::Rails::Helpers::ImageTag
   include Components::PluginNav
 
-  REPO_URL = "https://github.com/badBlackShark/shrkbot"
-
   def view_template
-    div(class: "flex min-h-screen flex-col") do
-      header_bar
-      main(class: "flex-1") do
-        hero
-        plugin_showcase
-      end
-      footer_bar
+    render Components::PublicShell.new do
+      hero
+      plugin_showcase
     end
   end
 
   private
-
-  def header_bar
-    header(class: "app-bar z-30 flex h-16 items-center gap-3 px-6") do
-      image_tag("shrkbot-mascot.png", alt: "shrkbot", class: "size-9 rounded-control")
-      span(class: "font-display text-lg font-bold tracking-tight") do
-        render Components::Wordmark.new
-      end
-      div(class: "flex-1")
-      render Components::ThemeToggle.new
-      button_to(
-        "/auth/discord",
-        method: :post,
-        data: {turbo: false},
-        class: Components::Button.css(variant: :primary, size: :lg)
-      ) do
-        render Components::Icon.new("sign-in", class: "size-4")
-        span { t(".sign_in") }
-      end
-    end
-  end
 
   def hero
     section(class: "mx-auto flex max-w-4xl flex-col items-center gap-12 px-6 py-20 sm:flex-row") do
@@ -62,7 +36,7 @@ class Views::Home < Views::Base
             span { t(".add_to_server") }
           end
           a(
-            href: REPO_URL,
+            href: Components::PublicShell::REPO_URL,
             target: "_blank",
             rel: "noopener",
             class: Components::Button.css(variant: :secondary, size: :xl, extra: "text-sm")
@@ -104,16 +78,6 @@ class Views::Home < Views::Base
       end
       p(class: "font-display text-sm font-semibold") { t("components.plugin_row.plugin.#{key}.name") }
       p(class: "mt-1 text-sm leading-relaxed text-text-secondary") { t(".plugins.#{key}") }
-    end
-  end
-
-  def footer_bar
-    footer(class: "border-t border-border-default px-6 py-8 text-center text-xs text-text-muted") do
-      plain t(".footer_pre")
-      a(href: REPO_URL, class: "underline transition-colors hover:text-text-secondary") { t(".footer_link") }
-      plain t(".footer_mid")
-      span(class: "text-accent-2-text") { "♥" }
-      plain t(".footer_post")
     end
   end
 end

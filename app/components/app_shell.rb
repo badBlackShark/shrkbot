@@ -26,10 +26,17 @@ class Components::AppShell < Components::Base
       else
         main(class: "flex-1") { yield }
       end
+      footer_bar
     end
   end
 
   private
+
+  def footer_bar
+    footer(class: "border-t border-border-default px-6 py-4") do
+      render Components::LegalLinks.new
+    end
+  end
 
   def top_bar
     header(class: "app-bar z-30 flex h-16 flex-none items-center gap-3 px-5") do

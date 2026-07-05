@@ -6,6 +6,9 @@ data:
     - config/locales/*.%{locale}.yml
   write:
     - ["activity_log.*", "config/locales/activity_log.%{locale}.yml"]
+    - ["views.privacy_policy.*", "config/locales/legal.%{locale}.yml"]
+    - ["views.terms_of_service.*", "config/locales/legal.%{locale}.yml"]
+    - ["components.legal_page.*", "config/locales/legal.%{locale}.yml"]
     - "config/locales/web.%{locale}.yml"
 
 search:

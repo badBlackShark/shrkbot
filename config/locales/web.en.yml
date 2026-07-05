@@ -36,6 +36,9 @@ en:
       enable: Enable %{plugin}
       enabled: Enabled
       servers: Servers
+    legal_links:
+      privacy: Privacy policy
+      terms: Terms of service
     logging:
       config_form:
         channel:
@@ -91,6 +94,12 @@ en:
     plugin_sidebar:
       dashboard: Dashboard
       plugins: Plugins
+    public_shell:
+      footer_link: free and open source
+      footer_mid: ". Made with "
+      footer_post: " by badBlackShark."
+      footer_pre: 'shrkbot is '
+      sign_in: Sign in with Discord
     reminders:
       config_form:
         callout:
@@ -199,10 +208,6 @@ en:
     home:
       add_to_server: Sign in to add shrkbot to your servers
       eyebrow: Free & open source
-      footer_link: free and open source
-      footer_mid: ". Made with "
-      footer_post: " by badBlackShark."
-      footer_pre: 'shrkbot is '
       headline: You pick the parts.
       headline_end: shrkbot
       headline_muted: does the rest.
@@ -219,7 +224,6 @@ en:
         welcomes: Greet new members with a custom message, and say goodbye when they
           leave.
       plugins_eyebrow: Example plugins
-      sign_in: Sign in with Discord
       view_source: View on GitHub
     reauth:
       body: Your Discord sign-in expired. Please stand by - we're refreshing it for
