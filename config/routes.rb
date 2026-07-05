@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   match "/auth/discord/callback", to: "sessions#create", via: [:get, :post]
   get "/auth/failure", to: "sessions#failure"
   delete "/logout", to: "sessions#destroy", as: :logout
+  resource :account, only: [:show, :destroy]
 
   resources :notifications, only: [:index, :show, :update]
   namespace :notifications do
