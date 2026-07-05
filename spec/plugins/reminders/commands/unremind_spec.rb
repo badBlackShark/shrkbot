@@ -13,7 +13,7 @@ RSpec.describe Reminders::Unremind do
 
     context "when the requester owns the reminder" do
       it "cancels it" do
-        expect(event).to receive(:respond).with(hash_including(content: a_string_including("cancelled")))
+        expect(event).to receive(:respond).with(hash_including(content: a_string_including("canceled")))
         execute
         expect(Reminders::Reminder.exists?(reminder.id)).to be(false)
       end
@@ -62,7 +62,7 @@ RSpec.describe Reminders::Unremind do
         create(:reminder, user_id: 999, message: "not mine")
       end
 
-      it "offers only the requesting user's reminders, labelled with message + absolute time" do
+      it "offers only the requesting user's reminders, labeled with message + absolute time" do
         expect(ac_event).to receive(:respond) do |choices:|
           expect(choices).to match([{name: a_string_including("walk dog", "14:30"), value: mine.id}])
         end

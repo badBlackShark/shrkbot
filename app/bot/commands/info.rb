@@ -3,7 +3,7 @@
 module Commands
   class Info < BaseCommand
     command_name :info
-    description "Show information about shrkbot — its code, stack, and how to add it to your server."
+    description "Show information about shrkbot - its code, stack, and how to add it to your server."
     register_in :global
 
     INVITE_URL = "https://discord.com/oauth2/authorize?client_id=346043915142561793"

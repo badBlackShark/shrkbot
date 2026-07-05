@@ -71,12 +71,12 @@ RSpec.describe "Roles config", type: :request do
         it "warns about roles shrkbot can't assign" do
           create(:server_role, server_configuration: config, name: "Integration", discord_id: 333, managed: true)
           get server_roles_path(guild.id)
-          expect(response.body).to include("Greyed-out roles")
+          expect(response.body).to include("Grayed-out roles")
         end
 
         it "omits the warning when every role is assignable" do
           get server_roles_path(guild.id)
-          expect(response.body).not_to include("Greyed-out roles")
+          expect(response.body).not_to include("Grayed-out roles")
         end
       end
 

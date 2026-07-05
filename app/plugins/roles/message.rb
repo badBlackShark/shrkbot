@@ -40,7 +40,7 @@ module Roles
     def manage_section(set)
       {
         type: SECTION,
-        components: [Discord::Components.text("-# Click this button to edit your roles ->")],
+        components: [Discord::Components.text("-# Manage your roles with the button.")],
         accessory: manage_button(set)
       }
     end
@@ -50,13 +50,13 @@ module Roles
     end
 
     def single_content(set)
-      "### #{set.name}\nPick a role below — you can only have one, so choosing a role replaces your current one."
+      "### #{set.name}\nPick a role below - you can only have one, so choosing a role replaces your current one."
     end
 
     def multi_content(set)
       names = role_names(set)
       roles = set.assignable_roles.map { |role| "- **#{role_label(role, names)}**" }.join("\n")
-      "### #{set.name}\nSelect all roles that apply. You will have the following options:\n#{roles}"
+      "### #{set.name}\nPick any of these roles - as many as you like:\n#{roles}"
     end
 
     def picker_content(set)

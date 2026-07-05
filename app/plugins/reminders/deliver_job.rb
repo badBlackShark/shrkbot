@@ -34,7 +34,7 @@ module Reminders
 
     def content(reminder)
       ago = distance_of_time_in_words(reminder.created_at, reminder.remind_at)
-      "⏰ <@#{reminder.user_id}> you asked me #{ago} ago to remind you:\n> #{reminder.message}"
+      "<@#{reminder.user_id}>, you asked me #{ago} ago to remind you:\n> #{reminder.message}"
     end
   end
 end

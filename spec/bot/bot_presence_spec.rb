@@ -10,7 +10,7 @@ RSpec.describe BotPresence do
       let(:count) { 0 }
 
       it "pluralizes correctly" do
-        expect(activity_text).to eq("/help • 0 servers")
+        expect(activity_text).to eq("/info • 0 servers")
       end
     end
 
@@ -18,7 +18,7 @@ RSpec.describe BotPresence do
       let(:count) { 1 }
 
       it "uses singular form" do
-        expect(activity_text).to eq("/help • 1 server")
+        expect(activity_text).to eq("/info • 1 server")
       end
     end
 
@@ -26,7 +26,7 @@ RSpec.describe BotPresence do
       let(:count) { 5 }
 
       it "uses plural form" do
-        expect(activity_text).to eq("/help • 5 servers")
+        expect(activity_text).to eq("/info • 5 servers")
       end
     end
   end
@@ -37,7 +37,7 @@ RSpec.describe BotPresence do
     let(:bot) { double("bot") }
 
     it "pushes a Listening status with the given server count" do
-      expect(bot).to receive(:update_status).with("online", "/help • 3 servers", nil, 0, false, 2)
+      expect(bot).to receive(:update_status).with("online", "/info • 3 servers", nil, 0, false, 2)
       update
     end
   end

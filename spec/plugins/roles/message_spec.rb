@@ -54,7 +54,7 @@ RSpec.describe Roles::Message do
       end
 
       it "explains the multi-select" do
-        expect(text_block(rendered)[:content]).to include("Select all roles that apply")
+        expect(text_block(rendered)[:content]).to include("Pick any of these roles")
       end
 
       it "separates the text from the controls" do
