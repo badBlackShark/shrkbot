@@ -45,9 +45,18 @@ RSpec.describe Roles::Pick do
     handle
   end
 
-  it "confirms the new selection ephemerally" do
-    expect(event).to receive(:respond).with(content: "**#{set.name}**: Blue", ephemeral: true)
+  it "confirms what changed ephemerally" do
+    expect(event).to receive(:respond).with(content: "You now have **Blue**.", ephemeral: true)
     handle
+  end
+
+  context "when the pick replaces a role the member has" do
+    let(:member) { double("member", roles: [double("role", id: 100)], modify_roles: nil, mention: "<@42>") }
+
+    it "names the swapped-out role in the confirmation" do
+      expect(event).to receive(:respond).with(content: "You now have **Blue** - swapped out **Red**.", ephemeral: true)
+      handle
+    end
   end
 
   context "when the custom id references a role outside the set" do

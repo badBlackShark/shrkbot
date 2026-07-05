@@ -29,12 +29,18 @@ module Roles
       )
     end
 
-    def selection_summary(set, active_role_ids)
+    def pick_confirmation(set, picked_id, had_role_ids)
       names = role_names(set)
-      chosen = set.assignable_roles
-        .select { |role| active_role_ids.include?(role.role_id) }
-        .map { |role| names[role.role_id] || UNKNOWN_ROLE }
-      "**#{set.name}**: #{chosen.any? ? chosen.join(", ") : "none"}"
+      picked = "**#{names[picked_id] || UNKNOWN_ROLE}**"
+      replaced = (had_role_ids - [picked_id]).map { |role_id| "**#{names[role_id] || UNKNOWN_ROLE}**" }
+
+      if replaced.any?
+        "You now have #{picked} - swapped out #{replaced.to_sentence}."
+      elsif had_role_ids.include?(picked_id)
+        "No change - you already have #{picked}."
+      else
+        "You now have #{picked}."
+      end
     end
 
     def manage_section(set)
