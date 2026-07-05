@@ -24,4 +24,8 @@ class User < ApplicationRecord
 
     "https://cdn.discordapp.com/avatars/#{discord_id}/#{avatar}.png"
   end
+
+  def owner?
+    discord_id.to_s == BotConfig.owner_id
+  end
 end

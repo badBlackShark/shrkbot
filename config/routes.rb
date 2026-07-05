@@ -18,6 +18,10 @@ Rails.application.routes.draw do
     resource :read, only: :create
   end
 
+  namespace :admin do
+    resource :settings, only: [:show, :update]
+  end
+
   resources :servers, only: [:index, :show], param: :id do
     resources :plugins, only: :update, param: :key, module: :servers
     scope module: :servers do

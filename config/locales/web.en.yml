@@ -1,13 +1,23 @@
 ---
 en:
+  admin:
+    owner_only: Only the bot owner can open that page.
+    settings:
+      dms_disabled: Error DMs disabled.
+      dms_enabled: Error DMs enabled.
   assignable_roles:
     above_bot: Above shrkbot — it ranks below this role.
     managed: Managed by Discord — bots can't assign integration roles.
   authentication:
     login_required: Please sign in to continue.
   components:
+    admin:
+      owner_dm_card:
+        description: Sends you a Discord DM when shrkbot hits an unexpected error.
+        label: DM me on errors
     app_shell:
       add_server: Add another server
+      admin_settings: Admin settings
       log_out: Log out
       notifications: Notifications
       plugins_on:
@@ -180,6 +190,11 @@ en:
     signed_in: Signed in as %{name}.
     signed_out: Signed out.
   views:
+    admin:
+      settings:
+        show:
+          subtitle: Global settings for shrkbot's owner.
+          title: Owner settings
     home:
       configure: Configure
       footer: Free & open source. shrkbot only reads servers you can manage.

@@ -144,6 +144,16 @@ class Components::AppShell < Components::Base
         data: {dropdown_target: "menu"},
         class: "dropdown-menu absolute right-0 top-12 z-40 w-52 rounded-lg border border-border-default bg-surface-card p-1.5 shadow-lg"
       ) do
+        if @user.owner?
+          a(
+            href: admin_settings_path,
+            class: "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-text-secondary transition-colors hover:bg-surface-sunken"
+          ) do
+            render Components::Icon.new("shield", class: "size-4")
+            span { t(".admin_settings") }
+          end
+          div(class: "mx-1 my-1 h-px bg-surface-sunken")
+        end
         button_to(
           logout_path,
           method: :delete,
