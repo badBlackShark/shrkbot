@@ -87,3 +87,29 @@ runtime (a DB read), since handlers aren't hidden the way guild commands are.
 Every non-trivial unit ships with a spec (RSpec + FactoryBot). Test our logic, not
 discordrb. Factories never set `id`. Run `bundle exec rspec`, `bundle exec standardrb`,
 and `bundle exec rake active_record_doctor` before pushing.
+
+## 7. Privacy & data
+
+Any new stored data must be reflected **in the same chunk** in three places:
+
+1. **Privacy policy** (`config/locales/legal.en.yml`): describe what is stored, why,
+   and how long it is retained.
+2. **`Ops::Users::Destroy`**: if the data is per-user (keyed by a Discord user ID),
+   add deletion there so a user's data is purged on request.
+3. **Guild purge**: if the data is guild-scoped, it must cascade when the guild
+   configuration is destroyed.
+
+For guild-scoped data, hang the table off `ServerConfiguration` with a `dependent:`
+option on the association so `Ops::ServerConfiguration::Destroy` cascades automatically.
+Data keyed by raw Discord snowflakes without an Active Record association (like
+reminders, which use a bare `server_id` column) must be handled explicitly inside that
+operation.
+
+The privacy policy's promises are binding constraints on implementation, not aspirational
+copy. For example, the moderation section commits to in-memory scanning with no message
+retention — that constraint must hold in any implementation of that plugin.
+
+The guild purge runs in two places: the `server_delete` event (`ServerCleanup`) and a
+REST-confirmed reconciliation at startup (`ServerReconciliation`, which catches kicks
+that happened while the bot was offline). Purge logic must therefore live entirely in
+`Ops::ServerConfiguration::Destroy` — never duplicated in the event handlers themselves.
