@@ -22,6 +22,8 @@ class Views::Imprint < Views::Base
     p(class: "mb-4 leading-relaxed text-text-secondary") do
       plain t(".provider_name")
       br
+      plain t(".provider_care_of")
+      br
       plain t(".provider_street")
       br
       plain t(".provider_city")
@@ -32,10 +34,11 @@ class Views::Imprint < Views::Base
 
   def contact_section
     heading(t(".contact_h"))
-    paragraph(t(".contact_phone"))
     p(class: "mb-4 leading-relaxed text-text-secondary") do
       plain t(".contact_email_pre")
       a(href: "mailto:#{Components::LegalPage::CONTACT_EMAIL}", class: link_classes) { Components::LegalPage::CONTACT_EMAIL }
     end
+    p(class: "leading-relaxed text-text-secondary") { t(".contact_phone") }
+    p(class: "mb-4 text-sm text-text-muted") { t(".contact_phone_note") }
   end
 end
