@@ -22,6 +22,8 @@ class Views::Imprint < Views::Base
     p(class: "mb-4 leading-relaxed text-text-secondary") do
       plain t(".provider_name")
       br
+      plain t(".provider_care_of")
+      br
       plain t(".provider_street")
       br
       plain t(".provider_city")

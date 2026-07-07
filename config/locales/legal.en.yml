@@ -13,11 +13,12 @@ en:
       contact_phone_note: Voice calls only; for written contact, please use the email
         above.
       legal_ref: Information in accordance with § 5 DDG (German Digital Services Act).
+      provider_care_of: 'c/o flexdienst – #21478'
       provider_city: 67663 Kaiserslautern
       provider_country: Germany
       provider_h: Service provider
       provider_name: Tim Engelhardt
-      provider_street: 'c/o flexdienst – #21478, Kurt-Schumacher-Straße 76'
+      provider_street: Kurt-Schumacher-Straße 76
       title: Imprint
     privacy_policy:
       audience_dashboard: 'Dashboard users: people (usually server admins) who sign
