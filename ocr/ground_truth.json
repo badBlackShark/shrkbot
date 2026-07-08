@@ -1,0 +1,2930 @@
+{
+  "scam1__clean.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam1__jpeg_q15.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam1__jpeg_q8.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam1__blur_2.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam1__blur_3.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam1__downscale_50.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam1__downscale_35.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam1__noise_25.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam1__contrast_040.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam1__rotate_5.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam1__phone_capture.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam1__harsh_combo.png": [
+    {
+      "pattern": "tuzawin",
+      "weight": 3,
+      "regex": false,
+      "label": "tuzawin (scam domain)"
+    },
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "$5,600 (amount)"
+    },
+    {
+      "pattern": "cryptocurrency",
+      "weight": 3,
+      "regex": false,
+      "label": "cryptocurrency"
+    },
+    {
+      "pattern": "promo code",
+      "weight": 3,
+      "regex": false,
+      "label": "promo code"
+    },
+    {
+      "pattern": "withdraw",
+      "weight": 3,
+      "regex": false,
+      "label": "withdraw"
+    },
+    {
+      "pattern": "casino",
+      "weight": 2,
+      "regex": false,
+      "label": "casino"
+    },
+    {
+      "pattern": "bonus",
+      "weight": 2,
+      "regex": false,
+      "label": "bonus"
+    },
+    {
+      "pattern": "\\bbet\\b",
+      "weight": 2,
+      "regex": true,
+      "label": "BET (promo code)"
+    },
+    {
+      "pattern": "mrbeast",
+      "weight": 2,
+      "regex": false,
+      "label": "MrBeast (impersonated)"
+    },
+    {
+      "pattern": "vyro",
+      "weight": 2,
+      "regex": false,
+      "label": "Vyro (fake project)"
+    },
+    {
+      "pattern": "reward",
+      "weight": 2,
+      "regex": false,
+      "label": "reward"
+    },
+    {
+      "pattern": "pleased to announce",
+      "weight": 1,
+      "regex": false,
+      "label": "pleased to announce"
+    },
+    {
+      "pattern": "celebrate",
+      "weight": 1,
+      "regex": false,
+      "label": "celebrate"
+    },
+    {
+      "pattern": "immediately",
+      "weight": 1,
+      "regex": false,
+      "label": "immediately"
+    },
+    {
+      "pattern": "beast games",
+      "weight": 1,
+      "regex": false,
+      "label": "beast games"
+    },
+    {
+      "pattern": "media personality",
+      "weight": 1,
+      "regex": false,
+      "label": "media personality"
+    },
+    {
+      "pattern": "followers",
+      "weight": 1,
+      "regex": false,
+      "label": "followers"
+    },
+    {
+      "pattern": "subscriptions",
+      "weight": 1,
+      "regex": false,
+      "label": "subscriptions"
+    },
+    {
+      "pattern": "this post will be deleted",
+      "weight": 1,
+      "regex": false,
+      "label": "this post will be deleted"
+    },
+    {
+      "pattern": "miss your chance",
+      "weight": 1,
+      "regex": false,
+      "label": "miss your chance"
+    },
+    {
+      "pattern": "stay tuned",
+      "weight": 1,
+      "regex": false,
+      "label": "stay tuned"
+    }
+  ],
+  "scam2__clean.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ],
+  "scam2__jpeg_q15.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ],
+  "scam2__jpeg_q8.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ],
+  "scam2__blur_2.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ],
+  "scam2__blur_3.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ],
+  "scam2__downscale_50.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ],
+  "scam2__downscale_35.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ],
+  "scam2__noise_25.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ],
+  "scam2__contrast_040.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ],
+  "scam2__rotate_5.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ],
+  "scam2__phone_capture.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ],
+  "scam2__harsh_combo.png": [
+    {
+      "pattern": "5[\\s,]?600",
+      "weight": 3,
+      "regex": true,
+      "label": "5,600 (amount)"
+    },
+    {
+      "pattern": "usdt",
+      "weight": 3,
+      "regex": false,
+      "label": "USDT"
+    },
+    {
+      "pattern": "withdrawal success",
+      "weight": 3,
+      "regex": false,
+      "label": "withdrawal success"
+    },
+    {
+      "pattern": "tether",
+      "weight": 3,
+      "regex": false,
+      "label": "tether"
+    },
+    {
+      "pattern": "te51enb",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address prefix (hard)"
+    },
+    {
+      "pattern": "wallet address",
+      "weight": 2,
+      "regex": false,
+      "label": "wallet address"
+    },
+    {
+      "pattern": "withdraw method",
+      "weight": 2,
+      "regex": false,
+      "label": "withdraw method"
+    },
+    {
+      "pattern": "completed",
+      "weight": 2,
+      "regex": false,
+      "label": "completed"
+    },
+    {
+      "pattern": "receive usdt",
+      "weight": 2,
+      "regex": false,
+      "label": "receive usdt"
+    },
+    {
+      "pattern": "block explorer",
+      "weight": 2,
+      "regex": false,
+      "label": "block explorer"
+    },
+    {
+      "pattern": "network fee",
+      "weight": 2,
+      "regex": false,
+      "label": "network fee"
+    },
+    {
+      "pattern": "bonuses",
+      "weight": 1,
+      "regex": false,
+      "label": "bonuses"
+    },
+    {
+      "pattern": "vip-club",
+      "weight": 1,
+      "regex": false,
+      "label": "VIP-Club"
+    },
+    {
+      "pattern": "bank card",
+      "weight": 1,
+      "regex": false,
+      "label": "bank card"
+    },
+    {
+      "pattern": "visa",
+      "weight": 1,
+      "regex": false,
+      "label": "visa"
+    },
+    {
+      "pattern": "your balance",
+      "weight": 1,
+      "regex": false,
+      "label": "your balance"
+    },
+    {
+      "pattern": "select crypto",
+      "weight": 1,
+      "regex": false,
+      "label": "select crypto"
+    },
+    {
+      "pattern": "continue",
+      "weight": 1,
+      "regex": false,
+      "label": "continue"
+    },
+    {
+      "pattern": "\\btrx\\b",
+      "weight": 1,
+      "regex": true,
+      "label": "TRX"
+    }
+  ]
+}
