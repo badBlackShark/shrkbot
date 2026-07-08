@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe Moderation::VerdictExecutor do
-  subject(:execute) { described_class.call(verdict:, context:) }
+  subject(:execute) { described_class.call(verdict:, context:, phash:) }
 
   let(:server_id) { 111 }
   let(:member_id) { 222 }
@@ -52,6 +52,7 @@ RSpec.describe Moderation::VerdictExecutor do
     )
   end
 
+  let(:phash) { "0123456789abcdef" }
   let(:action) { :remove }
   let(:verdict) { Moderation::Verdict.new(action:, risk: 7.0, reasons: [:new_account, "usdt"]) }
 
@@ -92,6 +93,17 @@ RSpec.describe Moderation::VerdictExecutor do
       expect(Moderation::Punisher).not_to receive(:call)
       execute
     end
+
+    it "posts a confirm/dismiss action row carrying the phash custom_ids" do
+      execute
+
+      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+        row = kwargs[:components].first
+        expect(row[:type]).to eq(Discord::Components::ACTION_ROW)
+        custom_ids = row[:components].map { |button| button[:custom_id] }
+        expect(custom_ids).to eq(["mod:confirm:#{phash}", "mod:dismiss:#{phash}"])
+      end
+    end
   end
 
   context "when the action is :remove with settings.action 'delete'" do
@@ -106,6 +118,17 @@ RSpec.describe Moderation::VerdictExecutor do
         server_configuration,
         hash_including(title: I18n.t("moderation.image_scanning.flag.title.removed"))
       )
+    end
+
+    it "posts a confirm/dismiss action row carrying the phash custom_ids" do
+      execute
+
+      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+        row = kwargs[:components].first
+        expect(row[:type]).to eq(Discord::Components::ACTION_ROW)
+        custom_ids = row[:components].map { |button| button[:custom_id] }
+        expect(custom_ids).to eq(["mod:confirm:#{phash}", "mod:dismiss:#{phash}"])
+      end
     end
 
     context "when the message channel no longer exists" do

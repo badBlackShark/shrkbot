@@ -2,6 +2,14 @@
 en:
   moderation:
     image_scanning:
+      buttons:
+        confirmed: Confirmed as a scam by %{actor} — the bot will remember this image.
+        dismiss_button: Yes, dismiss
+        dismiss_prompt: Dismiss this detection? This tells the bot the image is not
+          a scam.
+        dismissed: Dismissed by %{actor}.
+        unauthorized: You need the staff role or the Manage Messages permission to
+          do that.
       flag:
         body: "%{author} posted an image in %{channel}. [Jump to message](%{jump_url}).
           Risk %{risk}: %{reasons}."
@@ -13,6 +21,11 @@ en:
           removed: Scam image removed
       punishment:
         reason: Scam image detected
+      report:
+        done:
+          one: Reported 1 image as a scam.
+          other: Reported %{count} images as a scam.
+        none: That message has no images to report.
     spam_protection:
       notification:
         body: "%{author} posted the same message in %{count} channels: %{channels}."

@@ -44,6 +44,7 @@ class CommandRegistrar
       server_id: to_guild ? test_server_id : nil,
       default_member_permissions: reg.permissions.presence,
       contexts: to_guild ? nil : reg.contexts,
+      type: reg.type,
       &reg.options_block
     )
   end

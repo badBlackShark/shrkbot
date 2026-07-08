@@ -16,3 +16,6 @@ production:
   clear_stale_failed_jobs:
     command: "SolidQueue::FailedExecution.where(created_at: ...30.days.ago).discard_all_in_batches"
     schedule: every day at 4am
+  moderation_phash_prune:
+    command: "Ops::Moderation::Phashes::Prune.call"
+    schedule: every day at 5am

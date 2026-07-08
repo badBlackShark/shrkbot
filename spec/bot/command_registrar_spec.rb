@@ -17,8 +17,8 @@ RSpec.describe CommandRegistrar do
 
       attr_reader :autocompletes
 
-      def register_application_command(name, description, server_id:, default_member_permissions:, contexts:, &block)
-        @defined << {name:, description:, server_id:, default_member_permissions:, contexts:, block:}
+      def register_application_command(name, description, server_id:, default_member_permissions:, contexts:, type:, &block)
+        @defined << {name:, description:, server_id:, default_member_permissions:, contexts:, type:, block:}
       end
 
       def application_command(name, &block)
@@ -64,6 +64,27 @@ RSpec.describe CommandRegistrar do
       expect(cmd[:server_id]).to eq("srv_123")
       expect(cmd[:default_member_permissions]).to eq([:manage_server])
       expect(cmd[:contexts]).to be_nil
+      expect(cmd[:type]).to eq(:chat_input)
+    end
+  end
+
+  context "registering a context-menu command" do
+    let(:menu_cmd) do
+      Class.new(BaseCommand) do
+        command_name "Report as scam"
+        command_type :message
+        requires_permissions :manage_messages
+        register_in :guild
+      end
+    end
+
+    subject(:register_all) { described_class.new(fake_bot, commands: [menu_cmd]).register_all }
+
+    it "passes the :message type through to the boundary" do
+      register_all
+      cmd = fake_bot.defined.sole
+      expect(cmd[:type]).to eq(:message)
+      expect(cmd[:description]).to eq("")
     end
   end
 
