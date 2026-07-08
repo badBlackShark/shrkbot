@@ -48,6 +48,28 @@ RSpec.describe ActivityLog do
       post
     end
 
+    context "with an image_url" do
+      subject(:post) do
+        described_class.post(
+          server_config,
+          bot:,
+          title: "Scam image removed",
+          body: "<@42> posted an image.",
+          meta: "The message was deleted automatically.",
+          image_url: "https://cdn.example/scam.png"
+        )
+      end
+
+      it "appends a media gallery block pointing at the image" do
+        expect(channel).to receive(:send_message) do |*args|
+          blocks = args[6].first[:components]
+          gallery = blocks.find { |block| block[:type] == Discord::Components::MEDIA_GALLERY }
+          expect(gallery[:items]).to eq([{media: {url: "https://cdn.example/scam.png"}}])
+        end
+        post
+      end
+    end
+
     context "when no logging channel is set" do
       before do
         server_config.logging_setting.update!(channel_id: nil)
