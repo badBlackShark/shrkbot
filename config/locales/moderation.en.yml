@@ -1,0 +1,14 @@
+---
+en:
+  moderation:
+    spam_protection:
+      notification:
+        body: "%{author} posted the same message in %{count} channels: %{channels}."
+        meta:
+          notify_only: Notify-only — no messages were deleted.
+          purge: Messages were deleted.
+        title:
+          notify_only: Cross-channel spam detected
+          purge: Cross-channel spam purged
+      punishment:
+        reason: Cross-channel spam

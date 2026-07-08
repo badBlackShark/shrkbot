@@ -10,7 +10,8 @@ shard_count = BotConfig.shard_count
 bots = Array.new(shard_count) do |shard_id|
   Discordrb::Bot.new(
     token: BotConfig.token,
-    intents: %i[servers server_members],
+    # discordrb has no :message_content symbol; MESSAGE CONTENT is raw gateway bit 15
+    intents: [:servers, :server_members, :server_messages, 1 << 15],
     shard_id: shard_id,
     num_shards: shard_count
   )
