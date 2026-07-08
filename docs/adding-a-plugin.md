@@ -68,6 +68,12 @@ A `channel_setting` makes the plugin **channel-backed**: it can't be enabled unt
 channel is set. `TogglePlugin` enforces this and a `PluginActivation` validation
 backstops it. `key` is read back as a symbol; branch on `:welcomes` in code.
 
+`requires_plugin:` names another plugin that must be enabled first (a hard dependency).
+`parent:` marks the plugin as a member of a plugin group; the parent must be enabled
+before a child can enable. Both are folded into `prerequisites_met?` and backstopped by
+the `PluginActivation` validation. Example: the moderation group's sub-plugins set
+`parent: :moderation`, and `:moderation` sets `requires_plugin: :logging`.
+
 ## 4. Writes go through operations
 
 All settings writes and runtime mutations are operations under

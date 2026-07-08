@@ -1,0 +1,39 @@
+# frozen_string_literal: true
+
+module Ops
+  module Moderation
+    class Configure < ApplicationOperation
+      include Ops::PluginConfiguration
+
+      receives :server_configuration, :staff_role_id, :enabled
+
+      def call
+        settings = server_configuration.moderation_settings
+        settings.assign_attributes(staff_role_id: staff_role_id.presence)
+        activation = staged_activation
+
+        return logging_guard_failure(activation) if enabling? && !logging_ready?
+
+        settings.save!
+        activation.save!
+        ok(activation)
+      end
+
+      private
+
+      def logging_ready?
+        server_configuration.plugins.enabled.exists?(key: :logging) &&
+          server_configuration.logging_setting&.channel_id.present?
+      end
+
+      def logging_guard_failure(activation)
+        activation.errors.add(:enabled, "requires the Logging plugin enabled with a log channel set")
+        failure(activation.errors[:enabled], value: activation)
+      end
+
+      def plugin_key
+        :moderation
+      end
+    end
+  end
+end

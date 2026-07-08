@@ -49,4 +49,39 @@ RSpec.describe Ops::Logging::Configure do
       expect(config.plugin_activations.find_by(plugin:)&.enabled).to be_falsey
     end
   end
+
+  context "when moderation is enabled and logging would become unavailable" do
+    let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
+
+    before do
+      config.logging_setting.update!(channel_id: 200)
+      create(:plugin_activation, server_configuration: config, plugin:, enabled: true)
+      create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: true)
+    end
+
+    context "when disabling logging" do
+      let(:enabled) { "0" }
+      let(:channel_id) { 200 }
+
+      it "fails with an error on enabled" do
+        expect(result).to be_failure
+        expect(result.value.errors[:enabled]).to be_present
+      end
+
+      it "leaves logging enabled" do
+        result
+        expect(config.plugin_activations.find_by(plugin:).enabled).to be(true)
+      end
+    end
+
+    context "when clearing the logging channel while keeping enabled" do
+      let(:enabled) { "1" }
+      let(:channel_id) { "" }
+
+      it "fails with an error on enabled" do
+        expect(result).to be_failure
+        expect(result.value.errors[:enabled]).to be_present
+      end
+    end
+  end
 end

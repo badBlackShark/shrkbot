@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_04_155534) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_08_135128) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -45,6 +45,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_04_155534) do
     t.check_constraint "target_type::text = ANY (ARRAY['role'::character varying::text, 'member'::character varying::text])", name: "channel_overwrites_target_type_check"
   end
 
+  create_table "image_scanning_settings", id: :string, default: -> { "('iss_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.string "action", default: "delete", null: false
+    t.datetime "created_at", null: false
+    t.integer "custom_keyword_min_hits", default: 2, null: false
+    t.text "custom_keywords", default: [], null: false, array: true
+    t.string "punishment", default: "none", null: false
+    t.string "sensitivity", default: "standard", null: false
+    t.string "server_configuration_id", null: false
+    t.integer "timeout_seconds", default: 3600, null: false
+    t.datetime "updated_at", null: false
+    t.index ["server_configuration_id"], name: "index_image_scanning_settings_on_server_configuration_id", unique: true
+    t.check_constraint "action::text = ANY (ARRAY['none'::character varying, 'delete'::character varying]::text[])", name: "image_scanning_settings_action_check"
+    t.check_constraint "cardinality(custom_keywords) <= 200", name: "image_scanning_settings_custom_keywords_count_check"
+    t.check_constraint "custom_keyword_min_hits >= 1 AND (cardinality(custom_keywords) = 0 OR custom_keyword_min_hits <= cardinality(custom_keywords))", name: "image_scanning_settings_min_hits_check"
+    t.check_constraint "punishment::text = ANY (ARRAY['none'::character varying, 'timeout'::character varying, 'kick'::character varying, 'ban'::character varying]::text[])", name: "image_scanning_settings_punishment_check"
+    t.check_constraint "sensitivity::text = ANY (ARRAY['relaxed'::character varying, 'standard'::character varying, 'strict'::character varying]::text[])", name: "image_scanning_settings_sensitivity_check"
+    t.check_constraint "timeout_seconds >= 60 AND timeout_seconds <= 2419200", name: "image_scanning_settings_timeout_seconds_check"
+  end
+
   create_table "logging_settings", id: :string, default: -> { "('lgs_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.bigint "channel_id"
     t.datetime "created_at", null: false
@@ -52,6 +71,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_04_155534) do
     t.string "server_configuration_id", null: false
     t.datetime "updated_at", null: false
     t.index ["server_configuration_id"], name: "index_logging_settings_on_server_configuration_id", unique: true
+  end
+
+  create_table "moderation_settings", id: :string, default: -> { "('mds_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "server_configuration_id", null: false
+    t.bigint "staff_role_id"
+    t.datetime "updated_at", null: false
+    t.index ["server_configuration_id"], name: "index_moderation_settings_on_server_configuration_id", unique: true
   end
 
   create_table "notifications", id: :string, default: -> { "('ntf_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -276,6 +303,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_04_155534) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "spam_protection_settings", id: :string, default: -> { "('sps_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.string "action", default: "purge", null: false
+    t.integer "channel_threshold", default: 4, null: false
+    t.datetime "created_at", null: false
+    t.boolean "match_symbol_only_messages", default: false, null: false
+    t.string "punishment", default: "none", null: false
+    t.string "server_configuration_id", null: false
+    t.float "similarity", default: 1.0, null: false
+    t.integer "timeout_seconds", default: 3600, null: false
+    t.datetime "updated_at", null: false
+    t.integer "window_seconds", default: 15, null: false
+    t.index ["server_configuration_id"], name: "index_spam_protection_settings_on_server_configuration_id", unique: true
+    t.check_constraint "action::text = ANY (ARRAY['purge'::character varying, 'notify_only'::character varying]::text[])", name: "spam_protection_settings_action_check"
+    t.check_constraint "channel_threshold >= 2 AND channel_threshold <= 500", name: "spam_protection_settings_channel_threshold_check"
+    t.check_constraint "punishment::text = ANY (ARRAY['none'::character varying, 'timeout'::character varying, 'kick'::character varying, 'ban'::character varying]::text[])", name: "spam_protection_settings_punishment_check"
+    t.check_constraint "similarity >= 0.75::double precision AND similarity <= 1.0::double precision", name: "spam_protection_settings_similarity_check"
+    t.check_constraint "timeout_seconds >= 60 AND timeout_seconds <= 2419200", name: "spam_protection_settings_timeout_seconds_check"
+    t.check_constraint "window_seconds >= 1 AND window_seconds <= 60", name: "spam_protection_settings_window_seconds_check"
+  end
+
   create_table "users", id: :string, default: -> { "('usr_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.string "avatar"
     t.datetime "created_at", null: false
@@ -298,7 +345,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_04_155534) do
 
   add_foreign_key "assignable_roles", "role_sets"
   add_foreign_key "channel_overwrites", "server_channels"
+  add_foreign_key "image_scanning_settings", "server_configurations"
   add_foreign_key "logging_settings", "server_configurations"
+  add_foreign_key "moderation_settings", "server_configurations"
   add_foreign_key "notifications", "server_configurations"
   add_foreign_key "plugin_activations", "plugins"
   add_foreign_key "plugin_activations", "server_configurations"
@@ -312,5 +361,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_04_155534) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "spam_protection_settings", "server_configurations"
   add_foreign_key "welcome_settings", "server_configurations"
 end

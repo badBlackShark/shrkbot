@@ -7,6 +7,9 @@ class ServerConfiguration < ApplicationRecord
   has_one :logging_setting, dependent: :delete
   has_one :role_setting, class_name: "Roles::Settings", dependent: :destroy
   has_one :welcome_settings, class_name: "Welcomes::Settings", dependent: :delete
+  has_one :moderation_settings, class_name: "Moderation::Settings", dependent: :delete
+  has_one :spam_protection_settings, class_name: "Moderation::SpamProtection::Settings", dependent: :delete
+  has_one :image_scanning_settings, class_name: "Moderation::ImageScanning::Settings", dependent: :delete
 
   has_many :notifications, dependent: :delete_all
   has_many :server_channels, dependent: :destroy

@@ -31,6 +31,9 @@ module Ops
         config.logging_setting || config.create_logging_setting!
         config.role_setting || config.create_role_setting!
         config.welcome_settings || config.create_welcome_settings!
+        config.moderation_settings || config.create_moderation_settings!
+        config.spam_protection_settings || config.create_spam_protection_settings!
+        config.image_scanning_settings || config.create_image_scanning_settings!
       end
     end
   end

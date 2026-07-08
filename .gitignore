@@ -39,6 +39,10 @@
 # OS / editor cruft.
 .DS_Store
 
+# Python bytecode (OCR sidecar tooling).
+__pycache__/
+*.pyc
+
 # Local Claude Code / AI sandbox config (not part of the app).
 /.claude/
 

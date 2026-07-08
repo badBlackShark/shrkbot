@@ -12,6 +12,7 @@ module Ops
         settings.assign_attributes(channel_id:, enabled_actions:)
         activation = staged_activation
 
+        return moderation_dependency_failure(activation) if moderation_enabled? && !logging_stays_available?
         return failure(messages(settings, activation), value: activation) unless settings.valid? && activation.valid?
 
         settings.save!
@@ -20,6 +21,19 @@ module Ops
       end
 
       private
+
+      def moderation_enabled?
+        server_configuration.plugins.enabled.exists?(key: :moderation)
+      end
+
+      def logging_stays_available?
+        enabling? && channel_id.present?
+      end
+
+      def moderation_dependency_failure(activation)
+        activation.errors.add(:enabled, "can't be turned off or lose its channel while Server Shield is enabled")
+        failure(activation.errors[:enabled], value: activation)
+      end
 
       def plugin_key
         :logging

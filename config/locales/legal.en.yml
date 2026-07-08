@@ -54,7 +54,8 @@ en:
         (IDs, names, types, colours, positions) and their permission overwrites —
         which can reference member Discord IDs — mirrored from Discord so the dashboard
         can display and apply your setup. Also which plugins are enabled, and the
-        welcome, logging and role-menu settings admins configure.'
+        welcome, logging, role-menu and moderation settings admins configure — including
+        any custom scam-keyword list.'
       data_h: What we store and why
       data_lead: 'We store only what the enabled features need:'
       data_notifications: 'Dashboard notifications: short activity entries (an event

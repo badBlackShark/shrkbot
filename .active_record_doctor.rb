@@ -33,7 +33,8 @@ ActiveRecordDoctor.configure do
       "server_channels.discord_id",
       "server_channels.parent_id",
       "server_roles.discord_id",
-      "channel_overwrites.target_id"
+      "channel_overwrites.target_id",
+      "moderation_settings.staff_role_id"
     ]
 
   # These are NOT NULL with a DB default, so they're never nil — presence is wrong
@@ -42,6 +43,7 @@ ActiveRecordDoctor.configure do
     ignore_columns_with_default: true,
     ignore_attributes: [
       "PluginActivation.enabled",
+      "Moderation::SpamProtection::Settings.match_symbol_only_messages",
       "Reminders::Reminder.deliver_via_dm",
       "ServerConfiguration.force_dm_reminders",
       "ServerRole.managed"

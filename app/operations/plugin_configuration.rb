@@ -4,6 +4,10 @@ module Ops
   module PluginConfiguration
     private
 
+    def enabling?
+      ActiveModel::Type::Boolean.new.cast(enabled)
+    end
+
     def staged_activation
       activation = server_configuration.plugin_activations.find_or_initialize_by(plugin: Plugin.find_by!(key: plugin_key))
       activation.enabled = enabled
