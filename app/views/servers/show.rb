@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Views::Servers::Show < Views::Base
+  include Components::PluginNav
+
   def initialize(guild:, server_configuration:, plugins:, user:, servers: [], plugin_counts: {})
     @guild = guild
     @server_configuration = server_configuration
@@ -56,7 +58,7 @@ class Views::Servers::Show < Views::Base
   def plugins_section
     p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins") }
     div(class: "flex flex-col gap-3") do
-      @plugins.each do |row|
+      @plugins.select { |row| plugin_config_path(@guild.id, row.key) }.each do |row|
         render Components::PluginRow.new(server_id: @guild.id, key: row.key, enabled: row.enabled, configured: row.configured, locked: row.locked)
       end
     end
