@@ -7,7 +7,7 @@ module Moderation
     def call(member:, server:, punishment:, timeout_seconds:, reason:)
       case punishment
       when "timeout"
-        member.communication_disabled_until = Time.now + timeout_seconds
+        member.communication_disabled_until = Time.current + timeout_seconds
       when "kick"
         server.kick(member, reason)
       when "ban"

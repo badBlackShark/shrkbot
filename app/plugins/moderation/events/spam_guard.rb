@@ -50,7 +50,7 @@ module Moderation
           fingerprint:,
           message_id: event.message.id,
           channel_id: event.channel.id,
-          at: Time.now,
+          at: Time.current,
           window: settings.window_seconds,
           threshold: settings.channel_threshold,
           similarity: settings.similarity
@@ -87,29 +87,22 @@ module Moderation
     end
 
     def notify(config, settings, staff_role_id, hit)
-      channel_id = config.logging_setting.channel_id
-      return unless channel_id
-
-      channel = event.bot.channel(channel_id)
-      return unless channel
-
       channels = hit.map(&:channel_id).uniq
-      title = I18n.t("moderation.spam_protection.notification.title.#{settings.action}")
-      body = I18n.t(
-        "moderation.spam_protection.notification.body",
-        author: "<@#{event.author.id}>",
-        count: channels.size,
-        channels: channels.map { |id| "<##{id}>" }.join(", ")
-      )
-      meta = I18n.t("moderation.spam_protection.notification.meta.#{settings.action}")
+      ping = staff_role_id ? "<@&#{staff_role_id}> " : ""
 
-      prefix = staff_role_id ? "<@&#{staff_role_id}>\n" : ""
-      entry = Discord::Components.container(
-        [Discord::Components.text("#{prefix}**#{title}**\n#{body}\n-# #{meta}")]
+      ActivityLog.post(
+        config,
+        bot: event.bot,
+        title: I18n.t("moderation.spam_protection.notification.title.#{settings.action}"),
+        body: ping + I18n.t(
+          "moderation.spam_protection.notification.body",
+          author: "<@#{event.author.id}>",
+          count: channels.size,
+          channels: channels.map { |id| "<##{id}>" }.join(", ")
+        ),
+        meta: I18n.t("moderation.spam_protection.notification.meta.#{settings.action}"),
+        allowed_mentions: {parse: [], roles: [staff_role_id].compact}
       )
-      Discord::Components.send_to(channel, entry, allowed_mentions: {parse: [], roles: [staff_role_id].compact})
-    rescue => e
-      Rails.logger.warn("[Moderation::SpamGuard] notify failed: #{e.class}: #{e.message}")
     end
   end
 end

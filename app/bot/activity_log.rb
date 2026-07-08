@@ -5,11 +5,11 @@ module ActivityLog
 
   module_function
 
-  def post(server_configuration, bot:, title:, body:, meta:)
+  def post(server_configuration, bot:, title:, body:, meta:, allowed_mentions: SUPPRESS_MENTIONS)
     channel_id = server_configuration.logging_setting.channel_id
     return unless channel_id
 
-    deliver(bot, channel_id, entry(title, body, meta))
+    deliver(bot, channel_id, entry(title, body, meta), allowed_mentions:)
   end
 
   def enabled?(server_configuration, action)
@@ -24,11 +24,11 @@ module ActivityLog
     )
   end
 
-  def deliver(bot, channel_id, entry)
+  def deliver(bot, channel_id, entry, allowed_mentions: SUPPRESS_MENTIONS)
     channel = bot.channel(channel_id)
     return unless channel
 
-    Discord::Components.send_to(channel, entry, allowed_mentions: SUPPRESS_MENTIONS)
+    Discord::Components.send_to(channel, entry, allowed_mentions:)
   rescue => e
     Rails.logger.warn("[ActivityLog] could not write to ##{channel_id}: #{e.class}: #{e.message}")
   end
