@@ -22,6 +22,14 @@ One Docker image, three processes (web/bot/jobs) plus managed accessories
 Add the OAuth2 redirect URI `https://shrkbot.com/auth/discord/callback` under your
 application's OAuth2 settings.
 
+#### Privileged Gateway Intents
+
+The **Server Shield / spam protection** feature requires the **MESSAGE CONTENT**
+privileged intent. Enable it under your application's **Bot → Privileged Gateway
+Intents** section in the Discord Developer Portal. Without it Discord sends
+`event.message.content` as an empty string, so content-based spam detection will
+not fire.
+
 ## Secrets
 
 Create a gitignored `.deploy.env` on your laptop and source it before deploying:
