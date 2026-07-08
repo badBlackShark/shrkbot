@@ -46,3 +46,7 @@ Images are processed in memory only. They are never written to disk. This is a b
 ## Version pin
 
 `paddlepaddle` must stay at `3.2.2`. Version `3.3.x` breaks CPU inference (`ConvertPirAttribute2RuntimeAttribute` not supported in PIR+oneDNN mode, upstream issue Paddle #77340).
+
+## x86_64 only
+
+paddlepaddle's aarch64 wheels segfault during inference (`SIGSEGV`, no stack trace). On Apple Silicon, build and run with `--platform linux/amd64`; production runs on x86_64 hosts.
