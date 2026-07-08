@@ -1,0 +1,8 @@
+paddleocr==3.7.0
+# paddlepaddle 3.3.x breaks CPU inference: ConvertPirAttribute2RuntimeAttribute not support (PIR+oneDNN, Paddle #77340)
+paddlepaddle==3.2.2
+numpy==2.3.5
+pillow==12.3.0
+imagehash==4.3.2
+fastapi==0.139.0
+uvicorn==0.51.0

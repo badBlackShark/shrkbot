@@ -1,0 +1,90 @@
+[
+  {
+    "pattern": "tuzawin",
+    "text": "claim your reward at tuzowin today",
+    "ratio": 0.2,
+    "expected": true,
+    "note": "1 edit (o→a), len 7 → floor(7*0.2)=1"
+  },
+  {
+    "pattern": "tuzawin",
+    "text": "claim your reward at tuzowin today",
+    "ratio": 0.0,
+    "expected": false,
+    "note": "ratio 0 → exact only; tuzowin is not tuzawin"
+  },
+  {
+    "pattern": "bet",
+    "text": "bat",
+    "ratio": 0.2,
+    "expected": false,
+    "note": "len 3 → floor(3*0.2)=0, exact only; bat ≠ bet substring"
+  },
+  {
+    "pattern": "bet",
+    "text": "place your bet now",
+    "ratio": 0.2,
+    "expected": true,
+    "note": "exact substring match"
+  },
+  {
+    "pattern": "usdt",
+    "text": "usd7 received",
+    "ratio": 0.2,
+    "expected": false,
+    "note": "len 4 → floor(4*0.2)=0, exact only; usd7 ≠ usdt"
+  },
+  {
+    "pattern": "5[\\s,]?600",
+    "regex": true,
+    "text": "you won 5,600 usdt",
+    "ratio": 0.2,
+    "expected": true,
+    "note": "regex: comma separator"
+  },
+  {
+    "pattern": "5[\\s,]?600",
+    "regex": true,
+    "text": "you won 5 600 usdt",
+    "ratio": 0.2,
+    "expected": true,
+    "note": "regex: space separator"
+  },
+  {
+    "pattern": "5[\\s,]?600",
+    "regex": true,
+    "text": "you won 5600 usdt",
+    "ratio": 0.2,
+    "expected": true,
+    "note": "regex: no separator"
+  },
+  {
+    "pattern": "5[\\s,]?600",
+    "regex": true,
+    "text": "you won 5.600 usdt",
+    "ratio": 0.2,
+    "expected": false,
+    "note": "regex: dot not in character class"
+  },
+  {
+    "pattern": "withdrawal success",
+    "text": "payment withdrowal succsess confirmed",
+    "ratio": 0.2,
+    "expected": true,
+    "note": "2 edits, len 18 → floor(18*0.2)=3"
+  },
+  {
+    "pattern": "withdrawal success",
+    "text": "wthdrwl sccess",
+    "ratio": 0.2,
+    "expected": false,
+    "note": "4 edits, exceeds floor of 3"
+  },
+  {
+    "pattern": "promo code",
+    "text": "enter promo code to claim your prize",
+    "ratio": 0.2,
+    "expected": true,
+    "note": "exact substring"
+  }
+]

@@ -1,0 +1,11 @@
+Dockerfile
+README.md
+tests/
+paddle_bakeoff.py
+make_variants.py
+ground_truth.json
+images/
+variants/
+__pycache__/
+*.pyc
+.DS_Store
