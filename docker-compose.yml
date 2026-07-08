@@ -101,6 +101,7 @@ services:
       # Prevent sandbox from reading checked-in/local secret files.
       - /dev/null:/app/src/config.yml:ro
       - /dev/null:/app/.env:ro
+      - /dev/null:/app/.env.deploy:ro
       # Prevent sandbox from changing its own guardrails.
       - ./docker-compose.yml:/app/docker-compose.yml:ro
       - ./Dockerfile:/app/Dockerfile:ro
@@ -117,6 +118,11 @@ services:
     tty: true
     depends_on:
       - db
+
+  ocr:
+    build: ocr/
+    platform: linux/amd64
+    restart: unless-stopped
 
 volumes:
   pg_data:
