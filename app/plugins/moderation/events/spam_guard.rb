@@ -88,13 +88,12 @@ module Moderation
 
     def notify(config, settings, staff_role_id, hit)
       channels = hit.map(&:channel_id).uniq
-      ping = staff_role_id ? "<@&#{staff_role_id}> " : ""
 
       ActivityLog.post(
         config,
         bot: event.bot,
         title: I18n.t("moderation.spam_protection.notification.title.#{settings.action}"),
-        body: ping + I18n.t(
+        body: StaffPing.prefix(staff_role_id) + I18n.t(
           "moderation.spam_protection.notification.body",
           author: "<@#{event.author.id}>",
           count: channels.size,

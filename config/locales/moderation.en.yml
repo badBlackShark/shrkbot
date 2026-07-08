@@ -1,6 +1,18 @@
 ---
 en:
   moderation:
+    image_scanning:
+      flag:
+        body: "%{author} posted an image in %{channel}. [Jump to message](%{jump_url}).
+          Risk %{risk}: %{reasons}."
+        meta:
+          flagged: Flagged for review — no automatic action taken.
+          removed: The message was deleted automatically.
+        title:
+          flagged: Possible scam image flagged for review
+          removed: Scam image removed
+      punishment:
+        reason: Scam image detected
     spam_protection:
       notification:
         body: "%{author} posted the same message in %{count} channels: %{channels}."
