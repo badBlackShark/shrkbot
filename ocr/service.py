@@ -28,7 +28,8 @@ def _decode(body: bytes) -> Image.Image:
 
 
 def _to_bgr(img: Image.Image):
-    return np.asarray(img)[:, :, ::-1]
+    # Paddle segfaults on the negative-stride view a plain [:, :, ::-1] produces
+    return np.ascontiguousarray(np.asarray(img)[:, :, ::-1])
 
 
 def _run_ocr(img: Image.Image):
