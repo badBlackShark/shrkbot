@@ -122,6 +122,7 @@ services:
   ocr:
     build: ocr/
     platform: linux/amd64
+    profiles: [ocr]
     restart: unless-stopped
 
 volumes:
