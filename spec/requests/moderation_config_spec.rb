@@ -136,6 +136,7 @@ RSpec.describe "Moderation config", type: :request do
           expect(config.moderation_settings.reload.staff_role_id).to eq(500)
           expect(response.body).to include("moderation-config")
           expect(response.body).to include("saved")
+          expect(response.body).to include('target="plugin-sidebar"')
         end
 
         it "returns 422 when clearing the staff role while a sub-plugin is enabled" do

@@ -1,2 +1,3 @@
 <%= turbo_stream.replace "spam_protection-config", html: render(Components::Moderation::SpamProtectionForm.new(context: @context, enable_error: @enable_error)) %>
 <%= turbo_stream.append "toasts", html: render(Components::Toast.new(**@toast)) if @toast %>
+<%= turbo_stream.replace "plugin-sidebar", html: render(Components::PluginSidebar.new(server_configuration: @server_configuration, active_key: :spam_protection)) %>

@@ -106,6 +106,7 @@ RSpec.describe "Image scanning config", type: :request do
                                       custom_keywords: [], enabled: "0"}},
             **turbo
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+          expect(response.body).to include('target="plugin-sidebar"')
           expect(response.body).to include("image_scanning-config")
           expect(response.body).to include("saved")
         end

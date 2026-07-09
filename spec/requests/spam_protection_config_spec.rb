@@ -100,6 +100,7 @@ RSpec.describe "Spam protection config", type: :request do
                                        timeout_seconds: 3600, enabled: "0"}},
             **turbo
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+          expect(response.body).to include('target="plugin-sidebar"')
           expect(response.body).to include("spam_protection-config")
           expect(response.body).to include("saved")
         end

@@ -9,7 +9,7 @@ class Components::PluginSidebar < Components::Base
   end
 
   def view_template
-    aside(class: "sticky top-16 hidden h-[calc(100vh-4rem)] w-56 flex-none overflow-y-auto border-r border-border-default bg-surface-sunken md:block") do
+    aside(id: "plugin-sidebar", class: "sticky top-16 hidden h-[calc(100vh-4rem)] w-56 flex-none overflow-y-auto border-r border-border-default bg-surface-sunken md:block") do
       div(class: "p-4") do
         back_link
         div(class: "my-3 h-px bg-border-subtle")
