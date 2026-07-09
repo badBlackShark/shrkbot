@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Moderation
-  class ComponentHandler < BaseEvent
+  module ComponentActions
     private
 
     def phash_hex

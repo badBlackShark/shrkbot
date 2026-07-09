@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module Moderation
-  class ConfirmScam < ComponentHandler
+  class ConfirmScam < BaseEvent
+    include ComponentActions
+
     on :button, custom_id: /\Amod:confirm:/
 
     def handle

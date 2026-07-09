@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module Moderation
-  class DismissScam < ComponentHandler
+  class DismissScam < BaseEvent
+    include ComponentActions
+
     on :button, custom_id: /\Amod:dismiss:/
 
     def handle

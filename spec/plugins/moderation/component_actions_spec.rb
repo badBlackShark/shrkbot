@@ -2,8 +2,14 @@
 
 require "rails_helper"
 
-RSpec.describe Moderation::ComponentHandler do
-  subject(:handler) { described_class.new(event) }
+RSpec.describe Moderation::ComponentActions do
+  subject(:handler) { includer.new(event) }
+
+  let(:includer) do
+    Class.new(BaseEvent) do
+      include Moderation::ComponentActions
+    end
+  end
 
   let(:guild_id) { 111 }
   let(:user_id) { 222 }
