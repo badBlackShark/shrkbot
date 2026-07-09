@@ -1,0 +1,2 @@
+<%= turbo_stream.replace "moderation-config", html: render(Components::Moderation::OverviewForm.new(server_configuration: @server_configuration, context: Moderation::OverviewContext.new(@server_configuration), enable_error: @enable_error)) %>
+<%= turbo_stream.append "toasts", html: render(Components::Toast.new(**@toast)) if @toast %>

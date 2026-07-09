@@ -62,6 +62,40 @@ en:
             roles: Roles
           toggle_all: Toggle all
           toggle_all_label: Toggle all %{plugin} events
+    moderation:
+      matching_explainer:
+        row_keywords: Custom scam keywords keep digits, so entries like 50 giveaway
+          match.
+        row_lookalike: Stylized and lookalike characters are folded to their plain
+          form (ⓕⓡⓔⓔ, ｆｒｅｅ → free), so disguises don't help.
+        row_normalize: 'Before comparing any text, shrkbot normalizes it: case, punctuation,
+          extra spacing and invisible characters are ignored - FREE N-I-T-R-O!! and
+          free nitro are the same text.'
+        row_spam: Spam protection also ignores digits - message 1, message 2, message
+          3 count as the same message.
+        title: How text matching works
+      staff_role_card:
+        help: Shared by every Moderation sub-plugin. Pinged on every alert, and exempt
+          from spam detection. Pick one before enabling any sub-plugin.
+        label: Staff role
+        missing_warning: Required. Every sub-plugin stays off until a staff role is
+          picked.
+        permission_warning_body: shrkbot is missing the Mention All Roles permission
+          in this server. Alerts still post to the log channel, but nobody gets pinged
+          until it's restored.
+        permission_warning_bold: Staff pings will fail.
+        placeholder: Pick a role…
+      sub_plugin_directory:
+        eyebrow: Sub-plugins
+      sub_plugin_row:
+        configure: Configure
+        locked_reason: Pick a staff role first.
+        needs_setup_hint: Pick a staff role first.
+        status:
+          disabled: Disabled
+          enabled: Enabled
+          needs_setup: Needs setup
+        toggle_label: Enable %{name}
     notification_bell:
       label: Notifications
       unread: Notifications, %{count} unread
@@ -183,8 +217,12 @@ en:
         title: "%{channel_name} was deleted"
         title_unknown: A channel was deleted
   servers:
+    image_scanning:
+      saved: Scam Image Detection settings saved.
     logging:
       saved: Logging settings saved.
+    moderation:
+      saved: Server Shield settings saved.
     not_found: That server isn't available to configure.
     plugin_disabled: "%{plugin} disabled."
     plugin_enabled: "%{plugin} enabled."
@@ -197,6 +235,8 @@ en:
     roles:
       failed: Couldn't save the role settings.
       saved: Role settings saved.
+    spam_protection:
+      saved: Cross-Channel Spam Guard settings saved.
     unknown_plugin: That plugin doesn't exist.
     welcomes:
       saved: Welcomes settings saved.
@@ -250,6 +290,12 @@ en:
       continue: Continue
       title: Signing you back in
     servers:
+      image_scanning:
+        show:
+          description: Reads the text inside posted images and checks it against known
+            scam patterns and previously confirmed scam images. Staff confirm or dismiss
+            every catch, and the bot remembers.
+          title: Scam Image Detection
       index:
         empty_body: You need Manage Server permissions and shrkbot must be present.
           Invite it to get started.
@@ -273,6 +319,21 @@ en:
           description: Record moderation events to a channel of your choice.
           gate_message: Enable the plugin to choose a channel and pick events.
           title: Logging
+      moderation:
+        show:
+          description: 'Your server''s aegis: automated moderation beyond Discord''s
+            AutoMod.'
+          gate_message: Enable the group to configure its sub-plugins and shared settings.
+          logging_subline_prefix: 'Alerts post to '
+          logging_subline_suffix: through the Logging plugin.
+          prereq_gate_cta: Set up Logging
+          prereq_gate_message: Every alert, staff ping and one-click review lands
+            in your log channel. Enable Logging and pick a log channel, then come
+            back.
+          prereq_gate_title: Moderation needs the Logging plugin
+          title: Server Shield
+          toggle_locked_reason: Enable the Logging plugin first - alerts are delivered
+            through your log channel.
       reminders:
         show:
           badge: Global
@@ -298,6 +359,12 @@ en:
           one: "%{count} role"
           other: "%{count} roles"
         synced: "%{channels} and %{roles} synced"
+      spam_protection:
+        show:
+          description: Detects the same message blasted across multiple channels within
+            seconds and purges it before it spreads. Matching is fingerprint-based
+            — message content is never stored.
+          title: Cross-Channel Spam Guard
       welcomes:
         show:
           description: Greet new members and say goodbye when they leave.

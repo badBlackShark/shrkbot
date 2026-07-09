@@ -172,7 +172,7 @@ RSpec.describe Moderation::ImageScanning::Settings do
         server.create_logging_setting!(channel_id: 999)
         create(:plugin_activation, server_configuration: server, plugin: logging_plugin, enabled: true)
         create(:plugin_activation, server_configuration: server, plugin: moderation_plugin, enabled: true)
-        create(:plugin_activation, server_configuration: server, plugin: scan_plugin, enabled: true)
+        create(:plugin_activation, server_configuration: server, plugin: scan_plugin, enabled: false).update_column(:enabled, true)
       end
 
       it "returns the image scanning settings" do
