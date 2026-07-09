@@ -2,6 +2,7 @@
 
 class Views::Servers::Moderation::Show < Views::Base
   include Phlex::Rails::Helpers::FormWith
+  include Components::PluginNav
 
   def initialize(server_configuration:, user:, context:)
     @config = server_configuration
@@ -39,19 +40,14 @@ class Views::Servers::Moderation::Show < Views::Base
   private
 
   def sub_plugin_toggle_forms
-    form_with(
-      url: server_spam_protection_path(@config.discord_id),
-      method: :patch,
-      id: "spam_protection-overview-toggle-form",
-      class: "hidden"
-    ) do
-    end
-    form_with(
-      url: server_image_scanning_path(@config.discord_id),
-      method: :patch,
-      id: "image_scanning-overview-toggle-form",
-      class: "hidden"
-    ) do
+    PluginCatalog.sub_plugin_keys(:moderation).each do |key|
+      form_with(
+        url: plugin_config_path(@config.discord_id, key),
+        method: :patch,
+        id: Components::Moderation::SubPluginRow.toggle_form_id(key),
+        class: "hidden"
+      ) do
+      end
     end
   end
 

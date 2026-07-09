@@ -14,6 +14,10 @@ class Components::Moderation::SubPluginRow < Components::Base
     image_scanning: "scan"
   }.freeze
 
+  def self.toggle_form_id(key)
+    "#{key}-overview-toggle-form"
+  end
+
   def initialize(server_id:, key:, name:, description:, enabled:, configured:, settings:, group_enabled:)
     @server_id = server_id
     @key = key
@@ -143,6 +147,6 @@ class Components::Moderation::SubPluginRow < Components::Base
   end
 
   def stub_form_id
-    "#{@key}-overview-toggle-form"
+    self.class.toggle_form_id(@key)
   end
 end
