@@ -33,12 +33,12 @@ RSpec.describe Moderation::SpamTracker do
     expect(record(channel_id: 2)).to be_nil
   end
 
-  it "returns entries when distinct channels reach threshold" do
+  it "returns a non-followup hit with all entries when distinct channels reach threshold" do
     record(channel_id: 1)
     record(channel_id: 2)
     result = record(channel_id: 3)
-    expect(result).to be_an(Array)
-    expect(result.map(&:channel_id)).to contain_exactly(1, 2, 3)
+    expect(result).not_to be_followup
+    expect(result.entries.map(&:channel_id)).to contain_exactly(1, 2, 3)
   end
 
   it "does NOT reach threshold when same channel repeated" do
@@ -57,7 +57,7 @@ RSpec.describe Moderation::SpamTracker do
   it "counts distinct channel_ids regardless of thread/order" do
     record(channel_id: 10)
     record(channel_id: 20)
-    expect(record(channel_id: 30)).to be_an(Array)
+    expect(record(channel_id: 30)).to be_a(described_class::Hit)
   end
 
   context "with similarity < 1.0" do
@@ -81,7 +81,7 @@ RSpec.describe Moderation::SpamTracker do
         guild_id:, author_id:, fingerprint: fp_a, message_id: 3,
         channel_id: 3, at: base_time, window:, threshold:, similarity:
       )
-      expect(result).to be_an(Array)
+      expect(result).to be_a(described_class::Hit)
     end
   end
 
@@ -92,12 +92,34 @@ RSpec.describe Moderation::SpamTracker do
     }.not_to raise_error
   end
 
-  it "clears the bucket after a hit so next record starts fresh" do
-    record(channel_id: 1)
-    record(channel_id: 2)
-    record(channel_id: 3)
-    record(channel_id: 4)
-    expect(record(channel_id: 5)).to be_nil
+  describe "followup sweeping after a trigger" do
+    before do
+      record(channel_id: 1)
+      record(channel_id: 2)
+      record(channel_id: 3)
+    end
+
+    it "returns a followup hit with only the new entry while the window is hot" do
+      result = record(channel_id: 4, at: base_time + 5)
+      expect(result).to be_followup
+      expect(result.entries.map(&:channel_id)).to eq([4])
+    end
+
+    it "keeps the window rolling while followups keep coming" do
+      record(channel_id: 4, at: base_time + 55)
+      result = record(channel_id: 5, at: base_time + 110)
+      expect(result).to be_followup
+    end
+
+    it "starts a fresh count once the window has passed quietly" do
+      expect(record(channel_id: 4, at: base_time + 61)).to be_nil
+    end
+
+    it "requires the full threshold again after the trigger window expires" do
+      record(channel_id: 4, at: base_time + 61)
+      record(channel_id: 5, at: base_time + 62)
+      expect(record(channel_id: 6, at: base_time + 63)).not_to be_followup
+    end
   end
 
   describe ".instance" do

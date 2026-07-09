@@ -16,12 +16,17 @@ RSpec.describe Moderation::ImageScan do
   let(:bot) { double("bot") }
   let(:event) { double("event", from_bot?: false, server:, author:, message:, channel:, bot:) }
 
-  let(:settings) { double("settings") }
+  let(:owner) { double("owner", id: 999) }
+  let(:staff_role_id) { nil }
+  let(:moderation_settings) { double("moderation_settings", staff_role_id:) }
+  let(:server_configuration) { double("server_configuration", moderation_settings:) }
+  let(:settings) { double("settings", server_configuration:) }
   let(:signals) { {account_age_days: 2, has_link: false, has_role: false} }
 
   let(:image_attachment) { double("att", content_type: "image/png", size: 1234, url: "https://cdn/x.png") }
 
   before do
+    allow(server).to receive(:owner).and_return(owner)
     allow(Moderation::ImageScanning::Settings).to receive(:active_for).with(guild_id).and_return(settings)
     allow(Moderation::Signals).to receive(:call).and_return(signals)
     allow(Moderation::ScanQueue).to receive(:enqueue)
@@ -109,6 +114,36 @@ RSpec.describe Moderation::ImageScan do
   context "with a single valid image" do
     it "computes signals and enqueues one processor" do
       expect(Moderation::Signals).to receive(:call).with(author:, content: "hello", server_id: guild_id).and_return(signals)
+      expect(Moderation::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).once
+      handle
+    end
+  end
+
+  context "when the message author is the server owner" do
+    let(:author) { double("author", id: owner.id) }
+
+    it "does not enqueue" do
+      expect(Moderation::ScanQueue).not_to receive(:enqueue)
+      handle
+    end
+  end
+
+  context "when the message author holds the staff role" do
+    let(:staff_role_id) { 444 }
+    let(:staff_role) { double("role", id: staff_role_id) }
+    let(:author) { double("author", id: author_id, roles: [staff_role]) }
+
+    it "does not enqueue" do
+      expect(Moderation::ScanQueue).not_to receive(:enqueue)
+      handle
+    end
+  end
+
+  context "when the message author is a regular member" do
+    let(:staff_role_id) { 444 }
+    let(:author) { double("author", id: author_id, roles: []) }
+
+    it "enqueues normally" do
       expect(Moderation::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).once
       handle
     end

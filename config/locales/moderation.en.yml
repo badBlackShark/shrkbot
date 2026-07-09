@@ -25,10 +25,25 @@ en:
         done:
           one: Reported 1 image as a scam.
           other: Reported %{count} images as a scam.
+        log:
+          body: "%{reporter} reported an image posted by %{author} in %{channel} as
+            a scam. The bot will remember it."
+          meta:
+            kept: The message was left in place — automatic removal is turned off.
+            removed: The message was deleted.
+          title: Image reported as a scam
         none: That message has no images to report.
     spam_protection:
       notification:
-        body: "%{author} posted the same message in %{count} channels: %{channels}."
+        body: "%{author} posted the same message in %{count} channels within %{window}
+          seconds: %{channels}."
+        content_line: |-
+          They posted:
+          %{content}
+        followup:
+          body: Swept another message from the same flood by %{author} in %{channel}.
+          meta: Deleted as part of the incident above.
+          title: Cross-channel spam follow-up removed
         meta:
           notify_only: Notify-only — no messages were deleted.
           purge: Messages were deleted.

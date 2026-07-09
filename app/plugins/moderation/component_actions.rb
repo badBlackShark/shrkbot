@@ -32,8 +32,28 @@ module Moderation
     end
 
     def resolve(text)
-      container = Discord::Components.container([Discord::Components.text(text)])
+      blocks = retained_blocks
+      blocks << Discord::Components.separator
+      blocks << Discord::Components.text(text)
+      container = Discord::Components.container(blocks)
       event.update_message(components: container[:components], has_components: true)
+    end
+
+    def retained_blocks
+      root = event.message.components.first
+      return [] unless root
+
+      root.components.filter_map { |component| rebuild(component) }
+    end
+
+    def rebuild(component)
+      if component.respond_to?(:content)
+        Discord::Components.text(component.content)
+      elsif component.respond_to?(:items)
+        Discord::Components.media_gallery(component.items.map { |item| item.media.url })
+      elsif component.respond_to?(:divider?)
+        Discord::Components.separator
+      end
     end
   end
 end

@@ -3,7 +3,8 @@
 require "rails_helper"
 
 RSpec.describe Moderation::VerdictExecutor do
-  subject(:execute) { described_class.call(verdict:, context:, phash:) }
+  let(:image_bytes) { "fakepngbytes" }
+  subject(:execute) { described_class.call(verdict:, context:, phash:, image_bytes:) }
 
   let(:server_id) { 111 }
   let(:member_id) { 222 }
@@ -75,17 +76,23 @@ RSpec.describe Moderation::VerdictExecutor do
   context "when the action is :flag_for_review" do
     let(:action) { :flag_for_review }
 
-    it "logs the image with the flagged title and the staff role in allowed_mentions" do
+    it "logs the image with the flagged title, an FileUpload, and the staff role in allowed_mentions" do
       execute
 
       expect(ActivityLog).to have_received(:post).with(
         server_configuration,
         hash_including(
           title: I18n.t("moderation.image_scanning.flag.title.flagged"),
-          image_url: attachment_url,
           allowed_mentions: {parse: [], roles: [staff_role_id]}
         )
-      )
+      ) do |_config, kwargs|
+        io = kwargs[:image]
+        expect(io).to be_a(Discord::FileUpload)
+        expect(io.path).to eq("x.png")
+        expect(io.original_filename).to eq("x.png")
+        io.rewind
+        expect(io.read).to eq(image_bytes)
+      end
     end
 
     it "does not delete or punish" do

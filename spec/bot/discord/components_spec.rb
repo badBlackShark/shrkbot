@@ -13,6 +13,26 @@ RSpec.describe Discord::Components do
     end
   end
 
+  describe ".send_to" do
+    let(:rendered) { described_class.container([described_class.text("hello")]) }
+    let(:channel) { double("channel", send_message: nil) }
+
+    it "passes nil for attachments when none given" do
+      expect(channel).to receive(:send_message) do |_content, _tts, _embed, attachments, *_rest|
+        expect(attachments).to be_nil
+      end
+      described_class.send_to(channel, rendered)
+    end
+
+    it "forwards attachments when given" do
+      io = Discord::FileUpload.new("bytes", "img.png")
+      expect(channel).to receive(:send_message) do |_content, _tts, _embed, attachments, *_rest|
+        expect(attachments).to eq([io])
+      end
+      described_class.send_to(channel, rendered, attachments: [io])
+    end
+  end
+
   describe ".button" do
     subject(:button) do
       described_class.button(

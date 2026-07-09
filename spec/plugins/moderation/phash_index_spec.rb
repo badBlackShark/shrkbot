@@ -120,6 +120,30 @@ RSpec.describe Moderation::PhashIndex do
     end
   end
 
+  describe "#invalidate" do
+    before do
+      create(:phash_confirmation, phash: create(:phash, phash: stored_hex), server_configuration: own_guild, verdict: "confirmed")
+    end
+
+    it "forces a reload so a DB change is visible on the next lookup" do
+      index.lookup(stored_hex, own_guild.discord_id)
+
+      Moderation::PhashConfirmation.where(server_configuration: own_guild).update_all(verdict: "dismissed")
+
+      index.invalidate
+
+      expect(index.lookup(stored_hex, own_guild.discord_id)).to eq(:own_dismissed)
+    end
+
+    it "keeps the stale result if invalidate is NOT called" do
+      index.lookup(stored_hex, own_guild.discord_id)
+
+      Moderation::PhashConfirmation.where(server_configuration: own_guild).update_all(verdict: "dismissed")
+
+      expect(index.lookup(stored_hex, own_guild.discord_id)).to eq(:own_confirmed)
+    end
+  end
+
   describe ".instance" do
     it "memoizes a single process-wide index" do
       expect(described_class.instance).to be_a(described_class)

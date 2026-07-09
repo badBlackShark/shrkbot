@@ -14,10 +14,18 @@ module Moderation
       instance.lookup(phash_hex, guild_id)
     end
 
+    def self.invalidate
+      instance.invalidate
+    end
+
     def initialize
       @mutex = Mutex.new
       @by_int = {}
       @loaded_at = nil
+    end
+
+    def invalidate
+      @mutex.synchronize { @loaded_at = nil }
     end
 
     def lookup(phash_hex, guild_id)

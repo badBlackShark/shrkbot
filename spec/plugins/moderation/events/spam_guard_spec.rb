@@ -10,7 +10,8 @@ RSpec.describe Moderation::SpamGuard do
   let(:staff_role_id) { 333 }
   let(:log_channel_id) { 444 }
 
-  let(:server) { double("server", id: guild_id) }
+  let(:owner) { double("owner", id: 999) }
+  let(:server) { double("server", id: guild_id, owner:) }
   let(:author) { double("author", id: author_id, roles: []) }
   let(:message) { double("message", id: 1, webhook?: false, content: "hello world foo bar", attachments: []) }
   let(:channel) { double("channel", id: 1, pm?: false) }
@@ -105,6 +106,15 @@ RSpec.describe Moderation::SpamGuard do
     end
   end
 
+  context "when author is the server owner" do
+    let(:author) { double("author", id: 999, roles: []) }
+
+    it "does not purge or notify" do
+      expect(bot).not_to receive(:channel)
+      handle
+    end
+  end
+
   context "when below threshold" do
     it "does not purge or notify" do
       simulate_message(channel_id: 1, message_id: 1)
@@ -128,12 +138,71 @@ RSpec.describe Moderation::SpamGuard do
       expect(Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
-        allowed_mentions: hash_including(roles: array_including(staff_role_id))
+        allowed_mentions: hash_including(roles: array_including(staff_role_id)),
+        attachments: nil
       )
 
       simulate_message(channel_id: 1, message_id: 10)
       simulate_message(channel_id: 2, message_id: 20)
       simulate_message(channel_id: 3, message_id: 30)
+    end
+
+    it "includes the window and the quoted message content in the notification" do
+      body = nil
+      allow(Discord::Components).to receive(:send_to) do |_channel, rendered, **|
+        body = rendered[:components].first[:components].first[:content]
+      end
+
+      simulate_message(channel_id: 1, message_id: 10)
+      simulate_message(channel_id: 2, message_id: 20)
+      simulate_message(channel_id: 3, message_id: 30)
+
+      expect(body).to include("within 60 seconds")
+      expect(body).to include("> hello world foo bar")
+    end
+
+    context "when a followup message lands inside the hot window" do
+      let(:ch4) { double("ch4", delete_message: nil) }
+
+      before do
+        allow(bot).to receive(:channel).with(4).and_return(ch4)
+      end
+
+      it "deletes the followup and posts a followup log entry" do
+        simulate_message(channel_id: 1, message_id: 10)
+        simulate_message(channel_id: 2, message_id: 20)
+        simulate_message(channel_id: 3, message_id: 30)
+
+        expect(ch4).to receive(:delete_message).with(40)
+        expect(Discord::Components).to receive(:send_to) do |_channel, rendered, **|
+          body = rendered[:components].first[:components].first[:content]
+          expect(body).to include("Cross-channel spam follow-up removed")
+          expect(body).to include("<#4>")
+        end
+
+        simulate_message(channel_id: 4, message_id: 40)
+      end
+    end
+  end
+
+  context "when a followup lands with action 'notify_only'" do
+    let(:action) { "notify_only" }
+    let(:ch4) { double("ch4") }
+
+    before do
+      allow(bot).to receive(:channel).with(4).and_return(ch4)
+      allow(Discord::Components).to receive(:send_to)
+    end
+
+    it "neither deletes nor logs the followup" do
+      simulate_message(channel_id: 1, message_id: 10)
+      simulate_message(channel_id: 2, message_id: 20)
+      simulate_message(channel_id: 3, message_id: 30)
+
+      expect(ch4).not_to receive(:delete_message)
+      expect(Discord::Components).not_to receive(:send_to)
+
+      simulate_message(channel_id: 4, message_id: 40)
     end
   end
 
@@ -279,7 +348,8 @@ RSpec.describe Moderation::SpamGuard do
       expect(Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
-        allowed_mentions: {parse: [], roles: [nil]}
+        allowed_mentions: {parse: [], roles: [nil]},
+        attachments: nil
       )
 
       simulate_message(channel_id: 1, message_id: 1)

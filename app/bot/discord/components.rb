@@ -38,8 +38,8 @@ module Discord
       {type: MEDIA_GALLERY, items: urls.map { |url| {media: {url:}} }}
     end
 
-    def send_to(channel, rendered, allowed_mentions: nil)
-      channel.send_message(nil, false, nil, nil, allowed_mentions, nil, rendered[:components], rendered[:flags])
+    def send_to(channel, rendered, allowed_mentions: nil, attachments: nil)
+      channel.send_message(nil, false, nil, attachments, allowed_mentions, nil, rendered[:components], rendered[:flags])
     end
   end
 end

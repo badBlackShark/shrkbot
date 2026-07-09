@@ -48,7 +48,9 @@ RSpec.describe ActivityLog do
       post
     end
 
-    context "with an image_url" do
+    context "with an image" do
+      let(:upload) { Discord::FileUpload.new("fakebytes", "scam.png") }
+
       subject(:post) do
         described_class.post(
           server_config,
@@ -56,21 +58,29 @@ RSpec.describe ActivityLog do
           title: "Scam image removed",
           body: "<@42> posted an image.",
           meta: "The message was deleted automatically.",
-          image_url: "https://cdn.example/scam.png"
+          image: upload
         )
       end
 
-      it "appends a media gallery block pointing at the image" do
+      it "appends a media gallery block referencing the attachment filename" do
         expect(channel).to receive(:send_message) do |*args|
           blocks = args[6].first[:components]
           gallery = blocks.find { |block| block[:type] == Discord::Components::MEDIA_GALLERY }
-          expect(gallery[:items]).to eq([{media: {url: "https://cdn.example/scam.png"}}])
+          expect(gallery[:items]).to eq([{media: {url: "attachment://scam.png"}}])
+        end
+        post
+      end
+
+      it "passes the FileUpload as an attachment" do
+        expect(channel).to receive(:send_message) do |*args|
+          expect(args[3]).to eq([upload])
         end
         post
       end
     end
 
     context "with extra components" do
+      let(:upload) { Discord::FileUpload.new("fakebytes", "scam.png") }
       let(:action_row) do
         Discord::Components.action_row(
           [Discord::Components.button(custom_id: "mod:confirm:abc", label: "Confirm scam")]
@@ -84,7 +94,7 @@ RSpec.describe ActivityLog do
           title: "Scam image removed",
           body: "<@42> posted an image.",
           meta: "The message was deleted automatically.",
-          image_url: "https://cdn.example/scam.png",
+          image: upload,
           components: [action_row]
         )
       end

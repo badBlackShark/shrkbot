@@ -20,7 +20,7 @@ module Moderation
         signals: context.signals,
         settings: context.settings
       )
-      VerdictExecutor.call(verdict:, context:, phash: hex)
+      VerdictExecutor.call(verdict:, context:, phash: hex, image_bytes: bytes)
     rescue Ocr::Error => e
       Rails.logger.warn("[Moderation::ScanProcessor] scan failed: #{e.class}: #{e.message}")
     end

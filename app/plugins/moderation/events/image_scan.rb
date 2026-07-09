@@ -13,6 +13,9 @@ module Moderation
       settings = ImageScanning::Settings.active_for(event.server.id)
       return unless settings
 
+      staff_role_id = settings.server_configuration.moderation_settings.staff_role_id
+      return if Exemption.exempt?(member: event.author, server: event.server, staff_role_id:)
+
       attachments = eligible_attachments
       return if attachments.empty?
 

@@ -4,14 +4,14 @@ module Moderation
   module VerdictExecutor
     module_function
 
-    def call(verdict:, context:, phash:)
+    def call(verdict:, context:, phash:, image_bytes: nil)
       case verdict.action
       when :flag_for_review
-        flag(verdict, context, phash, removed: false)
+        flag(verdict, context, phash, image_bytes:, removed: false)
       when :remove
         delete_message(context) if context.settings.action == "delete"
         punish(context)
-        flag(verdict, context, phash, removed: true)
+        flag(verdict, context, phash, image_bytes:, removed: true)
       end
     end
 
@@ -33,10 +33,11 @@ module Moderation
       )
     end
 
-    def flag(verdict, context, phash, removed:)
+    def flag(verdict, context, phash, image_bytes:, removed:)
       config = context.settings.server_configuration
       staff_role_id = config.moderation_settings.staff_role_id
       state = removed ? "removed" : "flagged"
+      image = image_bytes && Discord::FileUpload.new(image_bytes, File.basename(URI(context.attachment_url).path))
 
       ActivityLog.post(
         config,
@@ -51,7 +52,7 @@ module Moderation
           reasons: format_reasons(verdict.reasons)
         ),
         meta: I18n.t("moderation.image_scanning.flag.meta.#{state}"),
-        image_url: context.attachment_url,
+        image:,
         components: buttons(phash),
         allowed_mentions: {parse: [], roles: [staff_role_id].compact}
       )
