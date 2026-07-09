@@ -93,4 +93,31 @@ RSpec.describe Components::Moderation::ImageScanningForm do
       expect(html).to include("A staff role is required.")
     end
   end
+
+  context "when the settings have custom keywords" do
+    let(:settings) do
+      create(
+        :image_scanning_settings,
+        server_configuration: config,
+        custom_keywords: ["free nitro", "click link"]
+      )
+    end
+
+    subject(:html) do
+      described_class.new(
+        server_configuration: config,
+        context:
+      ).render_in(view_context)
+    end
+
+    it "renders the keywords as option values in the select" do
+      expect(html).to include("free nitro")
+      expect(html).to include("click link")
+    end
+
+    it "caps the min_hits stepper at the keyword count" do
+      expect(html).to include('name="image_scanning[custom_keyword_min_hits]"')
+      expect(html).to include('max="2"')
+    end
+  end
 end

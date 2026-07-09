@@ -20,10 +20,9 @@ module Moderation
     end
 
     def settings
-      case @plugin_key
-      when :spam_protection
+      if @plugin_key == :spam_protection
         @config.spam_protection_settings
-      when :image_scanning
+      else
         @config.image_scanning_settings
       end
     end

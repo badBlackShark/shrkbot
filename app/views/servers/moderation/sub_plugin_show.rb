@@ -34,26 +34,6 @@ class Views::Servers::Moderation::SubPluginShow < Views::Base
 
   private
 
-  def active_key
-    raise AbstractMethodError
-  end
-
-  def icon
-    raise AbstractMethodError
-  end
-
-  def url
-    raise AbstractMethodError
-  end
-
-  def enable_field
-    raise AbstractMethodError
-  end
-
-  def form
-    raise AbstractMethodError
-  end
-
   def shell_gate
     return if @context.group_enabled?
 

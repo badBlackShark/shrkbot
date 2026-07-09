@@ -75,6 +75,17 @@ RSpec.describe "Moderation config", type: :request do
             get server_moderation_path(guild.id)
             expect(response.body).to include("save-bar").and include("Unsaved changes")
           end
+
+          context "when the logging channel has a server_channel record with a name" do
+            before do
+              create(:server_channel, server_configuration: config, discord_id: 111, name: "mod-log")
+            end
+
+            it "renders the logging subline with the channel name" do
+              get server_moderation_path(guild.id)
+              expect(response.body).to include("#mod-log")
+            end
+          end
         end
 
         context "when group is disabled but logging is ready" do

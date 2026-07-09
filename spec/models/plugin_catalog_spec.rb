@@ -139,6 +139,124 @@ RSpec.describe PluginCatalog do
     end
   end
 
+  describe "moderation prerequisite lambdas with real ServerConfiguration" do
+    let(:config) { create(:server_configuration, discord_id: 900_000_001) }
+    let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
+    let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
+
+    before do
+      config.create_logging_setting!
+      config.create_moderation_settings!
+      config.create_spam_protection_settings!
+      config.create_image_scanning_settings!
+    end
+
+    describe ":moderation prerequisite lambda" do
+      subject(:check) { PluginCatalog.find(:moderation).prerequisites_met?(config) }
+
+      context "when logging is enabled and channel is set" do
+        before do
+          config.logging_setting.update!(channel_id: 111)
+          create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
+            .update_column(:enabled, true)
+        end
+
+        it { is_expected.to be(true) }
+      end
+
+      context "when logging is enabled but no channel is set" do
+        before do
+          create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
+            .update_column(:enabled, true)
+        end
+
+        it { is_expected.to be(false) }
+      end
+
+      context "when logging is enabled but logging_setting is absent" do
+        before do
+          config.logging_setting.destroy!
+          create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
+            .update_column(:enabled, true)
+        end
+
+        subject(:check) { PluginCatalog.find(:moderation).prerequisites_met?(config.reload) }
+
+        it { is_expected.to be(false) }
+      end
+    end
+
+    describe ":spam_protection prerequisite lambda" do
+      subject(:check) { PluginCatalog.find(:spam_protection).prerequisites_met?(config) }
+
+      context "when moderation is enabled and staff_role_id is set" do
+        before do
+          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+            .update_column(:enabled, true)
+          config.moderation_settings.update!(staff_role_id: 500)
+        end
+
+        it { is_expected.to be(true) }
+      end
+
+      context "when moderation is enabled but no staff_role_id" do
+        before do
+          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+            .update_column(:enabled, true)
+        end
+
+        it { is_expected.to be(false) }
+      end
+
+      context "when moderation is enabled but moderation_settings is absent" do
+        before do
+          config.moderation_settings.destroy!
+          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+            .update_column(:enabled, true)
+        end
+
+        subject(:check) { PluginCatalog.find(:spam_protection).prerequisites_met?(config.reload) }
+
+        it { is_expected.to be(false) }
+      end
+    end
+
+    describe ":image_scanning prerequisite lambda" do
+      subject(:check) { PluginCatalog.find(:image_scanning).prerequisites_met?(config) }
+
+      context "when moderation is enabled and staff_role_id is set" do
+        before do
+          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+            .update_column(:enabled, true)
+          config.moderation_settings.update!(staff_role_id: 501)
+        end
+
+        it { is_expected.to be(true) }
+      end
+
+      context "when moderation is enabled but no staff_role_id" do
+        before do
+          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+            .update_column(:enabled, true)
+        end
+
+        it { is_expected.to be(false) }
+      end
+
+      context "when moderation is enabled but moderation_settings is absent" do
+        before do
+          config.moderation_settings.destroy!
+          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+            .update_column(:enabled, true)
+        end
+
+        subject(:check) { PluginCatalog.find(:image_scanning).prerequisites_met?(config.reload) }
+
+        it { is_expected.to be(false) }
+      end
+    end
+  end
+
   describe "moderation prerequisite predicates" do
     let(:enabled_scope) { double }
 

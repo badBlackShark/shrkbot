@@ -123,4 +123,69 @@ RSpec.describe Components::Moderation::ConfigShell do
       expect(html).to include("Enable the Logging plugin first.")
     end
   end
+
+  context "when toggle is locked and currently enabled" do
+    subject(:html) do
+      described_class.new(
+        header:,
+        server_configuration: config,
+        url: "/servers/900000001/moderation",
+        toggle: {
+          field: "moderation[enabled]",
+          enabled: true,
+          locked: true,
+          reason: "Cannot disable while sub-plugins are active."
+        }
+      ).render_in(view_context) { "" }
+    end
+
+    it "shows the enabled label text" do
+      expect(html).to include("Enabled")
+    end
+
+    it "renders the toggle as disabled" do
+      expect(html).to include("disabled")
+    end
+  end
+
+  context "when header has a badge" do
+    subject(:html) do
+      header_with_badge = Components::ConfigPageHeader.new(
+        icon: "shield",
+        title: "Server Shield",
+        description: "Your server's aegis.",
+        badge: "Beta"
+      )
+      described_class.new(
+        header: header_with_badge,
+        server_configuration: config,
+        url: "/servers/900000001/moderation",
+        toggle: base_toggle
+      ).render_in(view_context) { "" }
+    end
+
+    it "renders the badge text" do
+      expect(html).to include("Beta")
+    end
+  end
+
+  context "with a breadcrumb_extra" do
+    subject(:html) do
+      described_class.new(
+        header:,
+        server_configuration: config,
+        url: "/servers/900000001/moderation",
+        toggle: base_toggle,
+        breadcrumb_extra: "Spam Protection"
+      ).render_in(view_context) { "" }
+    end
+
+    it "renders the extra breadcrumb label" do
+      expect(html).to include("Spam Protection")
+    end
+
+    it "links the Server Shield breadcrumb to the moderation overview path" do
+      expect(html).to include("/servers/900000001/moderation")
+    end
+  end
 end

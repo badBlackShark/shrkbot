@@ -68,25 +68,15 @@ class Components::Moderation::SubPluginRow < Components::Base
   def configure_link
     render Components::Button.new(
       variant: :secondary,
-      href: configure_href,
+      href: sub_path,
       label: t(".configure"),
       trailing_icon: "arrow-right",
       class: "flex-none"
     )
   end
 
-  def configure_href
-    case @key
-    when :spam_protection then server_spam_protection_path(@server_id)
-    when :image_scanning then server_image_scanning_path(@server_id)
-    end
-  end
-
   def sub_path
-    case @key
-    when :spam_protection then server_spam_protection_path(@server_id)
-    when :image_scanning then server_image_scanning_path(@server_id)
-    end
+    (@key == :spam_protection) ? server_spam_protection_path(@server_id) : server_image_scanning_path(@server_id)
   end
 
   def toggle_control
@@ -123,12 +113,7 @@ class Components::Moderation::SubPluginRow < Components::Base
   def settings_hidden_fields
     return unless @settings
 
-    case @key
-    when :spam_protection
-      spam_protection_hidden_fields
-    when :image_scanning
-      image_scanning_hidden_fields
-    end
+    (@key == :spam_protection) ? spam_protection_hidden_fields : image_scanning_hidden_fields
   end
 
   def spam_protection_hidden_fields

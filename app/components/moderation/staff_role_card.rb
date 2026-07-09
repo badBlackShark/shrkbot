@@ -46,9 +46,9 @@ class Components::Moderation::StaffRoleCard < Components::Base
   end
 
   def color_hex(color)
-    return DEFAULT_COLOR if color.nil? || color.zero?
+    return DEFAULT_COLOR if color.zero?
 
-    format("#%06x", color & 0xFFFFFF)
+    "#%06x" % (color & 0xFFFFFF)
   end
 
   def missing_warning
