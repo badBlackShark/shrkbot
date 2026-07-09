@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Boots the app with stubbed Discord auth + seeded fixture guild for browser-driving
-# the web UI without real OAuth. See docs/web-debug-harness.md.
+# See docs/web-debug-harness.md.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export WEB_DEBUG=1
