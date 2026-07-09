@@ -143,6 +143,8 @@ en:
               for spam. Case, punctuation, digits and disguised characters are ignored
               either way.
             label: Match strictness
+            max_caption: identical
+            min_caption: loosely similar
             recommended: 'Recommended default: 100%'
           symbol_only:
             help: Messages with no matchable text - only emoji, punctuation or digits
@@ -197,6 +199,8 @@ en:
       mark_all_read: Mark all read
       this_server: This server
       title: Notifications
+    number_stepper:
+      recommended_default: 'Recommended default: %{value}'
     plugin_row:
       configure: Configure
       needs_setup_hint: Complete setup before enabling this plugin.

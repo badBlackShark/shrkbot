@@ -20,9 +20,6 @@ class Views::Servers::SpamProtection::Show < Views::Servers::Moderation::SubPlug
   end
 
   def form
-    Components::Moderation::SpamProtectionForm.new(
-      server_configuration: @config,
-      context: @context
-    )
+    Components::Moderation::SpamProtectionForm.new(context: @context)
   end
 end

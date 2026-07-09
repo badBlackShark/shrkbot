@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Components::Moderation::ImageScanningForm < Components::Base
-  def initialize(server_configuration:, context:, enable_error: nil)
+  def initialize(context:, enable_error: nil)
     @settings = context.settings
     @enable_error = enable_error
   end

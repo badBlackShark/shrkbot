@@ -19,7 +19,6 @@ RSpec.describe Components::Moderation::ImageScanningForm do
 
   subject(:html) do
     described_class.new(
-      server_configuration: config,
       context:
     ).render_in(view_context)
   end
@@ -83,7 +82,6 @@ RSpec.describe Components::Moderation::ImageScanningForm do
   context "with an enable_error" do
     subject(:html) do
       described_class.new(
-        server_configuration: config,
         context:,
         enable_error: "A staff role is required."
       ).render_in(view_context)
@@ -105,7 +103,6 @@ RSpec.describe Components::Moderation::ImageScanningForm do
 
     subject(:html) do
       described_class.new(
-        server_configuration: config,
         context:
       ).render_in(view_context)
     end

@@ -75,6 +75,6 @@ class Components::NumberStepper < Components::Base
   end
 
   def subscript
-    p(class: "text-xs text-text-muted") { "Recommended default: #{@default}" }
+    p(class: "text-xs text-text-muted") { t(".recommended_default", value: @default) }
   end
 end

@@ -20,9 +20,6 @@ class Views::Servers::ImageScanning::Show < Views::Servers::Moderation::SubPlugi
   end
 
   def form
-    Components::Moderation::ImageScanningForm.new(
-      server_configuration: @config,
-      context: @context
-    )
+    Components::Moderation::ImageScanningForm.new(context: @context)
   end
 end

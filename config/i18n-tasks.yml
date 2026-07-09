@@ -12,6 +12,16 @@ data:
     - ["components.legal_page.*", "config/locales/legal.%{locale}.yml"]
     - "config/locales/web.%{locale}.yml"
 
+# Relative keys in Views::Servers::Moderation::SubPluginShow resolve at runtime
+# against the SUBCLASS scope (spam_protection/image_scanning show), which the
+# static file-path scoping above cannot see.
+ignore_missing:
+  - views.servers.moderation.sub_plugin_show.*
+
+ignore_unused:
+  - views.servers.spam_protection.show.*
+  - views.servers.image_scanning.show.*
+
 search:
   paths:
     - app/

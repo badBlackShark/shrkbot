@@ -5,7 +5,15 @@ require "rails_helper"
 RSpec.describe Components::RangeSlider do
   subject(:html) { described_class.new(**options).call }
 
-  let(:options) { {name: "spam_protection[similarity]", value: 0.85} }
+  let(:base_options) do
+    {
+      name: "spam_protection[similarity]",
+      label: "Match strictness",
+      min_caption: "loosely similar",
+      max_caption: "identical"
+    }
+  end
+  let(:options) { base_options.merge(value: 0.85) }
 
   it "renders a hidden input with the stored float value and correct name" do
     expect(html).to include('type="hidden"')
@@ -37,13 +45,14 @@ RSpec.describe Components::RangeSlider do
     expect(html).to include("85%")
   end
 
-  it "renders endpoint captions" do
+  it "renders the endpoint captions and aria label it was given" do
     expect(html).to include("loosely similar")
     expect(html).to include("identical")
+    expect(html).to include('aria-label="Match strictness"')
   end
 
   context "with value 0.75 (minimum)" do
-    let(:options) { {name: "spam_protection[similarity]", value: 0.75} }
+    let(:options) { base_options.merge(value: 0.75) }
 
     it "shows 75 on the range and 0.75 on the hidden field" do
       expect(html).to include('value="75"')
@@ -52,7 +61,7 @@ RSpec.describe Components::RangeSlider do
   end
 
   context "with value 1.0 (maximum)" do
-    let(:options) { {name: "spam_protection[similarity]", value: 1.0} }
+    let(:options) { base_options.merge(value: 1.0) }
 
     it "shows 100 on the range and 1.0 on the hidden field" do
       expect(html).to include('value="100"')

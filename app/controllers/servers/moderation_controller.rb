@@ -22,7 +22,7 @@ class Servers::ModerationController < ApplicationController
     )
     activation = result.value
     @enabled = activation.enabled?
-    @enable_error = activation.errors[:enabled].first
+    @enable_error = activation.errors[:enabled].first || activation.errors[:staff_role_id].first
     @toast = {level: "notice", message: t("servers.moderation.saved")} if result.success?
 
     respond_to do |format|

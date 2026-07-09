@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Components::Moderation::SpamProtectionForm < Components::Base
-  def initialize(server_configuration:, context:, enable_error: nil)
+  def initialize(context:, enable_error: nil)
     @settings = context.settings
     @enable_error = enable_error
   end
@@ -66,6 +66,9 @@ class Components::Moderation::SpamProtectionForm < Components::Base
       render Components::RangeSlider.new(
         name: "spam_protection[similarity]",
         value: @settings.similarity,
+        label: t(".detection.match_strictness.label"),
+        min_caption: t(".detection.match_strictness.min_caption"),
+        max_caption: t(".detection.match_strictness.max_caption"),
         min: 75,
         max: 100
       )

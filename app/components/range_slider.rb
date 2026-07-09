@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 class Components::RangeSlider < Components::Base
-  def initialize(name:, value:, min: 75, max: 100)
+  def initialize(name:, value:, label:, min_caption:, max_caption:, min: 75, max: 100)
     @name = name
     @value = value
+    @label = label
+    @min_caption = min_caption
+    @max_caption = max_caption
     @min = min
     @max = max
   end
@@ -39,7 +42,7 @@ class Components::RangeSlider < Components::Base
       step: 1,
       value: (@value * 100).round,
       class: "w-full accent-accent",
-      aria_label: "Similarity threshold",
+      aria_label: @label,
       data: {
         range_slider_target: "range",
         action: "input->range-slider#update"
@@ -58,8 +61,8 @@ class Components::RangeSlider < Components::Base
 
   def caption_row
     div(class: "flex justify-between text-xs text-text-muted") do
-      span { "#{@min}% · loosely similar" }
-      span { "#{@max}% · identical" }
+      span { "#{@min}% · #{@min_caption}" }
+      span { "#{@max}% · #{@max_caption}" }
     end
   end
 end

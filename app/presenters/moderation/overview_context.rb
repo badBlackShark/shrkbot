@@ -31,6 +31,7 @@ module Moderation
     end
 
     def permission_warning?
+      # Mention-All-Roles detection lands here once bot permissions are stored
       false
     end
 

@@ -2,6 +2,7 @@
 
 class Components::Moderation::SubPluginRow < Components::Base
   include Phlex::Rails::Helpers::FormWith
+  include Components::PluginNav
 
   STATUS_VARIANTS = {
     enabled: :success,
@@ -76,7 +77,7 @@ class Components::Moderation::SubPluginRow < Components::Base
   end
 
   def sub_path
-    (@key == :spam_protection) ? server_spam_protection_path(@server_id) : server_image_scanning_path(@server_id)
+    plugin_config_path(@server_id, @key)
   end
 
   def toggle_control

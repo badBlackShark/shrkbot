@@ -3,7 +3,9 @@
 require "rails_helper"
 
 RSpec.describe Components::NumberStepper do
-  subject(:html) { described_class.new(**options).call }
+  include_context "component view context"
+
+  subject(:html) { described_class.new(**options).render_in(view_context) }
 
   let(:options) { {name: "spam_protection[channel_threshold]", value: 4, min: 2, default: 4, unit: "channels"} }
 
