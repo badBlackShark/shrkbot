@@ -96,4 +96,58 @@ RSpec.describe Ops::Moderation::Configure do
       expect(config.plugin_activations.find_by(plugin:)&.enabled).to be_falsey
     end
   end
+
+  context "when clearing staff_role_id while a sub-plugin is enabled" do
+    let(:staff_role_id) { nil }
+    let(:enabled) { "0" }
+    let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
+
+    before do
+      create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false).update_column(:enabled, true)
+    end
+
+    it "fails with an error on staff_role_id" do
+      expect(result).to be_failure
+      expect(result.value.errors[:staff_role_id]).to be_present
+    end
+
+    it "does not save the cleared staff_role_id" do
+      settings.update!(staff_role_id: 111_222_333)
+      result
+      expect(config.moderation_settings.reload.staff_role_id).to eq(111_222_333)
+    end
+  end
+
+  context "when clearing staff_role_id with no sub-plugin enabled" do
+    let(:staff_role_id) { nil }
+    let(:enabled) { "0" }
+
+    it "succeeds" do
+      expect(result).to be_success
+    end
+
+    it "clears the staff_role_id" do
+      settings.update!(staff_role_id: 111_222_333)
+      result
+      expect(config.moderation_settings.reload.staff_role_id).to be_nil
+    end
+  end
+
+  context "when setting a staff_role_id while a sub-plugin is enabled" do
+    let(:enabled) { "0" }
+    let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
+
+    before do
+      create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false).update_column(:enabled, true)
+    end
+
+    it "succeeds" do
+      expect(result).to be_success
+    end
+
+    it "saves the staff_role_id" do
+      result
+      expect(config.moderation_settings.reload.staff_role_id).to eq(111_222_333)
+    end
+  end
 end

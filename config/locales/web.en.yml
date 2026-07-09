@@ -62,6 +62,133 @@ en:
             roles: Roles
           toggle_all: Toggle all
           toggle_all_label: Toggle all %{plugin} events
+    moderation:
+      image_scanning_form:
+        consent:
+          body: Deletion is on by default, and detection is automated and imperfect.
+            Screenshots of scams - the kind well-meaning members post as warnings
+            - can be detected and deleted too, so tell your community not to post
+            scam screenshots. Staff are pinged on every action and can mark a decision
+            as wrong with one click in Discord.
+          title: Before you turn this on
+        custom_keywords:
+          keywords_help: Words or phrases that mark an image as a scam when they show
+            up in its text - on top of shrkbot's built-in scam rules. Close misspellings
+            count too, so one entry covers its variations. Short, common words trigger
+            easily; longer phrases make more precise rules. Keywords are matched like
+            all other text - case, punctuation and disguised characters ignored, digits
+            kept.
+          keywords_label: Custom keywords
+          min_hits_help: 1 is aggressive - a single matched word can delete an image.
+            2 or more keeps one stray word from triggering. Up to as many keywords
+            as you've set.
+          min_hits_label: Require at least
+          min_hits_suffix: matching keywords before shrkbot acts
+        detection:
+          sensitivity:
+            label: Sensitivity
+            relaxed_description: Acts only on unmistakable scams. Fewest false positives;
+              more scams slip through.
+            relaxed_title: Relaxed
+            standard_description: Catches most scam images with occasional false positives.
+              Recommended.
+            standard_title: Standard
+            strict_description: Also acts on borderline matches. Expect false positives
+              - best with an active staff team.
+            strict_title: Strict
+        explainer:
+          line_fingerprint: Confirmed scams are remembered by image fingerprint, across
+            every server shrkbot is in.
+          line_memory: shrkbot reads image text in memory. Nothing is stored.
+          line_staff: Staff confirm or dismiss every flag with buttons in your log
+            channel.
+          title: How image scanning works
+        report_scam_hint: You can report any message with images as a scam by right-clicking
+          it → Apps → shrkbot → Report as scam.
+        response:
+          action:
+            delete: Delete the image
+            flag_only: Flag only
+            help: Flag only leaves the image up and pings staff to review it.
+            label: When a scam is detected
+          punishment:
+            label: Also punish the sender
+      matching_explainer:
+        row_keywords: Custom scam keywords keep digits, so entries like 50 giveaway
+          match.
+        row_lookalike: Stylized and lookalike characters are folded to their plain
+          form (ⓕⓡⓔⓔ, ｆｒｅｅ → free), so disguises don't help.
+        row_normalize: 'Before comparing any text, shrkbot normalizes it: case, punctuation,
+          extra spacing and invisible characters are ignored - FREE N-I-T-R-O!! and
+          free nitro are the same text.'
+        row_spam: Spam protection also ignores digits - message 1, message 2, message
+          3 count as the same message.
+        title: How text matching works
+      punishment_control:
+        ban: Ban
+        ban_warning: A ban is permanent until a mod lifts it, and shrkbot can't undo
+          it. Pick this only if you're confident your thresholds never catch real
+          members.
+        duration_help: Applies on top of the purge.
+        duration_label: Duration
+        kick: Kick
+        none: None
+        timeout: Time out
+      spam_protection_form:
+        detection:
+          match_strictness:
+            help: How similar two messages must be to count as the same message. 100%
+              only catches exact copies; lower values also catch spam with small edits
+              - swapped words, extra characters - but can mistake similar real messages
+              for spam. Case, punctuation, digits and disguised characters are ignored
+              either way.
+            label: Match strictness
+            max_caption: identical
+            min_caption: loosely similar
+            recommended: 'Recommended default: 100%'
+          symbol_only:
+            help: Messages with no matchable text - only emoji, punctuation or digits
+              - are ignored by default. When on, they all count as the same message,
+              so blasting any symbol noise across channels triggers.
+            label: Also match symbol-only messages
+            recommended: 'Recommended default: Off'
+          trigger_threshold:
+            channels_unit: channels
+            help: Triggers when the same message appears in 4 different channels within
+              15 seconds.
+            label: Trigger threshold
+            seconds_unit: seconds
+            within: within
+        response:
+          action:
+            help: Notify only is a dry run - staff get the alert, nothing is deleted.
+            label: When spam is detected
+            notify_only: Notify only
+            purge: Purge the messages
+          punishment:
+            label: Also punish the sender
+      staff_role_card:
+        help: Shared by every Moderation sub-plugin. Pinged on every alert, and exempt
+          from spam detection. Pick one before enabling any sub-plugin.
+        label: Staff role
+        missing_warning: Required. Every sub-plugin stays off until a staff role is
+          picked.
+        permission_warning_body: shrkbot is missing the Mention All Roles permission
+          in this server. Alerts still post to the log channel, but nobody gets pinged
+          until it's restored.
+        permission_warning_bold: Staff pings will fail.
+        placeholder: Pick a role…
+      sub_plugin_directory:
+        eyebrow: Sub-plugins
+      sub_plugin_row:
+        configure: Configure
+        locked_reason: Pick a staff role first.
+        needs_setup_hint: Pick a staff role first.
+        status:
+          disabled: Disabled
+          enabled: Enabled
+          needs_setup: Needs setup
+        toggle_label: Enable %{name}
     notification_bell:
       label: Notifications
       unread: Notifications, %{count} unread
@@ -72,6 +199,8 @@ en:
       mark_all_read: Mark all read
       this_server: This server
       title: Notifications
+    number_stepper:
+      recommended_default: 'Recommended default: %{value}'
     plugin_row:
       configure: Configure
       needs_setup_hint: Complete setup before enabling this plugin.
@@ -79,6 +208,10 @@ en:
         logging:
           description: Record moderation events to a channel of your choice.
           name: Logging
+        moderation:
+          description: 'Your server''s aegis: automated moderation beyond Discord''s
+            AutoMod.'
+          name: Server Shield
         reminders:
           description: Members set their own reminders with /remind.
           locked: This plugin is always enabled to preserve DM functionality.
@@ -97,6 +230,7 @@ en:
       toggle: Toggle %{plugin}
     plugin_sidebar:
       dashboard: Dashboard
+      overview: Overview
       plugins: Plugins
     public_shell:
       dashboard: Dashboard
@@ -183,8 +317,12 @@ en:
         title: "%{channel_name} was deleted"
         title_unknown: A channel was deleted
   servers:
+    image_scanning:
+      saved: Scam Image Detection settings saved.
     logging:
       saved: Logging settings saved.
+    moderation:
+      saved: Server Shield settings saved.
     not_found: That server isn't available to configure.
     plugin_disabled: "%{plugin} disabled."
     plugin_enabled: "%{plugin} enabled."
@@ -197,6 +335,8 @@ en:
     roles:
       failed: Couldn't save the role settings.
       saved: Role settings saved.
+    spam_protection:
+      saved: Cross-Channel Spam Guard settings saved.
     unknown_plugin: That plugin doesn't exist.
     welcomes:
       saved: Welcomes settings saved.
@@ -250,6 +390,28 @@ en:
       continue: Continue
       title: Signing you back in
     servers:
+      image_scanning:
+        show:
+          description: Reads the text inside posted images and checks it against known
+            scam patterns and previously confirmed scam images. Staff confirm or dismiss
+            every catch, and the bot remembers.
+          group_locked_reason: Enable the Server Shield group first - its master switch
+            is off.
+          no_role_callout_body: Every Moderation sub-plugin needs the shared staff
+            role - it's pinged on every alert. Set it on the
+          no_role_callout_lead: Pick a staff role first.
+          no_role_callout_link: Moderation overview
+          no_role_callout_suffix: ", then enable image scanning here."
+          prereq_gate_cta: Open Server Shield overview
+          prereq_gate_message: Image scanning is part of the Moderation group. Enable
+            the group on its overview to configure this page.
+          prereq_gate_title: Server Shield group is disabled
+          role_locked_reason: Pick a staff role first.
+          subline_link: Moderation overview
+          subline_prefix: 'Part of Moderation. Shared settings - staff role and alerts
+            - live on the '
+          subline_suffix: "."
+          title: Scam Image Detection
       index:
         empty_body: You need Manage Server permissions and shrkbot must be present.
           Invite it to get started.
@@ -273,6 +435,21 @@ en:
           description: Record moderation events to a channel of your choice.
           gate_message: Enable the plugin to choose a channel and pick events.
           title: Logging
+      moderation:
+        show:
+          description: 'Your server''s aegis: automated moderation beyond Discord''s
+            AutoMod.'
+          gate_message: Enable the group to configure its sub-plugins and shared settings.
+          logging_subline_prefix: 'Alerts post to '
+          logging_subline_suffix: through the Logging plugin.
+          prereq_gate_cta: Set up Logging
+          prereq_gate_message: Every alert, staff ping and one-click review lands
+            in your log channel. Enable Logging and pick a log channel, then come
+            back.
+          prereq_gate_title: Moderation needs the Logging plugin
+          title: Server Shield
+          toggle_locked_reason: Enable the Logging plugin first - alerts are delivered
+            through your log channel.
       reminders:
         show:
           badge: Global
@@ -298,6 +475,28 @@ en:
           one: "%{count} role"
           other: "%{count} roles"
         synced: "%{channels} and %{roles} synced"
+      spam_protection:
+        show:
+          description: Detects the same message blasted across multiple channels within
+            seconds and purges it before it spreads. Matching is fingerprint-based
+            — message content is never stored.
+          group_locked_reason: Enable the Server Shield group first - its master switch
+            is off.
+          no_role_callout_body: Every Moderation sub-plugin needs the shared staff
+            role - it's pinged on every alert. Set it on the
+          no_role_callout_lead: Pick a staff role first.
+          no_role_callout_link: Moderation overview
+          no_role_callout_suffix: ", then enable spam protection here."
+          prereq_gate_cta: Open Server Shield overview
+          prereq_gate_message: Cross-Channel Spam Guard is part of the Server Shield
+            group. Enable the group on its overview to configure this page.
+          prereq_gate_title: Server Shield group is disabled
+          role_locked_reason: Pick a staff role first.
+          subline_link: Moderation overview
+          subline_prefix: 'Part of Moderation. Shared settings - staff role and alerts
+            - live on the '
+          subline_suffix: "."
+          title: Cross-Channel Spam Guard
       welcomes:
         show:
           description: Greet new members and say goodbye when they leave.

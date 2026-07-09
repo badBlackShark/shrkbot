@@ -12,12 +12,4 @@ RSpec.describe Moderation::StaffPing do
       expect(prefix).to eq("<@&123> ")
     end
   end
-
-  context "without a staff role id" do
-    let(:staff_role_id) { nil }
-
-    it "renders an empty string" do
-      expect(prefix).to eq("")
-    end
-  end
 end

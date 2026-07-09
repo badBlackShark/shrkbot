@@ -100,7 +100,7 @@ module Moderation
           channels: channels.map { |id| "<##{id}>" }.join(", ")
         ),
         meta: I18n.t("moderation.spam_protection.notification.meta.#{settings.action}"),
-        allowed_mentions: {parse: [], roles: [staff_role_id].compact}
+        allowed_mentions: {parse: [], roles: [staff_role_id]}
       )
     end
   end

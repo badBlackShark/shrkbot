@@ -20,12 +20,15 @@ class Components::AppShell < Components::Base
       if @sidebar
         div(class: "flex flex-1") do
           render @sidebar
-          main(class: "min-w-0 flex-1") { yield }
+          main(class: "flex min-w-0 flex-1 flex-col") do
+            div(class: "flex-1") { yield }
+            footer_bar
+          end
         end
       else
         main(class: "flex-1") { yield }
+        footer_bar
       end
-      footer_bar
     end
   end
 

@@ -275,11 +275,11 @@ RSpec.describe Moderation::SpamGuard do
       allow(Discord::Components).to receive(:send_to)
     end
 
-    it "notifies without a staff-role ping" do
+    it "notifies with nil in the roles array (seam guard prevents this in production)" do
       expect(Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
-        allowed_mentions: {parse: [], roles: []}
+        allowed_mentions: {parse: [], roles: [nil]}
       )
 
       simulate_message(channel_id: 1, message_id: 1)

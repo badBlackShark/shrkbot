@@ -1,0 +1,837 @@
+<!-- @dsCard group="Dashboard" viewport="1200x900" name="Moderation config" subtitle="Moderation as a plugin group: sidebar treatment, overview + per-sub-plugin pages, every state stacked — light & dark, annotated, with new-component specs" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>shrkbot — Moderation group config (stacked states)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Exo+2:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens/colors.css" />
+<link rel="stylesheet" href="tokens/spacing.css" />
+<link rel="stylesheet" href="tokens/motion.css" />
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+/* Semantic-token Tailwind wiring — every color maps to a CSS var from
+   tokens/colors.css, so [data-theme="dark"] flips both panes for free.
+   Same wiring as ui_kits/notifications. */
+tailwind.config={theme:{extend:{
+  colors:{
+    'surface-page':'var(--surface-page)','surface-card':'var(--surface-card)','surface-raised':'var(--surface-raised)','surface-sunken':'var(--surface-sunken)',
+    'text-primary':'var(--text-primary)','text-secondary':'var(--text-secondary)','text-muted':'var(--text-muted)','text-link':'var(--text-link)',
+    'border-subtle':'var(--border-subtle)','border-default':'var(--border-default)','border-strong':'var(--border-strong)',
+    accent:'var(--accent)','accent-fill':'var(--accent-fill)','accent-soft':'var(--accent-soft)','accent-soft-bd':'var(--accent-soft-bd)','accent-soft-fg':'var(--accent-soft-fg)',
+    'accent-2-text':'var(--accent-2-text)','accent-2-soft':'var(--accent-2-soft)','accent-2-soft-bd':'var(--accent-2-soft-bd)',
+    success:'var(--success)','success-soft':'var(--success-soft-x)',
+    warning:'var(--warning)','warning-soft':'var(--warning-soft-x)','warning-soft-bd':'var(--warning-soft-bd)',
+    danger:'var(--danger)','danger-soft':'var(--danger-soft-x)','danger-soft-bd':'var(--danger-soft-bd)'
+  },
+  fontFamily:{display:['"Space Grotesk"','system-ui','sans-serif'],sans:['"Exo 2"','system-ui','sans-serif'],mono:['"IBM Plex Mono"','ui-monospace','monospace']},
+  borderRadius:{sm:'5px',md:'8px',lg:'12px',xl:'16px',control:'8px',card:'12px',chip:'5px'},
+  boxShadow:{sm:'0 1px 3px rgba(29,26,21,.08),0 1px 2px rgba(29,26,21,.04)',md:'0 4px 12px rgba(29,26,21,.08),0 2px 4px rgba(29,26,21,.04)',lg:'0 12px 32px rgba(29,26,21,.18),0 4px 8px rgba(29,26,21,.08)'}
+}}};
+</script>
+<style>
+/* ── Local semantic extensions (theme-aware, mirrors notifications kit) ── */
+:root{
+  --accent-soft-fg: var(--teal-700);
+  --success-soft-x: var(--green-50);
+  --warning-soft-x: var(--amber-50);
+  --warning-soft-bd:#ecd6a6;
+  --danger-soft-x:  var(--red-50);
+  --danger-soft-bd: #eec3b8;
+  --plugin-tile:    var(--accent-fill);   /* icon identity tiles: white-text-safe teal */
+  --switch-off:     #c5b8a1;
+  --gate-veil:      rgba(245,240,232,.7);
+}
+[data-theme="dark"]{
+  --accent-soft-fg: #6fb3aa;
+  --success-soft-x: rgba(47,175,107,.12);
+  --warning-soft-x: rgba(232,161,58,.12);
+  --warning-soft-bd:rgba(232,161,58,.25);
+  --danger-soft-x:  rgba(224,83,61,.12);
+  --danger-soft-bd: rgba(224,83,61,.28);
+  --plugin-tile:    var(--accent);
+  --switch-off:     #5e4a37;
+  --gate-veil:      rgba(26,19,13,.82);
+}
+
+body{font-family:"Exo 2",system-ui,sans-serif;background:#161310}
+a{color:var(--text-link)} a:hover{color:var(--teal-700)}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted)}
+
+/* ── Chamfer geometry — brand-forward surfaces only ── */
+.chamfer-tile{--cut:var(--chamfer,12px);clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% var(--cut),100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,var(--cut) 100%,0 calc(100% - var(--cut)),0 var(--cut))}
+.chamfer-cta{--cut:var(--chamfer-sm,6px);clip-path:polygon(var(--cut) 0,calc(100% - var(--cut)) 0,100% var(--cut),100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,var(--cut) 100%,0 calc(100% - var(--cut)),0 var(--cut));border-radius:0 !important}
+
+/* ── Static switch (rendered states of .shrk-switch / Stimulus in production) ── */
+.sw{position:relative;width:46px;height:26px;border-radius:999px;flex:none;display:inline-block;border:none;padding:0}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw-on{background:var(--accent-fill)} .sw-on::after{transform:translateX(20px)}
+.sw-off{background:var(--switch-off)}
+.sw-disabled{opacity:.5;cursor:not-allowed}
+
+/* ── Gate overlay (enable-gate pattern) ── */
+.gate-overlay{position:absolute;inset:0;z-index:20;background:var(--gate-veil);backdrop-filter:blur(1px);border-radius:12px;display:grid;place-items:center}
+
+/* ── Static tooltip, rendered visible for review (hover-only in production) ── */
+.tip-static{position:absolute;bottom:calc(100% + 8px);right:0;width:230px;background:#2f2a23;color:#fff;font-size:12px;line-height:1.45;padding:7px 10px;border-radius:8px;text-align:center;z-index:30}
+.tip-static::after{content:'';position:absolute;top:100%;right:15px;border:5px solid transparent;border-top-color:#2f2a23}
+
+/* ── Sidebar nav (excerpted from the PluginShell) ── */
+.side-item{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;width:100%;text-align:left;border:none;background:transparent;cursor:pointer;font-size:13px;color:var(--text-secondary)}
+.side-item:hover{background:var(--surface-sunken)}
+.side-sub{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:7px;width:100%;text-align:left;border:none;background:transparent;cursor:pointer;font-size:13px;color:var(--text-secondary)}
+.side-sub:hover{background:var(--surface-sunken)}
+.side-sub.active{background:var(--accent-soft);color:var(--nav-active);font-weight:600}
+
+/* ── Review-chrome annotation — NOT page content ── */
+.anno{border:1px dashed var(--accent-2-soft-bd);border-radius:8px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;line-height:1.6;color:var(--text-secondary)}
+.anno-tag{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent-2-text);background:var(--accent-2-soft);border-radius:5px;padding:2px 7px;flex:none;margin-top:1px}
+
+/* ── Slash overlay: spam-protection icon = megaphone + slash (locked 2026-07-08).
+      Phosphor has no megaphone-slash; production = custom SVG asset with Phosphor's
+      slash geometry. --slash-bg must match the surface behind the icon (the casing
+      bar fakes the notch real Phosphor slash icons have). ── */
+.icon-slash{--slash-bg:var(--plugin-tile);position:relative;display:inline-flex}
+.icon-slash::before,.icon-slash::after{content:'';position:absolute;left:50%;top:50%;height:135%;border-radius:2px;transform:translate(-50%,-50%) rotate(45deg)}
+.icon-slash::before{width:5px;background:var(--slash-bg)}
+.icon-slash::after{width:2px;background:currentColor}
+
+/* ── Phosphor icon sizing ── */
+i[class*="ph-"]{display:inline-flex;align-items:center;justify-content:center;line-height:1;flex:none;font-style:normal;vertical-align:middle}
+i[class*="ph-"].w-3{font-size:12px;min-width:12px;height:12px}
+i[class*="ph-"].w-3\.5{font-size:14px;min-width:14px;height:14px}
+i[class*="ph-"].w-4{font-size:16px;min-width:16px;height:16px}
+i[class*="ph-"].w-5{font-size:20px;min-width:20px;height:20px}
+i[class*="ph-"].w-6{font-size:24px;min-width:24px;height:24px}
+i[class*="ph-"].w-\[18px\]{font-size:18px;min-width:18px;height:18px}
+
+@media(prefers-reduced-motion:reduce){
+  .transition-colors,.transition{transition:none !important}
+}
+</style>
+</head>
+<body class="antialiased">
+
+<!-- ════════════════════════════════════════════════════════════════
+     LIGHT PANE — authored source of truth.
+     The DARK pane at the bottom is a JS clone under [data-theme="dark"];
+     every color is a semantic token, so it flips automatically.
+     The page renders fully without JS (light pane only).
+     ════════════════════════════════════════════════════════════════ -->
+<section data-theme="light" data-pane-light class="bg-surface-page text-text-primary py-10 px-6">
+  <div class="max-w-[860px] mx-auto">
+    <p class="font-mono text-xs text-text-muted mb-3">shrkbot · Moderation group config — stacked states — LIGHT</p>
+
+    <div class="anno mb-10"><span class="anno-tag">note</span><span>Moderation is now a plugin GROUP: sub-plugins Spam protection and Image scanning today, more later (raid detection, verdict dashboard). Structure on this page: sidebar group treatment, then the group Overview page in 5 states, then one full page per sub-plugin with its blocked states, then shared states and New components. Pages render without the PluginShell (app bar + sidebar) except the sidebar excerpts. Moderation replaces the former OCR Moderation plugin; image scanning absorbs its OCR pipeline. Group icon: <span class="font-mono">shield</span>; sub-plugin icons: <span class="font-mono">megaphone</span> with a slash overlay (locked 2026-07-08; Phosphor has no megaphone-slash — production is a custom SVG asset combining Phosphor's megaphone with their standard slash geometry, registered in the icon component; the mockup fakes it with the .icon-slash CSS overlay, whose --slash-bg must match the surface behind the icon), <span class="font-mono">scan</span> (Phosphor, one weight).</span></div>
+
+    <div data-pane-content class="flex flex-col gap-14">
+
+      <!-- ═══════════════ SIDEBAR — GROUP TREATMENT ═══════════════ -->
+      <div id="sidebar" data-screen-label="Sidebar group">
+        <span class="lbl">Sidebar — Moderation as a group · expanded (Spam protection active) and collapsed</span>
+
+        <div class="mt-3 flex flex-wrap gap-5 items-start">
+
+          <!-- Expanded -->
+          <div class="w-56 bg-surface-sunken border border-border-default rounded-lg p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-widest px-2 mb-2" style="color:var(--eyebrow)">Plugins</p>
+            <nav class="flex flex-col gap-0.5">
+              <button class="side-item"><span class="w-7 h-7 rounded-[7px] grid place-items-center text-white flex-none" style="background:var(--accent)"><i class="ph ph-users-three w-3.5 h-3.5"></i></span><span>Roles</span><span class="ml-auto w-[7px] h-[7px] rounded-full bg-success flex-none"></span></button>
+              <button class="side-item"><span class="w-7 h-7 rounded-[7px] bg-surface-raised text-text-muted grid place-items-center flex-none"><i class="ph ph-hand-waving w-3.5 h-3.5"></i></span><span>Welcomes</span><span class="ml-auto w-[7px] h-[7px] rounded-full bg-border-strong flex-none"></span></button>
+              <button class="side-item"><span class="w-7 h-7 rounded-[7px] grid place-items-center text-white flex-none" style="background:var(--accent)"><i class="ph ph-scroll w-3.5 h-3.5"></i></span><span>Logging</span><span class="ml-auto w-[7px] h-[7px] rounded-full bg-success flex-none"></span></button>
+              <!-- Group parent — chevron instead of status dot, rotated open -->
+              <button class="side-item" aria-expanded="true"><span class="w-7 h-7 rounded-[7px] grid place-items-center text-white flex-none" style="background:var(--accent)"><i class="ph ph-shield w-3.5 h-3.5"></i></span><span>Moderation</span><i class="ph ph-caret-down w-3 h-3 text-text-muted ml-auto"></i></button>
+              <!-- Sub-items on an indent rail -->
+              <div class="ml-[23px] pl-2.5 border-l border-border-default flex flex-col gap-0.5 py-0.5">
+                <button class="side-sub"><span>Overview</span></button>
+                <button class="side-sub active"><span>Spam protection</span><span class="ml-auto w-[7px] h-[7px] rounded-full bg-success flex-none"></span></button>
+                <button class="side-sub"><span>Image scanning</span><span class="ml-auto w-[7px] h-[7px] rounded-full bg-success flex-none"></span></button>
+              </div>
+              <button class="side-item"><span class="w-7 h-7 rounded-[7px] grid place-items-center text-white flex-none" style="background:var(--accent)"><i class="ph ph-bell-ringing w-3.5 h-3.5"></i></span><span>Reminders</span><span class="ml-auto text-[10px] font-semibold px-1.5 py-px rounded-full copper" style="color:var(--accent-2-text);background:var(--accent-2-soft)">Global</span></button>
+            </nav>
+          </div>
+
+          <!-- Collapsed -->
+          <div class="w-56 bg-surface-sunken border border-border-default rounded-lg p-4">
+            <p class="text-[10px] font-semibold uppercase tracking-widest px-2 mb-2" style="color:var(--eyebrow)">Plugins</p>
+            <nav class="flex flex-col gap-0.5">
+              <button class="side-item"><span class="w-7 h-7 rounded-[7px] grid place-items-center text-white flex-none" style="background:var(--accent)"><i class="ph ph-users-three w-3.5 h-3.5"></i></span><span>Roles</span><span class="ml-auto w-[7px] h-[7px] rounded-full bg-success flex-none"></span></button>
+              <button class="side-item"><span class="w-7 h-7 rounded-[7px] bg-surface-raised text-text-muted grid place-items-center flex-none"><i class="ph ph-hand-waving w-3.5 h-3.5"></i></span><span>Welcomes</span><span class="ml-auto w-[7px] h-[7px] rounded-full bg-border-strong flex-none"></span></button>
+              <button class="side-item"><span class="w-7 h-7 rounded-[7px] grid place-items-center text-white flex-none" style="background:var(--accent)"><i class="ph ph-scroll w-3.5 h-3.5"></i></span><span>Logging</span><span class="ml-auto w-[7px] h-[7px] rounded-full bg-success flex-none"></span></button>
+              <button class="side-item" aria-expanded="false"><span class="w-7 h-7 rounded-[7px] grid place-items-center text-white flex-none" style="background:var(--accent)"><i class="ph ph-shield w-3.5 h-3.5"></i></span><span>Moderation</span><i class="ph ph-caret-right w-3 h-3 text-text-muted ml-auto"></i></button>
+              <button class="side-item"><span class="w-7 h-7 rounded-[7px] grid place-items-center text-white flex-none" style="background:var(--accent)"><i class="ph ph-bell-ringing w-3.5 h-3.5"></i></span><span>Reminders</span><span class="ml-auto text-[10px] font-semibold px-1.5 py-px rounded-full" style="color:var(--accent-2-text);background:var(--accent-2-soft)">Global</span></button>
+            </nav>
+          </div>
+
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>SidebarGroup (NEW COMPONENT, spec at the end). Flat entries are untouched plugin-nav-items. The group parent keeps the icon tile + label but swaps the status dot for a chevron (caret-right closed, rotates to caret-down over 200ms ease-standard). Sub-items sit on an indent rail aligned with the parent label, text-only, each with its own status dot; Overview has none. Clicking the parent toggles disclosure only - navigation happens on sub-items. Open/closed persists per user (localStorage); the group auto-expands when a sub-page is active. Active state (accent-soft wash, --nav-active text) can sit on any sub-item. New sub-plugins are new rows on the rail - no layout change at 6. Reduced motion: chevron and disclosure snap.</span></div>
+      </div>
+
+      <!-- ═══════════════ OVERVIEW · STATE 1 — NORMAL ═══════════════ -->
+      <div id="ov-normal" data-screen-label="Overview normal">
+        <span class="lbl">Overview — state 1 · group on · shared settings + sub-plugin directory</span>
+
+        <div class="mt-3">
+          <nav class="text-xs text-text-muted mb-4 flex items-center gap-1.5"><a href="#" class="hover:text-text-secondary no-underline" style="color:var(--text-muted)">Servers</a><i class="ph ph-caret-right w-3 h-3"></i><a href="#" class="hover:text-text-secondary no-underline" style="color:var(--text-muted)">Dev Refuge</a><i class="ph ph-caret-right w-3 h-3"></i><span class="text-text-secondary font-medium">Moderation</span></nav>
+
+          <!-- Group header — master switch -->
+          <div class="flex items-start gap-4 mb-2">
+            <span class="w-12 h-12 chamfer-tile text-white grid place-items-center flex-none" style="background:var(--plugin-tile)"><i class="ph-fill ph-shield w-6 h-6"></i></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Moderation</h1><p class="text-sm text-text-secondary mt-0.5">Protections against spam, scams and worse. Each one is its own sub-plugin - turn on what you need.</p></div>
+            <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-text-secondary">Enabled</span><button class="sw sw-on" role="switch" aria-checked="true" aria-label="Enable Moderation"></button></div>
+          </div>
+          <p class="text-xs text-text-muted mb-6 flex items-center gap-1.5 pl-16"><i class="ph ph-scroll w-4 h-4"></i><span>Alerts post to <span class="font-mono">#mod-log</span> through the Logging plugin.</span></p>
+
+          <div class="flex flex-col gap-5">
+
+            <!-- Shared setting: staff role -->
+            <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+              <label class="block text-sm font-semibold mb-1.5">Staff role <span class="text-danger text-xs font-semibold">*</span></label>
+              <div class="h-10 px-3 rounded-control border-[1.5px] border-border-strong bg-surface-card flex items-center gap-2 text-sm max-w-sm cursor-pointer"><span class="w-2.5 h-2.5 rounded-full flex-none" style="background:#e0533d"></span><span class="flex-1">Moderator</span><i class="ph ph-caret-down w-4 h-4 text-text-muted"></i></div>
+              <p class="text-xs text-text-muted mt-1.5">Shared by every Moderation sub-plugin. Pinged on every alert, and exempt from spam detection. Pick one before enabling any sub-plugin.</p>
+            </div>
+
+            <!-- Sub-plugin directory -->
+            <div>
+              <p class="text-[11px] font-semibold uppercase tracking-widest mb-3" style="color:var(--eyebrow)">Sub-plugins</p>
+              <div class="flex flex-col gap-3">
+                <div class="bg-surface-card border border-accent-soft-bd rounded-lg shadow-sm p-5 flex items-center gap-4">
+                  <span class="w-11 h-11 chamfer-tile text-white grid place-items-center flex-none" style="background:var(--plugin-tile)"><span class="icon-slash"><i class="ph-fill ph-megaphone w-5 h-5"></i></span></span>
+                  <div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-display font-semibold">Spam protection</span><span class="inline-flex items-center gap-1.5 text-xs font-semibold text-success bg-success-soft px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-success"></span>Enabled</span></div><p class="text-sm text-text-secondary mt-0.5">Purges the same message posted across several channels within seconds.</p></div>
+                  <button class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md border border-border-default text-sm font-semibold hover:bg-surface-sunken transition-colors"><span>Configure</span><i class="ph ph-arrow-right w-4 h-4"></i></button>
+                  <button class="sw sw-on" role="switch" aria-checked="true" aria-label="Enable spam protection"></button>
+                </div>
+                <div class="bg-surface-card border border-accent-soft-bd rounded-lg shadow-sm p-5 flex items-center gap-4">
+                  <span class="w-11 h-11 chamfer-tile text-white grid place-items-center flex-none" style="background:var(--plugin-tile)"><i class="ph-fill ph-scan w-5 h-5"></i></span>
+                  <div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-display font-semibold">Image scanning</span><span class="inline-flex items-center gap-1.5 text-xs font-semibold text-success bg-success-soft px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-success"></span>Enabled</span></div><p class="text-sm text-text-secondary mt-0.5">Reads the text in images and fingerprints known scam images.</p></div>
+                  <button class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md border border-border-default text-sm font-semibold hover:bg-surface-sunken transition-colors"><span>Configure</span><i class="ph ph-arrow-right w-4 h-4"></i></button>
+                  <button class="sw sw-on" role="switch" aria-checked="true" aria-label="Enable image scanning"></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Matching explainer — collapsible, rendered expanded -->
+            <div id="matching" class="bg-surface-card border border-border-default rounded-card shadow-sm overflow-hidden">
+              <div class="flex items-center gap-3 px-5 py-3.5 bg-surface-sunken border-b border-border-subtle cursor-pointer select-none">
+                <i class="ph ph-caret-down w-4 h-4 text-text-muted" style="transform:rotate(180deg)"></i>
+                <span class="text-sm font-semibold flex-1">How text matching works</span>
+              </div>
+              <div class="px-5 py-4 grid gap-3">
+                <p class="text-sm text-text-secondary flex items-start gap-2.5"><i class="ph ph-text-aa w-4 h-4 mt-0.5 text-text-muted"></i><span>Before comparing any text, shrkbot normalizes it: case, punctuation, extra spacing and invisible characters are ignored - <span class="font-mono">FREE N-I-T-R-O!!</span> and <span class="font-mono">free nitro</span> are the same text.</span></p>
+                <p class="text-sm text-text-secondary flex items-start gap-2.5"><i class="ph ph-mask-happy w-4 h-4 mt-0.5 text-text-muted"></i><span>Stylized and lookalike characters are folded to their plain form (<span class="font-mono">ⓕⓡⓔⓔ</span>, <span class="font-mono">ｆｒｅｅ</span> → <span class="font-mono">free</span>), so disguises don't help.</span></p>
+                <p class="text-sm text-text-secondary flex items-start gap-2.5"><span class="icon-slash mt-0.5 text-text-muted" style="--slash-bg:var(--surface-card)"><i class="ph ph-megaphone w-4 h-4"></i></span><span>Spam protection also ignores digits - <span class="font-mono">message 1</span>, <span class="font-mono">message 2</span>, <span class="font-mono">message 3</span> count as the same message.</span></p>
+                <p class="text-sm text-text-secondary flex items-start gap-2.5"><i class="ph ph-scan w-4 h-4 mt-0.5 text-text-muted"></i><span>Custom scam keywords keep digits, so entries like <span class="font-mono">50 giveaway</span> match.</span></p>
+              </div>
+            </div>
+
+          </div>
+
+          <p class="mt-6 text-xs text-text-muted flex items-center gap-1.5"><i class="ph ph-terminal-window w-4 h-4"></i><span>No slash commands - every sub-plugin runs automatically once enabled.</span></p>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>"How text matching works" is the same collapsible-card pattern as the image-scanning explainer, rendered expanded here (collapsed by default in production - reference material, not a setting). It lives ONLY on the overview; the strictness and custom-keywords help texts on the sub-pages link to it. Sub-plugin rows are the dashboard's plugin-row pattern verbatim (tile + name + status badge + one-liner + Configure + switch): six sub-plugins is six rows, no layout change. The row switch and the enable toggle on the sub-plugin's own page are the same value. Master switch off = state 3; it does NOT overwrite per-sub-plugin switches - they keep their values and come back as saved. The <span class="font-mono">#mod-log</span> name is read live from the Logging plugin. Edits here raise the shared SaveBar (final state below).</span></div>
+      </div>
+
+      <!-- ═══════════════ OVERVIEW · STATE 2 — LOGGING MISSING · BLOCKED ═══════════════ -->
+      <div id="ov-blocked" data-screen-label="Overview blocked (Logging)">
+        <span class="lbl">Overview — state 2 · blocked · Logging plugin disabled · group cannot be enabled</span>
+
+        <div class="mt-3 pt-16">
+          <div class="flex items-start gap-4 mb-6">
+            <span class="w-12 h-12 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><i class="ph ph-shield w-6 h-6"></i></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Moderation</h1><p class="text-sm text-text-secondary mt-0.5">Protections against spam, scams and worse. Each one is its own sub-plugin - turn on what you need.</p></div>
+            <div class="flex items-center gap-2.5 pt-1">
+              <span class="text-sm font-medium text-text-secondary">Disabled</span>
+              <span class="relative inline-flex">
+                <span class="tip-static">Enable the Logging plugin first - alerts are delivered through your log channel.</span>
+                <button class="sw sw-off sw-disabled" role="switch" aria-checked="false" aria-disabled="true" aria-label="Enable Moderation (blocked: Logging plugin is disabled)"></button>
+              </span>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="gate-overlay">
+              <div class="text-center bg-surface-card border border-border-default rounded-lg shadow-md px-6 py-5 max-w-sm">
+                <i class="ph ph-scroll w-5 h-5 text-text-muted mx-auto block"></i>
+                <p class="text-sm font-semibold mt-2">Moderation needs the Logging plugin</p>
+                <p class="text-xs text-text-secondary mt-1 mb-3">Every alert, staff ping and one-click review lands in your log channel. Enable Logging and pick a log channel, then come back.</p>
+                <button class="inline-flex items-center gap-1.5 h-9 px-4 rounded-control border border-border-strong bg-surface-card text-sm font-semibold hover:bg-surface-sunken transition-colors"><span>Set up Logging</span><i class="ph ph-arrow-right w-4 h-4"></i></button>
+              </div>
+            </div>
+            <div class="flex flex-col gap-5" style="opacity:.45;pointer-events:none" aria-hidden="true">
+              <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+                <label class="block text-sm font-semibold mb-1.5">Staff role <span class="text-danger text-xs font-semibold">*</span></label>
+                <div class="h-10 px-3 rounded-control border-[1.5px] border-border-strong bg-surface-card flex items-center gap-2 text-sm max-w-sm"><span class="flex-1 text-text-muted">Pick a role…</span><i class="ph ph-caret-down w-4 h-4 text-text-muted"></i></div>
+              </div>
+              <div class="bg-surface-card border border-border-default rounded-lg shadow-sm p-5 flex items-center gap-4">
+                <span class="w-11 h-11 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><span class="icon-slash" style="--slash-bg:var(--surface-raised)"><i class="ph ph-megaphone w-5 h-5"></i></span></span>
+                <div class="flex-1 min-w-0"><span class="font-display font-semibold">Spam protection</span><p class="text-sm text-text-secondary mt-0.5">Purges the same message posted across several channels within seconds.</p></div>
+                <button class="sw sw-off" role="switch" aria-checked="false" aria-label="Enable spam protection"></button>
+              </div>
+              <div class="bg-surface-card border border-border-default rounded-lg shadow-sm p-5 flex items-center gap-4">
+                <span class="w-11 h-11 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><i class="ph ph-scan w-5 h-5"></i></span>
+                <div class="flex-1 min-w-0"><span class="font-display font-semibold">Image scanning</span><p class="text-sm text-text-secondary mt-0.5">Reads the text in images and fingerprints known scam images.</p></div>
+                <button class="sw sw-off" role="switch" aria-checked="false" aria-label="Enable image scanning"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Trigger: Logging plugin disabled (hard prerequisite - alerts have nowhere to go). Master toggle is disabled-with-reason: 50% opacity, not-allowed cursor, tooltip rendered visible here but hover/focus-only in production. PrereqGate variant of the enable-gate: blocking reason + secondary CTA deep-linking to the Logging page instead of lock copy + Enable. The check is live - enabling Logging unblocks without a reload. Sub-plugin pages get the same treatment through their own group-disabled state.</span></div>
+      </div>
+
+      <!-- ═══════════════ OVERVIEW · STATE 3 — GROUP DISABLED · ENABLE-GATE ═══════════════ -->
+      <div id="ov-disabled" data-screen-label="Overview group disabled">
+        <span class="lbl">Overview — state 3 · group disabled · enable-gate over inert settings</span>
+
+        <div class="mt-3">
+          <div class="flex items-start gap-4 mb-6">
+            <span class="w-12 h-12 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><i class="ph ph-shield w-6 h-6"></i></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Moderation</h1><p class="text-sm text-text-secondary mt-0.5">Protections against spam, scams and worse. Each one is its own sub-plugin - turn on what you need.</p></div>
+            <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-text-secondary">Disabled</span><button class="sw sw-off" role="switch" aria-checked="false" aria-label="Enable Moderation"></button></div>
+          </div>
+
+          <div class="relative">
+            <div class="gate-overlay">
+              <div class="text-center bg-surface-card border border-border-default rounded-lg shadow-md px-6 py-5">
+                <i class="ph ph-lock w-5 h-5 text-text-muted mx-auto block"></i>
+                <p class="text-sm font-semibold mt-2">Moderation is disabled</p>
+                <p class="text-xs text-text-secondary mt-1 mb-3 max-w-xs">Enable the group to configure its sub-plugins and shared settings.</p>
+                <button class="inline-flex items-center gap-1.5 h-9 px-4 chamfer-cta bg-accent-fill text-white text-sm font-semibold">Enable Moderation</button>
+              </div>
+            </div>
+            <div class="flex flex-col gap-5" style="opacity:.45;pointer-events:none" aria-hidden="true">
+              <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+                <label class="block text-sm font-semibold mb-1.5">Staff role <span class="text-danger text-xs font-semibold">*</span></label>
+                <div class="h-10 px-3 rounded-control border-[1.5px] border-border-strong bg-surface-card flex items-center gap-2 text-sm max-w-sm"><span class="w-2.5 h-2.5 rounded-full flex-none" style="background:#e0533d"></span><span class="flex-1">Moderator</span><i class="ph ph-caret-down w-4 h-4 text-text-muted"></i></div>
+              </div>
+              <div class="bg-surface-card border border-border-default rounded-lg shadow-sm p-5 flex items-center gap-4">
+                <span class="w-11 h-11 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><span class="icon-slash" style="--slash-bg:var(--surface-raised)"><i class="ph ph-megaphone w-5 h-5"></i></span></span>
+                <div class="flex-1 min-w-0"><span class="font-display font-semibold">Spam protection</span><p class="text-sm text-text-secondary mt-0.5">Purges the same message posted across several channels within seconds.</p></div>
+                <button class="sw sw-on" role="switch" aria-checked="true" aria-label="Enable spam protection"></button>
+              </div>
+              <div class="bg-surface-card border border-border-default rounded-lg shadow-sm p-5 flex items-center gap-4">
+                <span class="w-11 h-11 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><i class="ph ph-scan w-5 h-5"></i></span>
+                <div class="flex-1 min-w-0"><span class="font-display font-semibold">Image scanning</span><p class="text-sm text-text-secondary mt-0.5">Reads the text in images and fingerprints known scam images.</p></div>
+                <button class="sw sw-on" role="switch" aria-checked="true" aria-label="Enable image scanning"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Trigger: master toggle off (with Logging on - otherwise state 2 wins). Standard enable-gate: everything below the header goes inert (opacity .45, pointer-events none) under the veil (1px blur, fades in 250ms). Sub-plugin switches keep their saved values under the veil - dimmed ON here - and every sub-plugin page shows its own group-disabled state. Tiles drop to the neutral treatment while the group is off. Reduced motion: no fade.</span></div>
+      </div>
+
+      <!-- ═══════════════ OVERVIEW · STATE 4 — STAFF ROLE MISSING ═══════════════ -->
+      <div id="ov-no-role" data-screen-label="Overview staff role missing">
+        <span class="lbl">Overview — state 4 · group on · no staff role · sub-plugin toggles disabled-with-reason</span>
+
+        <div class="mt-3 flex flex-col gap-5">
+          <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+            <label class="block text-sm font-semibold mb-1.5">Staff role <span class="text-danger text-xs font-semibold">*</span></label>
+            <div class="h-10 px-3 rounded-control border-[1.5px] border-border-strong bg-surface-card flex items-center gap-2 text-sm max-w-sm cursor-pointer"><span class="flex-1 text-text-muted">Pick a role…</span><i class="ph ph-caret-down w-4 h-4 text-text-muted"></i></div>
+            <p class="text-xs mt-1.5 flex items-center gap-1 font-medium text-warning"><i class="ph ph-warning w-3.5 h-3.5"></i><span>Required. Every sub-plugin stays off until a staff role is picked.</span></p>
+          </div>
+          <div>
+            <p class="text-[11px] font-semibold uppercase tracking-widest mb-3" style="color:var(--eyebrow)">Sub-plugins</p>
+            <div class="flex flex-col gap-3">
+              <div class="bg-surface-card border border-border-default rounded-lg shadow-sm p-5 flex items-center gap-4">
+                <span class="w-11 h-11 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><span class="icon-slash" style="--slash-bg:var(--surface-raised)"><i class="ph ph-megaphone w-5 h-5"></i></span></span>
+                <div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-display font-semibold">Spam protection</span><span class="inline-flex items-center gap-1.5 text-xs font-semibold text-warning bg-warning-soft px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-warning"></span>Needs setup</span></div><p class="text-sm text-text-secondary mt-0.5">Purges the same message posted across several channels within seconds.</p><p class="flex items-center gap-1 text-xs font-medium mt-1 text-warning"><i class="ph ph-warning w-3.5 h-3.5"></i><span>Pick a staff role first.</span></p></div>
+                <button class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md border border-border-default text-sm font-semibold hover:bg-surface-sunken transition-colors"><span>Configure</span><i class="ph ph-arrow-right w-4 h-4"></i></button>
+                <button class="sw sw-off sw-disabled" role="switch" aria-checked="false" aria-disabled="true" aria-label="Enable spam protection (blocked: no staff role)"></button>
+              </div>
+              <div class="bg-surface-card border border-border-default rounded-lg shadow-sm p-5 flex items-center gap-4">
+                <span class="w-11 h-11 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><i class="ph ph-scan w-5 h-5"></i></span>
+                <div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-display font-semibold">Image scanning</span><span class="inline-flex items-center gap-1.5 text-xs font-semibold text-warning bg-warning-soft px-2 py-0.5 rounded-full"><span class="w-1.5 h-1.5 rounded-full bg-warning"></span>Needs setup</span></div><p class="text-sm text-text-secondary mt-0.5">Reads the text in images and fingerprints known scam images.</p><p class="flex items-center gap-1 text-xs font-medium mt-1 text-warning"><i class="ph ph-warning w-3.5 h-3.5"></i><span>Pick a staff role first.</span></p></div>
+                <button class="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-md border border-border-default text-sm font-semibold hover:bg-surface-sunken transition-colors"><span>Configure</span><i class="ph ph-arrow-right w-4 h-4"></i></button>
+                <button class="sw sw-off sw-disabled" role="switch" aria-checked="false" aria-disabled="true" aria-label="Enable image scanning (blocked: no staff role)"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Trigger: group enabled, no staff role saved. Header + breadcrumb unchanged from state 1 (cropped here). Sub-plugin toggles use disabled-with-reason with the reason always visible (inline warning note, not tooltip-only) and rows show the Needs-setup badge. Configure stays clickable - each page remains reachable so setup can continue; its enable toggle is blocked there too (sub-plugin state 3 below). Saving a role re-enables every toggle instantly, no reload.</span></div>
+      </div>
+
+      <!-- ═══════════════ OVERVIEW · STATE 5 — PERMISSION WARNING ═══════════════ -->
+      <div id="ov-permission" data-screen-label="Overview permission warning">
+        <span class="lbl">Overview — state 5 · "Mention All Roles" permission missing · warning visible</span>
+
+        <div class="mt-3">
+          <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+            <label class="block text-sm font-semibold mb-1.5">Staff role <span class="text-danger text-xs font-semibold">*</span></label>
+            <div class="h-10 px-3 rounded-control border-[1.5px] border-border-strong bg-surface-card flex items-center gap-2 text-sm max-w-sm cursor-pointer"><span class="w-2.5 h-2.5 rounded-full flex-none" style="background:#e0533d"></span><span class="flex-1">Moderator</span><i class="ph ph-caret-down w-4 h-4 text-text-muted"></i></div>
+            <p class="text-xs text-text-muted mt-1.5">Shared by every Moderation sub-plugin. Pinged on every alert, and exempt from spam detection. Pick one before enabling any sub-plugin.</p>
+            <div class="mt-3 flex items-start gap-2.5 bg-warning-soft border border-warning-soft-bd rounded-md px-3 py-2.5">
+              <i class="ph ph-warning w-[18px] h-[18px] text-warning flex-none mt-0.5"></i>
+              <p class="text-sm leading-relaxed"><b class="text-warning">Staff pings will fail.</b> shrkbot is missing the <span class="font-medium">Mention All Roles</span> permission in this server. Alerts still post to <span class="font-mono">#mod-log</span>, but nobody gets pinged until it's restored.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Trigger: the bot's permission check (on page load and after every save) finds Mention All Roles missing. Shown ONLY then, attached to the staff role card on the overview - the shared setting it breaks; sub-plugin pages don't repeat it. Not dismissable by hand; it removes itself when the permission is restored. Standard inline-warning callout, same markup as the Logging kit's @everyone warning.</span></div>
+      </div>
+
+      <!-- ═══════════════ SPAM PROTECTION · STATE 1 — NORMAL · FULL PAGE ═══════════════ -->
+      <div id="spam-normal" data-screen-label="Spam protection normal">
+        <span class="lbl">Spam protection — state 1 · full page · configured</span>
+
+        <div class="mt-3">
+          <nav class="text-xs text-text-muted mb-4 flex items-center gap-1.5"><a href="#" class="hover:text-text-secondary no-underline" style="color:var(--text-muted)">Servers</a><i class="ph ph-caret-right w-3 h-3"></i><a href="#" class="hover:text-text-secondary no-underline" style="color:var(--text-muted)">Dev Refuge</a><i class="ph ph-caret-right w-3 h-3"></i><a href="#ov-normal" class="hover:text-text-secondary no-underline" style="color:var(--text-muted)">Moderation</a><i class="ph ph-caret-right w-3 h-3"></i><span class="text-text-secondary font-medium">Spam protection</span></nav>
+
+          <div class="flex items-start gap-4 mb-2">
+            <span class="w-12 h-12 chamfer-tile text-white grid place-items-center flex-none" style="background:var(--plugin-tile)"><span class="icon-slash"><i class="ph-fill ph-megaphone w-6 h-6"></i></span></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Spam protection</h1><p class="text-sm text-text-secondary mt-0.5">Purges the same message when it's posted across several channels within seconds.</p></div>
+            <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-text-secondary">Enabled</span><button class="sw sw-on" role="switch" aria-checked="true" aria-label="Enable spam protection"></button></div>
+          </div>
+          <p class="text-xs text-text-muted mb-6 flex items-center gap-1.5 pl-16"><i class="ph ph-shield w-4 h-4"></i><span>Part of Moderation. Shared settings - staff role and alerts - live on the <a href="#ov-normal">Moderation overview</a>.</span></p>
+
+          <div class="flex flex-col gap-5">
+
+            <!-- Detection -->
+            <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5 grid gap-5">
+              <div>
+                <label class="block text-sm font-semibold mb-1.5">Trigger threshold</label>
+                <div class="flex items-start gap-2.5 flex-wrap">
+                  <div class="flex flex-col gap-1">
+                    <div class="inline-flex items-stretch h-10 rounded-control border-[1.5px] border-border-strong bg-surface-card overflow-hidden">
+                      <button class="w-9 grid place-items-center text-text-secondary hover:bg-surface-sunken transition-colors border-r border-border-subtle" aria-label="Fewer channels"><i class="ph ph-minus w-3.5 h-3.5"></i></button>
+                      <span class="w-11 grid place-items-center font-mono text-sm" aria-label="4 channels">4</span>
+                      <button class="w-9 grid place-items-center text-text-secondary hover:bg-surface-sunken transition-colors border-l border-border-subtle" aria-label="More channels"><i class="ph ph-plus w-3.5 h-3.5"></i></button>
+                    </div>
+                    <span class="text-[11px] text-text-muted">Recommended default: 4</span>
+                  </div>
+                  <span class="text-sm text-text-secondary h-10 inline-flex items-center">channels within</span>
+                  <div class="flex flex-col gap-1">
+                    <div class="inline-flex items-stretch h-10 rounded-control border-[1.5px] border-border-strong bg-surface-card overflow-hidden">
+                      <button class="w-9 grid place-items-center text-text-secondary hover:bg-surface-sunken transition-colors border-r border-border-subtle" aria-label="Shorter window"><i class="ph ph-minus w-3.5 h-3.5"></i></button>
+                      <span class="w-11 grid place-items-center font-mono text-sm" aria-label="15 seconds">15</span>
+                      <button class="w-9 grid place-items-center text-text-secondary hover:bg-surface-sunken transition-colors border-l border-border-subtle" aria-label="Longer window"><i class="ph ph-plus w-3.5 h-3.5"></i></button>
+                    </div>
+                    <span class="text-[11px] text-text-muted">Recommended default: 15</span>
+                  </div>
+                  <span class="text-sm text-text-secondary h-10 inline-flex items-center">seconds</span>
+                </div>
+                <p class="text-xs text-text-muted mt-1.5">Triggers when the same message appears in 4 different channels within 15 seconds.</p>
+              </div>
+              <div>
+                <div class="flex items-baseline justify-between max-w-sm mb-1.5">
+                  <label class="text-sm font-semibold">Match strictness</label>
+                  <span class="text-sm"><span class="font-mono font-medium">100%</span> <span class="text-xs text-text-muted">only identical messages</span></span>
+                </div>
+                <div class="relative max-w-sm h-5 flex items-center" role="slider" aria-valuemin="75" aria-valuemax="100" aria-valuenow="100" aria-valuetext="100% - only identical messages" aria-label="Match strictness">
+                  <div class="h-1.5 w-full rounded-full bg-border-subtle overflow-hidden"><div class="h-full rounded-full bg-accent" style="width:100%"></div></div>
+                  <span class="absolute right-0 w-[18px] h-[18px] rounded-full bg-white border-2 border-accent shadow-sm"></span>
+                </div>
+                <div class="flex justify-between max-w-sm mt-1"><span class="text-[11px] font-mono text-text-muted">75% · loosely similar</span><span class="text-[11px] font-mono text-text-muted">100% · identical</span></div>
+                <p class="text-xs text-text-muted mt-1.5">How similar two messages must be to count as the same message. 100% only catches exact copies; lower values also catch spam with small edits - swapped words, extra characters - but can mistake similar real messages for spam. Case, punctuation, digits and disguised characters are ignored either way - see <a href="#matching">How text matching works</a>.</p>
+                <p class="text-[11px] text-text-muted mt-1">Recommended default: 100%</p>
+              </div>
+              <div>
+                <div class="flex items-center justify-between max-w-md gap-4">
+                  <label class="text-sm font-semibold">Also match symbol-only messages</label>
+                  <button class="sw sw-off" role="switch" aria-checked="false" aria-label="Also match symbol-only messages"></button>
+                </div>
+                <p class="text-xs text-text-muted mt-1.5 max-w-md">Messages with no matchable text - only emoji, punctuation or digits - are ignored by default. When on, they all count as the same message, so blasting any symbol noise across channels triggers.</p>
+                <p class="text-[11px] text-text-muted mt-1">Recommended default: Off</p>
+              </div>
+            </div>
+
+            <!-- Response -->
+            <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5 grid gap-5">
+              <div>
+                <label class="block text-sm font-semibold mb-1.5">When spam is detected</label>
+                <div class="flex gap-2 max-w-md" role="group" aria-label="Spam action">
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-accent bg-accent-soft text-sm font-semibold text-accent-soft-fg">Purge the messages</button>
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-border-default text-sm font-medium text-text-secondary">Notify only</button>
+                </div>
+                <p class="text-xs text-text-muted mt-1.5">Notify only is a dry run - staff get the alert, nothing is deleted.</p>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1.5">Also punish the sender</label>
+                <div class="flex gap-2 max-w-md" role="group" aria-label="Spam punishment">
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-border-default text-sm font-medium text-text-secondary">None</button>
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-accent bg-accent-soft text-sm font-semibold text-accent-soft-fg">Time out</button>
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-border-default text-sm font-medium text-text-secondary">Kick</button>
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-border-default text-sm font-medium text-text-secondary">Ban</button>
+                </div>
+                <div class="mt-3">
+                  <label class="block text-xs font-semibold mb-1.5">Duration</label>
+                  <div class="h-10 px-3 rounded-control border-[1.5px] border-border-strong bg-surface-card flex items-center gap-2 text-sm max-w-[200px] cursor-pointer"><span class="flex-1">1 hour</span><i class="ph ph-caret-down w-4 h-4 text-text-muted"></i></div>
+                  <p class="text-xs text-text-muted mt-1.5">Applies on top of the purge.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <p class="mt-6 text-xs text-text-muted flex items-center gap-1.5"><i class="ph ph-terminal-window w-4 h-4"></i><span>No slash commands - spam protection runs automatically once enabled.</span></p>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Standard ConfigPage; the header toggle is the same value as this sub-plugin's switch on the overview. Controls reflowed into two cards: Detection (threshold + strictness + symbol-only toggle, default off) and Response (action + punishment). Time out shows the Duration select; None and Kick show nothing extra; Ban shows the danger warning (shared state below). Edits raise the shared SaveBar. Collapse/expand: none on this page.</span></div>
+      </div>
+
+      <!-- ═══════════════ SPAM PROTECTION · STATE 2 — GROUP DISABLED ═══════════════ -->
+      <div id="spam-group-off" data-screen-label="Spam protection group disabled">
+        <span class="lbl">Spam protection — state 2 · blocked · Moderation group is disabled</span>
+
+        <div class="mt-3 pt-16">
+          <div class="flex items-start gap-4 mb-6">
+            <span class="w-12 h-12 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><span class="icon-slash" style="--slash-bg:var(--surface-raised)"><i class="ph ph-megaphone w-6 h-6"></i></span></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Spam protection</h1><p class="text-sm text-text-secondary mt-0.5">Purges the same message when it's posted across several channels within seconds.</p></div>
+            <div class="flex items-center gap-2.5 pt-1">
+              <span class="text-sm font-medium text-text-secondary">Disabled</span>
+              <span class="relative inline-flex">
+                <span class="tip-static">Enable the Moderation group first - its master switch is off.</span>
+                <button class="sw sw-off sw-disabled" role="switch" aria-checked="false" aria-disabled="true" aria-label="Enable spam protection (blocked: Moderation group is disabled)"></button>
+              </span>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="gate-overlay">
+              <div class="text-center bg-surface-card border border-border-default rounded-lg shadow-md px-6 py-5 max-w-sm">
+                <i class="ph ph-shield w-5 h-5 text-text-muted mx-auto block"></i>
+                <p class="text-sm font-semibold mt-2">Moderation is disabled</p>
+                <p class="text-xs text-text-secondary mt-1 mb-3">Spam protection is part of the Moderation group. Enable the group on its overview to configure this page.</p>
+                <button class="inline-flex items-center gap-1.5 h-9 px-4 rounded-control border border-border-strong bg-surface-card text-sm font-semibold hover:bg-surface-sunken transition-colors"><span>Open Moderation overview</span><i class="ph ph-arrow-right w-4 h-4"></i></button>
+              </div>
+            </div>
+            <div class="flex flex-col gap-5" style="opacity:.45;pointer-events:none" aria-hidden="true">
+              <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+                <label class="block text-sm font-semibold mb-1.5">Trigger threshold</label>
+                <div class="flex items-center gap-2.5 flex-wrap">
+                  <div class="inline-flex items-stretch h-10 rounded-control border-[1.5px] border-border-strong bg-surface-card overflow-hidden">
+                    <span class="w-9 grid place-items-center text-text-secondary border-r border-border-subtle"><i class="ph ph-minus w-3.5 h-3.5"></i></span>
+                    <span class="w-11 grid place-items-center font-mono text-sm">4</span>
+                    <span class="w-9 grid place-items-center text-text-secondary border-l border-border-subtle"><i class="ph ph-plus w-3.5 h-3.5"></i></span>
+                  </div>
+                  <span class="text-sm text-text-secondary">channels within</span>
+                  <div class="inline-flex items-stretch h-10 rounded-control border-[1.5px] border-border-strong bg-surface-card overflow-hidden">
+                    <span class="w-9 grid place-items-center text-text-secondary border-r border-border-subtle"><i class="ph ph-minus w-3.5 h-3.5"></i></span>
+                    <span class="w-11 grid place-items-center font-mono text-sm">15</span>
+                    <span class="w-9 grid place-items-center text-text-secondary border-l border-border-subtle"><i class="ph ph-plus w-3.5 h-3.5"></i></span>
+                  </div>
+                  <span class="text-sm text-text-secondary">seconds</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Trigger: the group's master switch is off. Same PrereqGate treatment as the overview's Logging block: header toggle disabled-with-reason (tooltip rendered visible here), gate card names the blocker and deep-links to the overview. Settings render inert beneath (cropped to the first card here). Flipping the master switch on the overview unblocks this page live.</span></div>
+      </div>
+
+      <!-- ═══════════════ SPAM PROTECTION · STATE 3 — NO STAFF ROLE ═══════════════ -->
+      <div id="spam-no-role" data-screen-label="Spam protection no staff role">
+        <span class="lbl">Spam protection — state 3 · blocked · no staff role set · settings stay editable</span>
+
+        <div class="mt-3">
+          <div class="flex items-start gap-4 mb-4">
+            <span class="w-12 h-12 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><span class="icon-slash" style="--slash-bg:var(--surface-raised)"><i class="ph ph-megaphone w-6 h-6"></i></span></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Spam protection</h1><p class="text-sm text-text-secondary mt-0.5">Purges the same message when it's posted across several channels within seconds.</p></div>
+            <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-text-secondary">Disabled</span><button class="sw sw-off sw-disabled" role="switch" aria-checked="false" aria-disabled="true" aria-label="Enable spam protection (blocked: no staff role)"></button></div>
+          </div>
+          <div class="flex items-start gap-2.5 bg-warning-soft border border-warning-soft-bd rounded-md px-4 py-3">
+            <i class="ph ph-warning w-[18px] h-[18px] text-warning flex-none mt-0.5"></i>
+            <p class="text-sm leading-relaxed"><b class="text-warning">Pick a staff role first.</b> Every Moderation sub-plugin needs the shared staff role - it's pinged on every alert. Set it on the <a href="#ov-no-role">Moderation overview</a>, then enable spam protection here.</p>
+          </div>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Trigger: group on, no staff role saved. NOT a gate - all settings below stay visible and editable so setup can continue (cropped here); only the enable toggle is locked, disabled-with-reason. The warning callout is always visible and links to the overview. Identical markup on the Image scanning page. Saving a role flips the toggle back to interactive without a reload.</span></div>
+      </div>
+
+      <!-- ═══════════════ IMAGE SCANNING · STATE 1 — NORMAL · FULL PAGE ═══════════════ -->
+      <div id="img-normal" data-screen-label="Image scanning normal">
+        <span class="lbl">Image scanning — state 1 · full page · configured · explainer expanded</span>
+
+        <div class="mt-3">
+          <nav class="text-xs text-text-muted mb-4 flex items-center gap-1.5"><a href="#" class="hover:text-text-secondary no-underline" style="color:var(--text-muted)">Servers</a><i class="ph ph-caret-right w-3 h-3"></i><a href="#" class="hover:text-text-secondary no-underline" style="color:var(--text-muted)">Dev Refuge</a><i class="ph ph-caret-right w-3 h-3"></i><a href="#ov-normal" class="hover:text-text-secondary no-underline" style="color:var(--text-muted)">Moderation</a><i class="ph ph-caret-right w-3 h-3"></i><span class="text-text-secondary font-medium">Image scanning</span></nav>
+
+          <div class="flex items-start gap-4 mb-2">
+            <span class="w-12 h-12 chamfer-tile text-white grid place-items-center flex-none" style="background:var(--plugin-tile)"><i class="ph-fill ph-scan w-6 h-6"></i></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Image scanning</h1><p class="text-sm text-text-secondary mt-0.5">Reads the text in images and fingerprints known scam images.</p></div>
+            <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-text-secondary">Enabled</span><button class="sw sw-on" role="switch" aria-checked="true" aria-label="Enable image scanning"></button></div>
+          </div>
+          <p class="text-xs text-text-muted mb-6 flex items-center gap-1.5 pl-16"><i class="ph ph-shield w-4 h-4"></i><span>Part of Moderation. Shared settings - staff role and alerts - live on the <a href="#ov-normal">Moderation overview</a>.</span></p>
+
+          <div class="flex flex-col gap-5">
+
+            <!-- Consent — REQUIRED informed-consent block, always visible while the sub-plugin is on -->
+            <div class="flex gap-3 bg-warning-soft border border-warning-soft-bd rounded-md px-4 py-3">
+              <i class="ph ph-warning w-[18px] h-[18px] text-warning flex-none mt-0.5"></i>
+              <div class="text-sm leading-relaxed">
+                <p class="font-semibold">Before you turn this on</p>
+                <p class="mt-1">Deletion is on by default, and detection is automated and imperfect. Screenshots of scams - the kind well-meaning members post as warnings - can be detected and deleted too, so tell your community not to post scam screenshots. Staff are pinged on every action and can mark a decision as wrong with one click in Discord.</p>
+              </div>
+            </div>
+
+            <!-- Detection -->
+            <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+              <label class="block text-sm font-semibold mb-1.5">Sensitivity</label>
+              <div class="flex flex-col gap-2 max-w-md" role="radiogroup" aria-label="Image scanning sensitivity">
+                <button class="flex items-start gap-3 rounded-md border-[1.5px] border-border-default px-4 py-3 text-left hover:bg-surface-sunken transition-colors" role="radio" aria-checked="false">
+                  <span class="w-4 h-4 rounded-full border-[1.5px] border-border-strong flex-none mt-0.5"></span>
+                  <span><span class="block text-sm font-semibold">Relaxed</span><span class="block text-xs text-text-secondary mt-0.5">Acts only on unmistakable scams. Fewest false positives; more scams slip through.</span></span>
+                </button>
+                <button class="flex items-start gap-3 rounded-md border-[1.5px] border-accent bg-accent-soft px-4 py-3 text-left" role="radio" aria-checked="true">
+                  <span class="w-4 h-4 rounded-full border-[5px] border-accent bg-white flex-none mt-0.5"></span>
+                  <span><span class="block text-sm font-semibold text-accent-soft-fg">Standard</span><span class="block text-xs text-text-secondary mt-0.5">Catches most scam images with occasional false positives. Recommended.</span></span>
+                </button>
+                <button class="flex items-start gap-3 rounded-md border-[1.5px] border-border-default px-4 py-3 text-left hover:bg-surface-sunken transition-colors" role="radio" aria-checked="false">
+                  <span class="w-4 h-4 rounded-full border-[1.5px] border-border-strong flex-none mt-0.5"></span>
+                  <span><span class="block text-sm font-semibold">Strict</span><span class="block text-xs text-text-secondary mt-0.5">Also acts on borderline matches. Expect false positives - best with an active staff team.</span></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Custom keywords -->
+            <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5 grid gap-5">
+              <div>
+                <label class="block text-sm font-semibold mb-1.5">Custom keywords</label>
+                <div class="min-h-10 px-2 py-1.5 rounded-control border-[1.5px] border-border-strong bg-surface-card flex items-center gap-1.5 flex-wrap max-w-md cursor-text">
+                  <span class="inline-flex items-center gap-1 text-xs font-medium bg-accent-soft text-accent-soft-fg rounded-chip px-2 py-1">free nitro<i class="ph ph-x w-3 h-3"></i></span>
+                  <span class="inline-flex items-center gap-1 text-xs font-medium bg-accent-soft text-accent-soft-fg rounded-chip px-2 py-1">steam gift<i class="ph ph-x w-3 h-3"></i></span>
+                  <span class="inline-flex items-center gap-1 text-xs font-medium bg-accent-soft text-accent-soft-fg rounded-chip px-2 py-1">$50 giveaway<i class="ph ph-x w-3 h-3"></i></span>
+                  <span class="text-sm text-text-muted px-1">Add a word or phrase…</span>
+                </div>
+                <p class="text-xs text-text-muted mt-1.5">Words or phrases that mark an image as a scam when they show up in its text - on top of shrkbot's built-in scam rules. Close misspellings count too, so one entry covers its variations. Short, common words trigger easily; longer phrases make more precise rules. Keywords are matched like all other text - case, punctuation and disguised characters ignored, digits kept - see <a href="#matching">How text matching works</a>.</p>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1.5">Require at least</label>
+                <div class="flex items-start gap-2.5">
+                  <div class="flex flex-col gap-1">
+                    <div class="inline-flex items-stretch h-10 rounded-control border-[1.5px] border-border-strong bg-surface-card overflow-hidden">
+                      <button class="w-9 grid place-items-center text-text-secondary hover:bg-surface-sunken transition-colors border-r border-border-subtle" aria-label="Fewer matches"><i class="ph ph-minus w-3.5 h-3.5"></i></button>
+                      <span class="w-11 grid place-items-center font-mono text-sm" aria-label="2 matches">2</span>
+                      <button class="w-9 grid place-items-center text-text-secondary hover:bg-surface-sunken transition-colors border-l border-border-subtle" aria-label="More matches"><i class="ph ph-plus w-3.5 h-3.5"></i></button>
+                    </div>
+                    <span class="text-[11px] text-text-muted">Recommended default: 2</span>
+                  </div>
+                  <span class="text-sm text-text-secondary h-10 inline-flex items-center">matching keywords before shrkbot acts</span>
+                </div>
+                <p class="text-xs text-text-muted mt-1.5">1 is aggressive - a single matched word can delete an image. 2 or more keeps one stray word from triggering. Up to as many keywords as you've set.</p>
+              </div>
+            </div>
+
+            <!-- Response -->
+            <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5 grid gap-5">
+              <div>
+                <label class="block text-sm font-semibold mb-1.5">When a scam is detected</label>
+                <div class="flex gap-2 max-w-md" role="group" aria-label="Scam action">
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-accent bg-accent-soft text-sm font-semibold text-accent-soft-fg">Delete the image</button>
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-border-default text-sm font-medium text-text-secondary">Flag only</button>
+                </div>
+                <p class="text-xs text-text-muted mt-1.5">Flag only leaves the image up and pings staff to review it.</p>
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1.5">Also punish the sender</label>
+                <div class="flex gap-2 max-w-md" role="group" aria-label="Image scanning punishment">
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-accent bg-accent-soft text-sm font-semibold text-accent-soft-fg">None</button>
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-border-default text-sm font-medium text-text-secondary">Time out</button>
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-border-default text-sm font-medium text-text-secondary">Kick</button>
+                  <button class="flex-1 h-10 rounded-md border-[1.5px] border-border-default text-sm font-medium text-text-secondary">Ban</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Explainer — collapsible, rendered expanded -->
+            <div class="bg-surface-card border border-border-default rounded-card shadow-sm overflow-hidden">
+              <div class="flex items-center gap-3 px-5 py-3.5 bg-surface-sunken border-b border-border-subtle cursor-pointer select-none">
+                <i class="ph ph-caret-down w-4 h-4 text-text-muted" style="transform:rotate(180deg)"></i>
+                <span class="text-sm font-semibold flex-1">How image scanning works</span>
+              </div>
+              <div class="px-5 py-4 grid gap-3">
+                <p class="text-sm text-text-secondary flex items-start gap-2.5"><i class="ph ph-cpu w-4 h-4 mt-0.5 text-text-muted"></i><span>shrkbot reads image text in memory. Nothing is stored.</span></p>
+                <p class="text-sm text-text-secondary flex items-start gap-2.5"><i class="ph ph-check-square w-4 h-4 mt-0.5 text-text-muted"></i><span>Staff confirm or dismiss every flag with buttons in your log channel.</span></p>
+                <p class="text-sm text-text-secondary flex items-start gap-2.5"><i class="ph ph-fingerprint w-4 h-4 mt-0.5 text-text-muted"></i><span>Confirmed scams are remembered by image fingerprint, across every server shrkbot is in.</span></p>
+              </div>
+            </div>
+
+          </div>
+
+          <p class="mt-6 text-xs text-text-muted flex items-center gap-1.5"><i class="ph ph-terminal-window w-4 h-4"></i><span>No slash commands - image scanning runs automatically once enabled.</span></p>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Consent callout leads the page (informed consent before settings, required), then Detection (sensitivity as a RadioCardGroup - new component, options carry their own descriptions), Custom keywords (TomSelect in free-tag mode - chips are words or whole phrases, no quote syntax; plus a NumberStepper for the minimum-matches gate), Response, and the collapsible explainer (standard collapsible card, logExpand 180ms / logCollapse 150ms, chevron rotates; rendered expanded per review spec). The consent callout is part of the page whenever the sub-plugin is on - not dismissable. Edits raise the shared SaveBar. Reduced motion: expand/collapse snaps.</span></div>
+      </div>
+
+      <!-- ═══════════════ IMAGE SCANNING · STATE 2 — GROUP DISABLED ═══════════════ -->
+      <div id="img-group-off" data-screen-label="Image scanning group disabled">
+        <span class="lbl">Image scanning — state 2 · blocked · Moderation group is disabled</span>
+
+        <div class="mt-3 pt-16">
+          <div class="flex items-start gap-4 mb-6">
+            <span class="w-12 h-12 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><i class="ph ph-scan w-6 h-6"></i></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Image scanning</h1><p class="text-sm text-text-secondary mt-0.5">Reads the text in images and fingerprints known scam images.</p></div>
+            <div class="flex items-center gap-2.5 pt-1">
+              <span class="text-sm font-medium text-text-secondary">Disabled</span>
+              <span class="relative inline-flex">
+                <span class="tip-static">Enable the Moderation group first - its master switch is off.</span>
+                <button class="sw sw-off sw-disabled" role="switch" aria-checked="false" aria-disabled="true" aria-label="Enable image scanning (blocked: Moderation group is disabled)"></button>
+              </span>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="gate-overlay">
+              <div class="text-center bg-surface-card border border-border-default rounded-lg shadow-md px-6 py-5 max-w-sm">
+                <i class="ph ph-shield w-5 h-5 text-text-muted mx-auto block"></i>
+                <p class="text-sm font-semibold mt-2">Moderation is disabled</p>
+                <p class="text-xs text-text-secondary mt-1 mb-3">Image scanning is part of the Moderation group. Enable the group on its overview to configure this page.</p>
+                <button class="inline-flex items-center gap-1.5 h-9 px-4 rounded-control border border-border-strong bg-surface-card text-sm font-semibold hover:bg-surface-sunken transition-colors"><span>Open Moderation overview</span><i class="ph ph-arrow-right w-4 h-4"></i></button>
+              </div>
+            </div>
+            <div class="flex flex-col gap-5" style="opacity:.45;pointer-events:none" aria-hidden="true">
+              <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+                <label class="block text-sm font-semibold mb-1.5">Sensitivity</label>
+                <div class="flex flex-col gap-2 max-w-md">
+                  <span class="flex items-start gap-3 rounded-md border-[1.5px] border-accent bg-accent-soft px-4 py-3"><span class="w-4 h-4 rounded-full border-[5px] border-accent bg-white flex-none mt-0.5"></span><span><span class="block text-sm font-semibold text-accent-soft-fg">Standard</span><span class="block text-xs text-text-secondary mt-0.5">Catches most scam images with occasional false positives. Recommended.</span></span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Identical treatment to Spam protection state 2 - one PrereqGate pattern serves every sub-plugin. Settings render inert beneath (cropped to the first card here).</span></div>
+      </div>
+
+      <!-- ═══════════════ IMAGE SCANNING · STATE 3 — NO STAFF ROLE ═══════════════ -->
+      <div id="img-no-role" data-screen-label="Image scanning no staff role">
+        <span class="lbl">Image scanning — state 3 · blocked · no staff role set · settings stay editable</span>
+
+        <div class="mt-3">
+          <div class="flex items-start gap-4 mb-4">
+            <span class="w-12 h-12 chamfer-tile bg-surface-raised text-text-muted grid place-items-center flex-none"><i class="ph ph-scan w-6 h-6"></i></span>
+            <div class="flex-1"><h1 class="font-display text-2xl font-bold tracking-tight">Image scanning</h1><p class="text-sm text-text-secondary mt-0.5">Reads the text in images and fingerprints known scam images.</p></div>
+            <div class="flex items-center gap-2.5 pt-1"><span class="text-sm font-medium text-text-secondary">Disabled</span><button class="sw sw-off sw-disabled" role="switch" aria-checked="false" aria-disabled="true" aria-label="Enable image scanning (blocked: no staff role)"></button></div>
+          </div>
+          <div class="flex items-start gap-2.5 bg-warning-soft border border-warning-soft-bd rounded-md px-4 py-3">
+            <i class="ph ph-warning w-[18px] h-[18px] text-warning flex-none mt-0.5"></i>
+            <p class="text-sm leading-relaxed"><b class="text-warning">Pick a staff role first.</b> Every Moderation sub-plugin needs the shared staff role - it's pinged on every alert. Set it on the <a href="#ov-no-role">Moderation overview</a>, then enable image scanning here.</p>
+          </div>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Identical treatment to Spam protection state 3: no gate, settings below stay editable (cropped here), only the enable toggle is locked with the always-visible reason.</span></div>
+      </div>
+
+      <!-- ═══════════════ SHARED STATE — BAN PUNISHMENT SELECTED ═══════════════ -->
+      <div id="ban" data-screen-label="Ban selected">
+        <span class="lbl">Shared state — Ban punishment selected · inline danger warning (both sub-plugin pages)</span>
+
+        <div class="mt-3">
+          <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+            <label class="block text-sm font-semibold mb-1.5">Also punish the sender</label>
+            <div class="flex gap-2 max-w-md" role="group" aria-label="Spam punishment">
+              <button class="flex-1 h-10 rounded-md border-[1.5px] border-border-default text-sm font-medium text-text-secondary">None</button>
+              <button class="flex-1 h-10 rounded-md border-[1.5px] border-border-default text-sm font-medium text-text-secondary">Time out</button>
+              <button class="flex-1 h-10 rounded-md border-[1.5px] border-border-default text-sm font-medium text-text-secondary">Kick</button>
+              <button class="flex-1 h-10 rounded-md border-[1.5px] border-danger bg-danger-soft text-sm font-semibold text-danger">Ban</button>
+            </div>
+            <div class="mt-3 flex items-start gap-2.5 bg-danger-soft border border-danger-soft-bd rounded-md px-3 py-2.5">
+              <i class="ph ph-warning w-[18px] h-[18px] text-danger flex-none mt-0.5"></i>
+              <p class="text-sm leading-relaxed">A ban is permanent until a mod lifts it, and shrkbot can't undo it. Pick this only if you're confident your thresholds never catch real members.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Trigger: Ban selected in the punishment control on either sub-plugin page (identical markup on both; cropped to the Response card's punishment block). The active Ban segment uses the danger treatment (danger border + soft wash), same as the OCR kit's punish tiers. The warning expands in with the standard 180ms ease; picking any other option removes it. Time out shows the Duration select instead; None and Kick show nothing extra.</span></div>
+      </div>
+
+      <!-- ═══════════════ SHARED STATE — DIRTY FORM · SAVEBAR ═══════════════ -->
+      <div id="savebar" data-screen-label="Dirty form">
+        <span class="lbl">Shared state — unsaved changes · SaveBar visible (overview + both sub-plugin pages)</span>
+
+        <div class="mt-3 grid place-items-center py-4">
+          <div class="bg-surface-card border border-border-default rounded-xl shadow-lg px-5 py-3 flex items-center justify-between gap-6 whitespace-nowrap w-[480px] max-w-full">
+            <p class="text-sm text-text-secondary flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-warning inline-block flex-none"></span>
+              Unsaved changes
+            </p>
+            <div class="flex items-center gap-2">
+              <button class="h-8 px-3.5 rounded-lg border border-border-default text-sm font-semibold hover:bg-surface-sunken transition-colors">Discard</button>
+              <button class="h-8 px-4 rounded-lg bg-accent-fill text-white text-sm font-semibold inline-flex items-center gap-1.5"><i class="ph ph-check w-4 h-4"></i><span>Save</span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="anno mt-6"><span class="anno-tag">note</span><span>Standard SaveBar, rendered inline here - in production it's fixed bottom-center (bottom-6, z-40) over whichever Moderation page is open. Appears on the first edit with the saveBarIn spring (420ms); navigating away while dirty - including between sub-plugins in the sidebar group - shakes it with a copper ring (600ms + 1.6s ring fade) and blocks the navigation. Save validates that the shared staff role is set whenever any sub-plugin is on - failing that, it navigates to the overview and the staff role card gets the field-error shake + red ring with "A staff role is required while a sub-plugin is enabled." Discard reverts every control on the current page. Reduced motion: the bar appears and leaves without animation.</span></div>
+      </div>
+
+      <!-- ═══════════════ NEW COMPONENTS ═══════════════ -->
+      <div id="new-components">
+        <p class="text-[11px] font-semibold uppercase tracking-widest mb-1" style="color:var(--eyebrow)">New components</p>
+        <p class="text-sm text-text-secondary mb-4 max-w-2xl">Everything else on these pages maps to existing components (ConfigPage header + enable toggle, enable-gate, plugin row, setting row, inline warning callouts, segmented control, punish tiers, TomSelect role/duration selects, switch, SaveBar, collapsible card, disabled-with-reason). These five don't exist yet - each ships with a fallback so we can skip building it.</p>
+
+        <div class="flex flex-col gap-4">
+
+          <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+            <p class="font-mono text-sm font-medium">SidebarGroup</p>
+            <p class="text-sm text-text-secondary mt-2 leading-relaxed">A plugin-nav entry that expands into sub-items. The parent row keeps the flat entry's icon tile + label but swaps the status dot for a chevron (caret-right closed, rotating to caret-down, 200ms ease-standard); clicking it toggles disclosure only. Sub-items are text-only rows on an indent rail (1px left border aligned under the parent label), each with its own status dot; Overview has none. Disclosure state persists per user and the group auto-expands when one of its pages is active. Active styling reuses plugin-nav-item.active (accent-soft wash, --nav-active text). One Stimulus disclosure controller; sub-items are plain Turbo links.</p>
+            <p class="text-sm mt-3 leading-relaxed"><span class="font-semibold">Fallback:</span> <span class="text-text-secondary">No disclosure: a section eyebrow reading "Moderation" above permanently-indented flat plugin-nav-items (Overview, Spam protection, Image scanning) using only existing nav markup. Loses collapse, keeps the grouping legible.</span></p>
+          </div>
+
+          <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+            <p class="font-mono text-sm font-medium">NumberStepper</p>
+            <p class="text-sm text-text-secondary mt-2 leading-relaxed">An integer field with minus / plus buttons around a mono value, min clamping (no UI upper cap - sanity caps live in the DB), a unit label ("channels", "seconds") and a "Recommended default: n" subscript. Arrow keys step, Home jumps to the minimum; held buttons repeat; the value is directly editable as a plain number field. Used for the spam trigger threshold (channels, min 2, default 4; window, min 1 second, default 15) and the custom-keyword minimum-matches gate (min 1, default 2, max = the number of keywords currently set - the one stepper with a dynamic UI max). DB-side sanity caps are not advertised, but an out-of-range save is rejected with the standard inline field error naming the bound ("Must be between 2 and 500"). One small Stimulus controller; submits as a plain number field.</p>
+            <p class="text-sm mt-3 leading-relaxed"><span class="font-semibold">Fallback:</span> <span class="text-text-secondary">A plain number input in the standard field shell with the same subscript. Loses the stepper buttons, keeps free entry.</span></p>
+          </div>
+
+          <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+            <p class="font-mono text-sm font-medium">RangeSlider</p>
+            <p class="text-sm text-text-secondary mt-2 leading-relaxed">A labelled slider with a filled accent track, endpoint captions ("75% · loosely similar" / "100% · identical") and a live mono readout that doubles as the accessible value text ("100% - only identical messages"). Steps of 1 between 75% and 100%, default 100%; displayed as a percentage, stored as a 0.75-1.00 float. Used for spam match strictness, where the whole point is feeling the trade-off as a continuum. Native <span class="font-mono">&lt;input type="range"&gt;</span> under the hood, restyled with tokens.</p>
+            <p class="text-sm mt-3 leading-relaxed"><span class="font-semibold">Fallback:</span> <span class="text-text-secondary">TomSelect with curated presets: Identical (100%), Very close (95%), Close (90%), Loose (85%), Looser (80%), Loosest (75%) - each option carrying its one-line risk note in the dropdown.</span></p>
+          </div>
+
+          <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+            <p class="font-mono text-sm font-medium">RadioCardGroup</p>
+            <p class="text-sm text-text-secondary mt-2 leading-relaxed">Stacked radio options, each a full-width bordered card with a radio dot, a bold title and a one-line description - for choices whose options need explaining, where a segmented control's bare words are meaningless. The selected card gets the accent border, accent-soft wash and a filled radio dot; unselected cards hover with the surface-sunken wash. Keyboard: arrow keys move selection per the radiogroup pattern. Used for image-scanning sensitivity (Relaxed / Standard / Strict).</p>
+            <p class="text-sm mt-3 leading-relaxed"><span class="font-semibold">Fallback:</span> <span class="text-text-secondary">The existing SegmentedControl with a single help line below that swaps to the selected option's description. Keeps the meaning, loses the at-a-glance comparison.</span></p>
+          </div>
+
+          <div class="bg-surface-card border border-border-default rounded-card shadow-sm p-5">
+            <p class="font-mono text-sm font-medium">PrereqGate</p>
+            <p class="text-sm text-text-secondary mt-2 leading-relaxed">A variant of the existing enable-gate overlay card for hard dependencies, used twice here: Logging missing (overview) and group disabled (sub-plugin pages). It swaps the lock icon + "is disabled" copy for the blocking reason, and the primary Enable CTA for a secondary button that deep-links to wherever the blocker is fixed. Pairs with the disabled-with-reason header toggle. Copy and CTA are slots; the veil, blur and fade are unchanged.</p>
+            <p class="text-sm mt-3 leading-relaxed"><span class="font-semibold">Fallback:</span> <span class="text-text-secondary">The existing GateOverlay with a warning Callout + secondary Button composed into its card slot - visually near-identical, just less reusable.</span></p>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /pane-content -->
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════════
+     DARK PANE — same markup cloned under [data-theme="dark"];
+     semantic tokens flip everything (espresso surfaces, patina teal,
+     copper annotation chrome, translucent warning washes).
+     ════════════════════════════════════════════════════════════════ -->
+<section data-theme="dark" data-pane-dark class="bg-surface-page text-text-primary py-10 px-6">
+  <div class="max-w-[860px] mx-auto">
+    <p class="font-mono text-xs text-text-muted mb-3">shrkbot · Moderation group config — stacked states — DARK</p>
+    <div data-pane-slot></div>
+  </div>
+</section>
+
+<script>
+// Clone the light pane's content into the dark pane so both stay identical.
+(function(){
+  var src = document.querySelector('[data-pane-content]');
+  var slot = document.querySelector('[data-pane-slot]');
+  if(!src || !slot) return;
+  var clone = src.cloneNode(true);
+  clone.removeAttribute('data-pane-content');
+  // de-duplicate anchor ids and re-point in-page links in the clone
+  clone.querySelectorAll('[id]').forEach(function(el){ el.id = el.id + '-dark'; });
+  clone.querySelectorAll('a[href^="#"]').forEach(function(a){ var h = a.getAttribute('href'); if(h.length > 1) a.setAttribute('href', h + '-dark'); });
+  slot.appendChild(clone);
+})();
+</script>
+</body>
+</html>

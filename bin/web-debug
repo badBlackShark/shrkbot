@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# See docs/web-debug-harness.md.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+export WEB_DEBUG=1
+export RAILS_ENV=development
+export PIDFILE="${PIDFILE:-tmp/pids/web-debug.pid}"
+bin/rails db:prepare
+exec bin/rails server -p "${PORT:-3123}" -b 127.0.0.1

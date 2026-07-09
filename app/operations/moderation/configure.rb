@@ -13,6 +13,7 @@ module Ops
         activation = staged_activation
 
         return logging_guard_failure(activation) if enabling? && !logging_ready?
+        return staff_role_clear_failure(activation) if staff_role_id.blank? && sub_plugin_enabled?
 
         settings.save!
         activation.save!
@@ -26,9 +27,18 @@ module Ops
           server_configuration.logging_setting&.channel_id.present?
       end
 
+      def sub_plugin_enabled?
+        server_configuration.plugins.enabled.exists?(key: [:spam_protection, :image_scanning])
+      end
+
       def logging_guard_failure(activation)
         activation.errors.add(:enabled, "requires the Logging plugin enabled with a log channel set")
         failure(activation.errors[:enabled], value: activation)
+      end
+
+      def staff_role_clear_failure(activation)
+        activation.errors.add(:staff_role_id, "A staff role is required while a sub-plugin is enabled.")
+        failure(activation.errors[:staff_role_id], value: activation)
       end
 
       def plugin_key

@@ -9,13 +9,17 @@ class Components::PluginSidebar < Components::Base
   end
 
   def view_template
-    aside(class: "sticky top-16 hidden h-[calc(100vh-4rem)] w-56 flex-none overflow-y-auto border-r border-border-default bg-surface-sunken md:block") do
+    aside(id: "plugin-sidebar", class: "sticky top-16 hidden h-[calc(100vh-4rem)] w-56 flex-none overflow-y-auto border-r border-border-default bg-surface-sunken md:block") do
       div(class: "p-4") do
         back_link
         div(class: "my-3 h-px bg-border-subtle")
         p(class: "mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins") }
         nav(class: "flex flex-col gap-0.5") do
-          items.each { |row| nav_item(row) }
+          items.each do |row|
+            next if sub_plugin?(row.key)
+
+            (row.key == :moderation) ? moderation_group : nav_item(row)
+          end
         end
       end
     end
@@ -23,8 +27,57 @@ class Components::PluginSidebar < Components::Base
 
   private
 
+  def all_rows
+    @all_rows ||= PluginStatus.rows(@config)
+  end
+
   def items
-    PluginStatus.rows(@config).select { |row| plugin_config_path(@config.discord_id, row.key) }
+    all_rows.select { |row| plugin_config_path(@config.discord_id, row.key) }
+  end
+
+  def sub_plugin?(key)
+    PluginCatalog.sub_plugin?(key)
+  end
+
+  def moderation_group
+    render Components::SidebarGroup.new(
+      label: PluginCatalog.find(:moderation).name,
+      icon: plugin_icon(:moderation),
+      open: group_active?,
+      items: group_items,
+      storage_key: "sidebar-group-moderation",
+      enabled: all_rows.find { |row| row.key == :moderation }.enabled
+    )
+  end
+
+  def group_active?
+    @active_key == :moderation || sub_plugin?(@active_key)
+  end
+
+  def group_items
+    overview = {
+      label: t(".overview"),
+      href: server_moderation_path(@config.discord_id),
+      active: @active_key == :moderation,
+      status: nil
+    }
+    [overview] + PluginCatalog.sub_plugin_keys(:moderation).map { |key| sub_item(key) }
+  end
+
+  def sub_item(key)
+    row = all_rows.find { |candidate| candidate.key == key }
+    {
+      label: PluginCatalog.find(key).name,
+      href: plugin_config_path(@config.discord_id, key),
+      active: @active_key == key,
+      status: sub_status(row)
+    }
+  end
+
+  def sub_status(row)
+    return :enabled if row.enabled
+
+    row.configured ? :disabled : :needs_setup
   end
 
   def back_link

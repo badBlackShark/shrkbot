@@ -166,7 +166,7 @@ RSpec.describe Moderation::SpamProtection::Settings do
         server.create_logging_setting!(channel_id: 999)
         create(:plugin_activation, server_configuration: server, plugin: logging_plugin, enabled: true)
         create(:plugin_activation, server_configuration: server, plugin: moderation_plugin, enabled: true)
-        create(:plugin_activation, server_configuration: server, plugin: spam_plugin, enabled: true)
+        create(:plugin_activation, server_configuration: server, plugin: spam_plugin, enabled: false).update_column(:enabled, true)
       end
 
       it "returns the spam protection settings" do

@@ -142,6 +142,11 @@ with `PluginRow` so the two can't drift) — with a status dot, an active highli
 list automatically once they have config routes; Reminders isn't in the catalog
 (it has no activation to toggle) — `PluginStatus::ALWAYS_ON` appends it as a
 locked, always-enabled row, which both the dashboard and the sidebar render.
+With a plugin sidebar the footer renders inside the scrolling main pane, so a
+page never scrolls by just the footer height — that would rob the sticky sidebar
+of headroom and make it slide out of view. `<details>` disclosures only animate
+when their panel carries the `dropdown-menu` class and
+`data-dropdown-target="menu"` (see the dropdown Stimulus controller).
 
 `Components::SaveBar` is the commit affordance: a fixed bottom bar, hidden until
 the form differs from its initial state. The `save-bar` Stimulus controller (on
@@ -154,6 +159,22 @@ edits can't be lost by clicking away. The bar re-baselines only on a **successfu
 save — config controllers return **422** (not 200) when a save fails validation,
 which is both the correct status and the signal (`turbo:submit-end` reports
 `success: false`) that tells the bar to stay dirty.
+
+### Plugin groups (Server Shield)
+
+A plugin *group* (a parent plus sub-plugins) needs richer chrome than `ConfigPage`
+offers, so the moderation pages use **`Components::Moderation::ConfigShell`** instead:
+same breadcrumb + form + `SaveBar` wiring, but the header enable-toggle has three
+states (interactive, or locked-with-reason inside a `Tooltip`) and the body gate is
+either the standard `EnableGate` (master switch off) or **`Components::PrereqGate`** —
+a variant whose card names the blocking dependency and deep-links to where it's fixed
+(a missing log channel, a disabled parent) instead of offering an Enable button. In
+the sidebar the group renders as **`Components::SidebarGroup`**: a native `<details>`
+disclosure (persisted per user, auto-expanded on an active child) whose parent row is
+a chevron toggle and whose sub-items are plain nav links on an indent rail. A
+sub-plugin can't be enabled until its group prerequisite is met — that requirement
+lives in `PluginCatalog::Definition#prerequisite`, so every enable path (the generic
+toggle, the sidebar/row UI, and the Configure ops) agrees.
 
 ## Core components
 
@@ -176,6 +197,17 @@ duplicated class strings:
   `enabled:`, muted sand otherwise). `size:` (`:sm`/`:md`/`:lg`).
 - **`Components::Callout`** — tinted bordered notice. `variant:` (`:info`/
   `:neutral`/`:warning`/`:danger`/`:success`) sets colour + default icon.
+- **`Components::NumberStepper`** — integer field with −/+ buttons, `min:`-clamped,
+  a `unit:` label and a "Recommended default: n" subscript. No UI cap (`max:` is
+  optional, for the dynamic keyword-count limit); submits as a plain number field.
+- **`Components::RangeSlider`** — native `<input type="range">` styled with tokens;
+  shows a percent readout but submits a hidden `0.75`–`1.0` float (converted once).
+- **`Components::RadioCardGroup`** — stacked radio options as bordered cards with a
+  title + one-line description; native radios, so selection is reactive with no JS.
+- **`Components::PrereqGate`** / **`Components::SidebarGroup`** — see *Plugin groups*.
+
+`Components::Icon` wraps Phosphor; names not in Phosphor (the `megaphone-slash`
+sub-plugin glyph) are served from its `CUSTOM_GLYPHS` map of inline SVGs.
 
 ## Where it lives
 

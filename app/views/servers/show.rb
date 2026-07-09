@@ -58,7 +58,7 @@ class Views::Servers::Show < Views::Base
   def plugins_section
     p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins") }
     div(class: "flex flex-col gap-3") do
-      @plugins.select { |row| plugin_config_path(@guild.id, row.key) }.each do |row|
+      @plugins.select { |row| plugin_config_path(@guild.id, row.key) && !PluginCatalog.sub_plugin?(row.key) }.each do |row|
         render Components::PluginRow.new(server_id: @guild.id, key: row.key, enabled: row.enabled, configured: row.configured, locked: row.locked)
       end
     end

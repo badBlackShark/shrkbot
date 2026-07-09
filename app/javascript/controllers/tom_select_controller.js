@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import TomSelect from "tom-select"
 
 export default class extends Controller {
-  static values = { placeholder: String, prefix: String, colorDots: Boolean, lockIcon: String }
+  static values = { placeholder: String, prefix: String, colorDots: Boolean, lockIcon: String, create: Boolean }
 
   connect() {
     this.select = new TomSelect(this.element, {
@@ -10,12 +10,16 @@ export default class extends Controller {
       allowEmptyOption: false,
       maxOptions: null,
       plugins: this.plugins(),
-      render: this.renderers()
+      render: this.renderers(),
+      create: this.createValue || false,
+      persist: this.createValue ? false : undefined
     })
   }
 
   plugins() {
-    return this.colorDotsValue ? ["dropdown_input", "remove_button"] : ["dropdown_input", "clear_button"]
+    if (this.createValue) return ["remove_button"]
+    const removal = this.element.multiple ? "remove_button" : "clear_button"
+    return ["dropdown_input", removal]
   }
 
   renderers() {

@@ -43,6 +43,16 @@ RSpec.describe "Server dashboard", type: :request do
         expect(response.body).to include("Roles").and include("Welcomes").and include("Logging")
       end
 
+      it "lists moderation but not its sub-plugins on the dashboard" do
+        create(:plugin, key: "moderation", name: "Server Shield")
+        create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard")
+        create(:plugin, key: "image_scanning", name: "Scam Image Detection")
+        get_dashboard
+        expect(response.body).to include("plugin-moderation")
+        expect(response.body).not_to include("plugin-spam_protection")
+        expect(response.body).not_to include("plugin-image_scanning")
+      end
+
       context "with another configured server" do
         let(:other_guild) { Discord::Guild.new(id: 900_000_002, name: "Speedrun HQ", owner: true, permissions: 0, icon: nil, member_count: 80) }
 
