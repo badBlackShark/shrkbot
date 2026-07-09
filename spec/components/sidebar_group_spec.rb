@@ -74,4 +74,36 @@ RSpec.describe Components::SidebarGroup do
       expect(details_tag).not_to include(" open")
     end
   end
+
+  describe "parent tile tinting" do
+    let(:inactive_items) do
+      items.map { |item| item.merge(active: false) }
+    end
+
+    context "when the group plugin is enabled" do
+      let(:options) do
+        {label: "Server Shield", icon: "shield", open: false, items: inactive_items, storage_key: "k", enabled: true}
+      end
+
+      it "renders the accent tile" do
+        expect(html).to include("bg-accent-fill")
+      end
+    end
+
+    context "when disabled with no active child" do
+      let(:options) do
+        {label: "Server Shield", icon: "shield", open: false, items: inactive_items, storage_key: "k"}
+      end
+
+      it "renders the muted tile" do
+        expect(html).not_to include("bg-accent-fill")
+      end
+    end
+
+    context "when disabled but a child page is active" do
+      it "renders the accent tile" do
+        expect(html).to include("bg-accent-fill")
+      end
+    end
+  end
 end

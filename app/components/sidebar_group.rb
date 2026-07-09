@@ -7,12 +7,13 @@ class Components::SidebarGroup < Components::Base
     needs_setup: "bg-warning"
   }.freeze
 
-  def initialize(label:, icon:, open:, items:, storage_key:)
+  def initialize(label:, icon:, open:, items:, storage_key:, enabled: false)
     @label = label
     @icon = icon
     @open = open
     @items = items
     @storage_key = storage_key
+    @enabled = enabled
   end
 
   def view_template
@@ -43,8 +44,10 @@ class Components::SidebarGroup < Components::Base
   end
 
   def parent_tile
-    span(class: "flex size-7 flex-none items-center justify-center rounded-md bg-surface-card text-text-muted") do
-      render Components::Icon.new(@icon, class: "size-4")
+    on = @enabled || @items.any? { |item| item[:active] }
+    tone = on ? "bg-accent-fill text-white" : "bg-surface-card text-text-muted"
+    span(class: "flex size-7 flex-none items-center justify-center rounded-md #{tone}") do
+      render Components::Icon.new(@icon, weight: (on ? :fill : :regular), class: "size-4")
     end
   end
 

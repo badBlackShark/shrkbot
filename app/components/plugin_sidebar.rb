@@ -45,7 +45,8 @@ class Components::PluginSidebar < Components::Base
       icon: plugin_icon(:moderation),
       open: group_active?,
       items: group_items,
-      storage_key: "sidebar-group-moderation"
+      storage_key: "sidebar-group-moderation",
+      enabled: all_rows.find { |row| row.key == :moderation }.enabled
     )
   end
 
