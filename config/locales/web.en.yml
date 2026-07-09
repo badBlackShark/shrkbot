@@ -222,6 +222,7 @@ en:
       toggle: Toggle %{plugin}
     plugin_sidebar:
       dashboard: Dashboard
+      overview: Overview
       plugins: Plugins
     public_shell:
       dashboard: Dashboard
