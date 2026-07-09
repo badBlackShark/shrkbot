@@ -18,6 +18,13 @@ RSpec.describe "Legal pages", type: :request do
       expect(response.body).to include("Privacy policy")
     end
 
+    it "discloses perceptual-hash storage" do
+      privacy
+
+      expect(response.body).to include("perceptual hash")
+      expect(response.body).to include("Confirmed scam-image fingerprints")
+    end
+
     context "when signed out" do
       it "shows the sign-in button and not the dashboard link" do
         privacy

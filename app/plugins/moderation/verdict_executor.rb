@@ -4,14 +4,14 @@ module Moderation
   module VerdictExecutor
     module_function
 
-    def call(verdict:, context:)
+    def call(verdict:, context:, phash:)
       case verdict.action
       when :flag_for_review
-        flag(verdict, context, removed: false)
+        flag(verdict, context, phash, removed: false)
       when :remove
         delete_message(context) if context.settings.action == "delete"
         punish(context)
-        flag(verdict, context, removed: true)
+        flag(verdict, context, phash, removed: true)
       end
     end
 
@@ -33,7 +33,7 @@ module Moderation
       )
     end
 
-    def flag(verdict, context, removed:)
+    def flag(verdict, context, phash, removed:)
       config = context.settings.server_configuration
       staff_role_id = config.moderation_settings.staff_role_id
       state = removed ? "removed" : "flagged"
@@ -52,8 +52,28 @@ module Moderation
         ),
         meta: I18n.t("moderation.image_scanning.flag.meta.#{state}"),
         image_url: context.attachment_url,
+        components: buttons(phash),
         allowed_mentions: {parse: [], roles: [staff_role_id].compact}
       )
+    end
+
+    def buttons(phash)
+      [
+        Discord::Components.action_row(
+          [
+            Discord::Components.button(
+              custom_id: CustomId.confirm(phash),
+              label: "Confirm scam",
+              style: Discord::Components::BUTTON_SUCCESS
+            ),
+            Discord::Components.button(
+              custom_id: CustomId.dismiss(phash),
+              label: "Dismiss",
+              style: Discord::Components::BUTTON_DANGER
+            )
+          ]
+        )
+      ]
     end
 
     def jump_url(context)
@@ -64,6 +84,6 @@ module Moderation
       reasons.map { |reason| reason.to_s.tr("_", " ") }.join(", ")
     end
 
-    private_class_method :delete_message, :punish, :flag, :jump_url, :format_reasons
+    private_class_method :delete_message, :punish, :flag, :buttons, :jump_url, :format_reasons
   end
 end

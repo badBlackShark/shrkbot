@@ -46,6 +46,12 @@ end
   Omit for an everyone-command. The `OWNER_ID` env var is a global override.
 - `owner_only` — restrict to the configured owner.
 - `options { … }` — a discordrb `OptionBuilder` block (`string`/`integer`/`boolean`/`user`/`subcommand`/…).
+- `command_type :chat_input | :message | :user` — defaults to `:chat_input` (the
+  slash command above). `:message`/`:user` register a **context-menu** command: the
+  `command_name` becomes the right-click menu label (so it can contain spaces, e.g.
+  `command_name "Report as scam"`), and the command carries no description or options
+  (both are dropped automatically). Read the target inside `#execute` via
+  `event.target` — the selected message for `:message`, the selected user for `:user`.
 
 ## The execute contract
 

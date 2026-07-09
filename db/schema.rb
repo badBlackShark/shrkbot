@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_08_135128) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_08_222812) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,6 +90,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_08_135128) do
     t.string "server_configuration_id", null: false
     t.datetime "updated_at", null: false
     t.index ["server_configuration_id", "created_at"], name: "index_notifications_on_server_configuration_id_and_created_at"
+  end
+
+  create_table "phash_confirmations", id: :string, default: -> { "('phc_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "phash_id", null: false
+    t.string "server_configuration_id", null: false
+    t.datetime "updated_at", null: false
+    t.string "verdict", null: false
+    t.index ["phash_id", "server_configuration_id"], name: "idx_on_phash_id_server_configuration_id_693185e6e1", unique: true
+    t.index ["server_configuration_id"], name: "index_phash_confirmations_on_server_configuration_id"
+    t.check_constraint "verdict::text = ANY (ARRAY['confirmed'::character varying, 'dismissed'::character varying]::text[])", name: "phash_confirmations_verdict_check"
+  end
+
+  create_table "phashes", id: :string, default: -> { "('phs_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "last_seen_at", null: false
+    t.string "phash", limit: 16, null: false
+    t.datetime "updated_at", null: false
+    t.index ["phash"], name: "index_phashes_on_phash", unique: true
   end
 
   create_table "plugin_activations", id: :string, default: -> { "('pac_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -349,6 +368,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_08_135128) do
   add_foreign_key "logging_settings", "server_configurations"
   add_foreign_key "moderation_settings", "server_configurations"
   add_foreign_key "notifications", "server_configurations"
+  add_foreign_key "phash_confirmations", "phashes"
+  add_foreign_key "phash_confirmations", "server_configurations"
   add_foreign_key "plugin_activations", "plugins"
   add_foreign_key "plugin_activations", "server_configurations"
   add_foreign_key "role_sets", "role_settings"

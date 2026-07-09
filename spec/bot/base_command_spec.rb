@@ -46,6 +46,32 @@ RSpec.describe BaseCommand do
       end
     end
 
+    context "chat_input commands (default)" do
+      it "carry their description, options, and a :chat_input type" do
+        expect(registration.type).to eq(:chat_input)
+        expect(registration.description).to eq("Set a reminder.")
+        expect(registration.options_block).to be_a(Proc)
+      end
+    end
+
+    context "context-menu commands" do
+      let(:klass) do
+        Class.new(described_class) do
+          command_name "Report as scam"
+          description "ignored"
+          command_type :message
+          options { |b| b.string("x", "y") }
+        end
+      end
+
+      it "register as :message with an empty description and no options" do
+        expect(registration.type).to eq(:message)
+        expect(registration.name).to eq("Report as scam")
+        expect(registration.description).to eq("")
+        expect(registration.options_block).to be_nil
+      end
+    end
+
     context "owner-only commands" do
       let(:klass) do
         Class.new(described_class) do

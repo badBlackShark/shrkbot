@@ -70,6 +70,35 @@ RSpec.describe ActivityLog do
       end
     end
 
+    context "with extra components" do
+      let(:action_row) do
+        Discord::Components.action_row(
+          [Discord::Components.button(custom_id: "mod:confirm:abc", label: "Confirm scam")]
+        )
+      end
+
+      subject(:post) do
+        described_class.post(
+          server_config,
+          bot:,
+          title: "Scam image removed",
+          body: "<@42> posted an image.",
+          meta: "The message was deleted automatically.",
+          image_url: "https://cdn.example/scam.png",
+          components: [action_row]
+        )
+      end
+
+      it "appends the components after the text and media blocks" do
+        expect(channel).to receive(:send_message) do |*args|
+          blocks = args[6].first[:components]
+          expect(blocks.last).to eq(action_row)
+          expect(blocks.index(action_row)).to be > blocks.index { |block| block[:type] == Discord::Components::MEDIA_GALLERY }
+        end
+        post
+      end
+    end
+
     context "when no logging channel is set" do
       before do
         server_config.logging_setting.update!(channel_id: nil)

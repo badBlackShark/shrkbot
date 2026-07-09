@@ -6,9 +6,21 @@ module Discord
     TEXT_DISPLAY = 10
     SEPARATOR = 14
     MEDIA_GALLERY = 12
+    ACTION_ROW = 1
+    BUTTON = 2
+    BUTTON_SUCCESS = 3
+    BUTTON_DANGER = 4
     COMPONENTS_V2 = 1 << 15
 
     module_function
+
+    def action_row(components)
+      {type: ACTION_ROW, components:}
+    end
+
+    def button(custom_id:, label:, style: 1)
+      {type: BUTTON, style:, label:, custom_id:}
+    end
 
     def container(blocks, accent_color: BotConfig::ACCENT_COLOR)
       {components: [{type: CONTAINER, accent_color:, components: blocks}], flags: COMPONENTS_V2}

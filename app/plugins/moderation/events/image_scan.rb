@@ -4,7 +4,6 @@ module Moderation
   class ImageScan < BaseEvent
     on :message
 
-    IMAGE_CONTENT_TYPES = %w[image/png image/jpeg image/webp].freeze
     MAX_ATTACHMENTS = 3
     MAX_BYTES = 10 * 1024 * 1024
 
@@ -29,7 +28,7 @@ module Moderation
 
     def eligible_attachments
       event.message.attachments
-        .select { |attachment| IMAGE_CONTENT_TYPES.include?(attachment.content_type) && attachment.size <= MAX_BYTES }
+        .select { |attachment| ImageScanning::CONTENT_TYPES.include?(attachment.content_type) && attachment.size <= MAX_BYTES }
         .first(MAX_ATTACHMENTS)
     end
 

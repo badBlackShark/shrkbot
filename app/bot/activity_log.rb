@@ -5,11 +5,11 @@ module ActivityLog
 
   module_function
 
-  def post(server_configuration, bot:, title:, body:, meta:, image_url: nil, allowed_mentions: SUPPRESS_MENTIONS)
+  def post(server_configuration, bot:, title:, body:, meta:, image_url: nil, components: [], allowed_mentions: SUPPRESS_MENTIONS)
     channel_id = server_configuration.logging_setting.channel_id
     return unless channel_id
 
-    deliver(bot, channel_id, entry(title, body, meta, image_url:), allowed_mentions:)
+    deliver(bot, channel_id, entry(title, body, meta, image_url:, components:), allowed_mentions:)
   end
 
   def enabled?(server_configuration, action)
@@ -18,9 +18,10 @@ module ActivityLog
     server_configuration.logging_setting.action_enabled?(action)
   end
 
-  def entry(title, body, meta, image_url: nil)
+  def entry(title, body, meta, image_url: nil, components: [])
     blocks = [Discord::Components.text("**#{title}**\n#{body}\n-# #{meta}")]
     blocks << Discord::Components.media_gallery([image_url]) if image_url
+    blocks.concat(components)
     Discord::Components.container(blocks)
   end
 

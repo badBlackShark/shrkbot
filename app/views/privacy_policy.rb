@@ -56,6 +56,7 @@ class Views::PrivacyPolicy < Views::Base
     paragraph(t(".messages_p_2"))
     paragraph(t(".messages_p_3"))
     paragraph(t(".messages_p_4"))
+    paragraph(t(".messages_p_5"))
   end
 
   def not_section
@@ -78,6 +79,7 @@ class Views::PrivacyPolicy < Views::Base
     bullets(
       t(".retention_guild"),
       t(".retention_reminders"),
+      t(".retention_phash"),
       t(".retention_account"),
       t(".retention_infra")
     )

@@ -100,6 +100,12 @@ en:
       messages_p_4: The bot also receives member join and leave events to deliver
         welcome messages; the username shown there is rendered into the message and
         not stored.
+      messages_p_5: To recognise repeat scam images, shrkbot stores a perceptual hash
+        — a short numeric fingerprint that cannot be turned back into the image —
+        of images a server's moderators explicitly confirm as scams, together with
+        which servers confirmed them. These fingerprints are never linked to the user
+        who posted the image, are deleted when every confirming server has removed
+        the bot, and are pruned automatically after 30 days without a match.
       not_h: What we don't do
       not_p: We don't sell data, we don't advertise, we don't profile you, we don't
         run analytics, and we don't store your servers' member lists or conversations.
@@ -111,6 +117,9 @@ en:
       retention_infra: Caches, background-job records and logs are cleared automatically
         (at most 60 days, 30 days and briefly, respectively). Deleted data also drops
         out of database backups as they rotate.
+      retention_phash: 'Confirmed scam-image fingerprints: pruned 30 days after they
+        were last matched, and removed once every server that confirmed them has removed
+        the bot.'
       retention_reminders: 'Reminders: deleted once delivered, or earlier if you delete
         them.'
       rights_h: Your rights
