@@ -33,16 +33,12 @@ RSpec.describe Moderation::ReportScam do
   end
 
   let(:image_scanning_settings) { double("image_scanning_settings", action: "none") }
+  let(:client) { double("client") }
 
   before do
     allow(ServerConfiguration).to receive(:find_by).with(discord_id: guild_id).and_return(config)
     allow(config).to receive(:image_scanning_settings).and_return(image_scanning_settings)
     allow(ActivityLog).to receive(:post)
-  end
-
-  let(:client) { double("client") }
-
-  before do
     allow(Moderation::Ocr::Client).to receive(:new).and_return(client)
     allow(client).to receive(:phash).and_return("deadbeefdeadbeef")
     allow(Moderation::ImageDownload).to receive(:call).and_return("bytes")

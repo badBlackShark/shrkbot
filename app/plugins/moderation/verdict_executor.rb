@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "uri"
+
 module Moderation
   module VerdictExecutor
     module_function

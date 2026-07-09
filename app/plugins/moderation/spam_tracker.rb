@@ -9,6 +9,7 @@ module Moderation
       end
     end
     Bucket = Struct.new(:entries, :triggered_at, :window)
+    private_constant :Bucket
 
     INSTANCE_MUTEX = Mutex.new
 

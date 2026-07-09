@@ -120,7 +120,7 @@ RSpec.describe Moderation::ImageScan do
   end
 
   context "when the message author is the server owner" do
-    let(:author) { double("author", id: owner.id) }
+    let(:author) { double("author", id: owner.id, roles: []) }
 
     it "does not enqueue" do
       expect(Moderation::ScanQueue).not_to receive(:enqueue)

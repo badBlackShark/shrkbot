@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "uri"
+
 module Moderation
   class ReportScam < BaseCommand
     command_name "Report as scam"
@@ -14,8 +16,8 @@ module Moderation
 
       event.defer(ephemeral: true)
       config = ServerConfiguration.find_by(discord_id: event.server.id)
-      count, first_upload = confirm_all(attachments, config)
-      post_log(config, message, first_upload) if count > 0
+      count, log_image = confirm_all(attachments, config)
+      post_log(config, message, log_image) if count > 0
       event.edit_response(content: I18n.t("moderation.image_scanning.report.done", count:))
     end
 
@@ -28,21 +30,21 @@ module Moderation
     end
 
     def confirm_all(attachments, config)
-      first_upload = nil
+      log_image = nil
       count = attachments.count do |attachment|
         bytes = ImageDownload.call(attachment.url)
         hex = Ocr::Client.new.phash(bytes)
         Ops::Moderation::Phashes::Confirm.call(server_configuration: config, phash_hex: hex)
-        first_upload ||= Discord::FileUpload.new(bytes, File.basename(URI(attachment.url).path))
+        log_image ||= Discord::FileUpload.new(bytes, File.basename(URI(attachment.url).path))
         true
       rescue Ocr::Error => e
         Rails.logger.warn("[Moderation::ReportScam] phash failed: #{e.class}: #{e.message}")
         false
       end
-      [count, first_upload]
+      [count, log_image]
     end
 
-    def post_log(config, message, first_upload)
+    def post_log(config, message, log_image)
       settings = config.image_scanning_settings
       deleted = settings.action == "delete" && delete_message(message)
       meta_key = deleted ? "removed" : "kept"
@@ -57,7 +59,7 @@ module Moderation
           channel: "<##{event.channel.id}>"
         ),
         meta: I18n.t("moderation.image_scanning.report.log.meta.#{meta_key}"),
-        image: first_upload
+        image: log_image
       )
     end
 
