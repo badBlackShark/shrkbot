@@ -102,6 +102,18 @@ RSpec.describe Ops::Moderation::ImageScanning::Configure do
     end
   end
 
+  context "with a blank custom keyword entry from an empty multiselect" do
+    let(:enabled) { "0" }
+    let(:custom_keywords) { [""] }
+
+    before { setup_moderation_group_enabled }
+
+    it "normalizes the blank entry away and succeeds" do
+      expect(result).to be_success
+      expect(config.image_scanning_settings.reload.custom_keywords).to eq([])
+    end
+  end
+
   context "when saving settings without enabling" do
     let(:enabled) { "0" }
     let(:custom_keywords) { %w[scam free] }

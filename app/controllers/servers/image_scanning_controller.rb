@@ -4,11 +4,13 @@ class Servers::ImageScanningController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
 
+  before_action :build_context
+
   def show
     render Views::Servers::ImageScanning::Show.new(
       server_configuration: @server_configuration,
       user: current_user,
-      enabled: plugin_enabled?
+      context: @context
     )
   end
 
@@ -48,5 +50,9 @@ class Servers::ImageScanningController < ApplicationController
         custom_keywords: []
       ]
     )
+  end
+
+  def build_context
+    @context = Moderation::SubPluginContext.new(@server_configuration, :image_scanning)
   end
 end

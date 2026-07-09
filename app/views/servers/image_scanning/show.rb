@@ -1,36 +1,28 @@
 # frozen_string_literal: true
 
-class Views::Servers::ImageScanning::Show < Views::Base
-  def initialize(server_configuration:, user:, enabled:)
-    @config = server_configuration
-    @user = user
-    @enabled = enabled
+class Views::Servers::ImageScanning::Show < Views::Servers::Moderation::SubPluginShow
+  private
+
+  def active_key
+    :image_scanning
   end
 
-  def view_template
-    render Components::PluginShell.new(
-      user: @user,
+  def icon
+    "scan"
+  end
+
+  def url
+    server_image_scanning_path(@config.discord_id)
+  end
+
+  def enable_field
+    "image_scanning[enabled]"
+  end
+
+  def form
+    Components::Moderation::ImageScanningForm.new(
       server_configuration: @config,
-      active_key: :image_scanning
-    ) do
-      render Components::Moderation::ConfigShell.new(
-        header: Components::ConfigPageHeader.new(
-          icon: "scan",
-          title: t(".title"),
-          description: t(".description")
-        ),
-        server_configuration: @config,
-        url: server_image_scanning_path(@config.discord_id),
-        gate: nil,
-        toggle: {
-          field: "image_scanning[enabled]",
-          enabled: @enabled,
-          locked: false
-        },
-        breadcrumb_extra: t(".title")
-      ) do
-        div(id: "image_scanning-config") { "" }
-      end
-    end
+      context: @context
+    )
   end
 end

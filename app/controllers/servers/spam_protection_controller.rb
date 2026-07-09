@@ -4,11 +4,13 @@ class Servers::SpamProtectionController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
 
+  before_action :build_context
+
   def show
     render Views::Servers::SpamProtection::Show.new(
       server_configuration: @server_configuration,
       user: current_user,
-      enabled: plugin_enabled?
+      context: @context
     )
   end
 
@@ -50,5 +52,9 @@ class Servers::SpamProtectionController < ApplicationController
         :enabled
       ]
     )
+  end
+
+  def build_context
+    @context = Moderation::SubPluginContext.new(@server_configuration, :spam_protection)
   end
 end

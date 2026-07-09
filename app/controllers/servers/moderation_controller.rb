@@ -4,11 +4,13 @@ class Servers::ModerationController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
 
+  before_action :build_context
+
   def show
     render Views::Servers::Moderation::Show.new(
       server_configuration: @server_configuration,
       user: current_user,
-      context: moderation_context
+      context: @context
     )
   end
 
@@ -35,7 +37,7 @@ class Servers::ModerationController < ApplicationController
     params.expect(moderation: [:staff_role_id, :enabled])
   end
 
-  def moderation_context
-    Moderation::OverviewContext.new(@server_configuration)
+  def build_context
+    @context = Moderation::OverviewContext.new(@server_configuration)
   end
 end

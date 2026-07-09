@@ -24,7 +24,7 @@ module Ops
             punishment:,
             timeout_seconds:,
             custom_keyword_min_hits:,
-            custom_keywords: Array(custom_keywords)
+            custom_keywords: Array(custom_keywords).reject(&:blank?)
           )
           activation = staged_activation
 
