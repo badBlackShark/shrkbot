@@ -5,7 +5,7 @@ module Moderation
     module_function
 
     def prefix(staff_role_id)
-      staff_role_id ? "<@&#{staff_role_id}> " : ""
+      "<@&#{staff_role_id}> "
     end
   end
 end
