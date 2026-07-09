@@ -45,4 +45,30 @@ RSpec.describe Components::Icon do
       expect { svg }.to raise_error(PhosphorIcons::IconNotFoundError)
     end
   end
+
+  context "with a custom glyph name" do
+    let(:name) { "megaphone-slash" }
+
+    it "renders an svg without raising IconNotFoundError" do
+      expect { svg }.not_to raise_error
+      expect(svg).to include("<svg").and include("viewBox=\"0 0 256 256\"")
+    end
+
+    it "applies the default size class" do
+      expect(svg).to include("size-5")
+    end
+
+    context "with a provided class" do
+      let(:options) { {class: "size-8 text-danger"} }
+
+      it "spreads options onto the svg tag" do
+        expect(svg).to include("size-8").and include("text-danger")
+      end
+    end
+
+    it "delegates real Phosphor names normally" do
+      real_svg = described_class.new("sun").call
+      expect(real_svg).to eq(PhosphorIcons::Icon.new("sun", style: :regular, class: "size-5").to_svg)
+    end
+  end
 end
