@@ -12,7 +12,7 @@ class Components::Toggle < Components::Base
     mini: "relative h-[18px] w-8 after:size-3.5 peer-checked:after:translate-x-3.5"
   }.freeze
 
-  def initialize(checked:, label:, name: nil, size: :md, url: nil, submit_on_change: false, dom_id: nil, disabled: false, data: {})
+  def initialize(checked:, label:, name: nil, size: :md, url: nil, submit_on_change: false, dom_id: nil, disabled: false, data: {}, form: nil)
     @name = name&.to_s
     @checked = checked
     @label = label
@@ -22,6 +22,7 @@ class Components::Toggle < Components::Base
     @dom_id = dom_id
     @disabled = disabled
     @data = data
+    @form = form
   end
 
   def view_template
@@ -37,7 +38,7 @@ class Components::Toggle < Components::Base
   private
 
   def switch
-    input(type: "hidden", name: @name, value: "0", autocomplete: "off") if @name && !@disabled
+    input(type: "hidden", name: @name, value: "0", autocomplete: "off", form: @form) if @name && !@disabled
     label(class: "inline-flex items-center #{@disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}", aria_label: @label) do
       input(
         type: "checkbox",
@@ -47,7 +48,8 @@ class Components::Toggle < Components::Base
         disabled: @disabled,
         autocomplete: "off",
         class: "peer sr-only",
-        data: switch_data
+        data: switch_data,
+        form: @form
       )
       div(class: "#{SIZES.fetch(@size)} #{COMMON}")
     end

@@ -25,6 +25,30 @@ RSpec.describe PluginCatalog do
     end
   end
 
+  describe ".sub_plugin?" do
+    it "returns true for :spam_protection" do
+      expect(described_class.sub_plugin?(:spam_protection)).to be(true)
+    end
+
+    it "returns true for :image_scanning" do
+      expect(described_class.sub_plugin?(:image_scanning)).to be(true)
+    end
+
+    it "returns false for :moderation" do
+      expect(described_class.sub_plugin?(:moderation)).to be(false)
+    end
+
+    it "returns false for :roles" do
+      expect(described_class.sub_plugin?(:roles)).to be(false)
+    end
+  end
+
+  describe ".sub_plugin_keys" do
+    it "returns [:spam_protection, :image_scanning] for :moderation" do
+      expect(described_class.sub_plugin_keys(:moderation)).to eq([:spam_protection, :image_scanning])
+    end
+  end
+
   describe "moderation group wiring" do
     it "spam_protection has parent :moderation" do
       expect(described_class.find(:spam_protection).parent).to eq(:moderation)

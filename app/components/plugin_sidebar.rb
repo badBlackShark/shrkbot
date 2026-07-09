@@ -27,8 +27,6 @@ class Components::PluginSidebar < Components::Base
 
   private
 
-  SUB_PLUGIN_KEYS = %i[spam_protection image_scanning].freeze
-
   def all_rows
     @all_rows ||= PluginStatus.rows(@config)
   end
@@ -38,7 +36,7 @@ class Components::PluginSidebar < Components::Base
   end
 
   def sub_plugin?(key)
-    SUB_PLUGIN_KEYS.include?(key)
+    PluginCatalog.sub_plugin?(key)
   end
 
   def moderation_group
@@ -62,7 +60,7 @@ class Components::PluginSidebar < Components::Base
       active: @active_key == :moderation,
       status: nil
     }
-    [overview] + SUB_PLUGIN_KEYS.map { |key| sub_item(key) }
+    [overview] + PluginCatalog.sub_plugin_keys(:moderation).map { |key| sub_item(key) }
   end
 
   def sub_item(key)

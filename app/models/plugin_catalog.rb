@@ -53,4 +53,12 @@ class PluginCatalog
   def self.channel_backed
     DEFINITIONS.select(&:channel_backed?)
   end
+
+  def self.sub_plugin?(key)
+    find(key)&.parent.present?
+  end
+
+  def self.sub_plugin_keys(parent_key)
+    all.select { |definition| definition.parent == parent_key }.map(&:key)
+  end
 end

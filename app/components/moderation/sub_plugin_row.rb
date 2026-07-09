@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Components::Moderation::SubPluginRow < Components::Base
-  include Phlex::Rails::Helpers::FormWith
   include Components::PluginNav
 
   STATUS_VARIANTS = {
@@ -100,15 +99,20 @@ class Components::Moderation::SubPluginRow < Components::Base
   end
 
   def enabled_toggle
-    form_with(url: sub_path, method: :patch, class: "flex-none", autocomplete: "off") do |f|
-      settings_hidden_fields
-      render Components::Toggle.new(
-        name: "#{@key}[enabled]",
-        checked: @enabled,
-        label: t(".toggle_label", name: @name),
-        submit_on_change: true
-      )
-    end
+    input(
+      type: "hidden",
+      name: "from_overview",
+      value: "1",
+      form: stub_form_id
+    )
+    settings_hidden_fields
+    render Components::Toggle.new(
+      name: "#{@key}[enabled]",
+      checked: @enabled,
+      label: t(".toggle_label", name: @name),
+      submit_on_change: true,
+      form: stub_form_id
+    )
   end
 
   def settings_hidden_fields
@@ -118,23 +122,27 @@ class Components::Moderation::SubPluginRow < Components::Base
   end
 
   def spam_protection_hidden_fields
-    input(type: "hidden", name: "spam_protection[channel_threshold]", value: @settings.channel_threshold)
-    input(type: "hidden", name: "spam_protection[window_seconds]", value: @settings.window_seconds)
-    input(type: "hidden", name: "spam_protection[similarity]", value: @settings.similarity)
-    input(type: "hidden", name: "spam_protection[match_symbol_only_messages]", value: @settings.match_symbol_only_messages ? "1" : "0")
-    input(type: "hidden", name: "spam_protection[action]", value: @settings.action)
-    input(type: "hidden", name: "spam_protection[punishment]", value: @settings.punishment)
-    input(type: "hidden", name: "spam_protection[timeout_seconds]", value: @settings.timeout_seconds)
+    input(type: "hidden", name: "spam_protection[channel_threshold]", value: @settings.channel_threshold, form: stub_form_id)
+    input(type: "hidden", name: "spam_protection[window_seconds]", value: @settings.window_seconds, form: stub_form_id)
+    input(type: "hidden", name: "spam_protection[similarity]", value: @settings.similarity, form: stub_form_id)
+    input(type: "hidden", name: "spam_protection[match_symbol_only_messages]", value: @settings.match_symbol_only_messages ? "1" : "0", form: stub_form_id)
+    input(type: "hidden", name: "spam_protection[action]", value: @settings.action, form: stub_form_id)
+    input(type: "hidden", name: "spam_protection[punishment]", value: @settings.punishment, form: stub_form_id)
+    input(type: "hidden", name: "spam_protection[timeout_seconds]", value: @settings.timeout_seconds, form: stub_form_id)
   end
 
   def image_scanning_hidden_fields
-    input(type: "hidden", name: "image_scanning[sensitivity]", value: @settings.sensitivity)
-    input(type: "hidden", name: "image_scanning[action]", value: @settings.action)
-    input(type: "hidden", name: "image_scanning[punishment]", value: @settings.punishment)
-    input(type: "hidden", name: "image_scanning[timeout_seconds]", value: @settings.timeout_seconds)
-    input(type: "hidden", name: "image_scanning[custom_keyword_min_hits]", value: @settings.custom_keyword_min_hits)
+    input(type: "hidden", name: "image_scanning[sensitivity]", value: @settings.sensitivity, form: stub_form_id)
+    input(type: "hidden", name: "image_scanning[action]", value: @settings.action, form: stub_form_id)
+    input(type: "hidden", name: "image_scanning[punishment]", value: @settings.punishment, form: stub_form_id)
+    input(type: "hidden", name: "image_scanning[timeout_seconds]", value: @settings.timeout_seconds, form: stub_form_id)
+    input(type: "hidden", name: "image_scanning[custom_keyword_min_hits]", value: @settings.custom_keyword_min_hits, form: stub_form_id)
     @settings.custom_keywords.each do |keyword|
-      input(type: "hidden", name: "image_scanning[custom_keywords][]", value: keyword)
+      input(type: "hidden", name: "image_scanning[custom_keywords][]", value: keyword, form: stub_form_id)
     end
+  end
+
+  def stub_form_id
+    "#{@key}-overview-toggle-form"
   end
 end

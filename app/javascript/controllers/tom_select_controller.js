@@ -18,7 +18,8 @@ export default class extends Controller {
 
   plugins() {
     if (this.createValue) return ["remove_button"]
-    return this.colorDotsValue ? ["dropdown_input", "remove_button"] : ["dropdown_input", "clear_button"]
+    const removal = this.element.multiple ? "remove_button" : "clear_button"
+    return ["dropdown_input", removal]
   }
 
   renderers() {

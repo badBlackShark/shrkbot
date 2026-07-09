@@ -144,12 +144,21 @@ class Components::Moderation::ImageScanningForm < Components::Base
   end
 
   def image_explainer
-    details(class: "rounded-card border border-border-default bg-surface-card shadow-sm overflow-hidden") do
-      summary(class: "flex cursor-pointer select-none list-none items-center gap-3 border-b border-border-subtle bg-surface-sunken px-5 py-3.5") do
-        render Components::Icon.new("caret-down", class: "size-4 text-text-muted")
+    details(
+      class: "rounded-card border border-border-default bg-surface-card shadow-sm overflow-hidden",
+      data: {controller: "dropdown", dropdown_dismiss_on_outside_value: "false"}
+    ) do
+      summary(
+        class: "flex cursor-pointer select-none list-none items-center gap-3 border-b border-border-subtle bg-surface-sunken px-5 py-3.5 [&::-webkit-details-marker]:hidden",
+        data: {action: "click->dropdown#toggle"}
+      ) do
+        render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 text-text-muted")
         span(class: "text-sm font-semibold flex-1") { t(".explainer.title") }
       end
-      div(class: "grid gap-3 px-5 py-4") do
+      div(
+        class: "dropdown-menu grid gap-3 px-5 py-4",
+        data: {dropdown_target: "menu"}
+      ) do
         explainer_line("cpu", t(".explainer.line_memory"))
         explainer_line("check-square", t(".explainer.line_staff"))
         explainer_line("fingerprint", t(".explainer.line_fingerprint"))

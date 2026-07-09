@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Views::Servers::Moderation::Show < Views::Base
+  include Phlex::Rails::Helpers::FormWith
+
   def initialize(server_configuration:, user:, context:)
     @config = server_configuration
     @user = user
@@ -30,10 +32,28 @@ class Views::Servers::Moderation::Show < Views::Base
           context: @context
         )
       end
+      sub_plugin_toggle_forms
     end
   end
 
   private
+
+  def sub_plugin_toggle_forms
+    form_with(
+      url: server_spam_protection_path(@config.discord_id),
+      method: :patch,
+      id: "spam_protection-overview-toggle-form",
+      class: "hidden"
+    ) do
+    end
+    form_with(
+      url: server_image_scanning_path(@config.discord_id),
+      method: :patch,
+      id: "image_scanning-overview-toggle-form",
+      class: "hidden"
+    ) do
+    end
+  end
 
   def shell_gate
     if !@context.logging_ready?

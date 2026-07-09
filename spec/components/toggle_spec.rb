@@ -44,4 +44,21 @@ RSpec.describe Components::Toggle do
       expect(html).not_to include("w-11")
     end
   end
+
+  context "with a form: attribute set" do
+    subject(:html) { Components::Toggle.new(name: "foo[enabled]", checked: false, label: "Toggle foo", form: "some-form").call }
+
+    it "renders form=\"some-form\" on both the hidden input and the checkbox" do
+      expect(html).to include('type="hidden"').and include('form="some-form"')
+      expect(html).to include('type="checkbox"').and include('form="some-form"')
+    end
+  end
+
+  context "without a form: attribute" do
+    subject(:html) { Components::Toggle.new(name: "foo[enabled]", checked: false, label: "Toggle foo").call }
+
+    it "renders no form attribute" do
+      expect(html).not_to include("form=")
+    end
+  end
 end

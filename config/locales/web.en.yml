@@ -208,6 +208,10 @@ en:
         logging:
           description: Record moderation events to a channel of your choice.
           name: Logging
+        moderation:
+          description: 'Your server''s aegis: automated moderation beyond Discord''s
+            AutoMod.'
+          name: Server Shield
         reminders:
           description: Members set their own reminders with /remind.
           locked: This plugin is always enabled to preserve DM functionality.

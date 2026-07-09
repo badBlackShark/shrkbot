@@ -71,6 +71,12 @@ RSpec.describe "Moderation config", type: :request do
             expect(response.body).to include("How text matching works")
           end
 
+          it "renders the stub toggle forms for sub-plugins" do
+            get server_moderation_path(guild.id)
+            expect(response.body).to include("spam_protection-overview-toggle-form")
+            expect(response.body).to include("image_scanning-overview-toggle-form")
+          end
+
           it "renders the save bar wired to the form" do
             get server_moderation_path(guild.id)
             expect(response.body).to include("save-bar").and include("Unsaved changes")

@@ -16,7 +16,10 @@ class Components::Moderation::MatchingExplainer < Components::Base
           render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
           span(class: "flex-1 text-sm font-semibold") { t(".title") }
         end
-        div(class: "grid gap-3 px-5 py-4") do
+        div(
+          class: "dropdown-menu grid gap-3 px-5 py-4",
+          data: {dropdown_target: "menu"}
+        ) do
           explainer_row("text-aa", t(".row_normalize"))
           explainer_row("mask-happy", t(".row_lookalike"))
           explainer_row("megaphone-slash", t(".row_spam"))

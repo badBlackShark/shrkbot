@@ -33,9 +33,16 @@ RSpec.describe Components::Moderation::SubPluginRow do
       expect(html).to include("Configure")
     end
 
-    it "renders a mini-form posting to the sub-plugin path" do
-      expect(html).to include("spam_protection")
-      expect(html).to include("method")
+    it "does not render an inline form tag" do
+      expect(html).not_to include("<form")
+    end
+
+    it "hidden fields carry the stub form id" do
+      expect(html).to include('form="spam_protection-overview-toggle-form"')
+    end
+
+    it "includes a from_overview hidden field" do
+      expect(html).to include('name="from_overview"')
     end
 
     it "includes hidden settings fields to preserve current values" do
@@ -97,6 +104,18 @@ RSpec.describe Components::Moderation::SubPluginRow do
     it "links the Configure button to the image_scanning path" do
       expect(html).to include("image_scanning")
       expect(html).to include("Configure")
+    end
+
+    it "does not render an inline form tag" do
+      expect(html).not_to include("<form")
+    end
+
+    it "hidden fields carry the image_scanning stub form id" do
+      expect(html).to include('form="image_scanning-overview-toggle-form"')
+    end
+
+    it "includes a from_overview hidden field" do
+      expect(html).to include('name="from_overview"')
     end
   end
 
@@ -163,7 +182,7 @@ RSpec.describe Components::Moderation::SubPluginRow do
       expect(html).to include("Disabled")
     end
 
-    it "renders a form with hidden settings fields (not locked)" do
+    it "renders hidden settings fields (not locked)" do
       expect(html).to include('name="spam_protection[channel_threshold]"')
     end
 

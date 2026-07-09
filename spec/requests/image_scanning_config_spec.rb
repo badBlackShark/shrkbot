@@ -129,6 +129,21 @@ RSpec.describe "Image scanning config", type: :request do
                                       custom_keywords: [], enabled: "0"}}
           expect(response).to redirect_to(server_image_scanning_path(guild.id))
         end
+
+        context "when toggled from the overview" do
+          subject(:patch_from_overview) do
+            patch server_image_scanning_path(guild.id),
+              params: {image_scanning: {sensitivity: "standard", action: "delete",
+                                        punishment: "none", timeout_seconds: 3600, custom_keyword_min_hits: 2,
+                                        custom_keywords: [], enabled: "0"},
+                       from_overview: "1"}
+          end
+
+          it "redirects to the moderation overview" do
+            patch_from_overview
+            expect(response).to redirect_to(server_moderation_path(guild.id))
+          end
+        end
       end
     end
   end

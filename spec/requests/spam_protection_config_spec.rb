@@ -123,6 +123,21 @@ RSpec.describe "Spam protection config", type: :request do
                                        timeout_seconds: 3600, enabled: "0"}}
           expect(response).to redirect_to(server_spam_protection_path(guild.id))
         end
+
+        context "when toggled from the overview" do
+          subject(:patch_from_overview) do
+            patch server_spam_protection_path(guild.id),
+              params: {spam_protection: {channel_threshold: 3, window_seconds: 10, similarity: 0.9,
+                                         match_symbol_only_messages: "0", action: "purge", punishment: "none",
+                                         timeout_seconds: 3600, enabled: "0"},
+                       from_overview: "1"}
+          end
+
+          it "redirects to the moderation overview" do
+            patch_from_overview
+            expect(response).to redirect_to(server_moderation_path(guild.id))
+          end
+        end
       end
     end
   end
