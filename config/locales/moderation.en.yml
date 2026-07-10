@@ -11,11 +11,23 @@ en:
         unauthorized: You need the staff role or the Manage Messages permission to
           do that.
       flag:
-        body: "%{author} posted an image in %{channel}. [Jump to message](%{jump_url}).
-          Risk %{risk}: %{reasons}."
+        body: "%{author} posted an image in %{channel}. [Jump to message](%{jump_url})."
         meta:
           flagged: Flagged for review — no automatic action taken.
           removed: The message was deleted automatically.
+        reasons:
+          custom_keywords:
+            one: matched %{count} custom keyword
+            other: matched %{count} custom keywords
+          foreign_confirmed: matches an image confirmed as a scam on another server
+          has_link: the message contains a link
+          new_account: the account is only %{days} days old
+          no_role: the author has no role on this server
+          own_confirmed: matches an image staff here confirmed as a scam
+          rule: matched "%{pattern}"
+        risk_line:
+          flagged: 'Risk `%{risk}` of the `%{threshold}` needed for a flag:'
+          removed: 'Risk `%{risk}` of the `%{threshold}` needed for removal:'
         title:
           flagged: Possible scam image flagged for review
           removed: Scam image removed

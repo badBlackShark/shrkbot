@@ -145,7 +145,7 @@ RSpec.describe Moderation::Classifier do
       end
 
       it "records the reason" do
-        expect(verdict.reasons).to include(:new_account)
+        expect(verdict.reasons.map(&:key)).to include(:new_account)
       end
     end
 
@@ -157,7 +157,7 @@ RSpec.describe Moderation::Classifier do
       end
 
       it "records the reason" do
-        expect(verdict.reasons).to include(:has_link)
+        expect(verdict.reasons.map(&:key)).to include(:has_link)
       end
     end
 
@@ -169,7 +169,7 @@ RSpec.describe Moderation::Classifier do
       end
 
       it "records the reason" do
-        expect(verdict.reasons).to include(:no_role)
+        expect(verdict.reasons.map(&:key)).to include(:no_role)
       end
     end
 
@@ -192,7 +192,7 @@ RSpec.describe Moderation::Classifier do
       end
 
       it "records the reason" do
-        expect(verdict.reasons).to include(:custom_keywords)
+        expect(verdict.reasons.map(&:key)).to include(:custom_keywords)
       end
 
       it "floors the verdict at flag even when the score is below the flag threshold" do
@@ -217,7 +217,7 @@ RSpec.describe Moderation::Classifier do
       let(:custom_keywords) { ["private group"] }
 
       it "matches multi-word keywords" do
-        expect(verdict.reasons).to include(:custom_keywords)
+        expect(verdict.reasons.map(&:key)).to include(:custom_keywords)
       end
     end
 
@@ -226,7 +226,7 @@ RSpec.describe Moderation::Classifier do
       let(:custom_keywords) { ["telegram"] }
 
       it "matches a typo variant" do
-        expect(verdict.reasons).to include(:custom_keywords)
+        expect(verdict.reasons.map(&:key)).to include(:custom_keywords)
       end
     end
 
@@ -307,6 +307,26 @@ RSpec.describe Moderation::Classifier do
       it "flags instead" do
         expect(verdict.action).to eq(:flag_for_review)
       end
+    end
+  end
+
+  describe "rule reasons" do
+    let(:ocr_text) { "casino" }
+
+    it "carries the matched pattern in reason detail" do
+      rule_reason = verdict.reasons.find { |r| r.key == :rule }
+      expect(rule_reason).not_to be_nil
+      expect(rule_reason.detail).to be_a(String)
+      expect(rule_reason.detail).not_to be_empty
+    end
+
+    it "carries the rule weight in reason weight" do
+      rule_reason = verdict.reasons.find { |r| r.key == :rule }
+      expect(rule_reason.weight).to be > 0
+    end
+
+    it "risk equals sum of reason weights" do
+      expect(verdict.risk).to eq(verdict.reasons.sum(&:weight))
     end
   end
 end

@@ -15,13 +15,22 @@ module Moderation
       return event.respond(content: I18n.t("moderation.image_scanning.report.none"), ephemeral: true) if attachments.empty?
 
       event.defer(ephemeral: true)
-      config = ServerConfiguration.find_by(discord_id: event.server.id)
       count, log_image = confirm_all(attachments, config)
       post_log(config, message, log_image) if count > 0
       event.edit_response(content: I18n.t("moderation.image_scanning.report.done", count:))
     end
 
     private
+
+    def permitted?
+      return true if super
+
+      StaffGate.allows?(event.user, config.moderation_settings.staff_role_id)
+    end
+
+    def config
+      @config ||= ServerConfiguration.find_by(discord_id: event.server.id)
+    end
 
     def image_attachments(message)
       return [] unless message

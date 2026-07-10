@@ -19,12 +19,7 @@ module Moderation
     end
 
     def authorized?
-      return false unless member
-
-      role_id = server_configuration&.moderation_settings&.staff_role_id
-      return true if role_id && member.roles.any? { |role| role.id == role_id }
-
-      member.permission?(:manage_messages)
+      StaffGate.allows?(member, server_configuration&.moderation_settings&.staff_role_id)
     end
 
     def reject

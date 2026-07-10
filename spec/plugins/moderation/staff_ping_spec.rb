@@ -8,8 +8,8 @@ RSpec.describe Moderation::StaffPing do
   context "with a staff role id" do
     let(:staff_role_id) { 123 }
 
-    it "renders a role mention with a trailing space" do
-      expect(prefix).to eq("<@&123> ")
+    it "renders a role mention with a colon and trailing space" do
+      expect(prefix).to eq("<@&123>: ")
     end
   end
 end

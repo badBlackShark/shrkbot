@@ -36,6 +36,7 @@ RSpec.describe Moderation::VerdictExecutor do
       action: settings_action,
       punishment:,
       timeout_seconds: 300,
+      sensitivity: "standard",
       server_configuration:
     )
   end
@@ -55,7 +56,13 @@ RSpec.describe Moderation::VerdictExecutor do
 
   let(:phash) { "0123456789abcdef" }
   let(:action) { :remove }
-  let(:verdict) { Moderation::Verdict.new(action:, risk: 7.0, reasons: [:new_account, "usdt"]) }
+  let(:reasons) do
+    [
+      Moderation::Reason.new(key: :new_account, weight: 2, detail: 3),
+      Moderation::Reason.new(key: :rule, weight: 3, detail: "promo code")
+    ]
+  end
+  let(:verdict) { Moderation::Verdict.new(action:, risk: 5.0, reasons:) }
 
   before do
     allow(ActivityLog).to receive(:post)
@@ -111,6 +118,63 @@ RSpec.describe Moderation::VerdictExecutor do
         expect(custom_ids).to eq(["mod:confirm:#{phash}", "mod:dismiss:#{phash}"])
       end
     end
+
+    it "includes a colon after the staff role ping in the body" do
+      execute
+
+      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:body]).to include("<@&#{staff_role_id}>: ")
+      end
+    end
+
+    it "has locale copy for every classifier reason key" do
+      keys = %i[rule custom_keywords new_account has_link no_role own_confirmed foreign_confirmed]
+      keys.each do |key|
+        expect(I18n.exists?("moderation.image_scanning.flag.reasons.#{key}")).to be(true)
+      end
+    end
+
+    context "with keyword, foreign-hash, and fractional-risk reasons" do
+      let(:reasons) do
+        [
+          Moderation::Reason.new(key: :custom_keywords, weight: 4, detail: 2),
+          Moderation::Reason.new(key: :foreign_confirmed, weight: 0),
+          Moderation::Reason.new(key: :no_role, weight: 0.5)
+        ]
+      end
+      let(:verdict) { Moderation::Verdict.new(action:, risk: 4.5, reasons:) }
+
+      it "renders the keyword count, omits the weight on zero-weight reasons, and keeps fractions" do
+        execute
+
+        expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+          body = kwargs[:body]
+          expect(body).to include("Risk `4.5` of the `3` needed for a flag:")
+          expect(body).to include("- matched 2 custom keywords (`+4`)")
+          expect(body).to include("- matches an image confirmed as a scam on another server\n")
+          expect(body).to include("(`+0.5`)")
+          expect(body).not_to include("(`+0`)")
+        end
+      end
+    end
+
+    it "includes a risk line with backticked numbers in the body" do
+      execute
+
+      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:body]).to match(/Risk `5` of the `3` needed for a flag:/)
+      end
+    end
+
+    it "includes reason bullets in the body" do
+      execute
+
+      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:body]).to include("(`+2`)")
+        expect(kwargs[:body]).to include('matched "promo code"')
+        expect(kwargs[:body]).to include("(`+3`)")
+      end
+    end
   end
 
   context "when the action is :remove with settings.action 'delete'" do
@@ -125,6 +189,14 @@ RSpec.describe Moderation::VerdictExecutor do
         server_configuration,
         hash_including(title: I18n.t("moderation.image_scanning.flag.title.removed"))
       )
+    end
+
+    it "includes a risk line for removal in the body" do
+      execute
+
+      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:body]).to match(/Risk `5` of the `6` needed for removal:/)
+      end
     end
 
     it "posts a confirm/dismiss action row carrying the phash custom_ids" do
