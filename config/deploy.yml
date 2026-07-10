@@ -44,6 +44,7 @@ env:
     WEB_BASE_URL: https://shrkbot.com
     DB_HOST: shrkbot-db
     REDIS_URL: redis://shrkbot-redis:6379/0
+    OCR_URL: http://shrkbot-ocr:8000
     SHARD_COUNT: "1"
   secret:
     - SECRET_KEY_BASE
@@ -72,3 +73,14 @@ accessories:
     host: <%= ENV["DEPLOY_HOST"] %>
     network: kamal
     cmd: redis-server --save ""
+  ocr:
+    image: ghcr.io/badblackshark/shrkbot-ocr:latest
+    host: <%= ENV["DEPLOY_HOST"] %>
+    network: kamal
+    options:
+      cpus: 2
+    env:
+      clear:
+        OMP_NUM_THREADS: "2"
+    volumes:
+      - shrkbot_ocr_models:/home/ocr/.paddlex
