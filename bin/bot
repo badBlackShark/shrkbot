@@ -22,7 +22,6 @@ bots.each_with_index do |bot, index|
   CommandRegistrar.new(
     bot,
     commands: BaseCommand.descendants,
-    instant_global: Rails.env.development?,
     define_commands: index.zero?
   ).register_all
   EventRegistrar.new(bot, events: BaseEvent.descendants).register_all

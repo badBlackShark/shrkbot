@@ -28,7 +28,7 @@ bin/bot    # the gateway connection
 bin/jobs   # background jobs (reminder delivery)
 ```
 
-Set `TEST_SERVER_ID` in `.env` to your test server so guild commands register there instantly. If you work on Scam Image Detection, you'll also need the OCR sidecar: `docker compose --profile ocr up -d ocr`.
+Guild commands register per-server automatically — no env var needed. If you work on Scam Image Detection, you'll also need the OCR sidecar: `docker compose --profile ocr up -d ocr`.
 
 ## AI-assisted development
 

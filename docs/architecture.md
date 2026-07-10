@@ -194,21 +194,17 @@ declaration is available to everyone.
 
 Declared with `register_in`:
 
-- `:guild` (default) — guild-scoped registration; appears instantly, toggles
-  per-server, Discord hides it where the plugin is disabled. Guild commands cannot
-  appear in DMs.
-- `:global` — registered once with `contexts = [:server, :bot_dm]`; always-on; works
-  in DMs. Reminders is the one global feature.
+- `:guild` (default) — bulk-overwritten per guild on ready (`CommandBackfill`),
+  server join (`CommandSetup`), and plugin toggle (ConfigBus `commands_sync`). A
+  command's `plugin :key` macro ties it to a `PluginCatalog` key; it only registers
+  in guilds where that plugin (and its parent, if any) is enabled. Plugin-less guild
+  commands register in every guild. Guild commands cannot appear in DMs.
+- `:global` — registered once globally in production via `CommandRegistrar#define_global`.
+  In development, global commands are folded into every guild's bulk-overwrite set for
+  instant appearance (no ~1h propagation delay). Always-on; works in DMs.
 
 `CommandRegistrar` notes:
 
-- Until per-server registration lands (Phase 8), `:guild` commands register to
-  `TEST_SERVER_ID`. A `:guild` command with no `TEST_SERVER_ID` is **skipped**, not
-  silently registered globally (global propagation takes up to ~1h and has no
-  per-server toggle).
-- `instant_global` (dev only) registers `:global` commands to the test server too,
-  for instant appearance; guild-scoped, so they don't reach DMs in dev. Production
-  registers them truly globally.
 - `define_commands: false` attaches handlers without redefining the (application-
   global) command definitions — under sharding only the first shard defines them.
 - discordrb's `autocomplete(name)` matches the focused **option**, not the command,
@@ -405,8 +401,11 @@ hands off to an operation inside a `with_connection` block (its own AR
 connection, like every other bot thread). A malformed or failing event is logged
 and reported to the owner rather than killing the listener.
 
-Four event types are currently defined:
+Five event types are currently defined:
 
+- **`commands_sync`** — published with a `discord_id` whenever a plugin is toggled
+  for a server. The bot calls `GuildCommandSync#sync` for that guild, re-running the
+  filtered bulk-overwrite so the command list reflects the new plugin state immediately.
 - **`roles_post`** — published per surviving role set after a successful web save
   when the roles plugin is enabled. The bot calls `Roles::MessagePoster.post`,
   which edits the set's existing message in place if `message_id` is set, or

@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 class CommandRegistrar
-  def initialize(bot, commands:, instant_global: false, define_commands: true)
+  def initialize(bot, commands:, define_commands: true)
     @bot = bot
     @commands = commands.select(&:registrable)
-    @instant_global = instant_global
     @define_commands = define_commands
   end
 
@@ -12,40 +11,26 @@ class CommandRegistrar
 
   def register_all
     commands.each do |klass|
-      next unless registrable_here?(klass)
-
-      define(klass) if @define_commands
       attach(klass)
       attach_autocomplete(klass) if klass.autocomplete?
     end
+
+    define_global if @define_commands
   end
 
   private
 
-  def test_server_id
-    BotConfig.test_server_id
-  end
+  def define_global
+    return if Rails.env.development?
 
-  def registrable_here?(klass)
-    reg = klass.registration
-    return true if reg.global? || test_server_id.present?
+    global_payloads = commands
+      .select { |klass| klass.registration.global? }
+      .map { |klass| CommandPayload.new(klass.registration).to_h }
 
-    Rails.logger.warn("[CommandRegistrar] skipping :guild command /#{reg.name} — TEST_SERVER_ID not set")
-    false
-  end
-
-  def define(klass)
-    reg = klass.registration
-    to_guild = !reg.global? || (@instant_global && test_server_id.present?)
-
-    bot.register_application_command(
-      reg.name,
-      reg.description,
-      server_id: to_guild ? test_server_id : nil,
-      default_member_permissions: reg.permissions.presence,
-      contexts: to_guild ? nil : reg.contexts,
-      type: reg.type,
-      &reg.options_block
+    Discordrb::API::Application.bulk_overwrite_global_commands(
+      bot.token,
+      bot.profile.id,
+      global_payloads
     )
   end
 

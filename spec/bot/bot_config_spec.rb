@@ -24,12 +24,6 @@ RSpec.describe BotConfig do
     end
   end
 
-  describe ".test_server_id" do
-    it "reads TEST_SERVER_ID from the environment" do
-      with_env("TEST_SERVER_ID", "42") { expect(described_class.test_server_id).to eq("42") }
-    end
-  end
-
   describe ".web_base_url" do
     it "reads WEB_BASE_URL from the environment" do
       with_env("WEB_BASE_URL", "https://shrkbot.gg") { expect(described_class.web_base_url).to eq("https://shrkbot.gg") }

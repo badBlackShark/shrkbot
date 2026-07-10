@@ -3,7 +3,7 @@
 class BaseCommand
   include WithConnection
 
-  Registration = Struct.new(:name, :description, :permissions, :owner_only, :context, :type, :options_block) do
+  Registration = Struct.new(:name, :description, :permissions, :owner_only, :context, :type, :options_block, :plugin) do
     def global?
       context == :global
     end
@@ -42,6 +42,11 @@ class BaseCommand
       @register_in || :guild
     end
 
+    def plugin(value = nil)
+      @plugin = value if value
+      @plugin
+    end
+
     def command_type(value = nil)
       @command_type = value if value
       @command_type || :chat_input
@@ -61,7 +66,8 @@ class BaseCommand
         owner_only: owner_only?,
         context: register_in,
         type: command_type,
-        options_block: chat_input ? options : nil
+        options_block: chat_input ? options : nil,
+        plugin:
       )
     end
 

@@ -7,6 +7,7 @@ module Moderation
     command_name "Report as scam"
     command_type :message
     register_in :guild
+    plugin :image_scanning
     requires_permissions :manage_messages
 
     def execute

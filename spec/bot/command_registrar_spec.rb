@@ -1,40 +1,34 @@
 # frozen_string_literal: true
 
 require "rails_helper"
+require "discordrb"
 
 RSpec.describe CommandRegistrar do
-  # Records what the registrar pushes, standing in for Discordrb::Bot. We assert
-  # WE call the boundary correctly; discordrb's own behavior is not under test.
   let(:fake_bot) do
     Class.new do
-      attr_reader :defined, :handlers
+      attr_reader :handlers, :autocompletes
 
       def initialize
-        @defined = []
         @handlers = {}
         @autocompletes = []
-      end
-
-      attr_reader :autocompletes
-
-      def register_application_command(name, description, server_id:, default_member_permissions:, contexts:, type:, &block)
-        @defined << {name:, description:, server_id:, default_member_permissions:, contexts:, type:, block:}
       end
 
       def application_command(name, &block)
         @handlers[name] = block
       end
 
-      # Mirrors discordrb: the positional name matches the focused OPTION; the
-      # command is filtered via attributes[:command_name].
       def autocomplete(name = nil, attributes = {}, &block)
         @autocompletes << {name:, attributes:, block:}
       end
-    end.new
-  end
 
-  before do
-    allow(BotConfig).to receive(:test_server_id).and_return("srv_123")
+      def token
+        "Bot test-token"
+      end
+
+      def profile
+        Struct.new(:id).new(1)
+      end
+    end.new
   end
 
   let(:guild_cmd) do
@@ -54,77 +48,76 @@ RSpec.describe CommandRegistrar do
     end
   end
 
-  context "registering a :guild command" do
-    subject(:register_all) { described_class.new(fake_bot, commands: [guild_cmd]).register_all }
-
-    it "registers against the test server with its permissions" do
-      register_all
-      cmd = fake_bot.defined.sole
-      expect(cmd[:name]).to eq(:ping)
-      expect(cmd[:server_id]).to eq("srv_123")
-      expect(cmd[:default_member_permissions]).to eq([:manage_server])
-      expect(cmd[:contexts]).to be_nil
-      expect(cmd[:type]).to eq(:chat_input)
-    end
-  end
-
-  context "registering a context-menu command" do
-    let(:menu_cmd) do
-      Class.new(BaseCommand) do
-        command_name "Report as scam"
-        command_type :message
-        requires_permissions :manage_messages
-        register_in :guild
-      end
-    end
-
-    subject(:register_all) { described_class.new(fake_bot, commands: [menu_cmd]).register_all }
-
-    it "passes the :message type through to the boundary" do
-      register_all
-      cmd = fake_bot.defined.sole
-      expect(cmd[:type]).to eq(:message)
-      expect(cmd[:description]).to eq("")
-    end
-  end
-
-  context "registering a :global command" do
-    subject(:register_all) { described_class.new(fake_bot, commands: [global_cmd]).register_all }
-
-    it "registers with no server and DM-capable contexts" do
-      register_all
-      cmd = fake_bot.defined.sole
-      expect(cmd[:server_id]).to be_nil
-      expect(cmd[:contexts]).to eq(%i[server bot_dm])
-      expect(cmd[:default_member_permissions]).to be_nil # empty perms → nil, not []
-    end
-  end
-
-  context "registering a :global command in instant_global mode (dev)" do
-    subject(:register_all) { described_class.new(fake_bot, commands: [global_cmd], instant_global: true).register_all }
-
-    it "registers against the test server (appears instantly)" do
-      register_all
-      cmd = fake_bot.defined.sole
-      expect(cmd[:server_id]).to eq("srv_123") # guild-scoped → appears instantly
-      expect(cmd[:contexts]).to be_nil # guild commands are server-only
-    end
-  end
-
   context "handler dispatch" do
-    subject(:register_all) { described_class.new(fake_bot, commands: [global_cmd]).register_all }
+    subject(:register_all) { described_class.new(fake_bot, commands: [guild_cmd, global_cmd]).register_all }
 
     before do
-      register_all
-      allow(BotConfig).to receive(:owner_id).and_return(nil)
+      allow(Discordrb::API::Application).to receive(:bulk_overwrite_global_commands)
+      allow(Rails.env).to receive(:development?).and_return(false)
     end
 
-    it "attaches a handler that dispatches to the command class" do
+    it "attaches handlers for all registrable commands" do
+      register_all
+      expect(fake_bot.handlers.key?(:ping)).to be(true)
       expect(fake_bot.handlers.key?(:info)).to be(true)
+    end
 
+    it "dispatches to the command class on invocation" do
+      register_all
       event = double("event", user: double(id: 1), respond: nil)
       expect(global_cmd).to receive(:dispatch).with(event)
       fake_bot.handlers[:info].call(event)
+    end
+  end
+
+  context "with define_commands true and env not development" do
+    subject(:register_all) do
+      described_class.new(fake_bot, commands: [guild_cmd, global_cmd]).register_all
+    end
+
+    before do
+      allow(Rails.env).to receive(:development?).and_return(false)
+    end
+
+    it "calls bulk_overwrite_global_commands with only global command payloads" do
+      captured_payloads = nil
+      allow(Discordrb::API::Application).to receive(:bulk_overwrite_global_commands) do |_token, _id, payloads|
+        captured_payloads = payloads
+      end
+
+      register_all
+
+      expect(captured_payloads).not_to be_nil
+      names = captured_payloads.map { |p| p[:name] }
+      expect(names).to include(:info)
+      expect(names).not_to include(:ping)
+    end
+  end
+
+  context "in development environment" do
+    subject(:register_all) do
+      described_class.new(fake_bot, commands: [global_cmd]).register_all
+    end
+
+    before do
+      allow(Rails.env).to receive(:development?).and_return(true)
+    end
+
+    it "does not call bulk_overwrite_global_commands" do
+      expect(Discordrb::API::Application).not_to receive(:bulk_overwrite_global_commands)
+      register_all
+    end
+  end
+
+  context "with define_commands: false (a non-first shard)" do
+    subject(:register_all) do
+      described_class.new(fake_bot, commands: [global_cmd], define_commands: false).register_all
+    end
+
+    it "attaches the handler without calling bulk_overwrite_global_commands" do
+      expect(Discordrb::API::Application).not_to receive(:bulk_overwrite_global_commands)
+      register_all
+      expect(fake_bot.handlers.key?(:info)).to be(true)
     end
   end
 
@@ -139,69 +132,34 @@ RSpec.describe CommandRegistrar do
       end
     end
 
-    subject(:register_all) { described_class.new(fake_bot, commands: [picker, global_cmd]).register_all }
-
-    it "attaches an autocomplete handler filtered by command_name (not focused option) only for commands that define #autocomplete" do
-      register_all
-
-      expect(fake_bot.autocompletes.size).to eq(1) # global_cmd has no #autocomplete
-      reg = fake_bot.autocompletes.first
-      expect(reg[:attributes][:command_name]).to eq(:pick) # matches the command…
-      expect(reg[:name]).to be_nil # …not a focused-option name
-    end
-  end
-
-  context "with define_commands: false (a non-first shard)" do
     subject(:register_all) do
-      described_class.new(fake_bot, commands: [global_cmd], define_commands: false).register_all
+      allow(Discordrb::API::Application).to receive(:bulk_overwrite_global_commands)
+      allow(Rails.env).to receive(:development?).and_return(false)
+      described_class.new(fake_bot, commands: [picker, global_cmd]).register_all
     end
 
-    it "attaches the handler without re-defining the command" do
+    it "attaches an autocomplete handler only for commands that define #autocomplete" do
       register_all
-      expect(fake_bot.defined).to be_empty
-      expect(fake_bot.handlers.key?(:info)).to be(true)
+      expect(fake_bot.autocompletes.size).to eq(1)
+      reg = fake_bot.autocompletes.first
+      expect(reg[:attributes][:command_name]).to eq(:pick)
+      expect(reg[:name]).to be_nil
     end
   end
 
   context "with non-registrable commands" do
-    subject(:register_all) { described_class.new(fake_bot, commands: [abstract]).register_all }
+    subject(:register_all) do
+      described_class.new(fake_bot, commands: [Class.new(BaseCommand)]).register_all
+    end
 
-    let(:abstract) { Class.new(BaseCommand) } # no command_name
+    before do
+      allow(Rails.env).to receive(:development?).and_return(false)
+      allow(Discordrb::API::Application).to receive(:bulk_overwrite_global_commands)
+    end
 
     it "skips them" do
       register_all
-      expect(fake_bot.defined).to be_empty
-    end
-  end
-
-  context "without a test server id" do
-    before do
-      allow(BotConfig).to receive(:test_server_id).and_return(nil)
-    end
-
-    context "registering a :guild command" do
-      subject(:register_all) { described_class.new(fake_bot, commands: [guild_cmd]).register_all }
-
-      before do
-        allow(Rails.logger).to receive(:warn)
-      end
-
-      it "skips it (and their handler) rather than registering globally" do
-        register_all
-
-        expect(fake_bot.defined).to be_empty
-        expect(fake_bot.handlers).to be_empty
-        expect(Rails.logger).to have_received(:warn).with(/skipping :guild command \/ping/)
-      end
-    end
-
-    context "registering a :global command" do
-      subject(:register_all) { described_class.new(fake_bot, commands: [global_cmd]).register_all }
-
-      it "still registers it" do
-        register_all
-        expect(fake_bot.defined.map { |c| c[:name] }).to eq([:info])
-      end
+      expect(fake_bot.handlers).to be_empty
     end
   end
 end
