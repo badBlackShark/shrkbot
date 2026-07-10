@@ -4,12 +4,19 @@ require "rails_helper"
 
 RSpec.describe LoggableEventCatalog do
   it "enumerates the events the bot emits, keyed <plugin>.<event>" do
-    expect(described_class.all.map(&:key)).to contain_exactly("roles.role_gained", "roles.role_lost")
+    expect(described_class.all.map(&:key)).to contain_exactly(
+      "moderation.member_timed_out",
+      "moderation.member_kicked",
+      "moderation.member_banned",
+      "roles.role_gained",
+      "roles.role_lost"
+    )
   end
 
   it "groups events by plugin for the config matrix" do
     grouped = described_class.grouped_by_plugin
-    expect(grouped.keys).to eq([:roles])
+    expect(grouped.keys).to eq([:moderation, :roles])
+    expect(grouped[:moderation].map(&:event)).to eq([:member_timed_out, :member_kicked, :member_banned])
     expect(grouped[:roles].map(&:event)).to eq([:role_gained, :role_lost])
   end
 

@@ -1,6 +1,18 @@
 ---
 en:
   activity_log:
+    moderation:
+      member_banned: "%{target} was banned by %{moderator}."
+      member_kicked: "%{target} was kicked by %{moderator}."
+      member_timed_out: "%{target} was timed out by %{moderator} until %{until}."
+      no_reason: No reason was given.
+      reason: 'Reason: %{reason}'
+      source: From the Discord audit log
+      title:
+        member_banned: Member banned
+        member_kicked: Member kicked
+        member_timed_out: Member timed out
+      unknown_moderator: an unknown moderator
     roles:
       role_gained: "%{actor} gained %{roles}."
       role_gained_and_lost: "%{actor} gained %{gained} and lost %{lost}."
