@@ -2,12 +2,12 @@
 
 shrkbot deploys to a single Hetzner box via [Kamal 2](https://kamal-deploy.org).
 One Docker image, three processes (web/bot/jobs) plus managed accessories
-(Postgres, Redis), all orchestrated by Kamal from your laptop.
+(Postgres, Redis, the OCR sidecar), all orchestrated by Kamal from your laptop.
 
 ## Prerequisites
 
 ### Server
-- Hetzner box running Docker + docker-compose (pre-installed).
+- Hetzner box running Docker (pre-installed).
 - DNS A-records for **both** `shrkbot.com` and `www.shrkbot.com` pointing at the
   box IP — these must resolve before the first deploy; kamal-proxy's Let's Encrypt
   HTTP-01 challenge needs them resolving correctly.
@@ -30,13 +30,24 @@ Intents** section in the Discord Developer Portal. Without it Discord sends
 `event.message.content` as an empty string, so content-based spam detection will
 not fire.
 
+#### Invite permissions
+
+The invite link's permission set must include everything Server Shield acts with:
+
+- **Mention @everyone, @here and All Roles** — staff-role pings on flag/notify posts
+- **Manage Messages** — spam purge and scam image removal
+- **Moderate Members** — the timeout punishment
+- **Kick Members** / **Ban Members** — only needed when a server configures those
+  punishments
+
+Re-invite the bot with the updated link if it was originally invited with fewer
+permissions.
+
 ## Secrets
 
-Create a gitignored `.deploy.env` on your laptop and source it before deploying:
-
-```sh
-source .deploy.env
-```
+Create a gitignored `.env.deploy` in the repo root on your laptop.
+`config/deploy.yml` loads it itself (Kamal 2 no longer autoloads dotenv files),
+so no `source` step is needed.
 
 Variable reference:
 
@@ -55,22 +66,55 @@ Variable reference:
 Alternatively, use `kamal secrets fetch` with a secrets manager — see
 [Kamal docs on secrets](https://kamal-deploy.org/docs/configuration/secrets/).
 
+## OCR sidecar image
+
+The Scam Image Detection feature talks to a Python OCR sidecar (`ocr/`), deployed
+as the `ocr` Kamal accessory. Kamal only pulls the accessory image — build and push
+it manually whenever `ocr/` changes:
+
+```sh
+docker build --platform linux/amd64 -t ghcr.io/badblackshark/shrkbot-ocr:latest ocr/
+docker push ghcr.io/badblackshark/shrkbot-ocr:latest
+```
+
+`--platform linux/amd64` is mandatory on Apple Silicon: paddlepaddle aarch64 wheels
+segfault at inference, so an arm64 image would build fine and then crash on every
+scan (and the emulated image cannot be smoke-tested locally either — PaddleOCR
+initialisation hangs under Rosetta; see `ocr/README.md`). Verify against the
+deployed box instead.
+
+Then boot (first time) or restart (after a push) the accessory:
+
+```sh
+bin/kamal accessory boot ocr     # first deploy
+bin/kamal accessory reboot ocr   # picks up a newly pushed image
+```
+
+Operational notes:
+
+- PaddleOCR models download on first start into the `shrkbot_ocr_models` volume,
+  so restarts don't re-download them. First boot takes a few minutes; the
+  container's Docker health check (`GET /health`, 180s start period) shows
+  `healthy` once the model is loaded — check with `docker ps` on the box or
+  `bin/kamal accessory details ocr`.
+- The app reaches it as `http://shrkbot-ocr:8000` (`OCR_URL` in `deploy.yml`);
+  the accessory is not exposed through kamal-proxy.
+
 ## First deploy
 
 ```sh
-source .deploy.env
 bin/kamal setup
 ```
 
-`kamal setup` boots the db and redis accessories, builds the amd64 image, pushes it
-to GHCR, starts the web/bot/jobs processes, and has kamal-proxy provision the TLS
-certificate. Migrations run automatically on web boot via the entrypoint
-(`RUN_DB_PREPARE=1` is set on the web role only, so the three processes don't race).
+`kamal setup` boots the accessories (db, redis, ocr — push the sidecar image
+first, see above), builds the amd64 app image, pushes it to GHCR, starts the
+web/bot/jobs processes, and has kamal-proxy provision the TLS certificate.
+Migrations run automatically on web boot via the entrypoint (`RUN_DB_PREPARE=1`
+is set on the web role only, so the three processes don't race).
 
 ## Redeploys
 
 ```sh
-source .deploy.env
 bin/kamal deploy
 ```
 
@@ -85,6 +129,9 @@ bin/kamal app exec -r web "bin/rails console"
 
 # Postgres accessory logs
 bin/kamal accessory logs db
+
+# OCR sidecar logs
+bin/kamal accessory logs ocr
 
 # Roll back to the previous image
 bin/kamal rollback
