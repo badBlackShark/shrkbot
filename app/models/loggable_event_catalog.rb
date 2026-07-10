@@ -8,6 +8,9 @@ class LoggableEventCatalog
   end
 
   DEFINITIONS = [
+    Definition.new(plugin: :moderation, event: :member_timed_out),
+    Definition.new(plugin: :moderation, event: :member_kicked),
+    Definition.new(plugin: :moderation, event: :member_banned),
     Definition.new(plugin: :roles, event: :role_gained),
     Definition.new(plugin: :roles, event: :role_lost)
   ].freeze

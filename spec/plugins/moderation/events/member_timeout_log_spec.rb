@@ -1,0 +1,99 @@
+# frozen_string_literal: true
+
+require "rails_helper"
+
+RSpec.describe Moderation::MemberTimeoutLog do
+  subject(:handle) { described_class.new(event).handle }
+
+  let(:guild_id) { 111 }
+  let(:user_id) { 222 }
+  let(:timeout_until) { Time.at(1_700_000_000) }
+
+  let(:user) do
+    double(
+      "user",
+      id: user_id,
+      communication_disabled?: true,
+      communication_disabled_until: timeout_until
+    )
+  end
+  let(:server) { double("server", id: guild_id) }
+  let(:bot) { double("bot") }
+  let(:event) { double("event", server:, user:, bot:) }
+
+  let(:server_configuration) { double("server_configuration") }
+  let(:attribution) { double("attribution", moderator: double("mod"), reason: "misbehaving") }
+  let(:built_entry) { {title: "Member timed out", body: "body", meta: "meta"} }
+
+  before do
+    allow(ServerConfiguration).to receive(:find_by).with(discord_id: guild_id).and_return(server_configuration)
+    allow(ActivityLog).to receive(:enabled?).with(server_configuration, "moderation.member_timed_out").and_return(true)
+    allow(ActivityLog).to receive(:post)
+    allow(Moderation::AuditLogLookup).to receive(:attribution).and_return(attribution)
+    allow(Moderation::ActivityEntry).to receive(:build).and_return(built_entry)
+  end
+
+  context "when no ServerConfiguration exists" do
+    before { allow(ServerConfiguration).to receive(:find_by).and_return(nil) }
+
+    it "does not post" do
+      handle
+      expect(ActivityLog).not_to have_received(:post)
+    end
+  end
+
+  context "when action is disabled" do
+    before { allow(ActivityLog).to receive(:enabled?).and_return(false) }
+
+    it "does not post" do
+      handle
+      expect(ActivityLog).not_to have_received(:post)
+    end
+
+    it "does not call AuditLogLookup" do
+      handle
+      expect(Moderation::AuditLogLookup).not_to have_received(:attribution)
+    end
+  end
+
+  context "when member is not communication_disabled" do
+    let(:user) do
+      double(
+        "user",
+        id: user_id,
+        communication_disabled?: false,
+        communication_disabled_until: nil
+      )
+    end
+
+    it "does not post" do
+      handle
+      expect(ActivityLog).not_to have_received(:post)
+    end
+
+    it "does not call AuditLogLookup" do
+      handle
+      expect(Moderation::AuditLogLookup).not_to have_received(:attribution)
+    end
+  end
+
+  context "when communication_disabled and attribution is present" do
+    it "posts the built entry" do
+      handle
+      expect(ActivityLog).to have_received(:post).with(
+        server_configuration,
+        bot:,
+        **built_entry
+      )
+    end
+  end
+
+  context "when communication_disabled but attribution is nil" do
+    before { allow(Moderation::AuditLogLookup).to receive(:attribution).and_return(nil) }
+
+    it "does not post" do
+      handle
+      expect(ActivityLog).not_to have_received(:post)
+    end
+  end
+end

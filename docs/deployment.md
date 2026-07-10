@@ -34,6 +34,7 @@ not fire.
 
 The invite link's permission set must include everything Server Shield acts with:
 
+- **View Audit Log** — moderation action logging (timeout, kick, ban attribution)
 - **Mention @everyone, @here and All Roles** — staff-role pings on flag/notify posts
 - **Manage Messages** — spam purge and scam image removal
 - **Moderate Members** — the timeout punishment

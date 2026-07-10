@@ -53,12 +53,17 @@ en:
         events:
           enabled_count: enabled
           event:
+            moderation:
+              member_banned: Member banned
+              member_kicked: Member kicked
+              member_timed_out: Member timed out
             roles:
               role_gained: Member gained a role
               role_lost: Member lost a role
           help: Pick which events shrkbot writes to the log channel.
           label: Logged events
           plugin:
+            moderation: Moderation
             roles: Roles
           toggle_all: Toggle all
           toggle_all_label: Toggle all %{plugin} events
