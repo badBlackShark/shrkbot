@@ -8,8 +8,6 @@ RSpec.describe Commands::Info do
   let(:profile) { double("profile", username: "shrkbot") }
   let(:event) { double("event", bot: double("bot", profile:), respond: nil, server_id: nil) }
 
-  before { allow(BotConfig).to receive(:web_base_url).and_return("https://shrk.test/") }
-
   def blocks(args)
     args[:components].first[:components].flat_map do |block|
       block[:components] || [block]
@@ -33,13 +31,14 @@ RSpec.describe Commands::Info do
     execute
   end
 
-  it "shows the mascot as a thumbnail on the header section" do
+  it "shows the attached mascot as a thumbnail on the header section" do
     expect(event).to receive(:respond) do |args|
       section = args[:components].first[:components].find { |block| block[:type] == Discord::Components::SECTION }
       expect(section[:accessory]).to eq(
         type: Discord::Components::THUMBNAIL,
-        media: {url: "https://shrk.test/icon.png"}
+        media: {url: "attachment://shrkbot-mascot.png"}
       )
+      expect(args[:attachments].sole.path).to end_with("app/assets/images/shrkbot-mascot.png")
     end
 
     execute
@@ -69,7 +68,10 @@ RSpec.describe Commands::Info do
       )
     end
 
-    before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
+    before do
+      allow(BotConfig).to receive(:owner_id).and_return(nil)
+      allow(BotConfig).to receive(:web_base_url).and_return("https://shrk.test/")
+    end
 
     context "when the caller can manage the server" do
       let(:member) { double("member", permission?: true) }

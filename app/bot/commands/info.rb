@@ -7,9 +7,15 @@ module Commands
     register_in :global
 
     INVITE_URL = "https://discord.com/oauth2/authorize?client_id=346043915142561793"
+    MASCOT_PATH = Rails.root.join("app/assets/images/shrkbot-mascot.png")
 
     def execute
-      event.respond(components: message[:components], ephemeral: true, has_components: true)
+      event.respond(
+        components: message[:components],
+        attachments: [MASCOT_PATH.open],
+        ephemeral: true,
+        has_components: true
+      )
     end
 
     private
@@ -19,7 +25,7 @@ module Commands
         [
           Discord::Components.section(
             [Discord::Components.text(header)],
-            accessory: Discord::Components.thumbnail(BotConfig.mascot_url)
+            accessory: Discord::Components.thumbnail("attachment://#{MASCOT_PATH.basename}")
           ),
           Discord::Components.separator,
           Discord::Components.text("**Built with**\n#{credits}"),

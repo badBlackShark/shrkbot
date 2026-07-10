@@ -39,15 +39,6 @@ module BotConfig
   end
 
   def server_config_url(discord_id)
-    web_url("servers/#{discord_id}")
+    "#{web_base_url.chomp("/")}/servers/#{discord_id}"
   end
-
-  def mascot_url
-    web_url("icon.png")
-  end
-
-  def web_url(path)
-    "#{web_base_url.chomp("/")}/#{path}"
-  end
-  private_class_method :web_url
 end
