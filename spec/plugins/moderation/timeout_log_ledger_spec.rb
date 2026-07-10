@@ -61,4 +61,10 @@ RSpec.describe Moderation::TimeoutLogLedger do
       expect(first_sighting).to be(true)
     end
   end
+
+  describe ".instance" do
+    it "memoizes a single shared instance" do
+      expect(described_class.instance).to be(described_class.instance)
+    end
+  end
 end
