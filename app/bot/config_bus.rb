@@ -5,6 +5,10 @@ module ConfigBus
 
   module_function
 
+  def sync_commands(server_configuration)
+    publish(type: "commands_sync", discord_id: server_configuration.discord_id)
+  end
+
   def repost_roles(role_set)
     publish(type: "roles_repost", set_id: role_set.id)
   end

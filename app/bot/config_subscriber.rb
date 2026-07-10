@@ -33,6 +33,8 @@ class ConfigSubscriber
 
   def route(event)
     case event[:type]
+    when "commands_sync"
+      sync_commands(event[:discord_id])
     when "roles_repost"
       repost_roles(event[:set_id])
     when "roles_post"
@@ -42,6 +44,10 @@ class ConfigSubscriber
     when "roles_menu_remove"
       remove_menu(event[:set_id])
     end
+  end
+
+  def sync_commands(discord_id)
+    GuildCommandSync.new(bot).sync(discord_id)
   end
 
   def repost_roles(set_id)

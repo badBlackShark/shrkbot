@@ -10,6 +10,10 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
   let(:roles) { create(:plugin, key: "roles", name: "Roles") }
   let(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
 
+  before do
+    allow(ConfigBus).to receive(:sync_commands)
+  end
+
   context "with a raw checkbox value (form param, not yet cast)" do
     let(:plugin) { roles }
 
@@ -121,6 +125,40 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     end
   end
 
+  context "sync_commands is published on every successful toggle" do
+    before do
+      allow(ConfigBus).to receive(:post_roles)
+      allow(ConfigBus).to receive(:remove_roles_menu)
+    end
+
+    context "when enabling logging" do
+      let(:plugin) { logging }
+      let(:enabled) { true }
+
+      before { server.create_logging_setting!(channel_id: 999) }
+
+      it "publishes sync_commands" do
+        result
+        expect(ConfigBus).to have_received(:sync_commands).with(server)
+      end
+    end
+
+    context "when disabling logging" do
+      let(:plugin) { logging }
+      let(:enabled) { false }
+
+      before do
+        server.create_logging_setting!(channel_id: 999)
+        create(:plugin_activation, server_configuration: server, plugin: logging, enabled: true)
+      end
+
+      it "publishes sync_commands" do
+        result
+        expect(ConfigBus).to have_received(:sync_commands).with(server)
+      end
+    end
+  end
+
   context "toggling roles publishes menu sync" do
     let(:plugin) { roles }
 
@@ -189,6 +227,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
 
     it "publishes nothing when the operation is refused" do
       result
+      expect(ConfigBus).not_to have_received(:sync_commands)
       expect(ConfigBus).not_to have_received(:post_roles)
       expect(ConfigBus).not_to have_received(:remove_roles_menu)
     end

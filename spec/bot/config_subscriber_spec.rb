@@ -45,6 +45,21 @@ RSpec.describe ConfigSubscriber do
       end
     end
 
+    context "with a commands_sync event" do
+      let(:syncer) { instance_double(GuildCommandSync) }
+      let(:payload) { JSON.generate(type: "commands_sync", discord_id: 99_999) }
+
+      before do
+        allow(GuildCommandSync).to receive(:new).with(bot).and_return(syncer)
+        allow(syncer).to receive(:sync)
+      end
+
+      it "syncs commands for the given discord_id" do
+        subscriber.handle(payload)
+        expect(syncer).to have_received(:sync).with(99_999)
+      end
+    end
+
     context "with an unknown event type" do
       let(:payload) { JSON.generate(type: "something_else", set_id: "x") }
 

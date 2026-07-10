@@ -39,9 +39,13 @@ end
 
 - `command_name "x"` — required; the slash command name. A subclass without it is skipped.
 - `description "…"` — shown in Discord and reused on the website. Write it well; it's user-facing.
-- `register_in :guild | :global` — `:guild` (default) registers per-server and is
-  hidden where the plugin is disabled; `:global` is always-on and works in DMs. See
-  [architecture.md](architecture.md#registration-context).
+- `register_in :guild | :global` — `:guild` (default) bulk-overwrites per server on
+  ready/join/plugin-toggle; a guild command only appears in servers where its plugin
+  (and that plugin's parent, if any) is enabled. `:global` is registered once globally
+  and works in DMs. See [architecture.md](architecture.md#registration-context).
+- `plugin :key` — optional; ties a guild command to a `PluginCatalog` key so it only
+  registers in guilds where that plugin is enabled. Omit for always-on guild commands
+  (e.g. `/ping`).
 - `requires_permissions :a, :b` — native Discord permission symbols; all must be held.
   Omit for an everyone-command. The `OWNER_ID` env var is a global override.
 - `owner_only` — restrict to the configured owner.

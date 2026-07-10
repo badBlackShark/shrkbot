@@ -27,6 +27,7 @@ module Ops
         end
 
         def publish_side_effects(activation)
+          ConfigBus.sync_commands(server_configuration)
           return unless plugin.key == :roles
 
           ::Roles::MenuToggle.publish(server_configuration, enabled: activation.enabled?)
