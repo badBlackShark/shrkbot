@@ -8,8 +8,16 @@ RSpec.describe Commands::Info do
   let(:profile) { double("profile", username: "shrkbot") }
   let(:event) { double("event", bot: double("bot", profile:), respond: nil, server_id: nil) }
 
+  before { allow(BotConfig).to receive(:web_base_url).and_return("https://shrk.test/") }
+
+  def blocks(args)
+    args[:components].first[:components].flat_map do |block|
+      block[:components] || [block]
+    end
+  end
+
   def texts(args)
-    args[:components].first[:components].filter_map { |block| block[:content] }
+    blocks(args).filter_map { |block| block[:content] }
   end
 
   it "responds with an ephemeral components-v2 message" do
@@ -19,6 +27,18 @@ RSpec.describe Commands::Info do
       expect(args[:components].first).to include(
         type: Discord::Components::CONTAINER,
         accent_color: BotConfig::ACCENT_COLOR
+      )
+    end
+
+    execute
+  end
+
+  it "shows the mascot as a thumbnail on the header section" do
+    expect(event).to receive(:respond) do |args|
+      section = args[:components].first[:components].find { |block| block[:type] == Discord::Components::SECTION }
+      expect(section[:accessory]).to eq(
+        type: Discord::Components::THUMBNAIL,
+        media: {url: "https://shrk.test/icon.png"}
       )
     end
 
@@ -50,10 +70,7 @@ RSpec.describe Commands::Info do
       )
     end
 
-    before do
-      allow(BotConfig).to receive(:owner_id).and_return(nil)
-      allow(BotConfig).to receive(:web_base_url).and_return("https://shrk.test/")
-    end
+    before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
 
     it "includes a link to the server's configuration page" do
       expect(event).to receive(:respond) do |args|

@@ -17,7 +17,10 @@ module Commands
     def message
       Discord::Components.container(
         [
-          Discord::Components.text(header),
+          Discord::Components.section(
+            [Discord::Components.text(header)],
+            accessory: Discord::Components.thumbnail(BotConfig.mascot_url)
+          ),
           Discord::Components.separator,
           Discord::Components.text("**Built with**\n#{credits}"),
           *configuration_section,
