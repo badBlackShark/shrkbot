@@ -11,11 +11,23 @@ en:
         unauthorized: You need the staff role or the Manage Messages permission to
           do that.
       flag:
-        body: "%{author} posted an image in %{channel}. [Jump to message](%{jump_url}).
-          Risk %{risk}: %{reasons}."
+        body: "%{author} posted an image in %{channel}. [Jump to message](%{jump_url})."
         meta:
           flagged: Flagged for review — no automatic action taken.
           removed: The message was deleted automatically.
+        reasons:
+          custom_keywords:
+            one: matched %{count} custom keyword
+            other: matched %{count} custom keywords
+          foreign_confirmed: matches an image confirmed as a scam on another server
+          has_link: the message contains a link
+          new_account: the account is only %{days} days old
+          no_role: the author has no role on this server
+          own_confirmed: matches an image staff here confirmed as a scam
+          rule: matched "%{pattern}"
+        risk_line:
+          flagged: 'Risk `%{risk}` of the `%{threshold}` needed for a flag:'
+          removed: 'Risk `%{risk}` of the `%{threshold}` needed for removal:'
         title:
           flagged: Possible scam image flagged for review
           removed: Scam image removed
@@ -25,10 +37,25 @@ en:
         done:
           one: Reported 1 image as a scam.
           other: Reported %{count} images as a scam.
+        log:
+          body: "%{reporter} reported an image posted by %{author} in %{channel} as
+            a scam. The bot will remember it."
+          meta:
+            kept: The message was left in place — automatic removal is turned off.
+            removed: The message was deleted.
+          title: Image reported as a scam
         none: That message has no images to report.
     spam_protection:
       notification:
-        body: "%{author} posted the same message in %{count} channels: %{channels}."
+        body: "%{author} posted the same message in %{count} channels within %{window}
+          seconds: %{channels}."
+        content_line: |-
+          They posted:
+          %{content}
+        followup:
+          body: Swept another message from the same flood by %{author} in %{channel}.
+          meta: Deleted as part of the incident above.
+          title: Cross-channel spam follow-up removed
         meta:
           notify_only: Notify-only — no messages were deleted.
           purge: Messages were deleted.

@@ -19,12 +19,7 @@ module Moderation
     end
 
     def authorized?
-      return false unless member
-
-      role_id = server_configuration&.moderation_settings&.staff_role_id
-      return true if role_id && member.roles.any? { |role| role.id == role_id }
-
-      member.permission?(:manage_messages)
+      StaffGate.allows?(member, server_configuration&.moderation_settings&.staff_role_id)
     end
 
     def reject
@@ -32,8 +27,28 @@ module Moderation
     end
 
     def resolve(text)
-      container = Discord::Components.container([Discord::Components.text(text)])
+      blocks = retained_blocks
+      blocks << Discord::Components.separator
+      blocks << Discord::Components.text(text)
+      container = Discord::Components.container(blocks)
       event.update_message(components: container[:components], has_components: true)
+    end
+
+    def retained_blocks
+      root = event.message.components.first
+      return [] unless root
+
+      root.components.filter_map { |component| rebuild(component) }
+    end
+
+    def rebuild(component)
+      if component.respond_to?(:content)
+        Discord::Components.text(component.content)
+      elsif component.respond_to?(:items)
+        Discord::Components.media_gallery(component.items.map { |item| item.media.url })
+      elsif component.respond_to?(:divider?)
+        Discord::Components.separator
+      end
     end
   end
 end

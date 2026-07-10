@@ -8,24 +8,37 @@ RSpec.describe Moderation::ReportScam do
   let(:guild_id) { 111 }
   let!(:config) { create(:server_configuration, discord_id: guild_id) }
 
+  let(:author_id) { 333 }
+  let(:channel_id) { 444 }
   let(:image_attachment) { double("att", content_type: "image/png", url: "https://cdn/x.png") }
   let(:attachments) { [image_attachment] }
-  let(:target) { double("message", attachments:) }
+  let(:message_author) { double("author", id: author_id) }
+  let(:target) { double("message", attachments:, author: message_author, delete: nil) }
   let(:server) { double("server", id: guild_id) }
+  let(:user) { double("user", id: 555, roles: [], permission?: true) }
+  let(:channel) { double("channel", id: channel_id) }
+  let(:bot) { double("bot") }
   let(:event) do
     double(
       "event",
       target:,
       server:,
+      user:,
+      channel:,
+      bot:,
       defer: nil,
       edit_response: nil,
       respond: nil
     )
   end
 
+  let(:image_scanning_settings) { double("image_scanning_settings", action: "none") }
   let(:client) { double("client") }
 
   before do
+    allow(ServerConfiguration).to receive(:find_by).with(discord_id: guild_id).and_return(config)
+    allow(config).to receive(:image_scanning_settings).and_return(image_scanning_settings)
+    allow(ActivityLog).to receive(:post)
     allow(Moderation::Ocr::Client).to receive(:new).and_return(client)
     allow(client).to receive(:phash).and_return("deadbeefdeadbeef")
     allow(Moderation::ImageDownload).to receive(:call).and_return("bytes")
@@ -92,6 +105,164 @@ RSpec.describe Moderation::ReportScam do
 
       expect(Ops::Moderation::Phashes::Confirm).to have_received(:call).once
       expect(event).to have_received(:edit_response).with(content: a_string_including("1"))
+    end
+  end
+
+  context "when at least one image was confirmed and action is delete" do
+    let(:image_scanning_settings) { double("image_scanning_settings", action: "delete") }
+
+    it "deletes the reported message" do
+      execute
+      expect(target).to have_received(:delete)
+    end
+
+    it "posts a mod-log entry with the removed meta" do
+      execute
+
+      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:title]).to eq(I18n.t("moderation.image_scanning.report.log.title"))
+        expect(kwargs[:meta]).to eq(I18n.t("moderation.image_scanning.report.log.meta.removed"))
+        body = kwargs[:body]
+        expect(body).to include("<@#{user.id}>")
+        expect(body).to include("<@#{author_id}>")
+        expect(body).to include("<##{channel_id}>")
+        expect(kwargs[:image]).to be_a(Discord::FileUpload)
+      end
+    end
+  end
+
+  context "when the delete fails" do
+    let(:image_scanning_settings) { double("image_scanning_settings", action: "delete") }
+
+    before do
+      allow(target).to receive(:delete).and_raise(RuntimeError, "forbidden")
+    end
+
+    it "logs the kept meta without raising" do
+      expect { execute }.not_to raise_error
+
+      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:meta]).to eq(I18n.t("moderation.image_scanning.report.log.meta.kept"))
+      end
+    end
+  end
+
+  context "when at least one image was confirmed and action is none" do
+    let(:image_scanning_settings) { double("image_scanning_settings", action: "none") }
+
+    it "does not delete the message" do
+      execute
+      expect(target).not_to have_received(:delete)
+    end
+
+    it "posts a mod-log entry with the kept meta" do
+      execute
+
+      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:meta]).to eq(I18n.t("moderation.image_scanning.report.log.meta.kept"))
+      end
+    end
+  end
+
+  context "when zero images were confirmed (all fail to phash)" do
+    before do
+      allow(Moderation::ImageDownload).to receive(:call).and_raise(Moderation::Ocr::Error, "boom")
+    end
+
+    it "does not post a mod-log entry and does not delete" do
+      execute
+
+      expect(ActivityLog).not_to have_received(:post)
+      expect(target).not_to have_received(:delete)
+    end
+  end
+
+  describe "call-level permission gate" do
+    subject(:call) { described_class.new(event).call }
+
+    before do
+      allow(BotConfig).to receive(:owner_id).and_return(nil)
+    end
+
+    context "when the user has the staff role but not manage_messages" do
+      let(:staff_role) { double("role", id: 999) }
+      let(:user) { double("user", id: 555, roles: [staff_role], permission?: false) }
+      let(:event) do
+        double(
+          "event",
+          target:,
+          server:,
+          user:,
+          channel:,
+          bot:,
+          defer: nil,
+          edit_response: nil,
+          respond: nil
+        )
+      end
+
+      before do
+        allow(config).to receive(:moderation_settings).and_return(
+          double("moderation_settings", staff_role_id: 999)
+        )
+      end
+
+      it "reaches execute and defers" do
+        call
+        expect(event).to have_received(:defer).with(ephemeral: true)
+      end
+    end
+
+    context "when the user has neither the staff role nor manage_messages" do
+      let(:other_role) { double("role", id: 777) }
+      let(:user) { double("user", id: 555, roles: [other_role], permission?: false) }
+      let(:event) do
+        double(
+          "event",
+          target:,
+          server:,
+          user:,
+          channel:,
+          bot:,
+          defer: nil,
+          edit_response: nil,
+          respond: nil
+        )
+      end
+
+      before do
+        allow(config).to receive(:moderation_settings).and_return(
+          double("moderation_settings", staff_role_id: 999)
+        )
+      end
+
+      it "responds with unauthorized and never defers" do
+        call
+        expect(event).to have_received(:respond).with(hash_including(ephemeral: true))
+        expect(event).not_to have_received(:defer)
+      end
+    end
+
+    context "when the user has manage_messages without the staff role" do
+      let(:user) { double("user", id: 555, roles: [], permission?: true) }
+      let(:event) do
+        double(
+          "event",
+          target:,
+          server:,
+          user:,
+          channel:,
+          bot:,
+          defer: nil,
+          edit_response: nil,
+          respond: nil
+        )
+      end
+
+      it "reaches execute and defers" do
+        call
+        expect(event).to have_received(:defer).with(ephemeral: true)
+      end
     end
   end
 end

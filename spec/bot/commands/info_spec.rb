@@ -63,7 +63,7 @@ RSpec.describe Commands::Info do
         "event",
         bot: double("bot", profile:),
         respond: nil,
-        member:,
+        user:,
         server_id: 123
       )
     end
@@ -74,7 +74,7 @@ RSpec.describe Commands::Info do
     end
 
     context "when the caller can manage the server" do
-      let(:member) { double("member", permission?: true) }
+      let(:user) { double("member", id: 7, permission?: true) }
 
       it "includes a link to the server's configuration page" do
         expect(event).to receive(:respond) do |args|
@@ -87,7 +87,7 @@ RSpec.describe Commands::Info do
     end
 
     context "when the caller cannot manage the server" do
-      let(:member) { double("member", permission?: false) }
+      let(:user) { double("member", id: 7, permission?: false) }
 
       it "omits the configuration link" do
         expect(event).to receive(:respond) do |args|

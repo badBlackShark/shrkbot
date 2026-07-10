@@ -59,6 +59,55 @@ RSpec.describe Moderation::ComponentActions do
     end
   end
 
+  describe "#resolve" do
+    let(:text_component) { Struct.new(:content).new("**Scam flagged**\nSome body.\n-# meta") }
+    let(:media_item) { Struct.new(:media).new(Struct.new(:url).new("https://cdn/x.png")) }
+    let(:gallery_component) { Struct.new(:items).new([media_item]) }
+    let(:divider_component) { double("divider", divider?: true) }
+    let(:button_component) { double("button") }
+    let(:fake_container) do
+      double(
+        "container",
+        components: [text_component, gallery_component, divider_component, button_component]
+      )
+    end
+    let(:message) { double("message", components: [fake_container]) }
+
+    before do
+      allow(event).to receive(:message).and_return(message)
+      allow(event).to receive(:update_message)
+      allow(button_component).to receive(:respond_to?).with(:content).and_return(false)
+      allow(button_component).to receive(:respond_to?).with(:items).and_return(false)
+      allow(button_component).to receive(:respond_to?).with(:divider?).and_return(false)
+    end
+
+    it "retains the text and gallery, drops button rows, appends separator and resolution text" do
+      handler.send(:resolve, "Confirmed as a scam by <@222>.")
+
+      expect(event).to have_received(:update_message) do |kwargs|
+        inner_blocks = kwargs[:components].first[:components]
+        types = inner_blocks.map { |b| b[:type] }
+        expect(types).to eq([
+          Discord::Components::TEXT_DISPLAY,
+          Discord::Components::MEDIA_GALLERY,
+          Discord::Components::SEPARATOR,
+          Discord::Components::SEPARATOR,
+          Discord::Components::TEXT_DISPLAY
+        ])
+        expect(inner_blocks.last[:content]).to eq("Confirmed as a scam by <@222>.")
+      end
+    end
+
+    context "when the message has no root container" do
+      let(:message) { double("message", components: []) }
+
+      it "still appends the resolution without raising" do
+        handler.send(:resolve, "Done")
+        expect(event).to have_received(:update_message).with(hash_including(has_components: true))
+      end
+    end
+  end
+
   describe "#authorized?" do
     context "when the member cannot be resolved" do
       before { allow(server).to receive(:member).with(user_id).and_return(nil) }

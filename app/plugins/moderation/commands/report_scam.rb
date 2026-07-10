@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "uri"
+
 module Moderation
   class ReportScam < BaseCommand
     command_name "Report as scam"
@@ -13,11 +15,22 @@ module Moderation
       return event.respond(content: I18n.t("moderation.image_scanning.report.none"), ephemeral: true) if attachments.empty?
 
       event.defer(ephemeral: true)
-      count = confirm_all(attachments)
+      count, log_image = confirm_all(attachments, config)
+      post_log(config, message, log_image) if count > 0
       event.edit_response(content: I18n.t("moderation.image_scanning.report.done", count:))
     end
 
     private
+
+    def permitted?
+      return true if super
+
+      StaffGate.allows?(event.user, config.moderation_settings.staff_role_id)
+    end
+
+    def config
+      @config ||= ServerConfiguration.find_by(discord_id: event.server.id)
+    end
 
     def image_attachments(message)
       return [] unless message
@@ -25,16 +38,46 @@ module Moderation
       message.attachments.select { |attachment| ImageScanning::CONTENT_TYPES.include?(attachment.content_type) }
     end
 
-    def confirm_all(attachments)
-      config = ServerConfiguration.find_by(discord_id: event.server.id)
-      attachments.count do |attachment|
-        hex = Ocr::Client.new.phash(ImageDownload.call(attachment.url))
+    def confirm_all(attachments, config)
+      log_image = nil
+      count = attachments.count do |attachment|
+        bytes = ImageDownload.call(attachment.url)
+        hex = Ocr::Client.new.phash(bytes)
         Ops::Moderation::Phashes::Confirm.call(server_configuration: config, phash_hex: hex)
+        log_image ||= Discord::FileUpload.new(bytes, File.basename(URI(attachment.url).path))
         true
       rescue Ocr::Error => e
         Rails.logger.warn("[Moderation::ReportScam] phash failed: #{e.class}: #{e.message}")
         false
       end
+      [count, log_image]
+    end
+
+    def post_log(config, message, log_image)
+      settings = config.image_scanning_settings
+      deleted = settings.action == "delete" && delete_message(message)
+      meta_key = deleted ? "removed" : "kept"
+      ActivityLog.post(
+        config,
+        bot: event.bot,
+        title: I18n.t("moderation.image_scanning.report.log.title"),
+        body: I18n.t(
+          "moderation.image_scanning.report.log.body",
+          reporter: "<@#{event.user.id}>",
+          author: "<@#{message.author.id}>",
+          channel: "<##{event.channel.id}>"
+        ),
+        meta: I18n.t("moderation.image_scanning.report.log.meta.#{meta_key}"),
+        image: log_image
+      )
+    end
+
+    def delete_message(message)
+      message.delete
+      true
+    rescue => e
+      Rails.logger.warn("[Moderation::ReportScam] delete failed: #{e.class}: #{e.message}")
+      false
     end
   end
 end

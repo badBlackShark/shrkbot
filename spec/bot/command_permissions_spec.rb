@@ -3,13 +3,14 @@
 require "rails_helper"
 
 RSpec.describe CommandPermissions do
-  def event_for(user_id:, member: :unset)
-    user = double("user", id: user_id)
-    if member == :unset
-      double("event", user:) # DM-style: no member
-    else
-      double("event", user:, member:)
-    end
+  def event_for(user_id:, with_guild_member: false)
+    user =
+      if with_guild_member
+        double("member", id: user_id, permission?: false)
+      else
+        double("user", id: user_id)
+      end
+    double("event", user:)
   end
 
   describe ".permitted?" do
@@ -37,7 +38,7 @@ RSpec.describe CommandPermissions do
         allow(BotConfig).to receive(:owner_id).and_return("42")
       end
 
-      let(:event) { event_for(user_id: 7, member: double(permission?: true)) }
+      let(:event) { event_for(user_id: 7, with_guild_member: true) }
       let(:required) { [] }
       let(:owner_only) { true }
 
@@ -51,7 +52,7 @@ RSpec.describe CommandPermissions do
         allow(BotConfig).to receive(:owner_id).and_return(nil)
       end
 
-      let(:event) { event_for(user_id: 7, member: double(permission?: false)) }
+      let(:event) { event_for(user_id: 7, with_guild_member: true) }
       let(:required) { [] }
       let(:owner_only) { false }
 
@@ -65,14 +66,14 @@ RSpec.describe CommandPermissions do
         allow(BotConfig).to receive(:owner_id).and_return(nil)
       end
 
-      let(:member) do
-        double("member").tap do |m|
+      let(:user) do
+        double("member", id: 7).tap do |m|
           allow(m).to receive(:permission?).with(:manage_server).and_return(true)
           allow(m).to receive(:permission?).with(:ban_members).and_return(false)
         end
       end
 
-      let(:event) { event_for(user_id: 7, member:) }
+      let(:event) { double("event", user:) }
       let(:required) { %i[manage_server ban_members] }
       let(:owner_only) { false }
 
@@ -86,13 +87,13 @@ RSpec.describe CommandPermissions do
         allow(BotConfig).to receive(:owner_id).and_return(nil)
       end
 
-      let(:member) do
-        double("member").tap do |m|
+      let(:user) do
+        double("member", id: 7).tap do |m|
           allow(m).to receive(:permission?).with(:manage_server).and_return(true)
         end
       end
 
-      let(:event) { event_for(user_id: 7, member:) }
+      let(:event) { double("event", user:) }
       let(:required) { [:manage_server] }
       let(:owner_only) { false }
 
@@ -101,12 +102,12 @@ RSpec.describe CommandPermissions do
       end
     end
 
-    context "when a permission-gated command is used in a DM (no member)" do
+    context "when a permission-gated command is used in a DM (plain user without permission?)" do
       before do
         allow(BotConfig).to receive(:owner_id).and_return(nil)
       end
 
-      let(:event) { event_for(user_id: 7) }
+      let(:event) { double("event", user: double("user", id: 7)) }
       let(:required) { [:manage_server] }
       let(:owner_only) { false }
 

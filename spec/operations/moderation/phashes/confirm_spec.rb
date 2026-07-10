@@ -13,6 +13,11 @@ RSpec.describe Ops::Moderation::Phashes::Confirm do
   let(:config) { create(:server_configuration) }
   let(:phash_hex) { "00000000000000ab" }
 
+  it "invalidates the phash index" do
+    expect(Moderation::PhashIndex).to receive(:invalidate)
+    result
+  end
+
   it "creates the phash and a confirmation with the confirmed verdict" do
     expect { result }.to change(Moderation::Phash, :count).by(1)
       .and change(Moderation::PhashConfirmation, :count).by(1)

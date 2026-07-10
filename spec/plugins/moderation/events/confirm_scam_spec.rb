@@ -16,6 +16,8 @@ RSpec.describe Moderation::ConfirmScam do
   let(:member) { double("member", mention: "<@222>", roles: [staff_role], permission?: false) }
   let(:server) { double("server", id: guild_id) }
   let(:user) { double("user", id: 222) }
+  let(:fake_container) { double("container", components: []) }
+  let(:fake_message) { double("message", components: [fake_container]) }
   let(:event) do
     double(
       "event",
@@ -24,7 +26,8 @@ RSpec.describe Moderation::ConfirmScam do
       user:,
       update_message: nil,
       respond: nil,
-      bot: double("bot")
+      bot: double("bot"),
+      message: fake_message
     )
   end
 

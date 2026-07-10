@@ -4,6 +4,8 @@ module Moderation
   class SpamGuard < BaseEvent
     on :message
 
+    CONTENT_PREVIEW_LIMIT = 800
+
     def handle
       return if event.from_bot? || event.message.webhook? || event.channel.pm?
 
@@ -13,14 +15,15 @@ module Moderation
       config = settings.server_configuration
       staff_role_id = config.moderation_settings.staff_role_id
 
-      return if staff_member?(staff_role_id)
+      return if Exemption.exempt?(member: event.author, server: event.server, staff_role_id:)
 
       hit = detect(settings)
       return unless hit
+      return sweep_followup(hit, settings, config) if hit.followup?
 
-      purge(hit) if settings.action == "purge"
+      purge(hit.entries) if settings.action == "purge"
       punish(settings)
-      notify(config, settings, staff_role_id, hit)
+      notify(config, settings, staff_role_id, hit.entries)
     end
 
     private
@@ -60,14 +63,8 @@ module Moderation
       nil
     end
 
-    def staff_member?(staff_role_id)
-      return false unless staff_role_id
-
-      event.author.roles.any? { |role| role.id == staff_role_id }
-    end
-
-    def purge(hit)
-      hit.each do |entry|
+    def purge(entries)
+      entries.each do |entry|
         event.bot.channel(entry.channel_id)&.delete_message(entry.message_id)
       rescue => e
         Rails.logger.warn("[Moderation::SpamGuard] delete failed in ##{entry.channel_id}: #{e.class}: #{e.message}")
@@ -86,22 +83,53 @@ module Moderation
       )
     end
 
-    def notify(config, settings, staff_role_id, hit)
-      channels = hit.map(&:channel_id).uniq
+    def notify(config, settings, staff_role_id, entries)
+      channels = entries.map(&:channel_id).uniq
+      body = StaffPing.prefix(staff_role_id) + I18n.t(
+        "moderation.spam_protection.notification.body",
+        author: "<@#{event.author.id}>",
+        count: channels.size,
+        window: settings.window_seconds,
+        channels: channels.map { |id| "<##{id}>" }.join(", ")
+      )
+      quoted = quoted_content
+      body += "\n#{quoted}" if quoted
 
       ActivityLog.post(
         config,
         bot: event.bot,
         title: I18n.t("moderation.spam_protection.notification.title.#{settings.action}"),
-        body: StaffPing.prefix(staff_role_id) + I18n.t(
-          "moderation.spam_protection.notification.body",
-          author: "<@#{event.author.id}>",
-          count: channels.size,
-          channels: channels.map { |id| "<##{id}>" }.join(", ")
-        ),
+        body:,
         meta: I18n.t("moderation.spam_protection.notification.meta.#{settings.action}"),
         allowed_mentions: {parse: [], roles: [staff_role_id]}
       )
+    end
+
+    def sweep_followup(hit, settings, config)
+      return unless settings.action == "purge"
+
+      purge(hit.entries)
+      entry = hit.entries.first
+
+      ActivityLog.post(
+        config,
+        bot: event.bot,
+        title: I18n.t("moderation.spam_protection.notification.followup.title"),
+        body: I18n.t(
+          "moderation.spam_protection.notification.followup.body",
+          author: "<@#{event.author.id}>",
+          channel: "<##{entry.channel_id}>"
+        ),
+        meta: I18n.t("moderation.spam_protection.notification.followup.meta")
+      )
+    end
+
+    def quoted_content
+      content = event.message.content.to_s.strip
+      return nil if content.empty?
+
+      quoted = content.truncate(CONTENT_PREVIEW_LIMIT).lines.map { |line| "> #{line}" }.join
+      I18n.t("moderation.spam_protection.notification.content_line", content: quoted)
     end
   end
 end

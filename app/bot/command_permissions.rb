@@ -8,8 +8,8 @@ module CommandPermissions
     return false if owner_only
     return true if required.empty?
 
-    member = event.respond_to?(:member) ? event.member : nil
-    return false unless member
+    member = event.user
+    return false unless member.respond_to?(:permission?)
 
     required.all? { |perm| member.permission?(perm) }
   end

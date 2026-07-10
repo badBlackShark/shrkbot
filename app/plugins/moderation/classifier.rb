@@ -16,18 +16,18 @@ module Moderation
 
     def call(ocr_text:, hash_state:, signals:, settings:)
       canon = Canonicalizer.call(ocr_text)
-      reasons = []
 
-      ocr_score = scam_rule_score(canon, reasons) + keyword_score(canon, settings, reasons)
+      reasons = scam_rule_reasons(canon) + keyword_reasons(canon, settings)
+      ocr_score = reasons.sum(&:weight)
 
-      risk = ocr_score
-      risk += OWN_CONFIRMED_RISK if hash_state == :own_confirmed
-      risk += amplifier_score(signals, reasons)
+      hash_reason = hash_reason(hash_state)
+      reasons << hash_reason if hash_reason
 
-      reasons << hash_state unless hash_state == :none
+      reasons.concat(amplifier_reasons(signals))
+      risk = reasons.sum(&:weight)
 
+      keyword_gate = reasons.any? { |reason| reason.key == :custom_keywords }
       content_signal = ocr_score > 0 || hash_state != :none
-      keyword_gate = reasons.include?(:custom_keywords)
       thresholds = THRESHOLDS.fetch(settings.sensitivity)
       action = decide(risk, ocr_score, hash_state, content_signal, keyword_gate, thresholds)
 
@@ -49,44 +49,42 @@ module Moderation
       (keyword_gate && action == :allow) ? :flag_for_review : action
     end
 
-    def amplifier_score(signals, reasons)
-      score = 0
-      if signals[:account_age_days] < NEW_ACCOUNT_DAYS
-        score += 2
-        reasons << :new_account
-      end
-      if signals[:has_link]
-        score += 1
-        reasons << :has_link
-      end
-      unless signals[:has_role]
-        score += 0.5
-        reasons << :no_role
-      end
-      score
-    end
-
-    def scam_rule_score(canon, reasons)
+    def scam_rule_reasons(canon)
       matched = ScamRules::RULES.select { |rule| FuzzyMatcher.match?(matchable(rule), canon, ratio: FUZZY_RATIO) }
-      reasons.concat(matched.map { |rule| rule[:pattern] })
-      matched.sum { |rule| rule[:weight] }
+      matched.map { |rule| Reason.new(key: :rule, weight: rule[:weight], detail: rule[:pattern]) }
     end
 
     def matchable(rule)
       rule[:regex] ? Regexp.new(rule[:pattern]) : rule[:pattern]
     end
 
-    def keyword_score(canon, settings, reasons)
+    def keyword_reasons(canon, settings)
       keywords = settings.custom_keywords
-      return 0 if keywords.empty?
+      return [] if keywords.empty?
 
       hits = keywords.count { |keyword| FuzzyMatcher.match?(Canonicalizer.call(keyword), canon, ratio: FUZZY_RATIO) }
-      return 0 if hits < settings.custom_keyword_min_hits
+      return [] if hits < settings.custom_keyword_min_hits
 
-      reasons << :custom_keywords
-      KEYWORD_WEIGHT * hits
+      [Reason.new(key: :custom_keywords, weight: KEYWORD_WEIGHT * hits, detail: hits)]
     end
 
-    private_class_method :decide, :amplifier_score, :scam_rule_score, :matchable, :keyword_score
+    def amplifier_reasons(signals)
+      reasons = []
+      if signals[:account_age_days] < NEW_ACCOUNT_DAYS
+        reasons << Reason.new(key: :new_account, weight: 2, detail: signals[:account_age_days].floor)
+      end
+      reasons << Reason.new(key: :has_link, weight: 1) if signals[:has_link]
+      reasons << Reason.new(key: :no_role, weight: 0.5) unless signals[:has_role]
+      reasons
+    end
+
+    def hash_reason(hash_state)
+      return nil if hash_state == :none
+
+      weight = (hash_state == :own_confirmed) ? OWN_CONFIRMED_RISK : 0
+      Reason.new(key: hash_state, weight:)
+    end
+
+    private_class_method :decide, :scam_rule_reasons, :matchable, :keyword_reasons, :amplifier_reasons, :hash_reason
   end
 end
