@@ -16,8 +16,7 @@ RSpec.describe Components::PluginTile do
 
     it "fills with teal and uses the fill-weight glyph" do
       expect(html).to include("bg-accent-fill").and include("text-white")
-      expect(html).to eq(described_class.new(icon: "users-three", enabled: true).call)
-      expect(html).to include(PhosphorIcons::Icon.new("users-three", style: :fill, class: "size-5").to_svg)
+      expect(html).to include(PhosphorIcons::Icon.new("users-three", style: :fill, class: "size-[22px]").to_svg)
     end
   end
 
@@ -26,7 +25,7 @@ RSpec.describe Components::PluginTile do
 
     it "is muted sand with a regular-weight glyph" do
       expect(html).to include("bg-surface-sunken").and include("text-text-muted")
-      expect(html).to include(PhosphorIcons::Icon.new("scroll", style: :regular, class: "size-5").to_svg)
+      expect(html).to include(PhosphorIcons::Icon.new("scroll", style: :regular, class: "size-[22px]").to_svg)
     end
   end
 

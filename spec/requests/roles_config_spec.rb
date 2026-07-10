@@ -96,6 +96,7 @@ RSpec.describe "Roles config", type: :request do
           expect(config.role_setting.role_sets.last.assignable_roles.map(&:role_id)).to contain_exactly(222)
           expect(config.plugins.enabled.exists?(key: :roles)).to be(true)
           expect(response.body).to include("saved")
+          expect(response.body).to include('target="plugin-sidebar"')
         end
 
         it "returns 422 without a body replace when enabling without a channel" do

@@ -96,6 +96,7 @@ RSpec.describe "Welcomes config", type: :request do
           expect(config.welcome_settings.reload.channel_id).to eq(111)
           expect(config.plugins.enabled.exists?(key: :welcomes)).to be(true)
           expect(response.body).to include("saved")
+          expect(response.body).to include('target="plugin-sidebar"')
         end
 
         it "re-renders the form with an inline error when enabling without a channel" do

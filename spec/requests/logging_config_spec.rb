@@ -77,6 +77,7 @@ RSpec.describe "Logging config", type: :request do
           expect(config.logging_setting.action_enabled?("roles.role_gained")).to be(true)
           expect(config.plugins.enabled.exists?(key: :logging)).to be(true)
           expect(response.body).to include("saved")
+          expect(response.body).to include('target="plugin-sidebar"')
         end
 
         it "exposes which channels are public so it can warn before saving" do

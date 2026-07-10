@@ -1,2 +1,3 @@
 <%= turbo_stream.replace "roles-config", html: render(Components::Roles::ConfigForm.new(server_configuration: @server_configuration)) if @success %>
 <%= turbo_stream.append "toasts", html: render(Components::Toast.new(**@toast)) %>
+<%= turbo_stream.replace "plugin-sidebar", html: render(Components::PluginSidebar.new(server_configuration: @server_configuration, active_key: :roles)) %>
