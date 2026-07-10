@@ -9,7 +9,7 @@ module Ops
         private
 
         def verdict
-          "dismissed"
+          :dismissed
         end
       end
     end

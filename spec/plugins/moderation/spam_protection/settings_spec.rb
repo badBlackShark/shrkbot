@@ -85,6 +85,11 @@ RSpec.describe Moderation::SpamProtection::Settings do
       settings.action = "notify_only"
       expect(settings).to be_valid
     end
+
+    it "returns true for action_notify_only? when set to notify_only" do
+      settings.action = "notify_only"
+      expect(settings.action_notify_only?).to be(true)
+    end
   end
 
   describe "punishment (via Punishable)" do
@@ -98,6 +103,11 @@ RSpec.describe Moderation::SpamProtection::Settings do
         settings.punishment = punishment
         expect(settings).to be_valid
       end
+    end
+
+    it "returns true for punishment_none? when set to none" do
+      settings.punishment = "none"
+      expect(settings.punishment_none?).to be(true)
     end
   end
 

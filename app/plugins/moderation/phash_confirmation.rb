@@ -4,11 +4,10 @@ module Moderation
   class PhashConfirmation < ApplicationRecord
     self.table_name = "phash_confirmations"
 
-    VERDICTS = %w[confirmed dismissed].freeze
-
     belongs_to :phash, class_name: "Moderation::Phash"
     belongs_to :server_configuration
 
-    validates :verdict, presence: true, inclusion: {in: VERDICTS}
+    validates :verdict, presence: true
+    enum :verdict, {confirmed: "confirmed", dismissed: "dismissed"}, validate: {allow_nil: true}
   end
 end

@@ -11,7 +11,7 @@ module Moderation
       when :flag_for_review
         flag(verdict, context, phash, image_bytes:, removed: false)
       when :remove
-        delete_message(context) if context.settings.action == "delete"
+        delete_message(context) if context.settings.action_delete?
         punish(context)
         flag(verdict, context, phash, image_bytes:, removed: true)
       end
@@ -24,7 +24,7 @@ module Moderation
     end
 
     def punish(context)
-      return if context.settings.punishment == "none"
+      return if context.settings.punishment_none?
 
       Punisher.call(
         member: context.member,

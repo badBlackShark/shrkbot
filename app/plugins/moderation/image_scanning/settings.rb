@@ -8,14 +8,12 @@ module Moderation
 
       self.table_name = "image_scanning_settings"
 
-      SENSITIVITIES = %w[relaxed standard strict].freeze
-      ACTIONS = %w[none delete].freeze
       MAX_KEYWORDS = 200
 
       belongs_to :server_configuration
 
-      validates :sensitivity, inclusion: {in: SENSITIVITIES}
-      validates :action, inclusion: {in: ACTIONS}
+      enum :sensitivity, {relaxed: "relaxed", standard: "standard", strict: "strict"}, validate: true
+      enum :action, {none: "none", delete: "delete"}, prefix: true, validate: true
       validates :custom_keyword_min_hits,
         numericality: {only_integer: true, greater_than_or_equal_to: 1}
       validate :custom_keywords_within_limit

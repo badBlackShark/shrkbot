@@ -32,7 +32,7 @@ RSpec.describe Moderation::ReportScam do
     )
   end
 
-  let(:image_scanning_settings) { double("image_scanning_settings", action: "none") }
+  let(:image_scanning_settings) { double("image_scanning_settings", action: "none", action_delete?: false) }
   let(:client) { double("client") }
 
   before do
@@ -109,7 +109,7 @@ RSpec.describe Moderation::ReportScam do
   end
 
   context "when at least one image was confirmed and action is delete" do
-    let(:image_scanning_settings) { double("image_scanning_settings", action: "delete") }
+    let(:image_scanning_settings) { double("image_scanning_settings", action: "delete", action_delete?: true) }
 
     it "deletes the reported message" do
       execute
@@ -132,7 +132,7 @@ RSpec.describe Moderation::ReportScam do
   end
 
   context "when the delete fails" do
-    let(:image_scanning_settings) { double("image_scanning_settings", action: "delete") }
+    let(:image_scanning_settings) { double("image_scanning_settings", action: "delete", action_delete?: true) }
 
     before do
       allow(target).to receive(:delete).and_raise(RuntimeError, "forbidden")
@@ -148,7 +148,7 @@ RSpec.describe Moderation::ReportScam do
   end
 
   context "when at least one image was confirmed and action is none" do
-    let(:image_scanning_settings) { double("image_scanning_settings", action: "none") }
+    let(:image_scanning_settings) { double("image_scanning_settings", action: "none", action_delete?: false) }
 
     it "does not delete the message" do
       execute

@@ -9,7 +9,7 @@ module Ops
         private
 
         def verdict
-          "confirmed"
+          :confirmed
         end
       end
     end

@@ -21,7 +21,7 @@ module Moderation
       return unless hit
       return sweep_followup(hit, settings, config) if hit.followup?
 
-      purge(hit.entries) if settings.action == "purge"
+      purge(hit.entries) if settings.action_purge?
       punish(settings)
       notify(config, settings, staff_role_id, hit.entries)
     end
@@ -72,7 +72,7 @@ module Moderation
     end
 
     def punish(settings)
-      return if settings.punishment == "none"
+      return if settings.punishment_none?
 
       Punisher.call(
         member: event.author,
@@ -106,7 +106,7 @@ module Moderation
     end
 
     def sweep_followup(hit, settings, config)
-      return unless settings.action == "purge"
+      return unless settings.action_purge?
 
       purge(hit.entries)
       entry = hit.entries.first

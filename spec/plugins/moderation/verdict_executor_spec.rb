@@ -34,7 +34,9 @@ RSpec.describe Moderation::VerdictExecutor do
     double(
       "settings",
       action: settings_action,
+      action_delete?: settings_action == "delete",
       punishment:,
+      punishment_none?: punishment == "none",
       timeout_seconds: 300,
       sensitivity: "standard",
       server_configuration:
