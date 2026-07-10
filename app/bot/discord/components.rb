@@ -6,6 +6,8 @@ module Discord
     TEXT_DISPLAY = 10
     SEPARATOR = 14
     MEDIA_GALLERY = 12
+    SECTION = 9
+    THUMBNAIL = 11
     ACTION_ROW = 1
     BUTTON = 2
     BUTTON_SUCCESS = 3
@@ -32,6 +34,14 @@ module Discord
 
     def separator
       {type: SEPARATOR, divider: true}
+    end
+
+    def section(blocks, accessory:)
+      {type: SECTION, components: blocks, accessory:}
+    end
+
+    def thumbnail(url)
+      {type: THUMBNAIL, media: {url:}}
     end
 
     def media_gallery(urls)
