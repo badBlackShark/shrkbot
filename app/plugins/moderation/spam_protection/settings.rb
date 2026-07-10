@@ -10,7 +10,7 @@ module Moderation
 
       belongs_to :server_configuration
 
-      enum :action, {purge: "purge", notify_only: "notify_only"}, prefix: true, validate: true
+      string_enum :action, %w[purge notify_only], prefix: true
 
       validates :channel_threshold,
         numericality: {only_integer: true, greater_than_or_equal_to: 2, less_than_or_equal_to: 500}

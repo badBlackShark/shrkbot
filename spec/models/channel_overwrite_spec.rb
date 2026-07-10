@@ -29,9 +29,7 @@ RSpec.describe ChannelOverwrite do
     context "with role" do
       let(:target_type) { "role" }
 
-      it "returns true for role?" do
-        expect(overwrite.role?).to be(true)
-      end
+      it { is_expected.to be_role }
     end
   end
 

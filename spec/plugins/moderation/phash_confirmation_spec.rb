@@ -40,11 +40,11 @@ RSpec.describe Moderation::PhashConfirmation do
     end
   end
 
-  describe "enum predicates" do
-    subject(:confirmation) { build(:phash_confirmation, verdict: "confirmed") }
-
-    it "returns true for confirmed?" do
-      expect(confirmation.confirmed?).to be(true)
+  context "when confirmed" do
+    before do
+      confirmation.verdict = "confirmed"
     end
+
+    it { is_expected.to be_confirmed }
   end
 end

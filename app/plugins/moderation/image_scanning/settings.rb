@@ -12,8 +12,8 @@ module Moderation
 
       belongs_to :server_configuration
 
-      enum :sensitivity, {relaxed: "relaxed", standard: "standard", strict: "strict"}, validate: true
-      enum :action, {none: "none", delete: "delete"}, prefix: true, validate: true
+      string_enum :sensitivity, %w[relaxed standard strict]
+      string_enum :action, %w[none delete], prefix: true
       validates :custom_keyword_min_hits,
         numericality: {only_integer: true, greater_than_or_equal_to: 1}
       validate :custom_keywords_within_limit

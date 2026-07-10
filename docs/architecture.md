@@ -40,6 +40,15 @@ Discord snowflakes (`discord_id`, `user_id`, `channel_id`, `role_id`,
 Model validations and DB constraints must mirror each other (CI enforces this via
 `active_record_doctor`). Index foreign keys and read paths on new tables.
 
+Enum-like string columns use the `string_enum` macro (`ApplicationRecord`), which
+maps each value to its identical string and validates membership instead of raising
+on assignment — a bad web param fails through the normal validation path. Keep the
+column's `IN (...)` DB check constraint alongside it. Pass `prefix: true` whenever a
+value would collide with an Active Record method (`none` always does); columns that
+are `NOT NULL` without a default also keep an explicit `presence` validator and pass
+`validate: {allow_nil: true}` so nil reports "can't be blank" and doctor sees the
+mirror.
+
 ## Operations (`app/operations/`, `Ops::` namespace)
 
 All writes and business logic live in operations — the shared seam between the bot

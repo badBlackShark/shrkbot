@@ -5,5 +5,5 @@ class ChannelOverwrite < ApplicationRecord
 
   validates :target_id, presence: true, uniqueness: {scope: :server_channel_id}
   validates :target_type, presence: true
-  enum :target_type, {role: "role", member: "member"}, validate: {allow_nil: true}
+  string_enum :target_type, %w[role member], validate: {allow_nil: true}
 end

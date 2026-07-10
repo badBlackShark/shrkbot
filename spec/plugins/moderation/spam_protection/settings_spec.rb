@@ -86,9 +86,16 @@ RSpec.describe Moderation::SpamProtection::Settings do
       expect(settings).to be_valid
     end
 
-    it "returns true for action_notify_only? when set to notify_only" do
-      settings.action = "notify_only"
-      expect(settings.action_notify_only?).to be(true)
+    it "maps each value to its identical string" do
+      expect(described_class.actions).to eq("purge" => "purge", "notify_only" => "notify_only")
+    end
+
+    context "when set to notify_only" do
+      before do
+        settings.action = "notify_only"
+      end
+
+      it { is_expected.to be_action_notify_only }
     end
   end
 
@@ -105,9 +112,12 @@ RSpec.describe Moderation::SpamProtection::Settings do
       end
     end
 
-    it "returns true for punishment_none? when set to none" do
-      settings.punishment = "none"
-      expect(settings.punishment_none?).to be(true)
+    context "when set to none" do
+      before do
+        settings.punishment = "none"
+      end
+
+      it { is_expected.to be_punishment_none }
     end
   end
 

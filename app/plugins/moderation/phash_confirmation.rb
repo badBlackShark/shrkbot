@@ -8,6 +8,6 @@ module Moderation
     belongs_to :server_configuration
 
     validates :verdict, presence: true
-    enum :verdict, {confirmed: "confirmed", dismissed: "dismissed"}, validate: {allow_nil: true}
+    string_enum :verdict, %w[confirmed dismissed], validate: {allow_nil: true}
   end
 end
