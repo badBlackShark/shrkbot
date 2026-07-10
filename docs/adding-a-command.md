@@ -46,8 +46,14 @@ end
 - `plugin :key` — optional; ties a guild command to a `PluginCatalog` key so it only
   registers in guilds where that plugin is enabled. Omit for always-on guild commands
   (e.g. `/ping`).
-- `requires_permissions :a, :b` — native Discord permission symbols; all must be held.
-  Omit for an everyone-command. The `OWNER_ID` env var is a global override.
+- `requires_permissions :a, :b` — native Discord permission symbols sent as
+  `default_member_permissions`. Discord enforces them server-side; guild admins can
+  override per role/member/channel in Server Settings → Integrations. The bot does not
+  re-check these at runtime — Discord's enforcement and admin overrides are
+  authoritative. Staff-only commands (e.g. the Report-as-scam context menu) default to
+  Manage Messages; a server whose staff role lacks that permission grants it an
+  Integrations override instead. Omit for an everyone-command. The `OWNER_ID` env var
+  is a separate bot-level override for `owner_only` commands.
 - `owner_only` — restrict to the configured owner.
 - `options { … }` — a discordrb `OptionBuilder` block (`string`/`integer`/`boolean`/`user`/`subcommand`/…).
 - `command_type :chat_input | :message | :user` — defaults to `:chat_input` (the

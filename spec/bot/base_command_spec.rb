@@ -95,7 +95,7 @@ RSpec.describe BaseCommand do
   end
 
   describe "#dispatch template" do
-    let(:event) { double("event", user: double(id: 1), member: double(permission?: true), respond: nil, bot: double("bot")) }
+    let(:event) { double("event", user: double(id: 1), respond: nil, bot: double("bot")) }
 
     def command_class(&body)
       Class.new(described_class) do
@@ -123,13 +123,17 @@ RSpec.describe BaseCommand do
       end
     end
 
-    context "when not permitted" do
+    context "when not permitted (owner_only command, non-owner user)" do
       subject(:dispatch) { klass.dispatch(denied_event) }
+
+      before do
+        allow(BotConfig).to receive(:owner_id).and_return("99")
+      end
 
       let(:klass) do
         Class.new(described_class) do
           command_name :probe
-          requires_permissions :manage_server
+          owner_only
 
           def execute
             raise "should not run"
@@ -138,9 +142,7 @@ RSpec.describe BaseCommand do
       end
 
       let(:denied_event) do
-        double("event", user: double(id: 1), member: double, respond: nil).tap do |e|
-          allow(e.member).to receive(:permission?).with(:manage_server).and_return(false)
-        end
+        double("event", user: double(id: 1), respond: nil)
       end
 
       it "replies with a denial and skips #execute" do

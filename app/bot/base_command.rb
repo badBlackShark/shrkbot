@@ -126,7 +126,6 @@ class BaseCommand
   def permitted?
     CommandPermissions.permitted?(
       event:,
-      required: self.class.requires_permissions,
       owner_only: self.class.owner_only?
     )
   end

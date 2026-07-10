@@ -47,11 +47,7 @@ module Commands
     def configurable?
       return false unless event.server_id
 
-      CommandPermissions.permitted?(
-        event:,
-        required: [:manage_server],
-        owner_only: false
-      )
+      CommandPermissions.owner?(event) || event.user.permission?(:manage_server)
     end
 
     def header

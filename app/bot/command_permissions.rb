@@ -3,15 +3,10 @@
 module CommandPermissions
   module_function
 
-  def permitted?(event:, required:, owner_only:)
+  def permitted?(event:, owner_only:)
     return true if owner?(event)
-    return false if owner_only
-    return true if required.empty?
 
-    member = event.user
-    return false unless member.respond_to?(:permission?)
-
-    required.all? { |perm| member.permission?(perm) }
+    !owner_only
   end
 
   def owner?(event)

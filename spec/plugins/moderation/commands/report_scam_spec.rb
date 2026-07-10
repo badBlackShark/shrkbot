@@ -15,7 +15,7 @@ RSpec.describe Moderation::ReportScam do
   let(:message_author) { double("author", id: author_id) }
   let(:target) { double("message", attachments:, author: message_author, delete: nil) }
   let(:server) { double("server", id: guild_id) }
-  let(:user) { double("user", id: 555, roles: [], permission?: true) }
+  let(:user) { double("user", id: 555) }
   let(:channel) { double("channel", id: channel_id) }
   let(:bot) { double("bot") }
   let(:event) do
@@ -174,95 +174,6 @@ RSpec.describe Moderation::ReportScam do
 
       expect(ActivityLog).not_to have_received(:post)
       expect(target).not_to have_received(:delete)
-    end
-  end
-
-  describe "call-level permission gate" do
-    subject(:call) { described_class.new(event).call }
-
-    before do
-      allow(BotConfig).to receive(:owner_id).and_return(nil)
-    end
-
-    context "when the user has the staff role but not manage_messages" do
-      let(:staff_role) { double("role", id: 999) }
-      let(:user) { double("user", id: 555, roles: [staff_role], permission?: false) }
-      let(:event) do
-        double(
-          "event",
-          target:,
-          server:,
-          user:,
-          channel:,
-          bot:,
-          defer: nil,
-          edit_response: nil,
-          respond: nil
-        )
-      end
-
-      before do
-        allow(config).to receive(:moderation_settings).and_return(
-          double("moderation_settings", staff_role_id: 999)
-        )
-      end
-
-      it "reaches execute and defers" do
-        call
-        expect(event).to have_received(:defer).with(ephemeral: true)
-      end
-    end
-
-    context "when the user has neither the staff role nor manage_messages" do
-      let(:other_role) { double("role", id: 777) }
-      let(:user) { double("user", id: 555, roles: [other_role], permission?: false) }
-      let(:event) do
-        double(
-          "event",
-          target:,
-          server:,
-          user:,
-          channel:,
-          bot:,
-          defer: nil,
-          edit_response: nil,
-          respond: nil
-        )
-      end
-
-      before do
-        allow(config).to receive(:moderation_settings).and_return(
-          double("moderation_settings", staff_role_id: 999)
-        )
-      end
-
-      it "responds with unauthorized and never defers" do
-        call
-        expect(event).to have_received(:respond).with(hash_including(ephemeral: true))
-        expect(event).not_to have_received(:defer)
-      end
-    end
-
-    context "when the user has manage_messages without the staff role" do
-      let(:user) { double("user", id: 555, roles: [], permission?: true) }
-      let(:event) do
-        double(
-          "event",
-          target:,
-          server:,
-          user:,
-          channel:,
-          bot:,
-          defer: nil,
-          edit_response: nil,
-          respond: nil
-        )
-      end
-
-      it "reaches execute and defers" do
-        call
-        expect(event).to have_received(:defer).with(ephemeral: true)
-      end
     end
   end
 end
