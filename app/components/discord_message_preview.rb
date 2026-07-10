@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Components::DiscordMessagePreview < Components::Base
+  include Phlex::Rails::Helpers::ImageTag
+
   def initialize(label:, channel: nil, bot_name: "shrkbot", messages: [])
     @label = label
     @channel = channel
@@ -29,11 +31,11 @@ class Components::DiscordMessagePreview < Components::Base
 
   def message_row(message)
     div(class: "flex items-start gap-3 p-4") do
-      span(class: "size-10 flex-none rounded-full bg-accent-fill")
+      image_tag("shrkbot-mascot.png", alt: "", class: "size-10 flex-none rounded-full")
       div(class: "min-w-0") do
         div(class: "mb-1 flex items-center gap-2") do
           span(class: "text-sm font-semibold text-[color:var(--discord-text)]") { @bot_name }
-          span(class: "rounded bg-accent-fill px-1.5 py-0.5 text-[10px] font-semibold text-white") { "BOT" }
+          span(class: "rounded bg-accent-fill px-1.5 py-0.5 text-[10px] font-semibold text-white") { "APP" }
           span(class: "text-[11px] text-[color:var(--discord-muted)]") { message[:timestamp] } if message[:timestamp]
         end
         p(class: "text-sm leading-relaxed text-[color:var(--discord-text)]", data: message[:body_data] || {})

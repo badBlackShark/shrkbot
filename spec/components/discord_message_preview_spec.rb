@@ -3,7 +3,9 @@
 require "rails_helper"
 
 RSpec.describe Components::DiscordMessagePreview do
-  subject(:html) { described_class.new(**options).call }
+  include_context "component view context"
+
+  subject(:html) { described_class.new(**options).render_in(view_context) }
 
   let(:options) do
     {
@@ -23,8 +25,9 @@ RSpec.describe Components::DiscordMessagePreview do
 
   it "renders the channel header and one row per message with the bot identity" do
     expect(html).to include("Live preview").and include("· # welcome")
-    expect(html.scan("BOT").size).to eq(2)
+    expect(html.scan("APP").size).to eq(2)
     expect(html).to include("shrkbot")
+    expect(html.scan("shrkbot-mascot").size).to eq(2)
   end
 
   it "passes each message's body data through to its output paragraph" do

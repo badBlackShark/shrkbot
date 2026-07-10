@@ -31,9 +31,38 @@ RSpec.describe Discord::Components do
       )
     end
 
-    it "defaults to the primary style" do
-      button = described_class.button(custom_id: "mod:confirm:abc", label: "Confirm scam")
-      expect(button[:style]).to eq(1)
+    context "without an explicit style" do
+      subject(:button) { described_class.button(custom_id: "mod:confirm:abc", label: "Confirm scam") }
+
+      it "defaults to the primary style" do
+        expect(button[:style]).to eq(1)
+      end
+    end
+  end
+
+  describe ".section" do
+    subject(:section) { described_class.section([text], accessory: thumbnail) }
+
+    let(:text) { described_class.text("hello") }
+    let(:thumbnail) { described_class.thumbnail("https://example.test/icon.png") }
+
+    it "wraps the blocks in a section carrying the accessory" do
+      expect(section).to eq(
+        type: described_class::SECTION,
+        components: [text],
+        accessory: thumbnail
+      )
+    end
+  end
+
+  describe ".thumbnail" do
+    subject(:thumbnail) { described_class.thumbnail("https://example.test/icon.png") }
+
+    it "builds a thumbnail block pointing at the url" do
+      expect(thumbnail).to eq(
+        type: described_class::THUMBNAIL,
+        media: {url: "https://example.test/icon.png"}
+      )
     end
   end
 end
