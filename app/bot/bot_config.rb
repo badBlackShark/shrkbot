@@ -34,6 +34,10 @@ module BotConfig
     ENV["CLIENT_ID"]
   end
 
+  def invite_url
+    "https://discord.com/oauth2/authorize?client_id=#{client_id}"
+  end
+
   def web_base_url
     ENV.fetch("WEB_BASE_URL")
   end

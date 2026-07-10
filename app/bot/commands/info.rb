@@ -6,7 +6,6 @@ module Commands
     description "Show information about shrkbot - its code, stack, and how to add it to your server."
     register_in :global
 
-    INVITE_URL = "https://discord.com/oauth2/authorize?client_id=346043915142561793"
     MASCOT_PATH = Rails.root.join("app/assets/images/shrkbot-mascot.png")
 
     def execute
@@ -58,7 +57,7 @@ module Commands
     def header
       "### #{event.bot.profile.username}\n" \
         "I was written in [Ruby](https://www.ruby-lang.org/) by [badBlackShark](https://github.com/badBlackShark/).\n" \
-        "My code lives [here](https://github.com/badBlackShark/shrkbot). Want me on your server? [Invite me!](#{INVITE_URL})"
+        "My code lives [here](https://github.com/badBlackShark/shrkbot). Want me on your server? [Invite me!](#{BotConfig.invite_url})"
     end
 
     def credits

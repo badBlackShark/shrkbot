@@ -49,7 +49,7 @@ RSpec.describe Commands::Info do
       body = texts(args).join("\n")
       expect(body).to include("shrkbot")
       expect(body).to include("Ruby")
-      expect(body).to include(described_class::INVITE_URL)
+      expect(body).to include(BotConfig.invite_url)
       expect(body).to include("discordrb").and include("Ruby on Rails")
       expect(body).to include("/donate")
     end
