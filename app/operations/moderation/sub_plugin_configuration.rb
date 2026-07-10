@@ -10,7 +10,7 @@ module Ops
       end
 
       def staff_role_guard_failure(activation)
-        activation.errors.add(:enabled, "requires a staff role set on the Server Shield overview")
+        activation.errors.add(:enabled, I18n.t("operations.moderation.staff_role_required"))
         failure(activation.errors[:enabled], value: activation)
       end
     end

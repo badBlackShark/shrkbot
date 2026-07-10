@@ -32,12 +32,12 @@ module Ops
       end
 
       def logging_guard_failure(activation)
-        activation.errors.add(:enabled, "requires the Logging plugin enabled with a log channel set")
+        activation.errors.add(:enabled, I18n.t("operations.moderation.logging_required"))
         failure(activation.errors[:enabled], value: activation)
       end
 
       def staff_role_clear_failure(activation)
-        activation.errors.add(:staff_role_id, "A staff role is required while a sub-plugin is enabled.")
+        activation.errors.add(:staff_role_id, I18n.t("operations.moderation.staff_role_in_use"))
         failure(activation.errors[:staff_role_id], value: activation)
       end
 

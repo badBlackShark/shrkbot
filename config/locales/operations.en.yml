@@ -1,0 +1,25 @@
+---
+en:
+  operations:
+    logging:
+      channel_public_warning: This channel is visible to @everyone; mod-action logs
+        would be public.
+      channel_required: A channel is required.
+      moderation_dependency: can't be turned off or lose its channel while Server
+        Shield is enabled
+    moderation:
+      logging_required: requires the Logging plugin enabled with a log channel set
+      staff_role_in_use: A staff role is required while a sub-plugin is enabled.
+      staff_role_required: requires a staff role set on the Server Shield overview
+    plugin_activation:
+      requires_settings: requires the plugin's settings to be configured first
+    reminders:
+      invalid_duration: I couldn't understand that duration. Try something like `1d2h30m`.
+      message_required: A reminder needs a message.
+    roles:
+      messages:
+        post_failed: Could not post the role message - check the channel.
+    server_configuration:
+      plugins:
+        requires_settings: "%{plugin} can't be enabled until its required settings
+          are configured."

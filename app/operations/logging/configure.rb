@@ -31,7 +31,7 @@ module Ops
       end
 
       def moderation_dependency_failure(activation)
-        activation.errors.add(:enabled, "can't be turned off or lose its channel while Server Shield is enabled")
+        activation.errors.add(:enabled, I18n.t("operations.logging.moderation_dependency"))
         failure(activation.errors[:enabled], value: activation)
       end
 

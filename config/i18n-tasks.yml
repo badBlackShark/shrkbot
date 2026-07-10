@@ -10,6 +10,7 @@ data:
     - ["views.privacy_policy.*", "config/locales/legal.%{locale}.yml"]
     - ["views.terms_of_service.*", "config/locales/legal.%{locale}.yml"]
     - ["components.legal_page.*", "config/locales/legal.%{locale}.yml"]
+    - ["operations.*", "config/locales/operations.%{locale}.yml"]
     - "config/locales/web.%{locale}.yml"
 
 # Relative keys in Views::Servers::Moderation::SubPluginShow resolve at runtime
