@@ -21,11 +21,13 @@ RSpec.describe Moderation::MemberTimeoutLog do
   let(:bot) { double("bot") }
   let(:event) { double("event", server:, user:, bot:) }
 
+  let(:ledger) { double("ledger", first_sighting?: true) }
   let(:server_configuration) { double("server_configuration") }
   let(:attribution) { double("attribution", moderator: double("mod"), reason: "misbehaving") }
   let(:built_entry) { {title: "Member timed out", body: "body", meta: "meta"} }
 
   before do
+    allow(Moderation::TimeoutLogLedger).to receive(:instance).and_return(ledger)
     allow(ServerConfiguration).to receive(:find_by).with(discord_id: guild_id).and_return(server_configuration)
     allow(ActivityLog).to receive(:enabled?).with(server_configuration, "moderation.member_timed_out").and_return(true)
     allow(ActivityLog).to receive(:post)
@@ -75,6 +77,11 @@ RSpec.describe Moderation::MemberTimeoutLog do
       handle
       expect(Moderation::AuditLogLookup).not_to have_received(:attribution)
     end
+
+    it "does not call the ledger" do
+      handle
+      expect(ledger).not_to have_received(:first_sighting?)
+    end
   end
 
   context "when communication_disabled and attribution is present" do
@@ -94,6 +101,48 @@ RSpec.describe Moderation::MemberTimeoutLog do
     it "does not post" do
       handle
       expect(ActivityLog).not_to have_received(:post)
+    end
+
+    it "does not consume the ledger slot" do
+      handle
+      expect(ledger).not_to have_received(:first_sighting?)
+    end
+  end
+
+  context "when the timeout was already logged" do
+    before { allow(ledger).to receive(:first_sighting?).and_return(false) }
+
+    it "does not post" do
+      handle
+      expect(ActivityLog).not_to have_received(:post)
+    end
+  end
+
+  context "when the event has no member" do
+    let(:event) { double("event", server:, user: nil, bot:) }
+
+    it "does not post" do
+      handle
+      expect(ActivityLog).not_to have_received(:post)
+    end
+  end
+
+  context "when filtering audit entries" do
+    let(:matching_change) { double("change", new: "2026-07-11T00:00:00+00:00") }
+    let(:matching_candidate) { double("candidate", changes: {"communication_disabled_until" => matching_change}) }
+    let(:cleared_candidate) { double("candidate", changes: {"communication_disabled_until" => double("change", new: nil)}) }
+    let(:role_candidate) { double("candidate", changes: nil) }
+    let(:nick_candidate) { double("candidate", changes: {}) }
+
+    before do
+      allow(Moderation::AuditLogLookup).to receive(:attribution) do |*_args, **_kwargs, &block|
+        [role_candidate, nick_candidate, cleared_candidate, matching_candidate].find(&block) && attribution
+      end
+    end
+
+    it "accepts only entries that set communication_disabled_until" do
+      handle
+      expect(ActivityLog).to have_received(:post)
     end
   end
 end

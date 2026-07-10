@@ -8,7 +8,7 @@ module Moderation
     private
 
     def loggable?
-      member&.communication_disabled? && attribution.present?
+      member&.communication_disabled? && attribution.present? && first_sighting?
     end
 
     def entry
@@ -18,6 +18,14 @@ module Moderation
         moderator: attribution.moderator,
         reason: attribution.reason,
         timeout_until: member.communication_disabled_until
+      )
+    end
+
+    def first_sighting?
+      TimeoutLogLedger.instance.first_sighting?(
+        guild_id: event.server.id,
+        user_id: member.id,
+        expires_at: member.communication_disabled_until
       )
     end
 

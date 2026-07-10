@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rails_helper"
+require "discordrb"
 
 RSpec.describe Moderation::AuditLogLookup do
   subject(:result) { described_class.attribution(server, action: :member_ban_add, target_id: 42) }
@@ -25,6 +26,14 @@ RSpec.describe Moderation::AuditLogLookup do
 
   context "when entry target id does not match" do
     let(:target) { double("target", id: 99) }
+
+    it "returns nil" do
+      expect(result).to be_nil
+    end
+  end
+
+  context "when the entry has no target" do
+    let(:target) { nil }
 
     it "returns nil" do
       expect(result).to be_nil
