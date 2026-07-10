@@ -1,4 +1,4 @@
-<% require "dotenv"; Dotenv.load(".env.deploy") %>
+<% require "dotenv"; Dotenv.load(".env.deploy", overwrite: true) %>
 service: shrkbot
 image: badblackshark/shrkbot
 
