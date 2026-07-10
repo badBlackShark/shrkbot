@@ -49,4 +49,5 @@ module BotConfig
   def web_url(path)
     "#{web_base_url.chomp("/")}/#{path}"
   end
+  private_class_method :web_url
 end

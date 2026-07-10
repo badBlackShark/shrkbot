@@ -31,9 +31,12 @@ RSpec.describe Discord::Components do
       )
     end
 
-    it "defaults to the primary style" do
-      button = described_class.button(custom_id: "mod:confirm:abc", label: "Confirm scam")
-      expect(button[:style]).to eq(1)
+    context "without an explicit style" do
+      subject(:button) { described_class.button(custom_id: "mod:confirm:abc", label: "Confirm scam") }
+
+      it "defaults to the primary style" do
+        expect(button[:style]).to eq(1)
+      end
     end
   end
 

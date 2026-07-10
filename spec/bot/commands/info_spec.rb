@@ -58,8 +58,7 @@ RSpec.describe Commands::Info do
     execute
   end
 
-  context "when the caller can manage the server in a guild" do
-    let(:member) { double("member", permission?: true) }
+  context "in a guild" do
     let(:event) do
       double(
         "event",
@@ -72,36 +71,29 @@ RSpec.describe Commands::Info do
 
     before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
 
-    it "includes a link to the server's configuration page" do
-      expect(event).to receive(:respond) do |args|
-        body = texts(args).join("\n")
-        expect(body).to include("https://shrk.test/servers/123")
+    context "when the caller can manage the server" do
+      let(:member) { double("member", permission?: true) }
+
+      it "includes a link to the server's configuration page" do
+        expect(event).to receive(:respond) do |args|
+          body = texts(args).join("\n")
+          expect(body).to include("https://shrk.test/servers/123")
+        end
+
+        execute
       end
-
-      execute
-    end
-  end
-
-  context "when the caller cannot manage the server" do
-    let(:member) { double("member", permission?: false) }
-    let(:event) do
-      double(
-        "event",
-        bot: double("bot", profile:),
-        respond: nil,
-        member:,
-        server_id: 123
-      )
     end
 
-    before { allow(BotConfig).to receive(:owner_id).and_return(nil) }
+    context "when the caller cannot manage the server" do
+      let(:member) { double("member", permission?: false) }
 
-    it "omits the configuration link" do
-      expect(event).to receive(:respond) do |args|
-        expect(texts(args).join("\n")).not_to include("/servers/")
+      it "omits the configuration link" do
+        expect(event).to receive(:respond) do |args|
+          expect(texts(args).join("\n")).not_to include("/servers/")
+        end
+
+        execute
       end
-
-      execute
     end
   end
 end
