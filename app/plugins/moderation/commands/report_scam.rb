@@ -23,12 +23,6 @@ module Moderation
 
     private
 
-    def permitted?
-      return true if super
-
-      StaffGate.allows?(event.user, config.moderation_settings.staff_role_id)
-    end
-
     def config
       @config ||= ServerConfiguration.find_by(discord_id: event.server.id)
     end

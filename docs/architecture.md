@@ -183,12 +183,14 @@ events subclass `BaseCommand` / `BaseEvent` and auto-register via `.descendants`
 ### Permissions
 
 Permissions are native Discord permission bits declared per command via
-`requires_permissions :moderate_members`. The registrar sets
-`default_member_permissions` from the declaration, so Discord hides and gates the
-command. `CommandPermissions` **re-checks at runtime** — guild admins can override
-command permissions in Discord's integrations UI, so the client-side hiding can't be
-trusted alone. The `OWNER_ID` env var is a global creator override; a command with no
-declaration is available to everyone.
+`requires_permissions :moderate_members`; the registrar sends them as
+`default_member_permissions`. Discord enforces them server-side, and guild admins can
+retune access per role, member, or channel in Server Settings → Integrations. Those
+overrides are authoritative — the bot does not re-check permission bits at runtime, or
+it would veto users an admin deliberately allowed.
+
+`owner_only` combined with the `OWNER_ID` env var remain runtime checks — a bot-level
+concept Discord can't express. A command with no declaration is available to everyone.
 
 ### Registration context
 

@@ -20,7 +20,7 @@ class AnnounceModal < BaseEvent
   end
 
   def owner?
-    CommandPermissions.permitted?(event:, required: [], owner_only: true)
+    CommandPermissions.permitted?(event:, owner_only: true)
   end
 
   def reject
