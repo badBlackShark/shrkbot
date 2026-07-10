@@ -12,7 +12,7 @@ module Ops
           activation = PluginActivation.find_or_initialize_by(server_configuration:, plugin:)
           activation.enabled = enabled
           if activation.enabled? && !prerequisites_met?
-            return failure("#{plugin.name} can't be enabled until its required settings are configured.")
+            return failure(I18n.t("operations.server_configuration.plugins.requires_settings", plugin: plugin.name))
           end
           activation.save!
           publish_side_effects(activation)

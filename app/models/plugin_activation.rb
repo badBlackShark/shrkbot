@@ -22,6 +22,6 @@ class PluginActivation < ApplicationRecord
     definition = PluginCatalog.find(plugin.key)
     return if definition.nil? || definition.prerequisites_met?(server_configuration)
 
-    errors.add(:enabled, "requires the plugin's settings to be configured first")
+    errors.add(:enabled, I18n.t("operations.plugin_activation.requires_settings"))
   end
 end

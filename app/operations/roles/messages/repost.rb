@@ -13,7 +13,7 @@ module Ops
           role_set.update!(message_id: nil)
           ::Roles::MessagePoster.post(bot, role_set)
 
-          return failure("Could not post the role message - check the channel.") if role_set.message_id.nil?
+          return failure(I18n.t("operations.roles.messages.post_failed")) if role_set.message_id.nil?
 
           ok(role_set)
         end

@@ -7,7 +7,7 @@ module Ops
         receives :server_configuration, :channel_id
 
         def call
-          return failure("A channel is required.") if channel_id.blank?
+          return failure(I18n.t("operations.logging.channel_required")) if channel_id.blank?
 
           setting = server_configuration.logging_setting
           setting.update!(channel_id:)
@@ -20,7 +20,7 @@ module Ops
           channel = server_configuration.server_channels.find_by(discord_id: channel_id)
           return [] unless channel&.everyone_visible?
 
-          ["This channel is visible to @everyone; mod-action logs would be public."]
+          [I18n.t("operations.logging.channel_public_warning")]
         end
       end
     end

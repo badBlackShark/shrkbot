@@ -9,8 +9,8 @@ module Ops
 
       def call
         span = ::Reminders::Duration.parse(duration)
-        return failure("I couldn't understand that duration. Try something like `1d2h30m`.") unless span
-        return failure("A reminder needs a message.") if message.blank?
+        return failure(I18n.t("operations.reminders.invalid_duration")) unless span
+        return failure(I18n.t("operations.reminders.message_required")) if message.blank?
 
         remind_at = Time.current + span
         reminder = ::Reminders::Reminder.create!(
