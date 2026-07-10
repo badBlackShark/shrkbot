@@ -3,7 +3,7 @@
 class Components::PluginTile < Components::Base
   SIZES = {
     sm: {box: "size-9", icon: "size-4"},
-    md: {box: "size-11", icon: "size-5"},
+    md: {box: "size-11", icon: "size-[22px]"},
     lg: {box: "size-12", icon: "size-6"}
   }.freeze
 

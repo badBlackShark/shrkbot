@@ -18,21 +18,29 @@ class Components::PluginRow < Components::Base
   end
 
   def view_template
-    render Components::Card.new(enabled: @enabled, id: "plugin-#{@key}", class: "flex items-center gap-4") do
+    render Components::Card.new(enabled: @enabled, id: "plugin-#{@key}", class: "flex min-h-[108px] flex-wrap items-center gap-x-4 gap-y-3") do
+      identity
+      div(class: "ml-auto flex flex-none items-center gap-3") do
+        configure_link
+        toggle
+      end
+    end
+  end
+
+  private
+
+  def identity
+    div(class: "flex min-w-0 flex-[1_1_320px] items-center gap-4") do
       render Components::PluginTile.new(icon: plugin_icon(@key), enabled: @enabled)
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { name }
           status_badge
         end
-        p(class: "mt-0.5 text-sm text-text-secondary") { t(".plugin.#{@key}.description") }
+        p(class: "mt-0.5 text-sm leading-[1.5] text-pretty text-text-secondary") { t(".plugin.#{@key}.description") }
       end
-      configure_link
-      toggle
     end
   end
-
-  private
 
   def toggle
     if @locked
