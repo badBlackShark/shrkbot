@@ -45,11 +45,13 @@ RSpec.describe Commands::Info do
   end
 
   it "credits the stack and links the code, invite, and donate command" do
+    allow(BotConfig).to receive(:invite_url).and_return("https://discord.com/oauth2/authorize?client_id=test-id")
+
     expect(event).to receive(:respond) do |args|
       body = texts(args).join("\n")
       expect(body).to include("shrkbot")
       expect(body).to include("Ruby")
-      expect(body).to include(BotConfig.invite_url)
+      expect(body).to include("https://discord.com/oauth2/authorize?client_id=test-id")
       expect(body).to include("discordrb").and include("Ruby on Rails")
       expect(body).to include("/donate")
     end
