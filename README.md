@@ -57,7 +57,7 @@ and run your agent from there. It talks to the same compose Postgres as the othe
 
 ## Contributing
 
-Issues and pull requests are welcome. Branch off `main` and make sure `bundle exec rspec` and `bundle exec standardrb` pass before opening a PR — CI runs the full gate set either way. For anything beyond a small fix, open an issue first so we can talk it through, and check the how-tos in [docs/](docs/) before adding features.
+Found a bug, or missing a feature? Open an issue, or send an email to [info@shrkbot.com](mailto:info@shrkbot.com) — both are read. If you'd like to add something yourself, fork the project and open a PR; the how-tos in [docs/](docs/) will get you started. For bigger changes it's worth opening an issue first so we can talk it through before you put the work in.
 
 ## Deployment
 
