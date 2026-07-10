@@ -110,4 +110,17 @@ RSpec.describe Ops::Moderation::SpamProtection::Configure do
       expect(result.value.errors[:enabled]).to be_present
     end
   end
+
+  context "with an unknown action" do
+    let(:action) { "delete" }
+    let(:enabled) { "0" }
+
+    it "fails" do
+      expect(result).to be_failure
+    end
+
+    it "reports an error mentioning action" do
+      expect(result.errors.join(" ")).to match(/action/i)
+    end
+  end
 end

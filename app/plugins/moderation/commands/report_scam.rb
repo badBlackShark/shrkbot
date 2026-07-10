@@ -55,7 +55,7 @@ module Moderation
 
     def post_log(config, message, log_image)
       settings = config.image_scanning_settings
-      deleted = settings.action == "delete" && delete_message(message)
+      deleted = settings.action_delete? && delete_message(message)
       meta_key = deleted ? "removed" : "kept"
       ActivityLog.post(
         config,

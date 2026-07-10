@@ -9,7 +9,8 @@ module Roles
       foreign_key: "role_set_id", dependent: :delete_all
 
     validates :name, presence: true
-    validates :selection_mode, presence: true, inclusion: {in: %w[single multi]}
+    validates :selection_mode, presence: true
+    string_enum :selection_mode, %w[single multi], validate: {allow_nil: true}
 
     def channel_id
       channel_override || role_setting.channel_id

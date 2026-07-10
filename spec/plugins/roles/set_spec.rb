@@ -24,6 +24,10 @@ RSpec.describe Roles::Set do
       let(:selection_mode) { "single" }
 
       it { is_expected.to be_valid }
+
+      it "returns true for single?" do
+        expect(set.single?).to be(true)
+      end
     end
   end
 

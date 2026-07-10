@@ -34,9 +34,17 @@ RSpec.describe Moderation::PhashConfirmation do
   end
 
   it "accepts each allowed verdict" do
-    Moderation::PhashConfirmation::VERDICTS.each do |verdict|
+    described_class.verdicts.keys.each do |verdict|
       confirmation.verdict = verdict
       expect(confirmation).to be_valid
     end
+  end
+
+  context "when confirmed" do
+    before do
+      confirmation.verdict = "confirmed"
+    end
+
+    it { is_expected.to be_confirmed }
   end
 end

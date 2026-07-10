@@ -134,4 +134,17 @@ RSpec.describe Ops::Moderation::ImageScanning::Configure do
       expect(config.plugin_activations.find_by(plugin:)&.enabled).to be_falsey
     end
   end
+
+  context "with an unknown action" do
+    let(:action) { "purge" }
+    let(:enabled) { "0" }
+
+    it "fails" do
+      expect(result).to be_failure
+    end
+
+    it "reports an error mentioning action" do
+      expect(result.errors.join(" ")).to match(/action/i)
+    end
+  end
 end

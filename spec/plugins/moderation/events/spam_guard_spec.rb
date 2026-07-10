@@ -39,7 +39,9 @@ RSpec.describe Moderation::SpamGuard do
       window_seconds: 60,
       similarity: 1.0,
       action:,
+      action_purge?: action == "purge",
       punishment:,
+      punishment_none?: punishment == "none",
       timeout_seconds: 300,
       match_symbol_only_messages:
     )

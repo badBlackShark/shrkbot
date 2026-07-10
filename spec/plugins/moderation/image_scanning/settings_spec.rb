@@ -21,6 +21,14 @@ RSpec.describe Moderation::ImageScanning::Settings do
         expect(settings).to be_valid
       end
     end
+
+    context "when set to strict" do
+      before do
+        settings.sensitivity = "strict"
+      end
+
+      it { is_expected.to be_strict }
+    end
   end
 
   describe "action" do

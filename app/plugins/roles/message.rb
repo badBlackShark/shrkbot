@@ -15,7 +15,7 @@ module Roles
 
     def public_message(set)
       blocks =
-        if set.selection_mode == "single"
+        if set.single?
           [Discord::Components.text(single_content(set)), Discord::Components.separator, *button_rows(role_buttons(set))]
         else
           [Discord::Components.text(multi_content(set)), Discord::Components.separator, manage_section(set)]
