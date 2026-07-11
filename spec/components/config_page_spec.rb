@@ -168,13 +168,16 @@ RSpec.describe Components::ConfigPage do
   end
 
   context "when ungated (no gate)" do
-    it "yields the body content directly" do
-      rendered = described_class.new(
+    subject(:html) do
+      described_class.new(
         header:,
         server_configuration: config,
         url: "/servers/900000001/reminders"
       ).render_in(view_context) { "<p>plain body</p>" }
-      expect(rendered).to include("plain body")
+    end
+
+    it "yields the body content directly" do
+      expect(html).to include("plain body")
     end
   end
 

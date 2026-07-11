@@ -13,7 +13,7 @@ module ConfiguresPlugin
     activation = result.value
     @enabled = activation.enabled?
     @enable_error = error_keys.filter_map { |key| activation.errors[key].first }.first
-    @toast = {level: "notice", message: t("servers.#{controller_name}.saved")} if result.success?
+    @toast = {level: "notice", message: saved_message} if result.success?
     respond_to do |format|
       format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
       format.html { redirect_to url_for(action: :show), **flash_for(result) }
@@ -21,8 +21,12 @@ module ConfiguresPlugin
   end
 
   def flash_for(result)
-    return {notice: t("servers.#{controller_name}.saved")} if result.success?
+    return {notice: saved_message} if result.success?
 
     {alert: result.errors.to_sentence}
+  end
+
+  def saved_message
+    t("servers.#{controller_name}.saved")
   end
 end

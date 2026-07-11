@@ -35,7 +35,7 @@ class Components::ConfigPage < Components::Base
       {label: t(".servers"), href: servers_path},
       {label: @server_configuration.name || t(".dashboard"), href: server_path(@server_configuration.discord_id)}
     ]
-    crumbs << {label: @parent_crumb[:label], href: @parent_crumb[:href]} if @parent_crumb
+    crumbs << @parent_crumb if @parent_crumb
     crumbs << {label: @header.title}
     crumbs
   end

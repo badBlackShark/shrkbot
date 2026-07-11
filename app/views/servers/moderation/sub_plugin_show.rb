@@ -23,7 +23,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Base
         url:,
         gate: shell_gate,
         toggle: shell_toggle,
-        parent_crumb: {label: t("views.servers.moderation.show.title"), href: server_moderation_path(@config.discord_id)}
+        parent_crumb: {label: PluginCatalog.find(:moderation).name, href: server_moderation_path(@config.discord_id)}
       ) do
         group_subline
         no_role_callout
