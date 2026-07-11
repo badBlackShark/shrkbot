@@ -28,22 +28,6 @@ class Views::Servers::PluginConfigShow < Views::Base
 
   private
 
-  def plugin_key
-    raise AbstractMethodError, "#{self.class} must implement #plugin_key"
-  end
-
-  def icon
-    raise AbstractMethodError, "#{self.class} must implement #icon"
-  end
-
-  def url
-    raise AbstractMethodError, "#{self.class} must implement #url"
-  end
-
-  def form
-    raise AbstractMethodError, "#{self.class} must implement #form"
-  end
-
   def channel_setting
     @config.public_send(PluginCatalog.find(plugin_key).channel_setting)
   end

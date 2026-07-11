@@ -13,11 +13,12 @@ data:
     - ["operations.*", "config/locales/operations.%{locale}.yml"]
     - "config/locales/web.%{locale}.yml"
 
-# Relative keys in Views::Servers::Moderation::SubPluginShow resolve at runtime
-# against the SUBCLASS scope (spam_protection/image_scanning show), which the
-# static file-path scoping above cannot see.
+# Relative keys in the abstract show views (SubPluginShow, PluginConfigShow)
+# resolve at runtime against the SUBCLASS scope (e.g. logging/welcomes show),
+# which the static file-path scoping above cannot see.
 ignore_missing:
   - views.servers.moderation.sub_plugin_show.*
+  - views.servers.plugin_config_show.*
 
 ignore_unused:
   - views.servers.spam_protection.show.*
