@@ -3,11 +3,12 @@
 class Components::Moderation::StaffRoleCard < Components::Base
   DEFAULT_COLOR = "#99aab5"
 
-  def initialize(server_configuration:, staff_role_id:, missing:, permission_warning:)
+  def initialize(server_configuration:, staff_role_id:, missing:, permission_warning:, staff_permission_warning:)
     @config = server_configuration
     @staff_role_id = staff_role_id
     @missing = missing
     @permission_warning = permission_warning
+    @staff_permission_warning = staff_permission_warning
   end
 
   def view_template
@@ -29,7 +30,8 @@ class Components::Moderation::StaffRoleCard < Components::Base
       )
       missing_warning if @missing
       p(class: "mt-1.5 text-xs text-text-muted") { t(".help") } unless @missing
-      permission_warning_callout if @permission_warning
+      warning_callout(t(".permission_warning_bold"), t(".permission_warning_body")) if @permission_warning
+      warning_callout(t(".staff_permission_warning_bold"), t(".staff_permission_warning_body")) if @staff_permission_warning
     end
   end
 
@@ -58,14 +60,14 @@ class Components::Moderation::StaffRoleCard < Components::Base
     end
   end
 
-  def permission_warning_callout
+  def warning_callout(bold, body)
     div(class: "mt-3") do
       render Components::Callout.new(variant: :warning) do
         plain ""
         span do
-          b(class: "text-warning") { t(".permission_warning_bold") }
+          b(class: "text-warning") { bold }
           whitespace
-          plain t(".permission_warning_body")
+          plain body
         end
       end
     end

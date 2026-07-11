@@ -12,6 +12,7 @@ RSpec.describe Components::Moderation::OverviewForm do
       staff_role_id: nil,
       staff_role_present?: false,
       permission_warning?: false,
+      staff_permission_warning?: false,
       sub_plugin_rows: []
     )
   end

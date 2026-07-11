@@ -28,4 +28,32 @@ RSpec.describe ServerRole do
       expect(build(:server_role, discord_id: 555)).to be_valid
     end
   end
+
+  describe "#manage_messages?" do
+    subject(:result) { role.manage_messages? }
+
+    context "when role has MANAGE_MESSAGES bit" do
+      let(:role) { build(:server_role, permissions: ServerRole::MANAGE_MESSAGES) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context "when role has ADMINISTRATOR bit only" do
+      let(:role) { build(:server_role, permissions: ServerRole::ADMINISTRATOR) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context "when role has an unrelated bit (VIEW_CHANNEL = 1 << 10)" do
+      let(:role) { build(:server_role, permissions: 1 << 10) }
+
+      it { is_expected.to be(false) }
+    end
+
+    context "when role has no permissions" do
+      let(:role) { build(:server_role, permissions: 0) }
+
+      it { is_expected.to be(false) }
+    end
+  end
 end

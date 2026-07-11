@@ -183,6 +183,11 @@ en:
           until it's restored.
         permission_warning_bold: Staff pings will fail.
         placeholder: Pick a role…
+        staff_permission_warning_body: It doesn't have the Manage Messages permission,
+          so its members won't see staff-only commands like Report as scam. Give the
+          role Manage Messages, or grant it access under Server Settings → Integrations
+          → shrkbot.
+        staff_permission_warning_bold: This role can't see staff commands.
       sub_plugin_directory:
         eyebrow: Sub-plugins
       sub_plugin_row:
