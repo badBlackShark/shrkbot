@@ -17,7 +17,7 @@ One Docker image, multiple services off it:
 
 discordrb dispatches each handler on its own thread, so any DB work in the bot
 process must check out and return its own connection from the AR pool — see
-`WithConnection`, mixed into `BaseCommand` and `BaseEvent`.
+`Bot::WithConnection`, mixed into `Bot::BaseCommand` and `Bot::BaseEvent`.
 
 ## Primary keys
 
@@ -94,9 +94,9 @@ and the web app, so a given mutation is written once and called from both.
   of re-hitting Discord's rate-limited guild-list endpoint, and is not spoofable
   (server-signed session).
 - **Re-authentication is localized to the guild-fetch seam.** The user's Discord
-  token is used in exactly one place — `Discord::UserGuilds.call`, from
+  token is used in exactly one place — `Bot::Discord::UserGuilds.call`, from
   `ServersController` (picker + dashboard) — so token-expiry handling (`rescue_from
-  Discord::UserGuilds::Unauthorized` → re-auth, `::Error` → error state) lives
+  Bot::Discord::UserGuilds::Unauthorized` → re-auth, `::Error` → error state) lives
   there, not in `ApplicationController`. Everything else reads our own DB and
   authorizes from the session cache, so an expired token elsewhere is harmless;
   stale-cache cases redirect to the picker, which is where re-auth runs. **If a
@@ -139,7 +139,7 @@ app/plugins/<plugin>/
 ```
 
 `config/application.rb` collapses `app/plugins/*/commands` and `*/events` so a file
-maps to `<X>::<Verb>`, not `<X>::Commands::<Verb>`. Namespaced AR models set
+maps to `<X>::<Verb>`, not `<X>::Bot::Commands::<Verb>`. Namespaced AR models set
 `self.table_name` explicitly. Naming convention to avoid collisions: the settings
 model is always `Settings`, records are nouns, commands are verbs.
 
@@ -171,12 +171,19 @@ that channel is configured. This is enforced in two places:
 ## Commands and events
 
 discordrb is `require: false` — only `bin/bot` and `bin/jobs` load it. Commands and
-events subclass `BaseCommand` / `BaseEvent` and auto-register via `.descendants`.
+events subclass `Bot::BaseCommand` / `Bot::BaseEvent` and auto-register via `.descendants`.
 
-- `BaseCommand` declares metadata via class macros (`command_name`, `description`,
+The whole bot layer lives under the `Bot::` namespace (`app/bot/`, pushed with
+`namespace: Bot` in `config/application.rb`, mirroring `Ops`). Files are grouped into
+`events/`, `config/`, and `registration/` subdirs that are Zeitwerk-**collapsed**, so a
+handler at `app/bot/events/role_sync.rb` is still `Bot::RoleSync`, not `Bot::Events::RoleSync`
+— the directories organize the tree without deepening constants. `commands/` and `discord/`
+stay real nested namespaces (`Bot::Commands::`, `Bot::Discord::`).
+
+- `Bot::BaseCommand` declares metadata via class macros (`command_name`, `description`,
   `requires_permissions`, `owner_only`, `register_in`, `options`) and owns connection
   hygiene + uniform error handling. Subclasses implement `#execute`.
-- `BaseEvent` declares its gateway event(s) via `on :event_name` (multiple allowed)
+- `Bot::BaseEvent` declares its gateway event(s) via `on :event_name` (multiple allowed)
   and implements `#handle`.
 - A command that defines `#autocomplete` auto-gets an autocomplete handler.
 
@@ -196,16 +203,16 @@ concept Discord can't express. A command with no declaration is available to eve
 
 Declared with `register_in`:
 
-- `:guild` (default) — bulk-overwritten per guild on ready (`CommandBackfill`),
-  server join (`CommandSetup`), and plugin toggle (ConfigBus `commands_sync`). A
+- `:guild` (default) — bulk-overwritten per guild on ready (`Bot::CommandBackfill`),
+  server join (`Bot::CommandSetup`), and plugin toggle (Bot::ConfigBus `commands_sync`). A
   command's `plugin :key` macro ties it to a `PluginCatalog` key; it only registers
   in guilds where that plugin (and its parent, if any) is enabled. Plugin-less guild
   commands register in every guild. Guild commands cannot appear in DMs.
-- `:global` — registered once globally in production via `CommandRegistrar#define_global`.
+- `:global` — registered once globally in production via `Bot::CommandRegistrar#define_global`.
   In development, global commands are folded into every guild's bulk-overwrite set for
   instant appearance (no ~1h propagation delay). Always-on; works in DMs.
 
-`CommandRegistrar` notes:
+`Bot::CommandRegistrar` notes:
 
 - `define_commands: false` attaches handlers without redefining the (application-
   global) command definitions — under sharding only the first shard defines them.
@@ -224,10 +231,10 @@ Models (`belongs_to :server_configuration`; snowflakes as bigint): `ServerChanne
 `ChannelOverwrite` (full raw `allow`/`deny` bits + target_id/target_type). Sync ops
 (`Ops::ServerConfiguration::SyncChannels`/`SyncRoles`) take plain data (arrays of
 hashes), not discordrb objects, so they stay unit-testable; the discordrb→hash
-extraction lives in `GuildMetadata` (the bot-layer boundary). Each sync is a full
+extraction lives in `Bot::GuildMetadata` (the bot-layer boundary). Each sync is a full
 upsert + prune of stale rows.
 
-`GuildMetadata.sync` ensures the config, then syncs channels and roles, then
+`Bot::GuildMetadata.sync` ensures the config, then syncs channels and roles, then
 reconciles deleted channels — in one method, because the `server_create` handler
 order isn't fixed and the populate ops always need a config to attach to. It also
 caches guild display metadata (name, icon hash, member count) on `server_configurations`
@@ -242,7 +249,7 @@ channel-level overwrite only and ignores category inheritance, so it's advisory.
 
 Two paths, kept as separate handlers:
 
-- Live: `ChannelCleanup` (on `:channel_delete`) handles channel-backed plugins whose
+- Live: `Bot::ChannelCleanup` (on `:channel_delete`) handles channel-backed plugins whose
   channel was deleted.
 - Startup: `Ops::ServerConfiguration::Channels::Reconcile` catches channels deleted
   while the bot was offline (no live event fired). It runs after a metadata sync, so
@@ -262,8 +269,8 @@ A server's config + activation rows are ensured from two triggers, because disco
 **suppresses `server_create` for guilds the bot is already in at startup** (its
 GUILD_CREATE handler returns before raising the event when `unavailable` is `false`):
 
-- `ServerSetup` (on `:server_create`) — a genuine live join.
-- `ServerBackfill` (on `:ready`) — sweeps `bot.servers` once, covering guilds joined
+- `Bot::ServerSetup` (on `:server_create`) — a genuine live join.
+- `Bot::ServerBackfill` (on `:ready`) — sweeps `bot.servers` once, covering guilds joined
   while the bot was down.
 
 `Ops::ServerConfiguration::Ensure` is add-only and idempotent (race-safe via the
@@ -276,7 +283,7 @@ settings rows always exist**, so settings operations can update the row directly
 instead of build-or-update. (Event handlers reading config for an arbitrary guild
 still guard against a nil config — a server seen before its Ensure has run.)
 
-`GuildMetadata.sync` then calls `ServerOnboarder.notify`, which DMs the guild owner a
+`Bot::GuildMetadata.sync` then calls `Bot::ServerOnboarder.notify`, which DMs the guild owner a
 welcome once and stamps `ServerConfiguration#onboarded_at`. Because it runs inside the
 shared sync path, it fires from both triggers — so every server is onboarded exactly
 once, including servers that were already present when the rewrite first goes live
@@ -304,11 +311,11 @@ grant an arbitrary server role. The runtime toggle is bot-only (no DB write, no 
 caller), so it lives in the handlers, not in an operation; the testable unit is the
 pure `Roles::Assignment` diff with `member.modify_roles` as the seam.
 
-`Discord::Components` (`app/bot/discord/`) holds the shared Components V2 primitives —
+`Bot::Discord::Components` (`app/bot/discord/`) holds the shared Components V2 primitives —
 the `CONTAINER`/`TEXT_DISPLAY`/`SEPARATOR` type ids, the `COMPONENTS_V2` flag, and the
 `container`/`text`/`separator` builders — so every sender (role messages, `/info`, the
 owner broadcast, the onboarding DM, activity-log entries) renders the same way and the
-brand colour lives in one place (`BotConfig::ACCENT_COLOR`, the container default).
+brand colour lives in one place (`Bot::Config::ACCENT_COLOR`, the container default).
 `Components.send_to(channel, rendered, allowed_mentions:)` owns the positional
 `channel.send_message` shape (nil content + components + flags), so call sites never
 enumerate the discordrb signature; only `Reminders::DeliverJob` sends over raw REST
@@ -329,10 +336,10 @@ placeholder so a component is never empty.
 
 ## Activity logging
 
-`ActivityLog` (`app/bot/`) is the seam for writing a user action to a server's logging
-channel, split into two queries: `ActivityLog.enabled?(server_configuration, action)` answers
+`Bot::ActivityLog` (`app/bot/`) is the seam for writing a user action to a server's logging
+channel, split into two queries: `Bot::ActivityLog.enabled?(server_configuration, action)` answers
 whether an event should be logged (the logging plugin must be enabled *and* the specific
-event toggled on), and `ActivityLog.post(server_configuration, bot:, title:, body:, meta:)`
+event toggled on), and `Bot::ActivityLog.post(server_configuration, bot:, title:, body:, meta:)`
 renders and delivers one entry. The split lets a consumer gate the *parts* of a composite
 entry individually while still sending a single message.
 
@@ -343,7 +350,7 @@ string, so there's no separate event→action map to maintain. Toggles live in
 tab listing its events as independent toggles, and greys the lot out when the logging
 plugin is off.
 
-Entries render as the shared **accent container** (`Discord::Components`), one text block in
+Entries render as the shared **accent container** (`Bot::Discord::Components`), one text block in
 three parts: a bold **title** (the action), a **body** sentence (who was affected and what
 happened), and a muted `-#` **meta** line (who/what triggered it — e.g. `Self-assigned via
 the "Pronouns" role menu`). Mention pings are suppressed (`allowed_mentions: {parse: []}`)
@@ -355,7 +362,7 @@ so the toggles compose with no "swap logs nothing" gap and no double message.
 Message text is `config/locales/activity_log.en.yml`, nested by plugin — the bot is
 English-only, so I18n is a string registry here, not localization. Per-plugin entry
 builders (e.g. `Roles::ActivityEntry`) look the strings up with `raise: true`, so a bad key
-**raises** (surfaces in the consumer's spec; owner-reported in prod via `BaseEvent`); only
+**raises** (surfaces in the consumer's spec; owner-reported in prod via `Bot::BaseEvent`); only
 the channel send is rescued, so a delivery failure never breaks the user's action. Welcomes
 are excluded by design. Roles assignment is the first consumer —
 `Roles::ComponentHandler#log_assignment` diffs gained/lost from the pre-apply roles, drops
@@ -377,8 +384,8 @@ drops later shards into reconnect backoff.
 
 Each `Bot` only knows the servers on its own shard, so anything that spans **all**
 servers (e.g. `/announce`, which DMs every unique server owner) must read every
-shard, not just `event.bot`. `bin/bot` registers the bot array with `BotRegistry`
-at boot; `OwnerBroadcast.call(bots:, …)` unions every shard's servers, dedupes owners
+shard, not just `event.bot`. `bin/bot` registers the bot array with `Bot::Registry`
+at boot; `Bot::OwnerBroadcast.call(bots:, …)` unions every shard's servers, dedupes owners
 across shards, and DMs through any one bot (DMs are REST, so the shard doesn't
 matter). This works because all shards share one process — no cross-process
 coordination needed.
@@ -387,7 +394,7 @@ coordination needed.
 
 The gateway `Bot` prefixes the auth header itself, but direct `Discordrb::API` calls
 (e.g. reminder delivery from the jobs process) need the header as `Bot <token>` or
-Discord returns 401. `BotConfig.rest_token` provides the prefixed form.
+Discord returns 401. `Bot::Config.rest_token` provides the prefixed form.
 
 ## Config propagation
 
@@ -396,8 +403,8 @@ role message, re-registering commands) can only run in the bot process, which
 holds the gateway and token. The two are bridged by a one-way Redis pub/sub bus:
 the web UI publishes, the bot subscribes.
 
-`ConfigBus` (`app/bot/config_bus.rb`) publishes typed JSON events on a single
-channel (`shrkbot:config`); `ConfigSubscriber` (`app/bot/config_subscriber.rb`)
+`Bot::ConfigBus` (`app/bot/config/config_bus.rb`) publishes typed JSON events on a single
+channel (`shrkbot:config`); `Bot::ConfigSubscriber` (`app/bot/config/config_subscriber.rb`)
 runs a listener thread on the first shard's bot, routes each event by `type`, and
 hands off to an operation inside a `with_connection` block (its own AR
 connection, like every other bot thread). A malformed or failing event is logged
@@ -406,7 +413,7 @@ and reported to the owner rather than killing the listener.
 Five event types are currently defined:
 
 - **`commands_sync`** — published with a `discord_id` whenever a plugin is toggled
-  for a server. The bot calls `GuildCommandSync#sync` for that guild, re-running the
+  for a server. The bot calls `Bot::GuildCommandSync#sync` for that guild, re-running the
   filtered bulk-overwrite so the command list reflects the new plugin state immediately.
 - **`roles_post`** — published per surviving role set after a successful web save
   when the roles plugin is enabled. The bot calls `Roles::MessagePoster.post`,
@@ -427,7 +434,7 @@ Five event types are currently defined:
 Publishing is handled by `Roles::MenuSyncPlan`, which accumulates deletes and
 posts during the reconcile phase and flushes them after the transaction commits.
 Delivery is fire-and-forget. On the subscriber side, failing Results are logged
-(they are not silently dropped). If `REDIS_URL` is not set, `ConfigBus.publish`
+(they are not silently dropped). If `REDIS_URL` is not set, `Bot::ConfigBus.publish`
 logs a warning and drops the event rather than raising.
 
 The dashboard's instant plugin toggle (`Ops::ServerConfiguration::Plugins::Toggle`)
@@ -445,7 +452,7 @@ in both directions:
 Stale edits from downtime are recovered manually via the Resync button.
 
 Add a new event by publishing a new `type` and adding a branch to
-`ConfigSubscriber#route`.
+`Bot::ConfigSubscriber#route`.
 
 The bot starts the subscriber only when `REDIS_URL` is set; without it the bot
 logs that propagation is off and runs anyway (Solid Queue is Postgres-backed and

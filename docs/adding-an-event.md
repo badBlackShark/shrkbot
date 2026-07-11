@@ -1,13 +1,13 @@
 # Adding a gateway event handler
 
 Event handlers live in `app/plugins/<plugin>/events/<name>.rb` (Zeitwerk-collapsed to
-`<Plugin>::<Name>`), or `app/bot/` for bot-level handlers. Subclass `BaseEvent`,
+`<Plugin>::<Name>`), or `app/bot/` for bot-level handlers. Subclass `Bot::BaseEvent`,
 declare the discordrb event(s) with `on`, and implement `#handle`. Registration is
-automatic — `bin/bot` registers every `BaseEvent.descendants` that declares an event.
+automatic — `bin/bot` registers every `Bot::BaseEvent.descendants` that declares an event.
 
 ```ruby
 module Welcomes
-  class MemberJoin < BaseEvent
+  class MemberJoin < Bot::BaseEvent
     on :member_join
 
     def handle

@@ -2,13 +2,13 @@
 
 Commands live in `app/plugins/<plugin>/commands/<verb>.rb` (Zeitwerk-collapsed, so
 the file maps to `<Plugin>::<Verb>`). Global commands that aren't part of a plugin
-(e.g. `/info`) live in `app/bot/commands/`. Subclass `BaseCommand`, declare metadata
+(e.g. `/info`) live in `app/bot/commands/`. Subclass `Bot::BaseCommand`, declare metadata
 with the class macros, and implement `#execute`. Registration is automatic —
-`bin/bot` registers every `BaseCommand.descendants` with a `command_name`.
+`bin/bot` registers every `Bot::BaseCommand.descendants` with a `command_name`.
 
 ```ruby
 module Reminders
-  class Remind < BaseCommand
+  class Remind < Bot::BaseCommand
     command_name :remind
     description "Remind you about something later."
     register_in :global              # :guild (default) or :global
@@ -65,7 +65,7 @@ end
 
 ## The execute contract
 
-- `#execute` runs inside a checked-out AR connection (`BaseCommand` handles pool
+- `#execute` runs inside a checked-out AR connection (`Bot::BaseCommand` handles pool
   hygiene) and a uniform rescue that logs, DMs the owner, and replies with an error.
 - Parse options, call an operation, present the result. Keep logic in the operation —
   commands stay thin.
