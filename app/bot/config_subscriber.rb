@@ -3,16 +3,23 @@
 class ConfigSubscriber
   include WithConnection
 
+  RECONNECT_DELAY = 5
+
   def initialize(bot)
     @bot = bot
   end
 
   def start
     Thread.new do
-      Redis.new(url: BotConfig.redis_url).subscribe(ConfigBus::CHANNEL) do |on|
-        on.message do |_channel, payload|
-          handle(payload)
+      loop do
+        Redis.new(url: BotConfig.redis_url).subscribe(ConfigBus::CHANNEL) do |on|
+          on.message do |_channel, payload|
+            handle(payload)
+          end
         end
+      rescue Redis::BaseConnectionError => e
+        Rails.logger.warn("[ConfigSubscriber] Redis connection lost (#{e.class}: #{e.message}), retrying in #{RECONNECT_DELAY}s")
+        sleep RECONNECT_DELAY
       end
     end
   end

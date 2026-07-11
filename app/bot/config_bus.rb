@@ -33,5 +33,7 @@ module ConfigBus
     end
 
     Redis.new(url:).publish(CHANNEL, JSON.generate(payload))
+  rescue Redis::BaseConnectionError => e
+    Rails.logger.error("[ConfigBus] dropping #{payload[:type]} — #{e.class}: #{e.message}")
   end
 end

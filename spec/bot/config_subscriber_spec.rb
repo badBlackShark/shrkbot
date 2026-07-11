@@ -14,12 +14,36 @@ RSpec.describe ConfigSubscriber do
     it "subscribes on the config channel and routes each message to #handle" do
       allow(Thread).to receive(:new).and_yield
       allow(Redis).to receive(:new).with(url: BotConfig.redis_url).and_return(redis)
-      allow(redis).to receive(:subscribe).with(ConfigBus::CHANNEL).and_yield(on)
+      allow(redis).to receive(:subscribe).with(ConfigBus::CHANNEL).and_yield(on).and_raise(StopIteration)
       allow(on).to receive(:message).and_yield("shrkbot:config", "payload")
 
       expect(subscriber).to receive(:handle).with("payload")
 
       subscriber.start
+    end
+
+    context "when the Redis connection drops" do
+      let(:attempts) { [] }
+
+      before do
+        allow(Thread).to receive(:new).and_yield
+        allow(Redis).to receive(:new).and_return(redis)
+        allow(subscriber).to receive(:sleep)
+        allow(Rails.logger).to receive(:warn)
+        allow(redis).to receive(:subscribe) do
+          attempts << :subscribe
+          raise Redis::BaseConnectionError, "down" if attempts.size == 1
+          raise StopIteration
+        end
+      end
+
+      it "logs, waits, and resubscribes" do
+        subscriber.start
+
+        expect(attempts.size).to eq(2)
+        expect(subscriber).to have_received(:sleep).with(described_class::RECONNECT_DELAY)
+        expect(Rails.logger).to have_received(:warn).with(a_string_including("Redis connection lost"))
+      end
     end
   end
 
