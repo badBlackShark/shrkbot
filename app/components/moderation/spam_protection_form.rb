@@ -45,7 +45,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
           default: 4,
           unit: t(".detection.trigger_threshold.channels_unit")
         )
-        span(class: "text-sm text-text-secondary h-10 inline-flex items-center") do
+        span(class: "text-sm text-text-secondary h-8 inline-flex items-center") do
           t(".detection.trigger_threshold.within")
         end
         render Components::NumberStepper.new(
