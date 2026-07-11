@@ -29,7 +29,7 @@ class Components::LegalPage < Components::Base
   def contact_section
     h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".contact_h") }
     p(class: "mb-4 leading-relaxed text-text-secondary") do
-      plain "#{t(".contact_operator")} — "
+      plain "#{t(".contact_operator")} - "
       a(href: "mailto:#{CONTACT_EMAIL}", class: link_classes) { CONTACT_EMAIL }
       plain " / "
       a(href: SUPPORT_URL, class: link_classes) { t(".contact_support") }

@@ -29,9 +29,9 @@ en:
         an admin has enabled.'
       basis_h: Legal bases
       basis_p: Where the GDPR applies we rely on performance of the service (Art.
-        6(1)(b) — providing the features you or your admins enable) and legitimate
-        interests (Art. 6(1)(f) — operating, securing and debugging the Service).
-        You can object to processing based on legitimate interests — see "Your rights".
+        6(1)(b) - providing the features you or your admins enable) and legitimate
+        interests (Art. 6(1)(f) - operating, securing and debugging the Service).
+        You can object to processing based on legitimate interests; see "Your rights".
       changes_h: Changes
       changes_p: If this policy changes, the new version is published here with an
         updated date; for significant changes we'll try to give notice through the
@@ -45,17 +45,17 @@ en:
         described above. No tracking, no third-party cookies.'
       data_account: 'Dashboard account: when you sign in with Discord we store your
         Discord ID, username, display name and avatar reference. We request only the
-        identify and guilds OAuth scopes — we never receive your email, password or
+        identify and guilds OAuth scopes - we never receive your email, password or
         messages. Your Discord access token is held only in an encrypted session cookie
         in your browser (valid two weeks), never in our database, and is used solely
         to read which servers you manage.'
       data_guild: 'Server configuration: the server''s Discord ID, name, icon reference
         and approximate member count, plus a cached copy of its channels and roles
         (IDs, names, types, colours, positions, permission sets) and their permission
-        overwrites — which can reference member Discord IDs — mirrored from Discord
+        overwrites (which can reference member Discord IDs) mirrored from Discord
         so the dashboard can display and apply your setup. Also which plugins are
         enabled, and the welcome, logging, role-menu and moderation settings admins
-        configure — including any custom scam-keyword list.'
+        configure - including any custom scam-keyword list.'
       data_h: What we store and why
       data_lead: 'We store only what the enabled features need:'
       data_notifications: 'Dashboard notifications: short activity entries (an event
@@ -66,7 +66,7 @@ en:
         30 days. The web server keeps standard technical logs (IP address, timestamp,
         browser type) for security and troubleshooting.'
       data_reminders: 'Reminders: the reminder text you write, your Discord ID, the
-        target channel and server, whether to deliver by DM, and the due time — kept
+        target channel and server, whether to deliver by DM, and the due time - kept
         until delivered or deleted by you with /unremind.'
       deletion_account: Delete your dashboard account and your reminders with the
         "Delete my account" button on your account page.
@@ -77,14 +77,14 @@ en:
       deletion_reminders: Delete individual reminders with /unremind.
       intro_1: This policy explains what the shrkbot Discord bot and its web dashboard
         (together, the "Service") store, why, and the choices you have. It's written
-        to be readable rather than dense — if anything is unclear, contact us.
+        to be readable rather than dense - if anything is unclear, contact us.
       intro_2: The Service is operated by Tim Engelhardt, the data controller under
         the EU General Data Protection Regulation (GDPR).
       messages_h: Message content
       messages_p_1: shrkbot uses Discord's message-content intent so that servers
         can enable automated moderation. When an admin turns that feature on, shrkbot
-        reads new messages — including, using optical character recognition (OCR),
-        text contained in posted images — to check them against the server's rules.
+        reads new messages, including, using optical character recognition (OCR),
+        text contained in posted images, to check them against the server's rules.
         On servers that don't enable moderation, messages aren't processed at all.
       messages_p_2: 'This scanning happens in real time and in memory only: we do
         not store or retain message content, images, or text extracted from images.
@@ -93,7 +93,7 @@ en:
       messages_p_3: If automated moderation acts on a message, shrkbot can post a
         moderation log entry to a channel your admins designate. That entry may include
         the offending message or the text extracted from an image so moderators can
-        review it — it is delivered as an ordinary Discord message and is therefore
+        review it - it is delivered as an ordinary Discord message and is therefore
         stored by Discord in that channel, not retained by shrkbot. A short record
         that an action occurred (without the message content) may also appear in the
         dashboard.
@@ -101,11 +101,11 @@ en:
         welcome messages; the username shown there is rendered into the message and
         not stored.
       messages_p_5: To recognise repeat scam images, shrkbot stores a perceptual hash
-        — a short numeric fingerprint that cannot be turned back into the image —
-        of images a server's moderators explicitly confirm as scams, together with
-        which servers confirmed them. These fingerprints are never linked to the user
-        who posted the image, are deleted when every confirming server has removed
-        the bot, and are pruned automatically after 30 days without a match.
+        (a short numeric fingerprint that cannot be turned back into the image) of
+        images a server's moderators explicitly confirm as scams, together with which
+        servers confirmed them. These fingerprints are never linked to the user who
+        posted the image, are deleted when every confirming server has removed the
+        bot, and are pruned automatically after 30 days without a match.
       not_h: What we don't do
       not_p: We don't sell data, we don't advertise, we don't profile you, we don't
         run analytics, and we don't store your servers' member lists or conversations.
@@ -125,7 +125,7 @@ en:
       rights_h: Your rights
       rights_p: Under the GDPR you have the right to access, correct, delete, restrict
         or object to our use of your personal data, and the right to data portability.
-        You also have the right to complain to a supervisory authority — in Germany,
+        You also have the right to complain to a supervisory authority - in Germany,
         your regional data protection authority. To exercise any of these, contact
         us (see below).
       security_h: Security
@@ -136,14 +136,14 @@ en:
       sharing_h: Who we share data with
       sharing_p: 'Only the infrastructure that runs the Service: Discord itself, through
         its API (your use of Discord is governed by Discord''s own privacy policy),
-        and our hosting provider Hetzner (Helsinki, Finland — within the EEA), where
+        and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
       updated: 'Last updated: July 5th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible
-        for how it's used there — including any messages you configure it to send
+        for how it's used there - including any messages you configure it to send
         (such as welcome messages) and any logging you enable. Where you enable features
         that process other members' data, you're responsible for having a proper basis
         to do so and for informing your members as applicable law requires.
@@ -180,9 +180,9 @@ en:
       privacy_post: ", which forms part of these terms."
       privacy_pre: 'Our handling of data is described in our '
       service_h: The service
-      service_p: shrkbot is a general-purpose Discord bot whose features — self-assignable
+      service_p: shrkbot is a general-purpose Discord bot whose features (self-assignable
         roles, reminders, welcome and leave messages, activity logging and automated
-        moderation — are enabled per server and configured through commands and this
+        moderation) are enabled per server and configured through commands and this
         website. The Service is provided free of charge.
       source_h: Open source
       source_p: shrkbot's source code is published under the MIT licence. That licence
@@ -190,7 +190,7 @@ en:
         terms.
       termination_h: Termination
       termination_p: You can stop using the Service at any time by removing shrkbot
-        from your server — which permanently deletes that server's data — or by deleting
+        from your server (which permanently deletes that server's data) or by deleting
         your dashboard account. We may restrict or terminate access for any server
         or user that breaches these terms or that we reasonably believe is misusing
         the Service.

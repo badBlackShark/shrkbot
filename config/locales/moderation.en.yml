@@ -3,7 +3,7 @@ en:
   moderation:
     image_scanning:
       buttons:
-        confirmed: Confirmed as a scam by %{actor} — the bot will remember this image.
+        confirmed: Confirmed as a scam by %{actor} - the bot will remember this image.
         dismiss_button: Yes, dismiss
         dismiss_prompt: Dismiss this detection? This tells the bot the image is not
           a scam.
@@ -13,7 +13,7 @@ en:
       flag:
         body: "%{author} posted an image in %{channel}. [Jump to message](%{jump_url})."
         meta:
-          flagged: Flagged for review — no automatic action taken.
+          flagged: Flagged for review - no automatic action taken.
           removed: The message was deleted automatically.
         reasons:
           custom_keywords:
@@ -41,7 +41,7 @@ en:
           body: "%{reporter} reported an image posted by %{author} in %{channel} as
             a scam. The bot will remember it."
           meta:
-            kept: The message was left in place — automatic removal is turned off.
+            kept: The message was left in place - automatic removal is turned off.
             removed: The message was deleted.
           title: Image reported as a scam
         none: That message has no images to report.
@@ -57,7 +57,7 @@ en:
           meta: Deleted as part of the incident above.
           title: Cross-channel spam follow-up removed
         meta:
-          notify_only: Notify-only — no messages were deleted.
+          notify_only: Notify-only - no messages were deleted.
           purge: Messages were deleted.
         title:
           notify_only: Cross-channel spam detected

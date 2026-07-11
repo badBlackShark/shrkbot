@@ -83,11 +83,13 @@ the control in place plus a toast — no page reload (the dashboard's plugin-ena
 and `force_dm_reminders` toggles). **Field** (no `url:`) renders just the switch to
 sit inside a larger form that saves explicitly.
 
-For a control that needs a "why" on hover (a locked toggle, later a
-disabled-with-reason select option), wrap it in `Components::Tooltip` rather than
-a native `title`: it fades in instantly with our surfaces and fonts, where the
-native tooltip is slow, tiny, and system-font. The reminders dashboard row uses
-it on its always-on (locked) toggle.
+**Every tooltip uses `Components::Tooltip` — never a native `title`.** Whenever a
+control needs a "why" on hover (a locked toggle, a disabled-with-reason select
+option), wrap it in the component: it fades in instantly with our surfaces and
+fonts, where the native tooltip is slow, tiny, and system-font. The reminders
+dashboard row uses it on its always-on (locked) toggle. The one exception is the
+assignable-role picker, whose tooltip sits inside a native `<select>` dropdown
+where the component can't render — that stays a native `title`.
 
 That split is the save model: standalone settings save instantly; **the plugin
 config pages do not auto-save** — they batch all edits behind an explicit save

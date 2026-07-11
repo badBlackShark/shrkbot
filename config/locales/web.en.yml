@@ -499,7 +499,7 @@ en:
         show:
           description: Detects the same message blasted across multiple channels within
             seconds and purges it before it spreads. Matching is fingerprint-based
-            — message content is never stored.
+            - message content is never stored.
           group_locked_reason: Enable the Server Shield group first - its master switch
             is off.
           no_role_callout_body: Every Moderation sub-plugin needs the shared staff
