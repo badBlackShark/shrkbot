@@ -10,8 +10,8 @@ RSpec.describe Ops::ServerConfiguration::ServerRoles::Sync do
   describe "upserting roles" do
     let(:roles) do
       [
-        {discord_id: 111, name: "Admin", position: 3, managed: false},
-        {discord_id: 222, name: "Bot", position: 2, managed: true}
+        {discord_id: 111, name: "Admin", position: 3, managed: false, permissions: 8192},
+        {discord_id: 222, name: "Bot", position: 2, managed: true, permissions: 0}
       ]
     end
 
@@ -23,6 +23,12 @@ RSpec.describe Ops::ServerConfiguration::ServerRoles::Sync do
       result
 
       expect(server.server_roles.find_by(discord_id: 222)).to have_attributes(position: 2, managed: true)
+    end
+
+    it "stores each role's permissions" do
+      result
+
+      expect(server.server_roles.find_by(discord_id: 111)).to have_attributes(permissions: 8192)
     end
 
     it "records the bot's highest role position on the server" do
@@ -41,6 +47,18 @@ RSpec.describe Ops::ServerConfiguration::ServerRoles::Sync do
 
         expect(server.server_roles.find_by(discord_id: 111)).to have_attributes(name: "Admin", position: 3)
         expect(server.server_roles.where(discord_id: 111).count).to eq(1)
+      end
+    end
+
+    context "when data hash has no :permissions key" do
+      let(:roles) do
+        [{discord_id: 333, name: "Legacy", position: 1, managed: false}]
+      end
+
+      it "defaults permissions to 0" do
+        result
+
+        expect(server.server_roles.find_by(discord_id: 333)).to have_attributes(permissions: 0)
       end
     end
   end

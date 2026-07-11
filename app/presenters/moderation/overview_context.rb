@@ -35,6 +35,13 @@ module Moderation
       false
     end
 
+    def staff_permission_warning?
+      return false unless staff_role_id
+
+      role = @config.server_roles.find_by(discord_id: staff_role_id)
+      role.present? && !role.manage_messages?
+    end
+
     def sub_plugin_rows
       SUB_PLUGINS.map do |sub|
         key = sub[:key]

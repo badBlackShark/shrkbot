@@ -147,6 +147,38 @@ RSpec.describe Moderation::OverviewContext do
     end
   end
 
+  describe "#staff_permission_warning?" do
+    subject(:staff_permission_warning) { context.staff_permission_warning? }
+
+    context "when no staff role configured" do
+      it { is_expected.to be(false) }
+    end
+
+    context "when staff_role_id is set but role absent from server_roles" do
+      before { config.moderation_settings.update!(staff_role_id: 999) }
+
+      it { is_expected.to be(false) }
+    end
+
+    context "when configured role has MANAGE_MESSAGES" do
+      before do
+        create(:server_role, server_configuration: config, discord_id: 700, permissions: 8192)
+        config.moderation_settings.update!(staff_role_id: 700)
+      end
+
+      it { is_expected.to be(false) }
+    end
+
+    context "when configured role has no relevant permissions" do
+      before do
+        create(:server_role, server_configuration: config, discord_id: 701, permissions: 0)
+        config.moderation_settings.update!(staff_role_id: 701)
+      end
+
+      it { is_expected.to be(true) }
+    end
+  end
+
   describe "#sub_plugin_rows" do
     it "returns two rows for spam_protection and image_scanning" do
       rows = context.sub_plugin_rows

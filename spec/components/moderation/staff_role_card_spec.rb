@@ -15,7 +15,8 @@ RSpec.describe Components::Moderation::StaffRoleCard do
       server_configuration: config,
       staff_role_id: nil,
       missing: false,
-      permission_warning: false
+      permission_warning: false,
+      staff_permission_warning: false
     ).render_in(view_context)
   end
 
@@ -45,7 +46,8 @@ RSpec.describe Components::Moderation::StaffRoleCard do
         server_configuration: config,
         staff_role_id: 999,
         missing: true,
-        permission_warning: false
+        permission_warning: false,
+        staff_permission_warning: false
       ).render_in(view_context)
     end
 
@@ -64,7 +66,8 @@ RSpec.describe Components::Moderation::StaffRoleCard do
         server_configuration: config,
         staff_role_id: 501,
         missing: false,
-        permission_warning: true
+        permission_warning: true,
+        staff_permission_warning: false
       ).render_in(view_context)
     end
 
@@ -74,6 +77,26 @@ RSpec.describe Components::Moderation::StaffRoleCard do
 
     it "renders the permission warning body" do
       expect(html).to include("Mention All Roles")
+    end
+  end
+
+  context "when there is a staff permission warning" do
+    subject(:html) do
+      described_class.new(
+        server_configuration: config,
+        staff_role_id: 501,
+        missing: false,
+        permission_warning: false,
+        staff_permission_warning: true
+      ).render_in(view_context)
+    end
+
+    it "renders the staff permission warning bold text" do
+      expect(html).to include("This role can&#39;t see staff commands.")
+    end
+
+    it "renders the staff permission warning body" do
+      expect(html).to include("Manage Messages")
     end
   end
 end
