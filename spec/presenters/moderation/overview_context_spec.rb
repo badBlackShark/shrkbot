@@ -85,6 +85,30 @@ RSpec.describe Moderation::OverviewContext do
     end
   end
 
+  describe "#ping_staff" do
+    context "when ping_staff is enabled" do
+      it "returns true" do
+        expect(context.ping_staff).to be(true)
+      end
+    end
+
+    context "when ping_staff is disabled" do
+      before { config.moderation_settings.update!(ping_staff: false) }
+
+      it "returns false" do
+        expect(context.ping_staff).to be(false)
+      end
+    end
+
+    context "when moderation_settings does not exist" do
+      before { config.moderation_settings.destroy! }
+
+      it "returns nil" do
+        expect(described_class.new(config.reload).ping_staff).to be_nil
+      end
+    end
+  end
+
   describe "#staff_role_present?" do
     context "when staff_role_id is set" do
       before { config.moderation_settings.update!(staff_role_id: 555) }

@@ -19,7 +19,8 @@ RSpec.describe Moderation::VerdictExecutor do
   let(:bot) { double("bot", channel: message_channel) }
 
   let(:logging_setting) { double("logging_setting", channel_id: channel_id) }
-  let(:moderation_settings) { double("moderation_settings", staff_role_id:) }
+  let(:ping_staff) { true }
+  let(:moderation_settings) { double("moderation_settings", staff_role_id:, ping_staff:) }
   let(:server_configuration) do
     double(
       "server_configuration",
@@ -278,6 +279,27 @@ RSpec.describe Moderation::VerdictExecutor do
         server_configuration,
         hash_including(allowed_mentions: {parse: [], roles: []})
       )
+    end
+  end
+
+  context "when ping_staff is false" do
+    let(:ping_staff) { false }
+
+    it "posts with empty roles in allowed_mentions" do
+      execute
+
+      expect(ActivityLog).to have_received(:post).with(
+        server_configuration,
+        hash_including(allowed_mentions: {parse: [], roles: []})
+      )
+    end
+
+    it "does not start the body with a role mention" do
+      execute
+
+      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:body]).not_to start_with("<@&")
+      end
     end
   end
 end

@@ -26,6 +26,10 @@ module Moderation
       @config.moderation_settings&.staff_role_id
     end
 
+    def ping_staff
+      @config.moderation_settings&.ping_staff
+    end
+
     def staff_role_present?
       staff_role_id.present?
     end

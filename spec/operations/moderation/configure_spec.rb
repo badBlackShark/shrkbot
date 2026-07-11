@@ -7,7 +7,8 @@ RSpec.describe Ops::Moderation::Configure do
     described_class.call(
       server_configuration: config,
       staff_role_id:,
-      enabled:
+      enabled:,
+      ping_staff:
     )
   end
 
@@ -16,6 +17,7 @@ RSpec.describe Ops::Moderation::Configure do
   let!(:settings) { config.create_moderation_settings! }
   let(:staff_role_id) { 111_222_333 }
   let(:enabled) { "1" }
+  let(:ping_staff) { "1" }
 
   context "when enabling without logging ready (no logging plugin enabled)" do
     it "fails with an error on the enabled field" do
@@ -148,6 +150,32 @@ RSpec.describe Ops::Moderation::Configure do
     it "saves the staff_role_id" do
       result
       expect(config.moderation_settings.reload.staff_role_id).to eq(111_222_333)
+    end
+  end
+
+  context "when saving ping_staff: '0'" do
+    let(:enabled) { "0" }
+    let(:ping_staff) { "0" }
+
+    it "succeeds" do
+      expect(result).to be_success
+    end
+
+    it "persists ping_staff as false" do
+      result
+      expect(config.moderation_settings.reload.ping_staff).to be(false)
+    end
+  end
+
+  context "when saving ping_staff: '1'" do
+    let(:enabled) { "0" }
+    let(:ping_staff) { "1" }
+
+    before { settings.update!(ping_staff: false) }
+
+    it "persists ping_staff as true" do
+      result
+      expect(config.moderation_settings.reload.ping_staff).to be(true)
     end
   end
 end

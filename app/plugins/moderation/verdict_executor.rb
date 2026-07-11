@@ -37,7 +37,9 @@ module Moderation
 
     def flag(verdict, context, phash, image_bytes:, removed:)
       config = context.settings.server_configuration
-      staff_role_id = config.moderation_settings.staff_role_id
+      settings = config.moderation_settings
+      staff_role_id = settings.staff_role_id
+      ping = settings.ping_staff
       state = removed ? "removed" : "flagged"
       image = image_bytes && Discord::FileUpload.new(image_bytes, File.basename(URI(context.attachment_url).path))
 
@@ -45,7 +47,7 @@ module Moderation
         config,
         bot: context.bot,
         title: I18n.t("moderation.image_scanning.flag.title.#{state}"),
-        body: StaffPing.prefix(staff_role_id) + I18n.t(
+        body: StaffPing.prefix(staff_role_id, ping:) + I18n.t(
           "moderation.image_scanning.flag.body",
           author: "<@#{context.member.id}>",
           channel: "<##{context.channel_id}>",
@@ -54,7 +56,7 @@ module Moderation
         meta: I18n.t("moderation.image_scanning.flag.meta.#{state}"),
         image:,
         components: buttons(phash),
-        allowed_mentions: {parse: [], roles: [staff_role_id].compact}
+        allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
       )
     end
 
