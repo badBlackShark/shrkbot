@@ -30,12 +30,12 @@ module Moderation
         keyword_gate = reasons.any? { |reason| reason.key == :custom_keywords }
         content_signal = ocr_score > 0 || hash_state != :none
         thresholds = THRESHOLDS.fetch(settings.sensitivity)
-        action = decide(risk, ocr_score, hash_state, content_signal, keyword_gate, thresholds)
+        action = decide(risk:, ocr_score:, hash_state:, content_signal:, keyword_gate:, thresholds:)
 
         Verdict.new(action:, risk:, reasons:)
       end
 
-      def decide(risk, ocr_score, hash_state, content_signal, keyword_gate, thresholds)
+      def decide(risk:, ocr_score:, hash_state:, content_signal:, keyword_gate:, thresholds:)
         return :allow unless content_signal
 
         action =

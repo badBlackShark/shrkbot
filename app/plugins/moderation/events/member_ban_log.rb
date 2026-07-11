@@ -14,7 +14,7 @@ module Moderation
     def entry
       attribution = MemberLog::AuditLogLookup.attribution(event.server, action: :member_ban_add, target_id: event.user.id)
       MemberLog::ActivityEntry.build(
-        :member_banned,
+        event_key: :member_banned,
         target: event.user,
         moderator: attribution&.moderator,
         reason: attribution&.reason

@@ -13,7 +13,7 @@ module Moderation
 
     def entry
       MemberLog::ActivityEntry.build(
-        :member_kicked,
+        event_key: :member_kicked,
         target: event.user,
         moderator: attribution.moderator,
         reason: attribution.reason
