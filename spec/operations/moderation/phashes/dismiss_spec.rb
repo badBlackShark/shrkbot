@@ -14,7 +14,7 @@ RSpec.describe Ops::Moderation::Phashes::Dismiss do
   let(:phash_hex) { "00000000000000cd" }
 
   it "invalidates the phash index" do
-    expect(Moderation::PhashIndex).to receive(:invalidate)
+    expect(Moderation::ImageScanning::PhashIndex).to receive(:invalidate)
     result
   end
 

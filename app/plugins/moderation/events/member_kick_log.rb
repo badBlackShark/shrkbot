@@ -12,7 +12,7 @@ module Moderation
     end
 
     def entry
-      ActivityEntry.build(
+      MemberLog::ActivityEntry.build(
         :member_kicked,
         target: event.user,
         moderator: attribution.moderator,
@@ -23,7 +23,7 @@ module Moderation
     def attribution
       return @attribution if defined?(@attribution)
 
-      @attribution = AuditLogLookup.attribution(event.server, action: :member_kick, target_id: event.user.id)
+      @attribution = MemberLog::AuditLogLookup.attribution(event.server, action: :member_kick, target_id: event.user.id)
     end
   end
 end

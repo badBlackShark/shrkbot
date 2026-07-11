@@ -36,12 +36,12 @@ module Moderation
     def confirm_all(attachments, config)
       log_image = nil
       count = attachments.count do |attachment|
-        bytes = ImageDownload.call(attachment.url)
-        hex = Ocr::Client.new.phash(bytes)
+        bytes = ImageScanning::ImageDownload.call(attachment.url)
+        hex = ImageScanning::Ocr::Client.new.phash(bytes)
         Ops::Moderation::Phashes::Confirm.call(server_configuration: config, phash_hex: hex)
         log_image ||= Bot::Discord::FileUpload.new(bytes, File.basename(URI(attachment.url).path))
         true
-      rescue Ocr::Error => e
+      rescue ImageScanning::Ocr::Error => e
         Rails.logger.warn("[Moderation::ReportScam] phash failed: #{e.class}: #{e.message}")
         false
       end

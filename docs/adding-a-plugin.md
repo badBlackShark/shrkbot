@@ -30,6 +30,12 @@ wrapper; that namespace spans the roots above (Zeitwerk resolves it), so a file'
 depends only on its plugin folder, not which root it sits in. `commands/` and `events/`
 are collapsed in `config/application.rb`.
 
+When a plugin's domain logic grows large, group it into sub-namespaced subdirs rather
+than a flat pile — e.g. moderation splits its `app/plugins/moderation/` internals into
+`image_scanning/` (`Moderation::ImageScanning::*`), `member_log/` and `interaction/`,
+leaving only genuinely shared helpers at the plugin root. Keep cross-cutting helpers
+(used by more than one subgroup) at the root so subgroups never reach into each other.
+
 ## 2. Settings model
 
 Use a dedicated typed table, not a JSON blob — we want real columns and validations.

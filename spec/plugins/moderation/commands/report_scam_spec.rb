@@ -39,9 +39,9 @@ RSpec.describe Moderation::ReportScam do
     allow(ServerConfiguration).to receive(:find_by).with(discord_id: guild_id).and_return(config)
     allow(config).to receive(:image_scanning_settings).and_return(image_scanning_settings)
     allow(Bot::ActivityLog).to receive(:post)
-    allow(Moderation::Ocr::Client).to receive(:new).and_return(client)
+    allow(Moderation::ImageScanning::Ocr::Client).to receive(:new).and_return(client)
     allow(client).to receive(:phash).and_return("deadbeefdeadbeef")
-    allow(Moderation::ImageDownload).to receive(:call).and_return("bytes")
+    allow(Moderation::ImageScanning::ImageDownload).to receive(:call).and_return("bytes")
     allow(Ops::Moderation::Phashes::Confirm).to receive(:call)
   end
 
@@ -97,7 +97,7 @@ RSpec.describe Moderation::ReportScam do
     let(:attachments) { [image_attachment, bad_image] }
 
     before do
-      allow(Moderation::ImageDownload).to receive(:call).with("https://cdn/bad.png").and_raise(Moderation::Ocr::Error, "boom")
+      allow(Moderation::ImageScanning::ImageDownload).to receive(:call).with("https://cdn/bad.png").and_raise(Moderation::ImageScanning::Ocr::Error, "boom")
     end
 
     it "counts only the successful confirmation without raising" do
@@ -166,7 +166,7 @@ RSpec.describe Moderation::ReportScam do
 
   context "when zero images were confirmed (all fail to phash)" do
     before do
-      allow(Moderation::ImageDownload).to receive(:call).and_raise(Moderation::Ocr::Error, "boom")
+      allow(Moderation::ImageScanning::ImageDownload).to receive(:call).and_raise(Moderation::ImageScanning::Ocr::Error, "boom")
     end
 
     it "does not post a mod-log entry and does not delete" do

@@ -2,7 +2,7 @@
 
 module Moderation
   class ConfirmScam < Bot::BaseEvent
-    include ComponentActions
+    include Interaction::ComponentActions
 
     on :button, custom_id: /\Amod:confirm:/
 

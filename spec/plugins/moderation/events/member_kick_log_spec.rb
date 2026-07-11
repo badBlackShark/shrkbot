@@ -21,8 +21,8 @@ RSpec.describe Moderation::MemberKickLog do
     allow(ServerConfiguration).to receive(:find_by).with(discord_id: guild_id).and_return(server_configuration)
     allow(Bot::ActivityLog).to receive(:enabled?).with(server_configuration, "moderation.member_kicked").and_return(true)
     allow(Bot::ActivityLog).to receive(:post)
-    allow(Moderation::AuditLogLookup).to receive(:attribution).and_return(attribution)
-    allow(Moderation::ActivityEntry).to receive(:build).and_return(built_entry)
+    allow(Moderation::MemberLog::AuditLogLookup).to receive(:attribution).and_return(attribution)
+    allow(Moderation::MemberLog::ActivityEntry).to receive(:build).and_return(built_entry)
   end
 
   context "when no ServerConfiguration exists" do
@@ -44,12 +44,12 @@ RSpec.describe Moderation::MemberKickLog do
 
     it "does not call AuditLogLookup" do
       handle
-      expect(Moderation::AuditLogLookup).not_to have_received(:attribution)
+      expect(Moderation::MemberLog::AuditLogLookup).not_to have_received(:attribution)
     end
   end
 
   context "when attribution is nil" do
-    before { allow(Moderation::AuditLogLookup).to receive(:attribution).and_return(nil) }
+    before { allow(Moderation::MemberLog::AuditLogLookup).to receive(:attribution).and_return(nil) }
 
     it "does not post" do
       handle

@@ -2,7 +2,7 @@
 
 module Moderation
   class DismissScam < Bot::BaseEvent
-    include ComponentActions
+    include Interaction::ComponentActions
 
     on :button, custom_id: /\Amod:dismiss:/
 
@@ -12,7 +12,7 @@ module Moderation
       row = Bot::Discord::Components.action_row(
         [
           Bot::Discord::Components.button(
-            custom_id: CustomId.dismiss_confirm(phash_hex),
+            custom_id: Interaction::CustomId.dismiss_confirm(phash_hex),
             label: I18n.t("moderation.image_scanning.buttons.dismiss_button"),
             style: Bot::Discord::Components::BUTTON_DANGER
           )

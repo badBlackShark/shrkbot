@@ -28,8 +28,8 @@ RSpec.describe Moderation::ImageScan do
   before do
     allow(server).to receive(:owner).and_return(owner)
     allow(Moderation::ImageScanning::Settings).to receive(:active_for).with(guild_id).and_return(settings)
-    allow(Moderation::Signals).to receive(:call).and_return(signals)
-    allow(Moderation::ScanQueue).to receive(:enqueue)
+    allow(Moderation::ImageScanning::Signals).to receive(:call).and_return(signals)
+    allow(Moderation::ImageScanning::ScanQueue).to receive(:enqueue)
   end
 
   context "when the message is from a bot" do
@@ -37,7 +37,7 @@ RSpec.describe Moderation::ImageScan do
 
     it "skips processing" do
       expect(Moderation::ImageScanning::Settings).not_to receive(:active_for)
-      expect(Moderation::ScanQueue).not_to receive(:enqueue)
+      expect(Moderation::ImageScanning::ScanQueue).not_to receive(:enqueue)
       handle
     end
   end
@@ -47,7 +47,7 @@ RSpec.describe Moderation::ImageScan do
 
     it "skips processing" do
       expect(Moderation::ImageScanning::Settings).not_to receive(:active_for)
-      expect(Moderation::ScanQueue).not_to receive(:enqueue)
+      expect(Moderation::ImageScanning::ScanQueue).not_to receive(:enqueue)
       handle
     end
   end
@@ -57,7 +57,7 @@ RSpec.describe Moderation::ImageScan do
 
     it "skips processing" do
       expect(Moderation::ImageScanning::Settings).not_to receive(:active_for)
-      expect(Moderation::ScanQueue).not_to receive(:enqueue)
+      expect(Moderation::ImageScanning::ScanQueue).not_to receive(:enqueue)
       handle
     end
   end
@@ -66,7 +66,7 @@ RSpec.describe Moderation::ImageScan do
     before { allow(Moderation::ImageScanning::Settings).to receive(:active_for).and_return(nil) }
 
     it "does not enqueue" do
-      expect(Moderation::ScanQueue).not_to receive(:enqueue)
+      expect(Moderation::ImageScanning::ScanQueue).not_to receive(:enqueue)
       handle
     end
   end
@@ -75,7 +75,7 @@ RSpec.describe Moderation::ImageScan do
     let(:attachments) { [] }
 
     it "does not enqueue" do
-      expect(Moderation::ScanQueue).not_to receive(:enqueue)
+      expect(Moderation::ImageScanning::ScanQueue).not_to receive(:enqueue)
       handle
     end
   end
@@ -84,7 +84,7 @@ RSpec.describe Moderation::ImageScan do
     let(:attachments) { [double("att", content_type: "application/pdf", size: 1234, url: "https://cdn/x.pdf")] }
 
     it "skips it and does not enqueue" do
-      expect(Moderation::ScanQueue).not_to receive(:enqueue)
+      expect(Moderation::ImageScanning::ScanQueue).not_to receive(:enqueue)
       handle
     end
   end
@@ -95,7 +95,7 @@ RSpec.describe Moderation::ImageScan do
     end
 
     it "skips it and does not enqueue" do
-      expect(Moderation::ScanQueue).not_to receive(:enqueue)
+      expect(Moderation::ImageScanning::ScanQueue).not_to receive(:enqueue)
       handle
     end
   end
@@ -106,15 +106,15 @@ RSpec.describe Moderation::ImageScan do
     end
 
     it "enqueues at most MAX_ATTACHMENTS processors" do
-      expect(Moderation::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).exactly(3).times
+      expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).exactly(3).times
       handle
     end
   end
 
   context "with a single valid image" do
     it "computes signals and enqueues one processor" do
-      expect(Moderation::Signals).to receive(:call).with(author:, content: "hello", server_id: guild_id).and_return(signals)
-      expect(Moderation::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).once
+      expect(Moderation::ImageScanning::Signals).to receive(:call).with(author:, content: "hello", server_id: guild_id).and_return(signals)
+      expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).once
       handle
     end
   end
@@ -123,7 +123,7 @@ RSpec.describe Moderation::ImageScan do
     let(:author) { double("author", id: owner.id, roles: []) }
 
     it "does not enqueue" do
-      expect(Moderation::ScanQueue).not_to receive(:enqueue)
+      expect(Moderation::ImageScanning::ScanQueue).not_to receive(:enqueue)
       handle
     end
   end
@@ -134,7 +134,7 @@ RSpec.describe Moderation::ImageScan do
     let(:author) { double("author", id: author_id, roles: [staff_role]) }
 
     it "does not enqueue" do
-      expect(Moderation::ScanQueue).not_to receive(:enqueue)
+      expect(Moderation::ImageScanning::ScanQueue).not_to receive(:enqueue)
       handle
     end
   end
@@ -144,7 +144,7 @@ RSpec.describe Moderation::ImageScan do
     let(:author) { double("author", id: author_id, roles: []) }
 
     it "enqueues normally" do
-      expect(Moderation::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).once
+      expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).once
       handle
     end
   end

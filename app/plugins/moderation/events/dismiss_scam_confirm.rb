@@ -2,7 +2,7 @@
 
 module Moderation
   class DismissScamConfirm < Bot::BaseEvent
-    include ComponentActions
+    include Interaction::ComponentActions
 
     on :button, custom_id: /\Amod:dismiss_confirm:/
 

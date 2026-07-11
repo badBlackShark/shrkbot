@@ -19,11 +19,11 @@ module Moderation
       attachments = eligible_attachments
       return if attachments.empty?
 
-      signals = Signals.call(author: event.author, content: event.message.content, server_id: event.server.id)
+      signals = ImageScanning::Signals.call(author: event.author, content: event.message.content, server_id: event.server.id)
 
       attachments.each do |attachment|
         context = context_for(attachment, settings, signals)
-        ScanQueue.enqueue(-> { ScanProcessor.call(context) })
+        ImageScanning::ScanQueue.enqueue(-> { ImageScanning::ScanProcessor.call(context) })
       end
     end
 
@@ -36,7 +36,7 @@ module Moderation
     end
 
     def context_for(attachment, settings, signals)
-      ScanContext.new(
+      ImageScanning::ScanContext.new(
         bot: event.bot,
         server: event.server,
         member: event.author,

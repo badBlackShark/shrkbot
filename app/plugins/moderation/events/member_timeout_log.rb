@@ -12,7 +12,7 @@ module Moderation
     end
 
     def entry
-      ActivityEntry.build(
+      MemberLog::ActivityEntry.build(
         :member_timed_out,
         target: member,
         moderator: attribution.moderator,
@@ -22,7 +22,7 @@ module Moderation
     end
 
     def first_sighting?
-      TimeoutLogLedger.instance.first_sighting?(
+      MemberLog::TimeoutLogLedger.instance.first_sighting?(
         guild_id: event.server.id,
         user_id: member.id,
         expires_at: member.communication_disabled_until
@@ -38,7 +38,7 @@ module Moderation
     def attribution
       return @attribution if defined?(@attribution)
 
-      @attribution = AuditLogLookup.attribution(event.server, action: :member_update, target_id: member.id) do |candidate|
+      @attribution = MemberLog::AuditLogLookup.attribution(event.server, action: :member_update, target_id: member.id) do |candidate|
         candidate.changes.is_a?(Hash) && candidate.changes["communication_disabled_until"]&.new.present?
       end
     end
