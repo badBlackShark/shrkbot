@@ -139,7 +139,7 @@ app/plugins/<plugin>/
 ```
 
 `config/application.rb` collapses `app/plugins/*/commands` and `*/events` so a file
-maps to `<X>::<Verb>`, not `<X>::Bot::Commands::<Verb>`. Namespaced AR models set
+maps to `<X>::<Verb>`, not `<X>::Commands::<Verb>`. Namespaced AR models set
 `self.table_name` explicitly. Naming convention to avoid collisions: the settings
 model is always `Settings`, records are nouns, commands are verbs.
 

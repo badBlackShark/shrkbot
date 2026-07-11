@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module Bot
-  require "net/http"
-  require "json"
+require "net/http"
+require "json"
 
+module Bot
   module Discord
     class UserGuilds
       ENDPOINT = URI("https://discord.com/api/#{Config::API_VERSION}/users/@me/guilds?with_counts=true")
