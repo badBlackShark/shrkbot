@@ -387,6 +387,8 @@ en:
       plugins:
         logging: 'Record moderation events to a private staff channel: role changes,
           joins, leaves.'
+        moderation: 'Automated moderation beyond Discord''s AutoMod: catch cross-channel
+          spam and unwanted images.'
         reminders: Let members set personal reminders, delivered in the channel or
           by DM.
         roles: Let members self-assign roles from a tidy menu you post in a channel.
