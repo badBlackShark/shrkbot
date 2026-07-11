@@ -10,9 +10,9 @@ class Components::PluginShell < Components::Base
   def view_template(&block)
     render Components::AppShell.new(
       user: @user,
-      current_server: switcher&.guild,
+      current_server: switcher&.server,
       current_server_id: @server_configuration.discord_id,
-      servers: switcher&.configured_guilds || [],
+      servers: switcher&.configured_servers || [],
       plugin_counts: switcher&.plugin_counts || {},
       sidebar: Components::PluginSidebar.new(server_configuration: @server_configuration, active_key: @active_key)
     ), &block

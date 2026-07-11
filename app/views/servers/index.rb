@@ -36,37 +36,37 @@ class Views::Servers::Index < Views::Base
 
   def server_grid
     div(class: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3") do
-      @present.each { |guild| present_card(guild) }
-      @absent.each { |guild| invite_card(guild) }
+      @present.each { |server| present_card(server) }
+      @absent.each { |server| invite_card(server) }
     end
   end
 
-  def present_card(guild)
-    render Components::Card.new(href: server_path(guild.id), lift: true, class: "flex flex-col gap-3") do
-      identity(guild)
-      plugins_badge(@plugin_counts[guild.id].to_i)
+  def present_card(server)
+    render Components::Card.new(href: server_path(server.id), lift: true, class: "flex flex-col gap-3") do
+      identity(server)
+      plugins_badge(@plugin_counts[server.id].to_i)
     end
   end
 
-  def invite_card(guild)
+  def invite_card(server)
     render Components::Card.new(dashed: true, class: "flex flex-col gap-3") do
-      identity(guild, muted: true)
-      invite_button(invite_url(guild))
+      identity(server, muted: true)
+      invite_button(invite_url(server))
     end
   end
 
-  def identity(guild, muted: false)
+  def identity(server, muted: false)
     div(class: "flex items-start gap-3") do
-      avatar(guild, muted:)
+      avatar(server, muted:)
       div(class: "min-w-0") do
-        p(class: "text-sm font-semibold line-clamp-2") { guild.name }
-        p(class: "text-xs text-text-secondary") { member_label(guild) } if guild.member_count
+        p(class: "text-sm font-semibold line-clamp-2") { server.name }
+        p(class: "text-xs text-text-secondary") { member_label(server) } if server.member_count
       end
     end
   end
 
-  def avatar(guild, muted: false)
-    render Components::ServerAvatar.new(server: guild, size: :lg, tone: :sunken, dim: muted)
+  def avatar(server, muted: false)
+    render Components::ServerAvatar.new(server:, size: :lg, tone: :sunken, dim: muted)
   end
 
   def plugins_badge(count)
@@ -75,8 +75,8 @@ class Views::Servers::Index < Views::Base
     end
   end
 
-  def member_label(guild)
-    t(".members", count: guild.member_count, formatted: guild.member_count.to_fs(:delimited))
+  def member_label(server)
+    t(".members", count: server.member_count, formatted: server.member_count.to_fs(:delimited))
   end
 
   def invite_button(url)
@@ -112,7 +112,7 @@ class Views::Servers::Index < Views::Base
     Bot::Config.invite_url
   end
 
-  def invite_url(guild)
-    "#{generic_invite_url}&guild_id=#{guild.id}&disable_guild_select=true"
+  def invite_url(server)
+    "#{generic_invite_url}&guild_id=#{server.id}&disable_guild_select=true"
   end
 end

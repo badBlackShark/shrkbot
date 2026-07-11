@@ -14,12 +14,12 @@ class CachedDashboard
     @configs = configs
   end
 
-  def guild
-    configured_guilds.find { |guild| guild.id == server_configuration.discord_id }
+  def server
+    configured_servers.find { |server| server.id == server_configuration.discord_id }
   end
 
-  def configured_guilds
-    @configured_guilds ||= @configs.sort_by { |config| -config.member_count.to_i }.map { |config| CachedGuild.from(config) }
+  def configured_servers
+    @configured_servers ||= @configs.sort_by { |config| -config.member_count.to_i }.map { |config| CachedGuild.from(config) }
   end
 
   def plugin_counts

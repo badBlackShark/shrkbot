@@ -9,11 +9,11 @@ class ServersController < ApplicationController
   rescue_from Bot::Discord::UserGuilds::Unauthorized, with: :reauthenticate
 
   def index
-    manageable = ManageableGuilds.for(session[:discord_token])
+    manageable = ManageableServers.for(session[:discord_token])
     session.delete(:reauth_attempted)
     configured = ServerConfiguration.configured_ids_among(manageable.map(&:id))
     remember_manageable_servers(configured)
-    present, absent = manageable.partition { |guild| configured.include?(guild.id) }
+    present, absent = manageable.partition { |server| configured.include?(server.id) }
 
     render Views::Servers::Index.new(
       present:,
@@ -25,11 +25,11 @@ class ServersController < ApplicationController
 
   def show
     render Views::Servers::Show.new(
-      guild: @guild,
+      server: @server,
       server_configuration: @server_configuration,
       plugins: PluginStatus.rows(@server_configuration),
       user: current_user,
-      servers: @configured_guilds,
+      servers: @configured_servers,
       plugin_counts: @plugin_counts
     )
   end
@@ -45,9 +45,9 @@ class ServersController < ApplicationController
     return redirect_to(servers_path, alert: t("servers.not_found")) unless result
 
     remember_manageable_servers(result.configured_ids)
-    @guild = result.guild
+    @server = result.server
     @server_configuration = result.server_configuration
-    @configured_guilds = result.configured_guilds
+    @configured_servers = result.configured_servers
     @plugin_counts = result.plugin_counts
   end
 
