@@ -7,6 +7,7 @@ module RequiresManageableServer
 
   included do
     before_action :require_manageable_server
+    helper_method :server_switcher
   end
 
   private
@@ -16,6 +17,13 @@ module RequiresManageableServer
     return if @server_configuration && manageable_server?(params[:server_id])
 
     redirect_to servers_path, alert: t("servers.not_found")
+  end
+
+  def server_switcher
+    @server_switcher ||= CachedDashboard.for(
+      discord_id: params[:server_id].to_i,
+      manageable_ids: manageable_server_ids
+    )
   end
 
   def manageable_server?(discord_id)

@@ -35,4 +35,25 @@ RSpec.describe Components::PluginShell do
       expect(html).to include("Dashboard")
     end
   end
+
+  context "when the request exposes a server switcher" do
+    let(:name) { "Dev Refuge" }
+    let!(:other) { create(:server_configuration, discord_id: 900_000_002, name: "Other Guild", member_count: 3) }
+    let(:switcher) do
+      CachedDashboard.for(
+        discord_id: config.discord_id,
+        manageable_ids: [config.discord_id, other.discord_id]
+      )
+    end
+
+    before do
+      without_partial_double_verification do
+        allow(view_context).to receive(:server_switcher).and_return(switcher)
+      end
+    end
+
+    it "renders the switcher with the other manageable servers" do
+      expect(html).to include("Other Guild")
+    end
+  end
 end
