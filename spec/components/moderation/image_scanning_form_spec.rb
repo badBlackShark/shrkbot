@@ -70,6 +70,14 @@ RSpec.describe Components::Moderation::ImageScanningForm do
     expect(html).to include('name="image_scanning[timeout_seconds]"')
   end
 
+  it "renders the confirmed_punishment control with correct field name" do
+    expect(html).to include('name="image_scanning[confirmed_punishment]"')
+  end
+
+  it "renders the confirmed_timeout_seconds duration select" do
+    expect(html).to include('name="image_scanning[confirmed_timeout_seconds]"')
+  end
+
   it "renders the image scanning explainer" do
     expect(html).to include("How image scanning works")
     expect(html).to include("Nothing is stored.")

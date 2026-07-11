@@ -6,13 +6,13 @@ module Moderation
   module VerdictExecutor
     module_function
 
-    def call(verdict:, context:, phash:, image_bytes: nil)
+    def call(verdict:, context:, phash:, hash_state:, image_bytes: nil)
       case verdict.action
       when :flag_for_review
         flag(verdict, context, phash, image_bytes:, removed: false)
       when :remove
         delete_message(context) if context.settings.action_delete?
-        punish(context)
+        punish(context, hash_state)
         flag(verdict, context, phash, image_bytes:, removed: true)
       end
     end
@@ -23,14 +23,17 @@ module Moderation
       Rails.logger.warn("[Moderation::VerdictExecutor] delete failed in ##{context.channel_id}: #{e.class}: #{e.message}")
     end
 
-    def punish(context)
-      return if context.settings.punishment_none?
+    def punish(context, hash_state)
+      settings = context.settings
+      confirmed = hash_state == :own_confirmed
+      punishment = confirmed ? settings.confirmed_punishment : settings.punishment
+      return if punishment == "none"
 
       Punisher.call(
         member: context.member,
         server: context.server,
-        punishment: context.settings.punishment,
-        timeout_seconds: context.settings.timeout_seconds,
+        punishment:,
+        timeout_seconds: confirmed ? settings.confirmed_timeout_seconds : settings.timeout_seconds,
         reason: I18n.t("moderation.image_scanning.punishment.reason")
       )
     end

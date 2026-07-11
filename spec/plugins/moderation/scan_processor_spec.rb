@@ -49,7 +49,7 @@ RSpec.describe Moderation::ScanProcessor do
         signals:,
         settings:
       )
-      expect(Moderation::VerdictExecutor).to have_received(:call).with(verdict:, context:, phash: hex, image_bytes: "bytes")
+      expect(Moderation::VerdictExecutor).to have_received(:call).with(verdict:, context:, phash: hex, hash_state: :none, image_bytes: "bytes")
     end
 
     it "does not touch last_seen" do
@@ -77,7 +77,7 @@ RSpec.describe Moderation::ScanProcessor do
       process
 
       expect(Ops::Moderation::Phashes::MarkSeen).to have_received(:call).with(phash_hex: hex)
-      expect(Moderation::VerdictExecutor).to have_received(:call).with(verdict:, context:, phash: hex, image_bytes: "bytes")
+      expect(Moderation::VerdictExecutor).to have_received(:call).with(verdict:, context:, phash: hex, hash_state: :own_confirmed, image_bytes: "bytes")
     end
   end
 

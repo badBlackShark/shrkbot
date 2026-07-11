@@ -71,6 +71,32 @@ RSpec.describe Moderation::ImageScanning::Settings do
     end
   end
 
+  describe "confirmed_punishment" do
+    it "is invalid for an unrecognised value" do
+      settings.confirmed_punishment = "mute"
+      expect(settings).not_to be_valid
+    end
+
+    %w[none timeout kick ban].each do |punishment|
+      it "is valid for #{punishment}" do
+        settings.confirmed_punishment = punishment
+        expect(settings).to be_valid
+      end
+    end
+  end
+
+  describe "confirmed_timeout_seconds" do
+    it "is invalid at 59" do
+      settings.confirmed_timeout_seconds = 59
+      expect(settings).not_to be_valid
+    end
+
+    it "is invalid at 2_419_201" do
+      settings.confirmed_timeout_seconds = 2_419_201
+      expect(settings).not_to be_valid
+    end
+  end
+
   describe "custom_keywords" do
     it "is valid when empty" do
       settings.custom_keywords = []

@@ -21,6 +21,8 @@ class Servers::ImageScanningController < ApplicationController
       action: image_scanning_params[:action],
       punishment: image_scanning_params[:punishment],
       timeout_seconds: image_scanning_params[:timeout_seconds],
+      confirmed_punishment: image_scanning_params[:confirmed_punishment],
+      confirmed_timeout_seconds: image_scanning_params[:confirmed_timeout_seconds],
       custom_keyword_min_hits: image_scanning_params[:custom_keyword_min_hits],
       custom_keywords: image_scanning_params[:custom_keywords],
       enabled: image_scanning_params[:enabled]
@@ -46,6 +48,8 @@ class Servers::ImageScanningController < ApplicationController
         :action,
         :punishment,
         :timeout_seconds,
+        :confirmed_punishment,
+        :confirmed_timeout_seconds,
         :custom_keyword_min_hits,
         :enabled,
         custom_keywords: []

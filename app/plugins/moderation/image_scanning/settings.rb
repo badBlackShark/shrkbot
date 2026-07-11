@@ -14,6 +14,9 @@ module Moderation
 
       string_enum :sensitivity, %w[relaxed standard strict]
       string_enum :action, %w[none delete], prefix: true
+      string_enum :confirmed_punishment, %w[none timeout kick ban], prefix: true
+      validates :confirmed_timeout_seconds,
+        numericality: {only_integer: true, greater_than_or_equal_to: 60, less_than_or_equal_to: 2_419_200}
       validates :custom_keyword_min_hits,
         numericality: {only_integer: true, greater_than_or_equal_to: 1}
       validate :custom_keywords_within_limit

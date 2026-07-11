@@ -113,6 +113,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
       div(class: "grid gap-5") do
         action_field
         punishment_field
+        confirmed_punishment_field
       end
     end
   end
@@ -140,6 +141,18 @@ class Components::Moderation::ImageScanningForm < Components::Base
         value: @settings.punishment,
         timeout_seconds: @settings.timeout_seconds
       )
+    end
+  end
+
+  def confirmed_punishment_field
+    div do
+      label(class: "block text-sm font-semibold mb-1.5") { t(".response.confirmed_punishment.label") }
+      render Components::Moderation::PunishmentControl.new(
+        name: "image_scanning[confirmed_punishment]",
+        value: @settings.confirmed_punishment,
+        timeout_seconds: @settings.confirmed_timeout_seconds
+      )
+      p(class: "text-xs text-text-muted mt-1.5") { t(".response.confirmed_punishment.help") }
     end
   end
 

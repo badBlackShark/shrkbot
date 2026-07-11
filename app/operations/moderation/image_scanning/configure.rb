@@ -12,6 +12,8 @@ module Ops
           :action,
           :punishment,
           :timeout_seconds,
+          :confirmed_punishment,
+          :confirmed_timeout_seconds,
           :custom_keywords,
           :custom_keyword_min_hits,
           :enabled
@@ -23,6 +25,8 @@ module Ops
             action:,
             punishment:,
             timeout_seconds:,
+            confirmed_punishment:,
+            confirmed_timeout_seconds:,
             custom_keyword_min_hits:,
             custom_keywords: Array(custom_keywords).reject(&:blank?)
           )
