@@ -102,7 +102,9 @@ RSpec.describe "Image scanning config", type: :request do
         it "saves settings and returns turbo stream on success" do
           patch server_image_scanning_path(guild.id),
             params: {image_scanning: {sensitivity: "standard", action: "delete",
-                                      punishment: "none", timeout_seconds: 3600, custom_keyword_min_hits: 2,
+                                      punishment: "none", timeout_seconds: 3600,
+                                      confirmed_punishment: "none", confirmed_timeout_seconds: 3600,
+                                      custom_keyword_min_hits: 2,
                                       custom_keywords: [], enabled: "0"}},
             **turbo
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
@@ -117,7 +119,9 @@ RSpec.describe "Image scanning config", type: :request do
 
           patch server_image_scanning_path(guild.id),
             params: {image_scanning: {sensitivity: "standard", action: "delete",
-                                      punishment: "none", timeout_seconds: 3600, custom_keyword_min_hits: 2,
+                                      punishment: "none", timeout_seconds: 3600,
+                                      confirmed_punishment: "none", confirmed_timeout_seconds: 3600,
+                                      custom_keyword_min_hits: 2,
                                       custom_keywords: [], enabled: "1"}},
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
@@ -126,7 +130,9 @@ RSpec.describe "Image scanning config", type: :request do
         it "falls back to a redirect without Turbo" do
           patch server_image_scanning_path(guild.id),
             params: {image_scanning: {sensitivity: "standard", action: "delete",
-                                      punishment: "none", timeout_seconds: 3600, custom_keyword_min_hits: 2,
+                                      punishment: "none", timeout_seconds: 3600,
+                                      confirmed_punishment: "none", confirmed_timeout_seconds: 3600,
+                                      custom_keyword_min_hits: 2,
                                       custom_keywords: [], enabled: "0"}}
           expect(response).to redirect_to(server_image_scanning_path(guild.id))
         end
@@ -135,7 +141,9 @@ RSpec.describe "Image scanning config", type: :request do
           subject(:patch_from_overview) do
             patch server_image_scanning_path(guild.id),
               params: {image_scanning: {sensitivity: "standard", action: "delete",
-                                        punishment: "none", timeout_seconds: 3600, custom_keyword_min_hits: 2,
+                                        punishment: "none", timeout_seconds: 3600,
+                                        confirmed_punishment: "none", confirmed_timeout_seconds: 3600,
+                                        custom_keyword_min_hits: 2,
                                         custom_keywords: [], enabled: "0"},
                        from_overview: "1"}
           end

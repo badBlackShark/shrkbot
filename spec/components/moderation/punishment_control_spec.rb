@@ -72,4 +72,18 @@ RSpec.describe Components::Moderation::PunishmentControl do
       expect(html).to include('name="image_scanning[timeout_seconds]"')
     end
   end
+
+  context "when used for the confirmed-scam tier" do
+    subject(:html) do
+      described_class.new(
+        name: "image_scanning[confirmed_punishment]",
+        value: "none",
+        timeout_seconds: 3600
+      ).render_in(view_context)
+    end
+
+    it "derives the confirmed timeout field name" do
+      expect(html).to include('name="image_scanning[confirmed_timeout_seconds]"')
+    end
+  end
 end

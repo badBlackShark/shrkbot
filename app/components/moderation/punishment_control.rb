@@ -80,7 +80,6 @@ class Components::Moderation::PunishmentControl < Components::Base
   end
 
   def timeout_field_name
-    prefix = @name.sub(/\[punishment\]$/, "")
-    "#{prefix}[timeout_seconds]"
+    @name.sub(/punishment\]$/, "timeout_seconds]")
   end
 end

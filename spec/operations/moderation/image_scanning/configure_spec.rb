@@ -10,6 +10,8 @@ RSpec.describe Ops::Moderation::ImageScanning::Configure do
       action:,
       punishment:,
       timeout_seconds:,
+      confirmed_punishment:,
+      confirmed_timeout_seconds:,
       custom_keywords:,
       custom_keyword_min_hits:,
       enabled:
@@ -23,6 +25,8 @@ RSpec.describe Ops::Moderation::ImageScanning::Configure do
   let(:action) { "delete" }
   let(:punishment) { "none" }
   let(:timeout_seconds) { 3600 }
+  let(:confirmed_punishment) { "none" }
+  let(:confirmed_timeout_seconds) { 3600 }
   let(:custom_keywords) { [] }
   let(:custom_keyword_min_hits) { 2 }
   let(:enabled) { "1" }

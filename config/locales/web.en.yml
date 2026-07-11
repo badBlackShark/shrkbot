@@ -116,6 +116,10 @@ en:
             flag_only: Flag only
             help: Flag only leaves the image up and pings staff to review it.
             label: When a scam is detected
+          confirmed_punishment:
+            help: Overrides the punishment above for images a moderator has confirmed
+              as scam on this server. Confirmations from other servers don't count.
+            label: If confirmed as a scam on this server
           punishment:
             label: Also punish the sender
       matching_explainer:

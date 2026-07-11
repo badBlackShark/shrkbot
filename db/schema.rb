@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_11_095649) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_11_125937) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -47,6 +47,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_11_095649) do
 
   create_table "image_scanning_settings", id: :string, default: -> { "('iss_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.string "action", default: "delete", null: false
+    t.string "confirmed_punishment", default: "none", null: false
+    t.integer "confirmed_timeout_seconds", default: 3600, null: false
     t.datetime "created_at", null: false
     t.integer "custom_keyword_min_hits", default: 2, null: false
     t.text "custom_keywords", default: [], null: false, array: true
@@ -58,6 +60,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_11_095649) do
     t.index ["server_configuration_id"], name: "index_image_scanning_settings_on_server_configuration_id", unique: true
     t.check_constraint "action::text = ANY (ARRAY['none'::character varying, 'delete'::character varying]::text[])", name: "image_scanning_settings_action_check"
     t.check_constraint "cardinality(custom_keywords) <= 200", name: "image_scanning_settings_custom_keywords_count_check"
+    t.check_constraint "confirmed_punishment::text = ANY (ARRAY['none'::character varying, 'timeout'::character varying, 'kick'::character varying, 'ban'::character varying]::text[])", name: "image_scanning_settings_confirmed_punishment_check"
+    t.check_constraint "confirmed_timeout_seconds >= 60 AND confirmed_timeout_seconds <= 2419200", name: "image_scanning_settings_confirmed_timeout_seconds_check"
     t.check_constraint "custom_keyword_min_hits >= 1 AND (cardinality(custom_keywords) = 0 OR custom_keyword_min_hits <= cardinality(custom_keywords))", name: "image_scanning_settings_min_hits_check"
     t.check_constraint "punishment::text = ANY (ARRAY['none'::character varying, 'timeout'::character varying, 'kick'::character varying, 'ban'::character varying]::text[])", name: "image_scanning_settings_punishment_check"
     t.check_constraint "sensitivity::text = ANY (ARRAY['relaxed'::character varying, 'standard'::character varying, 'strict'::character varying]::text[])", name: "image_scanning_settings_sensitivity_check"

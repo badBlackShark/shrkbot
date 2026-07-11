@@ -4,7 +4,8 @@ require "rails_helper"
 
 RSpec.describe Moderation::VerdictExecutor do
   let(:image_bytes) { "fakepngbytes" }
-  subject(:execute) { described_class.call(verdict:, context:, phash:, image_bytes:) }
+  let(:hash_state) { :none }
+  subject(:execute) { described_class.call(verdict:, context:, phash:, hash_state:, image_bytes:) }
 
   let(:server_id) { 111 }
   let(:member_id) { 222 }
@@ -36,7 +37,6 @@ RSpec.describe Moderation::VerdictExecutor do
       "settings",
       action_delete?: settings_action == "delete",
       punishment:,
-      punishment_none?: punishment == "none",
       timeout_seconds: 300,
       sensitivity: "standard",
       server_configuration:
@@ -266,6 +266,67 @@ RSpec.describe Moderation::VerdictExecutor do
     it "does not invoke the punisher" do
       expect(Moderation::Punisher).not_to receive(:call)
       execute
+    end
+  end
+
+  describe "confirmed-scam escalation" do
+    let(:confirmed_timeout_seconds) { 7200 }
+    let(:confirmed_punishment) { "ban" }
+    let(:punishment) { "timeout" }
+    let(:settings) do
+      double(
+        "settings",
+        action_delete?: false,
+        punishment:,
+        timeout_seconds: 300,
+        confirmed_punishment:,
+        confirmed_timeout_seconds:,
+        sensitivity: "standard",
+        server_configuration:
+      )
+    end
+
+    context "when hash_state is :own_confirmed and confirmed_punishment is 'ban'" do
+      let(:hash_state) { :own_confirmed }
+
+      it "punishes with the confirmed tier, not the general tier" do
+        execute
+
+        expect(Moderation::Punisher).to have_received(:call).with(
+          member:,
+          server:,
+          punishment: "ban",
+          timeout_seconds: confirmed_timeout_seconds,
+          reason: I18n.t("moderation.image_scanning.punishment.reason")
+        )
+      end
+    end
+
+    context "when hash_state is :own_confirmed and confirmed_punishment is 'none'" do
+      let(:hash_state) { :own_confirmed }
+      let(:confirmed_punishment) { "none" }
+
+      it "does not invoke the punisher even though the general punishment is set" do
+        expect(Moderation::Punisher).not_to receive(:call)
+        execute
+      end
+    end
+
+    context "when hash_state is :foreign_confirmed" do
+      let(:hash_state) { :foreign_confirmed }
+      let(:punishment) { "kick" }
+
+      it "punishes with the general tier, not the confirmed tier" do
+        execute
+
+        expect(Moderation::Punisher).to have_received(:call).with(
+          member:,
+          server:,
+          punishment: "kick",
+          timeout_seconds: 300,
+          reason: I18n.t("moderation.image_scanning.punishment.reason")
+        )
+      end
     end
   end
 
