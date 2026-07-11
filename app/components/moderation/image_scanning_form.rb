@@ -150,7 +150,8 @@ class Components::Moderation::ImageScanningForm < Components::Base
       render Components::Moderation::PunishmentControl.new(
         name: "image_scanning[confirmed_punishment]",
         value: @settings.confirmed_punishment,
-        timeout_seconds: @settings.confirmed_timeout_seconds
+        timeout_seconds: @settings.confirmed_timeout_seconds,
+        none_label: t(".response.confirmed_punishment.inherit")
       )
       p(class: "text-xs text-text-muted mt-1.5") { t(".response.confirmed_punishment.help") }
     end

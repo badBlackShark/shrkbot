@@ -40,15 +40,15 @@ module Moderation
 
       def punish
         settings = context.settings
-        confirmed = hash_state == :own_confirmed
-        punishment = confirmed ? settings.confirmed_punishment : settings.punishment
+        escalate = hash_state == :own_confirmed && settings.confirmed_punishment != "none"
+        punishment = escalate ? settings.confirmed_punishment : settings.punishment
         return if punishment == "none"
 
         Punisher.call(
           member: context.member,
           server: context.server,
           punishment:,
-          timeout_seconds: confirmed ? settings.confirmed_timeout_seconds : settings.timeout_seconds,
+          timeout_seconds: escalate ? settings.confirmed_timeout_seconds : settings.timeout_seconds,
           reason: I18n.t("moderation.image_scanning.punishment.reason")
         )
       end

@@ -14,10 +14,11 @@ class Components::Moderation::PunishmentControl < Components::Base
     {seconds: 2_419_200, label: "28 days"}
   ].freeze
 
-  def initialize(name:, value:, timeout_seconds:)
+  def initialize(name:, value:, timeout_seconds:, none_label: nil)
     @name = name
     @value = value.to_s
     @timeout_seconds = timeout_seconds
+    @none_label = none_label
   end
 
   def view_template
@@ -26,7 +27,7 @@ class Components::Moderation::PunishmentControl < Components::Base
         name: @name,
         value: @value,
         options: [
-          {value: "none", label: t("components.moderation.punishment_control.none")},
+          {value: "none", label: @none_label || t("components.moderation.punishment_control.none")},
           {value: "timeout", label: t("components.moderation.punishment_control.timeout")},
           {value: "kick", label: t("components.moderation.punishment_control.kick")},
           {value: "ban", label: t("components.moderation.punishment_control.ban")}
