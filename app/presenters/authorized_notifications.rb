@@ -13,7 +13,7 @@ class AuthorizedNotifications
       config = ServerConfiguration.find_by(discord_id: @server_id)
       return [] unless config
 
-      [[config, scoped.where(server_configuration: config).to_a]]
+      [[config, scoped.where(server_configuration: config).includes(:server_configuration).to_a]]
     else
       configs = ServerConfiguration
         .where(discord_id: @manageable_ids)

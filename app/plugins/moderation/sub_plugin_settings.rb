@@ -9,8 +9,8 @@ module Moderation
         config = ServerConfiguration.find_by(discord_id:)
         return unless config
 
-        enabled = config.plugins.enabled
-        return unless enabled.exists?(key: :moderation) && enabled.exists?(key: plugin_key)
+        enabled = config.enabled_plugin_keys
+        return unless enabled.include?(:moderation) && enabled.include?(plugin_key)
 
         yield config
       end

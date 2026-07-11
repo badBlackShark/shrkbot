@@ -31,8 +31,9 @@ module Ops
       private
 
       def reconcile_sets(setting)
+        existing_sets = setting.role_sets.includes(:assignable_roles).index_by(&:id)
         kept = role_sets.reject { |attrs| truthy?(attrs[:_destroy]) }.filter_map do |attrs|
-          set = find_or_build_set(setting, attrs)
+          set = find_or_build_set(setting, attrs, existing_sets)
           next unless set
 
           old_channel = set.channel_override || @old_default_channel_id
@@ -63,19 +64,19 @@ module Ops
         doomed.destroy_all
       end
 
-      def find_or_build_set(setting, attrs)
-        return setting.role_sets.find_by(id: attrs[:id]) if attrs[:id].present?
+      def find_or_build_set(setting, attrs, existing_sets)
+        return existing_sets[attrs[:id]] if attrs[:id].present?
 
         setting.role_sets.new(position: next_position)
       end
 
       def reconcile_roles(set, role_ids)
-        existing = set.assignable_roles.index_by { |role| role.role_id }
+        existing = set.assignable_roles.loaded? ? set.assignable_roles.index_by(&:role_id) : {}
         role_ids.each_with_index do |role_id, index|
           role = existing[role_id] || set.assignable_roles.new(role_id:)
           role.update!(position: index)
         end
-        set.assignable_roles.where.not(role_id: role_ids).destroy_all
+        set.assignable_roles.where.not(role_id: role_ids).destroy_all if existing.any?
       end
 
       def assignable_ids(attrs)

@@ -6,6 +6,6 @@ module Roles
 
     belongs_to :server_configuration
     has_many :role_sets, -> { order(:position) }, class_name: "Roles::Set",
-      foreign_key: "role_setting_id", dependent: :destroy
+      foreign_key: "role_setting_id", inverse_of: :role_setting, dependent: :destroy
   end
 end

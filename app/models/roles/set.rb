@@ -4,9 +4,9 @@ module Roles
   class Set < ApplicationRecord
     self.table_name = "role_sets"
 
-    belongs_to :role_setting, class_name: "Roles::Settings"
+    belongs_to :role_setting, class_name: "Roles::Settings", inverse_of: :role_sets
     has_many :assignable_roles, -> { order(:position) }, class_name: "Roles::AssignableRole",
-      foreign_key: "role_set_id", dependent: :delete_all
+      foreign_key: "role_set_id", inverse_of: :role_set, dependent: :delete_all
 
     validates :name, presence: true
     validates :selection_mode, presence: true
