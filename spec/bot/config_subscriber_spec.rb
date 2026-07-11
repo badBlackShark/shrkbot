@@ -41,7 +41,7 @@ RSpec.describe ConfigSubscriber do
         subscriber.start
 
         expect(attempts.size).to eq(2)
-        expect(subscriber).to have_received(:sleep).with(5)
+        expect(subscriber).to have_received(:sleep).with(described_class::RECONNECT_DELAY)
         expect(Rails.logger).to have_received(:warn).with(a_string_including("Redis connection lost"))
       end
     end

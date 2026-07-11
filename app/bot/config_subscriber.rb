@@ -3,6 +3,8 @@
 class ConfigSubscriber
   include WithConnection
 
+  RECONNECT_DELAY = 5
+
   def initialize(bot)
     @bot = bot
   end
@@ -16,8 +18,8 @@ class ConfigSubscriber
           end
         end
       rescue Redis::BaseConnectionError => e
-        Rails.logger.warn("[ConfigSubscriber] Redis connection lost (#{e.message}), retrying in 5s")
-        sleep 5
+        Rails.logger.warn("[ConfigSubscriber] Redis connection lost (#{e.class}: #{e.message}), retrying in #{RECONNECT_DELAY}s")
+        sleep RECONNECT_DELAY
       end
     end
   end
