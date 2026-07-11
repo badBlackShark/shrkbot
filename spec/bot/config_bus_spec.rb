@@ -62,6 +62,20 @@ RSpec.describe ConfigBus do
   end
 
   describe ".publish" do
+    context "when Redis is unreachable" do
+      let(:set) { create(:role_set) }
+
+      before do
+        allow(redis).to receive(:publish).and_raise(Redis::BaseConnectionError, "down")
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it "swallows the error and logs the dropped event" do
+        expect { described_class.post_roles(set) }.not_to raise_error
+        expect(Rails.logger).to have_received(:error).with(a_string_including("dropping roles_post"))
+      end
+    end
+
     context "when BotConfig.redis_url is nil" do
       let(:set) { create(:role_set) }
 

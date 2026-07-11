@@ -9,10 +9,15 @@ class ConfigSubscriber
 
   def start
     Thread.new do
-      Redis.new(url: BotConfig.redis_url).subscribe(ConfigBus::CHANNEL) do |on|
-        on.message do |_channel, payload|
-          handle(payload)
+      loop do
+        Redis.new(url: BotConfig.redis_url).subscribe(ConfigBus::CHANNEL) do |on|
+          on.message do |_channel, payload|
+            handle(payload)
+          end
         end
+      rescue Redis::BaseConnectionError => e
+        Rails.logger.warn("[ConfigSubscriber] Redis connection lost (#{e.message}), retrying in 5s")
+        sleep 5
       end
     end
   end
