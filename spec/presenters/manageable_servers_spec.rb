@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe ManageableGuilds do
+RSpec.describe ManageableServers do
   describe ".for" do
     subject(:guilds) { described_class.for("tok") }
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ServerDashboard
-  Result = Data.define(:guild, :server_configuration, :configured_guilds, :plugin_counts, :configured_ids)
+  Result = Data.define(:server, :server_configuration, :configured_servers, :plugin_counts, :configured_ids)
 
   def self.resolve(discord_token:, target_id:, cached_ids:)
     new(discord_token:, target_id:, cached_ids:).resolve
@@ -24,16 +24,16 @@ class ServerDashboard
   private
 
   def live
-    manageable = ManageableGuilds.for(@discord_token)
-    guild = manageable.find { |candidate| candidate.id == @target_id }
-    config = ServerConfiguration.find_by(discord_id: @target_id) if guild
-    return unless guild && config
+    manageable = ManageableServers.for(@discord_token)
+    server = manageable.find { |candidate| candidate.id == @target_id }
+    config = ServerConfiguration.find_by(discord_id: @target_id) if server
+    return unless server && config
 
     ids = ServerConfiguration.configured_ids_among(manageable.map(&:id))
     Result.new(
-      guild:,
+      server:,
       server_configuration: config,
-      configured_guilds: manageable.select { |candidate| ids.include?(candidate.id) },
+      configured_servers: manageable.select { |candidate| ids.include?(candidate.id) },
       plugin_counts: PluginActivation.enabled_counts_for(ids),
       configured_ids: ids
     )
@@ -44,9 +44,9 @@ class ServerDashboard
     return unless dashboard
 
     Result.new(
-      guild: dashboard.guild,
+      server: dashboard.server,
       server_configuration: dashboard.server_configuration,
-      configured_guilds: dashboard.configured_guilds,
+      configured_servers: dashboard.configured_servers,
       plugin_counts: dashboard.plugin_counts,
       configured_ids: @cached_ids
     )

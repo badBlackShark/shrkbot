@@ -30,16 +30,16 @@ RSpec.describe ServerDashboard do
       allow(Bot::Discord::UserGuilds).to receive(:call).with("tok").and_return([target_guild, other_guild])
     end
 
-    it "returns a Result with the correct guild" do
-      expect(result.guild).to eq(target_guild)
+    it "returns a Result with the correct server" do
+      expect(result.server).to eq(target_guild)
     end
 
     it "returns a Result with the correct server_configuration" do
       expect(result.server_configuration).to eq(config)
     end
 
-    it "returns configured_guilds containing both manageable configured guilds" do
-      expect(result.configured_guilds).to contain_exactly(target_guild, other_guild)
+    it "returns configured_servers containing both manageable configured servers" do
+      expect(result.configured_servers).to contain_exactly(target_guild, other_guild)
     end
 
     it "returns configured_ids for all configured manageable guilds" do

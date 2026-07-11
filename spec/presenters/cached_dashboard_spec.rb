@@ -44,34 +44,34 @@ RSpec.describe CachedDashboard do
     end
   end
 
-  describe "#guild" do
-    subject(:guild) do
+  describe "#server" do
+    subject(:server) do
       described_class.for(
         discord_id:,
         manageable_ids: [discord_id, other_id]
-      ).guild
+      ).server
     end
 
     it "returns a CachedGuild for the target server" do
-      expect(guild).to be_a(CachedGuild)
-      expect(guild.id).to eq(discord_id)
+      expect(server).to be_a(CachedGuild)
+      expect(server.id).to eq(discord_id)
     end
   end
 
-  describe "#configured_guilds" do
-    subject(:guilds) do
+  describe "#configured_servers" do
+    subject(:servers) do
       described_class.for(
         discord_id:,
         manageable_ids: [discord_id, other_id]
-      ).configured_guilds
+      ).configured_servers
     end
 
     it "returns CachedGuild instances for each manageable config" do
-      expect(guilds).to all(be_a(CachedGuild))
+      expect(servers).to all(be_a(CachedGuild))
     end
 
-    it "orders guilds by member_count descending" do
-      expect(guilds.map(&:id)).to eq([other_id, discord_id])
+    it "orders servers by member_count descending" do
+      expect(servers.map(&:id)).to eq([other_id, discord_id])
     end
   end
 
