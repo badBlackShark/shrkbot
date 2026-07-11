@@ -5,7 +5,7 @@ module Commands
     command_name :announce
     description "Broadcast a message to the owner of every server shrkbot is in. Bot owner only."
     owner_only
-    register_in :global
+    register_in :owner_guild
 
     MODAL_ID = "announce:compose"
     INPUT_ID = "announce:content"
