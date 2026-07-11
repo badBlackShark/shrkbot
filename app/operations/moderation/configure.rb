@@ -5,11 +5,12 @@ module Ops
     class Configure < ApplicationOperation
       include Ops::PluginConfiguration
 
-      receives :server_configuration, :staff_role_id, :enabled
+      receives :server_configuration, :staff_role_id, :enabled, :ping_staff
 
       def call
         settings = server_configuration.moderation_settings
         settings.assign_attributes(staff_role_id: staff_role_id.presence)
+        settings.ping_staff = ping_staff unless ping_staff.nil?
         activation = staged_activation
 
         return logging_guard_failure(activation) if enabling? && !logging_ready?

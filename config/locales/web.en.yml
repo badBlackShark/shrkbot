@@ -172,9 +172,13 @@ en:
             purge: Purge the messages
           punishment:
             label: Also punish the sender
+      staff_ping_card:
+        help: Mention the staff role at the top of every moderation log entry. Turn
+          it off for a quieter log staff check on their own.
+        label: Ping staff on alerts
       staff_role_card:
-        help: Shared by every Moderation sub-plugin. Pinged on every alert, and exempt
-          from spam detection. Pick one before enabling any sub-plugin.
+        help: Shared by every Moderation sub-plugin, and exempt from spam detection.
+          Pick one before enabling any sub-plugin.
         label: Staff role
         missing_warning: Required. Every sub-plugin stays off until a staff role is
           picked.

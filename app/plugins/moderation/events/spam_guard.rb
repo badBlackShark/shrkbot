@@ -84,8 +84,9 @@ module Moderation
     end
 
     def notify(config, settings, staff_role_id, entries)
+      ping = config.moderation_settings.ping_staff
       channels = entries.map(&:channel_id).uniq
-      body = StaffPing.prefix(staff_role_id) + I18n.t(
+      body = StaffPing.prefix(staff_role_id, ping:) + I18n.t(
         "moderation.spam_protection.notification.body",
         author: "<@#{event.author.id}>",
         count: channels.size,
@@ -101,7 +102,7 @@ module Moderation
         title: I18n.t("moderation.spam_protection.notification.title.#{settings.action}"),
         body:,
         meta: I18n.t("moderation.spam_protection.notification.meta.#{settings.action}"),
-        allowed_mentions: {parse: [], roles: [staff_role_id]}
+        allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
       )
     end
 

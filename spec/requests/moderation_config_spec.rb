@@ -157,6 +157,13 @@ RSpec.describe "Moderation config", type: :request do
             params: {moderation: {staff_role_id: 500, enabled: "1"}}
           expect(response).to redirect_to(server_moderation_path(guild.id))
         end
+
+        it "sets ping_staff to false when param is '0'" do
+          patch server_moderation_path(guild.id),
+            params: {moderation: {staff_role_id: 500, enabled: "1", ping_staff: "0"}},
+            **turbo
+          expect(config.moderation_settings.reload.ping_staff).to be(false)
+        end
       end
     end
   end

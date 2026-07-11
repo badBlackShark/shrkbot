@@ -18,7 +18,8 @@ class Servers::ModerationController < ApplicationController
     result = Ops::Moderation::Configure.call(
       server_configuration: @server_configuration,
       staff_role_id: moderation_params[:staff_role_id],
-      enabled: moderation_params[:enabled]
+      enabled: moderation_params[:enabled],
+      ping_staff: moderation_params[:ping_staff]
     )
     activation = result.value
     @enabled = activation.enabled?
@@ -34,7 +35,7 @@ class Servers::ModerationController < ApplicationController
   private
 
   def moderation_params
-    params.expect(moderation: [:staff_role_id, :enabled])
+    params.expect(moderation: [:staff_role_id, :enabled, :ping_staff])
   end
 
   def build_context

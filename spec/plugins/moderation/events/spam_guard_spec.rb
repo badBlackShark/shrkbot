@@ -20,7 +20,8 @@ RSpec.describe Moderation::SpamGuard do
   let(:event) { double("event", from_bot?: false, server:, author:, message:, channel:, bot:) }
 
   let(:logging_setting) { double("logging_setting", channel_id: log_channel_id) }
-  let(:moderation_settings) { double("moderation_settings", staff_role_id:) }
+  let(:ping_staff) { true }
+  let(:moderation_settings) { double("moderation_settings", staff_role_id:, ping_staff:) }
   let(:config) do
     double(
       "server_configuration",
@@ -338,19 +339,57 @@ RSpec.describe Moderation::SpamGuard do
     end
   end
 
+  context "when ping_staff is false" do
+    let(:action) { "notify_only" }
+    let(:ping_staff) { false }
+
+    before do
+      allow(bot).to receive(:channel).with(1).and_return(double("ch1", delete_message: nil))
+      allow(bot).to receive(:channel).with(2).and_return(double("ch2", delete_message: nil))
+      allow(bot).to receive(:channel).with(3).and_return(double("ch3", delete_message: nil))
+      allow(Discord::Components).to receive(:send_to)
+    end
+
+    it "notifies with empty roles in allowed_mentions" do
+      expect(Discord::Components).to receive(:send_to).with(
+        log_channel,
+        anything,
+        allowed_mentions: {parse: [], roles: []},
+        attachments: nil
+      )
+
+      simulate_message(channel_id: 1, message_id: 10)
+      simulate_message(channel_id: 2, message_id: 20)
+      simulate_message(channel_id: 3, message_id: 30)
+    end
+
+    it "does not start the body with a role mention" do
+      body = nil
+      allow(Discord::Components).to receive(:send_to) do |_channel, rendered, **|
+        body = rendered[:components].first[:components].first[:content]
+      end
+
+      simulate_message(channel_id: 1, message_id: 10)
+      simulate_message(channel_id: 2, message_id: 20)
+      simulate_message(channel_id: 3, message_id: 30)
+
+      expect(body).not_to start_with("<@&")
+    end
+  end
+
   context "when no staff role is configured" do
     let(:action) { "notify_only" }
-    let(:moderation_settings) { double("moderation_settings", staff_role_id: nil) }
+    let(:moderation_settings) { double("moderation_settings", staff_role_id: nil, ping_staff: true) }
 
     before do
       allow(Discord::Components).to receive(:send_to)
     end
 
-    it "notifies with nil in the roles array (seam guard prevents this in production)" do
+    it "notifies with an empty roles array (seam guard prevents this in production)" do
       expect(Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
-        allowed_mentions: {parse: [], roles: [nil]},
+        allowed_mentions: {parse: [], roles: []},
         attachments: nil
       )
 
