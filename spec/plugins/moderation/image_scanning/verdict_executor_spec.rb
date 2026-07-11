@@ -306,9 +306,25 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
       let(:hash_state) { :own_confirmed }
       let(:confirmed_punishment) { "none" }
 
-      it "does not invoke the punisher even though the general punishment is set" do
-        expect(Moderation::Punisher).not_to receive(:call)
+      it "inherits the general punishment rather than skipping it" do
         execute
+
+        expect(Moderation::Punisher).to have_received(:call).with(
+          member:,
+          server:,
+          punishment: "timeout",
+          timeout_seconds: 300,
+          reason: I18n.t("moderation.image_scanning.punishment.reason")
+        )
+      end
+
+      context "when the general punishment is also 'none'" do
+        let(:punishment) { "none" }
+
+        it "does not invoke the punisher" do
+          expect(Moderation::Punisher).not_to receive(:call)
+          execute
+        end
       end
     end
 

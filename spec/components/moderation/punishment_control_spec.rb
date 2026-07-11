@@ -85,5 +85,21 @@ RSpec.describe Components::Moderation::PunishmentControl do
     it "derives the confirmed timeout field name" do
       expect(html).to include('name="image_scanning[confirmed_timeout_seconds]"')
     end
+
+    context "with a custom none_label" do
+      subject(:html) do
+        described_class.new(
+          name: "image_scanning[confirmed_punishment]",
+          value: "none",
+          timeout_seconds: 3600,
+          none_label: "Same as above"
+        ).render_in(view_context)
+      end
+
+      it "renders the override label in place of None" do
+        expect(html).to include("Same as above")
+        expect(html).not_to include(">None<")
+      end
+    end
   end
 end

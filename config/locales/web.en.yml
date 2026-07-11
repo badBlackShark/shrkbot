@@ -117,8 +117,10 @@ en:
             help: Flag only leaves the image up and pings staff to review it.
             label: When a scam is detected
           confirmed_punishment:
-            help: Overrides the punishment above for images a moderator has confirmed
-              as scam on this server. Confirmations from other servers don't count.
+            help: Sets the punishment for images a moderator has confirmed as scam
+              on this server, overriding the general punishment above. Leave on "Same
+              as above" to reuse it. Confirmations from other servers don't count.
+            inherit: Same as above
             label: If confirmed as a scam on this server
           punishment:
             label: Also punish the sender
