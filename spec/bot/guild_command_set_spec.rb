@@ -108,6 +108,39 @@ RSpec.describe GuildCommandSet do
       end
     end
 
+    context "owner-guild command" do
+      let(:owner_guild_cmd) { make_command(name: :announce, context: :owner_guild) }
+      let(:commands) { [owner_guild_cmd] }
+
+      before do
+        allow(BotConfig).to receive(:owner_guild_id).and_return(owner_guild_id)
+      end
+
+      context "in the owner's guild" do
+        let(:owner_guild_id) { discord_id.to_s }
+
+        it "is included" do
+          expect(payloads.map { |p| p[:name] }).to include(:announce)
+        end
+      end
+
+      context "in any other guild" do
+        let(:owner_guild_id) { "123456" }
+
+        it "is excluded" do
+          expect(payloads).to be_empty
+        end
+      end
+
+      context "when OWNER_GUILD_ID is not set" do
+        let(:owner_guild_id) { nil }
+
+        it "is excluded" do
+          expect(payloads).to be_empty
+        end
+      end
+    end
+
     context "global command in test environment (not development)" do
       let(:commands) { [global_cmd] }
 

@@ -18,6 +18,10 @@ module BotConfig
     ENV["OWNER_ID"]
   end
 
+  def owner_guild_id
+    ENV["OWNER_GUILD_ID"]
+  end
+
   def redis_url
     ENV["REDIS_URL"]
   end

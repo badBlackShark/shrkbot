@@ -19,8 +19,14 @@ class GuildCommandSet
   def include_command?(klass)
     reg = klass.registration
     return include_global? if reg.global?
+    return owner_guild? if reg.context == :owner_guild
 
     include_guild?(reg)
+  end
+
+  def owner_guild?
+    owner_guild_id = BotConfig.owner_guild_id
+    owner_guild_id.present? && @discord_id.to_s == owner_guild_id.to_s
   end
 
   def include_global?
