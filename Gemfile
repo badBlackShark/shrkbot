@@ -71,6 +71,9 @@ group :development, :test do
   # Audits gems for known security defects (use config/bundler-audit.yml to ignore issues)
   gem "bundler-audit", require: false
 
+  # Static analysis security scanner for app code (use config/brakeman.ignore to baseline)
+  gem "brakeman", require: false
+
   # Ruby styling/linting
   gem "standard", require: false
 
