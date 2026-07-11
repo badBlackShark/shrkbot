@@ -98,18 +98,13 @@ RSpec.describe PluginCatalog do
       subject(:check) { requiring_definition.prerequisites_met?(config) }
 
       context "when required plugin is not enabled" do
-        let(:config) { double(plugins: double(enabled: double(exists?: false))) }
+        let(:config) { double(enabled_plugin_keys: Set[]) }
 
         it { is_expected.to be(false) }
       end
 
       context "when required plugin is enabled" do
-        let(:enabled_scope) do
-          scope = double
-          allow(scope).to receive(:exists?).with(key: :logging).and_return(true)
-          scope
-        end
-        let(:config) { double(plugins: double(enabled: enabled_scope)) }
+        let(:config) { double(enabled_plugin_keys: Set[:logging]) }
 
         it { is_expected.to be(true) }
       end
@@ -123,18 +118,13 @@ RSpec.describe PluginCatalog do
       subject(:check) { child_definition.prerequisites_met?(config) }
 
       context "when parent plugin is not enabled" do
-        let(:config) { double(plugins: double(enabled: double(exists?: false))) }
+        let(:config) { double(enabled_plugin_keys: Set[]) }
 
         it { is_expected.to be(false) }
       end
 
       context "when parent plugin is enabled" do
-        let(:enabled_scope) do
-          scope = double
-          allow(scope).to receive(:exists?).with(key: :moderation).and_return(true)
-          scope
-        end
-        let(:config) { double(plugins: double(enabled: enabled_scope)) }
+        let(:config) { double(enabled_plugin_keys: Set[:moderation]) }
 
         it { is_expected.to be(true) }
       end
@@ -282,11 +272,7 @@ RSpec.describe PluginCatalog do
   end
 
   describe "moderation prerequisite predicates" do
-    let(:enabled_scope) { double }
-
-    before do
-      allow(enabled_scope).to receive(:exists?).and_return(true)
-    end
+    let(:enabled_keys) { Set[:logging, :moderation] }
 
     describe ":moderation prerequisite" do
       subject(:check) { PluginCatalog.find(:moderation).prerequisites_met?(config) }
@@ -294,7 +280,7 @@ RSpec.describe PluginCatalog do
       context "when logging enabled but no logging channel" do
         let(:config) do
           double(
-            plugins: double(enabled: enabled_scope),
+            enabled_plugin_keys: enabled_keys,
             logging_setting: double(channel_id: nil)
           )
         end
@@ -305,7 +291,7 @@ RSpec.describe PluginCatalog do
       context "when logging enabled with a logging channel" do
         let(:config) do
           double(
-            plugins: double(enabled: enabled_scope),
+            enabled_plugin_keys: enabled_keys,
             logging_setting: double(channel_id: 999)
           )
         end
@@ -320,7 +306,7 @@ RSpec.describe PluginCatalog do
       context "when group enabled but no staff role" do
         let(:config) do
           double(
-            plugins: double(enabled: enabled_scope),
+            enabled_plugin_keys: enabled_keys,
             moderation_settings: double(staff_role_id: nil)
           )
         end
@@ -331,7 +317,7 @@ RSpec.describe PluginCatalog do
       context "when group enabled with staff role" do
         let(:config) do
           double(
-            plugins: double(enabled: enabled_scope),
+            enabled_plugin_keys: enabled_keys,
             moderation_settings: double(staff_role_id: 123)
           )
         end
@@ -346,7 +332,7 @@ RSpec.describe PluginCatalog do
       context "when group enabled but no staff role" do
         let(:config) do
           double(
-            plugins: double(enabled: enabled_scope),
+            enabled_plugin_keys: enabled_keys,
             moderation_settings: double(staff_role_id: nil)
           )
         end
@@ -357,7 +343,7 @@ RSpec.describe PluginCatalog do
       context "when group enabled with staff role" do
         let(:config) do
           double(
-            plugins: double(enabled: enabled_scope),
+            enabled_plugin_keys: enabled_keys,
             moderation_settings: double(staff_role_id: 456)
           )
         end

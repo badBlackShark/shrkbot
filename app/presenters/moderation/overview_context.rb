@@ -14,11 +14,11 @@ module Moderation
     end
 
     def group_enabled?
-      @config.plugins.enabled.exists?(key: :moderation)
+      enabled_keys.include?(:moderation)
     end
 
     def logging_ready?
-      @config.plugins.enabled.exists?(key: :logging) &&
+      enabled_keys.include?(:logging) &&
         @config.logging_setting&.channel_id.present?
     end
 
@@ -55,8 +55,8 @@ module Moderation
           key:,
           name: definition.name,
           description: definition.description,
-          enabled: @config.plugins.enabled.exists?(key:),
-          configured: definition.prerequisites_met?(@config),
+          enabled: enabled_keys.include?(key),
+          configured: definition.prerequisites_met?(@config, enabled_keys:),
           settings:
         )
       end
@@ -66,6 +66,12 @@ module Moderation
       return unless @config.logging_setting&.channel_id
 
       @config.server_channels.find_by(discord_id: @config.logging_setting.channel_id)&.name
+    end
+
+    private
+
+    def enabled_keys
+      @enabled_keys ||= @config.enabled_plugin_keys
     end
   end
 end

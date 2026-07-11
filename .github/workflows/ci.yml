@@ -59,6 +59,28 @@ jobs:
       - name: Scan for security vulnerabilities in JavaScript dependencies
         run: bin/importmap audit
 
+  smells:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      # Advisory SRP/DRY signal; findings are input for human judgment, not a
+      # gate. continue-on-error keeps a non-zero exit from failing the check.
+      - name: Report code smells
+        continue-on-error: true
+        run: bundle exec reek app/ lib/
+
+      - name: Report structural duplication
+        continue-on-error: true
+        run: bundle exec flay app/ lib/
+
   lint:
     runs-on: ubuntu-latest
     steps:

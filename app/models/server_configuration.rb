@@ -26,4 +26,8 @@ class ServerConfiguration < ApplicationRecord
   def icon_url
     Bot::Discord::CdnUrl.guild_icon(discord_id, icon_hash)
   end
+
+  def enabled_plugin_keys
+    plugins.enabled.pluck(:key).map(&:to_sym).to_set
+  end
 end

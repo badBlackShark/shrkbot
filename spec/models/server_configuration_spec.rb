@@ -31,6 +31,24 @@ RSpec.describe ServerConfiguration do
     end
   end
 
+  describe "#enabled_plugin_keys" do
+    subject(:keys) { server.enabled_plugin_keys }
+
+    let(:server) { create(:server_configuration, discord_id: 321) }
+    let(:logging) { create(:plugin, key: "logging", name: "Logging") }
+    let(:roles) { create(:plugin, key: "roles", name: "Roles") }
+
+    before do
+      server.create_logging_setting!(channel_id: 999)
+      create(:plugin_activation, server_configuration: server, plugin: logging, enabled: true)
+      create(:plugin_activation, server_configuration: server, plugin: roles, enabled: false)
+    end
+
+    it "returns the enabled plugin keys as a symbol set" do
+      expect(keys).to eq(Set[:logging])
+    end
+  end
+
   describe "plugin_activations uniqueness" do
     subject(:activation) { server.plugin_activations.build(plugin:) }
 

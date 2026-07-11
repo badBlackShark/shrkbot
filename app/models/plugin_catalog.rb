@@ -10,8 +10,8 @@ class PluginCatalog
       !channel_setting.nil?
     end
 
-    def prerequisites_met?(server_configuration)
-      return false unless required_plugins_enabled?(server_configuration)
+    def prerequisites_met?(server_configuration, enabled_keys: nil)
+      return false unless required_plugins_enabled?(server_configuration, enabled_keys)
       return false unless channel_met?(server_configuration)
       return false unless prerequisite.nil? || prerequisite.call(server_configuration)
 
@@ -20,10 +20,12 @@ class PluginCatalog
 
     private
 
-    def required_plugins_enabled?(server_configuration)
-      [requires_plugin, parent].compact.all? do |key|
-        server_configuration.plugins.enabled.exists?(key:)
-      end
+    def required_plugins_enabled?(server_configuration, enabled_keys)
+      required = [requires_plugin, parent].compact
+      return true if required.empty?
+
+      keys = enabled_keys || server_configuration.enabled_plugin_keys
+      required.all? { |key| keys.include?(key) }
     end
 
     def channel_met?(server_configuration)
