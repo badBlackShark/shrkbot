@@ -4,6 +4,10 @@ on:
   pull_request:
   push:
     branches: [ main ]
+  schedule:
+    # Nightly dependency audit; CVE feeds change independently of our code, so a
+    # new advisory must not surface as a red check on an unrelated PR.
+    - cron: '0 6 * * *'
 
 jobs:
   scan_ruby:
@@ -18,11 +22,30 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Scan app code for security issues
+        run: bin/brakeman
+
+  audit_ruby_deps:
+    runs-on: ubuntu-latest
+    # Whole-lockfile scan; not diff-scoped, so keep it off PRs (main + nightly).
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
       - name: Scan for known security vulnerabilities in gems used
         run: bin/bundler-audit
-      
-  scan_js:
+
+  audit_js_deps:
     runs-on: ubuntu-latest
+    # Whole-lockfile scan; not diff-scoped, so keep it off PRs (main + nightly).
+    if: github.event_name != 'pull_request'
 
     steps:
       - name: Checkout code
