@@ -11,7 +11,7 @@ class Views::Accounts::Show < Views::Base
   def view_template
     render Components::AppShell.new(user: @user) do
       div(class: "mx-auto max-w-2xl px-6 py-10") do
-        heading
+        render Components::PageHeading.new(title: t(".title"), subtitle: t(".subtitle"))
         data_card
         danger_card
       end
@@ -19,13 +19,6 @@ class Views::Accounts::Show < Views::Base
   end
 
   private
-
-  def heading
-    div(class: "mb-6") do
-      h1(class: "mb-1 font-display text-2xl font-bold tracking-tight") { t(".title") }
-      p(class: "text-text-secondary") { t(".subtitle") }
-    end
-  end
 
   def data_card
     render Components::Card.new(class: "mb-6 flex flex-col gap-4") do

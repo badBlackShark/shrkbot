@@ -6,7 +6,18 @@ module ConfiguresPlugin
   private
 
   def plugin_enabled?
-    @server_configuration.plugins.enabled.exists?(key: controller_name)
+    @server_configuration.enabled_plugin_keys.include?(controller_name.to_sym)
+  end
+
+  def respond_with_configuration(result, error_keys: [:enabled])
+    activation = result.value
+    @enabled = activation.enabled?
+    @enable_error = error_keys.filter_map { |key| activation.errors[key].first }.first
+    @toast = {level: "notice", message: t("servers.#{controller_name}.saved")} if result.success?
+    respond_to do |format|
+      format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
+      format.html { redirect_to url_for(action: :show), **flash_for(result) }
+    end
   end
 
   def flash_for(result)

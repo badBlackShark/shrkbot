@@ -12,7 +12,7 @@ class Views::Servers::Index < Views::Base
   def view_template
     render Components::AppShell.new(user: @user) do
       div(class: "mx-auto max-w-4xl px-6 py-10") do
-        heading
+        render Components::PageHeading.new(title: t(".title"), subtitle: t(".subtitle"))
         error_banner if @error
 
         if @present.empty? && @absent.empty?
@@ -26,13 +26,6 @@ class Views::Servers::Index < Views::Base
   end
 
   private
-
-  def heading
-    div(class: "mb-6") do
-      h1(class: "mb-1 font-display text-2xl font-bold tracking-tight") { t(".title") }
-      p(class: "text-text-secondary") { t(".subtitle") }
-    end
-  end
 
   def server_grid
     div(class: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3") do

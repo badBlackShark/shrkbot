@@ -21,15 +21,7 @@ class Servers::ModerationController < ApplicationController
       enabled: moderation_params[:enabled],
       ping_staff: moderation_params[:ping_staff]
     )
-    activation = result.value
-    @enabled = activation.enabled?
-    @enable_error = activation.errors[:enabled].first || activation.errors[:staff_role_id].first
-    @toast = {level: "notice", message: t("servers.moderation.saved")} if result.success?
-
-    respond_to do |format|
-      format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
-      format.html { redirect_to server_moderation_path(params[:server_id]), **flash_for(result) }
-    end
+    respond_with_configuration(result, error_keys: [:enabled, :staff_role_id])
   end
 
   private
