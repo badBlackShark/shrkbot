@@ -17,11 +17,8 @@ class Views::Servers::Welcomes::Show < Views::Base
         ),
         server_configuration: @config,
         url: server_welcomes_path(@config.discord_id),
-        gate: {
-          field: "welcomes[enabled]",
-          enabled: @enabled,
-          message: t(".gate_message")
-        },
+        toggle: {field: "welcomes[enabled]", enabled: @enabled},
+        gate: {type: :enable, message: t(".gate_message")},
         channel_lost: @enabled && @config.welcome_settings.channel_id.nil?
       ) do
         render Components::Welcomes::ConfigForm.new(server_configuration: @config)

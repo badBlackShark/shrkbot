@@ -13,7 +13,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Base
       server_configuration: @config,
       active_key:
     ) do
-      render Components::Moderation::ConfigShell.new(
+      render Components::ConfigPage.new(
         header: Components::ConfigPageHeader.new(
           icon:,
           title: t(".title"),
@@ -23,7 +23,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Base
         url:,
         gate: shell_gate,
         toggle: shell_toggle,
-        breadcrumb_extra: t(".title")
+        parent_crumb: {label: t("views.servers.moderation.show.title"), href: server_moderation_path(@config.discord_id)}
       ) do
         group_subline
         no_role_callout

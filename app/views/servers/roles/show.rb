@@ -17,11 +17,8 @@ class Views::Servers::Roles::Show < Views::Base
         ),
         server_configuration: @config,
         url: server_roles_path(@config.discord_id),
-        gate: {
-          field: "roles[enabled]",
-          enabled: @enabled,
-          message: t(".gate_message")
-        },
+        toggle: {field: "roles[enabled]", enabled: @enabled},
+        gate: {type: :enable, message: t(".gate_message")},
         channel_lost: @enabled && @config.role_setting.channel_id.nil?
       ) do
         render Components::Roles::ConfigForm.new(server_configuration: @config)

@@ -17,11 +17,8 @@ class Views::Servers::Logging::Show < Views::Base
         ),
         server_configuration: @config,
         url: server_logging_path(@config.discord_id),
-        gate: {
-          field: "logging[enabled]",
-          enabled: @enabled,
-          message: t(".gate_message")
-        },
+        toggle: {field: "logging[enabled]", enabled: @enabled},
+        gate: {type: :enable, message: t(".gate_message")},
         channel_lost: @enabled && @config.logging_setting.channel_id.nil?
       ) do
         render Components::Logging::ConfigForm.new(server_configuration: @config)
