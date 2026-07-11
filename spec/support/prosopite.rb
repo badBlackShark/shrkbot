@@ -2,13 +2,12 @@
 
 require "prosopite"
 
-# Scoped to request specs while the backend N+1 backlog is burned down.
 RSpec.configure do |config|
-  config.before(:each, type: :request) do
+  config.before(:each) do
     Prosopite.scan
   end
 
-  config.after(:each, type: :request) do
+  config.after(:each) do
     Prosopite.finish
   end
 end

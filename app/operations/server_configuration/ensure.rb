@@ -22,8 +22,9 @@ module Ops
       private
 
       def ensure_activations(config)
-        Plugin.find_each do |plugin|
-          PluginActivation.find_or_create_by!(server_configuration: config, plugin:) { |a| a.enabled = false }
+        existing_plugin_ids = config.plugin_activations.pluck(:plugin_id)
+        Plugin.where.not(id: existing_plugin_ids).find_each do |plugin|
+          PluginActivation.create!(server_configuration: config, plugin:, enabled: false)
         end
       end
 
