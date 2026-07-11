@@ -5,13 +5,13 @@ require "rails_helper"
 RSpec.describe "Role set reposts", type: :request do
   include_context "discord auth"
 
-  let(:guild) { Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil, member_count: 5) }
+  let(:guild) { Bot::Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil, member_count: 5) }
   let(:config) { ServerConfiguration.find_by(discord_id: guild.id) }
   let(:turbo) { {headers: {"Accept" => "text/vnd.turbo-stream.html"}} }
 
   before do
-    allow(ConfigBus).to receive(:repost_roles)
-    allow(Discord::UserGuilds).to receive(:call).and_return([guild])
+    allow(Bot::ConfigBus).to receive(:repost_roles)
+    allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
   end
 
   context "when signed out" do
@@ -51,7 +51,7 @@ RSpec.describe "Role set reposts", type: :request do
           post server_role_set_repost_path(guild.id, set.id), **turbo
           expect(response).to have_http_status(:ok)
           expect(response.body).to include("Reposting")
-          expect(ConfigBus).to have_received(:repost_roles).with(set)
+          expect(Bot::ConfigBus).to have_received(:repost_roles).with(set)
         end
       end
 
@@ -61,7 +61,7 @@ RSpec.describe "Role set reposts", type: :request do
         it "returns 422 and does not publish" do
           post server_role_set_repost_path(guild.id, set.id), **turbo
           expect(response).to have_http_status(:unprocessable_content)
-          expect(ConfigBus).not_to have_received(:repost_roles)
+          expect(Bot::ConfigBus).not_to have_received(:repost_roles)
         end
 
         it "includes an error toast" do
@@ -78,7 +78,7 @@ RSpec.describe "Role set reposts", type: :request do
         it "returns 404 and does not publish" do
           post server_role_set_repost_path(guild.id, other_set.id), **turbo
           expect(response).to have_http_status(:not_found)
-          expect(ConfigBus).not_to have_received(:repost_roles)
+          expect(Bot::ConfigBus).not_to have_received(:repost_roles)
         end
       end
 

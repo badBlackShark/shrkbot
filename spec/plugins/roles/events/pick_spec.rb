@@ -25,8 +25,8 @@ RSpec.describe Roles::Pick do
   end
 
   before do
-    allow(ActivityLog).to receive(:enabled?).and_return(true)
-    allow(ActivityLog).to receive(:post)
+    allow(Bot::ActivityLog).to receive(:enabled?).and_return(true)
+    allow(Bot::ActivityLog).to receive(:post)
   end
 
   it "adds the picked role and removes the other roles in the set" do
@@ -35,7 +35,7 @@ RSpec.describe Roles::Pick do
   end
 
   it "logs the role the user gained" do
-    expect(ActivityLog).to receive(:post).with(
+    expect(Bot::ActivityLog).to receive(:post).with(
       server_config,
       bot:,
       title: "Roles updated",

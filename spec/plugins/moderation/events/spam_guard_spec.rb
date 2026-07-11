@@ -131,14 +131,14 @@ RSpec.describe Moderation::SpamGuard do
       allow(bot).to receive(:channel).with(1).and_return(double("ch1", delete_message: nil))
       allow(bot).to receive(:channel).with(2).and_return(double("ch2", delete_message: nil))
       allow(bot).to receive(:channel).with(3).and_return(double("ch3", delete_message: nil))
-      allow(Discord::Components).to receive(:send_to)
+      allow(Bot::Discord::Components).to receive(:send_to)
     end
 
     it "deletes each hit message and sends a notification" do
       expect(bot.channel(1)).to receive(:delete_message).with(10)
       expect(bot.channel(2)).to receive(:delete_message).with(20)
       expect(bot.channel(3)).to receive(:delete_message).with(30)
-      expect(Discord::Components).to receive(:send_to).with(
+      expect(Bot::Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
         allowed_mentions: hash_including(roles: array_including(staff_role_id)),
@@ -152,7 +152,7 @@ RSpec.describe Moderation::SpamGuard do
 
     it "includes the window and the quoted message content in the notification" do
       body = nil
-      allow(Discord::Components).to receive(:send_to) do |_channel, rendered, **|
+      allow(Bot::Discord::Components).to receive(:send_to) do |_channel, rendered, **|
         body = rendered[:components].first[:components].first[:content]
       end
 
@@ -177,7 +177,7 @@ RSpec.describe Moderation::SpamGuard do
         simulate_message(channel_id: 3, message_id: 30)
 
         expect(ch4).to receive(:delete_message).with(40)
-        expect(Discord::Components).to receive(:send_to) do |_channel, rendered, **|
+        expect(Bot::Discord::Components).to receive(:send_to) do |_channel, rendered, **|
           body = rendered[:components].first[:components].first[:content]
           expect(body).to include("Cross-channel spam follow-up removed")
           expect(body).to include("<#4>")
@@ -194,7 +194,7 @@ RSpec.describe Moderation::SpamGuard do
 
     before do
       allow(bot).to receive(:channel).with(4).and_return(ch4)
-      allow(Discord::Components).to receive(:send_to)
+      allow(Bot::Discord::Components).to receive(:send_to)
     end
 
     it "neither deletes nor logs the followup" do
@@ -203,7 +203,7 @@ RSpec.describe Moderation::SpamGuard do
       simulate_message(channel_id: 3, message_id: 30)
 
       expect(ch4).not_to receive(:delete_message)
-      expect(Discord::Components).not_to receive(:send_to)
+      expect(Bot::Discord::Components).not_to receive(:send_to)
 
       simulate_message(channel_id: 4, message_id: 40)
     end
@@ -219,14 +219,14 @@ RSpec.describe Moderation::SpamGuard do
       allow(bot).to receive(:channel).with(1).and_return(ch1)
       allow(bot).to receive(:channel).with(2).and_return(ch2)
       allow(bot).to receive(:channel).with(3).and_return(ch3)
-      allow(Discord::Components).to receive(:send_to)
+      allow(Bot::Discord::Components).to receive(:send_to)
     end
 
     it "sends notification but does not delete messages" do
       expect(ch1).not_to receive(:delete_message)
       expect(ch2).not_to receive(:delete_message)
       expect(ch3).not_to receive(:delete_message)
-      expect(Discord::Components).to receive(:send_to)
+      expect(Bot::Discord::Components).to receive(:send_to)
 
       simulate_message(channel_id: 1, message_id: 1)
       simulate_message(channel_id: 2, message_id: 2)
@@ -236,7 +236,7 @@ RSpec.describe Moderation::SpamGuard do
 
   context "with match_symbol_only_messages false" do
     it "does not trigger on punctuation-only messages across channels" do
-      expect(Discord::Components).not_to receive(:send_to)
+      expect(Bot::Discord::Components).not_to receive(:send_to)
 
       simulate_message(channel_id: 1, message_id: 1, content: "!!!")
       simulate_message(channel_id: 2, message_id: 2, content: "???")
@@ -250,11 +250,11 @@ RSpec.describe Moderation::SpamGuard do
 
     before do
       allow(bot).to receive(:channel).and_return(double("ch", delete_message: nil))
-      allow(Discord::Components).to receive(:send_to)
+      allow(Bot::Discord::Components).to receive(:send_to)
     end
 
     it "triggers on mixed punctuation-only messages across channels (all blank after canonicalization)" do
-      expect(Discord::Components).to receive(:send_to)
+      expect(Bot::Discord::Components).to receive(:send_to)
 
       simulate_message(channel_id: 1, message_id: 1, content: "!!!")
       simulate_message(channel_id: 2, message_id: 2, content: "???")
@@ -267,11 +267,11 @@ RSpec.describe Moderation::SpamGuard do
 
     before do
       allow(bot).to receive(:channel).and_return(double("ch", delete_message: nil))
-      allow(Discord::Components).to receive(:send_to)
+      allow(Bot::Discord::Components).to receive(:send_to)
     end
 
     it "fingerprints attachments and triggers on the threshold" do
-      expect(Discord::Components).to receive(:send_to)
+      expect(Bot::Discord::Components).to receive(:send_to)
 
       simulate_message(channel_id: 1, message_id: 1, content: "", attachments: [attachment])
       simulate_message(channel_id: 2, message_id: 2, content: "", attachments: [attachment])
@@ -284,11 +284,11 @@ RSpec.describe Moderation::SpamGuard do
       allow(bot).to receive(:channel).with(1).and_return(double("ch1", delete_message: nil))
       allow(bot).to receive(:channel).with(2).and_return(nil)
       allow(bot).to receive(:channel).with(3).and_raise(RuntimeError, "forbidden")
-      allow(Discord::Components).to receive(:send_to)
+      allow(Bot::Discord::Components).to receive(:send_to)
     end
 
     it "skips the missing channel, logs the failure, and still notifies" do
-      expect(Discord::Components).to receive(:send_to)
+      expect(Bot::Discord::Components).to receive(:send_to)
 
       simulate_message(channel_id: 1, message_id: 10)
       simulate_message(channel_id: 2, message_id: 20)
@@ -301,7 +301,7 @@ RSpec.describe Moderation::SpamGuard do
     let(:logging_setting) { double("logging_setting", channel_id: nil) }
 
     it "does not attempt to notify" do
-      expect(Discord::Components).not_to receive(:send_to)
+      expect(Bot::Discord::Components).not_to receive(:send_to)
 
       simulate_message(channel_id: 1, message_id: 1)
       simulate_message(channel_id: 2, message_id: 2)
@@ -317,7 +317,7 @@ RSpec.describe Moderation::SpamGuard do
     end
 
     it "does not attempt to notify" do
-      expect(Discord::Components).not_to receive(:send_to)
+      expect(Bot::Discord::Components).not_to receive(:send_to)
 
       simulate_message(channel_id: 1, message_id: 1)
       simulate_message(channel_id: 2, message_id: 2)
@@ -329,7 +329,7 @@ RSpec.describe Moderation::SpamGuard do
     let(:action) { "notify_only" }
 
     before do
-      allow(Discord::Components).to receive(:send_to).and_raise(RuntimeError, "no perms")
+      allow(Bot::Discord::Components).to receive(:send_to).and_raise(RuntimeError, "no perms")
     end
 
     it "rescues and does not raise into the handler" do
@@ -347,11 +347,11 @@ RSpec.describe Moderation::SpamGuard do
       allow(bot).to receive(:channel).with(1).and_return(double("ch1", delete_message: nil))
       allow(bot).to receive(:channel).with(2).and_return(double("ch2", delete_message: nil))
       allow(bot).to receive(:channel).with(3).and_return(double("ch3", delete_message: nil))
-      allow(Discord::Components).to receive(:send_to)
+      allow(Bot::Discord::Components).to receive(:send_to)
     end
 
     it "notifies with empty roles in allowed_mentions" do
-      expect(Discord::Components).to receive(:send_to).with(
+      expect(Bot::Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
         allowed_mentions: {parse: [], roles: []},
@@ -365,7 +365,7 @@ RSpec.describe Moderation::SpamGuard do
 
     it "does not start the body with a role mention" do
       body = nil
-      allow(Discord::Components).to receive(:send_to) do |_channel, rendered, **|
+      allow(Bot::Discord::Components).to receive(:send_to) do |_channel, rendered, **|
         body = rendered[:components].first[:components].first[:content]
       end
 
@@ -382,11 +382,11 @@ RSpec.describe Moderation::SpamGuard do
     let(:moderation_settings) { double("moderation_settings", staff_role_id: nil, ping_staff: true) }
 
     before do
-      allow(Discord::Components).to receive(:send_to)
+      allow(Bot::Discord::Components).to receive(:send_to)
     end
 
     it "notifies with an empty roles array (seam guard prevents this in production)" do
-      expect(Discord::Components).to receive(:send_to).with(
+      expect(Bot::Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
         allowed_mentions: {parse: [], roles: []},
@@ -404,7 +404,7 @@ RSpec.describe Moderation::SpamGuard do
     let(:punishment) { "kick" }
 
     before do
-      allow(Discord::Components).to receive(:send_to)
+      allow(Bot::Discord::Components).to receive(:send_to)
     end
 
     it "invokes Punisher.call on threshold hit" do

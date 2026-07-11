@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Moderation
-  class ImageScan < BaseEvent
+  class ImageScan < Bot::BaseEvent
     on :message
 
     MAX_ATTACHMENTS = 3

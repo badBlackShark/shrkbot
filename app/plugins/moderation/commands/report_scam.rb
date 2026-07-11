@@ -3,7 +3,7 @@
 require "uri"
 
 module Moderation
-  class ReportScam < BaseCommand
+  class ReportScam < Bot::BaseCommand
     command_name "Report as scam"
     command_type :message
     register_in :guild
@@ -39,7 +39,7 @@ module Moderation
         bytes = ImageDownload.call(attachment.url)
         hex = Ocr::Client.new.phash(bytes)
         Ops::Moderation::Phashes::Confirm.call(server_configuration: config, phash_hex: hex)
-        log_image ||= Discord::FileUpload.new(bytes, File.basename(URI(attachment.url).path))
+        log_image ||= Bot::Discord::FileUpload.new(bytes, File.basename(URI(attachment.url).path))
         true
       rescue Ocr::Error => e
         Rails.logger.warn("[Moderation::ReportScam] phash failed: #{e.class}: #{e.message}")
@@ -52,7 +52,7 @@ module Moderation
       settings = config.image_scanning_settings
       deleted = settings.action_delete? && delete_message(message)
       meta_key = deleted ? "removed" : "kept"
-      ActivityLog.post(
+      Bot::ActivityLog.post(
         config,
         bot: event.bot,
         title: I18n.t("moderation.image_scanning.report.log.title"),

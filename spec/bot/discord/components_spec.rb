@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Discord::Components do
+RSpec.describe Bot::Discord::Components do
   describe ".action_row" do
     subject(:row) { described_class.action_row([button]) }
 
@@ -25,7 +25,7 @@ RSpec.describe Discord::Components do
     end
 
     it "forwards attachments when given" do
-      io = Discord::FileUpload.new("bytes", "img.png")
+      io = Bot::Discord::FileUpload.new("bytes", "img.png")
       expect(channel).to receive(:send_message) do |_content, _tts, _embed, attachments, *_rest|
         expect(attachments).to eq([io])
       end

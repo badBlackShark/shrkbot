@@ -2,8 +2,8 @@
 
 require "rails_helper"
 
-RSpec.describe WithConnection do
-  let(:obj) { Class.new { include WithConnection }.new }
+RSpec.describe Bot::WithConnection do
+  let(:obj) { Class.new { include Bot::WithConnection }.new }
 
   subject(:result) { obj.with_connection { block_value } }
 

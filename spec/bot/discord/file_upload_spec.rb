@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Discord::FileUpload do
+RSpec.describe Bot::Discord::FileUpload do
   subject(:io) { described_class.new("fakepngbytes", "image.png") }
 
   describe "#path" do

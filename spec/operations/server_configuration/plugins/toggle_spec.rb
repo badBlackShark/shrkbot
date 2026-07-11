@@ -11,7 +11,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
   let(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
 
   before do
-    allow(ConfigBus).to receive(:sync_commands)
+    allow(Bot::ConfigBus).to receive(:sync_commands)
   end
 
   context "with a raw checkbox value (form param, not yet cast)" do
@@ -127,8 +127,8 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
 
   context "sync_commands is published on every successful toggle" do
     before do
-      allow(ConfigBus).to receive(:post_roles)
-      allow(ConfigBus).to receive(:remove_roles_menu)
+      allow(Bot::ConfigBus).to receive(:post_roles)
+      allow(Bot::ConfigBus).to receive(:remove_roles_menu)
     end
 
     context "when enabling logging" do
@@ -139,7 +139,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
 
       it "publishes sync_commands" do
         result
-        expect(ConfigBus).to have_received(:sync_commands).with(server)
+        expect(Bot::ConfigBus).to have_received(:sync_commands).with(server)
       end
     end
 
@@ -154,7 +154,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
 
       it "publishes sync_commands" do
         result
-        expect(ConfigBus).to have_received(:sync_commands).with(server)
+        expect(Bot::ConfigBus).to have_received(:sync_commands).with(server)
       end
     end
   end
@@ -163,9 +163,9 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     let(:plugin) { roles }
 
     before do
-      allow(ConfigBus).to receive(:post_roles)
-      allow(ConfigBus).to receive(:remove_roles_menu)
-      allow(ConfigBus).to receive(:delete_roles_message)
+      allow(Bot::ConfigBus).to receive(:post_roles)
+      allow(Bot::ConfigBus).to receive(:remove_roles_menu)
+      allow(Bot::ConfigBus).to receive(:delete_roles_message)
     end
 
     context "when enabling with a role_set" do
@@ -175,7 +175,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
 
       it "publishes post_roles for the set" do
         result
-        expect(ConfigBus).to have_received(:post_roles).with(
+        expect(Bot::ConfigBus).to have_received(:post_roles).with(
           have_attributes(id: role_set.id)
         )
       end
@@ -192,7 +192,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
 
       it "publishes remove_roles_menu for the set" do
         result
-        expect(ConfigBus).to have_received(:remove_roles_menu).with(
+        expect(Bot::ConfigBus).to have_received(:remove_roles_menu).with(
           have_attributes(id: role_set.id)
         )
       end
@@ -204,15 +204,15 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     let(:enabled) { true }
 
     before do
-      allow(ConfigBus).to receive(:post_roles)
-      allow(ConfigBus).to receive(:remove_roles_menu)
+      allow(Bot::ConfigBus).to receive(:post_roles)
+      allow(Bot::ConfigBus).to receive(:remove_roles_menu)
       server.create_logging_setting!(channel_id: 999)
     end
 
     it "publishes neither post_roles nor remove_roles_menu" do
       result
-      expect(ConfigBus).not_to have_received(:post_roles)
-      expect(ConfigBus).not_to have_received(:remove_roles_menu)
+      expect(Bot::ConfigBus).not_to have_received(:post_roles)
+      expect(Bot::ConfigBus).not_to have_received(:remove_roles_menu)
     end
   end
 
@@ -221,15 +221,15 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     let(:enabled) { true }
 
     before do
-      allow(ConfigBus).to receive(:post_roles)
-      allow(ConfigBus).to receive(:remove_roles_menu)
+      allow(Bot::ConfigBus).to receive(:post_roles)
+      allow(Bot::ConfigBus).to receive(:remove_roles_menu)
     end
 
     it "publishes nothing when the operation is refused" do
       result
-      expect(ConfigBus).not_to have_received(:sync_commands)
-      expect(ConfigBus).not_to have_received(:post_roles)
-      expect(ConfigBus).not_to have_received(:remove_roles_menu)
+      expect(Bot::ConfigBus).not_to have_received(:sync_commands)
+      expect(Bot::ConfigBus).not_to have_received(:post_roles)
+      expect(Bot::ConfigBus).not_to have_received(:remove_roles_menu)
     end
   end
 end

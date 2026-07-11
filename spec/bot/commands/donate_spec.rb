@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Commands::Donate do
+RSpec.describe Bot::Commands::Donate do
   subject(:execute) { described_class.new(event).execute }
 
   let(:event) { double("event", respond: nil) }
@@ -11,7 +11,7 @@ RSpec.describe Commands::Donate do
     expect(event).to receive(:respond) do |components:, ephemeral:, has_components:|
       expect(ephemeral).to be(true)
       expect(has_components).to be(true)
-      expect(components.first[:type]).to eq(Discord::Components::CONTAINER)
+      expect(components.first[:type]).to eq(Bot::Discord::Components::CONTAINER)
     end
     execute
   end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Reminders
-  class List < BaseCommand
+  class List < Bot::BaseCommand
     command_name :reminders
     description "List your active reminders."
     register_in :global
@@ -19,9 +19,9 @@ module Reminders
     private
 
     def message(reminders)
-      lines = reminders.map { |r| "- <t:#{r.remind_at.to_i}:R> - #{Discord::Truncate.call(r.message, 80)}" }
-      Discord::Components.container(
-        [Discord::Components.text("### Your reminders\n#{lines.join("\n")}")]
+      lines = reminders.map { |r| "- <t:#{r.remind_at.to_i}:R> - #{Bot::Discord::Truncate.call(r.message, 80)}" }
+      Bot::Discord::Components.container(
+        [Bot::Discord::Components.text("### Your reminders\n#{lines.join("\n")}")]
       )
     end
   end

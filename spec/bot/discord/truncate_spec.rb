@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Discord::Truncate do
+RSpec.describe Bot::Discord::Truncate do
   describe ".call" do
     subject(:truncated) { described_class.call(text, limit) }
 

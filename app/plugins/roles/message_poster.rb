@@ -24,7 +24,7 @@ module Roles
     private
 
     def create(channel, rendered)
-      message = Discord::Components.send_to(channel, rendered)
+      message = Bot::Discord::Components.send_to(channel, rendered)
       @set.update!(message_id: message.id)
     end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Roles
-  class ComponentHandler < BaseEvent
+  class ComponentHandler < Bot::BaseEvent
     private
 
     def set
@@ -32,7 +32,7 @@ module Roles
       lost = logged_roles(:role_lost, diff[:remove] & had, names)
       return if gained.empty? && lost.empty?
 
-      ActivityLog.post(
+      Bot::ActivityLog.post(
         server_configuration,
         bot: event.bot,
         **ActivityEntry.build(set:, actor: member.mention, gained:, lost:)
@@ -40,7 +40,7 @@ module Roles
     end
 
     def logged_roles(name, role_ids, names)
-      return [] unless ActivityLog.enabled?(server_configuration, "roles.#{name}")
+      return [] unless Bot::ActivityLog.enabled?(server_configuration, "roles.#{name}")
 
       label(role_ids, names)
     end

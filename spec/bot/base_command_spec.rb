@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe BaseCommand do
+RSpec.describe Bot::BaseCommand do
   describe "declaration macros + .registration" do
     let(:klass) do
       Class.new(described_class) do
@@ -105,7 +105,7 @@ RSpec.describe BaseCommand do
     end
 
     before do
-      allow(BotConfig).to receive(:owner_id).and_return(nil)
+      allow(Bot::Config).to receive(:owner_id).and_return(nil)
     end
 
     context "when permitted" do
@@ -127,7 +127,7 @@ RSpec.describe BaseCommand do
       subject(:dispatch) { klass.dispatch(denied_event) }
 
       before do
-        allow(BotConfig).to receive(:owner_id).and_return("99")
+        allow(Bot::Config).to receive(:owner_id).and_return("99")
       end
 
       let(:klass) do
@@ -157,7 +157,7 @@ RSpec.describe BaseCommand do
       let(:klass) { command_class { raise "boom" } }
 
       it "reports to the owner and responds without raising" do
-        expect(OwnerNotifier).to receive(:report).with(hash_including(source: "command /probe"))
+        expect(Bot::OwnerNotifier).to receive(:report).with(hash_including(source: "command /probe"))
         expect(event).to receive(:respond).with(hash_including(ephemeral: true))
         expect { dispatch }.not_to raise_error
       end
@@ -169,7 +169,7 @@ RSpec.describe BaseCommand do
       let(:klass) { command_class { raise "boom" } }
 
       it "swallows the secondary failure" do
-        allow(OwnerNotifier).to receive(:report)
+        allow(Bot::OwnerNotifier).to receive(:report)
         allow(event).to receive(:respond).and_raise("interaction expired")
         expect { dispatch }.not_to raise_error
       end

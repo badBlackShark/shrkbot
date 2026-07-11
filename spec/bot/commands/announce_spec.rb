@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Commands::Announce do
+RSpec.describe Bot::Commands::Announce do
   subject(:execute) { described_class.new(event).execute }
 
   let(:event) { double("event") }

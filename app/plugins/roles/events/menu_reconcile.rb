@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Roles
-  class MenuReconcile < BaseEvent
+  class MenuReconcile < Bot::BaseEvent
     on :ready
 
     def handle

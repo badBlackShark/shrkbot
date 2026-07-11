@@ -16,7 +16,7 @@ RSpec.describe "Admin settings", type: :request do
 
   context "when signed in as a non-owner" do
     before do
-      allow(BotConfig).to receive(:owner_id).and_return("99999")
+      allow(Bot::Config).to receive(:owner_id).and_return("99999")
       post "/auth/discord/callback"
     end
 
@@ -40,7 +40,7 @@ RSpec.describe "Admin settings", type: :request do
 
   context "when signed in as the owner" do
     before do
-      allow(BotConfig).to receive(:owner_id).and_return("12345")
+      allow(Bot::Config).to receive(:owner_id).and_return("12345")
       post "/auth/discord/callback"
     end
 

@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe "Welcomes config", type: :request do
   include_context "discord auth"
 
-  let(:guild) { Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil, member_count: 5) }
+  let(:guild) { Bot::Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil, member_count: 5) }
   let(:config) { ServerConfiguration.find_by(discord_id: guild.id) }
   let(:turbo) { {headers: {"Accept" => "text/vnd.turbo-stream.html"}} }
 
@@ -23,7 +23,7 @@ RSpec.describe "Welcomes config", type: :request do
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
       config.create_welcome_settings!
-      allow(Discord::UserGuilds).to receive(:call).and_return([guild])
+      allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     end
 
     context "without proving the server is manageable this session" do

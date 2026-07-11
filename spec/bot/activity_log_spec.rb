@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe ActivityLog do
+RSpec.describe Bot::ActivityLog do
   let(:server_config) { create(:server_configuration) }
   let(:channel) { double("channel", send_message: nil) }
   let(:bot) { double("bot") }
@@ -32,7 +32,7 @@ RSpec.describe ActivityLog do
 
     it "writes a branded container with title, body, and muted meta line" do
       expect(channel).to receive(:send_message) do |*args|
-        expect(args[7]).to eq(Discord::Components::COMPONENTS_V2)
+        expect(args[7]).to eq(Bot::Discord::Components::COMPONENTS_V2)
         content = args[6].first[:components].first[:content]
         expect(content).to eq(
           "**Roles updated**\n<@42> gained **Gamer**.\n-# Self-assigned via the \"Pronouns\" role menu"
@@ -49,7 +49,7 @@ RSpec.describe ActivityLog do
     end
 
     context "with an image" do
-      let(:upload) { Discord::FileUpload.new("fakebytes", "scam.png") }
+      let(:upload) { Bot::Discord::FileUpload.new("fakebytes", "scam.png") }
 
       subject(:post) do
         described_class.post(
@@ -65,7 +65,7 @@ RSpec.describe ActivityLog do
       it "appends a media gallery block referencing the attachment filename" do
         expect(channel).to receive(:send_message) do |*args|
           blocks = args[6].first[:components]
-          gallery = blocks.find { |block| block[:type] == Discord::Components::MEDIA_GALLERY }
+          gallery = blocks.find { |block| block[:type] == Bot::Discord::Components::MEDIA_GALLERY }
           expect(gallery[:items]).to eq([{media: {url: "attachment://scam.png"}}])
         end
         post
@@ -80,10 +80,10 @@ RSpec.describe ActivityLog do
     end
 
     context "with extra components" do
-      let(:upload) { Discord::FileUpload.new("fakebytes", "scam.png") }
+      let(:upload) { Bot::Discord::FileUpload.new("fakebytes", "scam.png") }
       let(:action_row) do
-        Discord::Components.action_row(
-          [Discord::Components.button(custom_id: "mod:confirm:abc", label: "Confirm scam")]
+        Bot::Discord::Components.action_row(
+          [Bot::Discord::Components.button(custom_id: "mod:confirm:abc", label: "Confirm scam")]
         )
       end
 
@@ -103,7 +103,7 @@ RSpec.describe ActivityLog do
         expect(channel).to receive(:send_message) do |*args|
           blocks = args[6].first[:components]
           expect(blocks.last).to eq(action_row)
-          expect(blocks.index(action_row)).to be > blocks.index { |block| block[:type] == Discord::Components::MEDIA_GALLERY }
+          expect(blocks.index(action_row)).to be > blocks.index { |block| block[:type] == Bot::Discord::Components::MEDIA_GALLERY }
         end
         post
       end

@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe BaseEvent do
+RSpec.describe Bot::BaseEvent do
   let(:event) { double("event", bot: double("bot")) }
 
   def event_class(&body)
@@ -30,7 +30,7 @@ RSpec.describe BaseEvent do
     let(:klass) { event_class { raise "boom" } }
 
     it "reports to the owner and returns nil" do
-      expect(OwnerNotifier).to receive(:report).with(hash_including(error: an_instance_of(RuntimeError)))
+      expect(Bot::OwnerNotifier).to receive(:report).with(hash_including(error: an_instance_of(RuntimeError)))
       expect(call).to be_nil
     end
   end

@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe OwnerNotifier do
+RSpec.describe Bot::OwnerNotifier do
   let(:pm_channel) { double("pm_channel", send_message: nil) }
   let(:bot) { double("bot", pm_channel:) }
   let(:error) { RuntimeError.new("boom").tap { |e| e.set_backtrace(["a.rb:1", "b.rb:2"]) } }
@@ -14,7 +14,7 @@ RSpec.describe OwnerNotifier do
 
     before do
       allow(BotSetting).to receive(:owner_error_dms?).and_return(dms_enabled)
-      allow(BotConfig).to receive(:owner_id).and_return(owner_id)
+      allow(Bot::Config).to receive(:owner_id).and_return(owner_id)
     end
 
     context "when the toggle is on and an owner is configured" do
@@ -66,7 +66,7 @@ RSpec.describe OwnerNotifier do
     subject(:notify) { described_class.notify(bot:, message: "your channel was deleted") }
 
     before do
-      allow(BotConfig).to receive(:owner_id).and_return(owner_id)
+      allow(Bot::Config).to receive(:owner_id).and_return(owner_id)
     end
 
     context "with an owner configured" do
@@ -96,7 +96,7 @@ RSpec.describe OwnerNotifier do
     let(:error) { RuntimeError.new("x" * 5000) }
 
     it "truncates to Discord's limit" do
-      expect(formatted.length).to be <= OwnerNotifier::MAX_LENGTH + 1
+      expect(formatted.length).to be <= Bot::OwnerNotifier::MAX_LENGTH + 1
     end
   end
 end

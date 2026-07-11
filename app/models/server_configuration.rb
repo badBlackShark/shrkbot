@@ -24,6 +24,6 @@ class ServerConfiguration < ApplicationRecord
   end
 
   def icon_url
-    Discord::CdnUrl.guild_icon(discord_id, icon_hash)
+    Bot::Discord::CdnUrl.guild_icon(discord_id, icon_hash)
   end
 end

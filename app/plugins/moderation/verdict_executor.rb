@@ -44,9 +44,9 @@ module Moderation
       staff_role_id = settings.staff_role_id
       ping = settings.ping_staff
       state = removed ? "removed" : "flagged"
-      image = image_bytes && Discord::FileUpload.new(image_bytes, File.basename(URI(context.attachment_url).path))
+      image = image_bytes && Bot::Discord::FileUpload.new(image_bytes, File.basename(URI(context.attachment_url).path))
 
-      ActivityLog.post(
+      Bot::ActivityLog.post(
         config,
         bot: context.bot,
         title: I18n.t("moderation.image_scanning.flag.title.#{state}"),
@@ -65,17 +65,17 @@ module Moderation
 
     def buttons(phash)
       [
-        Discord::Components.action_row(
+        Bot::Discord::Components.action_row(
           [
-            Discord::Components.button(
+            Bot::Discord::Components.button(
               custom_id: CustomId.confirm(phash),
               label: "Confirm scam",
-              style: Discord::Components::BUTTON_SUCCESS
+              style: Bot::Discord::Components::BUTTON_SUCCESS
             ),
-            Discord::Components.button(
+            Bot::Discord::Components.button(
               custom_id: CustomId.dismiss(phash),
               label: "Dismiss",
-              style: Discord::Components::BUTTON_DANGER
+              style: Bot::Discord::Components::BUTTON_DANGER
             )
           ]
         )

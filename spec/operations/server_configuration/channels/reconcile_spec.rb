@@ -10,7 +10,7 @@ RSpec.describe Ops::ServerConfiguration::Channels::Reconcile do
   let(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
 
   before do
-    allow(OwnerNotifier).to receive(:notify)
+    allow(Bot::OwnerNotifier).to receive(:notify)
     server.create_welcome_settings!(channel_id: 555)
     create(:plugin_activation, server_configuration: server, plugin: welcomes, enabled: true)
   end

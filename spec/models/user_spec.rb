@@ -64,7 +64,7 @@ RSpec.describe User do
 
     context "when OWNER_ID matches the user's discord_id" do
       before do
-        allow(BotConfig).to receive(:owner_id).and_return("99999")
+        allow(Bot::Config).to receive(:owner_id).and_return("99999")
       end
 
       it "is true" do
@@ -74,7 +74,7 @@ RSpec.describe User do
 
     context "when OWNER_ID does not match" do
       before do
-        allow(BotConfig).to receive(:owner_id).and_return("11111")
+        allow(Bot::Config).to receive(:owner_id).and_return("11111")
       end
 
       it "is false" do

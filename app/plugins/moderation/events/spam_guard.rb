@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Moderation
-  class SpamGuard < BaseEvent
+  class SpamGuard < Bot::BaseEvent
     on :message
 
     CONTENT_PREVIEW_LIMIT = 800
@@ -96,7 +96,7 @@ module Moderation
       quoted = quoted_content
       body += "\n#{quoted}" if quoted
 
-      ActivityLog.post(
+      Bot::ActivityLog.post(
         config,
         bot: event.bot,
         title: I18n.t("moderation.spam_protection.notification.title.#{settings.action}"),
@@ -112,7 +112,7 @@ module Moderation
       purge(hit.entries)
       entry = hit.entries.first
 
-      ActivityLog.post(
+      Bot::ActivityLog.post(
         config,
         bot: event.bot,
         title: I18n.t("moderation.spam_protection.notification.followup.title"),

@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe GuildMetadata do
+RSpec.describe Bot::GuildMetadata do
   describe ".channels" do
     subject(:channels) { described_class.channels(server) }
 
@@ -73,7 +73,7 @@ RSpec.describe GuildMetadata do
         .with(discord_id: 77).and_return(double(value: config))
       allow(Ops::ServerConfiguration::Metadata::Sync).to receive(:call)
       allow(described_class).to receive(:bot_role_position).with(server, bot).and_return(7)
-      allow(ServerOnboarder).to receive(:notify)
+      allow(Bot::ServerOnboarder).to receive(:notify)
     end
 
     it "ensures the config, then syncs channels and roles, then reconciles deletions" do
@@ -100,7 +100,7 @@ RSpec.describe GuildMetadata do
       allow(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call)
       allow(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call)
       allow(Ops::ServerConfiguration::Channels::Reconcile).to receive(:call)
-      expect(ServerOnboarder).to receive(:notify).with(bot, server, config)
+      expect(Bot::ServerOnboarder).to receive(:notify).with(bot, server, config)
       sync
     end
 

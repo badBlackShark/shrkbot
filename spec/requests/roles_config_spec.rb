@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe "Roles config", type: :request do
   include_context "discord auth"
 
-  let(:guild) { Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil, member_count: 5) }
+  let(:guild) { Bot::Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil, member_count: 5) }
   let(:config) { ServerConfiguration.find_by(discord_id: guild.id) }
   let(:turbo) { {headers: {"Accept" => "text/vnd.turbo-stream.html"}} }
 
@@ -25,7 +25,7 @@ RSpec.describe "Roles config", type: :request do
       config.create_role_setting!
       create(:server_channel, server_configuration: config, name: "get-roles", discord_id: 111)
       create(:server_role, server_configuration: config, discord_id: 222, name: "Member", position: 1)
-      allow(Discord::UserGuilds).to receive(:call).and_return([guild])
+      allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     end
 
     context "without proving the server is manageable this session" do

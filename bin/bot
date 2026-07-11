@@ -5,33 +5,33 @@ require "discordrb"
 Rails.application.eager_load!
 Rails.logger.broadcast_to(ActiveSupport::Logger.new($stdout))
 
-shard_count = BotConfig.shard_count
+shard_count = Bot::Config.shard_count
 
 bots = Array.new(shard_count) do |shard_id|
   Discordrb::Bot.new(
-    token: BotConfig.token,
+    token: Bot::Config.token,
     # discordrb has no :message_content symbol; MESSAGE CONTENT is raw gateway bit 15
     intents: [:servers, :server_members, :server_bans, :server_messages, 1 << 15],
     shard_id: shard_id,
     num_shards: shard_count
   )
 end
-BotRegistry.register(bots)
+Bot::Registry.register(bots)
 
 bots.each_with_index do |bot, index|
-  CommandRegistrar.new(
+  Bot::CommandRegistrar.new(
     bot,
-    commands: BaseCommand.descendants,
+    commands: Bot::BaseCommand.descendants,
     define_commands: index.zero?
   ).register_all
-  EventRegistrar.new(bot, events: BaseEvent.descendants).register_all
+  Bot::EventRegistrar.new(bot, events: Bot::BaseEvent.descendants).register_all
 end
 
 total_servers = -> { bots.sum { |bot| bot.servers.size } }
 ready_mutex = Mutex.new
 ready_count = 0
 bots.each_with_index do |bot, index|
-  refresh_presence = -> { BotPresence.update(bot, total_servers.call) }
+  refresh_presence = -> { Bot::Presence.update(bot, total_servers.call) }
   bot.ready do
     refresh_presence.call
     all_up = ready_mutex.synchronize do
@@ -45,9 +45,9 @@ bots.each_with_index do |bot, index|
   bot.server_delete { refresh_presence.call }
 end
 
-if BotConfig.redis_url
-  ConfigSubscriber.new(bots.first).start
-  Rails.logger.info("[bot] config subscriber listening on #{ConfigBus::CHANNEL}")
+if Bot::Config.redis_url
+  Bot::ConfigSubscriber.new(bots.first).start
+  Rails.logger.info("[bot] config subscriber listening on #{Bot::ConfigBus::CHANNEL}")
 else
   Rails.logger.warn("[bot] REDIS_URL not set — config subscriber disabled")
 end

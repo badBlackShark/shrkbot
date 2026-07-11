@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Moderation
-  class DismissScam < BaseEvent
+  class DismissScam < Bot::BaseEvent
     include ComponentActions
 
     on :button, custom_id: /\Amod:dismiss:/
@@ -9,16 +9,16 @@ module Moderation
     def handle
       return reject unless authorized?
 
-      row = Discord::Components.action_row(
+      row = Bot::Discord::Components.action_row(
         [
-          Discord::Components.button(
+          Bot::Discord::Components.button(
             custom_id: CustomId.dismiss_confirm(phash_hex),
             label: I18n.t("moderation.image_scanning.buttons.dismiss_button"),
-            style: Discord::Components::BUTTON_DANGER
+            style: Bot::Discord::Components::BUTTON_DANGER
           )
         ]
       )
-      container = Discord::Components.container([Discord::Components.text(I18n.t("moderation.image_scanning.buttons.dismiss_prompt")), row])
+      container = Bot::Discord::Components.container([Bot::Discord::Components.text(I18n.t("moderation.image_scanning.buttons.dismiss_prompt")), row])
       event.respond(components: container[:components], ephemeral: true, has_components: true)
     end
   end

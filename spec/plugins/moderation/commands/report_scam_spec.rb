@@ -38,7 +38,7 @@ RSpec.describe Moderation::ReportScam do
   before do
     allow(ServerConfiguration).to receive(:find_by).with(discord_id: guild_id).and_return(config)
     allow(config).to receive(:image_scanning_settings).and_return(image_scanning_settings)
-    allow(ActivityLog).to receive(:post)
+    allow(Bot::ActivityLog).to receive(:post)
     allow(Moderation::Ocr::Client).to receive(:new).and_return(client)
     allow(client).to receive(:phash).and_return("deadbeefdeadbeef")
     allow(Moderation::ImageDownload).to receive(:call).and_return("bytes")
@@ -119,14 +119,14 @@ RSpec.describe Moderation::ReportScam do
     it "posts a mod-log entry with the removed meta" do
       execute
 
-      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         expect(kwargs[:title]).to eq(I18n.t("moderation.image_scanning.report.log.title"))
         expect(kwargs[:meta]).to eq(I18n.t("moderation.image_scanning.report.log.meta.removed"))
         body = kwargs[:body]
         expect(body).to include("<@#{user.id}>")
         expect(body).to include("<@#{author_id}>")
         expect(body).to include("<##{channel_id}>")
-        expect(kwargs[:image]).to be_a(Discord::FileUpload)
+        expect(kwargs[:image]).to be_a(Bot::Discord::FileUpload)
       end
     end
   end
@@ -141,7 +141,7 @@ RSpec.describe Moderation::ReportScam do
     it "logs the kept meta without raising" do
       expect { execute }.not_to raise_error
 
-      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         expect(kwargs[:meta]).to eq(I18n.t("moderation.image_scanning.report.log.meta.kept"))
       end
     end
@@ -158,7 +158,7 @@ RSpec.describe Moderation::ReportScam do
     it "posts a mod-log entry with the kept meta" do
       execute
 
-      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         expect(kwargs[:meta]).to eq(I18n.t("moderation.image_scanning.report.log.meta.kept"))
       end
     end
@@ -172,7 +172,7 @@ RSpec.describe Moderation::ReportScam do
     it "does not post a mod-log entry and does not delete" do
       execute
 
-      expect(ActivityLog).not_to have_received(:post)
+      expect(Bot::ActivityLog).not_to have_received(:post)
       expect(target).not_to have_received(:delete)
     end
   end

@@ -10,9 +10,9 @@ if ENV["WEB_DEBUG"] && Rails.env.development?
   )
 
   Rails.application.config.to_prepare do
-    Discord::UserGuilds.define_singleton_method(:call) do |*|
+    Bot::Discord::UserGuilds.define_singleton_method(:call) do |*|
       [
-        Discord::Guild.new(
+        Bot::Discord::Guild.new(
           id: 900_000_001,
           name: "Dev Refuge",
           owner: true,

@@ -5,8 +5,8 @@ class ServersController < ApplicationController
 
   before_action :load_dashboard, only: :show
 
-  rescue_from Discord::UserGuilds::Error, with: :render_error
-  rescue_from Discord::UserGuilds::Unauthorized, with: :reauthenticate
+  rescue_from Bot::Discord::UserGuilds::Error, with: :render_error
+  rescue_from Bot::Discord::UserGuilds::Unauthorized, with: :reauthenticate
 
   def index
     manageable = ManageableGuilds.for(session[:discord_token])

@@ -11,7 +11,7 @@ RSpec.describe Ops::ServerConfiguration::Channels::HandleDeletion do
   let(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
 
   before do
-    allow(OwnerNotifier).to receive(:notify)
+    allow(Bot::OwnerNotifier).to receive(:notify)
   end
 
   context "when a plugin's configured channel was deleted" do
@@ -25,15 +25,15 @@ RSpec.describe Ops::ServerConfiguration::Channels::HandleDeletion do
 
       expect(server.plugin_activations.find_by(plugin: welcomes).enabled).to be(true)
       expect(server.welcome_settings.reload.channel_id).to be_nil
-      expect(OwnerNotifier).to have_received(:notify).with(hash_including(bot:))
+      expect(Bot::OwnerNotifier).to have_received(:notify).with(hash_including(bot:))
     end
 
     context "when a web base URL is configured" do
-      before { allow(BotConfig).to receive(:web_base_url).and_return("https://shrkbot.gg") }
+      before { allow(Bot::Config).to receive(:web_base_url).and_return("https://shrkbot.gg") }
 
       it "links the owner DM to the plugin's config page" do
         result
-        expect(OwnerNotifier).to have_received(:notify).with(
+        expect(Bot::OwnerNotifier).to have_received(:notify).with(
           hash_including(message: include("https://shrkbot.gg/servers/1/welcomes"))
         )
       end
@@ -77,7 +77,7 @@ RSpec.describe Ops::ServerConfiguration::Channels::HandleDeletion do
       result
 
       expect(server.welcome_settings.reload.channel_id).to eq(999)
-      expect(OwnerNotifier).not_to have_received(:notify)
+      expect(Bot::OwnerNotifier).not_to have_received(:notify)
     end
 
     it "creates no notifications" do

@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 module Moderation
-  class MemberActionLog < BaseEvent
+  class MemberActionLog < Bot::BaseEvent
     def handle
       return unless server_configuration
-      return unless ActivityLog.enabled?(server_configuration, "moderation.#{self.class.event_key}")
+      return unless Bot::ActivityLog.enabled?(server_configuration, "moderation.#{self.class.event_key}")
       return unless loggable?
 
-      ActivityLog.post(
+      Bot::ActivityLog.post(
         server_configuration,
         bot: event.bot,
         **entry
