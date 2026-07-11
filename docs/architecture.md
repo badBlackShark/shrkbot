@@ -128,20 +128,28 @@ endpoints and gateway events are named `guild_*`.
 (`Welcomes::`, `Roles::`, `Reminders::`) — that already prevents cross-plugin
 collisions, so there is no outer `Plugins::` wrapper.
 
-Layout:
+Layout — the plugin's shared, cross-seam layers live in their own top-level dir
+(namespaced by plugin), same as operations/components/presenters; `app/plugins/`
+holds only bot behavior and feature-internal domain logic:
 
 ```
+app/models/<plugin>/
+  settings.rb            # <X>::Settings (AR model; sets self.table_name)
+  <noun>.rb              # record models, named as nouns
+app/jobs/<plugin>/
+  <name>_job.rb          # <X>::<Name>Job
 app/plugins/<plugin>/
-  settings.rb            # Plugins::<X>::Settings (AR model; sets self.table_name)
-  <noun>.rb              # record models (verbs for commands, nouns for records)
+  <domain>.rb            # plugin-internal domain logic (POROs, value/service objects)
   commands/<verb>.rb     # Zeitwerk-collapsed → <X>::<Verb>
   events/<name>.rb       # Zeitwerk-collapsed → <X>::<Name>
 ```
 
-`config/application.rb` collapses `app/plugins/*/commands` and `*/events` so a file
-maps to `<X>::<Verb>`, not `<X>::Commands::<Verb>`. Namespaced AR models set
-`self.table_name` explicitly. Naming convention to avoid collisions: the settings
-model is always `Settings`, records are nouns, commands are verbs.
+The `<X>::` namespace spans those roots — a file's constant depends on its plugin
+folder, not which root it lives in. `config/application.rb` collapses
+`app/plugins/*/commands` and `*/events` so a file maps to `<X>::<Verb>`, not
+`<X>::Commands::<Verb>`. Namespaced AR models set `self.table_name` explicitly. Naming
+convention to avoid collisions: the settings model is always `Settings`, records are
+nouns, commands are verbs.
 
 Settings models are dedicated typed tables (not a JSON blob) so we get real columns
 and validations (e.g. the @everyone-visibility check on a logging channel).

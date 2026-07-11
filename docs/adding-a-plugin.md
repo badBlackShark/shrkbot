@@ -7,15 +7,27 @@ roles, welcomes); reminders is a global always-on feature, not a catalog plugin.
 ## 1. Directory and namespace
 
 ```
-app/plugins/<plugin>/
+app/models/<plugin>/
   settings.rb            # <Plugin>::Settings — the per-server settings AR model
   <noun>.rb              # additional record models, named as nouns
+app/jobs/<plugin>/
+  <name>_job.rb          # <Plugin>::<Name>Job
+app/plugins/<plugin>/
+  <domain>.rb            # plugin-internal domain logic — POROs, value objects, service objects
   commands/<verb>.rb     # collapsed → <Plugin>::<Verb>
   events/<name>.rb       # collapsed → <Plugin>::<Name>
 ```
 
-`app/plugins` is autoloaded. The per-plugin namespace (`Welcomes::`, `Roles::`) is the
-collision boundary, so there's no outer `Plugins::` wrapper. `commands/` and `events/`
+The shared, cross-seam layers each live in their own top-level directory, namespaced
+by plugin — models in `app/models/<plugin>/`, jobs in `app/jobs/<plugin>/`, the same
+way operations (`app/operations/<plugin>/`), components (`app/components/<plugin>/`) and
+presenters already are. `app/plugins/<plugin>/` holds only the bot-facing behavior
+(`commands/`, `events/`) and the feature's internal domain logic.
+
+`app/models`, `app/jobs`, and `app/plugins` are all autoloaded. The per-plugin namespace
+(`Welcomes::`, `Roles::`) is the collision boundary, so there's no outer `Plugins::`
+wrapper; that namespace spans the roots above (Zeitwerk resolves it), so a file's constant
+depends only on its plugin folder, not which root it sits in. `commands/` and `events/`
 are collapsed in `config/application.rb`.
 
 ## 2. Settings model
