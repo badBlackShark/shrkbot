@@ -12,7 +12,7 @@ RSpec.describe Reminders::DeliverJob do
   let(:reminder_id) { reminder.id }
 
   before do
-    allow(BotConfig).to receive(:token).and_return("tok")
+    allow(Bot::Config).to receive(:token).and_return("tok")
   end
 
   context "in a channel" do
@@ -21,7 +21,7 @@ RSpec.describe Reminders::DeliverJob do
         expect(token).to eq("Bot tok")
         expect(channel_id).to eq(20)
         expect(content).to be_nil
-        expect(flags).to eq(Discord::Components::COMPONENTS_V2)
+        expect(flags).to eq(Bot::Discord::Components::COMPONENTS_V2)
         body = components.first[:components].first[:content]
         expect(body).to include("<@10>")
         expect(body).to include("hello")

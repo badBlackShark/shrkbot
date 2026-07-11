@@ -26,6 +26,6 @@ class User < ApplicationRecord
   end
 
   def owner?
-    discord_id.to_s == BotConfig.owner_id
+    discord_id.to_s == Bot::Config.owner_id
   end
 end

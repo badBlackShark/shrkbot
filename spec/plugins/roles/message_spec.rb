@@ -15,7 +15,7 @@ RSpec.describe Roles::Message do
   end
 
   def text_block(rendered)
-    container_blocks(rendered).find { |block| block[:type] == Discord::Components::TEXT_DISPLAY }
+    container_blocks(rendered).find { |block| block[:type] == Bot::Discord::Components::TEXT_DISPLAY }
   end
 
   def row_components(rendered)
@@ -30,10 +30,10 @@ RSpec.describe Roles::Message do
     let(:set) { create(:role_set, role_setting: setting, selection_mode: "multi") }
 
     it "wraps the message in an accented container and sets the components-v2 flag" do
-      expect(rendered[:flags]).to eq(Discord::Components::COMPONENTS_V2)
+      expect(rendered[:flags]).to eq(Bot::Discord::Components::COMPONENTS_V2)
       expect(rendered[:components].first).to include(
-        type: Discord::Components::CONTAINER,
-        accent_color: BotConfig::ACCENT_COLOR
+        type: Bot::Discord::Components::CONTAINER,
+        accent_color: Bot::Config::ACCENT_COLOR
       )
     end
 
@@ -58,7 +58,7 @@ RSpec.describe Roles::Message do
       end
 
       it "separates the text from the controls" do
-        expect(container_blocks(rendered).map { |block| block[:type] }).to include(Discord::Components::SEPARATOR)
+        expect(container_blocks(rendered).map { |block| block[:type] }).to include(Bot::Discord::Components::SEPARATOR)
       end
 
       it "offers a manage button as a section accessory" do
@@ -93,7 +93,7 @@ RSpec.describe Roles::Message do
       end
 
       it "separates the text from the buttons" do
-        expect(container_blocks(rendered).map { |block| block[:type] }).to include(Discord::Components::SEPARATOR)
+        expect(container_blocks(rendered).map { |block| block[:type] }).to include(Bot::Discord::Components::SEPARATOR)
       end
 
       context "with more than five roles" do
@@ -139,7 +139,7 @@ RSpec.describe Roles::Message do
     end
 
     it "sets the components-v2 flag" do
-      expect(described_class.multi_picker(set, [])[:flags]).to eq(Discord::Components::COMPONENTS_V2)
+      expect(described_class.multi_picker(set, [])[:flags]).to eq(Bot::Discord::Components::COMPONENTS_V2)
     end
 
     it "is a string select carrying the set's custom id" do

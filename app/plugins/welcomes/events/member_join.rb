@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Welcomes
-  class MemberJoin < BaseEvent
+  class MemberJoin < Bot::BaseEvent
     on :member_join
 
     def handle

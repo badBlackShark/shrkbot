@@ -140,11 +140,11 @@ RSpec.describe Ops::Roles::Configure do
     end
   end
 
-  context "with ConfigBus publication" do
+  context "with Bot::ConfigBus publication" do
     before do
-      allow(ConfigBus).to receive(:post_roles)
-      allow(ConfigBus).to receive(:delete_roles_message)
-      allow(ConfigBus).to receive(:remove_roles_menu)
+      allow(Bot::ConfigBus).to receive(:post_roles)
+      allow(Bot::ConfigBus).to receive(:delete_roles_message)
+      allow(Bot::ConfigBus).to receive(:remove_roles_menu)
     end
 
     context "when enabled with a new set" do
@@ -153,12 +153,12 @@ RSpec.describe Ops::Roles::Configure do
 
       it "publishes a post event for the new set" do
         result
-        expect(ConfigBus).to have_received(:post_roles).with(an_instance_of(Roles::Set))
+        expect(Bot::ConfigBus).to have_received(:post_roles).with(an_instance_of(Roles::Set))
       end
 
       it "does not publish a delete event" do
         result
-        expect(ConfigBus).not_to have_received(:delete_roles_message)
+        expect(Bot::ConfigBus).not_to have_received(:delete_roles_message)
       end
     end
 
@@ -173,12 +173,12 @@ RSpec.describe Ops::Roles::Configure do
 
       it "publishes a post event (bot edits in place)" do
         result
-        expect(ConfigBus).to have_received(:post_roles).with(existing)
+        expect(Bot::ConfigBus).to have_received(:post_roles).with(existing)
       end
 
       it "does not delete (message_id preserved)" do
         result
-        expect(ConfigBus).not_to have_received(:delete_roles_message)
+        expect(Bot::ConfigBus).not_to have_received(:delete_roles_message)
         expect(existing.reload.message_id).to eq(111)
       end
     end
@@ -190,7 +190,7 @@ RSpec.describe Ops::Roles::Configure do
 
       it "publishes a delete event for the old channel/message" do
         result
-        expect(ConfigBus).to have_received(:delete_roles_message).with(channel_id: 777, message_id: 111)
+        expect(Bot::ConfigBus).to have_received(:delete_roles_message).with(channel_id: 777, message_id: 111)
       end
 
       it "clears message_id so bot creates fresh in the new channel" do
@@ -200,7 +200,7 @@ RSpec.describe Ops::Roles::Configure do
 
       it "publishes a post event" do
         result
-        expect(ConfigBus).to have_received(:post_roles).with(existing)
+        expect(Bot::ConfigBus).to have_received(:post_roles).with(existing)
       end
     end
 
@@ -221,17 +221,17 @@ RSpec.describe Ops::Roles::Configure do
 
       it "publishes remove_roles_menu for each set" do
         result
-        expect(ConfigBus).to have_received(:remove_roles_menu).twice
+        expect(Bot::ConfigBus).to have_received(:remove_roles_menu).twice
       end
 
       it "does not publish delete_roles_message" do
         result
-        expect(ConfigBus).not_to have_received(:delete_roles_message)
+        expect(Bot::ConfigBus).not_to have_received(:delete_roles_message)
       end
 
       it "does not publish any post events" do
         result
-        expect(ConfigBus).not_to have_received(:post_roles)
+        expect(Bot::ConfigBus).not_to have_received(:post_roles)
       end
 
       it "keeps message_ids in the DB (bot clears after deleting)" do
@@ -250,7 +250,7 @@ RSpec.describe Ops::Roles::Configure do
 
       it "publishes a delete event for the old channel/message" do
         result
-        expect(ConfigBus).to have_received(:delete_roles_message).with(channel_id: 777, message_id: 111)
+        expect(Bot::ConfigBus).to have_received(:delete_roles_message).with(channel_id: 777, message_id: 111)
       end
 
       it "clears message_id" do
@@ -260,7 +260,7 @@ RSpec.describe Ops::Roles::Configure do
 
       it "does not publish remove_roles_menu" do
         result
-        expect(ConfigBus).not_to have_received(:remove_roles_menu)
+        expect(Bot::ConfigBus).not_to have_received(:remove_roles_menu)
       end
     end
 
@@ -275,7 +275,7 @@ RSpec.describe Ops::Roles::Configure do
 
       it "publishes a delete event for the destroyed set" do
         result
-        expect(ConfigBus).to have_received(:delete_roles_message).with(
+        expect(Bot::ConfigBus).to have_received(:delete_roles_message).with(
           channel_id: 555,
           message_id: 111
         )
@@ -291,7 +291,7 @@ RSpec.describe Ops::Roles::Configure do
 
       it "publishes a delete event using the OLD default channel" do
         result
-        expect(ConfigBus).to have_received(:delete_roles_message).with(channel_id: 100, message_id: 111)
+        expect(Bot::ConfigBus).to have_received(:delete_roles_message).with(channel_id: 100, message_id: 111)
       end
     end
 
@@ -307,7 +307,7 @@ RSpec.describe Ops::Roles::Configure do
 
       it "does NOT produce a delete (channel unchanged)" do
         result
-        expect(ConfigBus).not_to have_received(:delete_roles_message)
+        expect(Bot::ConfigBus).not_to have_received(:delete_roles_message)
       end
     end
 
@@ -319,7 +319,7 @@ RSpec.describe Ops::Roles::Configure do
 
       it "does not delete (channel_override unchanged)" do
         result
-        expect(ConfigBus).not_to have_received(:delete_roles_message)
+        expect(Bot::ConfigBus).not_to have_received(:delete_roles_message)
         expect(existing.reload.message_id).to eq(111)
       end
     end
@@ -340,9 +340,9 @@ RSpec.describe Ops::Roles::Configure do
 
       it "publishes nothing" do
         result
-        expect(ConfigBus).not_to have_received(:post_roles)
-        expect(ConfigBus).not_to have_received(:delete_roles_message)
-        expect(ConfigBus).not_to have_received(:remove_roles_menu)
+        expect(Bot::ConfigBus).not_to have_received(:post_roles)
+        expect(Bot::ConfigBus).not_to have_received(:delete_roles_message)
+        expect(Bot::ConfigBus).not_to have_received(:remove_roles_menu)
       end
     end
   end

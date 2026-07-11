@@ -29,8 +29,8 @@ RSpec.describe Moderation::MemberTimeoutLog do
   before do
     allow(Moderation::TimeoutLogLedger).to receive(:instance).and_return(ledger)
     allow(ServerConfiguration).to receive(:find_by).with(discord_id: guild_id).and_return(server_configuration)
-    allow(ActivityLog).to receive(:enabled?).with(server_configuration, "moderation.member_timed_out").and_return(true)
-    allow(ActivityLog).to receive(:post)
+    allow(Bot::ActivityLog).to receive(:enabled?).with(server_configuration, "moderation.member_timed_out").and_return(true)
+    allow(Bot::ActivityLog).to receive(:post)
     allow(Moderation::AuditLogLookup).to receive(:attribution).and_return(attribution)
     allow(Moderation::ActivityEntry).to receive(:build).and_return(built_entry)
   end
@@ -40,16 +40,16 @@ RSpec.describe Moderation::MemberTimeoutLog do
 
     it "does not post" do
       handle
-      expect(ActivityLog).not_to have_received(:post)
+      expect(Bot::ActivityLog).not_to have_received(:post)
     end
   end
 
   context "when action is disabled" do
-    before { allow(ActivityLog).to receive(:enabled?).and_return(false) }
+    before { allow(Bot::ActivityLog).to receive(:enabled?).and_return(false) }
 
     it "does not post" do
       handle
-      expect(ActivityLog).not_to have_received(:post)
+      expect(Bot::ActivityLog).not_to have_received(:post)
     end
 
     it "does not call AuditLogLookup" do
@@ -70,7 +70,7 @@ RSpec.describe Moderation::MemberTimeoutLog do
 
     it "does not post" do
       handle
-      expect(ActivityLog).not_to have_received(:post)
+      expect(Bot::ActivityLog).not_to have_received(:post)
     end
 
     it "does not call AuditLogLookup" do
@@ -87,7 +87,7 @@ RSpec.describe Moderation::MemberTimeoutLog do
   context "when communication_disabled and attribution is present" do
     it "posts the built entry" do
       handle
-      expect(ActivityLog).to have_received(:post).with(
+      expect(Bot::ActivityLog).to have_received(:post).with(
         server_configuration,
         bot:,
         **built_entry
@@ -100,7 +100,7 @@ RSpec.describe Moderation::MemberTimeoutLog do
 
     it "does not post" do
       handle
-      expect(ActivityLog).not_to have_received(:post)
+      expect(Bot::ActivityLog).not_to have_received(:post)
     end
 
     it "does not consume the ledger slot" do
@@ -114,7 +114,7 @@ RSpec.describe Moderation::MemberTimeoutLog do
 
     it "does not post" do
       handle
-      expect(ActivityLog).not_to have_received(:post)
+      expect(Bot::ActivityLog).not_to have_received(:post)
     end
   end
 
@@ -123,7 +123,7 @@ RSpec.describe Moderation::MemberTimeoutLog do
 
     it "does not post" do
       handle
-      expect(ActivityLog).not_to have_received(:post)
+      expect(Bot::ActivityLog).not_to have_received(:post)
     end
   end
 
@@ -142,7 +142,7 @@ RSpec.describe Moderation::MemberTimeoutLog do
 
     it "accepts only entries that set communication_disabled_until" do
       handle
-      expect(ActivityLog).to have_received(:post)
+      expect(Bot::ActivityLog).to have_received(:post)
     end
   end
 end

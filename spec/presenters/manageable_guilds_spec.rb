@@ -7,17 +7,17 @@ RSpec.describe ManageableGuilds do
     subject(:guilds) { described_class.for("tok") }
 
     let(:manageable_guild) do
-      instance_double("Discord::Guild", manageable?: true, member_count: 50, id: 1)
+      instance_double("Bot::Discord::Guild", manageable?: true, member_count: 50, id: 1)
     end
     let(:unmanageable_guild) do
-      instance_double("Discord::Guild", manageable?: false, member_count: 200, id: 2)
+      instance_double("Bot::Discord::Guild", manageable?: false, member_count: 200, id: 2)
     end
     let(:large_manageable_guild) do
-      instance_double("Discord::Guild", manageable?: true, member_count: 500, id: 3)
+      instance_double("Bot::Discord::Guild", manageable?: true, member_count: 500, id: 3)
     end
 
     before do
-      allow(Discord::UserGuilds).to receive(:call).with("tok").and_return(
+      allow(Bot::Discord::UserGuilds).to receive(:call).with("tok").and_return(
         [manageable_guild, unmanageable_guild, large_manageable_guild]
       )
     end

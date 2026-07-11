@@ -16,16 +16,16 @@ module Roles
     def public_message(set)
       blocks =
         if set.single?
-          [Discord::Components.text(single_content(set)), Discord::Components.separator, *button_rows(role_buttons(set))]
+          [Bot::Discord::Components.text(single_content(set)), Bot::Discord::Components.separator, *button_rows(role_buttons(set))]
         else
-          [Discord::Components.text(multi_content(set)), Discord::Components.separator, manage_section(set)]
+          [Bot::Discord::Components.text(multi_content(set)), Bot::Discord::Components.separator, manage_section(set)]
         end
-      Discord::Components.container(blocks)
+      Bot::Discord::Components.container(blocks)
     end
 
     def multi_picker(set, active_role_ids)
-      Discord::Components.container(
-        [Discord::Components.text(picker_content(set)), action_row([role_select(set, active_role_ids)])]
+      Bot::Discord::Components.container(
+        [Bot::Discord::Components.text(picker_content(set)), action_row([role_select(set, active_role_ids)])]
       )
     end
 
@@ -46,7 +46,7 @@ module Roles
     def manage_section(set)
       {
         type: SECTION,
-        components: [Discord::Components.text("-# Manage your roles with the button.")],
+        components: [Bot::Discord::Components.text("-# Manage your roles with the button.")],
         accessory: manage_button(set)
       }
     end

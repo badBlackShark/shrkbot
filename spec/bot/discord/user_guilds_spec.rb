@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Discord::UserGuilds do
+RSpec.describe Bot::Discord::UserGuilds do
   subject(:fetch) { described_class.call("access-token") }
 
   let(:http) { instance_double(Net::HTTP) }
@@ -16,7 +16,7 @@ RSpec.describe Discord::UserGuilds do
   end
 
   it "maps the response into guilds" do
-    expect(fetch).to contain_exactly(an_instance_of(Discord::Guild))
+    expect(fetch).to contain_exactly(an_instance_of(Bot::Discord::Guild))
   end
 
   it "carries the parsed fields" do
@@ -24,7 +24,7 @@ RSpec.describe Discord::UserGuilds do
   end
 
   it "targets the pinned Discord API version" do
-    expect(described_class::ENDPOINT.to_s).to include("/api/#{BotConfig::API_VERSION}/")
+    expect(described_class::ENDPOINT.to_s).to include("/api/#{Bot::Config::API_VERSION}/")
   end
 
   context "when Discord rejects the access token" do

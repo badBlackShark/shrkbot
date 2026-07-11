@@ -13,8 +13,8 @@ RSpec.describe Roles::Select do
   before do
     create(:server_role, server_configuration: server_config, discord_id: 100, name: "News")
     create(:server_role, server_configuration: server_config, discord_id: 200, name: "Events")
-    allow(ActivityLog).to receive(:enabled?).and_return(true)
-    allow(ActivityLog).to receive(:post)
+    allow(Bot::ActivityLog).to receive(:enabled?).and_return(true)
+    allow(Bot::ActivityLog).to receive(:post)
   end
 
   let(:user) { double("user", id: 42) }
@@ -31,7 +31,7 @@ RSpec.describe Roles::Select do
   end
 
   it "logs the gained role" do
-    expect(ActivityLog).to receive(:post).with(
+    expect(Bot::ActivityLog).to receive(:post).with(
       server_config,
       bot:,
       title: "Roles updated",
@@ -45,7 +45,7 @@ RSpec.describe Roles::Select do
     let(:member) { double("member", roles: [double("role", id: 200)], modify_roles: nil, mention: "<@42>") }
 
     it "logs one combined entry for the gained and lost roles" do
-      expect(ActivityLog).to receive(:post).with(
+      expect(Bot::ActivityLog).to receive(:post).with(
         server_config,
         bot:,
         title: "Roles updated",
@@ -57,11 +57,11 @@ RSpec.describe Roles::Select do
 
     context "when only the gained toggle is enabled" do
       before do
-        allow(ActivityLog).to receive(:enabled?).with(server_config, "roles.role_lost").and_return(false)
+        allow(Bot::ActivityLog).to receive(:enabled?).with(server_config, "roles.role_lost").and_return(false)
       end
 
       it "logs only the gained side" do
-        expect(ActivityLog).to receive(:post).with(
+        expect(Bot::ActivityLog).to receive(:post).with(
           server_config,
           bot:,
           title: "Roles updated",
@@ -82,7 +82,7 @@ RSpec.describe Roles::Select do
     end
 
     it "logs only the lost roles" do
-      expect(ActivityLog).to receive(:post).with(
+      expect(Bot::ActivityLog).to receive(:post).with(
         server_config,
         bot:,
         title: "Roles updated",
@@ -97,7 +97,7 @@ RSpec.describe Roles::Select do
     let(:member) { double("member", roles: [double("role", id: 100)], modify_roles: nil, mention: "<@42>") }
 
     it "logs nothing" do
-      expect(ActivityLog).not_to receive(:post)
+      expect(Bot::ActivityLog).not_to receive(:post)
       handle
     end
   end
@@ -106,11 +106,11 @@ RSpec.describe Roles::Select do
     let(:member) { double("member", roles: [double("role", id: 200)], modify_roles: nil, mention: "<@42>") }
 
     before do
-      allow(ActivityLog).to receive(:enabled?).and_return(false)
+      allow(Bot::ActivityLog).to receive(:enabled?).and_return(false)
     end
 
     it "logs nothing" do
-      expect(ActivityLog).not_to receive(:post)
+      expect(Bot::ActivityLog).not_to receive(:post)
       handle
     end
   end

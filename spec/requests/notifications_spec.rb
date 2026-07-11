@@ -5,9 +5,9 @@ require "rails_helper"
 RSpec.describe "Notifications", type: :request do
   include_context "discord auth"
 
-  let(:guild_a) { Discord::Guild.new(id: 900_000_010, name: "Alpha Server", owner: true, permissions: 0, icon: nil, member_count: 10) }
-  let(:guild_b) { Discord::Guild.new(id: 900_000_011, name: "Beta Server", owner: true, permissions: 0, icon: nil, member_count: 5) }
-  let(:guild_other) { Discord::Guild.new(id: 900_000_012, name: "Other Server", owner: true, permissions: 0, icon: nil, member_count: 3) }
+  let(:guild_a) { Bot::Discord::Guild.new(id: 900_000_010, name: "Alpha Server", owner: true, permissions: 0, icon: nil, member_count: 10) }
+  let(:guild_b) { Bot::Discord::Guild.new(id: 900_000_011, name: "Beta Server", owner: true, permissions: 0, icon: nil, member_count: 5) }
+  let(:guild_other) { Bot::Discord::Guild.new(id: 900_000_012, name: "Other Server", owner: true, permissions: 0, icon: nil, member_count: 3) }
 
   let!(:config_a) { create(:server_configuration, discord_id: guild_a.id) }
   let!(:config_b) { create(:server_configuration, discord_id: guild_b.id) }
@@ -28,7 +28,7 @@ RSpec.describe "Notifications", type: :request do
     before do
       post "/auth/discord/callback"
       # Authorize guild_a and guild_b but NOT guild_other
-      allow(Discord::UserGuilds).to receive(:call).and_return([guild_a, guild_b])
+      allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild_a, guild_b])
       get server_path(guild_a.id)
     end
 

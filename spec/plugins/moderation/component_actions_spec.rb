@@ -6,7 +6,7 @@ RSpec.describe Moderation::ComponentActions do
   subject(:handler) { includer.new(event) }
 
   let(:includer) do
-    Class.new(BaseEvent) do
+    Class.new(Bot::BaseEvent) do
       include Moderation::ComponentActions
     end
   end
@@ -88,11 +88,11 @@ RSpec.describe Moderation::ComponentActions do
         inner_blocks = kwargs[:components].first[:components]
         types = inner_blocks.map { |b| b[:type] }
         expect(types).to eq([
-          Discord::Components::TEXT_DISPLAY,
-          Discord::Components::MEDIA_GALLERY,
-          Discord::Components::SEPARATOR,
-          Discord::Components::SEPARATOR,
-          Discord::Components::TEXT_DISPLAY
+          Bot::Discord::Components::TEXT_DISPLAY,
+          Bot::Discord::Components::MEDIA_GALLERY,
+          Bot::Discord::Components::SEPARATOR,
+          Bot::Discord::Components::SEPARATOR,
+          Bot::Discord::Components::TEXT_DISPLAY
         ])
         expect(inner_blocks.last[:content]).to eq("Confirmed as a scam by <@222>.")
       end

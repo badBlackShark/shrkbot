@@ -9,9 +9,9 @@ RSpec.describe Roles::MenuToggle do
   let!(:role_setting) { create(:role_setting, server_configuration:) }
 
   before do
-    allow(ConfigBus).to receive(:post_roles)
-    allow(ConfigBus).to receive(:remove_roles_menu)
-    allow(ConfigBus).to receive(:delete_roles_message)
+    allow(Bot::ConfigBus).to receive(:post_roles)
+    allow(Bot::ConfigBus).to receive(:remove_roles_menu)
+    allow(Bot::ConfigBus).to receive(:delete_roles_message)
   end
 
   context "when enabling with two sets (one with message_id, one without)" do
@@ -21,13 +21,13 @@ RSpec.describe Roles::MenuToggle do
 
     it "publishes post_roles for both sets" do
       publish
-      expect(ConfigBus).to have_received(:post_roles).with(set_with_message)
-      expect(ConfigBus).to have_received(:post_roles).with(set_without_message)
+      expect(Bot::ConfigBus).to have_received(:post_roles).with(set_with_message)
+      expect(Bot::ConfigBus).to have_received(:post_roles).with(set_without_message)
     end
 
     it "does not publish remove_roles_menu" do
       publish
-      expect(ConfigBus).not_to have_received(:remove_roles_menu)
+      expect(Bot::ConfigBus).not_to have_received(:remove_roles_menu)
     end
   end
 
@@ -38,13 +38,13 @@ RSpec.describe Roles::MenuToggle do
 
     it "publishes remove_roles_menu only for the set with a message" do
       publish
-      expect(ConfigBus).to have_received(:remove_roles_menu).with(set_with_message)
-      expect(ConfigBus).not_to have_received(:remove_roles_menu).with(set_without_message)
+      expect(Bot::ConfigBus).to have_received(:remove_roles_menu).with(set_with_message)
+      expect(Bot::ConfigBus).not_to have_received(:remove_roles_menu).with(set_without_message)
     end
 
     it "does not publish post_roles" do
       publish
-      expect(ConfigBus).not_to have_received(:post_roles)
+      expect(Bot::ConfigBus).not_to have_received(:post_roles)
     end
   end
 
@@ -53,8 +53,8 @@ RSpec.describe Roles::MenuToggle do
 
     it "publishes neither post_roles nor remove_roles_menu" do
       publish
-      expect(ConfigBus).not_to have_received(:post_roles)
-      expect(ConfigBus).not_to have_received(:remove_roles_menu)
+      expect(Bot::ConfigBus).not_to have_received(:post_roles)
+      expect(Bot::ConfigBus).not_to have_received(:remove_roles_menu)
     end
   end
 end

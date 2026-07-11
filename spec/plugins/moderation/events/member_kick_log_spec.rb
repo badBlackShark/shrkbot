@@ -19,8 +19,8 @@ RSpec.describe Moderation::MemberKickLog do
 
   before do
     allow(ServerConfiguration).to receive(:find_by).with(discord_id: guild_id).and_return(server_configuration)
-    allow(ActivityLog).to receive(:enabled?).with(server_configuration, "moderation.member_kicked").and_return(true)
-    allow(ActivityLog).to receive(:post)
+    allow(Bot::ActivityLog).to receive(:enabled?).with(server_configuration, "moderation.member_kicked").and_return(true)
+    allow(Bot::ActivityLog).to receive(:post)
     allow(Moderation::AuditLogLookup).to receive(:attribution).and_return(attribution)
     allow(Moderation::ActivityEntry).to receive(:build).and_return(built_entry)
   end
@@ -30,16 +30,16 @@ RSpec.describe Moderation::MemberKickLog do
 
     it "does not post" do
       handle
-      expect(ActivityLog).not_to have_received(:post)
+      expect(Bot::ActivityLog).not_to have_received(:post)
     end
   end
 
   context "when action is disabled" do
-    before { allow(ActivityLog).to receive(:enabled?).and_return(false) }
+    before { allow(Bot::ActivityLog).to receive(:enabled?).and_return(false) }
 
     it "does not post" do
       handle
-      expect(ActivityLog).not_to have_received(:post)
+      expect(Bot::ActivityLog).not_to have_received(:post)
     end
 
     it "does not call AuditLogLookup" do
@@ -53,14 +53,14 @@ RSpec.describe Moderation::MemberKickLog do
 
     it "does not post" do
       handle
-      expect(ActivityLog).not_to have_received(:post)
+      expect(Bot::ActivityLog).not_to have_received(:post)
     end
   end
 
   context "when attribution is present" do
     it "posts the built entry" do
       handle
-      expect(ActivityLog).to have_received(:post).with(
+      expect(Bot::ActivityLog).to have_received(:post).with(
         server_configuration,
         bot:,
         **built_entry

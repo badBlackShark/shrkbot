@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Discord::Guild do
+RSpec.describe Bot::Discord::Guild do
   describe ".from_api" do
     subject(:guild) { described_class.from_api(payload) }
 

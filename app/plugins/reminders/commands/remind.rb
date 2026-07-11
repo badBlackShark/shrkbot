@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Reminders
-  class Remind < BaseCommand
+  class Remind < Bot::BaseCommand
     command_name :remind
     description "Set a reminder to be sent to you after a delay (e.g. 1d2h30m)."
     register_in :global

@@ -23,6 +23,9 @@ Bundler.require(*Rails.groups)
 module Ops
 end
 
+module Bot
+end
+
 module App
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
@@ -37,6 +40,11 @@ module App
     Rails.autoloaders.main.collapse(Rails.root.join("app/plugins/*/events"))
 
     Rails.autoloaders.main.push_dir(Rails.root.join("app/operations").to_s, namespace: Ops)
+
+    Rails.autoloaders.main.push_dir(Rails.root.join("app/bot").to_s, namespace: Bot)
+    Rails.autoloaders.main.collapse(Rails.root.join("app/bot/events"))
+    Rails.autoloaders.main.collapse(Rails.root.join("app/bot/config"))
+    Rails.autoloaders.main.collapse(Rails.root.join("app/bot/registration"))
 
     # Configuration for the application, engines, and railties goes here.
     #

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Reminders
-  class Unremind < BaseCommand
+  class Unremind < Bot::BaseCommand
     command_name :unremind
     description "Cancel one of your reminders."
     register_in :global
@@ -27,7 +27,7 @@ module Reminders
     private
 
     def choice_label(reminder)
-      "#{Discord::Truncate.call(reminder.message, 75)} (#{reminder.remind_at.strftime("%b %-d %H:%M %Z")})"
+      "#{Bot::Discord::Truncate.call(reminder.message, 75)} (#{reminder.remind_at.strftime("%b %-d %H:%M %Z")})"
     end
   end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Welcomes
-  class MemberLeave < BaseEvent
+  class MemberLeave < Bot::BaseEvent
     on :member_leave
 
     def handle

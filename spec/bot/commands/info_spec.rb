@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Commands::Info do
+RSpec.describe Bot::Commands::Info do
   subject(:execute) { described_class.new(event).execute }
 
   let(:profile) { double("profile", username: "shrkbot") }
@@ -23,8 +23,8 @@ RSpec.describe Commands::Info do
       expect(args[:ephemeral]).to be(true)
       expect(args[:has_components]).to be(true)
       expect(args[:components].first).to include(
-        type: Discord::Components::CONTAINER,
-        accent_color: BotConfig::ACCENT_COLOR
+        type: Bot::Discord::Components::CONTAINER,
+        accent_color: Bot::Config::ACCENT_COLOR
       )
     end
 
@@ -33,9 +33,9 @@ RSpec.describe Commands::Info do
 
   it "shows the attached mascot as a thumbnail on the header section" do
     expect(event).to receive(:respond) do |args|
-      section = args[:components].first[:components].find { |block| block[:type] == Discord::Components::SECTION }
+      section = args[:components].first[:components].find { |block| block[:type] == Bot::Discord::Components::SECTION }
       expect(section[:accessory]).to eq(
-        type: Discord::Components::THUMBNAIL,
+        type: Bot::Discord::Components::THUMBNAIL,
         media: {url: "attachment://shrkbot-mascot.png"}
       )
       expect(args[:attachments].sole.path).to end_with("app/assets/images/shrkbot-mascot.png")
@@ -49,7 +49,7 @@ RSpec.describe Commands::Info do
       body = texts(args).join("\n")
       expect(body).to include("shrkbot")
       expect(body).to include("Ruby")
-      expect(body).to include(BotConfig.invite_url)
+      expect(body).to include(Bot::Config.invite_url)
       expect(body).to include("discordrb").and include("Ruby on Rails")
       expect(body).to include("/donate")
     end
@@ -69,8 +69,8 @@ RSpec.describe Commands::Info do
     end
 
     before do
-      allow(BotConfig).to receive(:owner_id).and_return(nil)
-      allow(BotConfig).to receive(:web_base_url).and_return("https://shrk.test/")
+      allow(Bot::Config).to receive(:owner_id).and_return(nil)
+      allow(Bot::Config).to receive(:web_base_url).and_return("https://shrk.test/")
     end
 
     context "when the caller can manage the server" do

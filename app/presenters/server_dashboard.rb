@@ -15,9 +15,9 @@ class ServerDashboard
 
   def resolve
     live
-  rescue Discord::UserGuilds::Unauthorized
+  rescue Bot::Discord::UserGuilds::Unauthorized
     raise
-  rescue Discord::UserGuilds::Error
+  rescue Bot::Discord::UserGuilds::Error
     cached || raise
   end
 

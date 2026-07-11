@@ -23,9 +23,9 @@ module Roles
     end
 
     def publish
-      @deletes.each { |del| ConfigBus.delete_roles_message(**del) }
-      @removes.each { |set| ConfigBus.remove_roles_menu(set) }
-      @role_sets.each { |set| ConfigBus.post_roles(set) }
+      @deletes.each { |del| Bot::ConfigBus.delete_roles_message(**del) }
+      @removes.each { |set| Bot::ConfigBus.remove_roles_menu(set) }
+      @role_sets.each { |set| Bot::ConfigBus.post_roles(set) }
     end
   end
 end

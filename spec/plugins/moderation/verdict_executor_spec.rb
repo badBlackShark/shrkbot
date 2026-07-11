@@ -67,7 +67,7 @@ RSpec.describe Moderation::VerdictExecutor do
   let(:verdict) { Moderation::Verdict.new(action:, risk: 5.0, reasons:) }
 
   before do
-    allow(ActivityLog).to receive(:post)
+    allow(Bot::ActivityLog).to receive(:post)
     allow(Moderation::Punisher).to receive(:call)
   end
 
@@ -75,7 +75,7 @@ RSpec.describe Moderation::VerdictExecutor do
     let(:action) { :allow }
 
     it "does not log, delete, or punish" do
-      expect(ActivityLog).not_to receive(:post)
+      expect(Bot::ActivityLog).not_to receive(:post)
       expect(bot).not_to receive(:channel)
       expect(Moderation::Punisher).not_to receive(:call)
       execute
@@ -88,7 +88,7 @@ RSpec.describe Moderation::VerdictExecutor do
     it "logs the image with the flagged title, an FileUpload, and the staff role in allowed_mentions" do
       execute
 
-      expect(ActivityLog).to have_received(:post).with(
+      expect(Bot::ActivityLog).to have_received(:post).with(
         server_configuration,
         hash_including(
           title: I18n.t("moderation.image_scanning.flag.title.flagged"),
@@ -96,7 +96,7 @@ RSpec.describe Moderation::VerdictExecutor do
         )
       ) do |_config, kwargs|
         io = kwargs[:image]
-        expect(io).to be_a(Discord::FileUpload)
+        expect(io).to be_a(Bot::Discord::FileUpload)
         expect(io.path).to eq("x.png")
         expect(io.original_filename).to eq("x.png")
         io.rewind
@@ -113,9 +113,9 @@ RSpec.describe Moderation::VerdictExecutor do
     it "posts a confirm/dismiss action row carrying the phash custom_ids" do
       execute
 
-      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         row = kwargs[:components].first
-        expect(row[:type]).to eq(Discord::Components::ACTION_ROW)
+        expect(row[:type]).to eq(Bot::Discord::Components::ACTION_ROW)
         custom_ids = row[:components].map { |button| button[:custom_id] }
         expect(custom_ids).to eq(["mod:confirm:#{phash}", "mod:dismiss:#{phash}"])
       end
@@ -124,7 +124,7 @@ RSpec.describe Moderation::VerdictExecutor do
     it "includes a colon after the staff role ping in the body" do
       execute
 
-      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         expect(kwargs[:body]).to include("<@&#{staff_role_id}>: ")
       end
     end
@@ -149,7 +149,7 @@ RSpec.describe Moderation::VerdictExecutor do
       it "renders the keyword count, omits the weight on zero-weight reasons, and keeps fractions" do
         execute
 
-        expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
           body = kwargs[:body]
           expect(body).to include("Risk `4.5` of the `3` needed for a flag:")
           expect(body).to include("- matched 2 custom keywords (`+4`)")
@@ -163,7 +163,7 @@ RSpec.describe Moderation::VerdictExecutor do
     it "includes a risk line with backticked numbers in the body" do
       execute
 
-      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         expect(kwargs[:body]).to match(/Risk `5` of the `3` needed for a flag:/)
       end
     end
@@ -171,7 +171,7 @@ RSpec.describe Moderation::VerdictExecutor do
     it "includes reason bullets in the body" do
       execute
 
-      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         expect(kwargs[:body]).to include("(`+2`)")
         expect(kwargs[:body]).to include('matched "promo code"')
         expect(kwargs[:body]).to include("(`+3`)")
@@ -187,7 +187,7 @@ RSpec.describe Moderation::VerdictExecutor do
 
       expect(bot).to have_received(:channel).with(channel_id)
       expect(message_channel).to have_received(:delete_message).with(message_id)
-      expect(ActivityLog).to have_received(:post).with(
+      expect(Bot::ActivityLog).to have_received(:post).with(
         server_configuration,
         hash_including(title: I18n.t("moderation.image_scanning.flag.title.removed"))
       )
@@ -196,7 +196,7 @@ RSpec.describe Moderation::VerdictExecutor do
     it "includes a risk line for removal in the body" do
       execute
 
-      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         expect(kwargs[:body]).to match(/Risk `5` of the `6` needed for removal:/)
       end
     end
@@ -204,9 +204,9 @@ RSpec.describe Moderation::VerdictExecutor do
     it "posts a confirm/dismiss action row carrying the phash custom_ids" do
       execute
 
-      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         row = kwargs[:components].first
-        expect(row[:type]).to eq(Discord::Components::ACTION_ROW)
+        expect(row[:type]).to eq(Bot::Discord::Components::ACTION_ROW)
         custom_ids = row[:components].map { |button| button[:custom_id] }
         expect(custom_ids).to eq(["mod:confirm:#{phash}", "mod:dismiss:#{phash}"])
       end
@@ -217,7 +217,7 @@ RSpec.describe Moderation::VerdictExecutor do
 
       it "does not raise and still logs" do
         expect { execute }.not_to raise_error
-        expect(ActivityLog).to have_received(:post)
+        expect(Bot::ActivityLog).to have_received(:post)
       end
     end
 
@@ -228,7 +228,7 @@ RSpec.describe Moderation::VerdictExecutor do
 
       it "rescues the failure and still logs" do
         expect { execute }.not_to raise_error
-        expect(ActivityLog).to have_received(:post)
+        expect(Bot::ActivityLog).to have_received(:post)
       end
     end
   end
@@ -241,7 +241,7 @@ RSpec.describe Moderation::VerdictExecutor do
       expect(bot).not_to receive(:channel)
       execute
 
-      expect(ActivityLog).to have_received(:post).with(
+      expect(Bot::ActivityLog).to have_received(:post).with(
         server_configuration,
         hash_including(title: I18n.t("moderation.image_scanning.flag.title.removed"))
       )
@@ -336,7 +336,7 @@ RSpec.describe Moderation::VerdictExecutor do
     it "logs with empty roles" do
       execute
 
-      expect(ActivityLog).to have_received(:post).with(
+      expect(Bot::ActivityLog).to have_received(:post).with(
         server_configuration,
         hash_including(allowed_mentions: {parse: [], roles: []})
       )
@@ -349,7 +349,7 @@ RSpec.describe Moderation::VerdictExecutor do
     it "posts with empty roles in allowed_mentions" do
       execute
 
-      expect(ActivityLog).to have_received(:post).with(
+      expect(Bot::ActivityLog).to have_received(:post).with(
         server_configuration,
         hash_including(allowed_mentions: {parse: [], roles: []})
       )
@@ -358,7 +358,7 @@ RSpec.describe Moderation::VerdictExecutor do
     it "does not start the body with a role mention" do
       execute
 
-      expect(ActivityLog).to have_received(:post) do |_config, kwargs|
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         expect(kwargs[:body]).not_to start_with("<@&")
       end
     end

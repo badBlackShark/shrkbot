@@ -32,7 +32,7 @@ module Ops
         end
 
         def notify_owner(plugin)
-          OwnerNotifier.notify(bot:, message: owner_message(plugin))
+          Bot::OwnerNotifier.notify(bot:, message: owner_message(plugin))
         end
 
         def owner_message(plugin)
@@ -40,7 +40,7 @@ module Ops
         end
 
         def config_url(plugin)
-          "#{BotConfig.server_config_url(server_configuration.discord_id)}/#{plugin.key}"
+          "#{Bot::Config.server_config_url(server_configuration.discord_id)}/#{plugin.key}"
         end
       end
     end

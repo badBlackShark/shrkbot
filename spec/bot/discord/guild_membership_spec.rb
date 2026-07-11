@@ -3,12 +3,12 @@
 require "rails_helper"
 require "discordrb"
 
-RSpec.describe Discord::GuildMembership do
+RSpec.describe Bot::Discord::GuildMembership do
   let(:guild_id) { 123_456 }
   let(:rest_token) { "Bot token" }
 
   before do
-    allow(BotConfig).to receive(:rest_token).and_return(rest_token)
+    allow(Bot::Config).to receive(:rest_token).and_return(rest_token)
   end
 
   describe ".member?" do

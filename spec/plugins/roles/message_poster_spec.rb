@@ -24,7 +24,7 @@ RSpec.describe Roles::MessagePoster do
 
     it "sends with the components-v2 flag so the container is accepted" do
       expect(channel).to receive(:send_message)
-        .with(nil, false, nil, nil, nil, nil, anything, Discord::Components::COMPONENTS_V2)
+        .with(nil, false, nil, nil, nil, nil, anything, Bot::Discord::Components::COMPONENTS_V2)
         .and_return(double(id: 1))
       post
     end
@@ -45,7 +45,7 @@ RSpec.describe Roles::MessagePoster do
     end
 
     it "edits with the components-v2 flag" do
-      expect(message).to receive(:edit).with(nil, nil, anything, Discord::Components::COMPONENTS_V2)
+      expect(message).to receive(:edit).with(nil, nil, anything, Bot::Discord::Components::COMPONENTS_V2)
       post
     end
   end

@@ -6,9 +6,9 @@ RSpec.describe Roles::MenuSyncPlan do
   subject(:plan) { described_class.new }
 
   before do
-    allow(ConfigBus).to receive(:delete_roles_message)
-    allow(ConfigBus).to receive(:remove_roles_menu)
-    allow(ConfigBus).to receive(:post_roles)
+    allow(Bot::ConfigBus).to receive(:delete_roles_message)
+    allow(Bot::ConfigBus).to receive(:remove_roles_menu)
+    allow(Bot::ConfigBus).to receive(:post_roles)
   end
 
   describe "#publish" do
@@ -24,28 +24,28 @@ RSpec.describe Roles::MenuSyncPlan do
 
       it "publishes in order: deletes, then removes, then posts" do
         order = []
-        allow(ConfigBus).to receive(:delete_roles_message) { order << :delete }
-        allow(ConfigBus).to receive(:remove_roles_menu) { order << :remove }
-        allow(ConfigBus).to receive(:post_roles) { order << :post }
+        allow(Bot::ConfigBus).to receive(:delete_roles_message) { order << :delete }
+        allow(Bot::ConfigBus).to receive(:remove_roles_menu) { order << :remove }
+        allow(Bot::ConfigBus).to receive(:post_roles) { order << :post }
 
         plan.publish
 
         expect(order).to eq([:delete, :remove, :post])
       end
 
-      it "passes the channel and message ids to ConfigBus.delete_roles_message" do
+      it "passes the channel and message ids to Bot::ConfigBus.delete_roles_message" do
         plan.publish
-        expect(ConfigBus).to have_received(:delete_roles_message).with(channel_id: 123, message_id: 456)
+        expect(Bot::ConfigBus).to have_received(:delete_roles_message).with(channel_id: 123, message_id: 456)
       end
 
-      it "passes the remove set to ConfigBus.remove_roles_menu" do
+      it "passes the remove set to Bot::ConfigBus.remove_roles_menu" do
         plan.publish
-        expect(ConfigBus).to have_received(:remove_roles_menu).with(remove_set)
+        expect(Bot::ConfigBus).to have_received(:remove_roles_menu).with(remove_set)
       end
 
-      it "passes the set to ConfigBus.post_roles" do
+      it "passes the set to Bot::ConfigBus.post_roles" do
         plan.publish
-        expect(ConfigBus).to have_received(:post_roles).with(set)
+        expect(Bot::ConfigBus).to have_received(:post_roles).with(set)
       end
     end
 
@@ -56,7 +56,7 @@ RSpec.describe Roles::MenuSyncPlan do
 
       it "skips the delete" do
         plan.publish
-        expect(ConfigBus).not_to have_received(:delete_roles_message)
+        expect(Bot::ConfigBus).not_to have_received(:delete_roles_message)
       end
     end
 
@@ -67,7 +67,7 @@ RSpec.describe Roles::MenuSyncPlan do
 
       it "skips the delete" do
         plan.publish
-        expect(ConfigBus).not_to have_received(:delete_roles_message)
+        expect(Bot::ConfigBus).not_to have_received(:delete_roles_message)
       end
     end
   end

@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe "Server dashboard", type: :request do
   include_context "discord auth"
 
-  let(:guild) { Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: "icyhash", member_count: 2481) }
+  let(:guild) { Bot::Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: "icyhash", member_count: 2481) }
   let(:config) { ServerConfiguration.find_by(discord_id: guild.id) }
 
   context "when signed out" do
@@ -23,7 +23,7 @@ RSpec.describe "Server dashboard", type: :request do
     before do
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
-      allow(Discord::UserGuilds).to receive(:call).and_return([guild])
+      allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     end
 
     describe "GET /servers/:id" do
@@ -54,11 +54,11 @@ RSpec.describe "Server dashboard", type: :request do
       end
 
       context "with another configured server" do
-        let(:other_guild) { Discord::Guild.new(id: 900_000_002, name: "Speedrun HQ", owner: true, permissions: 0, icon: nil, member_count: 80) }
+        let(:other_guild) { Bot::Discord::Guild.new(id: 900_000_002, name: "Speedrun HQ", owner: true, permissions: 0, icon: nil, member_count: 80) }
 
         before do
           create(:server_configuration, discord_id: other_guild.id)
-          allow(Discord::UserGuilds).to receive(:call).and_return([guild, other_guild])
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild, other_guild])
         end
 
         it "offers it in the switcher" do
@@ -100,7 +100,7 @@ RSpec.describe "Server dashboard", type: :request do
       end
 
       context "when Discord omits the member count" do
-        let(:guild) { Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil) }
+        let(:guild) { Bot::Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil) }
 
         it "renders the header without a member count" do
           get_dashboard
@@ -111,7 +111,7 @@ RSpec.describe "Server dashboard", type: :request do
 
       context "when the server is not manageable by the user" do
         before do
-          allow(Discord::UserGuilds).to receive(:call).and_return([])
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_return([])
         end
 
         it "redirects back to the picker" do
@@ -122,7 +122,7 @@ RSpec.describe "Server dashboard", type: :request do
 
       context "when the Discord token has expired" do
         before do
-          allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Unauthorized)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Unauthorized)
         end
 
         it "kicks off re-authentication" do
@@ -135,7 +135,7 @@ RSpec.describe "Server dashboard", type: :request do
       context "when Discord cannot be reached" do
         before do
           get server_path(guild.id)
-          allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Error)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Error)
         end
 
         context "when cached metadata is present" do
@@ -166,7 +166,7 @@ RSpec.describe "Server dashboard", type: :request do
       context "when the Discord token has expired and Discord is also unreachable" do
         before do
           get server_path(guild.id)
-          allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Unauthorized)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Unauthorized)
           config.update!(name: "Dev Refuge", icon_hash: "icyhash", member_count: 2481)
         end
 
@@ -193,7 +193,7 @@ RSpec.describe "Server dashboard", type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.media_type).to eq("text/vnd.turbo-stream.html")
         expect(config.plugin_activations.find_by(plugin: roles).enabled).to be(true)
-        expect(Discord::UserGuilds).to have_received(:call).once
+        expect(Bot::Discord::UserGuilds).to have_received(:call).once
       end
 
       it "refuses to enable a plugin missing its prerequisites" do

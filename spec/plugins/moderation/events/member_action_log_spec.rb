@@ -17,8 +17,8 @@ RSpec.describe Moderation::MemberActionLog do
 
   before do
     allow(ServerConfiguration).to receive(:find_by).with(discord_id: 111).and_return(server_configuration)
-    allow(ActivityLog).to receive(:enabled?).and_return(true)
-    allow(ActivityLog).to receive(:post)
+    allow(Bot::ActivityLog).to receive(:enabled?).and_return(true)
+    allow(Bot::ActivityLog).to receive(:post)
   end
 
   it "requires subclasses to implement loggable?" do
@@ -52,7 +52,7 @@ RSpec.describe Moderation::MemberActionLog do
 
     it "does not post" do
       handle
-      expect(ActivityLog).not_to have_received(:post)
+      expect(Bot::ActivityLog).not_to have_received(:post)
     end
   end
 end

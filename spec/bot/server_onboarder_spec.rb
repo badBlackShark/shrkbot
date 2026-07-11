@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe ServerOnboarder do
+RSpec.describe Bot::ServerOnboarder do
   subject(:notify) { described_class.notify(bot, server, config) }
 
   let(:config) { create(:server_configuration) }
@@ -13,7 +13,7 @@ RSpec.describe ServerOnboarder do
 
   context "when the server has not been onboarded" do
     before do
-      allow(BotConfig).to receive(:web_base_url).and_return("https://shrkbot.gg")
+      allow(Bot::Config).to receive(:web_base_url).and_return("https://shrkbot.gg")
     end
 
     it "DMs the guild owner" do
@@ -25,7 +25,7 @@ RSpec.describe ServerOnboarder do
       expect(pm_channel).to receive(:send_message) do |*args|
         components = args[6]
         flags = args[7]
-        expect(flags).to eq(Discord::Components::COMPONENTS_V2)
+        expect(flags).to eq(Bot::Discord::Components::COMPONENTS_V2)
         expect(components.to_s).to include("https://shrkbot.gg/servers/77")
         expect(components.to_s).to include("Dev Refuge")
       end
@@ -39,7 +39,7 @@ RSpec.describe ServerOnboarder do
 
   context "when the server has already been onboarded" do
     before do
-      allow(BotConfig).to receive(:web_base_url).and_return("https://shrkbot.gg")
+      allow(Bot::Config).to receive(:web_base_url).and_return("https://shrkbot.gg")
       config.update!(onboarded_at: 1.day.ago)
     end
 
@@ -55,7 +55,7 @@ RSpec.describe ServerOnboarder do
 
   context "when the owner cannot be DMed" do
     before do
-      allow(BotConfig).to receive(:web_base_url).and_return("https://shrkbot.gg")
+      allow(Bot::Config).to receive(:web_base_url).and_return("https://shrkbot.gg")
       allow(bot).to receive(:pm_channel).and_raise(StandardError, "Cannot send messages to this user")
     end
 

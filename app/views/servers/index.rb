@@ -109,7 +109,7 @@ class Views::Servers::Index < Views::Base
   end
 
   def generic_invite_url
-    BotConfig.invite_url
+    Bot::Config.invite_url
   end
 
   def invite_url(guild)

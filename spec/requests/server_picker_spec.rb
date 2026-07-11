@@ -16,15 +16,15 @@ RSpec.describe "Server picker", type: :request do
     end
 
     context "when signed in" do
-      let(:present_guild) { Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: "icyhash", member_count: 2481) }
-      let(:absent_guild) { Discord::Guild.new(id: 900_000_002, name: "Speedrun HQ", owner: false, permissions: 0x20, icon: nil, member_count: 1) }
-      let(:unmanaged_guild) { Discord::Guild.new(id: 900_000_003, name: "Lurker Lounge", owner: false, permissions: 0, icon: nil) }
-      let(:countless_guild) { Discord::Guild.new(id: 900_000_004, name: "Mystery Server", owner: true, permissions: 0, icon: nil) }
+      let(:present_guild) { Bot::Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: "icyhash", member_count: 2481) }
+      let(:absent_guild) { Bot::Discord::Guild.new(id: 900_000_002, name: "Speedrun HQ", owner: false, permissions: 0x20, icon: nil, member_count: 1) }
+      let(:unmanaged_guild) { Bot::Discord::Guild.new(id: 900_000_003, name: "Lurker Lounge", owner: false, permissions: 0, icon: nil) }
+      let(:countless_guild) { Bot::Discord::Guild.new(id: 900_000_004, name: "Mystery Server", owner: true, permissions: 0, icon: nil) }
 
       before do
         post "/auth/discord/callback"
         create(:server_configuration, discord_id: present_guild.id)
-        allow(Discord::UserGuilds).to receive(:call).and_return([present_guild, absent_guild, unmanaged_guild, countless_guild])
+        allow(Bot::Discord::UserGuilds).to receive(:call).and_return([present_guild, absent_guild, unmanaged_guild, countless_guild])
       end
 
       it "renders a server even when Discord omits its member count" do
@@ -100,7 +100,7 @@ RSpec.describe "Server picker", type: :request do
 
       context "with no manageable servers" do
         before do
-          allow(Discord::UserGuilds).to receive(:call).and_return([unmanaged_guild])
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_return([unmanaged_guild])
         end
 
         it "shows the empty state" do
@@ -111,7 +111,7 @@ RSpec.describe "Server picker", type: :request do
 
       context "when Discord cannot be reached" do
         before do
-          allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Error)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Error)
         end
 
         it "renders the error state without raising" do
@@ -123,7 +123,7 @@ RSpec.describe "Server picker", type: :request do
 
       context "when the Discord access token has expired" do
         before do
-          allow(Discord::UserGuilds).to receive(:call).and_raise(Discord::UserGuilds::Unauthorized)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Unauthorized)
         end
 
         it "kicks off automatic re-authentication" do

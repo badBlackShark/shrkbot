@@ -28,9 +28,9 @@ module Moderation
 
     def resolve(text)
       blocks = retained_blocks
-      blocks << Discord::Components.separator
-      blocks << Discord::Components.text(text)
-      container = Discord::Components.container(blocks)
+      blocks << Bot::Discord::Components.separator
+      blocks << Bot::Discord::Components.text(text)
+      container = Bot::Discord::Components.container(blocks)
       event.update_message(components: container[:components], has_components: true)
     end
 
@@ -43,11 +43,11 @@ module Moderation
 
     def rebuild(component)
       if component.respond_to?(:content)
-        Discord::Components.text(component.content)
+        Bot::Discord::Components.text(component.content)
       elsif component.respond_to?(:items)
-        Discord::Components.media_gallery(component.items.map { |item| item.media.url })
+        Bot::Discord::Components.media_gallery(component.items.map { |item| item.media.url })
       elsif component.respond_to?(:divider?)
-        Discord::Components.separator
+        Bot::Discord::Components.separator
       end
     end
   end

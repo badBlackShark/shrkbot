@@ -16,7 +16,7 @@ Everything is gated behind `WEB_DEBUG=1` **and** `Rails.env.development?`
 production. On boot it:
 
 - puts OmniAuth in test mode with a mock Discord identity (uid `12345`),
-- stubs `Discord::UserGuilds.call` to return one fixture guild
+- stubs `Bot::Discord::UserGuilds.call` to return one fixture guild
   (`Dev Refuge`, id `900000001`, owner),
 - idempotently seeds that guild: server configuration, the four plugin rows +
   activations (all disabled), settings rows, a `Moderator` role (id 500) and a
