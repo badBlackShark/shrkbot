@@ -27,12 +27,12 @@ RSpec.describe Moderation::MemberTimeoutLog do
   let(:built_entry) { {title: "Member timed out", body: "body", meta: "meta"} }
 
   before do
-    allow(Moderation::TimeoutLogLedger).to receive(:instance).and_return(ledger)
+    allow(Moderation::MemberLog::TimeoutLogLedger).to receive(:instance).and_return(ledger)
     allow(ServerConfiguration).to receive(:find_by).with(discord_id: guild_id).and_return(server_configuration)
     allow(Bot::ActivityLog).to receive(:enabled?).with(server_configuration, "moderation.member_timed_out").and_return(true)
     allow(Bot::ActivityLog).to receive(:post)
-    allow(Moderation::AuditLogLookup).to receive(:attribution).and_return(attribution)
-    allow(Moderation::ActivityEntry).to receive(:build).and_return(built_entry)
+    allow(Moderation::MemberLog::AuditLogLookup).to receive(:attribution).and_return(attribution)
+    allow(Moderation::MemberLog::ActivityEntry).to receive(:build).and_return(built_entry)
   end
 
   context "when no ServerConfiguration exists" do
@@ -54,7 +54,7 @@ RSpec.describe Moderation::MemberTimeoutLog do
 
     it "does not call AuditLogLookup" do
       handle
-      expect(Moderation::AuditLogLookup).not_to have_received(:attribution)
+      expect(Moderation::MemberLog::AuditLogLookup).not_to have_received(:attribution)
     end
   end
 
@@ -75,7 +75,7 @@ RSpec.describe Moderation::MemberTimeoutLog do
 
     it "does not call AuditLogLookup" do
       handle
-      expect(Moderation::AuditLogLookup).not_to have_received(:attribution)
+      expect(Moderation::MemberLog::AuditLogLookup).not_to have_received(:attribution)
     end
 
     it "does not call the ledger" do
@@ -96,7 +96,7 @@ RSpec.describe Moderation::MemberTimeoutLog do
   end
 
   context "when communication_disabled but attribution is nil" do
-    before { allow(Moderation::AuditLogLookup).to receive(:attribution).and_return(nil) }
+    before { allow(Moderation::MemberLog::AuditLogLookup).to receive(:attribution).and_return(nil) }
 
     it "does not post" do
       handle
@@ -135,7 +135,7 @@ RSpec.describe Moderation::MemberTimeoutLog do
     let(:nick_candidate) { double("candidate", changes: {}) }
 
     before do
-      allow(Moderation::AuditLogLookup).to receive(:attribution) do |*_args, **_kwargs, &block|
+      allow(Moderation::MemberLog::AuditLogLookup).to receive(:attribution) do |*_args, **_kwargs, &block|
         [role_candidate, nick_candidate, cleared_candidate, matching_candidate].find(&block) && attribution
       end
     end

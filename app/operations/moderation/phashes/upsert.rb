@@ -8,7 +8,7 @@ module Ops
           phash = ::Moderation::Phash.find_or_create_by!(phash: phash_hex) { |record| record.last_seen_at = Time.current }
           confirmation = phash.phash_confirmations.find_or_initialize_by(server_configuration:)
           confirmation.update!(verdict:)
-          ::Moderation::PhashIndex.invalidate
+          ::Moderation::ImageScanning::PhashIndex.invalidate
           ok(confirmation)
         end
 

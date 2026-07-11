@@ -21,8 +21,8 @@ RSpec.describe Moderation::MemberBanLog do
     allow(ServerConfiguration).to receive(:find_by).with(discord_id: guild_id).and_return(server_configuration)
     allow(Bot::ActivityLog).to receive(:enabled?).with(server_configuration, "moderation.member_banned").and_return(true)
     allow(Bot::ActivityLog).to receive(:post)
-    allow(Moderation::AuditLogLookup).to receive(:attribution).and_return(attribution)
-    allow(Moderation::ActivityEntry).to receive(:build).and_return(built_entry)
+    allow(Moderation::MemberLog::AuditLogLookup).to receive(:attribution).and_return(attribution)
+    allow(Moderation::MemberLog::ActivityEntry).to receive(:build).and_return(built_entry)
   end
 
   context "when no ServerConfiguration exists" do
@@ -44,7 +44,7 @@ RSpec.describe Moderation::MemberBanLog do
 
     it "does not call AuditLogLookup" do
       handle
-      expect(Moderation::AuditLogLookup).not_to have_received(:attribution)
+      expect(Moderation::MemberLog::AuditLogLookup).not_to have_received(:attribution)
     end
   end
 
@@ -60,10 +60,10 @@ RSpec.describe Moderation::MemberBanLog do
   end
 
   context "when attribution is nil" do
-    before { allow(Moderation::AuditLogLookup).to receive(:attribution).and_return(nil) }
+    before { allow(Moderation::MemberLog::AuditLogLookup).to receive(:attribution).and_return(nil) }
 
     it "still posts with nil moderator and reason" do
-      allow(Moderation::ActivityEntry).to receive(:build).with(
+      allow(Moderation::MemberLog::ActivityEntry).to receive(:build).with(
         :member_banned,
         target: user,
         moderator: nil,
