@@ -26,16 +26,9 @@ class Servers::SpamProtectionController < ApplicationController
       timeout_seconds: spam_protection_params[:timeout_seconds],
       enabled: spam_protection_params[:enabled]
     )
-    activation = result.value
-    @enabled = activation.enabled?
-    @enable_error = activation.errors[:enabled].first
-    @toast = {level: "notice", message: t("servers.spam_protection.saved")} if result.success?
     return redirect_to server_moderation_path(params[:server_id]), status: :see_other, **flash_for(result) if params[:from_overview]
 
-    respond_to do |format|
-      format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
-      format.html { redirect_to server_spam_protection_path(params[:server_id]), **flash_for(result) }
-    end
+    respond_with_configuration(result)
   end
 
   private

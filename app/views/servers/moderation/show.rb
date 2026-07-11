@@ -16,7 +16,7 @@ class Views::Servers::Moderation::Show < Views::Base
       server_configuration: @config,
       active_key: :moderation
     ) do
-      render Components::Moderation::ConfigShell.new(
+      render Components::ConfigPage.new(
         header: Components::ConfigPageHeader.new(
           icon: "shield",
           title: t(".title"),

@@ -1,31 +1,21 @@
 # frozen_string_literal: true
 
-class Views::Servers::Welcomes::Show < Views::Base
-  def initialize(server_configuration:, user:, enabled:)
-    @config = server_configuration
-    @user = user
-    @enabled = enabled
+class Views::Servers::Welcomes::Show < Views::Servers::PluginConfigShow
+  private
+
+  def plugin_key
+    :welcomes
   end
 
-  def view_template
-    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :welcomes) do
-      render Components::ConfigPage.new(
-        header: Components::ConfigPageHeader.new(
-          icon: "hand-waving",
-          title: t(".title"),
-          description: t(".description")
-        ),
-        server_configuration: @config,
-        url: server_welcomes_path(@config.discord_id),
-        gate: {
-          field: "welcomes[enabled]",
-          enabled: @enabled,
-          message: t(".gate_message")
-        },
-        channel_lost: @enabled && @config.welcome_settings.channel_id.nil?
-      ) do
-        render Components::Welcomes::ConfigForm.new(server_configuration: @config)
-      end
-    end
+  def icon
+    "hand-waving"
+  end
+
+  def url
+    server_welcomes_path(@config.discord_id)
+  end
+
+  def form
+    render Components::Welcomes::ConfigForm.new(server_configuration: @config)
   end
 end
