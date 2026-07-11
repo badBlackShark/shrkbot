@@ -64,7 +64,7 @@ RSpec.describe Moderation::MemberBanLog do
 
     it "still posts with nil moderator and reason" do
       allow(Moderation::MemberLog::ActivityEntry).to receive(:build).with(
-        :member_banned,
+        event_key: :member_banned,
         target: user,
         moderator: nil,
         reason: nil

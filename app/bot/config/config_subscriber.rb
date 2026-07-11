@@ -59,17 +59,15 @@ module Bot
     end
 
     def repost_roles(set_id)
-      set = Roles::Set.find_by(id: set_id)
-      return unless set
-
-      report(Ops::Roles::Messages::Repost.call(bot:, role_set: set), source: "roles_repost")
+      with_set(set_id, source: "roles_repost") do |set|
+        Ops::Roles::Messages::Repost.call(bot:, role_set: set)
+      end
     end
 
     def post_roles(set_id)
-      set = Roles::Set.find_by(id: set_id)
-      return unless set
-
-      report(Ops::Roles::Messages::Post.call(bot:, role_set: set), source: "roles_post")
+      with_set(set_id, source: "roles_post") do |set|
+        Ops::Roles::Messages::Post.call(bot:, role_set: set)
+      end
     end
 
     def delete_message(channel_id, message_id)
@@ -80,10 +78,16 @@ module Bot
     end
 
     def remove_menu(set_id)
+      with_set(set_id, source: "roles_menu_remove") do |set|
+        Ops::Roles::Messages::Remove.call(bot:, role_set: set)
+      end
+    end
+
+    def with_set(set_id, source:)
       set = Roles::Set.find_by(id: set_id)
       return unless set
 
-      report(Ops::Roles::Messages::Remove.call(bot:, role_set: set), source: "roles_menu_remove")
+      report(yield(set), source:)
     end
 
     def report(result, source:)

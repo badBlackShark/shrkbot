@@ -13,7 +13,7 @@ module Moderation
 
     def entry
       MemberLog::ActivityEntry.build(
-        :member_timed_out,
+        event_key: :member_timed_out,
         target: member,
         moderator: attribution.moderator,
         reason: attribution.reason,

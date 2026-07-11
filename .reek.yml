@@ -1,10 +1,77 @@
 # Advisory only (non-blocking CI). Tuned to this project's conventions: reek
 # runs against business logic, not the Phlex view DSL, and smells that fight the
-# house style are disabled here rather than annotated per-occurrence.
+# house style are disabled here rather than annotated per-occurrence. Findings
+# that survive judgment get fixed; adjudicated false positives get excluded here
+# with a reason — the config is the rejection ledger (curated pass 2026-07-11).
 detectors:
   # Modules are intentionally undocumented; naming and structure self-explain.
   IrresponsibleModule:
     enabled: false
+
+  # Calling a method twice beats reflexive memoization here (memoizing can be
+  # actively wrong — see enabled_plugin_keys); ~107 hits, none actionable.
+  DuplicateMethodCall:
+    enabled: false
+
+  # Fires on locals referenced twice inside cohesive methods; the real
+  # move-this-logic cases are the convention review's job.
+  FeatureEnvy:
+    enabled: false
+
+  # Guard-clause style (find_by then return unless) is the house pattern;
+  # defensive-coding judgment decides which nils are real, not a detector.
+  NilCheck:
+    enabled: false
+
+  # Flags interface-consistency instance methods (ApplicationOperation#ok/
+  # failure, with_connection) and stateless helpers that belong where they are.
+  UtilityFunction:
+    enabled: false
+
+  # Cannot see Rails before_action-assigned ivars or macro-defined state
+  # (controllers, BaseCommand class-level DSL, the ops receives macro).
+  InstanceVariableAssumption:
+    enabled: false
+
+  # rescue => e, discard _, and loop/matrix indices are idiomatic; other
+  # single-letter names still flag as rename nudges.
+  UncommunicativeVariableName:
+    accept:
+      - e
+      - _
+      - i
+      - j
+      - k
+      - m
+      - n
+
+  # Classes holding their entry parameters as state (the DataClump fix reek
+  # itself asks for) legitimately reach 5; 6+ still flags. BaseCommand's ivars
+  # are the read-or-set macro DSL, not instance state.
+  TooManyInstanceVariables:
+    max_instance_variables: 5
+    exclude:
+      - "Bot::BaseCommand"
+
+  # Ops orchestration and event handlers run 6-8 statements by design; only
+  # genuinely fat methods (9+) are worth a look.
+  TooManyStatements:
+    max_statements: 8
+
+  # Keyword APIs and value-object initializers legitimately reach 5 params —
+  # the params ARE the data. 6+ still flags; adjudicated keyword surfaces below.
+  LongParameterList:
+    max_params: 5
+    exclude:
+      - "Moderation::ImageScanning::Classifier#decide" # 6 kwargs, internal, transposition-proof
+      - "PluginCatalog::Definition#initialize" # value-object init
+      - "Bot::ActivityLog#post" # generic log-entry keyword API, mostly defaulted
+
+  # Read-or-set class macros (command_name(value = nil)) are the sanctioned
+  # style; the repeated `if value` IS the macro.
+  RepeatedConditional:
+    exclude:
+      - "Bot::BaseCommand"
 
 exclude_paths:
   # Phlex templates are statement-heavy call chains by design; reek's method

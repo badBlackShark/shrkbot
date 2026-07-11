@@ -14,7 +14,7 @@ RSpec.describe Moderation::MemberLog::ActivityEntry do
   let(:reason) { "rule violation" }
 
   context "ban entry" do
-    subject(:result) { described_class.build(:member_banned, target:, moderator:, reason:) }
+    subject(:result) { described_class.build(event_key: :member_banned, target:, moderator:, reason:) }
 
     it "has the correct title" do
       expect(result[:title]).to eq("Member banned")
@@ -40,7 +40,7 @@ RSpec.describe Moderation::MemberLog::ActivityEntry do
   end
 
   context "with nil moderator" do
-    subject(:result) { described_class.build(:member_banned, target:, moderator: nil, reason:) }
+    subject(:result) { described_class.build(event_key: :member_banned, target:, moderator: nil, reason:) }
 
     it "uses unknown moderator label in the body" do
       expect(result[:body]).to include("an unknown moderator")
@@ -48,7 +48,7 @@ RSpec.describe Moderation::MemberLog::ActivityEntry do
   end
 
   context "with nil reason" do
-    subject(:result) { described_class.build(:member_banned, target:, moderator:, reason: nil) }
+    subject(:result) { described_class.build(event_key: :member_banned, target:, moderator:, reason: nil) }
 
     it "uses no reason fallback in the body" do
       expect(result[:body]).to include("No reason was given.")
@@ -56,7 +56,7 @@ RSpec.describe Moderation::MemberLog::ActivityEntry do
   end
 
   context "with blank reason" do
-    subject(:result) { described_class.build(:member_banned, target:, moderator:, reason: "") }
+    subject(:result) { described_class.build(event_key: :member_banned, target:, moderator:, reason: "") }
 
     it "uses no reason fallback in the body" do
       expect(result[:body]).to include("No reason was given.")
@@ -67,7 +67,7 @@ RSpec.describe Moderation::MemberLog::ActivityEntry do
     let(:timeout_until) { Time.at(1_700_000_000) }
 
     subject(:result) do
-      described_class.build(:member_timed_out, target:, moderator:, reason:, timeout_until:)
+      described_class.build(event_key: :member_timed_out, target:, moderator:, reason:, timeout_until:)
     end
 
     it "includes the unix timestamp in discord format" do

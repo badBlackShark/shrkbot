@@ -4,27 +4,41 @@ require "uri"
 
 module Moderation
   module ImageScanning
-    module VerdictExecutor
-      module_function
+    class VerdictExecutor
+      def self.call(verdict:, context:, phash:, hash_state:, image_bytes: nil)
+        new(verdict:, context:, phash:, hash_state:, image_bytes:).call
+      end
 
-      def call(verdict:, context:, phash:, hash_state:, image_bytes: nil)
+      def initialize(verdict:, context:, phash:, hash_state:, image_bytes:)
+        @verdict = verdict
+        @context = context
+        @phash = phash
+        @hash_state = hash_state
+        @image_bytes = image_bytes
+      end
+
+      def call
         case verdict.action
         when :flag_for_review
-          flag(verdict, context, phash, image_bytes:, removed: false)
+          flag(removed: false)
         when :remove
-          delete_message(context) if context.settings.action_delete?
-          punish(context, hash_state)
-          flag(verdict, context, phash, image_bytes:, removed: true)
+          delete_message if context.settings.action_delete?
+          punish
+          flag(removed: true)
         end
       end
 
-      def delete_message(context)
+      private
+
+      attr_reader :verdict, :context, :phash, :hash_state, :image_bytes
+
+      def delete_message
         context.bot.channel(context.channel_id)&.delete_message(context.message_id)
       rescue => e
         Rails.logger.warn("[Moderation::ImageScanning::VerdictExecutor] delete failed in ##{context.channel_id}: #{e.class}: #{e.message}")
       end
 
-      def punish(context, hash_state)
+      def punish
         settings = context.settings
         confirmed = hash_state == :own_confirmed
         punishment = confirmed ? settings.confirmed_punishment : settings.punishment
@@ -39,7 +53,7 @@ module Moderation
         )
       end
 
-      def flag(verdict, context, phash, image_bytes:, removed:)
+      def flag(removed:)
         config = context.settings.server_configuration
         settings = config.moderation_settings
         staff_role_id = settings.staff_role_id
@@ -55,16 +69,16 @@ module Moderation
             "moderation.image_scanning.flag.body",
             author: "<@#{context.member.id}>",
             channel: "<##{context.channel_id}>",
-            jump_url: jump_url(context)
-          ) + "\n" + risk_line(verdict, context, state) + "\n" + reason_lines(verdict),
+            jump_url:
+          ) + "\n" + risk_line(state) + "\n" + reason_lines,
           meta: I18n.t("moderation.image_scanning.flag.meta.#{state}"),
           image:,
-          components: buttons(phash),
+          components: buttons,
           allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
         )
       end
 
-      def buttons(phash)
+      def buttons
         [
           Bot::Discord::Components.action_row(
             [
@@ -83,11 +97,11 @@ module Moderation
         ]
       end
 
-      def jump_url(context)
+      def jump_url
         "https://discord.com/channels/#{context.server.id}/#{context.channel_id}/#{context.message_id}"
       end
 
-      def risk_line(verdict, context, state)
+      def risk_line(state)
         threshold_key = (state == "removed") ? :remove : :flag
         threshold = Classifier::THRESHOLDS.fetch(context.settings.sensitivity)[threshold_key]
         I18n.t(
@@ -102,7 +116,7 @@ module Moderation
         (rounded % 1).zero? ? rounded.to_i : rounded
       end
 
-      def reason_lines(verdict)
+      def reason_lines
         verdict.reasons.map { |reason| reason_line(reason) }.join("\n")
       end
 
@@ -125,9 +139,6 @@ module Moderation
           I18n.t("moderation.image_scanning.flag.reasons.#{reason.key}")
         end
       end
-
-      private_class_method :delete_message, :punish, :flag, :buttons, :jump_url,
-        :risk_line, :format_number, :reason_lines, :reason_line, :reason_text
     end
   end
 end
