@@ -13,11 +13,12 @@ class PluginStatus
 
   def self.rows(server_configuration)
     activations = server_configuration.plugin_activations.includes(:plugin).index_by { |activation| activation.plugin.key }
+    enabled_keys = server_configuration.enabled_plugin_keys
     catalog_rows = PluginCatalog.all.map do |definition|
       Row.new(
         key: definition.key,
         enabled: activations[definition.key]&.enabled? || false,
-        configured: definition.prerequisites_met?(server_configuration)
+        configured: definition.prerequisites_met?(server_configuration, enabled_keys:)
       )
     end
     catalog_rows + ALWAYS_ON
@@ -28,7 +29,7 @@ class PluginStatus
     Row.new(
       key: plugin.key,
       enabled: activation&.enabled? || false,
-      configured: PluginCatalog.find(plugin.key).prerequisites_met?(server_configuration)
+      configured: PluginCatalog.find(plugin.key).prerequisites_met?(server_configuration, enabled_keys: server_configuration.enabled_plugin_keys)
     )
   end
 end

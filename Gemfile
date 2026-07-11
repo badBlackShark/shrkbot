@@ -88,6 +88,14 @@ group :development, :test do
   gem "simplecov-lcov", require: false
 
   gem "undercover", "0.8.5", require: false
+
+  # Advisory code-smell + structural-duplication analysis (SRP/DRY signal); non-blocking
+  gem "reek", require: false
+  gem "flay", require: false
+
+  # N+1 query detection in the test suite (raises on offending specs)
+  gem "prosopite", require: false
+  gem "pg_query", require: false
 end
 
 group :development do

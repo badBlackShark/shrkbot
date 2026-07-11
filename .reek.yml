@@ -1,0 +1,13 @@
+# Advisory only (non-blocking CI). Tuned to this project's conventions: reek
+# runs against business logic, not the Phlex view DSL, and smells that fight the
+# house style are disabled here rather than annotated per-occurrence.
+detectors:
+  # Modules are intentionally undocumented; naming and structure self-explain.
+  IrresponsibleModule:
+    enabled: false
+
+exclude_paths:
+  # Phlex templates are statement-heavy call chains by design; reek's method
+  # smells don't map onto a view DSL.
+  - app/views
+  - app/components
