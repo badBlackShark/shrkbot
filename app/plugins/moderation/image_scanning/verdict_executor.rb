@@ -70,7 +70,7 @@ module Moderation
             author: "<@#{context.member.id}>",
             channel: "<##{context.channel_id}>",
             jump_url:
-          ) + "\n" + risk_line(state) + "\n" + reason_lines + kick_note(punishment),
+          ) + "\n" + risk_line(state) + "\n" + reason_lines,
           meta: I18n.t("moderation.image_scanning.flag.meta.#{state}"),
           image:,
           components: message_components(punishment),
@@ -80,9 +80,10 @@ module Moderation
 
       def message_components(punishment)
         components = []
-        if (line = prior_verdict_text)
+        notes = [prior_verdict_text, kick_note(punishment)].compact
+        if notes.any?
           components << Bot::Discord::Components.separator
-          components << Bot::Discord::Components.text(line)
+          notes.each { |note| components << Bot::Discord::Components.text(note) }
         end
         components << Bot::Discord::Components.action_row(
           Interaction::VerdictButtons.build(
@@ -94,9 +95,9 @@ module Moderation
       end
 
       def kick_note(punishment)
-        return "" unless punishment == "kick"
+        return unless punishment == "kick"
 
-        "\n" + I18n.t("moderation.image_scanning.flag.kick_note")
+        I18n.t("moderation.image_scanning.flag.kick_note")
       end
 
       def punishment_buttons(punishment)

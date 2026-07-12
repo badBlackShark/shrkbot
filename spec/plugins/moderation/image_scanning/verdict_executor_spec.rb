@@ -434,17 +434,20 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
       execute
 
       expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
-        row = kwargs[:components].first
+        row = kwargs[:components].find { |c| c[:type] == Bot::Discord::Components::ACTION_ROW }
         custom_ids = row[:components].map { |b| b[:custom_id] }
         expect(custom_ids).not_to include(a_string_starting_with("mod:undo_punishment:"))
       end
     end
 
-    it "includes the kick note in the body" do
+    it "shows the kick note as a component right above the buttons, not in the body" do
       execute
 
       expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
-        expect(kwargs[:body]).to include(I18n.t("moderation.image_scanning.flag.kick_note"))
+        expect(kwargs[:body]).not_to include(I18n.t("moderation.image_scanning.flag.kick_note"))
+        action_row_index = kwargs[:components].index { |c| c[:type] == Bot::Discord::Components::ACTION_ROW }
+        note = kwargs[:components][action_row_index - 1]
+        expect(note[:content]).to include(I18n.t("moderation.image_scanning.flag.kick_note"))
       end
     end
   end
