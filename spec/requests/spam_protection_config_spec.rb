@@ -105,6 +105,25 @@ RSpec.describe "Spam protection config", type: :request do
           expect(response.body).to include("saved")
         end
 
+        it "surfaces the validation message when a value exceeds its maximum" do
+          patch server_spam_protection_path(guild.id),
+            params: {spam_protection: {channel_threshold: 3, window_seconds: 99, similarity: 0.9,
+                                       match_symbol_only_messages: "0", action: "purge", punishment: "none",
+                                       timeout_seconds: 3600, enabled: "0"}},
+            **turbo
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.body).to include("must be less than or equal to 60")
+        end
+
+        it "persists nothing when a value is out of range" do
+          patch server_spam_protection_path(guild.id),
+            params: {spam_protection: {channel_threshold: 3, window_seconds: 99, similarity: 0.9,
+                                       match_symbol_only_messages: "0", action: "purge", punishment: "none",
+                                       timeout_seconds: 3600, enabled: "0"}},
+            **turbo
+          expect(config.spam_protection_settings.reload.window_seconds).not_to eq(99)
+        end
+
         it "returns 422 when enabling with no staff role" do
           config.moderation_settings.update!(staff_role_id: nil)
           create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)

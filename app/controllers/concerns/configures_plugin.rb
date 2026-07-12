@@ -13,6 +13,7 @@ module ConfiguresPlugin
     activation = result.value
     @enabled = activation.enabled?
     @enable_error = error_keys.filter_map { |key| activation.errors[key].first }.first
+    @enable_error ||= result.errors.to_sentence.presence if result.failure?
     @toast = {level: "notice", message: saved_message} if result.success?
     respond_to do |format|
       format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
