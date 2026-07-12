@@ -54,7 +54,7 @@ module Bot
       def header
         "### #{event.bot.profile.username}\n" \
           "I was written in [Ruby](https://www.ruby-lang.org/) by [badBlackShark](https://github.com/badBlackShark/).\n" \
-          "My code lives [here](https://github.com/badBlackShark/shrkbot). Want me on your server? [Invite me!](#{Config.invite_url})"
+          "My code lives [here](#{ReleaseInfo::REPO_URL}). Want me on your server? [Invite me!](#{Config.invite_url})"
       end
 
       def credits

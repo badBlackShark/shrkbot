@@ -4,8 +4,6 @@ class Components::PublicShell < Components::Base
   include Phlex::Rails::Helpers::ButtonTo
   include Phlex::Rails::Helpers::ImageTag
 
-  REPO_URL = "https://github.com/badBlackShark/shrkbot"
-
   def initialize(user: nil)
     @user = user
   end
@@ -14,7 +12,7 @@ class Components::PublicShell < Components::Base
     div(class: "flex min-h-screen flex-col") do
       header_bar
       main(class: "flex-1") { yield }
-      footer_bar
+      render Components::SiteFooter.new
     end
   end
 
@@ -26,6 +24,7 @@ class Components::PublicShell < Components::Base
       span(class: "font-display text-lg font-bold tracking-tight") do
         render Components::Wordmark.new
       end
+      render Components::VersionBadge.new
       div(class: "flex-1")
       render Components::ThemeToggle.new
       @user ? dashboard_link : sign_in_button
@@ -48,19 +47,6 @@ class Components::PublicShell < Components::Base
     ) do
       render Components::Icon.new("sign-in", class: "size-4")
       span { t(".sign_in") }
-    end
-  end
-
-  def footer_bar
-    footer(class: "border-t border-border-default px-6 py-8 text-center text-xs text-text-muted") do
-      plain t(".footer_pre")
-      a(href: REPO_URL, class: "underline transition-colors hover:text-text-secondary") { t(".footer_link") }
-      plain t(".footer_mid")
-      span(class: "text-accent-2-text") { "♥" }
-      plain t(".footer_post")
-      div(class: "mt-3") do
-        render Components::LegalLinks.new
-      end
     end
   end
 end

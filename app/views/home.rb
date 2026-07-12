@@ -17,12 +17,12 @@ class Views::Home < Views::Base
   def hero
     section(class: "mx-auto flex max-w-4xl flex-col items-center gap-12 px-6 py-20 sm:flex-row") do
       div(class: "flex-1") do
-        p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { t(".eyebrow") }
         h1(class: "mb-4 font-display text-4xl font-bold leading-tight tracking-tight") do
-          plain t(".headline")
+          span(class: "[font-size:larger]") { render Components::Wordmark.new }
           br
-          plain t(".headline_end")
-          span(class: "text-text-muted") { " #{t(".headline_muted")}" }
+          plain t(".tagline")
+          br
+          span(class: "text-accent-2-text") { t(".tagline_accent") }
         end
         p(class: "mb-8 max-w-md text-lg leading-relaxed text-text-secondary") { t(".lede") }
         div(class: "flex flex-wrap gap-3") do
@@ -36,7 +36,7 @@ class Views::Home < Views::Base
             span { t(".add_to_server") }
           end
           a(
-            href: Components::PublicShell::REPO_URL,
+            href: ReleaseInfo::REPO_URL,
             target: "_blank",
             rel: "noopener",
             class: Components::Button.css(variant: :secondary, size: :xl, extra: "text-sm")

@@ -254,10 +254,6 @@ en:
       plugins: Plugins
     public_shell:
       dashboard: Dashboard
-      footer_link: free and open source
-      footer_mid: ". Made with "
-      footer_post: " by badBlackShark."
-      footer_pre: 'shrkbot is '
       sign_in: Sign in with Discord
     reminders:
       config_form:
@@ -305,8 +301,17 @@ en:
       discarded: Changes discarded
       save: Save
       unsaved: Unsaved changes
+    site_footer:
+      link: free and open source
+      mid: ". Made with "
+      post: " by badBlackShark in Germany 🇩🇪, hosted in Finland
+        🇫🇮."
+      pre: 'shrkbot is '
     theme_toggle:
       toggle_theme: Toggle dark mode
+    version_badge:
+      label: shrkbot %{version} release notes
+      released: Released %{date}
     welcomes:
       config_form:
         channel:
@@ -386,13 +391,10 @@ en:
           title: Owner settings
     home:
       add_to_server: Sign in to add shrkbot to your servers
-      eyebrow: Free & open source
-      headline: You pick the parts.
-      headline_end: shrkbot
-      headline_muted: does the rest.
-      lede: 'shrkbot is your server''s mechanic: a modular Discord bot that keeps
-        exactly the plugins you want running, nothing more, nothing less. Configure
-        everything from one dashboard.'
+      lede: 'shrkbot provides tools where Discord doesn''t, and gets out of your way
+        otherwise. Your members'' privacy is a priority and a guarantee: moderation
+        happens in memory, your messages are never stored. Manage everything from
+        one dashboard, and let shrkbot handle the rest.'
       more_plugins: More plugins are on the way.
       plugins:
         logging: 'Record moderation events to a private staff channel: role changes,
@@ -405,6 +407,8 @@ en:
         welcomes: Greet new members with a custom message, and say goodbye when they
           leave.
       plugins_eyebrow: Example plugins
+      tagline: A mechanical assistant for your Discord server.
+      tagline_accent: With teeth when needed.
       view_source: View on GitHub
     reauth:
       body: Your Discord sign-in expired. Please stand by - we're refreshing it for
