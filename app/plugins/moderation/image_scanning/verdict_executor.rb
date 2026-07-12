@@ -73,28 +73,34 @@ module Moderation
           ) + "\n" + risk_line(state) + "\n" + reason_lines,
           meta: I18n.t("moderation.image_scanning.flag.meta.#{state}"),
           image:,
-          components: buttons,
+          components: message_components,
           allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
         )
       end
 
-      def buttons
-        [
-          Bot::Discord::Components.action_row(
-            [
-              Bot::Discord::Components.button(
-                custom_id: Interaction::CustomId.confirm(phash),
-                label: "Confirm scam",
-                style: Bot::Discord::Components::BUTTON_SUCCESS
-              ),
-              Bot::Discord::Components.button(
-                custom_id: Interaction::CustomId.dismiss(phash),
-                label: "Dismiss",
-                style: Bot::Discord::Components::BUTTON_DANGER
-              )
-            ]
+      def message_components
+        components = []
+        if (line = prior_verdict_text)
+          components << Bot::Discord::Components.separator
+          components << Bot::Discord::Components.text(line)
+        end
+        components << Bot::Discord::Components.action_row(
+          Interaction::VerdictButtons.build(
+            server_configuration: context.settings.server_configuration,
+            phash_hex: phash
           )
-        ]
+        )
+        components
+      end
+
+      def prior_verdict_text
+        verdict = Interaction::VerdictButtons.verdict(
+          server_configuration: context.settings.server_configuration,
+          phash_hex: phash
+        )
+        return unless verdict
+
+        I18n.t("moderation.image_scanning.flag.prior_verdict.#{verdict}")
       end
 
       def jump_url

@@ -65,10 +65,14 @@ RSpec.describe Moderation::Interaction::ComponentActions do
     let(:gallery_component) { Struct.new(:items).new([media_item]) }
     let(:divider_component) { double("divider", divider?: true) }
     let(:button_component) { double("button") }
+    let(:undo_verdict_button) do
+      {custom_id: "mod:undo_verdict:deadbeefdeadbeef", type: Bot::Discord::Components::BUTTON}
+    end
     let(:fake_container) do
       double(
         "container",
-        components: [text_component, gallery_component, divider_component, button_component]
+        components: [text_component, gallery_component, divider_component, button_component],
+        buttons: []
       )
     end
     let(:message) { double("message", components: [fake_container]) }
@@ -79,9 +83,10 @@ RSpec.describe Moderation::Interaction::ComponentActions do
       allow(button_component).to receive(:respond_to?).with(:content).and_return(false)
       allow(button_component).to receive(:respond_to?).with(:items).and_return(false)
       allow(button_component).to receive(:respond_to?).with(:divider?).and_return(false)
+      allow(Moderation::Interaction::VerdictButtons).to receive(:build).and_return([undo_verdict_button])
     end
 
-    it "retains the text and gallery, drops button rows, appends separator and resolution text" do
+    it "retains the text and gallery, drops old button rows, appends separator, resolution text, and new action row" do
       handler.send(:resolve, "Confirmed as a scam by <@222>.")
 
       expect(event).to have_received(:update_message) do |kwargs|
@@ -92,9 +97,42 @@ RSpec.describe Moderation::Interaction::ComponentActions do
           Bot::Discord::Components::MEDIA_GALLERY,
           Bot::Discord::Components::SEPARATOR,
           Bot::Discord::Components::SEPARATOR,
-          Bot::Discord::Components::TEXT_DISPLAY
+          Bot::Discord::Components::TEXT_DISPLAY,
+          Bot::Discord::Components::ACTION_ROW
         ])
-        expect(inner_blocks.last[:content]).to eq("Confirmed as a scam by <@222>.")
+        expect(inner_blocks[-2][:content]).to eq("Confirmed as a scam by <@222>.")
+        action_row = inner_blocks.last
+        expect(action_row[:components].map { |b| b[:custom_id] }).to eq(["mod:undo_verdict:deadbeefdeadbeef"])
+      end
+    end
+
+    it "calls VerdictButtons.build with the guild config and phash_hex" do
+      handler.send(:resolve, "Confirmed as a scam by <@222>.")
+
+      expect(Moderation::Interaction::VerdictButtons).to have_received(:build).with(
+        server_configuration: config,
+        phash_hex: "deadbeefdeadbeef"
+      )
+    end
+
+    context "when VerdictButtons.build returns confirm and dismiss buttons" do
+      let(:confirm_button) { {custom_id: "mod:confirm:deadbeefdeadbeef", type: Bot::Discord::Components::BUTTON} }
+      let(:dismiss_button) { {custom_id: "mod:dismiss:deadbeefdeadbeef", type: Bot::Discord::Components::BUTTON} }
+
+      before do
+        allow(Moderation::Interaction::VerdictButtons).to receive(:build).and_return([confirm_button, dismiss_button])
+      end
+
+      it "rebuilds the row with confirm and dismiss buttons" do
+        handler.send(:resolve, "Verdict undone by <@222>.")
+
+        expect(event).to have_received(:update_message) do |kwargs|
+          inner_blocks = kwargs[:components].first[:components]
+          action_row = inner_blocks.last
+          expect(action_row[:type]).to eq(Bot::Discord::Components::ACTION_ROW)
+          custom_ids = action_row[:components].map { |b| b[:custom_id] }
+          expect(custom_ids).to eq(["mod:confirm:deadbeefdeadbeef", "mod:dismiss:deadbeefdeadbeef"])
+        end
       end
     end
 
@@ -104,6 +142,53 @@ RSpec.describe Moderation::Interaction::ComponentActions do
       it "still appends the resolution without raising" do
         handler.send(:resolve, "Done")
         expect(event).to have_received(:update_message).with(hash_including(has_components: true))
+      end
+    end
+
+    context "when the message already has a mod:undo_punishment: button" do
+      let(:punishment_button) do
+        double("btn", custom_id: "mod:undo_punishment:222:timeout", label: "Undo punishment", style: 2)
+      end
+      let(:fake_container) do
+        double(
+          "container",
+          components: [text_component, gallery_component, divider_component, button_component],
+          buttons: [punishment_button]
+        )
+      end
+
+      it "preserves the punishment button alongside the verdict button after a verdict rebuild" do
+        handler.send(:resolve, "Confirmed as a scam by <@222>.")
+
+        expect(event).to have_received(:update_message) do |kwargs|
+          inner_blocks = kwargs[:components].first[:components]
+          action_row = inner_blocks.last
+          expect(action_row[:type]).to eq(Bot::Discord::Components::ACTION_ROW)
+          custom_ids = action_row[:components].map { |b| b[:custom_id] }
+          expect(custom_ids).to include("mod:undo_verdict:deadbeefdeadbeef")
+          expect(custom_ids).to include("mod:undo_punishment:222:timeout")
+        end
+      end
+    end
+
+    context "when the message has a button with no custom_id" do
+      let(:link_button) { double("btn", custom_id: nil, label: "Open", style: 5) }
+      let(:fake_container) do
+        double(
+          "container",
+          components: [text_component, gallery_component, divider_component, button_component],
+          buttons: [link_button]
+        )
+      end
+
+      it "ignores it and preserves no punishment button" do
+        handler.send(:resolve, "Confirmed as a scam by <@222>.")
+
+        expect(event).to have_received(:update_message) do |kwargs|
+          action_row = kwargs[:components].first[:components].last
+          custom_ids = action_row[:components].map { |b| b[:custom_id] }
+          expect(custom_ids).to eq(["mod:undo_verdict:deadbeefdeadbeef"])
+        end
       end
     end
   end

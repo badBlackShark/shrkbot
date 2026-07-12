@@ -31,8 +31,33 @@ module Moderation
         blocks = retained_blocks
         blocks << Bot::Discord::Components.separator
         blocks << Bot::Discord::Components.text(text)
+        blocks << action_row
         container = Bot::Discord::Components.container(blocks)
         event.update_message(components: container[:components], has_components: true)
+      end
+
+      def action_row
+        buttons = VerdictButtons.build(server_configuration:, phash_hex:) + preserved_punishment_buttons
+        Bot::Discord::Components.action_row(buttons)
+      end
+
+      def preserved_punishment_buttons
+        existing = message_buttons.find do |button|
+          button.custom_id&.start_with?("#{CustomId::PREFIX}:undo_punishment:")
+        end
+        return [] unless existing
+
+        [
+          Bot::Discord::Components.button(
+            custom_id: existing.custom_id,
+            label: existing.label,
+            style: existing.style
+          )
+        ]
+      end
+
+      def message_buttons
+        event.message.components.first&.buttons || []
       end
 
       def retained_blocks
