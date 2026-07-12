@@ -10,7 +10,7 @@ Discord interactions and events.
 One Docker image, multiple services off it:
 
 - **web** (Puma) — the config website / admin UI and Discord OAuth2 login. ActiveRecord CRUD.
-- **bot** (`bin/bot`) — the discordrb gateway connection. Long-lived, blocking. Must be its own process: discordrb is gateway-based, and booting it from a Puma worker would open one gateway connection per cluster worker (duplicate events). Every bot container blocks on a Redis leader lock (`Bot::LeaderLock`, key `shrkbot:bot:leader`) before connecting to the gateway, so overlapping containers during a Kamal deploy never answer the same event twice. On shutdown the gateway stops first, then the lock is released, giving the waiting successor a clean handover. A crashed leader is covered by the 6 s TTL. The lock is fail-open: a Redis outage never silences a bot that is already running, it only gates a fresh startup (the renewal thread is advisory and re-acquires on loss). Handover latency grows with shard count — five seconds per additional shard — because each shard connect is staggered to respect Discord's IDENTIFY rate limit; if that ever becomes a problem the upgrade path is a warm standby that connects early and gates dispatch in software.
+- **bot** (`bin/bot`) — the discordrb gateway connection. Long-lived, blocking. Must be its own process: discordrb is gateway-based, and booting it from a Puma worker would open one gateway connection per cluster worker (duplicate events). At most one bot process is connected at a time — see [Bot leadership](#bot-leadership-single-active-process).
 - **jobs** (`bin/jobs`) — Solid Queue worker for background and scheduled work (reminder delivery).
 - **postgres** — source of truth.
 - **redis** — config-change pub/sub (web → bot); see [Config propagation](#config-propagation).
@@ -397,6 +397,45 @@ at boot; `Bot::OwnerBroadcast.call(bots:, …)` unions every shard's servers, de
 across shards, and DMs through any one bot (DMs are REST, so the shard doesn't
 matter). This works because all shards share one process — no cross-process
 coordination needed.
+
+## Bot leadership (single active process)
+
+During a Kamal deploy the old and new bot containers overlap for the new one's
+entire boot, and both would answer every event. kamal-proxy can't help — it only
+drains inbound HTTP and has no concept of the outbound gateway WebSocket — so
+exclusion lives in the app: every bot process blocks on a Redis leader lock
+(`Bot::LeaderLock`, key `shrkbot:bot:leader`, 6 s TTL renewed every second)
+**before** connecting to the gateway. At most one process is ever connected, so
+nothing downstream needs gating and READY-time work (server reconciliation,
+command setup, onboarding) runs with full fidelity on every takeover.
+
+Two orderings are load-bearing:
+
+- Signal traps install **after** acquire. A SIGTERM while still waiting for the
+  lock hits Ruby's default handler and kills the lock-less waiter — nothing to
+  clean up.
+- On shutdown the gateway stops **before** the lock is released. The successor
+  can't act before its own READY, so overlap is structurally impossible.
+
+A leader that dies without releasing (SIGKILL, crash) is covered by the TTL.
+The lock is fail-open: renewal errors log and re-acquire but never demote a
+serving bot — a Redis outage must not mute the bot. The worst case (a deploy
+overlap and a Redis outage at the same time) degrades to the pre-lock
+behaviour, brief doubles. Don't reuse this primitive where mutual exclusion is
+correctness-critical.
+
+The chosen trade is **silence over doubles** at cutover: a few seconds of
+unresponsiveness (failed interactions are visible and retryable) instead of
+double command executions, double punishments and double DMs (irreversible).
+The gap is disconnect + reconnect + READY, so it grows with server count and
+especially with shard count (5 s IDENTIFY stagger per shard). Measure it as the
+log delta between the old process's "shutting down" and the new one's "all N
+shard(s) up". When it exceeds roughly 10 s, the upgrade is a warm standby:
+every process connects immediately and the lock gates dispatch instead of
+connection, shrinking handover to about a second. That costs promotion hooks —
+a standby's READY fires while it isn't leader, so reconciliation, command setup
+and onboarding must re-run on promotion — and per-shard-group locks once shards
+split across processes.
 
 ## REST vs gateway token
 
