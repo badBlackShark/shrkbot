@@ -18,6 +18,9 @@ class Components::Moderation::OverviewForm < Components::Base
         staff_permission_warning: @context.staff_permission_warning?
       )
       render Components::Moderation::StaffPingCard.new(ping_staff: @context.ping_staff)
+      render Components::Moderation::AccountAgeCard.new(
+        new_account_age_days: @context.new_account_age_days
+      )
       render Components::Moderation::SubPluginDirectory.new(
         server_configuration: @config,
         context: @context

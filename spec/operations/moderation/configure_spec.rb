@@ -8,7 +8,8 @@ RSpec.describe Ops::Moderation::Configure do
       server_configuration: config,
       staff_role_id:,
       enabled:,
-      ping_staff:
+      ping_staff:,
+      new_account_age_days:
     )
   end
 
@@ -18,6 +19,7 @@ RSpec.describe Ops::Moderation::Configure do
   let(:staff_role_id) { 111_222_333 }
   let(:enabled) { "1" }
   let(:ping_staff) { "1" }
+  let(:new_account_age_days) { 30 }
 
   context "when enabling without logging ready (no logging plugin enabled)" do
     it "fails with an error on the enabled field" do
@@ -176,6 +178,43 @@ RSpec.describe Ops::Moderation::Configure do
     it "persists ping_staff as true" do
       result
       expect(config.moderation_settings.reload.ping_staff).to be(true)
+    end
+  end
+
+  context "when setting new_account_age_days to a custom value" do
+    let(:enabled) { "0" }
+    let(:new_account_age_days) { 90 }
+
+    it "persists the new value" do
+      result
+      expect(config.moderation_settings.reload.new_account_age_days).to eq(90)
+    end
+  end
+
+  context "when new_account_age_days is blank" do
+    let(:enabled) { "0" }
+    let(:new_account_age_days) { nil }
+
+    before { settings.update!(new_account_age_days: 45) }
+
+    it "preserves the existing value" do
+      result
+      expect(config.moderation_settings.reload.new_account_age_days).to eq(45)
+    end
+  end
+
+  context "when new_account_age_days is out of range" do
+    let(:enabled) { "0" }
+    let(:new_account_age_days) { 500 }
+
+    it "fails with an error on the field rather than raising" do
+      expect(result).to be_failure
+      expect(result.value.errors[:new_account_age_days]).to be_present
+    end
+
+    it "persists nothing" do
+      result
+      expect(config.moderation_settings.reload.new_account_age_days).to eq(30)
     end
   end
 end

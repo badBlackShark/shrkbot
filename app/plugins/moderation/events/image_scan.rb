@@ -13,7 +13,8 @@ module Moderation
       settings = ImageScanning::Settings.active_for(event.server.id)
       return unless settings
 
-      staff_role_id = settings.server_configuration.moderation_settings.staff_role_id
+      moderation_settings = settings.server_configuration.moderation_settings
+      staff_role_id = moderation_settings.staff_role_id
       return if Exemption.exempt?(member: event.author, server: event.server, staff_role_id:)
 
       attachments = eligible_attachments
@@ -22,7 +23,7 @@ module Moderation
       signals = ImageScanning::Signals.call(author: event.author, content: event.message.content, server_id: event.server.id)
 
       attachments.each do |attachment|
-        context = context_for(attachment, settings, signals)
+        context = context_for(attachment, settings, signals, moderation_settings.new_account_age_days)
         ImageScanning::ScanQueue.enqueue(-> { ImageScanning::ScanProcessor.call(context) })
       end
     end
@@ -35,7 +36,7 @@ module Moderation
         .first(MAX_ATTACHMENTS)
     end
 
-    def context_for(attachment, settings, signals)
+    def context_for(attachment, settings, signals, new_account_age_days)
       ImageScanning::ScanContext.new(
         bot: event.bot,
         server: event.server,
@@ -44,6 +45,7 @@ module Moderation
         message_id: event.message.id,
         attachment_url: attachment.url,
         signals:,
+        new_account_age_days:,
         settings:
       )
     end

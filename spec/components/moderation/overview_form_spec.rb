@@ -11,6 +11,7 @@ RSpec.describe Components::Moderation::OverviewForm do
       Moderation::OverviewContext,
       staff_role_id: nil,
       ping_staff: true,
+      new_account_age_days: 30,
       staff_role_present?: false,
       permission_warning?: false,
       staff_permission_warning?: false,
@@ -31,6 +32,10 @@ RSpec.describe Components::Moderation::OverviewForm do
 
   it "renders the staff ping toggle" do
     expect(html).to include("moderation[ping_staff]")
+  end
+
+  it "renders the account age stepper" do
+    expect(html).to include("moderation[new_account_age_days]")
   end
 
   it "renders no enable_error callout by default" do

@@ -8,14 +8,13 @@ module Moderation
         "standard" => {flag: 3, remove: 6},
         "strict" => {flag: 2, remove: 4.5}
       }.freeze
-      NEW_ACCOUNT_DAYS = 7
       KEYWORD_WEIGHT = 2
       OWN_CONFIRMED_RISK = 6
       FUZZY_RATIO = 0.2
 
       module_function
 
-      def call(ocr_text:, hash_state:, signals:, settings:)
+      def call(ocr_text:, hash_state:, signals:, settings:, new_account_age_days:)
         canon = Canonicalizer.call(ocr_text)
 
         reasons = scam_rule_reasons(canon) + keyword_reasons(canon, settings)
@@ -24,7 +23,7 @@ module Moderation
         hash_reason = hash_reason(hash_state)
         reasons << hash_reason if hash_reason
 
-        reasons.concat(amplifier_reasons(signals))
+        reasons.concat(amplifier_reasons(signals, new_account_age_days))
         risk = reasons.sum(&:weight)
 
         keyword_gate = reasons.any? { |reason| reason.key == :custom_keywords }
@@ -69,9 +68,9 @@ module Moderation
         [Reason.new(key: :custom_keywords, weight: KEYWORD_WEIGHT * hits, detail: hits)]
       end
 
-      def amplifier_reasons(signals)
+      def amplifier_reasons(signals, new_account_age_days)
         reasons = []
-        if signals[:account_age_days] < NEW_ACCOUNT_DAYS
+        if signals[:account_age_days] < new_account_age_days
           reasons << Reason.new(key: :new_account, weight: 2, detail: signals[:account_age_days].floor)
         end
         reasons << Reason.new(key: :has_link, weight: 1) if signals[:has_link]

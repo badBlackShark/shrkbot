@@ -109,6 +109,24 @@ RSpec.describe Moderation::OverviewContext do
     end
   end
 
+  describe "#new_account_age_days" do
+    context "when set" do
+      before { config.moderation_settings.update!(new_account_age_days: 90) }
+
+      it "returns the configured value" do
+        expect(context.new_account_age_days).to eq(90)
+      end
+    end
+
+    context "when moderation_settings does not exist" do
+      before { config.moderation_settings.destroy! }
+
+      it "returns nil" do
+        expect(described_class.new(config.reload).new_account_age_days).to be_nil
+      end
+    end
+  end
+
   describe "#staff_role_present?" do
     context "when staff_role_id is set" do
       before { config.moderation_settings.update!(staff_role_id: 555) }

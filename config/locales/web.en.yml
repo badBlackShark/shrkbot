@@ -68,6 +68,12 @@ en:
           toggle_all: Toggle all
           toggle_all_label: Toggle all %{plugin} events
     moderation:
+      account_age_card:
+        days_unit: days
+        help: How recently a Discord account must have been created to count as new.
+          New accounts draw extra scrutiny across every Moderation sub-plugin. Anywhere
+          from 1 to 365 days.
+        label: New account age
       image_scanning_form:
         consent:
           body: Deletion is on by default, and detection is automated and imperfect.

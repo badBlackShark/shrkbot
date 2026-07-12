@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_11_125937) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_12_115205) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -79,11 +79,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_11_125937) do
 
   create_table "moderation_settings", id: :string, default: -> { "('mds_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.integer "new_account_age_days", default: 30, null: false
     t.boolean "ping_staff", default: true, null: false
     t.string "server_configuration_id", null: false
     t.bigint "staff_role_id"
     t.datetime "updated_at", null: false
     t.index ["server_configuration_id"], name: "index_moderation_settings_on_server_configuration_id", unique: true
+    t.check_constraint "new_account_age_days >= 1 AND new_account_age_days <= 365", name: "moderation_settings_new_account_age_days_check"
   end
 
   create_table "notifications", id: :string, default: -> { "('ntf_'::text || gen_random_uuid())" }, force: :cascade do |t|

@@ -30,6 +30,10 @@ module Moderation
       @config.moderation_settings&.ping_staff
     end
 
+    def new_account_age_days
+      @config.moderation_settings&.new_account_age_days
+    end
+
     def staff_role_present?
       staff_role_id.present?
     end

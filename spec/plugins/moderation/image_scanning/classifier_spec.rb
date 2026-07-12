@@ -8,12 +8,14 @@ RSpec.describe Moderation::ImageScanning::Classifier do
       ocr_text:,
       hash_state:,
       signals:,
-      settings:
+      settings:,
+      new_account_age_days:
     )
   end
 
   let(:ocr_text) { "" }
   let(:hash_state) { :none }
+  let(:new_account_age_days) { 30 }
   let(:signals) { {account_age_days: 365, has_link: false, has_role: true} }
   let(:sensitivity) { "standard" }
   let(:custom_keywords) { [] }
@@ -176,6 +178,16 @@ RSpec.describe Moderation::ImageScanning::Classifier do
     context "aged account with role and no link" do
       it "adds no amplifier risk" do
         expect(verdict.risk).to eq(2)
+      end
+    end
+
+    context "with a raised new-account cutoff" do
+      let(:new_account_age_days) { 60 }
+      let(:ocr_text) { "promo code withdraw tuzawin" }
+      let(:signals) { {account_age_days: 45, has_link: false, has_role: true} }
+
+      it "treats an account within the cutoff as new" do
+        expect(verdict.reasons.map(&:key)).to include(:new_account)
       end
     end
   end
