@@ -19,6 +19,15 @@ module Moderation
         "#{PREFIX}:undo_verdict:#{phash_hex}"
       end
 
+      def undo_punishment(user_id, punishment)
+        "#{PREFIX}:undo_punishment:#{user_id}:#{punishment}"
+      end
+
+      def undo_punishment_args(custom_id)
+        _prefix, _action, user_id, punishment = custom_id.split(":")
+        {user_id: user_id.to_i, punishment:}
+      end
+
       def parse(custom_id)
         _prefix, action, phash_hex = custom_id.split(":")
         {action: action&.to_sym, phash_hex:}
