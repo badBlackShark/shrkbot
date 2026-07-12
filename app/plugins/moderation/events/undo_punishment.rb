@@ -9,11 +9,12 @@ module Moderation
     def handle
       return reject unless authorized?
 
+      event.defer(ephemeral: true)
       args = Interaction::CustomId.undo_punishment_args(event.custom_id)
       result = Unpunisher.call(server: event.server, user_id: args[:user_id], punishment: args[:punishment])
       apologize(args[:user_id]) if result == :reversed
 
-      event.respond(content: feedback(result, args), ephemeral: true)
+      event.edit_response(content: feedback(result, args))
     end
 
     private

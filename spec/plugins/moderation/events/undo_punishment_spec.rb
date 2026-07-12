@@ -26,6 +26,8 @@ RSpec.describe Moderation::UndoPunishment do
       server:,
       user:,
       respond: nil,
+      defer: nil,
+      edit_response: nil,
       bot:
     )
   end
@@ -45,7 +47,9 @@ RSpec.describe Moderation::UndoPunishment do
       expect(event).to have_received(:respond).with(hash_including(ephemeral: true))
     end
 
-    it "does not call update_message" do
+    it "does not defer, edit, or update the message" do
+      expect(event).not_to receive(:defer)
+      expect(event).not_to receive(:edit_response)
       expect(event).not_to receive(:update_message)
       handle
     end
@@ -59,6 +63,11 @@ RSpec.describe Moderation::UndoPunishment do
         allow(Moderation::Unpunisher).to receive(:call).and_return(:reversed)
         allow(bot).to receive(:user).with(target_id).and_return(target_user)
         allow(target_user).to receive(:pm)
+      end
+
+      it "defers the interaction before the slow reversal work" do
+        handle
+        expect(event).to have_received(:defer).with(ephemeral: true)
       end
 
       it "unpunishes the target from the custom_id, not the acting moderator" do
@@ -80,16 +89,15 @@ RSpec.describe Moderation::UndoPunishment do
         )
       end
 
-      it "responds ephemerally with the reversed_timeout message naming the target" do
+      it "edits the deferred response with the reversed_timeout message naming the target" do
         handle
 
-        expect(event).to have_received(:respond).with(
-          content: I18n.t("moderation.image_scanning.undo_punishment.reversed_timeout", user: "<@#{target_id}>"),
-          ephemeral: true
+        expect(event).to have_received(:edit_response).with(
+          content: I18n.t("moderation.image_scanning.undo_punishment.reversed_timeout", user: "<@#{target_id}>")
         )
       end
 
-      it "does not call update_message" do
+      it "does not update the shared message" do
         expect(event).not_to receive(:update_message)
         handle
       end
@@ -99,7 +107,7 @@ RSpec.describe Moderation::UndoPunishment do
 
         it "swallows the failure and still confirms to the moderator" do
           expect { handle }.not_to raise_error
-          expect(event).to have_received(:respond).with(hash_including(ephemeral: true))
+          expect(event).to have_received(:edit_response)
         end
       end
 
@@ -108,7 +116,7 @@ RSpec.describe Moderation::UndoPunishment do
 
         it "skips the DM without raising and still confirms" do
           expect { handle }.not_to raise_error
-          expect(event).to have_received(:respond).with(hash_including(ephemeral: true))
+          expect(event).to have_received(:edit_response)
         end
       end
     end
@@ -116,13 +124,12 @@ RSpec.describe Moderation::UndoPunishment do
     context "when Unpunisher returns :not_in_server" do
       before { allow(Moderation::Unpunisher).to receive(:call).and_return(:not_in_server) }
 
-      it "responds ephemerally with not_in_server message and does not DM" do
+      it "edits the response with not_in_server message and does not DM" do
         expect(bot).not_to receive(:user)
         handle
 
-        expect(event).to have_received(:respond).with(
-          content: I18n.t("moderation.image_scanning.undo_punishment.not_in_server"),
-          ephemeral: true
+        expect(event).to have_received(:edit_response).with(
+          content: I18n.t("moderation.image_scanning.undo_punishment.not_in_server")
         )
       end
     end
@@ -130,13 +137,12 @@ RSpec.describe Moderation::UndoPunishment do
     context "when Unpunisher returns :failed" do
       before { allow(Moderation::Unpunisher).to receive(:call).and_return(:failed) }
 
-      it "responds ephemerally with the error message and does not DM" do
+      it "edits the response with the error message and does not DM" do
         expect(bot).not_to receive(:user)
         handle
 
-        expect(event).to have_received(:respond).with(
-          content: I18n.t("moderation.image_scanning.undo_punishment.failed"),
-          ephemeral: true
+        expect(event).to have_received(:edit_response).with(
+          content: I18n.t("moderation.image_scanning.undo_punishment.failed")
         )
       end
     end
@@ -144,13 +150,12 @@ RSpec.describe Moderation::UndoPunishment do
     context "when Unpunisher returns :noop" do
       before { allow(Moderation::Unpunisher).to receive(:call).and_return(:noop) }
 
-      it "responds ephemerally with the generic error message and does not DM" do
+      it "edits the response with the generic error message and does not DM" do
         expect(bot).not_to receive(:user)
         handle
 
-        expect(event).to have_received(:respond).with(
-          content: I18n.t("moderation.image_scanning.undo_punishment.failed"),
-          ephemeral: true
+        expect(event).to have_received(:edit_response).with(
+          content: I18n.t("moderation.image_scanning.undo_punishment.failed")
         )
       end
     end
