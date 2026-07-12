@@ -5,9 +5,11 @@ module Moderation
     on :message
 
     def handle
+      message = event.message
       ImageScanning::EnqueueScan.call(
         event:,
-        images: ImageScanning::ScannableImages.attachments(event.message)
+        images: ImageScanning::ScannableImages.attachments(message) +
+          ImageScanning::ScannableImages.content_links(message)
       )
     end
   end

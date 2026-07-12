@@ -52,6 +52,117 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
     end
   end
 
+  describe ".content_links" do
+    subject(:result) { described_class.content_links(message) }
+
+    let(:cdn_url) { "https://cdn.discordapp.com/attachments/123/456/scan.png?ex=abc&is=def&hm=xyz" }
+    let(:message) { double("message", content: "check this out #{cdn_url}") }
+
+    it "returns Discord CDN png link with signed query preserved" do
+      expect(result).to eq([cdn_url])
+    end
+
+    context "when link is on media.discordapp.net" do
+      let(:media_url) { "https://media.discordapp.net/attachments/1/2/img.jpg" }
+      let(:message) { double("message", content: media_url) }
+
+      it "returns it" do
+        expect(result).to eq([media_url])
+      end
+    end
+
+    context "when host looks like Discord CDN but has extra suffix (subdomain takeover attempt)" do
+      let(:message) { double("message", content: "https://cdn.discordapp.com.evil.com/x.png") }
+
+      it "skips it" do
+        expect(result).to be_empty
+      end
+    end
+
+    context "when host is a non-Discord domain" do
+      let(:message) { double("message", content: "https://evil.com/x.png") }
+
+      it "skips it" do
+        expect(result).to be_empty
+      end
+    end
+
+    context "when image extension is not in the allowlist" do
+      let(:message) { double("message", content: "https://cdn.discordapp.com/a/file.pdf") }
+
+      it "skips it" do
+        expect(result).to be_empty
+      end
+    end
+
+    context "when link uses http instead of https" do
+      let(:message) { double("message", content: "http://cdn.discordapp.com/attachments/1/2/img.png") }
+
+      it "skips it" do
+        expect(result).to be_empty
+      end
+    end
+
+    context "when content contains a malformed URL" do
+      let(:message) { double("message", content: "https://cdn.discordapp.com/[bad") }
+
+      it "skips it without raising" do
+        expect(result).to be_empty
+      end
+    end
+
+    context "when content is mixed text and a valid link" do
+      let(:message) { double("message", content: "hey look at this #{cdn_url} pretty cool right") }
+
+      it "extracts just the link" do
+        expect(result).to eq([cdn_url])
+      end
+    end
+
+    context "when there are more than MAX valid links" do
+      let(:urls) do
+        Array.new(5) { |i| "https://cdn.discordapp.com/attachments/#{i}/#{i}/img#{i}.png" }
+      end
+      let(:message) { double("message", content: urls.join(" ")) }
+
+      it "caps at 3" do
+        expect(result.length).to eq(3)
+      end
+    end
+
+    context "when the link uses a non-standard port" do
+      let(:message) { double("message", content: "https://cdn.discordapp.com:8443/attachments/1/2/x.png") }
+
+      it "skips it" do
+        expect(result).to be_empty
+      end
+    end
+
+    context "when a valid link ends a sentence with trailing punctuation" do
+      let(:message) { double("message", content: "see #{cdn_url}.") }
+
+      it "strips the punctuation and returns the link" do
+        expect(result).to eq([cdn_url])
+      end
+    end
+
+    context "when content is nil" do
+      let(:message) { double("message", content: nil) }
+
+      it "returns empty array" do
+        expect(result).to eq([])
+      end
+    end
+
+    context "when content is empty string" do
+      let(:message) { double("message", content: "") }
+
+      it "returns empty array" do
+        expect(result).to eq([])
+      end
+    end
+  end
+
   describe ".embeds" do
     subject(:result) { described_class.embeds(message) }
 
