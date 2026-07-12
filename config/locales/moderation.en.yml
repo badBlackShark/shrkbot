@@ -3,13 +3,17 @@ en:
   moderation:
     image_scanning:
       buttons:
+        confirm_button: Confirm scam
         confirmed: Confirmed as a scam by %{actor} - the bot will remember this image.
         dismiss_button: Yes, dismiss
+        dismiss_only_button: Dismiss
         dismiss_prompt: Dismiss this detection? This tells the bot the image is not
           a scam.
         dismissed: Dismissed by %{actor}.
         unauthorized: You need the staff role or the Manage Messages permission to
           do that.
+        undo_verdict: Undo verdict
+        verdict_undone: Verdict undone by %{actor}.
       flag:
         body: "%{author} posted an image in %{channel}. [Jump to message](%{jump_url})."
         meta:

@@ -19,6 +19,10 @@ module Moderation
         "#{PREFIX}:dismiss_confirm:#{phash_hex}"
       end
 
+      def undo_verdict(phash_hex)
+        "#{PREFIX}:undo_verdict:#{phash_hex}"
+      end
+
       def parse(custom_id)
         _prefix, action, phash_hex = custom_id.split(":")
         {action: action&.to_sym, phash_hex:}

@@ -17,6 +17,10 @@ RSpec.describe Moderation::Interaction::CustomId do
     expect(described_class.dismiss_confirm(phash_hex)).to eq("mod:dismiss_confirm:0123456789abcdef")
   end
 
+  it "builds an undo_verdict id" do
+    expect(described_class.undo_verdict(phash_hex)).to eq("mod:undo_verdict:0123456789abcdef")
+  end
+
   it "round-trips a confirm id" do
     expect(described_class.parse(described_class.confirm(phash_hex)))
       .to eq(action: :confirm, phash_hex:)
@@ -30,6 +34,11 @@ RSpec.describe Moderation::Interaction::CustomId do
   it "round-trips a dismiss_confirm id" do
     expect(described_class.parse(described_class.dismiss_confirm(phash_hex)))
       .to eq(action: :dismiss_confirm, phash_hex:)
+  end
+
+  it "round-trips an undo_verdict id" do
+    expect(described_class.parse(described_class.undo_verdict(phash_hex)))
+      .to eq(action: :undo_verdict, phash_hex:)
   end
 
   it "yields a nil action for an id with no action segment" do

@@ -84,12 +84,12 @@ module Moderation
             [
               Bot::Discord::Components.button(
                 custom_id: Interaction::CustomId.confirm(phash),
-                label: "Confirm scam",
+                label: I18n.t("moderation.image_scanning.buttons.confirm_button"),
                 style: Bot::Discord::Components::BUTTON_SUCCESS
               ),
               Bot::Discord::Components.button(
                 custom_id: Interaction::CustomId.dismiss(phash),
-                label: "Dismiss",
+                label: I18n.t("moderation.image_scanning.buttons.dismiss_only_button"),
                 style: Bot::Discord::Components::BUTTON_DANGER
               )
             ]

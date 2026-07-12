@@ -11,6 +11,7 @@ module Bot
       THUMBNAIL = 11
       ACTION_ROW = 1
       BUTTON = 2
+      BUTTON_SECONDARY = 2
       BUTTON_SUCCESS = 3
       BUTTON_DANGER = 4
       COMPONENTS_V2 = 1 << 15

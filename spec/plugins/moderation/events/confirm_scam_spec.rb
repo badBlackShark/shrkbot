@@ -17,7 +17,7 @@ RSpec.describe Moderation::ConfirmScam do
   let(:server) { double("server", id: guild_id) }
   let(:user) { double("user", id: 222) }
   let(:fake_container) { double("container", components: []) }
-  let(:fake_message) { double("message", components: [fake_container]) }
+  let(:fake_message) { double("message", components: [fake_container], buttons: []) }
   let(:event) do
     double(
       "event",
@@ -42,6 +42,17 @@ RSpec.describe Moderation::ConfirmScam do
 
       expect(Ops::Moderation::Phashes::Confirm).to have_received(:call).with(server_configuration: config, phash_hex:)
       expect(event).to have_received(:update_message).with(hash_including(has_components: true))
+    end
+
+    it "rebuilds the row with the undo_verdict button" do
+      handle
+
+      expect(event).to have_received(:update_message) do |kwargs|
+        inner_blocks = kwargs[:components].first[:components]
+        action_row = inner_blocks.find { |b| b[:type] == Bot::Discord::Components::ACTION_ROW }
+        custom_ids = action_row[:components].map { |button| button[:custom_id] }
+        expect(custom_ids).to eq(["mod:undo_verdict:#{phash_hex}"])
+      end
     end
   end
 
