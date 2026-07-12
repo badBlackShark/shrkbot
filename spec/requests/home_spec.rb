@@ -11,10 +11,11 @@ RSpec.describe "Home", type: :request do
     expect(response).to have_http_status(:ok)
   end
 
-  it "shows the hero headline" do
+  it "shows the hero tagline" do
     home
 
-    expect(response.body).to include("You pick the parts.")
+    expect(response.body).to include("A mechanical assistant for your Discord server.")
+    expect(response.body).to include("With teeth when needed.")
   end
 
   it "uses the brand display type for the wordmark" do
@@ -33,6 +34,15 @@ RSpec.describe "Home", type: :request do
     home
 
     expect(response.body).to include('href="https://github.com/badBlackShark/shrkbot"')
+  end
+
+  it "shows the version badge linking to a release" do
+    allow(ReleaseInfo).to receive(:current).and_return(
+      ReleaseInfo.new(number: "3.1.0", released_on: Date.new(2026, 7, 11))
+    )
+    home
+
+    expect(response.body).to include("/releases/tag/3.1.0")
   end
 
   it "renders the four plugin cards" do
