@@ -79,6 +79,16 @@ RSpec.describe ServerConfiguration do
     end
   end
 
+  describe "guild purge cascade" do
+    let(:server) { create(:server_configuration, discord_id: 700_000_001) }
+    let!(:verdict) { create(:verdict_record, server_configuration: server) }
+
+    it "deletes verdict_records when the server_configuration is destroyed" do
+      server.destroy!
+      expect(Moderation::VerdictRecord.exists?(verdict.id)).to be(false)
+    end
+  end
+
   describe "#icon_url" do
     subject(:icon_url) { server.icon_url }
 

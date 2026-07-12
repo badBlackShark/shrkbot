@@ -12,6 +12,7 @@ class ServerConfiguration < ApplicationRecord
   has_one :image_scanning_settings, class_name: "Moderation::ImageScanning::Settings", dependent: :delete
 
   has_many :phash_confirmations, class_name: "Moderation::PhashConfirmation", dependent: :delete_all
+  has_many :verdict_records, class_name: "Moderation::VerdictRecord", dependent: :delete_all
 
   has_many :notifications, dependent: :delete_all
   has_many :server_channels, dependent: :destroy

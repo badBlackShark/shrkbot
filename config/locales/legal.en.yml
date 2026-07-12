@@ -58,6 +58,11 @@ en:
         configure - including any custom scam-keyword list.'
       data_h: What we store and why
       data_lead: 'We store only what the enabled features need:'
+      data_moderation: 'Moderation action records: when automated moderation acts
+        on a message, we store which action was taken, when, the affected user''s
+        Discord ID, the scam-image fingerprint, and the channel and message IDs of
+        the moderator-log entry (so the dashboard can link to it) - never any message
+        content or extracted text.'
       data_notifications: 'Dashboard notifications: short activity entries (an event
         type plus details such as a plugin or channel name) so admins can see recent
         changes.'
@@ -68,8 +73,9 @@ en:
       data_reminders: 'Reminders: the reminder text you write, your Discord ID, the
         target channel and server, whether to deliver by DM, and the due time - kept
         until delivered or deleted by you with /unremind.'
-      deletion_account: Delete your dashboard account and your reminders with the
-        "Delete my account" button on your account page.
+      deletion_account: Delete your dashboard account - along with your reminders
+        and any moderation action records linked to your Discord ID - with the "Delete
+        my account" button on your account page.
       deletion_contact: Or contact us (see below) and we'll take care of it.
       deletion_guild: Remove the bot from a server to delete that server's configuration.
       deletion_h: Deleting your data
@@ -122,6 +128,10 @@ en:
         the bot.'
       retention_reminders: 'Reminders: deleted once delivered, or earlier if you delete
         them.'
+      retention_verdicts: 'Moderation action records (which action, when, the affected
+        user''s Discord ID, and the channel and message IDs of the moderator-log entry
+        - never any message content): pruned 30 days after the action, and deleted
+        when the bot is removed from the server.'
       rights_h: Your rights
       rights_p: Under the GDPR you have the right to access, correct, delete, restrict
         or object to our use of your personal data, and the right to data portability.
@@ -139,7 +149,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: July 5th, 2026'
+      updated: 'Last updated: July 12th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

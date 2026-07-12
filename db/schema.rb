@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_12_115205) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_12_173436) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -86,6 +86,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_12_115205) do
     t.datetime "updated_at", null: false
     t.index ["server_configuration_id"], name: "index_moderation_settings_on_server_configuration_id", unique: true
     t.check_constraint "new_account_age_days >= 1 AND new_account_age_days <= 365", name: "moderation_settings_new_account_age_days_check"
+  end
+
+  create_table "moderation_verdicts", id: :string, default: -> { "('mvr_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.string "action", null: false
+    t.datetime "created_at", null: false
+    t.bigint "discord_user_id", null: false
+    t.bigint "log_channel_id"
+    t.bigint "log_message_id"
+    t.string "phash"
+    t.string "punishment", default: "none", null: false
+    t.datetime "reversed_at"
+    t.string "server_configuration_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["discord_user_id"], name: "index_moderation_verdicts_on_discord_user_id"
+    t.index ["server_configuration_id", "created_at"], name: "idx_on_server_configuration_id_created_at_47198f0f26"
+    t.check_constraint "action::text = ANY (ARRAY['flag_for_review'::character varying, 'remove'::character varying]::text[])", name: "moderation_verdicts_action_check"
+    t.check_constraint "punishment::text = ANY (ARRAY['none'::character varying, 'timeout'::character varying, 'kick'::character varying, 'ban'::character varying]::text[])", name: "moderation_verdicts_punishment_check"
   end
 
   create_table "notifications", id: :string, default: -> { "('ntf_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -375,6 +392,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_12_115205) do
   add_foreign_key "image_scanning_settings", "server_configurations"
   add_foreign_key "logging_settings", "server_configurations"
   add_foreign_key "moderation_settings", "server_configurations"
+  add_foreign_key "moderation_verdicts", "server_configurations"
   add_foreign_key "notifications", "server_configurations"
   add_foreign_key "phash_confirmations", "phashes"
   add_foreign_key "phash_confirmations", "server_configurations"

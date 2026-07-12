@@ -109,6 +109,12 @@ RSpec.describe Bot::ActivityLog do
       end
     end
 
+    it "returns the posted message" do
+      message = double("message")
+      allow(channel).to receive(:send_message).and_return(message)
+      expect(post).to eq(message)
+    end
+
     context "when no logging channel is set" do
       before do
         server_config.logging_setting.update!(channel_id: nil)

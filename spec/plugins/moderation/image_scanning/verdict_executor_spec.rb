@@ -70,15 +70,17 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
   before do
     allow(Bot::ActivityLog).to receive(:post)
     allow(Moderation::Punisher).to receive(:call)
+    allow(Ops::Moderation::Verdicts::Create).to receive(:call)
   end
 
   context "when the action is :allow" do
     let(:action) { :allow }
 
-    it "does not log, delete, or punish" do
+    it "does not log, delete, punish, or persist a verdict" do
       expect(Bot::ActivityLog).not_to receive(:post)
       expect(bot).not_to receive(:channel)
       expect(Moderation::Punisher).not_to receive(:call)
+      expect(Ops::Moderation::Verdicts::Create).not_to receive(:call)
       execute
     end
   end
@@ -377,6 +379,68 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
 
       expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         expect(kwargs[:body]).not_to start_with("<@&")
+      end
+    end
+  end
+
+  describe "verdict persistence" do
+    let(:log_message) { double("msg", id: 123, channel: double(id: 456)) }
+
+    before do
+      allow(Bot::ActivityLog).to receive(:post).and_return(log_message)
+    end
+
+    context "when the action is :flag_for_review" do
+      let(:action) { :flag_for_review }
+
+      it "persists a verdict record with action flag_for_review and punishment none" do
+        execute
+
+        expect(Ops::Moderation::Verdicts::Create).to have_received(:call).with(
+          server_configuration:,
+          discord_user_id: member_id,
+          action: "flag_for_review",
+          punishment: "none",
+          phash:,
+          log_channel_id: 456,
+          log_message_id: 123
+        )
+      end
+    end
+
+    context "when the action is :remove with punishment kick" do
+      let(:action) { :remove }
+      let(:punishment) { "kick" }
+      let(:settings_action) { "none" }
+
+      it "persists a verdict record with action remove and the applied punishment" do
+        execute
+
+        expect(Ops::Moderation::Verdicts::Create).to have_received(:call).with(
+          server_configuration:,
+          discord_user_id: member_id,
+          action: "remove",
+          punishment: "kick",
+          phash:,
+          log_channel_id: 456,
+          log_message_id: 123
+        )
+      end
+    end
+
+    context "when no log channel is configured" do
+      let(:action) { :flag_for_review }
+
+      before do
+        allow(Bot::ActivityLog).to receive(:post).and_return(nil)
+      end
+
+      it "persists with nil log ids" do
+        execute
+
+        expect(Ops::Moderation::Verdicts::Create).to have_received(:call).with(
+          hash_including(log_channel_id: nil, log_message_id: nil)
+        )
       end
     end
   end

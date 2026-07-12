@@ -34,7 +34,9 @@ ActiveRecordDoctor.configure do
       "server_channels.parent_id",
       "server_roles.discord_id",
       "channel_overwrites.target_id",
-      "moderation_settings.staff_role_id"
+      "moderation_settings.staff_role_id",
+      "moderation_verdicts.log_channel_id",
+      "moderation_verdicts.log_message_id"
     ]
 
   # These are NOT NULL with a DB default, so they're never nil — presence is wrong

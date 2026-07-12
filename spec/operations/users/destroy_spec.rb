@@ -8,6 +8,8 @@ RSpec.describe Ops::Users::Destroy do
   let(:user) { create(:user) }
   let!(:reminder) { create(:reminder, user_id: user.discord_id) }
   let!(:other_reminder) { create(:reminder) }
+  let!(:user_verdict) { create(:verdict_record, discord_user_id: user.discord_id) }
+  let!(:other_verdict) { create(:verdict_record, discord_user_id: 999_888_777_666) }
 
   it "destroys the user" do
     result
@@ -22,6 +24,16 @@ RSpec.describe Ops::Users::Destroy do
   it "leaves other users' reminders untouched" do
     result
     expect(Reminders::Reminder.exists?(other_reminder.id)).to be(true)
+  end
+
+  it "deletes verdict records whose discord_user_id equals the user's discord_id" do
+    result
+    expect(Moderation::VerdictRecord.exists?(user_verdict.id)).to be(false)
+  end
+
+  it "leaves other users' verdict records untouched" do
+    result
+    expect(Moderation::VerdictRecord.exists?(other_verdict.id)).to be(true)
   end
 
   it "returns success" do

@@ -19,3 +19,6 @@ production:
   moderation_phash_prune:
     command: "Ops::Moderation::Phashes::Prune.call"
     schedule: every day at 5am
+  moderation_verdict_prune:
+    command: "Ops::Moderation::Verdicts::Prune.call"
+    schedule: every day at 5:30am

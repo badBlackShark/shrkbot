@@ -20,11 +20,13 @@ module Moderation
       def call
         case verdict.action
         when :flag_for_review
-          flag(removed: false)
+          message = flag(removed: false)
+          persist(action: "flag_for_review", punishment: "none", message:)
         when :remove
           delete_message if context.settings.action_delete?
-          punish
-          flag(removed: true)
+          applied = punish
+          message = flag(removed: true)
+          persist(action: "remove", punishment: applied, message:)
         end
       end
 
@@ -42,7 +44,7 @@ module Moderation
         settings = context.settings
         escalate = hash_state == :own_confirmed && settings.confirmed_punishment != "none"
         punishment = escalate ? settings.confirmed_punishment : settings.punishment
-        return if punishment == "none"
+        return "none" if punishment == "none"
 
         Punisher.call(
           member: context.member,
@@ -51,6 +53,7 @@ module Moderation
           timeout_seconds: escalate ? settings.confirmed_timeout_seconds : settings.timeout_seconds,
           reason: I18n.t("moderation.image_scanning.punishment.reason")
         )
+        punishment
       end
 
       def flag(removed:)
@@ -75,6 +78,18 @@ module Moderation
           image:,
           components: buttons,
           allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
+        )
+      end
+
+      def persist(action:, punishment:, message:)
+        Ops::Moderation::Verdicts::Create.call(
+          server_configuration: context.settings.server_configuration,
+          discord_user_id: context.member.id,
+          action:,
+          punishment:,
+          phash:,
+          log_channel_id: message&.channel&.id,
+          log_message_id: message&.id
         )
       end
 
