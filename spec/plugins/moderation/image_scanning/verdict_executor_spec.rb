@@ -332,6 +332,16 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
           reason: I18n.t("moderation.image_scanning.punishment.reason")
         )
       end
+
+      it "carries the escalated punishment in the undo_punishment button" do
+        execute
+
+        expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+          row = kwargs[:components].find { |c| c[:type] == Bot::Discord::Components::ACTION_ROW }
+          custom_ids = row[:components].map { |button| button[:custom_id] }
+          expect(custom_ids).to include("mod:undo_punishment:#{member_id}:ban")
+        end
+      end
     end
 
     context "when hash_state is :own_confirmed and confirmed_punishment is 'none'" do
@@ -374,6 +384,97 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
           timeout_seconds: 300,
           reason: I18n.t("moderation.image_scanning.punishment.reason")
         )
+      end
+    end
+  end
+
+  context "when the action is :remove with punishment 'timeout'" do
+    let(:punishment) { "timeout" }
+    let(:settings_action) { "none" }
+
+    it "includes an undo_punishment button for timeout in the action row" do
+      execute
+
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+        row = kwargs[:components].first
+        custom_ids = row[:components].map { |b| b[:custom_id] }
+        expect(custom_ids).to include("mod:undo_punishment:#{member_id}:timeout")
+      end
+    end
+
+    it "does not include a kick note in the body" do
+      execute
+
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:body]).not_to include(I18n.t("moderation.image_scanning.flag.kick_note"))
+      end
+    end
+  end
+
+  context "when the action is :remove with punishment 'ban'" do
+    let(:punishment) { "ban" }
+    let(:settings_action) { "none" }
+
+    it "includes an undo_punishment button for ban in the action row" do
+      execute
+
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+        row = kwargs[:components].first
+        custom_ids = row[:components].map { |b| b[:custom_id] }
+        expect(custom_ids).to include("mod:undo_punishment:#{member_id}:ban")
+      end
+    end
+  end
+
+  context "when the action is :remove with punishment 'kick'" do
+    let(:punishment) { "kick" }
+    let(:settings_action) { "none" }
+
+    it "does not include an undo_punishment button" do
+      execute
+
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+        row = kwargs[:components].first
+        custom_ids = row[:components].map { |b| b[:custom_id] }
+        expect(custom_ids).not_to include(a_string_starting_with("mod:undo_punishment:"))
+      end
+    end
+
+    it "includes the kick note in the body" do
+      execute
+
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:body]).to include(I18n.t("moderation.image_scanning.flag.kick_note"))
+      end
+    end
+  end
+
+  context "when the action is :flag_for_review with any punishment setting" do
+    let(:action) { :flag_for_review }
+    let(:punishment) { "timeout" }
+
+    it "does not include an undo_punishment button" do
+      execute
+
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+        row = kwargs[:components].first
+        custom_ids = row[:components].map { |b| b[:custom_id] }
+        expect(custom_ids).not_to include(a_string_starting_with("mod:undo_punishment:"))
+      end
+    end
+  end
+
+  context "when the action is :remove with punishment 'none'" do
+    let(:punishment) { "none" }
+    let(:settings_action) { "none" }
+
+    it "does not include an undo_punishment button" do
+      execute
+
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+        row = kwargs[:components].first
+        custom_ids = row[:components].map { |b| b[:custom_id] }
+        expect(custom_ids).not_to include(a_string_starting_with("mod:undo_punishment:"))
       end
     end
   end

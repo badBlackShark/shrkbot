@@ -17,6 +17,15 @@ RSpec.describe Moderation::Interaction::CustomId do
     expect(described_class.undo_verdict(phash_hex)).to eq("mod:undo_verdict:0123456789abcdef")
   end
 
+  it "builds an undo_punishment id" do
+    expect(described_class.undo_punishment(222, "timeout")).to eq("mod:undo_punishment:222:timeout")
+  end
+
+  it "parses undo_punishment args into user_id integer and punishment string" do
+    expect(described_class.undo_punishment_args("mod:undo_punishment:222:timeout"))
+      .to eq(user_id: 222, punishment: "timeout")
+  end
+
   it "round-trips a confirm id" do
     expect(described_class.parse(described_class.confirm(phash_hex)))
       .to eq(action: :confirm, phash_hex:)

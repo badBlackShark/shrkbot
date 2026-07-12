@@ -20,11 +20,10 @@ module Moderation
       def call
         case verdict.action
         when :flag_for_review
-          flag(removed: false)
+          flag(removed: false, punishment: "none")
         when :remove
           delete_message if context.settings.action_delete?
-          punish
-          flag(removed: true)
+          flag(removed: true, punishment: punish)
         end
       end
 
@@ -42,7 +41,7 @@ module Moderation
         settings = context.settings
         escalate = hash_state == :own_confirmed && settings.confirmed_punishment != "none"
         punishment = escalate ? settings.confirmed_punishment : settings.punishment
-        return if punishment == "none"
+        return "none" if punishment == "none"
 
         Punisher.call(
           member: context.member,
@@ -51,9 +50,10 @@ module Moderation
           timeout_seconds: escalate ? settings.confirmed_timeout_seconds : settings.timeout_seconds,
           reason: I18n.t("moderation.image_scanning.punishment.reason")
         )
+        punishment
       end
 
-      def flag(removed:)
+      def flag(removed:, punishment:)
         config = context.settings.server_configuration
         settings = config.moderation_settings
         staff_role_id = settings.staff_role_id
@@ -70,15 +70,15 @@ module Moderation
             author: "<@#{context.member.id}>",
             channel: "<##{context.channel_id}>",
             jump_url:
-          ) + "\n" + risk_line(state) + "\n" + reason_lines,
+          ) + "\n" + risk_line(state) + "\n" + reason_lines + kick_note(punishment),
           meta: I18n.t("moderation.image_scanning.flag.meta.#{state}"),
           image:,
-          components: message_components,
+          components: message_components(punishment),
           allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
         )
       end
 
-      def message_components
+      def message_components(punishment)
         components = []
         if (line = prior_verdict_text)
           components << Bot::Discord::Components.separator
@@ -88,9 +88,27 @@ module Moderation
           Interaction::VerdictButtons.build(
             server_configuration: context.settings.server_configuration,
             phash_hex: phash
-          )
+          ) + punishment_buttons(punishment)
         )
         components
+      end
+
+      def kick_note(punishment)
+        return "" unless punishment == "kick"
+
+        "\n" + I18n.t("moderation.image_scanning.flag.kick_note")
+      end
+
+      def punishment_buttons(punishment)
+        return [] unless %w[timeout ban].include?(punishment)
+
+        [
+          Bot::Discord::Components.button(
+            custom_id: Interaction::CustomId.undo_punishment(context.member.id, punishment),
+            label: I18n.t("moderation.image_scanning.undo_punishment.button"),
+            style: Bot::Discord::Components::BUTTON_SECONDARY
+          )
+        ]
       end
 
       def prior_verdict_text

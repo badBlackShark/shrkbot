@@ -13,6 +13,7 @@ en:
         verdict_undone: Verdict undone by %{actor}.
       flag:
         body: "%{author} posted an image in %{channel}. [Jump to message](%{jump_url})."
+        kick_note: The member was kicked; a kick can't be undone.
         meta:
           flagged: Flagged for review - no automatic action taken.
           removed: The message was deleted automatically.
@@ -49,6 +50,14 @@ en:
             removed: The message was deleted.
           title: Image reported as a scam
         none: That message has no images to report.
+      undo_punishment:
+        apology: Sorry - you were automatically moderated in %{server} by mistake,
+          and a staff member has reversed it.
+        button: Undo punishment
+        failed: I couldn't reverse that - I may be missing permissions.
+        not_in_server: That member isn't in the server, so there was nothing to clear.
+        reversed_ban: Unbanned %{user}.
+        reversed_timeout: Timeout cleared for %{user}.
     spam_protection:
       notification:
         body: "%{author} posted the same message in %{count} channels within %{window}
