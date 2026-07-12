@@ -15,10 +15,6 @@ module Moderation
         "#{PREFIX}:dismiss:#{phash_hex}"
       end
 
-      def dismiss_confirm(phash_hex)
-        "#{PREFIX}:dismiss_confirm:#{phash_hex}"
-      end
-
       def undo_verdict(phash_hex)
         "#{PREFIX}:undo_verdict:#{phash_hex}"
       end

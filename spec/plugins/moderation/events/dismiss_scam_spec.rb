@@ -16,6 +16,9 @@ RSpec.describe Moderation::DismissScam do
   let(:member) { double("member", mention: "<@222>", roles: [staff_role], permission?: false) }
   let(:server) { double("server", id: guild_id) }
   let(:user) { double("user", id: 222) }
+  let(:undo_button) { {custom_id: "mod:undo_verdict:#{phash_hex}", type: Bot::Discord::Components::BUTTON} }
+  let(:fake_container) { double("container", components: [], buttons: []) }
+  let(:fake_message) { double("message", components: [fake_container]) }
   let(:event) do
     double(
       "event",
@@ -24,25 +27,33 @@ RSpec.describe Moderation::DismissScam do
       user:,
       update_message: nil,
       respond: nil,
-      bot: double("bot")
+      bot: double("bot"),
+      message: fake_message
     )
   end
 
   before do
     allow(server).to receive(:member).with(222).and_return(member)
     allow(Ops::Moderation::Phashes::Dismiss).to receive(:call)
+    allow(Moderation::Interaction::VerdictButtons).to receive(:build).and_return([undo_button])
   end
 
   context "when the member is authorized" do
-    it "prompts for confirmation with a dismiss_confirm button and does not write" do
+    it "dismisses the phash and edits the original message" do
       handle
 
-      expect(Ops::Moderation::Phashes::Dismiss).not_to have_received(:call)
-      expect(event).to have_received(:respond) do |args|
-        expect(args[:ephemeral]).to be(true)
-        expect(args[:has_components]).to be(true)
-        button = args[:components].dig(0, :components, 1, :components, 0)
-        expect(button[:custom_id]).to eq("mod:dismiss_confirm:#{phash_hex}")
+      expect(Ops::Moderation::Phashes::Dismiss).to have_received(:call).with(server_configuration: config, phash_hex:)
+      expect(event).to have_received(:update_message).with(hash_including(has_components: true))
+    end
+
+    it "rebuilds the row with the undo_verdict button from VerdictButtons.build" do
+      handle
+
+      expect(event).to have_received(:update_message) do |kwargs|
+        inner_blocks = kwargs[:components].first[:components]
+        action_row = inner_blocks.find { |b| b[:type] == Bot::Discord::Components::ACTION_ROW }
+        custom_ids = action_row[:components].map { |button| button[:custom_id] }
+        expect(custom_ids).to eq(["mod:undo_verdict:#{phash_hex}"])
       end
     end
   end
@@ -50,11 +61,12 @@ RSpec.describe Moderation::DismissScam do
   context "when the member is unauthorized" do
     let(:member) { double("member", mention: "<@222>", roles: [], permission?: false) }
 
-    it "rejects" do
+    it "rejects without dismissing" do
       handle
 
       expect(Ops::Moderation::Phashes::Dismiss).not_to have_received(:call)
       expect(event).to have_received(:respond).with(hash_including(ephemeral: true))
+      expect(event).not_to have_received(:update_message)
     end
   end
 end

@@ -82,11 +82,14 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
 
     before { allow(Moderation::Interaction::VerdictButtons).to receive(:verdict).and_return("confirmed") }
 
-    it "notes the prior verdict in the body" do
+    it "notes the prior verdict in a component right above the buttons" do
       execute
 
       expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
-        expect(kwargs[:body]).to include(I18n.t("moderation.image_scanning.flag.prior_verdict.confirmed"))
+        components = kwargs[:components]
+        action_row_index = components.index { |c| c[:type] == Bot::Discord::Components::ACTION_ROW }
+        prior = components[action_row_index - 1]
+        expect(prior[:content]).to include(I18n.t("moderation.image_scanning.flag.prior_verdict.confirmed"))
       end
     end
   end

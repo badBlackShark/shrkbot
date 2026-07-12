@@ -70,33 +70,37 @@ module Moderation
             author: "<@#{context.member.id}>",
             channel: "<##{context.channel_id}>",
             jump_url:
-          ) + "\n" + risk_line(state) + "\n" + reason_lines + prior_verdict_line,
+          ) + "\n" + risk_line(state) + "\n" + reason_lines,
           meta: I18n.t("moderation.image_scanning.flag.meta.#{state}"),
           image:,
-          components: buttons,
+          components: message_components,
           allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
         )
       end
 
-      def buttons
-        [
-          Bot::Discord::Components.action_row(
-            Interaction::VerdictButtons.build(
-              server_configuration: context.settings.server_configuration,
-              phash_hex: phash
-            )
+      def message_components
+        components = []
+        if (line = prior_verdict_text)
+          components << Bot::Discord::Components.separator
+          components << Bot::Discord::Components.text(line)
+        end
+        components << Bot::Discord::Components.action_row(
+          Interaction::VerdictButtons.build(
+            server_configuration: context.settings.server_configuration,
+            phash_hex: phash
           )
-        ]
+        )
+        components
       end
 
-      def prior_verdict_line
+      def prior_verdict_text
         verdict = Interaction::VerdictButtons.verdict(
           server_configuration: context.settings.server_configuration,
           phash_hex: phash
         )
-        return "" unless verdict
+        return unless verdict
 
-        "\n" + I18n.t("moderation.image_scanning.flag.prior_verdict.#{verdict}")
+        I18n.t("moderation.image_scanning.flag.prior_verdict.#{verdict}")
       end
 
       def jump_url
