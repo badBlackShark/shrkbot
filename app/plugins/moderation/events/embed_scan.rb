@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 module Moderation
-  class ImageScan < Bot::BaseEvent
-    on :message
+  class EmbedScan < Bot::BaseEvent
+    on :message_update
 
     def handle
       ImageScanning::EnqueueScan.call(
         event:,
-        images: ImageScanning::ScannableImages.attachments(event.message)
+        images: ImageScanning::ScannableImages.embeds(event.message)
       )
     end
   end

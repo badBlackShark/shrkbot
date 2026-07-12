@@ -59,7 +59,7 @@ module Moderation
         staff_role_id = settings.staff_role_id
         ping = settings.ping_staff
         state = removed ? "removed" : "flagged"
-        image = image_bytes && Bot::Discord::FileUpload.new(image_bytes, File.basename(URI(context.attachment_url).path))
+        image = image_bytes && Bot::Discord::FileUpload.new(image_bytes, File.basename(URI(context.image_url).path))
 
         Bot::ActivityLog.post(
           config,

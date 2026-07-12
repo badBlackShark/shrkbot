@@ -12,7 +12,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
   let(:staff_role_id) { 333 }
   let(:channel_id) { 444 }
   let(:message_id) { 555 }
-  let(:attachment_url) { "https://cdn/x.png" }
+  let(:image_url) { "https://cdn/x.png" }
 
   let(:server) { double("server", id: server_id) }
   let(:member) { double("member", id: member_id) }
@@ -50,7 +50,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
       member:,
       channel_id:,
       message_id:,
-      attachment_url:,
+      image_url:,
       signals: {},
       new_account_age_days: 30,
       settings:

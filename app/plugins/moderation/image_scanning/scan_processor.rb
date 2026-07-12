@@ -6,7 +6,7 @@ module Moderation
       module_function
 
       def call(context)
-        bytes = ImageDownload.call(context.attachment_url)
+        bytes = ImageDownload.call(context.image_url)
         client = Ocr::Client.new
         hex = client.phash(bytes)
         state = PhashIndex.lookup(hex, context.server.id)

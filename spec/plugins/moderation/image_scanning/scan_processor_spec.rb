@@ -14,7 +14,7 @@ RSpec.describe Moderation::ImageScanning::ScanProcessor do
       member: double("member", id: 2),
       channel_id: 3,
       message_id: 4,
-      attachment_url: "https://cdn/x.png",
+      image_url: "https://cdn/x.png",
       signals:,
       new_account_age_days: 30,
       settings:

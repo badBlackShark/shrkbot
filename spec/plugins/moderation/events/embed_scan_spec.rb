@@ -2,26 +2,26 @@
 
 require "rails_helper"
 
-RSpec.describe Moderation::ImageScan do
+RSpec.describe Moderation::EmbedScan do
   subject(:handle) { described_class.new(event).handle }
 
   let(:message) { double("message") }
   let(:event) { double("event", message:) }
-  let(:image_urls) { ["https://cdn/x.png"] }
+  let(:embed_urls) { ["https://media.discordapp.net/a.png"] }
 
   before do
-    allow(Moderation::ImageScanning::ScannableImages).to receive(:attachments).with(message).and_return(image_urls)
+    allow(Moderation::ImageScanning::ScannableImages).to receive(:embeds).with(message).and_return(embed_urls)
     allow(Moderation::ImageScanning::EnqueueScan).to receive(:call)
   end
 
-  it "registers on :message" do
-    expect(described_class.discord_events).to include(:message)
+  it "registers on :message_update" do
+    expect(described_class.discord_events).to include(:message_update)
   end
 
-  it "delegates to EnqueueScan with attachment URLs" do
+  it "delegates to EnqueueScan with embed image URLs" do
     expect(Moderation::ImageScanning::EnqueueScan).to receive(:call).with(
       event:,
-      images: image_urls
+      images: embed_urls
     )
     handle
   end
