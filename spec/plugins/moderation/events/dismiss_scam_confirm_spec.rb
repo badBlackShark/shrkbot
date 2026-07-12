@@ -16,8 +16,9 @@ RSpec.describe Moderation::DismissScamConfirm do
   let(:member) { double("member", mention: "<@222>", roles: [staff_role], permission?: false) }
   let(:server) { double("server", id: guild_id) }
   let(:user) { double("user", id: 222) }
-  let(:fake_container) { double("container", components: []) }
-  let(:fake_message) { double("message", components: [fake_container], buttons: []) }
+  let(:undo_button) { {custom_id: "mod:undo_verdict:#{phash_hex}", type: Bot::Discord::Components::BUTTON} }
+  let(:fake_container) { double("container", components: [], buttons: []) }
+  let(:fake_message) { double("message", components: [fake_container]) }
   let(:event) do
     double(
       "event",
@@ -34,6 +35,7 @@ RSpec.describe Moderation::DismissScamConfirm do
   before do
     allow(server).to receive(:member).with(222).and_return(member)
     allow(Ops::Moderation::Phashes::Dismiss).to receive(:call)
+    allow(Moderation::Interaction::VerdictButtons).to receive(:build).and_return([undo_button])
   end
 
   context "when the member is authorized" do
@@ -44,7 +46,7 @@ RSpec.describe Moderation::DismissScamConfirm do
       expect(event).to have_received(:update_message).with(hash_including(has_components: true))
     end
 
-    it "rebuilds the row with the undo_verdict button" do
+    it "rebuilds the row with the undo_verdict button from VerdictButtons.build" do
       handle
 
       expect(event).to have_received(:update_message) do |kwargs|

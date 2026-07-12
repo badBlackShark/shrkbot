@@ -27,47 +27,22 @@ module Moderation
         event.respond(content: I18n.t("moderation.image_scanning.buttons.unauthorized"), ephemeral: true)
       end
 
-      def resolve(text, verdict_decided:)
+      def resolve(text)
         blocks = retained_blocks
         blocks << Bot::Discord::Components.separator
         blocks << Bot::Discord::Components.text(text)
-        blocks << action_row(verdict_decided:)
+        blocks << action_row
         container = Bot::Discord::Components.container(blocks)
         event.update_message(components: container[:components], has_components: true)
       end
 
-      def action_row(verdict_decided:)
-        buttons = verdict_buttons(verdict_decided:) + preserved_punishment_buttons
+      def action_row
+        buttons = VerdictButtons.build(server_configuration:, phash_hex:) + preserved_punishment_buttons
         Bot::Discord::Components.action_row(buttons)
       end
 
-      def verdict_buttons(verdict_decided:)
-        if verdict_decided
-          [
-            Bot::Discord::Components.button(
-              custom_id: CustomId.undo_verdict(phash_hex),
-              label: I18n.t("moderation.image_scanning.buttons.undo_verdict"),
-              style: Bot::Discord::Components::BUTTON_SECONDARY
-            )
-          ]
-        else
-          [
-            Bot::Discord::Components.button(
-              custom_id: CustomId.confirm(phash_hex),
-              label: I18n.t("moderation.image_scanning.buttons.confirm_button"),
-              style: Bot::Discord::Components::BUTTON_SUCCESS
-            ),
-            Bot::Discord::Components.button(
-              custom_id: CustomId.dismiss(phash_hex),
-              label: I18n.t("moderation.image_scanning.buttons.dismiss_only_button"),
-              style: Bot::Discord::Components::BUTTON_DANGER
-            )
-          ]
-        end
-      end
-
       def preserved_punishment_buttons
-        existing = event.message.buttons.find do |button|
+        existing = message_buttons.find do |button|
           button.custom_id&.start_with?("#{CustomId::PREFIX}:undo_punishment:")
         end
         return [] unless existing
@@ -79,6 +54,10 @@ module Moderation
             style: existing.style
           )
         ]
+      end
+
+      def message_buttons
+        event.message.components.first&.buttons || []
       end
 
       def retained_blocks

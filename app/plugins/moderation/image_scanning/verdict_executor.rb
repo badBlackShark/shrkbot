@@ -81,18 +81,10 @@ module Moderation
       def buttons
         [
           Bot::Discord::Components.action_row(
-            [
-              Bot::Discord::Components.button(
-                custom_id: Interaction::CustomId.confirm(phash),
-                label: I18n.t("moderation.image_scanning.buttons.confirm_button"),
-                style: Bot::Discord::Components::BUTTON_SUCCESS
-              ),
-              Bot::Discord::Components.button(
-                custom_id: Interaction::CustomId.dismiss(phash),
-                label: I18n.t("moderation.image_scanning.buttons.dismiss_only_button"),
-                style: Bot::Discord::Components::BUTTON_DANGER
-              )
-            ]
+            Interaction::VerdictButtons.build(
+              server_configuration: context.settings.server_configuration,
+              phash_hex: phash
+            )
           )
         ]
       end

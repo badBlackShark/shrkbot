@@ -16,8 +16,10 @@ RSpec.describe Moderation::UndoVerdict do
   let(:member) { double("member", mention: "<@222>", roles: [staff_role], permission?: false) }
   let(:server) { double("server", id: guild_id) }
   let(:user) { double("user", id: 222) }
-  let(:fake_container) { double("container", components: []) }
-  let(:fake_message) { double("message", components: [fake_container], buttons: []) }
+  let(:confirm_button) { {custom_id: "mod:confirm:#{phash_hex}", type: Bot::Discord::Components::BUTTON} }
+  let(:dismiss_button) { {custom_id: "mod:dismiss:#{phash_hex}", type: Bot::Discord::Components::BUTTON} }
+  let(:fake_container) { double("container", components: [], buttons: []) }
+  let(:fake_message) { double("message", components: [fake_container]) }
   let(:event) do
     double(
       "event",
@@ -34,6 +36,7 @@ RSpec.describe Moderation::UndoVerdict do
   before do
     allow(server).to receive(:member).with(222).and_return(member)
     allow(Ops::Moderation::Phashes::Clear).to receive(:call)
+    allow(Moderation::Interaction::VerdictButtons).to receive(:build).and_return([confirm_button, dismiss_button])
   end
 
   context "when the member holds the staff role" do
@@ -43,7 +46,7 @@ RSpec.describe Moderation::UndoVerdict do
       expect(Ops::Moderation::Phashes::Clear).to have_received(:call).with(server_configuration: config, phash_hex:)
     end
 
-    it "rebuilds the message with the confirm and dismiss buttons" do
+    it "rebuilds the message with the confirm and dismiss buttons from VerdictButtons.build" do
       handle
 
       expect(event).to have_received(:update_message) do |kwargs|

@@ -67,9 +67,13 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
   end
   let(:verdict) { Moderation::ImageScanning::Verdict.new(action:, risk: 5.0, reasons:) }
 
+  let(:confirm_button) { {custom_id: "mod:confirm:#{phash}", type: Bot::Discord::Components::BUTTON} }
+  let(:dismiss_button) { {custom_id: "mod:dismiss:#{phash}", type: Bot::Discord::Components::BUTTON} }
+
   before do
     allow(Bot::ActivityLog).to receive(:post)
     allow(Moderation::Punisher).to receive(:call)
+    allow(Moderation::Interaction::VerdictButtons).to receive(:build).and_return([confirm_button, dismiss_button])
   end
 
   context "when the action is :allow" do
@@ -111,7 +115,16 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
       execute
     end
 
-    it "posts a confirm/dismiss action row carrying the phash custom_ids" do
+    it "delegates the verdict row to VerdictButtons.build with the guild config and phash" do
+      execute
+
+      expect(Moderation::Interaction::VerdictButtons).to have_received(:build).with(
+        server_configuration:,
+        phash_hex: phash
+      )
+    end
+
+    it "wraps VerdictButtons.build result in an action row and passes it as components" do
       execute
 
       expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
@@ -202,7 +215,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
       end
     end
 
-    it "posts a confirm/dismiss action row carrying the phash custom_ids" do
+    it "wraps VerdictButtons.build result in an action row and passes it as components" do
       execute
 
       expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
