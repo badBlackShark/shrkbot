@@ -45,16 +45,32 @@ bots.each_with_index do |bot, index|
   bot.server_delete { refresh_presence.call }
 end
 
+leader_lock = nil
 if Bot::Config.redis_url
+  leader_lock = Bot::LeaderLock.new
+  Rails.logger.info("[bot] waiting for leader lock…")
+  leader_lock.acquire
+  Rails.logger.info("[bot] leader lock acquired")
   Bot::ConfigSubscriber.new(bots.first).start
   Rails.logger.info("[bot] config subscriber listening on #{Bot::ConfigBus::CHANNEL}")
 else
-  Rails.logger.warn("[bot] REDIS_URL not set — config subscriber disabled")
+  Rails.logger.warn("[bot] REDIS_URL not set — leader lock and config subscriber disabled")
 end
+
+shutdown = Queue.new
+%w[TERM INT].each { |sig| Signal.trap(sig) { shutdown << sig } }
 
 bots.each_with_index do |bot, index|
   sleep(5) unless index.zero?
   Rails.logger.info("[bot] shard #{index + 1}/#{shard_count} connecting…")
   bot.run(true)
 end
-bots.each(&:join)
+
+Thread.new do
+  bots.each(&:join)
+  shutdown << :halted
+end
+reason = shutdown.pop
+Rails.logger.info("[bot] shutting down (#{reason})")
+bots.each(&:stop) unless reason == :halted
+leader_lock&.release

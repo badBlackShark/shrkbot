@@ -10,7 +10,7 @@ Discord interactions and events.
 One Docker image, multiple services off it:
 
 - **web** (Puma) — the config website / admin UI and Discord OAuth2 login. ActiveRecord CRUD.
-- **bot** (`bin/bot`) — the discordrb gateway connection. Long-lived, blocking. Must be its own process: discordrb is gateway-based, and booting it from a Puma worker would open one gateway connection per cluster worker (duplicate events).
+- **bot** (`bin/bot`) — the discordrb gateway connection. Long-lived, blocking. Must be its own process: discordrb is gateway-based, and booting it from a Puma worker would open one gateway connection per cluster worker (duplicate events). Every bot container blocks on a Redis leader lock (`Bot::LeaderLock`, key `shrkbot:bot:leader`) before connecting to the gateway, so overlapping containers during a Kamal deploy never answer the same event twice. On shutdown the gateway stops first, then the lock is released, giving the waiting successor a clean handover. A crashed leader is covered by the 6 s TTL. The lock is fail-open: a Redis outage never silences a bot that is already running, it only gates a fresh startup (the renewal thread is advisory and re-acquires on loss). Handover latency grows with shard count — five seconds per additional shard — because each shard connect is staggered to respect Discord's IDENTIFY rate limit; if that ever becomes a problem the upgrade path is a warm standby that connects early and gates dispatch in software.
 - **jobs** (`bin/jobs`) — Solid Queue worker for background and scheduled work (reminder delivery).
 - **postgres** — source of truth.
 - **redis** — config-change pub/sub (web → bot); see [Config propagation](#config-propagation).
