@@ -5,10 +5,23 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
-## [Unreleased]
+## [3.2.0] - 2026-07-12
+
+### Added
+- Server Shield now scans images that arrive via link-preview embeds, closing the "post a bare link" evasion where the scam image was never attached to the message. ([#152](https://github.com/badBlackShark/shrkbot/pull/152))
+- Server Shield now scans Discord CDN image links pasted as message text, closing the "paste the link instead of attaching" evasion. ([#153](https://github.com/badBlackShark/shrkbot/pull/153))
+- Server Shield now scans the first frame of GIF images, covering both uploaded `.gif` files and `.gif` CDN links. ([#154](https://github.com/badBlackShark/shrkbot/pull/154))
+- The moderation "new account" age cutoff is now a per-server setting on the Server Shield page (1 to 365 days), and its default is raised from 7 -> 30 days to better catch throwaway scam accounts. ([#150](https://github.com/badBlackShark/shrkbot/pull/150))
+- Moderation flag verdicts are now reversible: after confirming or dismissing a flagged image, an "Undo verdict" button lets staff re-decide. ([#157](https://github.com/badBlackShark/shrkbot/pull/157))
+- Removal mod-logs now carry an "Undo punishment" button that reverses a reversible action (clears a timeout or lifts a ban) and sends the affected member a best-effort apology DM. Kicks and deleted messages can't be undone. ([#158](https://github.com/badBlackShark/shrkbot/pull/158))
+
+### Changed
+- Landing page refresh: a shared footer with a provenance line, updated hero copy, and a version badge in the header linking to the release notes. ([#149](https://github.com/badBlackShark/shrkbot/pull/149))
+- Spam attachments are now fingerprinted by file content, so re-posting an identical file under different names across channels is caught instead of slipping past the per-channel threshold. ([#155](https://github.com/badBlackShark/shrkbot/pull/155))
 
 ### Fixed
 - The bot no longer responds twice to commands and events while a deploy is in flight. Only one bot process is active at a time; expect a few seconds of unresponsiveness at deploy cutover instead. ([#148](https://github.com/badBlackShark/shrkbot/pull/148))
+- The Cross-Channel Spam Guard now shows why a save failed instead of silently rejecting an out-of-range value (for example a window over 60 seconds). ([#151](https://github.com/badBlackShark/shrkbot/pull/151))
 
 ## [3.1.0] - 2026-07-11
 
