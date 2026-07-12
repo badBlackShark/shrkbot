@@ -35,6 +35,14 @@ RSpec.describe Components::Moderation::SpamProtectionForm do
     expect(html).to include('name="spam_protection[window_seconds]"')
   end
 
+  it "caps the threshold stepper at the server-side maximum for native validation" do
+    expect(html).to include('max="500"')
+  end
+
+  it "caps the window seconds stepper at the server-side maximum for native validation" do
+    expect(html).to include('max="60"')
+  end
+
   it "renders the similarity range slider with correct field name" do
     expect(html).to include('name="spam_protection[similarity]"')
   end

@@ -42,6 +42,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
           name: "spam_protection[channel_threshold]",
           value: @settings.channel_threshold,
           min: 2,
+          max: 500,
           default: 4,
           unit: t(".detection.trigger_threshold.channels_unit")
         )
@@ -52,6 +53,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
           name: "spam_protection[window_seconds]",
           value: @settings.window_seconds,
           min: 1,
+          max: 60,
           default: 15,
           unit: t(".detection.trigger_threshold.seconds_unit")
         )
