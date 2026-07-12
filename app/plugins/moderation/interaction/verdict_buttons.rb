@@ -12,10 +12,12 @@ module Moderation
       end
 
       def decided?(server_configuration:, phash_hex:)
-        phash = ::Moderation::Phash.find_by(phash: phash_hex)
-        return false unless phash
+        !verdict(server_configuration:, phash_hex:).nil?
+      end
 
-        phash.phash_confirmations.exists?(server_configuration:)
+      def verdict(server_configuration:, phash_hex:)
+        phash = ::Moderation::Phash.find_by(phash: phash_hex)
+        phash&.phash_confirmations&.find_by(server_configuration:)&.verdict
       end
 
       def undo_button(phash_hex)

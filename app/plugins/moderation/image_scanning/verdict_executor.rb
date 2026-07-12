@@ -70,7 +70,7 @@ module Moderation
             author: "<@#{context.member.id}>",
             channel: "<##{context.channel_id}>",
             jump_url:
-          ) + "\n" + risk_line(state) + "\n" + reason_lines,
+          ) + "\n" + risk_line(state) + "\n" + reason_lines + prior_verdict_line,
           meta: I18n.t("moderation.image_scanning.flag.meta.#{state}"),
           image:,
           components: buttons,
@@ -87,6 +87,16 @@ module Moderation
             )
           )
         ]
+      end
+
+      def prior_verdict_line
+        verdict = Interaction::VerdictButtons.verdict(
+          server_configuration: context.settings.server_configuration,
+          phash_hex: phash
+        )
+        return "" unless verdict
+
+        "\n" + I18n.t("moderation.image_scanning.flag.prior_verdict.#{verdict}")
       end
 
       def jump_url

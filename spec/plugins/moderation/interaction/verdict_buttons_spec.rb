@@ -88,4 +88,30 @@ RSpec.describe Moderation::Interaction::VerdictButtons do
       it { is_expected.to be(false) }
     end
   end
+
+  describe ".verdict" do
+    subject(:verdict) { described_class.verdict(server_configuration: config, phash_hex:) }
+
+    context "when no Phash row exists" do
+      it { is_expected.to be_nil }
+    end
+
+    context "when this guild confirmed the phash" do
+      before do
+        phash = create(:phash, phash: phash_hex)
+        create(:phash_confirmation, phash:, server_configuration: config, verdict: "confirmed")
+      end
+
+      it { is_expected.to eq("confirmed") }
+    end
+
+    context "when this guild dismissed the phash" do
+      before do
+        phash = create(:phash, phash: phash_hex)
+        create(:phash_confirmation, phash:, server_configuration: config, verdict: "dismissed")
+      end
+
+      it { is_expected.to eq("dismissed") }
+    end
+  end
 end

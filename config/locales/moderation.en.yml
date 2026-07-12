@@ -19,6 +19,9 @@ en:
         meta:
           flagged: Flagged for review - no automatic action taken.
           removed: The message was deleted automatically.
+        prior_verdict:
+          confirmed: Staff here have already confirmed this image as a scam.
+          dismissed: Staff here have already dismissed this image as not a scam.
         reasons:
           custom_keywords:
             one: matched %{count} custom keyword

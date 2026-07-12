@@ -74,6 +74,21 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
     allow(Bot::ActivityLog).to receive(:post)
     allow(Moderation::Punisher).to receive(:call)
     allow(Moderation::Interaction::VerdictButtons).to receive(:build).and_return([confirm_button, dismiss_button])
+    allow(Moderation::Interaction::VerdictButtons).to receive(:verdict).and_return(nil)
+  end
+
+  context "when the image is already confirmed for this guild" do
+    let(:action) { :remove }
+
+    before { allow(Moderation::Interaction::VerdictButtons).to receive(:verdict).and_return("confirmed") }
+
+    it "notes the prior verdict in the body" do
+      execute
+
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:body]).to include(I18n.t("moderation.image_scanning.flag.prior_verdict.confirmed"))
+      end
+    end
   end
 
   context "when the action is :allow" do
