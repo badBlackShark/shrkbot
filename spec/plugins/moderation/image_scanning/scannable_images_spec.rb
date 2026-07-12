@@ -50,6 +50,14 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
         expect(result).to eq(["https://cdn/ok.jpg"])
       end
     end
+
+    context "when attachment is a GIF" do
+      let(:attachments) { [double("att", content_type: "image/gif", size: 1234, url: "https://cdn/anim.gif")] }
+
+      it "includes it" do
+        expect(result).to eq(["https://cdn/anim.gif"])
+      end
+    end
   end
 
   describe ".content_links" do
@@ -130,6 +138,14 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
       end
     end
 
+    context "when the link is a GIF" do
+      let(:message) { double("message", content: "https://cdn.discordapp.com/attachments/1/2/anim.gif") }
+
+      it "returns it" do
+        expect(result).to eq(["https://cdn.discordapp.com/attachments/1/2/anim.gif"])
+      end
+    end
+
     context "when the link uses a non-standard port" do
       let(:message) { double("message", content: "https://cdn.discordapp.com:8443/attachments/1/2/x.png") }
 
@@ -192,10 +208,18 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
     end
 
     context "when embed image has non-whitelisted content type" do
-      let(:embed_image) { double("img", proxy_url: "https://media.discordapp.net/x.gif", content_type: "image/gif") }
+      let(:embed_image) { double("img", proxy_url: "https://media.discordapp.net/x.bmp", content_type: "image/bmp") }
 
       it "skips it" do
         expect(result).to be_empty
+      end
+    end
+
+    context "when embed image is a GIF" do
+      let(:embed_image) { double("img", proxy_url: "https://media.discordapp.net/a.gif", content_type: "image/gif") }
+
+      it "returns it" do
+        expect(result).to eq(["https://media.discordapp.net/a.gif"])
       end
     end
 
