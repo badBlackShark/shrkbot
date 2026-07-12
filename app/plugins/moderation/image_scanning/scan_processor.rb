@@ -19,7 +19,8 @@ module Moderation
           ocr_text:,
           hash_state: state,
           signals: context.signals,
-          settings: context.settings
+          settings: context.settings,
+          new_account_age_days: context.new_account_age_days
         )
         VerdictExecutor.call(verdict:, context:, phash: hex, hash_state: state, image_bytes: bytes)
       rescue Ocr::Error => e

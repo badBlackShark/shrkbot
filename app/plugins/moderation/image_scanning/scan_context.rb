@@ -10,6 +10,7 @@ module Moderation
       :message_id,
       :attachment_url,
       :signals,
+      :new_account_age_days,
       :settings
     )
   end

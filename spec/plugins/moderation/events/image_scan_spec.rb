@@ -18,7 +18,7 @@ RSpec.describe Moderation::ImageScan do
 
   let(:owner) { double("owner", id: 999) }
   let(:staff_role_id) { nil }
-  let(:moderation_settings) { double("moderation_settings", staff_role_id:) }
+  let(:moderation_settings) { double("moderation_settings", staff_role_id:, new_account_age_days: 30) }
   let(:server_configuration) { double("server_configuration", moderation_settings:) }
   let(:settings) { double("settings", server_configuration:) }
   let(:signals) { {account_age_days: 2, has_link: false, has_role: false} }

@@ -16,6 +16,7 @@ RSpec.describe Moderation::ImageScanning::ScanProcessor do
       message_id: 4,
       attachment_url: "https://cdn/x.png",
       signals:,
+      new_account_age_days: 30,
       settings:
     )
   end
@@ -47,7 +48,8 @@ RSpec.describe Moderation::ImageScanning::ScanProcessor do
         ocr_text: "won usdt",
         hash_state: :none,
         signals:,
-        settings:
+        settings:,
+        new_account_age_days: 30
       )
       expect(Moderation::ImageScanning::VerdictExecutor).to have_received(:call).with(verdict:, context:, phash: hex, hash_state: :none, image_bytes: "bytes")
     end
@@ -69,7 +71,8 @@ RSpec.describe Moderation::ImageScanning::ScanProcessor do
         ocr_text: "",
         hash_state: :own_confirmed,
         signals:,
-        settings:
+        settings:,
+        new_account_age_days: 30
       )
     end
 
@@ -92,7 +95,8 @@ RSpec.describe Moderation::ImageScanning::ScanProcessor do
         ocr_text: "won usdt",
         hash_state: :foreign_confirmed,
         signals:,
-        settings:
+        settings:,
+        new_account_age_days: 30
       )
     end
 

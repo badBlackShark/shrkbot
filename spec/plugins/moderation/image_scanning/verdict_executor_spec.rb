@@ -52,6 +52,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
       message_id:,
       attachment_url:,
       signals: {},
+      new_account_age_days: 30,
       settings:
     )
   end
