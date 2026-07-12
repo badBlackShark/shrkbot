@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
+require "digest"
+
 module Moderation
   class SpamGuard < Bot::BaseEvent
     on :message
 
     CONTENT_PREVIEW_LIMIT = 800
+    MAX_FINGERPRINT_BYTES = 10 * 1024 * 1024
+    MAX_HASHED_ATTACHMENTS = 3
 
     def handle
       return if event.from_bot? || event.message.webhook? || event.channel.pm?
@@ -38,11 +42,27 @@ module Moderation
         result << "blank"
       end
 
-      event.message.attachments.each do |attachment|
-        result << "a:#{attachment.filename}:#{attachment.size}"
-      end
-
+      result.concat(attachment_fingerprints)
       result
+    end
+
+    def attachment_fingerprints
+      attachments = event.message.attachments
+      hashed = attachments.first(MAX_HASHED_ATTACHMENTS).map { |a| attachment_fingerprint(a) }
+      metadata = attachments.drop(MAX_HASHED_ATTACHMENTS).map { |a| filename_fingerprint(a) }
+      hashed + metadata
+    end
+
+    def attachment_fingerprint(attachment)
+      return filename_fingerprint(attachment) if attachment.size > MAX_FINGERPRINT_BYTES
+
+      "a:#{Digest::SHA256.hexdigest(AttachmentDownload.call(attachment.url))}"
+    rescue AttachmentDownload::Error
+      filename_fingerprint(attachment)
+    end
+
+    def filename_fingerprint(attachment)
+      "a:#{attachment.filename}:#{attachment.size}"
     end
 
     def detect(settings)

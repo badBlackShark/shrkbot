@@ -263,14 +263,90 @@ RSpec.describe Moderation::SpamGuard do
   end
 
   context "when the same attachment is posted across channels" do
-    let(:attachment) { double("attachment", filename: "scam.png", size: 1024) }
+    let(:attachment) { double("attachment", filename: "scam.png", size: 1024, url: "https://cdn/scam.png") }
+
+    before do
+      allow(bot).to receive(:channel).and_return(double("ch", delete_message: nil))
+      allow(Bot::Discord::Components).to receive(:send_to)
+      allow(Moderation::AttachmentDownload).to receive(:call).and_return("IMG")
+    end
+
+    it "fingerprints attachments and triggers on the threshold" do
+      expect(Bot::Discord::Components).to receive(:send_to)
+
+      simulate_message(channel_id: 1, message_id: 1, content: "", attachments: [attachment])
+      simulate_message(channel_id: 2, message_id: 2, content: "", attachments: [attachment])
+      simulate_message(channel_id: 3, message_id: 3, content: "", attachments: [attachment])
+    end
+  end
+
+  context "when the same bytes are posted under randomized filenames" do
+    let(:attachment1) { double("attachment1", filename: "abc123.png", size: 1024, url: "https://cdn/file.png") }
+    let(:attachment2) { double("attachment2", filename: "xyz789.png", size: 1024, url: "https://cdn/file.png") }
+    let(:attachment3) { double("attachment3", filename: "qwe456.png", size: 1024, url: "https://cdn/file.png") }
+
+    before do
+      allow(bot).to receive(:channel).and_return(double("ch", delete_message: nil))
+      allow(Bot::Discord::Components).to receive(:send_to)
+      allow(Moderation::AttachmentDownload).to receive(:call).and_return("same bytes")
+    end
+
+    it "produces the same SHA256 fingerprint and triggers on the threshold" do
+      expect(Bot::Discord::Components).to receive(:send_to)
+
+      simulate_message(channel_id: 1, message_id: 1, content: "", attachments: [attachment1])
+      simulate_message(channel_id: 2, message_id: 2, content: "", attachments: [attachment2])
+      simulate_message(channel_id: 3, message_id: 3, content: "", attachments: [attachment3])
+    end
+  end
+
+  context "when a message has more than MAX_HASHED_ATTACHMENTS attachments" do
+    let(:attachments) do
+      Array.new(4) { |i| double("attachment#{i}", filename: "f#{i}.png", size: 1024, url: "https://cdn/#{i}.png") }
+    end
+
+    before do
+      allow(bot).to receive(:channel).and_return(double("ch", delete_message: nil))
+      allow(Bot::Discord::Components).to receive(:send_to)
+      allow(Moderation::AttachmentDownload).to receive(:call).and_return("bytes")
+    end
+
+    it "downloads only the first three and filename-fingerprints the rest" do
+      expect(Moderation::AttachmentDownload).to receive(:call).exactly(3).times
+
+      simulate_message(channel_id: 1, message_id: 1, content: "", attachments:)
+    end
+  end
+
+  context "when the attachment download fails" do
+    let(:attachment) { double("attachment", filename: "scam.png", size: 1024, url: "https://cdn/scam.png") }
+
+    before do
+      allow(bot).to receive(:channel).and_return(double("ch", delete_message: nil))
+      allow(Bot::Discord::Components).to receive(:send_to)
+      allow(Moderation::AttachmentDownload).to receive(:call).and_raise(Moderation::AttachmentDownload::Error)
+    end
+
+    it "falls back to filename+size fingerprint and still triggers on the threshold" do
+      expect(Bot::Discord::Components).to receive(:send_to)
+
+      simulate_message(channel_id: 1, message_id: 1, content: "", attachments: [attachment])
+      simulate_message(channel_id: 2, message_id: 2, content: "", attachments: [attachment])
+      simulate_message(channel_id: 3, message_id: 3, content: "", attachments: [attachment])
+    end
+  end
+
+  context "when the attachment exceeds MAX_FINGERPRINT_BYTES" do
+    let(:oversize) { 11 * 1024 * 1024 }
+    let(:attachment) { double("attachment", filename: "big.png", size: oversize, url: "https://cdn/big.png") }
 
     before do
       allow(bot).to receive(:channel).and_return(double("ch", delete_message: nil))
       allow(Bot::Discord::Components).to receive(:send_to)
     end
 
-    it "fingerprints attachments and triggers on the threshold" do
+    it "does not download and falls back to filename+size fingerprint, still triggering" do
+      expect(Moderation::AttachmentDownload).not_to receive(:call)
       expect(Bot::Discord::Components).to receive(:send_to)
 
       simulate_message(channel_id: 1, message_id: 1, content: "", attachments: [attachment])
