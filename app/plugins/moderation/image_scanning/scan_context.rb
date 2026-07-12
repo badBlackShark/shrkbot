@@ -8,7 +8,7 @@ module Moderation
       :member,
       :channel_id,
       :message_id,
-      :attachment_url,
+      :image_url,
       :signals,
       :new_account_age_days,
       :settings
