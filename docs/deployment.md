@@ -119,6 +119,8 @@ is set on the web role only, so the three processes don't race).
 bin/kamal deploy
 ```
 
+During a deploy the new bot container boots and waits for the leader lock before connecting to Discord. Expect a few seconds of bot unresponsiveness at cutover — the old container releases the lock on SIGTERM and only then does the new one connect — rather than both containers answering events simultaneously.
+
 ## Ops cheatsheet
 
 ```sh
