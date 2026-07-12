@@ -8,7 +8,7 @@ This project follows [Semantic Versioning](https://semver.org).
 ## [Unreleased]
 
 ### Fixed
-- The bot no longer responds twice to commands and events while a deploy is in flight. Only one bot process is active at a time; expect a few seconds of unresponsiveness at deploy cutover instead. ([#XXX](https://github.com/badBlackShark/shrkbot/pull/XXX))
+- The bot no longer responds twice to commands and events while a deploy is in flight. Only one bot process is active at a time; expect a few seconds of unresponsiveness at deploy cutover instead. ([#148](https://github.com/badBlackShark/shrkbot/pull/148))
 
 ## [3.1.0] - 2026-07-11
 
