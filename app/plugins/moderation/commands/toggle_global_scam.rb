@@ -4,7 +4,7 @@ module Moderation
   class ToggleGlobalScam < Bot::BaseCommand
     command_name "Toggle global scam block"
     command_type :message
-    register_in :guild
+    register_in :owner_guild
     plugin :image_scanning
     owner_only true
 
