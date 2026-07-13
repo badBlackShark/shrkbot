@@ -70,6 +70,11 @@ en:
         not_in_server: That member isn't in the server, so there was nothing to clear.
         reversed_ban: Unbanned %{user}.
         reversed_timeout: Timeout cleared for %{user}.
+    punishment_note:
+      ban: User was banned.
+      kick: User was kicked.
+      none: No further action was taken.
+      timeout: User was timed out until %{until}.
     spam_protection:
       notification:
         body: "%{author} posted the same message in %{count} channels within %{window}

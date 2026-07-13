@@ -8,13 +8,17 @@ RSpec.describe Moderation::MemberBanLog do
   let(:guild_id) { 111 }
   let(:user_id) { 222 }
 
+  let(:bot_user_id) { 999 }
+  let(:moderator_id) { 555 }
+
   let(:user) { double("user", id: user_id) }
   let(:server) { double("server", id: guild_id) }
-  let(:bot) { double("bot") }
+  let(:bot) { double("bot", profile: double("profile", id: bot_user_id)) }
   let(:event) { double("event", server:, user:, bot:) }
 
   let(:server_configuration) { double("server_configuration") }
-  let(:attribution) { double("attribution", moderator: double("mod"), reason: "spamming") }
+  let(:moderator) { double("mod", id: moderator_id) }
+  let(:attribution) { double("attribution", moderator:, reason: "spamming") }
   let(:built_entry) { {title: "Member banned", body: "body", meta: "meta"} }
 
   before do
@@ -56,6 +60,15 @@ RSpec.describe Moderation::MemberBanLog do
         bot:,
         **built_entry
       )
+    end
+  end
+
+  context "when shrkbot performed the ban" do
+    let(:moderator_id) { bot_user_id }
+
+    it "does not post" do
+      handle
+      expect(Bot::ActivityLog).not_to have_received(:post)
     end
   end
 

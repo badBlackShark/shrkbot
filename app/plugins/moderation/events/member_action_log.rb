@@ -23,6 +23,10 @@ module Moderation
 
     private
 
+    def performed_by_shrkbot?(moderator)
+      moderator&.id == event.bot.profile.id
+    end
+
     def loggable?
       raise AbstractMethodError, "#{self.class} must implement #loggable?"
     end

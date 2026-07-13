@@ -18,12 +18,15 @@ RSpec.describe Moderation::MemberTimeoutLog do
     )
   end
   let(:server) { double("server", id: guild_id) }
-  let(:bot) { double("bot") }
+  let(:bot_user_id) { 999 }
+  let(:moderator_id) { 555 }
+  let(:bot) { double("bot", profile: double("profile", id: bot_user_id)) }
   let(:event) { double("event", server:, user:, bot:) }
 
   let(:ledger) { double("ledger", first_sighting?: true) }
   let(:server_configuration) { double("server_configuration") }
-  let(:attribution) { double("attribution", moderator: double("mod"), reason: "misbehaving") }
+  let(:moderator) { double("mod", id: moderator_id) }
+  let(:attribution) { double("attribution", moderator:, reason: "misbehaving") }
   let(:built_entry) { {title: "Member timed out", body: "body", meta: "meta"} }
 
   before do
@@ -92,6 +95,20 @@ RSpec.describe Moderation::MemberTimeoutLog do
         bot:,
         **built_entry
       )
+    end
+  end
+
+  context "when shrkbot performed the timeout" do
+    let(:moderator_id) { bot_user_id }
+
+    it "does not post" do
+      handle
+      expect(Bot::ActivityLog).not_to have_received(:post)
+    end
+
+    it "does not consume the ledger slot" do
+      handle
+      expect(ledger).not_to have_received(:first_sighting?)
     end
   end
 

@@ -115,6 +115,10 @@ module Moderation
       )
       quoted = quoted_content
       body += "\n#{quoted}" if quoted
+      body += "\n" + PunishmentNote.line(
+        settings.punishment,
+        timeout_until: settings.punishment_timeout? ? Time.current + settings.timeout_seconds : nil
+      )
 
       Bot::ActivityLog.post(
         config,
