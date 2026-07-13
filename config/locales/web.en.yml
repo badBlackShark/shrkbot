@@ -114,8 +114,11 @@ en:
           line_staff: Staff confirm or dismiss every flag with buttons in your log
             channel.
           title: How image scanning works
-        report_scam_hint: You can report any message with images as a scam by right-clicking
-          it → Apps → shrkbot → Report as scam.
+        report_scam:
+          body: Anyone with the staff role can right-click any message with images
+            -> Apps -> shrkbot -> Report as scam. Works whether or not automated scanning
+            catches it.
+          title: Report a scam yourself
         response:
           action:
             delete: Delete the image
