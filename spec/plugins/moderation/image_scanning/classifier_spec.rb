@@ -63,7 +63,7 @@ RSpec.describe Moderation::ImageScanning::Classifier do
       end
 
       context "score 5" do
-        let(:ocr_text) { "casino withdraw" }
+        let(:ocr_text) { "casino tuzawin" }
 
         it "flags at threshold" do
           expect(verdict.action).to eq(:flag_for_review)
@@ -71,7 +71,7 @@ RSpec.describe Moderation::ImageScanning::Classifier do
       end
 
       context "score 8" do
-        let(:ocr_text) { "casino withdraw tuzawin" }
+        let(:ocr_text) { "casino tuzawin promo code" }
 
         it "removes at threshold" do
           expect(verdict.action).to eq(:remove)
@@ -99,7 +99,7 @@ RSpec.describe Moderation::ImageScanning::Classifier do
       end
 
       context "score 6" do
-        let(:ocr_text) { "withdraw tuzawin" }
+        let(:ocr_text) { "tuzawin promo code" }
 
         it "removes at threshold" do
           expect(verdict.action).to eq(:remove)
@@ -127,7 +127,7 @@ RSpec.describe Moderation::ImageScanning::Classifier do
       end
 
       context "score 5" do
-        let(:ocr_text) { "casino withdraw" }
+        let(:ocr_text) { "casino tuzawin" }
 
         it "removes above threshold" do
           expect(verdict.action).to eq(:remove)
