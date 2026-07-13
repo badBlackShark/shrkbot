@@ -21,4 +21,8 @@ RSpec.describe Components::Welcomes::ConfigForm do
   it "shows the none-message when no channels have synced" do
     expect(html).to include("No channels have synced yet")
   end
+
+  it "renders the ping-on-join toggle" do
+    expect(html).to include('name="welcomes[ping_on_join]"')
+  end
 end

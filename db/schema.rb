@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_13_170330) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_13_204954) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -384,6 +384,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_13_170330) do
     t.datetime "created_at", null: false
     t.text "join_message"
     t.text "leave_message"
+    t.boolean "ping_on_join", default: true, null: false
     t.string "server_configuration_id", null: false
     t.datetime "updated_at", null: false
     t.index ["server_configuration_id"], name: "index_welcome_settings_on_server_configuration_id", unique: true

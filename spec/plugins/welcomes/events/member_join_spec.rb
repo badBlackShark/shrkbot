@@ -15,10 +15,19 @@ RSpec.describe Welcomes::MemberJoin do
   end
 
   context "with an active setting and a join message" do
-    let(:setting) { double("settings", channel_id: 555, join_message: "Welcome {user}! Members: {membercount}") }
+    let(:setting) { double("settings", channel_id: 555, join_message: "Welcome {user}! Members: {membercount}", ping_on_join: true) }
 
     it "posts the rendered message to the configured channel" do
-      expect(bot).to receive(:send_message).with(555, "Welcome <@7>! Members: 10")
+      expect(bot).to receive(:send_message).with(555, "Welcome <@7>! Members: 10", false, nil, nil, nil)
+      handle
+    end
+  end
+
+  context "when pinging on join is disabled" do
+    let(:setting) { double("settings", channel_id: 555, join_message: "Welcome {user}!", ping_on_join: false) }
+
+    it "suppresses the mention so no ping fires" do
+      expect(bot).to receive(:send_message).with(555, "Welcome <@7>!", false, nil, nil, {parse: []})
       handle
     end
   end

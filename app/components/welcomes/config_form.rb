@@ -16,6 +16,7 @@ class Components::Welcomes::ConfigForm < Components::Base
       enable_error_callout
       channel_card
       message_cards
+      ping_toggle
       placeholder_help
       preview
     end
@@ -71,6 +72,15 @@ class Components::Welcomes::ConfigForm < Components::Base
         plain t(".#{name}.info")
       end
     end
+  end
+
+  def ping_toggle
+    render Components::ToggleCard.new(
+      name: "welcomes[ping_on_join]",
+      checked: @settings.ping_on_join,
+      label: t(".ping_on_join.label"),
+      help: t(".ping_on_join.help")
+    )
   end
 
   def placeholder_help

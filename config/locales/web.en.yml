@@ -333,6 +333,10 @@ en:
           info: is a plain @username in leave messages.
           label: Leave message
           placeholder: "{user} has left the server."
+        ping_on_join:
+          help: Ping new members when the join message mentions them. Off shows the
+            mention without sending a notification.
+          label: Ping on join
         placeholders:
           intro: 'Placeholders:'
           membercount: Expands to the server's current member count.

@@ -9,6 +9,7 @@ RSpec.describe Ops::Welcomes::Configure do
       channel_id:,
       join_message: "hi {user}",
       leave_message: "bye",
+      ping_on_join: false,
       enabled:
     )
   end
@@ -25,6 +26,7 @@ RSpec.describe Ops::Welcomes::Configure do
       expect(config.welcome_settings.reload.channel_id).to eq(111)
       expect(config.welcome_settings.join_message).to eq("hi {user}")
       expect(config.plugin_activations.find_by(plugin:).enabled).to be(true)
+      expect(config.welcome_settings.ping_on_join).to be(false)
     end
   end
 
