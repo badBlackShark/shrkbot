@@ -98,6 +98,8 @@ RSpec.describe Components::Moderation::SubPluginRow do
       expect(html).to include('name="image_scanning[action]"')
       expect(html).to include('name="image_scanning[punishment]"')
       expect(html).to include('name="image_scanning[timeout_seconds]"')
+      expect(html).to include('name="image_scanning[confirmed_punishment]"')
+      expect(html).to include('name="image_scanning[confirmed_timeout_seconds]"')
       expect(html).to include('name="image_scanning[custom_keyword_min_hits]"')
     end
 
