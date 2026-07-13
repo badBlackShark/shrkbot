@@ -140,6 +140,8 @@ class Components::Moderation::SubPluginRow < Components::Base
     input(type: "hidden", name: "image_scanning[action]", value: @settings.action, form: stub_form_id)
     input(type: "hidden", name: "image_scanning[punishment]", value: @settings.punishment, form: stub_form_id)
     input(type: "hidden", name: "image_scanning[timeout_seconds]", value: @settings.timeout_seconds, form: stub_form_id)
+    input(type: "hidden", name: "image_scanning[confirmed_punishment]", value: @settings.confirmed_punishment, form: stub_form_id)
+    input(type: "hidden", name: "image_scanning[confirmed_timeout_seconds]", value: @settings.confirmed_timeout_seconds, form: stub_form_id)
     input(type: "hidden", name: "image_scanning[custom_keyword_min_hits]", value: @settings.custom_keyword_min_hits, form: stub_form_id)
     @settings.custom_keywords.each do |keyword|
       input(type: "hidden", name: "image_scanning[custom_keywords][]", value: keyword, form: stub_form_id)
