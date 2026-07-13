@@ -9,11 +9,11 @@ module Moderation
     owner_only true
 
     def execute
-      attachments = ImageScanning::ImageAttachments.call(event.target)
-      return event.respond(content: I18n.t("moderation.image_scanning.global_scam.none"), ephemeral: true) if attachments.empty?
+      images = ImageScanning::ScannableImages.all(event.target)
+      return event.respond(content: I18n.t("moderation.image_scanning.global_scam.none"), ephemeral: true) if images.empty?
 
       event.defer(ephemeral: true)
-      marked, unmarked = toggle_all(attachments)
+      marked, unmarked = toggle_all(images)
       event.edit_response(content: response_text(marked, unmarked))
     end
 
@@ -28,11 +28,11 @@ module Moderation
       parts.join(" ")
     end
 
-    def toggle_all(attachments)
+    def toggle_all(images)
       marked = 0
       unmarked = 0
-      attachments.each do |attachment|
-        bytes = ImageScanning::ImageDownload.call(attachment.url)
+      images.each do |url|
+        bytes = ImageScanning::ImageDownload.call(url)
         hex = ImageScanning::Ocr::Client.new.phash(bytes)
         now_global(hex) ? marked += 1 : unmarked += 1
       rescue ImageScanning::Ocr::Error => e

@@ -3,8 +3,14 @@
 module Moderation
   module ImageScanning
     class ScannableImages
-      MAX = 3
+      MAX = 4
       MAX_BYTES = 10 * 1024 * 1024
+
+      def self.all(message)
+        return [] unless message
+
+        new(message).all
+      end
 
       def self.attachments(message)
         new(message).attachments
@@ -23,6 +29,10 @@ module Moderation
 
       def initialize(message)
         @message = message
+      end
+
+      def all
+        (attachments + content_links + embeds).uniq
       end
 
       def attachments

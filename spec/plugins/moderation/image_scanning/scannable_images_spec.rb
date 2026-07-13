@@ -38,8 +38,8 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
         Array.new(5) { |i| double("att#{i}", content_type: png_type, size: 1234, url: "https://cdn/#{i}.png") }
       end
 
-      it "caps at 3" do
-        expect(result.length).to eq(3)
+      it "caps at MAX" do
+        expect(result.length).to eq(4)
       end
     end
 
@@ -133,8 +133,8 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
       end
       let(:message) { double("message", content: urls.join(" ")) }
 
-      it "caps at 3" do
-        expect(result.length).to eq(3)
+      it "caps at MAX" do
+        expect(result.length).to eq(4)
       end
     end
 
@@ -239,8 +239,53 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
         end
       end
 
-      it "caps at 3" do
-        expect(result.length).to eq(3)
+      it "caps at MAX" do
+        expect(result.length).to eq(4)
+      end
+    end
+  end
+
+  describe ".all" do
+    subject(:result) { described_class.all(message) }
+
+    let(:message) do
+      double(
+        "message",
+        attachments: [double("att", content_type: png_type, size: 1234, url: "https://cdn/a.png")],
+        content: "https://cdn.discordapp.com/attachments/1/2/link.png",
+        embeds: [double("embed", image: double("img", proxy_url: "https://media.discordapp.net/e.png", content_type: png_type))]
+      )
+    end
+
+    it "unions attachments, content links, and embed images" do
+      expect(result).to contain_exactly(
+        "https://cdn/a.png",
+        "https://cdn.discordapp.com/attachments/1/2/link.png",
+        "https://media.discordapp.net/e.png"
+      )
+    end
+
+    context "when the message is nil" do
+      let(:message) { nil }
+
+      it "returns an empty array" do
+        expect(result).to eq([])
+      end
+    end
+
+    context "when the same URL appears in more than one source" do
+      let(:dup_url) { "https://cdn.discordapp.com/attachments/1/2/dup.png" }
+      let(:message) do
+        double(
+          "message",
+          attachments: [double("att", content_type: png_type, size: 1234, url: dup_url)],
+          content: dup_url,
+          embeds: []
+        )
+      end
+
+      it "deduplicates across sources" do
+        expect(result).to eq([dup_url])
       end
     end
   end

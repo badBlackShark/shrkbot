@@ -8,9 +8,11 @@ RSpec.describe Moderation::ToggleGlobalScam do
   let(:guild_id) { 111 }
   let!(:config) { create(:server_configuration, discord_id: guild_id) }
 
-  let(:image_attachment) { double("att", content_type: "image/png", url: "https://cdn/x.png") }
+  let(:image_attachment) { double("att", content_type: "image/png", size: 1234, url: "https://cdn/x.png") }
   let(:attachments) { [image_attachment] }
-  let(:target) { double("message", attachments:) }
+  let(:content) { nil }
+  let(:embeds) { [] }
+  let(:target) { double("message", attachments:, content:, embeds:) }
   let(:server) { double("server", id: guild_id) }
   let(:event) do
     double(
@@ -44,7 +46,7 @@ RSpec.describe Moderation::ToggleGlobalScam do
     end
   end
 
-  context "when the message has no image attachments" do
+  context "when the message has no scannable images" do
     let(:attachments) { [] }
 
     it "responds with the none message and never defers" do
@@ -104,6 +106,20 @@ RSpec.describe Moderation::ToggleGlobalScam do
       )
       expect(event).to have_received(:edit_response).with(
         content: I18n.t("moderation.image_scanning.global_scam.removed", count: 1)
+      )
+    end
+  end
+
+  context "when the image is a CDN link in the message body rather than an attachment" do
+    let(:attachments) { [] }
+    let(:content) { "https://cdn.discordapp.com/attachments/1/2/scam.png" }
+
+    it "marks the linked image global" do
+      execute
+
+      expect(Ops::Moderation::Phashes::SetGlobalScam).to have_received(:call).with(
+        phash_hex: "deadbeefdeadbeef",
+        global: true
       )
     end
   end
