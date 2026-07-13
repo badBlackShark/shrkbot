@@ -342,8 +342,8 @@ en:
           label: Live preview
           timestamp: Today
   meta:
-    default_description: A mechanical assistant for your Discord server - self-assignable
-      roles, reminders, welcomes, and moderation with teeth when needed.
+    default_description: A mechanical assistant for your Discord server. With teeth
+      when needed.
     default_title: shrkbot
   notifications:
     kinds:
