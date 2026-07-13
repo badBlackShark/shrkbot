@@ -4,17 +4,29 @@ require "rails_helper"
 
 RSpec.describe Roles::Assignment do
   describe ".single" do
-    subject(:diff) { described_class.single(set_role_ids, picked) }
+    subject(:diff) { described_class.single(set_role_ids, picked, held_ids) }
 
     let(:set_role_ids) { [1, 2, 3] }
     let(:picked) { 2 }
+    let(:held_ids) { [] }
 
-    it "adds the picked role" do
-      expect(diff[:add]).to eq([2])
+    context "when the member does not hold the picked role" do
+      it "adds the picked role" do
+        expect(diff[:add]).to eq([2])
+      end
+
+      it "removes every other role in the set (exclusive selection)" do
+        expect(diff[:remove]).to contain_exactly(1, 3)
+      end
     end
 
-    it "removes every other role in the set (exclusive selection)" do
-      expect(diff[:remove]).to contain_exactly(1, 3)
+    context "when the member already holds the picked role" do
+      let(:held_ids) { [2] }
+
+      it "removes it and adds nothing (toggle off)" do
+        expect(diff[:add]).to be_empty
+        expect(diff[:remove]).to eq([2])
+      end
     end
   end
 

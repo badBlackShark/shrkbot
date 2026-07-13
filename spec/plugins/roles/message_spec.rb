@@ -92,6 +92,10 @@ RSpec.describe Roles::Message do
         expect(content).to include("replaces your current one")
       end
 
+      it "tells the member how to remove their role without replacement" do
+        expect(text_block(rendered)[:content]).to include("Click the role you already have to remove it")
+      end
+
       it "separates the text from the buttons" do
         expect(container_blocks(rendered).map { |block| block[:type] }).to include(Bot::Discord::Components::SEPARATOR)
       end
@@ -198,8 +202,8 @@ RSpec.describe Roles::Message do
     context "when the member picks the role they already have" do
       let(:had) { [200] }
 
-      it "says nothing changed" do
-        expect(confirmation).to eq("No change - you already have **Blue**.")
+      it "confirms the role was removed (toggle off)" do
+        expect(confirmation).to eq("Removed **Blue**.")
       end
     end
 

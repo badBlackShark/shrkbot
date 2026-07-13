@@ -32,12 +32,11 @@ module Roles
     def pick_confirmation(set, picked_id, had_role_ids)
       names = role_names(set)
       picked = "**#{names[picked_id] || UNKNOWN_ROLE}**"
-      replaced = (had_role_ids - [picked_id]).map { |role_id| "**#{names[role_id] || UNKNOWN_ROLE}**" }
+      return "Removed #{picked}." if had_role_ids.include?(picked_id)
 
+      replaced = (had_role_ids - [picked_id]).map { |role_id| "**#{names[role_id] || UNKNOWN_ROLE}**" }
       if replaced.any?
         "You now have #{picked} - swapped out #{replaced.to_sentence}."
-      elsif had_role_ids.include?(picked_id)
-        "No change - you already have #{picked}."
       else
         "You now have #{picked}."
       end
@@ -56,7 +55,7 @@ module Roles
     end
 
     def single_content(set)
-      "### #{set.name}\nPick a role below - you can only have one, so choosing a role replaces your current one."
+      "### #{set.name}\nPick a role below - you can only have one, so choosing a role replaces your current one.\n-# Click the role you already have to remove it without replacement."
     end
 
     def multi_content(set)
