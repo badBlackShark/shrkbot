@@ -59,6 +59,31 @@ RSpec.describe Roles::Pick do
     end
   end
 
+  context "when the member picks the role they already have" do
+    let(:member) { double("member", roles: [double("role", id: 200)], modify_roles: nil, mention: "<@42>") }
+
+    it "removes it without replacement (toggle off)" do
+      expect(member).to receive(:modify_roles).with([], [200])
+      handle
+    end
+
+    it "confirms the removal" do
+      expect(event).to receive(:respond).with(content: "Removed **Blue**.", ephemeral: true)
+      handle
+    end
+
+    it "logs the role the user lost" do
+      expect(Bot::ActivityLog).to receive(:post).with(
+        server_config,
+        bot:,
+        title: "Roles updated",
+        body: "<@42> lost **Blue**.",
+        meta: "Self-assigned via the \"#{set.name}\" role menu"
+      )
+      handle
+    end
+  end
+
   context "when the custom id references a role outside the set" do
     let(:event) do
       double("event", custom_id: "roles:pick:#{set.id}:999", server:, user:, respond: nil)
