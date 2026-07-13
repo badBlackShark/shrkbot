@@ -10,10 +10,12 @@ RSpec.describe Moderation::ReportScam do
 
   let(:author_id) { 333 }
   let(:channel_id) { 444 }
-  let(:image_attachment) { double("att", content_type: "image/png", url: "https://cdn/x.png") }
+  let(:image_attachment) { double("att", content_type: "image/png", size: 1234, url: "https://cdn/x.png") }
   let(:attachments) { [image_attachment] }
+  let(:content) { nil }
+  let(:embeds) { [] }
   let(:message_author) { double("author", id: author_id) }
-  let(:target) { double("message", attachments:, author: message_author, delete: nil) }
+  let(:target) { double("message", attachments:, content:, embeds:, author: message_author, delete: nil) }
   let(:server) { double("server", id: guild_id) }
   let(:user) { double("user", id: 555) }
   let(:channel) { double("channel", id: channel_id) }
@@ -57,7 +59,7 @@ RSpec.describe Moderation::ReportScam do
     end
   end
 
-  context "when the message has no image attachments" do
+  context "when the message has no scannable images" do
     let(:attachments) { [] }
 
     it "responds with the none message and never defers" do
@@ -70,7 +72,7 @@ RSpec.describe Moderation::ReportScam do
   end
 
   context "when the message has image attachments" do
-    let(:other_image) { double("att2", content_type: "image/jpeg", url: "https://cdn/y.jpg") }
+    let(:other_image) { double("att2", content_type: "image/jpeg", size: 1234, url: "https://cdn/y.jpg") }
     let(:attachments) { [image_attachment, other_image] }
 
     it "defers, confirms each image, and edits the response with the count" do
@@ -82,8 +84,18 @@ RSpec.describe Moderation::ReportScam do
     end
   end
 
+  context "when the image is a CDN link in the message body rather than an attachment" do
+    let(:attachments) { [] }
+    let(:content) { "check this https://cdn.discordapp.com/attachments/1/2/scam.png" }
+
+    it "confirms the linked image" do
+      execute
+      expect(Ops::Moderation::Phashes::Confirm).to have_received(:call).once
+    end
+  end
+
   context "when a non-image attachment is mixed in" do
-    let(:pdf) { double("pdf", content_type: "application/pdf", url: "https://cdn/x.pdf") }
+    let(:pdf) { double("pdf", content_type: "application/pdf", size: 1234, url: "https://cdn/x.pdf") }
     let(:attachments) { [image_attachment, pdf] }
 
     it "skips the non-image and confirms only the image" do
@@ -93,7 +105,7 @@ RSpec.describe Moderation::ReportScam do
   end
 
   context "when one attachment fails to phash" do
-    let(:bad_image) { double("bad", content_type: "image/png", url: "https://cdn/bad.png") }
+    let(:bad_image) { double("bad", content_type: "image/png", size: 1234, url: "https://cdn/bad.png") }
     let(:attachments) { [image_attachment, bad_image] }
 
     before do

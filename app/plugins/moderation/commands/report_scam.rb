@@ -12,11 +12,11 @@ module Moderation
 
     def execute
       message = event.target
-      attachments = ImageScanning::ImageAttachments.call(message)
-      return event.respond(content: I18n.t("moderation.image_scanning.report.none"), ephemeral: true) if attachments.empty?
+      images = ImageScanning::ScannableImages.all(message)
+      return event.respond(content: I18n.t("moderation.image_scanning.report.none"), ephemeral: true) if images.empty?
 
       event.defer(ephemeral: true)
-      count, log_image = confirm_all(attachments, config)
+      count, log_image = confirm_all(images, config)
       post_log(config, message, log_image) if count > 0
       event.edit_response(content: I18n.t("moderation.image_scanning.report.done", count:))
     end
@@ -27,13 +27,13 @@ module Moderation
       @config ||= ServerConfiguration.find_by(discord_id: event.server.id)
     end
 
-    def confirm_all(attachments, config)
+    def confirm_all(images, config)
       log_image = nil
-      count = attachments.count do |attachment|
-        bytes = ImageScanning::ImageDownload.call(attachment.url)
+      count = images.count do |url|
+        bytes = ImageScanning::ImageDownload.call(url)
         hex = ImageScanning::Ocr::Client.new.phash(bytes)
         Ops::Moderation::Phashes::Confirm.call(server_configuration: config, phash_hex: hex)
-        log_image ||= Bot::Discord::FileUpload.new(bytes, File.basename(URI(attachment.url).path))
+        log_image ||= Bot::Discord::FileUpload.new(bytes, File.basename(URI(url).path))
         true
       rescue ImageScanning::Ocr::Error => e
         Rails.logger.warn("[Moderation::ReportScam] phash failed: #{e.class}: #{e.message}")
