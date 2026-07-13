@@ -88,7 +88,8 @@ RSpec.describe Components::Moderation::ImageScanningForm do
     expect(html).to include('data-dropdown-target="menu"')
   end
 
-  it "renders the report-as-scam hint" do
+  it "renders the report-as-scam callout" do
+    expect(html).to include("Report a scam yourself")
     expect(html).to include("Report as scam")
   end
 

@@ -10,11 +10,11 @@ class Components::Moderation::ImageScanningForm < Components::Base
     div(id: "image_scanning-config", class: "flex flex-col gap-5") do
       enable_error_callout
       consent_callout
+      report_scam_callout
       sensitivity_card
       custom_keywords_card
       response_card
       image_explainer
-      report_scam_hint
     end
   end
 
@@ -31,6 +31,15 @@ class Components::Moderation::ImageScanningForm < Components::Base
       div do
         p(class: "font-semibold") { t(".consent.title") }
         p(class: "mt-1") { t(".consent.body") }
+      end
+    end
+  end
+
+  def report_scam_callout
+    render Components::Callout.new(variant: :info) do
+      div do
+        p(class: "font-semibold") { t(".report_scam.title") }
+        p(class: "mt-1") { t(".report_scam.body") }
       end
     end
   end
@@ -184,13 +193,6 @@ class Components::Moderation::ImageScanningForm < Components::Base
     p(class: "flex items-start gap-2.5 text-sm text-text-secondary") do
       render Components::Icon.new(icon, class: "size-4 mt-0.5 text-text-muted flex-none")
       span { text }
-    end
-  end
-
-  def report_scam_hint
-    p(class: "mt-2 flex items-center gap-1.5 text-xs text-text-muted") do
-      render Components::Icon.new("terminal-window", class: "size-4")
-      span { t(".report_scam_hint") }
     end
   end
 
