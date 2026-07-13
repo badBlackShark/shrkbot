@@ -482,6 +482,56 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
     end
   end
 
+  describe "punishment note in the body" do
+    context "when flagged for review with no action" do
+      let(:action) { :flag_for_review }
+
+      it "states that no further action was taken" do
+        execute
+
+        expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+          expect(kwargs[:body]).to include("No further action was taken.")
+        end
+      end
+    end
+
+    context "when the member was kicked" do
+      let(:punishment) { "kick" }
+
+      it "states that the user was kicked" do
+        execute
+
+        expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+          expect(kwargs[:body]).to include("User was kicked.")
+        end
+      end
+    end
+
+    context "when the member was banned" do
+      let(:punishment) { "ban" }
+
+      it "states that the user was banned" do
+        execute
+
+        expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+          expect(kwargs[:body]).to include("User was banned.")
+        end
+      end
+    end
+
+    context "when the member was timed out" do
+      let(:punishment) { "timeout" }
+
+      it "states the timeout with an absolute Discord timestamp" do
+        execute
+
+        expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+          expect(kwargs[:body]).to match(/User was timed out until <t:\d+:f>\./)
+        end
+      end
+    end
+  end
+
   context "when no staff role is configured" do
     let(:staff_role_id) { nil }
 

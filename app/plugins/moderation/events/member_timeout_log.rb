@@ -8,7 +8,7 @@ module Moderation
     private
 
     def loggable?
-      member&.communication_disabled? && attribution.present? && first_sighting?
+      member&.communication_disabled? && attribution.present? && !performed_by_shrkbot?(attribution.moderator) && first_sighting?
     end
 
     def entry

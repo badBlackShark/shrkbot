@@ -8,7 +8,7 @@ module Moderation
     private
 
     def loggable?
-      attribution.present?
+      attribution.present? && !performed_by_shrkbot?(attribution.moderator)
     end
 
     def entry

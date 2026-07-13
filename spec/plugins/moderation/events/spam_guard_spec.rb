@@ -43,6 +43,7 @@ RSpec.describe Moderation::SpamGuard do
       action_purge?: action == "purge",
       punishment:,
       punishment_none?: punishment == "none",
+      punishment_timeout?: punishment == "timeout",
       timeout_seconds: 300,
       match_symbol_only_messages:
     )
@@ -162,6 +163,38 @@ RSpec.describe Moderation::SpamGuard do
 
       expect(body).to include("within 60 seconds")
       expect(body).to include("> hello world foo bar")
+    end
+
+    it "notes that no member punishment was taken when punishment is 'none'" do
+      body = nil
+      allow(Bot::Discord::Components).to receive(:send_to) do |_channel, rendered, **|
+        body = rendered[:components].first[:components].first[:content]
+      end
+
+      simulate_message(channel_id: 1, message_id: 10)
+      simulate_message(channel_id: 2, message_id: 20)
+      simulate_message(channel_id: 3, message_id: 30)
+
+      expect(body).to include("No further action was taken.")
+    end
+
+    context "when the punishment is a timeout" do
+      let(:punishment) { "timeout" }
+
+      before { allow(Moderation::Punisher).to receive(:call) }
+
+      it "notes the timeout with an absolute Discord timestamp" do
+        body = nil
+        allow(Bot::Discord::Components).to receive(:send_to) do |_channel, rendered, **|
+          body = rendered[:components].first[:components].first[:content]
+        end
+
+        simulate_message(channel_id: 1, message_id: 10)
+        simulate_message(channel_id: 2, message_id: 20)
+        simulate_message(channel_id: 3, message_id: 30)
+
+        expect(body).to match(/User was timed out until <t:\d+:f>\./)
+      end
     end
 
     context "when a followup message lands inside the hot window" do
@@ -495,6 +528,20 @@ RSpec.describe Moderation::SpamGuard do
       simulate_message(channel_id: 1, message_id: 1)
       simulate_message(channel_id: 2, message_id: 2)
       simulate_message(channel_id: 3, message_id: 3)
+    end
+
+    it "notes the kick in the notification body" do
+      allow(Moderation::Punisher).to receive(:call)
+      body = nil
+      allow(Bot::Discord::Components).to receive(:send_to) do |_channel, rendered, **|
+        body = rendered[:components].first[:components].first[:content]
+      end
+
+      simulate_message(channel_id: 1, message_id: 1)
+      simulate_message(channel_id: 2, message_id: 2)
+      simulate_message(channel_id: 3, message_id: 3)
+
+      expect(body).to include("User was kicked.")
     end
   end
 end

@@ -5,6 +5,8 @@ require "uri"
 module Moderation
   module ImageScanning
     class VerdictExecutor
+      Punishment = Data.define(:action, :timeout_until)
+
       def self.call(verdict:, context:, phash:, hash_state:, image_bytes: nil)
         new(verdict:, context:, phash:, hash_state:, image_bytes:).call
       end
@@ -20,7 +22,7 @@ module Moderation
       def call
         case verdict.action
         when :flag_for_review
-          flag(removed: false, punishment: "none")
+          flag(removed: false, punishment: no_punishment)
         when :remove
           delete_message if context.settings.action_delete?
           flag(removed: true, punishment: punish)
@@ -41,16 +43,24 @@ module Moderation
         settings = context.settings
         escalate = hash_state == :own_confirmed && settings.confirmed_punishment != "none"
         punishment = escalate ? settings.confirmed_punishment : settings.punishment
-        return "none" if punishment == "none"
+        return no_punishment if punishment == "none"
 
+        timeout_seconds = escalate ? settings.confirmed_timeout_seconds : settings.timeout_seconds
         Punisher.call(
           member: context.member,
           server: context.server,
           punishment:,
-          timeout_seconds: escalate ? settings.confirmed_timeout_seconds : settings.timeout_seconds,
+          timeout_seconds:,
           reason: I18n.t("moderation.image_scanning.punishment.reason")
         )
-        punishment
+        Punishment.new(
+          action: punishment,
+          timeout_until: (punishment == "timeout") ? Time.current + timeout_seconds : nil
+        )
+      end
+
+      def no_punishment
+        Punishment.new(action: "none", timeout_until: nil)
       end
 
       def flag(removed:, punishment:)
@@ -70,10 +80,10 @@ module Moderation
             author: "<@#{context.member.id}>",
             channel: "<##{context.channel_id}>",
             jump_url:
-          ) + "\n" + risk_line(state) + "\n" + reason_lines,
+          ) + "\n" + risk_line(state) + "\n" + reason_lines + "\n" + PunishmentNote.line(punishment.action, timeout_until: punishment.timeout_until),
           meta: I18n.t("moderation.image_scanning.flag.meta.#{state}"),
           image:,
-          components: message_components(punishment),
+          components: message_components(punishment.action),
           allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
         )
       end
