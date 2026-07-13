@@ -20,9 +20,11 @@ class Components::PublicShell < Components::Base
 
   def header_bar
     header(class: "app-bar z-30 flex h-16 items-center gap-3 px-6") do
-      image_tag("shrkbot-mascot.png", alt: "shrkbot", class: "size-9 rounded-control")
-      span(class: "font-display text-lg font-bold tracking-tight") do
-        render Components::Wordmark.new
+      a(href: @user ? servers_path : root_path, class: "flex items-center gap-2") do
+        image_tag("shrkbot-mascot.png", alt: "shrkbot", class: "size-9 rounded-control")
+        span(class: "font-display text-lg font-bold tracking-tight") do
+          render Components::Wordmark.new
+        end
       end
       render Components::VersionBadge.new
       div(class: "flex-1")
