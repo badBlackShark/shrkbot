@@ -15,17 +15,12 @@ class Components::Reminders::ConfigForm < Components::Base
   private
 
   def force_dm_card
-    render Components::Card.new(class: "flex items-center gap-4") do
-      div(class: "flex-1") do
-        p(class: "text-sm font-semibold") { t(".force_dm.label") }
-        p(class: "mt-0.5 text-sm text-text-secondary") { t(".force_dm.help") }
-      end
-      render Components::Toggle.new(
-        name: "reminders[force_dm_reminders]",
-        checked: @config.force_dm_reminders,
-        label: t(".force_dm.label")
-      )
-    end
+    render Components::ToggleCard.new(
+      name: "reminders[force_dm_reminders]",
+      checked: @config.force_dm_reminders,
+      label: t(".force_dm.label"),
+      help: t(".force_dm.help")
+    )
   end
 
   def command_callout
