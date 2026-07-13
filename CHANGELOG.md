@@ -5,6 +5,25 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.3.0] - 2026-07-13
+
+### Added
+- Owner-curated global scam-image blocklist. A right-click "Toggle global scam block" command lets the bot owner mark an image's fingerprint as a known scam across every server, without shipping a build. Matches are treated like a normally-detected scam: each server's own dismissal still wins, and the owner's list never applies the harsher confirmed-punishment escalation reserved for a server's own confirmations. ([#160](https://github.com/badBlackShark/shrkbot/pull/160))
+- Welcome messages gain a per-server "Ping on join" toggle, so the member mention can still render as a clickable pill without firing a notification. On by default, so existing servers keep pinging. ([#166](https://github.com/badBlackShark/shrkbot/pull/166))
+- Open Graph and Twitter card meta tags, so a shared shrkbot link shows a proper title, description, and preview image. ([#164](https://github.com/badBlackShark/shrkbot/pull/164))
+
+### Changed
+- Single-selection role menus can now toggle a role off: clicking the role you already hold removes it without replacement, instead of doing nothing, so you can return to holding none of the set. ([#167](https://github.com/badBlackShark/shrkbot/pull/167))
+- The manual "Report as scam" and global-scam commands now inspect link-preview embeds and pasted CDN image links, not just attachments, matching the automatic scan. The per-source image cap is also raised from 3 -> 4. ([#163](https://github.com/badBlackShark/shrkbot/pull/163))
+- Confirmed scam-image fingerprints are now retained for 180 days instead of 30, so a moderator's confirmation survives a scam campaign going quiet for a month or more. ([#171](https://github.com/badBlackShark/shrkbot/pull/171))
+- The "Report as scam" action is now surfaced as an info callout under the consent warning on the Image Scanning page, instead of a small footer note. ([#170](https://github.com/badBlackShark/shrkbot/pull/170))
+- Scam-text keyword weights retuned for the current scam wave: added crypto-casino and bonus-offer terms, and lowered "withdraw" so it no longer flags on its own in legitimate messages. ([#171](https://github.com/badBlackShark/shrkbot/pull/171))
+
+### Fixed
+- shrkbot no longer double-posts its own kicks, bans, and timeouts to the moderation log. ([#169](https://github.com/badBlackShark/shrkbot/pull/169))
+- Toggling image scanning from the Server Shield overview page no longer wipes the confirmed-punishment settings on a config whose image-scanning options were never edited. ([#165](https://github.com/badBlackShark/shrkbot/pull/165))
+- The public site header logo now links to the home page. ([#168](https://github.com/badBlackShark/shrkbot/pull/168))
+
 ## [3.2.0] - 2026-07-12
 
 ### Added
