@@ -25,6 +25,7 @@ en:
             one: matched %{count} custom keyword
             other: matched %{count} custom keywords
           foreign_confirmed: matches an image confirmed as a scam on another server
+          global_confirmed: matches an image on shrkbot's global known-scam blocklist
           has_link: the message contains a link
           new_account: the account is only %{days} days old
           no_role: the author has no role on this server
@@ -36,6 +37,17 @@ en:
         title:
           flagged: Possible scam image flagged for review
           removed: Scam image removed
+      global_scam:
+        added:
+          one: Added 1 image to the global scam blocklist. It will be treated as a
+            known scam on every server.
+          other: Added %{count} images to the global scam blocklist. They will be
+            treated as known scams on every server.
+        failed: None of the images could be processed; nothing changed.
+        none: No scannable images found in that message.
+        removed:
+          one: Removed 1 image from the global scam blocklist.
+          other: Removed %{count} images from the global scam blocklist.
       punishment:
         reason: Scam image detected
       report:

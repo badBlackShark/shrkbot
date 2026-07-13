@@ -14,7 +14,7 @@ module Moderation
         Ops::Moderation::Phashes::MarkSeen.call(phash_hex: hex) unless state == :none
         return if state == :own_dismissed
 
-        ocr_text = (state == :own_confirmed) ? "" : client.scan(bytes)["text"]
+        ocr_text = CONFIRMED_HASH_STATES.include?(state) ? "" : client.scan(bytes)["text"]
         verdict = Classifier.call(
           ocr_text:,
           hash_state: state,

@@ -12,7 +12,7 @@ module Moderation
 
     def execute
       message = event.target
-      attachments = image_attachments(message)
+      attachments = ImageScanning::ImageAttachments.call(message)
       return event.respond(content: I18n.t("moderation.image_scanning.report.none"), ephemeral: true) if attachments.empty?
 
       event.defer(ephemeral: true)
@@ -25,12 +25,6 @@ module Moderation
 
     def config
       @config ||= ServerConfiguration.find_by(discord_id: event.server.id)
-    end
-
-    def image_attachments(message)
-      return [] unless message
-
-      message.attachments.select { |attachment| ImageScanning::CONTENT_TYPES.include?(attachment.content_type) }
     end
 
     def confirm_all(attachments, config)

@@ -105,7 +105,12 @@ en:
         images a server's moderators explicitly confirm as scams, together with which
         servers confirmed them. These fingerprints are never linked to the user who
         posted the image, are deleted when every confirming server has removed the
-        bot, and are pruned automatically after 30 days without a match.
+        bot, and are pruned automatically after 30 days without a match. The bot owner
+        may also mark images as global scams; their perceptual hashes are stored indefinitely
+        as a cross-server blocklist and are treated the same as scams a server's own
+        moderators confirmed, so a match can trigger that server's configured action
+        (flagging, removal, and any punishment). These hashes are not linked to any
+        user or server.
       not_h: What we don't do
       not_p: We don't sell data, we don't advertise, we don't profile you, we don't
         run analytics, and we don't store your servers' member lists or conversations.
@@ -119,7 +124,7 @@ en:
         out of database backups as they rotate.
       retention_phash: 'Confirmed scam-image fingerprints: pruned 30 days after they
         were last matched, and removed once every server that confirmed them has removed
-        the bot.'
+        the bot. Global scam fingerprints set by the bot owner are retained indefinitely.'
       retention_reminders: 'Reminders: deleted once delivered, or earlier if you delete
         them.'
       rights_h: Your rights
@@ -139,7 +144,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: July 5th, 2026'
+      updated: 'Last updated: July 13th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

@@ -34,7 +34,9 @@ ActiveRecordDoctor.configure do
       "server_channels.parent_id",
       "server_roles.discord_id",
       "channel_overwrites.target_id",
-      "moderation_settings.staff_role_id"
+      "moderation_settings.staff_role_id",
+      "moderation_verdicts.log_channel_id",
+      "moderation_verdicts.log_message_id"
     ]
 
   # These are NOT NULL with a DB default, so they're never nil — presence is wrong
@@ -46,6 +48,7 @@ ActiveRecordDoctor.configure do
       "Moderation::SpamProtection::Settings.match_symbol_only_messages",
       "Reminders::Reminder.deliver_via_dm",
       "ServerConfiguration.force_dm_reminders",
-      "ServerRole.managed"
+      "ServerRole.managed",
+      "Moderation::Phash.global_scam"
     ]
 end

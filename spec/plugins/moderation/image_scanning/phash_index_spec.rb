@@ -108,6 +108,49 @@ RSpec.describe Moderation::ImageScanning::PhashIndex do
       end
     end
 
+    context "when the phash is marked global_scam with no confirmations" do
+      before do
+        create(:phash, phash: stored_hex, global_scam: true)
+      end
+
+      it "returns :global_confirmed" do
+        expect(index.lookup(stored_hex, own_guild.discord_id)).to eq(:global_confirmed)
+      end
+    end
+
+    context "when the phash is global_scam and the querying guild dismissed it" do
+      before do
+        phash = create(:phash, phash: stored_hex, global_scam: true)
+        create(:phash_confirmation, phash:, server_configuration: own_guild, verdict: "dismissed")
+      end
+
+      it "own dismissed takes precedence over global" do
+        expect(index.lookup(stored_hex, own_guild.discord_id)).to eq(:own_dismissed)
+      end
+    end
+
+    context "when the phash is global_scam and the querying guild confirmed it" do
+      before do
+        phash = create(:phash, phash: stored_hex, global_scam: true)
+        create(:phash_confirmation, phash:, server_configuration: own_guild, verdict: "confirmed")
+      end
+
+      it "own confirmed takes precedence over global" do
+        expect(index.lookup(stored_hex, own_guild.discord_id)).to eq(:own_confirmed)
+      end
+    end
+
+    context "when the phash is global_scam and only a foreign guild confirmed it" do
+      before do
+        phash = create(:phash, phash: stored_hex, global_scam: true)
+        create(:phash_confirmation, phash:, server_configuration: foreign_guild, verdict: "confirmed")
+      end
+
+      it "returns :global_confirmed (global beats foreign)" do
+        expect(index.lookup(stored_hex, own_guild.discord_id)).to eq(:global_confirmed)
+      end
+    end
+
     context "called repeatedly within the refresh interval" do
       before do
         create(:phash_confirmation, phash: create(:phash, phash: stored_hex), server_configuration: own_guild, verdict: "confirmed")

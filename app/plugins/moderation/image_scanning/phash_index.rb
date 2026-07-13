@@ -33,14 +33,17 @@ module Moderation
         @mutex.synchronize do
           refresh_locked
           target = phash_hex.to_i(16)
-          match = @by_int.find { |int, _verdicts| SimHash.hamming_distance(int, target) <= HAMMING_THRESHOLD }
+          match = @by_int.find { |int, _entry| SimHash.hamming_distance(int, target) <= HAMMING_THRESHOLD }
           return :none unless match
 
-          verdicts = match.last
-          own = verdicts[guild_id]
-          return (own == "confirmed") ? :own_confirmed : :own_dismissed if own
+          entry = match.last
+          own = entry[:verdicts][guild_id]
+          if own
+            return (own == "confirmed") ? :own_confirmed : :own_dismissed
+          end
+          return :global_confirmed if entry[:global]
 
-          verdicts.value?("confirmed") ? :foreign_confirmed : :none
+          entry[:verdicts].value?("confirmed") ? :foreign_confirmed : :none
         end
       end
 
@@ -55,11 +58,13 @@ module Moderation
       end
 
       def build
-        result = Hash.new { |h, k| h[k] = {} }
+        result = Hash.new { |hash, key| hash[key] = {verdicts: {}, global: false} }
         PhashConfirmation
           .joins(:phash, :server_configuration)
           .pluck("phashes.phash", "server_configurations.discord_id", "phash_confirmations.verdict")
-          .each { |hex, discord_id, verdict| result[hex.to_i(16)][discord_id] = verdict }
+          .each { |hex, discord_id, verdict| result[hex.to_i(16)][:verdicts][discord_id] = verdict }
+        ::Moderation::Phash.where(global_scam: true).pluck(:phash)
+          .each { |hex| result[hex.to_i(16)][:global] = true }
         result
       end
     end
