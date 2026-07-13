@@ -278,8 +278,8 @@ RSpec.describe Moderation::ImageScanning::Classifier do
     context "own_confirmed" do
       let(:hash_state) { :own_confirmed }
 
-      it "adds 6 to risk" do
-        expect(verdict.risk).to eq(6)
+      it "adds 8 to risk" do
+        expect(verdict.risk).to eq(8)
       end
 
       context "standard sensitivity with empty ocr text" do
@@ -301,8 +301,40 @@ RSpec.describe Moderation::ImageScanning::Classifier do
       context "relaxed sensitivity alone" do
         let(:sensitivity) { "relaxed" }
 
-        it "flags below the remove threshold" do
+        it "removes at the remove threshold (risk 8 == remove 8)" do
+          expect(verdict.action).to eq(:remove)
+        end
+      end
+    end
+
+    context "global_confirmed" do
+      let(:hash_state) { :global_confirmed }
+
+      it "adds 6 to risk" do
+        expect(verdict.risk).to eq(6)
+      end
+
+      context "relaxed sensitivity alone" do
+        let(:sensitivity) { "relaxed" }
+
+        it "flags below the remove threshold (risk 6 < remove 8)" do
           expect(verdict.action).to eq(:flag_for_review)
+        end
+      end
+
+      context "standard sensitivity with empty ocr text" do
+        let(:sensitivity) { "standard" }
+
+        it "removes on the hash content signal" do
+          expect(verdict.action).to eq(:remove)
+        end
+      end
+
+      context "strict sensitivity with empty ocr text" do
+        let(:sensitivity) { "strict" }
+
+        it "removes on the hash content signal" do
+          expect(verdict.action).to eq(:remove)
         end
       end
     end

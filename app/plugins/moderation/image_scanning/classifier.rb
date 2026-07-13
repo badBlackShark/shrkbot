@@ -9,7 +9,8 @@ module Moderation
         "strict" => {flag: 2, remove: 4.5}
       }.freeze
       KEYWORD_WEIGHT = 2
-      OWN_CONFIRMED_RISK = 6
+      OWN_CONFIRMED_RISK = 8
+      GLOBAL_CONFIRMED_RISK = 6
       FUZZY_RATIO = 0.2
 
       module_function
@@ -38,7 +39,7 @@ module Moderation
         return :allow unless content_signal
 
         action =
-          if risk >= thresholds[:remove] && (ocr_score > 0 || hash_state == :own_confirmed)
+          if risk >= thresholds[:remove] && (ocr_score > 0 || CONFIRMED_HASH_STATES.include?(hash_state))
             (hash_state == :foreign_confirmed) ? :flag_for_review : :remove
           elsif risk >= thresholds[:flag]
             :flag_for_review
@@ -81,11 +82,18 @@ module Moderation
       def hash_reason(hash_state)
         return nil if hash_state == :none
 
-        weight = (hash_state == :own_confirmed) ? OWN_CONFIRMED_RISK : 0
-        Reason.new(key: hash_state, weight:)
+        Reason.new(key: hash_state, weight: hash_weight(hash_state))
       end
 
-      private_class_method :decide, :scam_rule_reasons, :matchable, :keyword_reasons, :amplifier_reasons, :hash_reason
+      def hash_weight(hash_state)
+        case hash_state
+        when :own_confirmed then OWN_CONFIRMED_RISK
+        when :global_confirmed then GLOBAL_CONFIRMED_RISK
+        else 0
+        end
+      end
+
+      private_class_method :decide, :scam_rule_reasons, :matchable, :keyword_reasons, :amplifier_reasons, :hash_reason, :hash_weight
     end
   end
 end
