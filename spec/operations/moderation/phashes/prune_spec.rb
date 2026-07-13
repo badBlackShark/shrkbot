@@ -5,8 +5,8 @@ require "rails_helper"
 RSpec.describe Ops::Moderation::Phashes::Prune do
   subject(:result) { described_class.call }
 
-  let!(:stale_phash) { create(:phash, last_seen_at: 31.days.ago) }
-  let!(:stale_confirmed_phash) { create(:phash, last_seen_at: 40.days.ago) }
+  let!(:stale_phash) { create(:phash, last_seen_at: 181.days.ago) }
+  let!(:stale_confirmed_phash) { create(:phash, last_seen_at: 200.days.ago) }
   let!(:fresh_orphan) { create(:phash, last_seen_at: 1.day.ago) }
   let!(:fresh_confirmed_phash) { create(:phash, last_seen_at: 1.day.ago) }
 
@@ -15,7 +15,7 @@ RSpec.describe Ops::Moderation::Phashes::Prune do
     create(:phash_confirmation, phash: fresh_confirmed_phash)
   end
 
-  it "deletes phashes not matched in 30 days and their confirmations" do
+  it "deletes phashes not matched in 180 days and their confirmations" do
     result
     expect(Moderation::Phash.exists?(stale_phash.id)).to be(false)
     expect(Moderation::Phash.exists?(stale_confirmed_phash.id)).to be(false)
