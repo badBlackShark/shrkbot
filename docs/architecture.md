@@ -93,6 +93,14 @@ and the web app, so a given mutation is written once and called from both.
   cached set and sets `@server_configuration`. The check reads the session instead
   of re-hitting Discord's rate-limited guild-list endpoint, and is not spoofable
   (server-signed session).
+- **Snowflakes submitted from the web are scoped to the guild in the controller.**
+  A channel/role id posted by a user is untrusted input: the controller verifies it
+  belongs to `@server_configuration` (e.g. `VerifiesGuildChannels#guild_channels?`
+  against `server_channels`) and returns 404 on a foreign reference, before handing
+  the value to the op. Ops trust the values they receive — scoping is the caller's
+  job (same anti-spoofing rule as loading records). Assignability *rules* beyond mere
+  ownership (managed/above-bot role filtering in `Roles::AssignableServerRoles`) stay
+  in the op as business logic.
 - **Re-authentication is localized to the guild-fetch seam.** The user's Discord
   token is used in exactly one place — `Bot::Discord::UserGuilds.call`, from
   `ServersController` (picker + dashboard) — so token-expiry handling (`rescue_from

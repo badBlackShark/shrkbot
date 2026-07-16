@@ -3,6 +3,7 @@
 class Servers::WelcomesController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
+  include VerifiesGuildChannels
 
   def show
     render Views::Servers::Welcomes::Show.new(
@@ -13,6 +14,8 @@ class Servers::WelcomesController < ApplicationController
   end
 
   def update
+    return head :not_found unless guild_channels?(welcomes_params[:channel_id])
+
     result = Ops::Welcomes::Configure.call(
       server_configuration: @server_configuration,
       channel_id: welcomes_params[:channel_id],

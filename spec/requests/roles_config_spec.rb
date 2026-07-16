@@ -120,6 +120,26 @@ RSpec.describe "Roles config", type: :request do
           expect(response).to redirect_to(server_roles_path(guild.id))
           expect(flash[:alert]).to be_present
         end
+
+        it "rejects a channel from another server with 404" do
+          patch server_roles_path(guild.id),
+            params: {roles: {channel_id: 424242, enabled: "1", role_sets: {}}},
+            **turbo
+          expect(response).to have_http_status(:not_found)
+        end
+
+        it "rejects a role set channel_override from another server with 404" do
+          patch server_roles_path(guild.id),
+            params: {
+              roles: {
+                channel_id: 111,
+                enabled: "1",
+                role_sets: {"0" => {name: "Pings", selection_mode: "multi", channel_override: 424242, role_ids: ["222"]}}
+              }
+            },
+            **turbo
+          expect(response).to have_http_status(:not_found)
+        end
       end
     end
   end
