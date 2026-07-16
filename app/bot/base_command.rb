@@ -127,7 +127,8 @@ module Bot
     def permitted?
       CommandPermissions.permitted?(
         event:,
-        owner_only: self.class.owner_only?
+        owner_only: self.class.owner_only?,
+        required_permissions: self.class.requires_permissions
       )
     end
 
