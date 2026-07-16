@@ -4,10 +4,11 @@ module Bot
   module CommandPermissions
     module_function
 
-    def permitted?(event:, owner_only:)
+    def permitted?(event:, owner_only:, required_permissions: [])
       return true if owner?(event)
+      return false if owner_only
 
-      !owner_only
+      required_permissions.all? { |permission| event.user.permission?(permission) }
     end
 
     def owner?(event)

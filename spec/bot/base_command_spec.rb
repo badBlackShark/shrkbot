@@ -151,6 +151,29 @@ RSpec.describe Bot::BaseCommand do
       end
     end
 
+    context "when the invoker lacks a declared permission" do
+      subject(:dispatch) { klass.dispatch(denied_event) }
+
+      let(:klass) do
+        Class.new(described_class) do
+          command_name :probe
+          requires_permissions :manage_messages
+
+          def execute
+            raise "should not run"
+          end
+        end
+      end
+
+      let(:user) { double("user", id: 1, permission?: false) }
+      let(:denied_event) { double("event", user:, respond: nil) }
+
+      it "replies with a denial and skips #execute" do
+        expect(denied_event).to receive(:respond).with(hash_including(content: a_string_including("permission"), ephemeral: true))
+        dispatch
+      end
+    end
+
     context "when #execute raises" do
       subject(:dispatch) { klass.dispatch(event) }
 
