@@ -13,6 +13,16 @@ RSpec.describe "Authentication", type: :request do
       expect(session[:user_id]).to eq(User.find_by(discord_id: 12345).id)
       expect(callback).to redirect_to(servers_path)
     end
+
+    it "resets the session on sign-in so a pre-auth session can't be fixed" do
+      get servers_path
+      before_id = session.id&.public_id
+
+      callback
+
+      expect(before_id).to be_present
+      expect(session.id&.public_id).not_to eq(before_id)
+    end
   end
 
   describe "signing out" do
