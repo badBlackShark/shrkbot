@@ -14,6 +14,7 @@ en:
     plugin_activation:
       requires_settings: requires the plugin's settings to be configured first
     reminders:
+      duration_too_long: That's too far in the future for a reminder.
       invalid_duration: I couldn't understand that duration. Try something like `1d2h30m`.
       message_required: A reminder needs a message.
     roles:

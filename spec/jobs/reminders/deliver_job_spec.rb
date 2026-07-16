@@ -17,10 +17,11 @@ RSpec.describe Reminders::DeliverJob do
 
   context "in a channel" do
     it "posts the reminder as a branded container and then deletes it" do
-      expect(Discordrb::API::Channel).to receive(:create_message) do |token, channel_id, content, _tts, _embeds, _nonce, _attachments, _allowed_mentions, _message_reference, components, flags|
+      expect(Discordrb::API::Channel).to receive(:create_message) do |token, channel_id, content, _tts, _embeds, _nonce, _attachments, allowed_mentions, _message_reference, components, flags|
         expect(token).to eq("Bot tok")
         expect(channel_id).to eq(20)
         expect(content).to be_nil
+        expect(allowed_mentions).to eq({parse: [], users: [10]})
         expect(flags).to eq(Bot::Discord::Components::COMPONENTS_V2)
         body = components.first[:components].first[:content]
         expect(body).to include("<@10>")

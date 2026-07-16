@@ -27,7 +27,7 @@ module Reminders
         nil,
         nil,
         nil,
-        nil,
+        {parse: [], users: [reminder.user_id]},
         nil,
         rendered[:components],
         rendered[:flags]
