@@ -26,7 +26,11 @@ RSpec.describe "Logging config", type: :request do
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     end
 
-    context "without proving the server is manageable this session" do
+    context "when the user no longer manages the server" do
+      before do
+        allow(Bot::Discord::UserGuilds).to receive(:call).and_return([])
+      end
+
       it "redirects to the picker" do
         get server_logging_path(guild.id)
         expect(response).to redirect_to(servers_path)
@@ -36,6 +40,33 @@ RSpec.describe "Logging config", type: :request do
     context "after loading the dashboard authorizes the server" do
       before do
         get server_path(guild.id)
+      end
+
+      context "when the user is demoted afterward" do
+        before do
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_return([])
+        end
+
+        it "redirects a page load to the picker" do
+          get server_logging_path(guild.id)
+          expect(response).to redirect_to(servers_path)
+        end
+
+        it "redirects a save attempt to the picker" do
+          patch server_logging_path(guild.id), params: {logging: {channel_id: 200, enabled: "1", actions: {}}}
+          expect(response).to redirect_to(servers_path)
+        end
+      end
+
+      context "when Discord is unreachable after the dashboard cached authorization" do
+        before do
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Error)
+        end
+
+        it "still serves the config page from the cached authorization" do
+          get server_logging_path(guild.id)
+          expect(response).to have_http_status(:ok)
+        end
       end
 
       describe "GET /servers/:server_id/logging" do

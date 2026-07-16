@@ -180,20 +180,18 @@ RSpec.describe "Server dashboard", type: :request do
     describe "PATCH /servers/:server_id/plugins/:id" do
       let(:turbo) { {headers: {"Accept" => "text/vnd.turbo-stream.html"}} }
 
-      # Loading the dashboard is what proves the user manages this server and
-      # caches that authorization for the toggle that follows.
       before do
         get server_path(guild.id)
       end
 
-      it "enables a plugin in place without re-contacting Discord" do
+      it "enables a plugin in place, re-verifying live authorization first" do
         config.create_role_setting!(channel_id: 7)
         roles
         patch server_plugin_path(guild.id, "roles"), params: {enabled: true}, **turbo
         expect(response).to have_http_status(:ok)
         expect(response.media_type).to eq("text/vnd.turbo-stream.html")
         expect(config.plugin_activations.find_by(plugin: roles).enabled).to be(true)
-        expect(Bot::Discord::UserGuilds).to have_received(:call).once
+        expect(Bot::Discord::UserGuilds).to have_received(:call).twice
       end
 
       it "refuses to enable a plugin missing its prerequisites" do
@@ -224,7 +222,11 @@ RSpec.describe "Server dashboard", type: :request do
       end
     end
 
-    describe "toggling a server not authorized this session" do
+    describe "toggling a server the user no longer manages" do
+      before do
+        allow(Bot::Discord::UserGuilds).to receive(:call).and_return([])
+      end
+
       it "redirects to the picker" do
         roles
         patch server_plugin_path(guild.id, "roles"), params: {enabled: true}

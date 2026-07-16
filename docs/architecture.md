@@ -85,24 +85,28 @@ and the web app, so a given mutation is written once and called from both.
 - **Server-scoped authorization** lives in two concerns, not in individual
   controllers. We don't persist which servers a user manages (it's a Discord fact,
   fetched per the metadata-sync design, not a DB relationship), so authorization is
-  cached in the signed session. `SetsManageableServers` (included by the picker and
-  dashboard) exposes `remember_manageable_servers`, called after proving
-  manageability via Discord. `RequiresManageableServer` (included by every
-  server-scoped controller) **applies `before_action :require_manageable_server`
-  on include** — so a controller can't forget to authorize — which checks the
-  cached set and sets `@server_configuration`. The check reads the session instead
-  of re-hitting Discord's rate-limited guild-list endpoint, and is not spoofable
-  (server-signed session).
-- **Re-authentication is localized to the guild-fetch seam.** The user's Discord
-  token is used in exactly one place — `Bot::Discord::UserGuilds.call`, from
-  `ServersController` (picker + dashboard) — so token-expiry handling (`rescue_from
-  Bot::Discord::UserGuilds::Unauthorized` → re-auth, `::Error` → error state) lives
-  there, not in `ApplicationController`. Everything else reads our own DB and
-  authorizes from the session cache, so an expired token elsewhere is harmless;
-  stale-cache cases redirect to the picker, which is where re-auth runs. **If a
-  second page ever fetches from Discord with the user token, revisit this**: extract
-  a shared `DiscordReauth` concern and add return-to-URL plumbing (so re-auth sends
-  the user back where they were) rather than always landing on the picker.
+  re-verified against live Discord on every server-scoped request.
+  `SetsManageableServers` (included by the picker, dashboard, and
+  `RequiresManageableServer`) exposes `remember_manageable_servers`/
+  `manageable_server_ids`, the session-cached fallback. `RequiresManageableServer`
+  (included by every server-scoped controller) **applies `before_action
+  :require_manageable_server` on include** — so a controller can't forget to
+  authorize — which calls `ManageableServers.for` fresh (`#live_manageable_ids`) and
+  sets `@server_configuration`. A demoted admin loses access on their very next
+  request rather than up to two weeks later. Discord being unreachable
+  (`UserGuilds::Error`) falls back to the session cache rather than locking admins
+  out during an outage; a bad/expired token (`UserGuilds::Unauthorized`) is not
+  caught here — it propagates to `DiscordReauth`.
+- **Re-authentication is centralized in the `DiscordReauth` concern**, included by
+  both `ServersController` and `RequiresManageableServer` (every server-scoped
+  controller), since the user's Discord token is now read on every server-scoped
+  request, not just the picker/dashboard. It `rescue_from`s
+  `Bot::Discord::UserGuilds::Unauthorized`, stashes the current path in
+  `session[:return_to]`, and renders `Views::Reauth`; a second consecutive failure
+  resets the session and bounces to the root page. `SessionsController#create`
+  redirects to `session[:return_to]` (falling back to the picker) and clears the
+  reauth flag, so re-auth returns the user to where they were instead of always
+  landing on the picker.
 - **Turbo Stream responses live in a view template**, not in controller helpers —
   the standard Rails `action.turbo_stream.erb` (e.g.
   `app/views/servers/plugins/update.turbo_stream.erb`). The controller sets its

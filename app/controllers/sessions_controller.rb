@@ -6,9 +6,11 @@ class SessionsController < ApplicationController
   def create
     auth = request.env["omniauth.auth"]
     user = User.from_omniauth(auth)
+    destination = session.delete(:return_to) || servers_path
     session[:user_id] = user.id
     session[:discord_token] = auth.credentials.token
-    redirect_to servers_path, notice: t("sessions.signed_in", name: user.display_name)
+    session.delete(:reauth_attempted)
+    redirect_to destination, notice: t("sessions.signed_in", name: user.display_name)
   end
 
   def destroy

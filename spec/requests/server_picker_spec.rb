@@ -132,10 +132,11 @@ RSpec.describe "Server picker", type: :request do
           expect(session[:reauth_attempted]).to be(true)
         end
 
-        it "falls back to the error state instead of looping if re-auth still fails" do
+        it "resets the session and redirects home instead of looping if re-auth still fails" do
           get servers_path
           get servers_path
-          expect(response.body).to include("reach Discord")
+          expect(response).to redirect_to(root_path)
+          expect(flash[:alert]).to be_present
           expect(session[:reauth_attempted]).to be_nil
         end
       end

@@ -384,6 +384,7 @@ en:
       saved: Welcomes settings saved.
   sessions:
     failed: Sign-in failed or was canceled.
+    reauth_failed: We couldn't refresh your Discord sign-in. Please sign in again.
     signed_in: Signed in as %{name}.
     signed_out: Signed out.
   views:
