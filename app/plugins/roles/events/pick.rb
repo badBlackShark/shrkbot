@@ -12,8 +12,9 @@ module Roles
 
       had = member_set_role_ids
       diff = Assignment.single(set_role_ids, picked, had)
+      event.defer(ephemeral: true)
       apply(diff)
-      event.respond(content: Message.pick_confirmation(set, picked, had), ephemeral: true)
+      event.edit_response(content: Message.pick_confirmation(set, picked, had))
       log_assignment(had, diff)
     end
   end

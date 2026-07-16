@@ -10,7 +10,7 @@ module Welcomes
       return if setting.leave_message.blank?
 
       content = Message.render(setting.leave_message, user: "@#{event.user.username}", member_count: event.server.member_count)
-      event.bot.send_message(setting.channel_id, content)
+      event.bot.send_message(setting.channel_id, content, false, nil, nil, {parse: []})
     end
   end
 end
