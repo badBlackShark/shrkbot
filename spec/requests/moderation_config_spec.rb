@@ -158,6 +158,13 @@ RSpec.describe "Moderation config", type: :request do
           expect(response).to redirect_to(server_moderation_path(guild.id))
         end
 
+        it "rejects a staff role from another server with 404" do
+          patch server_moderation_path(guild.id),
+            params: {moderation: {staff_role_id: 424_242, enabled: "1"}},
+            **turbo
+          expect(response).to have_http_status(:not_found)
+        end
+
         it "sets ping_staff to false when param is '0'" do
           patch server_moderation_path(guild.id),
             params: {moderation: {staff_role_id: 500, enabled: "1", ping_staff: "0"}},

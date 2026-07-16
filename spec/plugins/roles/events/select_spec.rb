@@ -19,7 +19,7 @@ RSpec.describe Roles::Select do
 
   let(:user) { double("user", id: 42) }
   let(:member) { double("member", roles: [], modify_roles: nil, mention: "<@42>") }
-  let(:server) { double("server", member:) }
+  let(:server) { double("server", id: server_config.discord_id, member:) }
   let(:bot) { double("bot") }
   let(:event) do
     double("event", custom_id: Roles::CustomId.select(set), server:, user:, values: ["100"], update_message: nil, bot:)
@@ -28,6 +28,15 @@ RSpec.describe Roles::Select do
   it "adds the selected set roles and removes the unselected ones" do
     expect(member).to receive(:modify_roles).with([100], [200])
     handle
+  end
+
+  context "when the interaction comes from a different server than the set" do
+    let(:server) { double("server", id: server_config.discord_id + 1, member:) }
+
+    it "ignores it and changes no roles" do
+      expect(member).not_to receive(:modify_roles)
+      handle
+    end
   end
 
   it "logs the gained role" do
