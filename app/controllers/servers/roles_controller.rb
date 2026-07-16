@@ -3,6 +3,7 @@
 class Servers::RolesController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
+  include VerifiesGuildChannels
 
   def show
     render Views::Servers::Roles::Show.new(
@@ -13,6 +14,8 @@ class Servers::RolesController < ApplicationController
   end
 
   def update
+    return head :not_found unless guild_channels?(roles_params[:channel_id], submitted_channel_overrides)
+
     result = Ops::Roles::Configure.call(
       server_configuration: @server_configuration,
       channel_id: roles_params[:channel_id],
@@ -39,6 +42,10 @@ class Servers::RolesController < ApplicationController
     raw = roles_params[:role_sets]
     list = raw.respond_to?(:values) ? raw.values : Array(raw)
     list.map { |set| set.to_h.symbolize_keys }
+  end
+
+  def submitted_channel_overrides
+    submitted_sets.filter_map { |set| set[:channel_override] }
   end
 
   def roles_params
