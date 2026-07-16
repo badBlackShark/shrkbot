@@ -16,7 +16,11 @@ module DiscordReauth
     end
 
     session[:reauth_attempted] = true
-    session[:return_to] = request.get? ? request.fullpath : servers_path
+    session[:return_to] = replayable_request? ? request.fullpath : servers_path
     render Views::Reauth.new
+  end
+
+  def replayable_request?
+    request.get? || request.head?
   end
 end
