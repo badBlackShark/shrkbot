@@ -10,7 +10,7 @@ class ServersController < ApplicationController
   include DiscordReauth
 
   def index
-    manageable = ManageableServers.for(session[:discord_token])
+    manageable = ManageableServers.cached_for(session[:discord_token])
     session.delete(:reauth_attempted)
     configured = ServerConfiguration.configured_ids_among(manageable.map(&:id))
     remember_manageable_servers(configured)

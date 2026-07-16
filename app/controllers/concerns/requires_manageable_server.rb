@@ -25,7 +25,7 @@ module RequiresManageableServer
   end
 
   def live_manageable_ids
-    ids = ManageableServers.for(session[:discord_token]).map(&:id)
+    ids = ManageableServers.cached_for(session[:discord_token]).map(&:id)
     remember_manageable_servers(ServerConfiguration.configured_ids_among(ids))
     session.delete(:reauth_attempted)
     ids

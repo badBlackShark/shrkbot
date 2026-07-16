@@ -24,7 +24,7 @@ class ServerDashboard
   private
 
   def live
-    manageable = ManageableServers.for(@discord_token)
+    manageable = ManageableServers.cached_for(@discord_token)
     server = manageable.find { |candidate| candidate.id == @target_id }
     config = ServerConfiguration.find_by(discord_id: @target_id) if server
     return unless server && config

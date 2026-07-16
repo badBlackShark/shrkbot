@@ -8,10 +8,10 @@ RSpec.describe ServerDashboard do
   let(:cached_ids) { [] }
 
   let(:target_guild) do
-    instance_double("Bot::Discord::Guild", id: target_id, manageable?: true, member_count: 100)
+    Bot::Discord::Guild.new(id: target_id, name: "Target", owner: true, permissions: 0, icon: nil, member_count: 100)
   end
   let(:other_guild) do
-    instance_double("Bot::Discord::Guild", id: other_id, manageable?: true, member_count: 50)
+    Bot::Discord::Guild.new(id: other_id, name: "Other", owner: true, permissions: 0, icon: nil, member_count: 50)
   end
 
   subject(:result) do
@@ -50,7 +50,7 @@ RSpec.describe ServerDashboard do
   context "when target guild is not among manageable guilds" do
     let!(:config) { create(:server_configuration, discord_id: target_id) }
     let(:other_guild_only) do
-      instance_double("Bot::Discord::Guild", id: other_id, manageable?: true, member_count: 50)
+      Bot::Discord::Guild.new(id: other_id, name: "Other", owner: true, permissions: 0, icon: nil, member_count: 50)
     end
 
     before do
