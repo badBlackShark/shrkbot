@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script>
+    <script nonce="<%= content_security_policy_nonce %>">
       (function () {
         var t = localStorage.getItem("shrk-theme");
         if (t !== "dark" && t !== "light") {
