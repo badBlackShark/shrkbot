@@ -49,4 +49,16 @@ RSpec.describe Ops::Reminders::Create do
       expect(result.failure?).to be(true)
     end
   end
+
+  context "with a duration beyond the maximum" do
+    let(:duration) { "6000w" }
+
+    it "fails without creating or scheduling" do
+      expect {
+        expect { result }.not_to change(Reminders::Reminder, :count)
+      }.not_to have_enqueued_job(Reminders::DeliverJob)
+
+      expect(result.failure?).to be(true)
+    end
+  end
 end
