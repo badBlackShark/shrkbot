@@ -4,7 +4,6 @@ module Moderation
   module ImageScanning
     class ScannableImages
       MAX = 4
-      MAX_BYTES = 10 * 1024 * 1024
 
       def self.all(message)
         return [] unless message
@@ -37,7 +36,7 @@ module Moderation
 
       def attachments
         message.attachments
-          .select { |a| CONTENT_TYPES.include?(a.content_type) && a.size <= MAX_BYTES }
+          .select { |a| CONTENT_TYPES.include?(a.content_type) && a.size <= AttachmentDownload::MAX_BYTES }
           .first(MAX)
           .map(&:url)
       end

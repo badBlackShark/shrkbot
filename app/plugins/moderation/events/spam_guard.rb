@@ -7,7 +7,6 @@ module Moderation
     on :message
 
     CONTENT_PREVIEW_LIMIT = 800
-    MAX_FINGERPRINT_BYTES = 10 * 1024 * 1024
     MAX_HASHED_ATTACHMENTS = 3
 
     def handle
@@ -54,7 +53,7 @@ module Moderation
     end
 
     def attachment_fingerprint(attachment)
-      return filename_fingerprint(attachment) if attachment.size > MAX_FINGERPRINT_BYTES
+      return filename_fingerprint(attachment) if attachment.size > AttachmentDownload::MAX_BYTES
 
       "a:#{Digest::SHA256.hexdigest(AttachmentDownload.call(attachment.url))}"
     rescue AttachmentDownload::Error

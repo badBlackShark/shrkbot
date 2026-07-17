@@ -25,7 +25,7 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
       end
     end
 
-    context "when attachment exceeds MAX_BYTES" do
+    context "when attachment exceeds AttachmentDownload::MAX_BYTES" do
       let(:attachments) { [double("att", content_type: png_type, size: 11 * 1024 * 1024, url: "https://cdn/big.png")] }
 
       it "skips it" do
@@ -43,7 +43,7 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
       end
     end
 
-    context "when attachment is exactly at MAX_BYTES" do
+    context "when attachment is exactly at AttachmentDownload::MAX_BYTES" do
       let(:attachments) { [double("att", content_type: jpeg_type, size: 10 * 1024 * 1024, url: "https://cdn/ok.jpg")] }
 
       it "includes it" do

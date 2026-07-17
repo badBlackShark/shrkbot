@@ -369,7 +369,7 @@ RSpec.describe Moderation::SpamGuard do
     end
   end
 
-  context "when the attachment exceeds MAX_FINGERPRINT_BYTES" do
+  context "when the attachment exceeds AttachmentDownload::MAX_BYTES" do
     let(:oversize) { 11 * 1024 * 1024 }
     let(:attachment) { double("attachment", filename: "big.png", size: oversize, url: "https://cdn/big.png") }
 
