@@ -60,5 +60,33 @@ RSpec.describe Bot::CommandPermissions do
         is_expected.to be(true)
       end
     end
+
+    context "when the command declares required permissions" do
+      subject(:permitted) do
+        described_class.permitted?(event:, owner_only: false, required_permissions: [:manage_messages])
+      end
+
+      let(:user) { double("user", id: 7) }
+      let(:event) { double("event", user:) }
+
+      before do
+        allow(Bot::Config).to receive(:owner_id).and_return("42")
+      end
+
+      it "grants access when the user holds every required permission" do
+        allow(user).to receive(:permission?).with(:manage_messages).and_return(true)
+        is_expected.to be(true)
+      end
+
+      it "denies access when the user lacks a required permission" do
+        allow(user).to receive(:permission?).with(:manage_messages).and_return(false)
+        is_expected.to be(false)
+      end
+
+      it "grants the owner access regardless of missing permissions" do
+        allow(Bot::Config).to receive(:owner_id).and_return("7")
+        is_expected.to be(true)
+      end
+    end
   end
 end

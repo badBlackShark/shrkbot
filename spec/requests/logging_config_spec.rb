@@ -141,6 +141,13 @@ RSpec.describe "Logging config", type: :request do
           expect(response).to redirect_to(server_logging_path(guild.id))
           expect(flash[:alert]).to be_present
         end
+
+        it "rejects a channel from another server with 404" do
+          patch server_logging_path(guild.id),
+            params: {logging: {channel_id: 424242, enabled: "1", actions: {}}},
+            **turbo
+          expect(response).to have_http_status(:not_found)
+        end
       end
     end
   end

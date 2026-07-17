@@ -3,6 +3,7 @@
 class Servers::LoggingController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
+  include VerifiesGuildChannels
 
   def show
     render Views::Servers::Logging::Show.new(
@@ -13,6 +14,8 @@ class Servers::LoggingController < ApplicationController
   end
 
   def update
+    return head :not_found unless guild_channels?(logging_params[:channel_id])
+
     result = Ops::Logging::Configure.call(
       server_configuration: @server_configuration,
       channel_id: logging_params[:channel_id],

@@ -28,7 +28,7 @@ class Components::Icon < Components::Base
   private
 
   def custom_glyph
-    attrs_str = @options.map { |k, v| "#{k.to_s.tr("_", "-")}=\"#{v}\"" }.join(" ")
+    attrs_str = @options.map { |k, v| "#{k.to_s.tr("_", "-")}=\"#{ERB::Util.html_escape(v)}\"" }.join(" ")
     CUSTOM_GLYPHS[@name] % {attrs: attrs_str}
   end
 end

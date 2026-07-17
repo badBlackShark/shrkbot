@@ -107,6 +107,32 @@ and the web app, so a given mutation is written once and called from both.
   redirects to `session[:return_to]` (falling back to the picker) and clears the
   reauth flag, so re-auth returns the user to where they were instead of always
   landing on the picker.
+  cached in the signed session. `SetsManageableServers` (included by the picker and
+  dashboard) exposes `remember_manageable_servers`, called after proving
+  manageability via Discord. `RequiresManageableServer` (included by every
+  server-scoped controller) **applies `before_action :require_manageable_server`
+  on include** — so a controller can't forget to authorize — which checks the
+  cached set and sets `@server_configuration`. The check reads the session instead
+  of re-hitting Discord's rate-limited guild-list endpoint, and is not spoofable
+  (server-signed session).
+- **Snowflakes submitted from the web are scoped to the guild in the controller.**
+  A channel/role id posted by a user is untrusted input: the controller verifies it
+  belongs to `@server_configuration` (e.g. `VerifiesGuildChannels#guild_channels?`
+  against `server_channels`) and returns 404 on a foreign reference, before handing
+  the value to the op. Ops trust the values they receive — scoping is the caller's
+  job (same anti-spoofing rule as loading records). Assignability *rules* beyond mere
+  ownership (managed/above-bot role filtering in `Roles::AssignableServerRoles`) stay
+  in the op as business logic.
+- **Re-authentication is localized to the guild-fetch seam.** The user's Discord
+  token is used in exactly one place — `Bot::Discord::UserGuilds.call`, from
+  `ServersController` (picker + dashboard) — so token-expiry handling (`rescue_from
+  Bot::Discord::UserGuilds::Unauthorized` → re-auth, `::Error` → error state) lives
+  there, not in `ApplicationController`. Everything else reads our own DB and
+  authorizes from the session cache, so an expired token elsewhere is harmless;
+  stale-cache cases redirect to the picker, which is where re-auth runs. **If a
+  second page ever fetches from Discord with the user token, revisit this**: extract
+  a shared `DiscordReauth` concern and add return-to-URL plumbing (so re-auth sends
+  the user back where they were) rather than always landing on the picker.
 - **Turbo Stream responses live in a view template**, not in controller helpers —
   the standard Rails `action.turbo_stream.erb` (e.g.
   `app/views/servers/plugins/update.turbo_stream.erb`). The controller sets its

@@ -3,6 +3,8 @@
 class ServersController < ApplicationController
   include SetsManageableServers
 
+  rate_limit to: 60, within: 1.minute, by: -> { session[:user_id] }, only: :index
+
   before_action :load_dashboard, only: :show
 
   rescue_from Bot::Discord::UserGuilds::Error, with: :render_error

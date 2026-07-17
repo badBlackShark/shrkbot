@@ -70,5 +70,14 @@ RSpec.describe Components::Icon do
       real_svg = described_class.new("sun").call
       expect(real_svg).to eq(PhosphorIcons::Icon.new("sun", style: :regular, class: "size-5").to_svg)
     end
+
+    context "with an injection attempt in an option value" do
+      let(:options) { {data_probe: %("><script>alert(1)</script>)} }
+
+      it "escapes the value so it can't break out of the attribute" do
+        expect(svg).not_to include("<script>")
+        expect(svg).to include("&quot;").and include("&lt;script&gt;")
+      end
+    end
   end
 end

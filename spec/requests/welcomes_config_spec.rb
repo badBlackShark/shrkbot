@@ -132,6 +132,13 @@ RSpec.describe "Welcomes config", type: :request do
           expect(response).to redirect_to(server_welcomes_path(guild.id))
           expect(flash[:alert]).to be_present
         end
+
+        it "rejects a channel from another server with 404" do
+          patch server_welcomes_path(guild.id),
+            params: {welcomes: {channel_id: 424242, join_message: "hi", leave_message: "", enabled: "1"}},
+            **turbo
+          expect(response).to have_http_status(:not_found)
+        end
       end
     end
   end
