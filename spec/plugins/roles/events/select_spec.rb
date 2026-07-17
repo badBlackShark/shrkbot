@@ -22,11 +22,17 @@ RSpec.describe Roles::Select do
   let(:server) { double("server", id: server_config.discord_id, member:) }
   let(:bot) { double("bot") }
   let(:event) do
-    double("event", custom_id: Roles::CustomId.select(set), server:, user:, values: ["100"], update_message: nil, bot:)
+    double("event", custom_id: Roles::CustomId.select(set), server:, user:, values: ["100"], defer_update: nil, edit_response: nil, bot:)
   end
 
   it "adds the selected set roles and removes the unselected ones" do
     expect(member).to receive(:modify_roles).with([100], [200])
+    handle
+  end
+
+  it "acknowledges the interaction before changing roles" do
+    expect(event).to receive(:defer_update).ordered
+    expect(member).to receive(:modify_roles).ordered
     handle
   end
 
@@ -92,7 +98,7 @@ RSpec.describe Roles::Select do
       double("member", roles: [double("role", id: 100), double("role", id: 200)], modify_roles: nil, mention: "<@42>")
     end
     let(:event) do
-      double("event", custom_id: Roles::CustomId.select(set), server:, user:, values: [], update_message: nil, bot:)
+      double("event", custom_id: Roles::CustomId.select(set), server:, user:, values: [], defer_update: nil, edit_response: nil, bot:)
     end
 
     it "logs only the lost roles" do
@@ -133,13 +139,13 @@ RSpec.describe Roles::Select do
     let(:server) { nil }
 
     it "does nothing" do
-      expect(event).not_to receive(:update_message)
+      expect(event).not_to receive(:defer_update)
       handle
     end
   end
 
-  it "re-renders the picker via update_message" do
-    expect(event).to receive(:update_message)
+  it "re-renders the picker in the deferred update" do
+    expect(event).to receive(:edit_response)
     handle
   end
 

@@ -24,10 +24,6 @@ module Roles
       member.modify_roles(diff[:add], diff[:remove])
     end
 
-    def update(picker)
-      event.update_message(components: picker[:components], has_components: true)
-    end
-
     def log_assignment(had, diff)
       names = role_names(diff[:add] + diff[:remove])
       gained = logged_roles(:role_gained, diff[:add] - had, names)

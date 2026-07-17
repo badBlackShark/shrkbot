@@ -21,7 +21,7 @@ RSpec.describe Roles::Pick do
   let(:server) { double("server", id: server_config.discord_id, member:) }
   let(:bot) { double("bot") }
   let(:event) do
-    double("event", custom_id: Roles::CustomId.pick(set, blue), server:, user:, respond: nil, bot:)
+    double("event", custom_id: Roles::CustomId.pick(set, blue), server:, user:, defer: nil, edit_response: nil, bot:)
   end
 
   before do
@@ -31,6 +31,12 @@ RSpec.describe Roles::Pick do
 
   it "adds the picked role and removes the other roles in the set" do
     expect(member).to receive(:modify_roles).with([200], [100])
+    handle
+  end
+
+  it "acknowledges the interaction before changing roles" do
+    expect(event).to receive(:defer).with(ephemeral: true).ordered
+    expect(member).to receive(:modify_roles).ordered
     handle
   end
 
@@ -59,8 +65,8 @@ RSpec.describe Roles::Pick do
     handle
   end
 
-  it "confirms what changed ephemerally" do
-    expect(event).to receive(:respond).with(content: "You now have **Blue**.", ephemeral: true)
+  it "confirms what changed in the deferred reply" do
+    expect(event).to receive(:edit_response).with(content: "You now have **Blue**.")
     handle
   end
 
@@ -68,7 +74,7 @@ RSpec.describe Roles::Pick do
     let(:member) { double("member", roles: [double("role", id: 100)], modify_roles: nil, mention: "<@42>") }
 
     it "names the swapped-out role in the confirmation" do
-      expect(event).to receive(:respond).with(content: "You now have **Blue** - swapped out **Red**.", ephemeral: true)
+      expect(event).to receive(:edit_response).with(content: "You now have **Blue** - swapped out **Red**.")
       handle
     end
   end
@@ -82,7 +88,7 @@ RSpec.describe Roles::Pick do
     end
 
     it "confirms the removal" do
-      expect(event).to receive(:respond).with(content: "Removed **Blue**.", ephemeral: true)
+      expect(event).to receive(:edit_response).with(content: "Removed **Blue**.")
       handle
     end
 
@@ -100,11 +106,12 @@ RSpec.describe Roles::Pick do
 
   context "when the custom id references a role outside the set" do
     let(:event) do
-      double("event", custom_id: "roles:pick:#{set.id}:999", server:, user:, respond: nil)
+      double("event", custom_id: "roles:pick:#{set.id}:999", server:, user:)
     end
 
-    it "makes no change" do
+    it "makes no change and never acknowledges" do
       expect(member).not_to receive(:modify_roles)
+      expect(event).not_to receive(:defer)
       handle
     end
   end
@@ -113,7 +120,8 @@ RSpec.describe Roles::Pick do
     let(:server) { nil }
 
     it "does nothing" do
-      expect(event).not_to receive(:respond)
+      expect(event).not_to receive(:defer)
+      expect(event).not_to receive(:edit_response)
       handle
     end
   end

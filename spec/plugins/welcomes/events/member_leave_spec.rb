@@ -17,8 +17,8 @@ RSpec.describe Welcomes::MemberLeave do
   context "with an active setting and a leave message" do
     let(:setting) { double("settings", channel_id: 555, leave_message: "{user} left. {membercount} remain.") }
 
-    it "posts the rendered message with the @handle (no mention)" do
-      expect(bot).to receive(:send_message).with(555, "@ghost left. 9 remain.")
+    it "posts the rendered message with the @handle and suppresses all mentions" do
+      expect(bot).to receive(:send_message).with(555, "@ghost left. 9 remain.", false, nil, nil, {parse: []})
       handle
     end
   end

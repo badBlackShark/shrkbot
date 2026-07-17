@@ -10,8 +10,10 @@ module Roles
       selected = event.values.map(&:to_i)
       diff = Assignment.multi(set_role_ids, selected)
       had = member_set_role_ids
+      event.defer_update
       apply(diff)
-      update(Message.multi_picker(set, selected & set_role_ids))
+      picker = Message.multi_picker(set, selected & set_role_ids)
+      event.edit_response(components: picker[:components], has_components: true)
       log_assignment(had, diff)
     end
   end
