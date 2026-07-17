@@ -14,7 +14,7 @@ class Components::CookieNotice < Components::Base
           label: t(".dismiss"),
           variant: :primary,
           size: :sm,
-          class: "flex-none self-end whitespace-nowrap sm:self-auto",
+          class: "flex-none self-center whitespace-nowrap sm:self-auto",
           data: {action: "cookie-notice#dismiss"}
         )
       end
