@@ -7,7 +7,7 @@ RSpec.describe Roles::Manage do
 
   let(:user) { double("user", id: 42) }
   let(:member) { double("member", roles: [double("role", id: 200)]) }
-  let(:server) { double("server") }
+  let(:server) { double("server", id: server_id) }
   let(:event) { double("event", custom_id: Roles::CustomId.manage(set), server:, user:) }
 
   before do
@@ -16,6 +16,7 @@ RSpec.describe Roles::Manage do
 
   context "for a multi-selection set" do
     let(:set) { create(:role_set, selection_mode: "multi") }
+    let(:server_id) { set.role_setting.server_configuration.discord_id }
 
     before do
       create(:assignable_role, role_set: set, role_id: 200, position: 0)
@@ -36,6 +37,12 @@ RSpec.describe Roles::Manage do
   context "when the set no longer exists" do
     let(:event) { double("event", custom_id: "roles:manage:rst_gone", server:, user:) }
     let(:set) { nil }
+    let(:server_id) { 900_001 }
+    let!(:server_config) do
+      create(:server_configuration, discord_id: server_id).tap do |config|
+        create(:role_setting, server_configuration: config)
+      end
+    end
 
     it "does nothing" do
       expect(event).not_to receive(:respond)

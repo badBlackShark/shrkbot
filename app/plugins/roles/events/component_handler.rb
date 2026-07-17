@@ -5,13 +5,15 @@ module Roles
     private
 
     def set
-      @set ||= Set.find_by(id: CustomId.parse(event.custom_id)[:set_id])
+      return unless event.server
+
+      @set ||= server_configuration.role_setting.role_sets.find_by(id: CustomId.parse(event.custom_id)[:set_id])
     end
 
     def member
       return @member if defined?(@member)
 
-      @member = event.server&.member(event.user.id)
+      @member = event.server.member(event.user.id)
     end
 
     def set_role_ids
@@ -61,7 +63,7 @@ module Roles
     end
 
     def server_configuration
-      set.role_setting.server_configuration
+      @server_configuration ||= ServerConfiguration.find_by(discord_id: event.server.id)
     end
   end
 end
