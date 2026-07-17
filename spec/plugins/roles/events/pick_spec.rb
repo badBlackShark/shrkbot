@@ -35,7 +35,12 @@ RSpec.describe Roles::Pick do
   end
 
   context "when the interaction comes from a different server than the set" do
-    let(:server) { double("server", id: server_config.discord_id + 1, member:) }
+    let(:server) { double("server", id: foreign_config.discord_id, member:) }
+    let!(:foreign_config) do
+      create(:server_configuration, discord_id: server_config.discord_id + 1).tap do |config|
+        create(:role_setting, server_configuration: config)
+      end
+    end
 
     it "ignores it and changes no roles" do
       expect(member).not_to receive(:modify_roles)

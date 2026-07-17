@@ -38,6 +38,11 @@ RSpec.describe Roles::Manage do
     let(:event) { double("event", custom_id: "roles:manage:rst_gone", server:, user:) }
     let(:set) { nil }
     let(:server_id) { 900_001 }
+    let!(:server_config) do
+      create(:server_configuration, discord_id: server_id).tap do |config|
+        create(:role_setting, server_configuration: config)
+      end
+    end
 
     it "does nothing" do
       expect(event).not_to receive(:respond)
