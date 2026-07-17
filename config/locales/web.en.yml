@@ -39,6 +39,11 @@ en:
       enable: Enable %{plugin}
       enabled: Enabled
       servers: Servers
+    cookie_notice:
+      dismiss: Oh, nice!
+      message: We only set technical cookies to make the site work. No tracking, analytics,
+        or anything else from a third party. We will remember that you've seen this,
+        though - with a cookie, of course. :)
     legal_links:
       imprint: Imprint
       privacy: Privacy policy
