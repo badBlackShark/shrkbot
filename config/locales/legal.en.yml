@@ -41,8 +41,11 @@ en:
         age requirement (at least 13, or older where your country requires) to use
         Discord and the Service.
       cookies_h: Cookies
-      cookies_p: 'We set exactly one cookie: the essential encrypted session cookie
-        described above. No tracking, no third-party cookies.'
+      cookies_p: 'We set two cookies: the essential encrypted session cookie described
+        above, and a small flag (valid one year) remembering that you dismissed our
+        cookie note. No tracking, no third-party cookies. Your browser also keeps
+        a few purely local preferences in localStorage — your theme choice and collapsed-panel
+        state. These never leave your device and we never read them server-side.'
       data_account: 'Dashboard account: when you sign in with Discord we store your
         Discord ID, username, display name and avatar reference. We request only the
         identify and guilds OAuth scopes - we never receive your email, password or
@@ -144,7 +147,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: July 13th, 2026'
+      updated: 'Last updated: July 17th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible
