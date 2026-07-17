@@ -29,7 +29,11 @@ RSpec.describe "Spam protection config", type: :request do
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     end
 
-    context "without proving the server is manageable this session" do
+    context "when the user no longer manages the server" do
+      before do
+        allow(Bot::Discord::UserGuilds).to receive(:call).and_return([])
+      end
+
       it "redirects to the picker" do
         get server_spam_protection_path(guild.id)
         expect(response).to redirect_to(servers_path)

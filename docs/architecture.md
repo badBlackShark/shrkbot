@@ -85,6 +85,28 @@ and the web app, so a given mutation is written once and called from both.
 - **Server-scoped authorization** lives in two concerns, not in individual
   controllers. We don't persist which servers a user manages (it's a Discord fact,
   fetched per the metadata-sync design, not a DB relationship), so authorization is
+  re-verified against live Discord on every server-scoped request.
+  `SetsManageableServers` (included by the picker, dashboard, and
+  `RequiresManageableServer`) exposes `remember_manageable_servers`/
+  `manageable_server_ids`, the session-cached fallback. `RequiresManageableServer`
+  (included by every server-scoped controller) **applies `before_action
+  :require_manageable_server` on include** — so a controller can't forget to
+  authorize — which calls `ManageableServers.for` fresh (`#live_manageable_ids`) and
+  sets `@server_configuration`. A demoted admin loses access on their very next
+  request rather than up to two weeks later. Discord being unreachable
+  (`UserGuilds::Error`) falls back to the session cache rather than locking admins
+  out during an outage; a bad/expired token (`UserGuilds::Unauthorized`) is not
+  caught here — it propagates to `DiscordReauth`.
+- **Re-authentication is centralized in the `DiscordReauth` concern**, included by
+  both `ServersController` and `RequiresManageableServer` (every server-scoped
+  controller), since the user's Discord token is now read on every server-scoped
+  request, not just the picker/dashboard. It `rescue_from`s
+  `Bot::Discord::UserGuilds::Unauthorized`, stashes the current path in
+  `session[:return_to]`, and renders `Views::Reauth`; a second consecutive failure
+  resets the session and bounces to the root page. `SessionsController#create`
+  redirects to `session[:return_to]` (falling back to the picker) and clears the
+  reauth flag, so re-auth returns the user to where they were instead of always
+  landing on the picker.
   cached in the signed session. `SetsManageableServers` (included by the picker and
   dashboard) exposes `remember_manageable_servers`, called after proving
   manageability via Discord. `RequiresManageableServer` (included by every

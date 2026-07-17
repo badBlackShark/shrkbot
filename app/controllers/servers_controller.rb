@@ -8,10 +8,11 @@ class ServersController < ApplicationController
   before_action :load_dashboard, only: :show
 
   rescue_from Bot::Discord::UserGuilds::Error, with: :render_error
-  rescue_from Bot::Discord::UserGuilds::Unauthorized, with: :reauthenticate
+
+  include DiscordReauth
 
   def index
-    manageable = ManageableServers.for(session[:discord_token])
+    manageable = ManageableServers.cached_for(session[:discord_token])
     session.delete(:reauth_attempted)
     configured = ServerConfiguration.configured_ids_among(manageable.map(&:id))
     remember_manageable_servers(configured)
@@ -51,13 +52,6 @@ class ServersController < ApplicationController
     @server_configuration = result.server_configuration
     @configured_servers = result.configured_servers
     @plugin_counts = result.plugin_counts
-  end
-
-  def reauthenticate
-    return render_error if session[:reauth_attempted]
-
-    session[:reauth_attempted] = true
-    render Views::Reauth.new
   end
 
   def render_error
