@@ -6,13 +6,13 @@ class Components::CookieNotice < Components::Base
       hidden: true,
       data: {controller: "cookie-notice"},
       role: "status",
-      class: "fixed inset-x-0 bottom-0 z-40 border-t border-border-default bg-surface-sunken px-4 py-3"
+      class: "fixed bottom-6 left-1/2 z-40 w-[30rem] max-w-[calc(100vw-2.5rem)] -translate-x-1/2 rounded-xl"
     ) do
-      div(class: "mx-auto flex max-w-3xl flex-wrap items-center justify-center gap-x-4 gap-y-2") do
-        p(class: "text-sm leading-relaxed text-text-primary") { t(".message") }
+      div(class: "flex items-center justify-between gap-6 rounded-xl border border-border-default bg-surface-card px-5 py-3 shadow-lg") do
+        p(class: "text-sm leading-relaxed text-text-secondary") { t(".message") }
         render Components::Button.new(
           label: t(".dismiss"),
-          variant: :secondary,
+          variant: :primary,
           size: :sm,
           data: {action: "cookie-notice#dismiss"}
         )
