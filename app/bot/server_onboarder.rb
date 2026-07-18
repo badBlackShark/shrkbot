@@ -18,6 +18,7 @@ module Bot
         [
           Discord::Components.text(body(server)),
           Discord::Components.separator,
+          Discord::Components.text("Need help with setup? Add **badBlackShark** on Discord."),
           Discord::Components.text("-# Sign in with Discord to enable plugins and manage settings.")
         ]
       )

@@ -30,6 +30,7 @@ RSpec.describe Bot::ServerOnboarder do
         expect(rendered[:flags]).to eq(Bot::Discord::Components::COMPONENTS_V2)
         expect(rendered[:components].to_s).to include("https://shrkbot.gg/servers/77")
         expect(rendered[:components].to_s).to include("Dev Refuge")
+        expect(rendered[:components].to_s).to include("badBlackShark")
       end
       notify
     end
