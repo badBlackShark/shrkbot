@@ -70,7 +70,7 @@ accessories:
     volumes:
       - shrkbot_pg_data:/var/lib/postgresql
   redis:
-    image: redis:7
+    image: redis:8
     host: <%= ENV["DEPLOY_HOST"] %>
     network: kamal
     cmd: redis-server --save ""
