@@ -8,8 +8,12 @@ RSpec.describe Bot::ServerOnboarder do
   let(:config) { create(:server_configuration) }
   let(:owner) { double("owner", id: 999) }
   let(:server) { double("server", id: 77, name: "Dev Refuge", owner:) }
-  let(:pm_channel) { double("pm_channel", send_message: nil) }
+  let(:pm_channel) { double("pm_channel") }
   let(:bot) { double("bot", pm_channel:) }
+
+  before do
+    allow(Bot::Discord::Components).to receive(:send_to)
+  end
 
   context "when the server has not been onboarded" do
     before do
@@ -22,13 +26,20 @@ RSpec.describe Bot::ServerOnboarder do
     end
 
     it "sends a branded container with the deep dashboard link and server name" do
-      expect(pm_channel).to receive(:send_message) do |*args|
-        components = args[6]
-        flags = args[7]
-        expect(flags).to eq(Bot::Discord::Components::COMPONENTS_V2)
-        expect(components.to_s).to include("https://shrkbot.gg/servers/77")
-        expect(components.to_s).to include("Dev Refuge")
+      expect(Bot::Discord::Components).to receive(:send_to) do |_channel, rendered, **options|
+        expect(rendered[:flags]).to eq(Bot::Discord::Components::COMPONENTS_V2)
+        expect(rendered[:components].to_s).to include("https://shrkbot.gg/servers/77")
+        expect(rendered[:components].to_s).to include("Dev Refuge")
       end
+      notify
+    end
+
+    it "passes a plain summary as the push-notification subject" do
+      expect(Bot::Discord::Components).to receive(:send_to).with(
+        pm_channel,
+        anything,
+        subject: "Thanks for adding shrkbot! Set up Dev Refuge on the web dashboard."
+      )
       notify
     end
 

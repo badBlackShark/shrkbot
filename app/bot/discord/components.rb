@@ -50,8 +50,29 @@ module Bot
         {type: MEDIA_GALLERY, items: urls.map { |url| {media: {url:}} }}
       end
 
-      def send_to(channel, rendered, allowed_mentions: nil, attachments: nil)
-        channel.send_message(nil, false, nil, attachments, allowed_mentions, nil, rendered[:components], rendered[:flags])
+      def send_to(channel, rendered, allowed_mentions: nil, attachments: nil, subject: nil)
+        unless subject
+          return channel.send_message(nil, false, nil, attachments, allowed_mentions, nil, rendered[:components], rendered[:flags])
+        end
+
+        message = channel.send_message(subject, false, nil, attachments, allowed_mentions, nil, nil, 0)
+        convert_to_v2(channel.id, message.id, rendered)
+        message
+      end
+
+      def convert_to_v2(channel_id, message_id, rendered)
+        Discordrb::API::Channel.edit_message(
+          Bot::Config.rest_token,
+          channel_id,
+          message_id,
+          nil,
+          nil,
+          nil,
+          rendered[:components],
+          rendered[:flags]
+        )
+      rescue => e
+        Rails.logger.warn("[Components] message #{message_id} left as plain text: #{e.class}: #{e.message}")
       end
     end
   end

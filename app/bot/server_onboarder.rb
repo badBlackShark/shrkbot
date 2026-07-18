@@ -7,7 +7,7 @@ module Bot
     def notify(bot, server, config)
       return if config.onboarded_at?
 
-      Discord::Components.send_to(bot.pm_channel(server.owner.id), message(server))
+      Discord::Components.send_to(bot.pm_channel(server.owner.id), message(server), subject: subject(server))
       config.update!(onboarded_at: Time.current)
     rescue => e
       Rails.logger.error("[ServerOnboarder] could not onboard server #{server.id}: #{e.class}: #{e.message}")
@@ -21,6 +21,10 @@ module Bot
           Discord::Components.text("-# Sign in with Discord to enable plugins and manage settings.")
         ]
       )
+    end
+
+    def subject(server)
+      "Thanks for adding shrkbot! Set up #{server.name} on the web dashboard."
     end
 
     def body(server)

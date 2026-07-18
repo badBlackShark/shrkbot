@@ -9,7 +9,7 @@ RSpec.describe Bot::OwnerBroadcast do
     let(:bots) { [shard_one, shard_two] }
     let(:shard_one) { double("shard_one", servers: {1 => server(10), 2 => server(20)}) }
     let(:shard_two) { double("shard_two", servers: {3 => server(10), 4 => server(30)}) }
-    let(:channel) { double("channel", send_message: nil) }
+    let(:channel) { double("channel") }
 
     def server(owner_id)
       double("server", owner: double("owner", id: owner_id))
@@ -17,6 +17,7 @@ RSpec.describe Bot::OwnerBroadcast do
 
     before do
       allow(shard_one).to receive(:pm_channel).and_return(channel)
+      allow(Bot::Discord::Components).to receive(:send_to)
     end
 
     it "counts every server across all shards" do
@@ -35,14 +36,19 @@ RSpec.describe Bot::OwnerBroadcast do
     end
 
     it "sends a components-v2 message with the content and a footer below a separator" do
-      expect(channel).to receive(:send_message).at_least(:once) do |*args|
-        blocks = args[6].first[:components]
-        expect(args[7]).to eq(Bot::Discord::Components::COMPONENTS_V2)
+      expect(Bot::Discord::Components).to receive(:send_to).at_least(:once) do |_channel, rendered, **options|
+        expect(rendered[:flags]).to eq(Bot::Discord::Components::COMPONENTS_V2)
+        blocks = rendered[:components].first[:components]
         expect(blocks.map { |block| block[:type] }).to include(Bot::Discord::Components::SEPARATOR)
         body = blocks.filter_map { |block| block[:content] }
         expect(body).to include("hello owners")
         expect(body.join).to include("-# ").and include("you own at least one server")
       end
+      result
+    end
+
+    it "passes the broadcast content as the push-notification subject" do
+      expect(Bot::Discord::Components).to receive(:send_to).at_least(:once).with(channel, anything, subject: "hello owners")
       result
     end
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rails_helper"
+require "discordrb"
 
 RSpec.describe Bot::Discord::Components do
   describe ".action_row" do
@@ -14,22 +15,87 @@ RSpec.describe Bot::Discord::Components do
   end
 
   describe ".send_to" do
+    subject(:send_to) { described_class.send_to(channel, rendered, attachments:) }
+
     let(:rendered) { described_class.container([described_class.text("hello")]) }
     let(:channel) { double("channel", send_message: nil) }
+    let(:attachments) { nil }
 
     it "passes nil for attachments when none given" do
-      expect(channel).to receive(:send_message) do |_content, _tts, _embed, attachments, *_rest|
-        expect(attachments).to be_nil
+      expect(channel).to receive(:send_message) do |_content, _tts, _embed, sent_attachments, *_rest|
+        expect(sent_attachments).to be_nil
       end
-      described_class.send_to(channel, rendered)
+      send_to
     end
 
-    it "forwards attachments when given" do
-      io = Bot::Discord::FileUpload.new("bytes", "img.png")
-      expect(channel).to receive(:send_message) do |_content, _tts, _embed, attachments, *_rest|
-        expect(attachments).to eq([io])
+    it "does not edit the message when no subject is given" do
+      expect(Discordrb::API::Channel).not_to receive(:edit_message)
+      send_to
+    end
+
+    context "with attachments" do
+      let(:attachments) { [Bot::Discord::FileUpload.new("bytes", "img.png")] }
+
+      it "forwards them" do
+        expect(channel).to receive(:send_message) do |_content, _tts, _embed, sent_attachments, *_rest|
+          expect(sent_attachments).to eq(attachments)
+        end
+        send_to
       end
-      described_class.send_to(channel, rendered, attachments: [io])
+    end
+
+    context "with a subject" do
+      subject(:send_to) { described_class.send_to(channel, rendered, subject: "reminder: hello") }
+
+      let(:message) { double("message", id: 30) }
+      let(:channel) { double("channel", id: 20, send_message: message) }
+
+      before do
+        allow(Bot::Config).to receive(:rest_token).and_return("Bot tok")
+        allow(Discordrb::API::Channel).to receive(:edit_message)
+      end
+
+      it "sends the subject as a plain message so the push notification has a preview" do
+        expect(channel).to receive(:send_message).with(
+          "reminder: hello",
+          false,
+          nil,
+          nil,
+          nil,
+          nil,
+          nil,
+          0
+        ).and_return(message)
+        send_to
+      end
+
+      it "converts the message to components v2 with the content nulled out" do
+        expect(Discordrb::API::Channel).to receive(:edit_message).with(
+          "Bot tok",
+          20,
+          30,
+          nil,
+          nil,
+          nil,
+          rendered[:components],
+          rendered[:flags]
+        )
+        send_to
+      end
+
+      it "returns the sent message" do
+        expect(send_to).to eq(message)
+      end
+
+      context "when the conversion fails" do
+        before do
+          allow(Discordrb::API::Channel).to receive(:edit_message).and_raise("500 oops")
+        end
+
+        it "leaves the plain message standing and returns it" do
+          expect(send_to).to eq(message)
+        end
+      end
     end
   end
 
