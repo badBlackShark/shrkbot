@@ -23,7 +23,7 @@ RSpec.describe Components::Roles::ConfigForm do
   end
 
   it "renders no bot-position callout when roles sit below the bot" do
-    expect(html).not_to include("bottom of your server")
+    expect(html).not_to include("at the very bottom")
   end
 
   context "when the bot role sits at the bottom of the role list" do
@@ -34,7 +34,7 @@ RSpec.describe Components::Roles::ConfigForm do
     end
 
     it "recommends moving the bot role up" do
-      expect(html).to include("bottom of your server")
+      expect(html).to include("at the very bottom")
     end
   end
 
