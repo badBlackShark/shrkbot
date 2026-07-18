@@ -1,4 +1,11 @@
+<p align="center">
+  <img src="app/assets/images/shrkbot-mascot.png" alt="The shrkbot mascot — a robotic shark holding a wrench in its mouth" width="220">
+</p>
+
 # shrkbot
+
+[![Maintainability](https://qlty.sh/gh/badBlackShark/projects/shrkbot/maintainability.svg)](https://qlty.sh/gh/badBlackShark/projects/shrkbot)
+[![Code Coverage](https://qlty.sh/gh/badBlackShark/projects/shrkbot/coverage.svg)](https://qlty.sh/gh/badBlackShark/projects/shrkbot)
 
 A Discord bot with a companion website. All per-server configuration lives on the site; the bot handles Discord interactions and events. For what the bot actually does, see [shrkbot.com](https://shrkbot.com).
 
