@@ -70,11 +70,12 @@ module Moderation
         ping = settings.ping_staff
         state = removed ? "removed" : "flagged"
         image = image_bytes && Bot::Discord::FileUpload.new(image_bytes, File.basename(URI(context.image_url).path))
+        title = I18n.t("moderation.image_scanning.flag.title.#{state}")
 
         Bot::ActivityLog.post(
           config,
           bot: context.bot,
-          title: I18n.t("moderation.image_scanning.flag.title.#{state}"),
+          title:,
           body: StaffPing.prefix(staff_role_id, ping:) + I18n.t(
             "moderation.image_scanning.flag.body",
             author: "<@#{context.member.id}>",
@@ -84,6 +85,7 @@ module Moderation
           meta: I18n.t("moderation.image_scanning.flag.meta.#{state}"),
           image:,
           components: message_components(punishment.action),
+          subject: StaffPing.prefix(staff_role_id, ping:) + title,
           allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
         )
       end

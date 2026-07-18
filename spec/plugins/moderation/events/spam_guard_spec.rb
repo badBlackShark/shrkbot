@@ -143,7 +143,8 @@ RSpec.describe Moderation::SpamGuard do
         log_channel,
         anything,
         allowed_mentions: hash_including(roles: array_including(staff_role_id)),
-        attachments: nil
+        attachments: nil,
+        subject: "<@&#{staff_role_id}>: #{I18n.t("moderation.spam_protection.notification.title.purge")}"
       )
 
       simulate_message(channel_id: 1, message_id: 10)
@@ -459,12 +460,13 @@ RSpec.describe Moderation::SpamGuard do
       allow(Bot::Discord::Components).to receive(:send_to)
     end
 
-    it "notifies with empty roles in allowed_mentions" do
+    it "notifies with empty roles in allowed_mentions and no mention in the subject" do
       expect(Bot::Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
         allowed_mentions: {parse: [], roles: []},
-        attachments: nil
+        attachments: nil,
+        subject: I18n.t("moderation.spam_protection.notification.title.notify_only")
       )
 
       simulate_message(channel_id: 1, message_id: 10)
@@ -498,8 +500,7 @@ RSpec.describe Moderation::SpamGuard do
       expect(Bot::Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
-        allowed_mentions: {parse: [], roles: []},
-        attachments: nil
+        hash_including(allowed_mentions: {parse: [], roles: []}, attachments: nil)
       )
 
       simulate_message(channel_id: 1, message_id: 1)
