@@ -9,7 +9,7 @@ RSpec.describe Reminders::Remind do
   let(:event) do
     double("event", user: double(id: 1), channel_id: 2, server_id: 3, options:, respond: nil)
   end
-  let(:success_result) { Ops::ApplicationOperation::Result.new(true, double(remind_at: Time.at(1_000)), []) }
+  let(:success_result) { Ops::ApplicationOperation::Result.new(true, double(remind_at: Time.at(1_000), message: "hi"), []) }
 
   context "with valid options" do
     it "calls Ops::Reminders::Create with the event's options and confirms" do
@@ -17,6 +17,12 @@ RSpec.describe Reminders::Remind do
         .with(hash_including(user_id: 1, channel_id: 2, server_id: 3, message: "hi", duration: "1h", deliver_via_dm: false))
         .and_return(success_result)
       expect(event).to receive(:respond).with(hash_including(ephemeral: true, content: a_string_including("remind you")))
+      execute
+    end
+
+    it "echoes the reminder message in the confirmation" do
+      allow(Ops::Reminders::Create).to receive(:call).and_return(success_result)
+      expect(event).to receive(:respond).with(hash_including(content: a_string_including("hi")))
       execute
     end
   end
