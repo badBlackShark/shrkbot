@@ -18,12 +18,11 @@ RSpec.describe Reminders::DeliverJob do
   end
 
   context "in a channel" do
-    it "posts the reminder as plain content so the push notification has a preview, then deletes it" do
+    it "posts the reminder as a content-first subject so the push notification has a preview, then deletes it" do
       expect(Discordrb::API::Channel).to receive(:create_message) do |token, channel_id, content, _tts, _embeds, _nonce, _attachments, allowed_mentions, _message_reference, components, flags|
         expect(token).to eq("Bot tok")
         expect(channel_id).to eq(20)
-        expect(content).to include("<@10>")
-        expect(content).to include("hello")
+        expect(content).to eq("Reminder: hello <@10>")
         expect(allowed_mentions).to eq({parse: [], users: [10]})
         expect(components).to be_nil
         expect(flags).to be_nil

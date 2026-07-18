@@ -34,11 +34,11 @@ RSpec.describe Bot::ServerOnboarder do
       notify
     end
 
-    it "passes a plain summary as the push-notification subject" do
+    it "passes a plain summary with the dashboard link as the push-notification subject" do
       expect(Bot::Discord::Components).to receive(:send_to).with(
         pm_channel,
         anything,
-        subject: "Thanks for adding shrkbot! Set up Dev Refuge on the web dashboard."
+        subject: "Thanks for adding shrkbot! Set up Dev Refuge here: https://shrkbot.gg/servers/77"
       )
       notify
     end

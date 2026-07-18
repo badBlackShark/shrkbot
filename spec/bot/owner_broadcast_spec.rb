@@ -47,8 +47,8 @@ RSpec.describe Bot::OwnerBroadcast do
       result
     end
 
-    it "passes the broadcast content as the push-notification subject" do
-      expect(Bot::Discord::Components).to receive(:send_to).at_least(:once).with(channel, anything, subject: "hello owners")
+    it "passes a labelled push-notification subject carrying the content" do
+      expect(Bot::Discord::Components).to receive(:send_to).at_least(:once).with(channel, anything, subject: "New shrkbot announcement: hello owners")
       result
     end
 

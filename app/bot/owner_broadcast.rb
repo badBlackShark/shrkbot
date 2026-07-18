@@ -17,11 +17,15 @@ module Bot
     end
 
     def deliver(bot, owner_id, content)
-      Discord::Components.send_to(bot.pm_channel(owner_id), message(content), subject: content)
+      Discord::Components.send_to(bot.pm_channel(owner_id), message(content), subject: subject(content))
       true
     rescue => e
       Rails.logger.warn("[OwnerBroadcast] could not DM owner #{owner_id}: #{e.class}: #{e.message}")
       false
+    end
+
+    def subject(content)
+      "New shrkbot announcement: #{content}"
     end
 
     def message(content)

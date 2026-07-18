@@ -24,7 +24,7 @@ module Bot
     end
 
     def subject(server)
-      "Thanks for adding shrkbot! Set up #{server.name} on the web dashboard."
+      "Thanks for adding shrkbot! Set up #{server.name} here: #{dashboard_url(server)}"
     end
 
     def body(server)
