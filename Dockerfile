@@ -1,7 +1,7 @@
 # Image for the app processes (web/bot/jobs) in docker-compose.
 # Development-oriented for now; production hardening (multi-stage, non-root,
 # asset precompile, RAILS_ENV=production) is Phase 9.
-FROM ruby:4.0.5-slim
+FROM ruby:4.0.6-slim
 
 # build-essential: native gem extensions (psych, bootsnap, msgpack…)
 # libyaml-dev + pkg-config: psych · libpq-dev: pg · git: discordrb is a git gem
