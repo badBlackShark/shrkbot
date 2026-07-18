@@ -69,13 +69,13 @@ RSpec.describe Bot::Discord::Components do
         send_to
       end
 
-      it "converts the message to components v2 with the content nulled out" do
+      it "converts the message to components v2 with the content nulled out and mention re-parsing suppressed" do
         expect(Discordrb::API::Channel).to receive(:edit_message).with(
           "Bot tok",
           20,
           30,
           nil,
-          nil,
+          {parse: []},
           nil,
           rendered[:components],
           rendered[:flags]

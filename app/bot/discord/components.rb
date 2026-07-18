@@ -66,7 +66,7 @@ module Bot
           channel_id,
           message_id,
           nil,
-          nil,
+          {parse: []},
           nil,
           rendered[:components],
           rendered[:flags]
