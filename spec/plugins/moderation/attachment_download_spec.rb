@@ -12,7 +12,10 @@ RSpec.describe Moderation::AttachmentDownload do
 
   before do
     allow(Net::HTTP).to receive(:start) { |*_args, &block| block.call(http) }
-    allow(http).to receive(:request_get) { |_uri, &block| block.call(response) }
+    allow(http).to receive(:request_get) do |_uri, &block|
+      block.call(response)
+      response
+    end
     allow(response).to receive(:read_body) { |&block| chunks.each { |chunk| block.call(chunk) } }
   end
 
