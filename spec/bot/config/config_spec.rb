@@ -37,7 +37,7 @@ RSpec.describe Bot::Config do
   end
 
   describe ".invite_url" do
-    it "builds the OAuth authorize link from CLIENT_ID" do
+    it "builds the bare OAuth authorize link so Discord applies the app's default install settings" do
       with_env("CLIENT_ID", "12345") do
         expect(described_class.invite_url).to eq("https://discord.com/oauth2/authorize?client_id=12345")
       end

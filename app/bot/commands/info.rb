@@ -29,20 +29,24 @@ module Bot
             ),
             Discord::Components.separator,
             Discord::Components.text("**Built with**\n#{credits}"),
-            *configuration_section,
             Discord::Components.separator,
             Discord::Components.text("-# Want to support the project? Use /donate.")
-          ]
+          ],
+          buttons:
         )
       end
 
-      def configuration_section
-        return [] unless configurable?
-
-        [
-          Discord::Components.separator,
-          Discord::Components.text("**Configure me**\n[Manage this server's settings](#{Config.server_config_url(event.server_id)})")
+      def buttons
+        base = [
+          Discord::Components.link_button(url: ReleaseInfo::REPO_URL, label: "GitHub"),
+          Discord::Components.link_button(url: Config.invite_url, label: "Invite me")
         ]
+        return base unless configurable?
+
+        base << Discord::Components.link_button(
+          url: Config.server_config_url(event.server_id),
+          label: "Server settings"
+        )
       end
 
       def configurable?
@@ -53,8 +57,7 @@ module Bot
 
       def header
         "### #{event.bot.profile.username}\n" \
-          "I was written in [Ruby](https://www.ruby-lang.org/) by [badBlackShark](https://github.com/badBlackShark/).\n" \
-          "My code lives [here](#{ReleaseInfo::REPO_URL}). Want me on your server? [Invite me!](#{Config.invite_url})"
+          "I was written in [Ruby](https://www.ruby-lang.org/) by [badBlackShark](https://github.com/badBlackShark/)."
       end
 
       def credits

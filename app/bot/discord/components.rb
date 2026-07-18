@@ -11,9 +11,11 @@ module Bot
       THUMBNAIL = 11
       ACTION_ROW = 1
       BUTTON = 2
+      BUTTON_PRIMARY = 1
       BUTTON_SECONDARY = 2
       BUTTON_SUCCESS = 3
       BUTTON_DANGER = 4
+      BUTTON_LINK = 5
       COMPONENTS_V2 = 1 << 15
 
       module_function
@@ -22,12 +24,18 @@ module Bot
         {type: ACTION_ROW, components:}
       end
 
-      def button(custom_id:, label:, style: 1)
+      def button(custom_id:, label:, style: BUTTON_PRIMARY)
         {type: BUTTON, style:, label:, custom_id:}
       end
 
-      def container(blocks, accent_color: Config::ACCENT_COLOR)
-        {components: [{type: CONTAINER, accent_color:, components: blocks}], flags: COMPONENTS_V2}
+      def link_button(url:, label:)
+        {type: BUTTON, style: BUTTON_LINK, url:, label:}
+      end
+
+      def container(blocks, accent_color: Config::ACCENT_COLOR, buttons: [])
+        components = [{type: CONTAINER, accent_color:, components: blocks}]
+        components << action_row(buttons) if buttons.any?
+        {components:, flags: COMPONENTS_V2}
       end
 
       def text(body)
