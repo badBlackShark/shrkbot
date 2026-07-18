@@ -20,14 +20,16 @@ module Moderation
         open_timeout: 5,
         read_timeout: 30
       ) do |http|
+        body = nil
         http.request_get(uri) do |response|
           unless response.code.to_i.between?(200, 299)
             raise Error, "download failed: #{response.code}"
           end
           raise Error, "attachment too large" if (response.content_length || 0) > max_bytes
 
-          read_capped(response, max_bytes)
+          body = read_capped(response, max_bytes)
         end
+        body
       end
     rescue Net::OpenTimeout, Net::ReadTimeout, SocketError => e
       raise Error, e.message
