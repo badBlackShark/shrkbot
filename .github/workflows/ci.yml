@@ -131,8 +131,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    # id-token lets the Qlty coverage upload authenticate via OIDC instead of a
-    # stored secret.
     permissions:
       contents: read
       id-token: write
