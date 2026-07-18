@@ -34,6 +34,8 @@ gem "omniauth-rails_csrf_protection"
 gem "redis"
 # Phosphor Icons as inline SVG for the web UI
 gem "phosphor_icons"
+# Catches migrations unsafe under rolling deploys (dropped columns, renames)
+gem "strong_migrations"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
