@@ -48,6 +48,29 @@ RSpec.describe Bot::ActivityLog do
       post
     end
 
+    it "sends without a subject by default" do
+      expect(Bot::Discord::Components).to receive(:send_to).with(channel, anything, hash_including(subject: nil))
+      post
+    end
+
+    context "with a subject" do
+      subject(:post) do
+        described_class.post(
+          server_config,
+          bot:,
+          title: "Scam image removed",
+          body: "<@42> posted an image.",
+          meta: "The message was deleted automatically.",
+          subject: "<@&9>: Scam image removed"
+        )
+      end
+
+      it "passes it through to the send" do
+        expect(Bot::Discord::Components).to receive(:send_to).with(channel, anything, hash_including(subject: "<@&9>: Scam image removed"))
+        post
+      end
+    end
+
     context "with an image" do
       let(:upload) { Bot::Discord::FileUpload.new("fakebytes", "scam.png") }
 

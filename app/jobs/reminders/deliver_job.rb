@@ -18,20 +18,24 @@ module Reminders
 
     def deliver(reminder)
       channel_id = deliver_via_dm?(reminder) ? dm_channel_id(reminder.user_id) : reminder.channel_id
-      rendered = message(reminder)
-      Discordrb::API::Channel.create_message(
+      response = Discordrb::API::Channel.create_message(
         Bot::Config.rest_token,
         channel_id,
-        nil,
+        subject(reminder),
         false,
         nil,
         nil,
         nil,
         {parse: [], users: [reminder.user_id]},
         nil,
-        rendered[:components],
-        rendered[:flags]
+        nil,
+        nil
       )
+      Bot::Discord::Components.convert_to_v2(channel_id, response_id(response), message(reminder))
+    end
+
+    def subject(reminder)
+      "Reminder: #{reminder.message} <@#{reminder.user_id}>"
     end
 
     def message(reminder)
@@ -46,7 +50,11 @@ module Reminders
     end
 
     def dm_channel_id(user_id)
-      JSON.parse(Discordrb::API::User.create_pm(Bot::Config.rest_token, user_id))["id"]
+      response_id(Discordrb::API::User.create_pm(Bot::Config.rest_token, user_id))
+    end
+
+    def response_id(response)
+      JSON.parse(response)["id"]
     end
 
     def content(reminder)

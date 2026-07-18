@@ -119,12 +119,14 @@ module Moderation
         timeout_until: settings.punishment_timeout? ? Time.current + settings.timeout_seconds : nil
       )
 
+      title = I18n.t("moderation.spam_protection.notification.title.#{settings.action}")
       Bot::ActivityLog.post(
         config,
         bot: event.bot,
-        title: I18n.t("moderation.spam_protection.notification.title.#{settings.action}"),
+        title:,
         body:,
         meta: I18n.t("moderation.spam_protection.notification.meta.#{settings.action}"),
+        subject: StaffPing.prefix(staff_role_id, ping:) + title,
         allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
       )
     end

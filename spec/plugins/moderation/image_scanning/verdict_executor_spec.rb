@@ -115,6 +115,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
         server_configuration,
         hash_including(
           title: I18n.t("moderation.image_scanning.flag.title.flagged"),
+          subject: "<@&#{staff_role_id}>: #{I18n.t("moderation.image_scanning.flag.title.flagged")}",
           allowed_mentions: {parse: [], roles: [staff_role_id]}
         )
       ) do |_config, kwargs|
