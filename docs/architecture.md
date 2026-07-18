@@ -354,6 +354,9 @@ the `CONTAINER`/`TEXT_DISPLAY`/`SEPARATOR` type ids, the `COMPONENTS_V2` flag, a
 `container`/`text`/`separator` builders — so every sender (role messages, `/info`, the
 owner broadcast, the onboarding DM, activity-log entries) renders the same way and the
 brand colour lives in one place (`Bot::Config::ACCENT_COLOR`, the container default).
+External links on a command response go in link buttons under the message, not inline
+markdown: `container(blocks, buttons: [Components.link_button(url:, label:), …])` appends
+an action row as a sibling after the container (see `/info` and `/donate`).
 `Components.send_to(channel, rendered, allowed_mentions:, subject:)` owns the positional
 `channel.send_message` shape (nil content + components + flags), so call sites never
 enumerate the discordrb signature; only `Reminders::DeliverJob` sends over raw REST

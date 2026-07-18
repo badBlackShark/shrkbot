@@ -121,7 +121,41 @@ RSpec.describe Bot::Discord::Components do
       subject(:button) { described_class.button(custom_id: "mod:confirm:abc", label: "Confirm scam") }
 
       it "defaults to the primary style" do
-        expect(button[:style]).to eq(1)
+        expect(button[:style]).to eq(described_class::BUTTON_PRIMARY)
+      end
+    end
+  end
+
+  describe ".link_button" do
+    subject(:link_button) { described_class.link_button(url: "https://example.test", label: "Example") }
+
+    it "builds a link-style button carrying the url and label" do
+      expect(link_button).to eq(
+        type: described_class::BUTTON,
+        style: described_class::BUTTON_LINK,
+        url: "https://example.test",
+        label: "Example"
+      )
+    end
+  end
+
+  describe ".container" do
+    subject(:container) { described_class.container([described_class.text("hello")]) }
+
+    it "wraps the blocks in a single accented container" do
+      expect(container[:components].sole).to include(type: described_class::CONTAINER)
+    end
+
+    context "with buttons" do
+      subject(:container) { described_class.container([described_class.text("hello")], buttons: [button]) }
+
+      let(:button) { described_class.link_button(url: "https://example.test", label: "Example") }
+
+      it "appends an action row after the container" do
+        expect(container[:components].last).to eq(
+          type: described_class::ACTION_ROW,
+          components: [button]
+        )
       end
     end
   end

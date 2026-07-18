@@ -18,6 +18,10 @@ RSpec.describe Bot::Commands::Info do
     blocks(args).filter_map { |block| block[:content] }
   end
 
+  def button_urls(args)
+    args[:components].last[:components].map { |button| button[:url] }
+  end
+
   it "responds with an ephemeral components-v2 message" do
     expect(event).to receive(:respond) do |args|
       expect(args[:ephemeral]).to be(true)
@@ -44,14 +48,21 @@ RSpec.describe Bot::Commands::Info do
     execute
   end
 
-  it "credits the stack and links the code, invite, and donate command" do
+  it "credits the stack and links the donate command" do
     expect(event).to receive(:respond) do |args|
       body = texts(args).join("\n")
       expect(body).to include("shrkbot")
       expect(body).to include("Ruby")
-      expect(body).to include(Bot::Config.invite_url)
       expect(body).to include("discordrb").and include("Ruby on Rails")
       expect(body).to include("/donate")
+    end
+
+    execute
+  end
+
+  it "links the code and invite as buttons" do
+    expect(event).to receive(:respond) do |args|
+      expect(button_urls(args)).to eq([ReleaseInfo::REPO_URL, Bot::Config.invite_url])
     end
 
     execute
@@ -76,10 +87,9 @@ RSpec.describe Bot::Commands::Info do
     context "when the caller can manage the server" do
       let(:user) { double("member", id: 7, permission?: true) }
 
-      it "includes a link to the server's configuration page" do
+      it "includes a server settings button" do
         expect(event).to receive(:respond) do |args|
-          body = texts(args).join("\n")
-          expect(body).to include("https://shrk.test/servers/123")
+          expect(button_urls(args)).to include("https://shrk.test/servers/123")
         end
 
         execute
@@ -89,9 +99,9 @@ RSpec.describe Bot::Commands::Info do
     context "when the caller cannot manage the server" do
       let(:user) { double("member", id: 7, permission?: false) }
 
-      it "omits the configuration link" do
+      it "omits the server settings button" do
         expect(event).to receive(:respond) do |args|
-          expect(texts(args).join("\n")).not_to include("/servers/")
+          expect(button_urls(args)).not_to include("https://shrk.test/servers/123")
         end
 
         execute

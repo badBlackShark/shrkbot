@@ -21,9 +21,6 @@ module Bot
         "You are never obligated to donate - just using shrkbot is more than enough :) " \
         "And please only ever give money you don't otherwise need."
 
-      LINKS = "**If you'd like to chip in:**\n" \
-        "[PayPal](https://paypal.me/trueblackshark) · [Liberapay](https://liberapay.com/badBlackShark)"
-
       FOOTER = "-# All donations are non-refundable. Thanks for the support! <3"
 
       def execute
@@ -39,9 +36,17 @@ module Bot
             Discord::Components.separator,
             Discord::Components.text(PLEDGE),
             Discord::Components.separator,
-            Discord::Components.text(LINKS),
-            Discord::Components.separator,
             Discord::Components.text(FOOTER)
+          ],
+          buttons: [
+            Discord::Components.link_button(
+              url: "https://www.paypal.com/ncp/payment/WD5EEL2SJPBRQ",
+              label: "PayPal"
+            ),
+            Discord::Components.link_button(
+              url: "https://liberapay.com/badBlackShark",
+              label: "Liberapay"
+            )
           ]
         )
       end
