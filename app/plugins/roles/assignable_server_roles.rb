@@ -23,6 +23,12 @@ module Roles
       candidates.any? { |role| reason_for(role) }
     end
 
+    def bot_at_bottom?
+      return false unless bot_position
+
+      candidates.any? && candidates.none? { |role| role.position.to_i < bot_position }
+    end
+
     def assignable_ids
       candidates.reject { |role| reason_for(role) }.map(&:discord_id)
     end

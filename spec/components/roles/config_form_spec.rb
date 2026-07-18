@@ -22,6 +22,22 @@ RSpec.describe Components::Roles::ConfigForm do
     expect(html).to include("No channels have synced yet")
   end
 
+  it "renders no bot-position callout when roles sit below the bot" do
+    expect(html).not_to include("at the very bottom")
+  end
+
+  context "when the bot role sits at the bottom of the role list" do
+    let(:config) { create(:server_configuration, bot_role_position: 1) }
+
+    before do
+      create(:server_role, server_configuration: config, discord_id: 10, name: "Member", position: 2)
+    end
+
+    it "recommends moving the bot role up" do
+      expect(html).to include("at the very bottom")
+    end
+  end
+
   context "when a guild has a category with child text channels" do
     before do
       create(:server_channel, server_configuration: config, name: "General", channel_type: 4, discord_id: 900, position: 0)

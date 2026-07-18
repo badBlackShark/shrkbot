@@ -8,12 +8,19 @@ class Components::Roles::ConfigForm < Components::Base
 
   def view_template
     div(id: "roles-config", class: "flex flex-col gap-5", data: {controller: "role-sets"}) do
+      bot_at_bottom_callout
       default_channel_card
       role_sets_section
     end
   end
 
   private
+
+  def bot_at_bottom_callout
+    return unless assignable_options.bot_at_bottom?
+
+    render Components::Callout.new(variant: :info) { t(".bot_at_bottom") }
+  end
 
   def default_channel_card
     render Components::ChannelCard.new(
