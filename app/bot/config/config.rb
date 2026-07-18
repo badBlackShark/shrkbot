@@ -36,7 +36,7 @@ module Bot
     end
 
     def invite_url
-      "https://discord.com/oauth2/authorize?client_id=#{client_id}"
+      "https://discord.com/oauth2/authorize?client_id=#{client_id}&scope=bot+applications.commands"
     end
 
     def web_base_url
