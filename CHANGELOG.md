@@ -5,6 +5,24 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.4.0] - 2026-07-18
+
+### Added
+- A one-time dismissible cookie notice on the website, clarifying that shrkbot only sets technical cookies and nothing third-party. ([#185](https://github.com/badBlackShark/shrkbot/pull/185))
+- The roles config page now shows a callout recommending you raise shrkbot's role when it still sits at the bottom of the role list, where it can't assign any role. ([#192](https://github.com/badBlackShark/shrkbot/pull/192))
+
+### Changed
+- `/remind` confirmations now echo the reminder text back, so you can verify the reminder saved what you meant. ([#189](https://github.com/badBlackShark/shrkbot/pull/189))
+- External links on `/info` and `/donate` (GitHub, invite, server settings, donation) moved from inline text links to proper link buttons under the message. ([#190](https://github.com/badBlackShark/shrkbot/pull/190))
+- The onboarding DM for new servers now includes a direct contact for setup help. ([#191](https://github.com/badBlackShark/shrkbot/pull/191))
+
+### Fixed
+- Push notifications for proactive messages (like a reminder arriving in your DMs) no longer show an empty preview; they now carry the message text. ([#187](https://github.com/badBlackShark/shrkbot/pull/187))
+- Security: a reminder delivered to a channel can no longer ping other users or roles through mentions in its text; mentions only resolve for the reminder's recipient, and reminder durations are bounded. ([#175](https://github.com/badBlackShark/shrkbot/pull/175))
+- Security: web config forms now verify that submitted channels and the staff role actually belong to the server being configured, instead of accepting any snowflake. ([#174](https://github.com/badBlackShark/shrkbot/pull/174), [#183](https://github.com/badBlackShark/shrkbot/pull/183))
+- Security: dashboard access is re-verified against Discord before every config write, so an admin demoted or removed on Discord loses access immediately instead of when their cached session expires. ([#176](https://github.com/badBlackShark/shrkbot/pull/176))
+- Security hardening from a full audit: an enforcing Content Security Policy on the website, session rotation on sign-in, runtime re-checks of declared command permissions, a byte cap on attachment downloads during image scanning, rate limiting on the live server list, and leave messages that can never ping. ([#177](https://github.com/badBlackShark/shrkbot/pull/177), [#182](https://github.com/badBlackShark/shrkbot/pull/182), [#181](https://github.com/badBlackShark/shrkbot/pull/181), [#179](https://github.com/badBlackShark/shrkbot/pull/179), [#178](https://github.com/badBlackShark/shrkbot/pull/178), [#184](https://github.com/badBlackShark/shrkbot/pull/184))
+
 ## [3.3.0] - 2026-07-13
 
 ### Added
