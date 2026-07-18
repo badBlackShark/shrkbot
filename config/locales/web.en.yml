@@ -280,6 +280,9 @@ en:
           label: Force reminder delivery via DM
     roles:
       config_form:
+        bot_at_bottom: shrkbot's role sits at the very bottom of your server's role
+          list, so it can't assign any roles. Move it up in your server's role settings
+          to bring roles below it into reach.
         channel:
           help: Each role set posts here unless it has its own channel override.
           label: Default channel for role menus

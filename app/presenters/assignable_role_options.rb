@@ -29,6 +29,10 @@ class AssignableRoleOptions
     @roles.any_unassignable?
   end
 
+  def bot_at_bottom?
+    @roles.bot_at_bottom?
+  end
+
   private
 
   def reason_text(role)

@@ -48,6 +48,42 @@ RSpec.describe Roles::AssignableServerRoles do
     end
   end
 
+  describe "#bot_at_bottom?" do
+    it "returns false when a candidate role sits below the bot" do
+      expect(query.bot_at_bottom?).to be(false)
+    end
+
+    context "when the bot role position is unknown" do
+      let(:config) { create(:server_configuration, discord_id: 900, bot_role_position: nil) }
+
+      it "returns false" do
+        expect(query.bot_at_bottom?).to be(false)
+      end
+    end
+
+    context "when every candidate role sits at or above the bot" do
+      let(:config) { create(:server_configuration, discord_id: 900, bot_role_position: 1) }
+
+      it "returns true" do
+        expect(query.bot_at_bottom?).to be(true)
+      end
+    end
+
+    context "when the guild has no candidate roles" do
+      let(:bare_config) { create(:server_configuration, discord_id: 800, bot_role_position: 1) }
+
+      subject(:bare_query) { described_class.new(bare_config) }
+
+      before do
+        create(:server_role, server_configuration: bare_config, discord_id: 800, name: "everyone", position: 0)
+      end
+
+      it "returns false" do
+        expect(bare_query.bot_at_bottom?).to be(false)
+      end
+    end
+  end
+
   describe "#any_unassignable?" do
     it "returns true when managed or above-bot candidates exist" do
       expect(query.any_unassignable?).to be(true)
