@@ -47,6 +47,17 @@ RSpec.describe Lfg::Post do
       expect(event).to receive(:edit_response).with(content: outcome.message)
       execute
     end
+
+    context "when the bot's application permissions are absent from the payload" do
+      let(:interaction) { double("interaction", application_permissions: nil) }
+
+      it "passes a nil mention_permission" do
+        expect(Lfg::PostCreation).to receive(:call)
+          .with(hash_including(mention_permission: nil))
+          .and_return(outcome)
+        execute
+      end
+    end
   end
 
   context "when LFG isn't configured for this server" do
@@ -77,6 +88,15 @@ RSpec.describe Lfg::Post do
 
       it "returns every configured pingable role" do
         expect(event).to receive(:respond).with(choices: {"Among Us" => "55", "Apex Legends" => "56"})
+        autocomplete
+      end
+    end
+
+    context "when LFG isn't configured for this server" do
+      let(:server) { double("server", id: 999_999, member: member) }
+
+      it "returns no choices" do
+        expect(event).to receive(:respond).with(choices: {})
         autocomplete
       end
     end

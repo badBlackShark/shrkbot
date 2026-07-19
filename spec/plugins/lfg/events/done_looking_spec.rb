@@ -98,4 +98,59 @@ RSpec.describe Lfg::DoneLooking do
       expect(Discordrb::API::Channel).to have_received(:delete_message).with("Bot tok", 20, 500)
     end
   end
+
+  context "when the requester is not the creator and the member cannot be resolved" do
+    let(:uid) { 2 }
+    let(:server) { nil }
+
+    it "responds as unauthorized" do
+      expect(event).to receive(:respond).with(content: "Only the poster or a mod can close this LFG.", ephemeral: true)
+      handle
+    end
+  end
+
+  context "when the post has no notify reply" do
+    let(:notify_reply_id) { nil }
+
+    it "deletes only the post" do
+      handle
+      expect(Discordrb::API::Channel).to have_received(:delete_message).with("Bot tok", 20, 500)
+      expect(Discordrb::API::Channel).not_to have_received(:delete_message).with("Bot tok", 20, 600)
+    end
+  end
+
+  context "when the fetched message is not an LFG post" do
+    before do
+      allow(Discordrb::API::Channel).to receive(:message)
+        .and_return({"components" => [{"type" => 10, "content" => "hi"}]}.to_json)
+    end
+
+    it "deletes only the post" do
+      handle
+      expect(Discordrb::API::Channel).to have_received(:delete_message).with("Bot tok", 20, 500)
+      expect(Discordrb::API::Channel).not_to have_received(:delete_message).with("Bot tok", 20, 600)
+    end
+  end
+
+  context "when the post is already gone" do
+    before do
+      allow(Discordrb::API::Channel).to receive(:message)
+        .and_raise(Discordrb::Errors::UnknownMessage.new("Unknown Message"))
+    end
+
+    it "closes without raising" do
+      expect { handle }.not_to raise_error
+    end
+  end
+
+  context "when deleting a message fails" do
+    before do
+      allow(Discordrb::API::Channel).to receive(:delete_message)
+        .and_raise(Discordrb::Errors::UnknownMessage.new("Unknown Message"))
+    end
+
+    it "swallows the error" do
+      expect { handle }.not_to raise_error
+    end
+  end
 end

@@ -148,6 +148,26 @@ RSpec.describe Lfg::PostMessage do
       end
     end
 
+    context "when no message was set" do
+      let(:message) { nil }
+      let(:rendered) do
+        described_class.render(
+          role_id:,
+          creator_id:,
+          start_ts:,
+          message:,
+          joiner_ids:,
+          notify_reply_id:,
+          started:
+        )
+      end
+      let(:echo) { JSON.parse(rendered.to_json) }
+
+      it "recovers a nil message" do
+        expect(parsed[:message]).to be_nil
+      end
+    end
+
     context "when the message JSON has no machine line" do
       let(:echo) { {"components" => [{"type" => 10, "content" => "hi"}]} }
 

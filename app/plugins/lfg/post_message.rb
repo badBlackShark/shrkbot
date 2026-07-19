@@ -20,8 +20,6 @@ module Lfg
       return nil unless line
 
       match = line.match(MACHINE)
-      return nil unless match
-
       {
         role_id: match[1].to_i,
         creator_id: match[2].to_i,

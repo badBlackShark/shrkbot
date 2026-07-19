@@ -47,6 +47,18 @@ RSpec.describe Lfg::ExpiryJob do
     end
   end
 
+  context "when the fetched message is not an LFG post" do
+    before do
+      allow(Discordrb::API::Channel).to receive(:message)
+        .and_return({"components" => [{"type" => 10, "content" => "hi"}]}.to_json)
+    end
+
+    it "deletes only the post" do
+      perform
+      expect(Discordrb::API::Channel).to have_received(:delete_message).with("Bot tok", 20, 500).once
+    end
+  end
+
   context "when the message fetch 404s" do
     before do
       allow(Discordrb::API::Channel).to receive(:message).and_raise(Discordrb::Errors::UnknownMessage.new("Unknown Message"))

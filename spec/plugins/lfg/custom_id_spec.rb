@@ -45,5 +45,21 @@ RSpec.describe Lfg::CustomId do
         expect(parsed[:start_ts]).to be_a(Integer)
       end
     end
+
+    context "with a truncated custom_id missing segments" do
+      let(:custom_id) { "lfg:join" }
+
+      it "returns nil for the absent creator_id and start_ts" do
+        expect(parsed).to eq(action: :join, creator_id: nil, start_ts: nil)
+      end
+    end
+
+    context "with only the prefix" do
+      let(:custom_id) { "lfg" }
+
+      it "returns nil for every absent segment" do
+        expect(parsed).to eq(action: nil, creator_id: nil, start_ts: nil)
+      end
+    end
   end
 end

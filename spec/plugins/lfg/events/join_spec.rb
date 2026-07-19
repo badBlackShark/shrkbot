@@ -90,6 +90,16 @@ RSpec.describe Lfg::Join do
       handle
       expect(Bot::Discord::Components).to have_received(:convert_to_v2)
     end
+
+    context "when a prior notify reply exists" do
+      let(:notify_reply_id) { 600 }
+
+      it "deletes the previous notify reply before posting a new one" do
+        handle
+        expect(Discordrb::API::Channel).to have_received(:delete_message).with("Bot tok", 20, 600)
+        expect(Lfg::PingReply).to have_received(:deliver)
+      end
+    end
   end
 
   context "when the LFG is at capacity" do

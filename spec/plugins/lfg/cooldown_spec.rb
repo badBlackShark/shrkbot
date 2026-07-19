@@ -9,6 +9,13 @@ RSpec.describe Lfg::Cooldown do
   let(:guild_id) { 1 }
   let(:user_id) { 2 }
 
+  describe ".instance" do
+    it "returns a memoized singleton" do
+      expect(described_class.instance).to be_a(described_class)
+      expect(described_class.instance).to equal(described_class.instance)
+    end
+  end
+
   describe "#remaining" do
     context "with no prior start" do
       it "returns 0" do
