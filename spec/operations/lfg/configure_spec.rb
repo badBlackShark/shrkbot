@@ -95,6 +95,18 @@ RSpec.describe Ops::Lfg::Configure do
     end
   end
 
+  context "with a blank pingable role row" do
+    let(:enabled) { "0" }
+    let(:pingable_roles) do
+      [{role_id: "", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: nil}]
+    end
+
+    it "skips the row without creating a pingable role" do
+      expect(result).to be_success
+      expect(settings.pingable_roles.count).to eq(0)
+    end
+  end
+
   context "with an existing pingable role updated" do
     let(:enabled) { "0" }
     let!(:existing) do

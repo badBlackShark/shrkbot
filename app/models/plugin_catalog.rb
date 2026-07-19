@@ -42,7 +42,7 @@ class PluginCatalog
     Definition.new(key: :moderation, name: "Server Shield", description: "Your server's aegis: automated moderation beyond Discord's AutoMod.", requires_plugin: :logging, prerequisite: ->(c) { c.logging_setting&.channel_id.present? }),
     Definition.new(key: :spam_protection, name: "Cross-Channel Spam Guard", description: "Detects the same message blasted across multiple channels within seconds and purges it before it spreads. Matching is fingerprint-based — message content is never stored.", parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
     Definition.new(key: :image_scanning, name: "Scam Image Detection", description: "Reads the text inside posted images and checks it against known scam patterns and previously confirmed scam images. Staff confirm or dismiss every catch, and the bot remembers.", parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
-    Definition.new(key: :lfg, name: "Looking for Game", description: "Members rally a group with /lfg: it pings a game's role — instantly or scheduled — and others join with one click. Only the bot can ping the roles, so they stay quiet otherwise.")
+    Definition.new(key: :lfg, name: "Looking for Game", description: "Let members find people to play with both on the fly and scheduled in the future. Only shrkbot will ping, allowing you to turn off generally available role pings.")
   ].freeze
 
   def self.all
