@@ -29,6 +29,7 @@ RSpec.describe Ops::ServerConfiguration::Ensure do
     expect(config.moderation_settings).to be_present
     expect(config.spam_protection_settings).to be_present
     expect(config.image_scanning_settings).to be_present
+    expect(config.lfg_settings).to be_present
   end
 
   context "when a concurrent insert wins the race" do
