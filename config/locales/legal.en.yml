@@ -61,6 +61,12 @@ en:
         configure - including any custom scam-keyword list.'
       data_h: What we store and why
       data_lead: 'We store only what the enabled features need:'
+      data_lfg: 'Looking for Game: the roles you make pingable and the policy limits
+        you set for each of them (which roles or channels may use them, minimum membership
+        age, cooldowns and post lifetime). This is server configuration only — the
+        LFG posts themselves and who joins them live entirely in the Discord messages,
+        under Discord''s retention, and are never stored in our database. A short-lived
+        in-memory cooldown (minutes) throttles spam and is never written down.'
       data_notifications: 'Dashboard notifications: short activity entries (an event
         type plus details such as a plugin or channel name) so admins can see recent
         changes.'
@@ -125,6 +131,10 @@ en:
       retention_infra: Caches, background-job records and logs are cleared automatically
         (at most 60 days, 30 days and briefly, respectively). Deleted data also drops
         out of database backups as they rotate.
+      retention_lfg: 'Looking for Game configuration: deleted automatically with the
+        rest of the server''s configuration the moment the bot is removed. Cooldowns
+        live in memory only and vanish on restart; LFG posts are ordinary Discord
+        messages, kept by Discord until they expire or are deleted.'
       retention_phash: 'Confirmed scam-image fingerprints: pruned 180 days after they
         were last matched, and removed once every server that confirmed them has removed
         the bot. Global scam fingerprints set by the bot owner are retained indefinitely.'
@@ -147,7 +157,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: July 17th, 2026'
+      updated: 'Last updated: July 19th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_13_204954) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_19_103614) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,6 +66,41 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_13_204954) do
     t.check_constraint "punishment::text = ANY (ARRAY['none'::character varying, 'timeout'::character varying, 'kick'::character varying, 'ban'::character varying]::text[])", name: "image_scanning_settings_punishment_check"
     t.check_constraint "sensitivity::text = ANY (ARRAY['relaxed'::character varying, 'standard'::character varying, 'strict'::character varying]::text[])", name: "image_scanning_settings_sensitivity_check"
     t.check_constraint "timeout_seconds >= 60 AND timeout_seconds <= 2419200", name: "image_scanning_settings_timeout_seconds_check"
+  end
+
+  create_table "lfg_pingable_roles", id: :string, default: -> { "('lfr_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.bigint "allowed_channel_ids", array: true
+    t.datetime "created_at", null: false
+    t.bigint "excluded_role_ids", array: true
+    t.string "lfg_settings_id", null: false
+    t.integer "min_membership_days"
+    t.bigint "required_role_ids", array: true
+    t.bigint "role_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lfg_settings_id", "role_id"], name: "index_lfg_pingable_roles_on_lfg_settings_id_and_role_id", unique: true
+    t.check_constraint "allowed_channel_ids IS NULL OR cardinality(allowed_channel_ids) >= 1 AND cardinality(allowed_channel_ids) <= 50", name: "lfg_pingable_roles_allowed_channel_ids_check"
+    t.check_constraint "excluded_role_ids IS NULL OR cardinality(excluded_role_ids) <= 50", name: "lfg_pingable_roles_excluded_role_ids_count_check"
+    t.check_constraint "min_membership_days IS NULL OR min_membership_days >= 0 AND min_membership_days <= 3650", name: "lfg_pingable_roles_min_membership_days_check"
+    t.check_constraint "required_role_ids IS NULL OR cardinality(required_role_ids) <= 50", name: "lfg_pingable_roles_required_role_ids_count_check"
+  end
+
+  create_table "lfg_settings", id: :string, default: -> { "('lfs_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.bigint "allowed_channel_ids", default: [], null: false, array: true
+    t.integer "cooldown_seconds", default: 300, null: false
+    t.datetime "created_at", null: false
+    t.bigint "default_excluded_role_ids", default: [], null: false, array: true
+    t.integer "default_min_membership_days"
+    t.bigint "default_required_role_ids", default: [], null: false, array: true
+    t.integer "post_lifetime_minutes", default: 360, null: false
+    t.string "server_configuration_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["server_configuration_id"], name: "index_lfg_settings_on_server_configuration_id", unique: true
+    t.check_constraint "cardinality(allowed_channel_ids) <= 50", name: "lfg_settings_allowed_channel_ids_count_check"
+    t.check_constraint "cardinality(default_excluded_role_ids) <= 50", name: "lfg_settings_excluded_role_ids_count_check"
+    t.check_constraint "cardinality(default_required_role_ids) <= 50", name: "lfg_settings_required_role_ids_count_check"
+    t.check_constraint "cooldown_seconds >= 0 AND cooldown_seconds <= 86400", name: "lfg_settings_cooldown_seconds_check"
+    t.check_constraint "default_min_membership_days IS NULL OR default_min_membership_days >= 0 AND default_min_membership_days <= 3650", name: "lfg_settings_min_membership_days_check"
+    t.check_constraint "post_lifetime_minutes >= 5 AND post_lifetime_minutes <= 10080", name: "lfg_settings_post_lifetime_minutes_check"
   end
 
   create_table "logging_settings", id: :string, default: -> { "('lgs_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -393,6 +428,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_13_204954) do
   add_foreign_key "assignable_roles", "role_sets"
   add_foreign_key "channel_overwrites", "server_channels"
   add_foreign_key "image_scanning_settings", "server_configurations"
+  add_foreign_key "lfg_pingable_roles", "lfg_settings", column: "lfg_settings_id"
+  add_foreign_key "lfg_settings", "server_configurations"
   add_foreign_key "logging_settings", "server_configurations"
   add_foreign_key "moderation_settings", "server_configurations"
   add_foreign_key "moderation_verdicts", "server_configurations"

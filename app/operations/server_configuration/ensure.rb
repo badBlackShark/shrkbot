@@ -35,6 +35,7 @@ module Ops
         config.moderation_settings || config.create_moderation_settings!
         config.spam_protection_settings || config.create_spam_protection_settings!
         config.image_scanning_settings || config.create_image_scanning_settings!
+        config.lfg_settings || config.create_lfg_settings!
       end
     end
   end
