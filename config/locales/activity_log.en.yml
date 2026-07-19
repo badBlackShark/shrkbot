@@ -1,6 +1,19 @@
 ---
 en:
   activity_log:
+    lfg:
+      denied: "%{actor}'s /lfg for %{role} was denied — %{reason}."
+      reasons:
+        bad_duration: that start time isn't valid (try 30m, 2h or 1d, up to 30 days)
+        channel_not_allowed: LFG isn't allowed in this channel
+        cooldown: on cooldown (%{time} left)
+        has_excluded_role: a role excluded from LFG is present
+        missing_required_role: a required role is missing
+        no_permission: shrkbot is missing the Mention All Roles permission here
+        role_not_configured: that role isn't set up for LFG
+        too_new: membership is too new (needs %{days} days)
+      source: 'Requested in #%{channel}'
+      title: LFG request denied
     moderation:
       member_banned: "%{target} was banned by %{moderator}."
       member_kicked: "%{target} was kicked by %{moderator}."

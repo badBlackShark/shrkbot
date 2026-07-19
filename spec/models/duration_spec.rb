@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Reminders::Duration do
+RSpec.describe Duration do
   describe ".parse" do
     subject(:parsed) { described_class.parse(input) }
 

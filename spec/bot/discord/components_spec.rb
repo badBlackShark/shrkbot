@@ -14,6 +14,52 @@ RSpec.describe Bot::Discord::Components do
     end
   end
 
+  describe ".create_message" do
+    subject(:create_message) { described_class.create_message(channel_id: 20, content: "hello", allowed_mentions:, reply_to_id:) }
+
+    let(:allowed_mentions) { {parse: [], users: [1]} }
+    let(:reply_to_id) { nil }
+
+    before do
+      allow(Bot::Config).to receive(:token).and_return("tok")
+      allow(Discordrb::API::Channel).to receive(:create_message).and_return({id: 7}.to_json)
+    end
+
+    it "returns the created message's id" do
+      expect(create_message).to eq(7)
+    end
+
+    it "passes content and allowed_mentions through" do
+      expect(Discordrb::API::Channel).to receive(:create_message) do |_token, channel_id, content, _tts, _embeds, _nonce, _attachments, mentions, _message_reference, _components, _flags|
+        expect(channel_id).to eq(20)
+        expect(content).to eq("hello")
+        expect(mentions).to eq(allowed_mentions)
+        {id: 7}.to_json
+      end
+      create_message
+    end
+
+    it "omits the message_reference when reply_to_id is not given" do
+      expect(Discordrb::API::Channel).to receive(:create_message) do |*args|
+        expect(args[8]).to be_nil
+        {id: 7}.to_json
+      end
+      create_message
+    end
+
+    context "with a reply_to_id" do
+      let(:reply_to_id) { 500 }
+
+      it "sets message_reference to the replied-to message id" do
+        expect(Discordrb::API::Channel).to receive(:create_message) do |*args|
+          expect(args[8]).to eq({message_id: 500})
+          {id: 7}.to_json
+        end
+        create_message
+      end
+    end
+  end
+
   describe ".send_to" do
     subject(:send_to) { described_class.send_to(channel, rendered, attachments:) }
 

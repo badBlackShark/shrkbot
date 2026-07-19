@@ -421,6 +421,28 @@ The enumerable catalog of each plugin's loggable events (so the web tab can rend
 list) is a Phase 7 concern — a per-plugin declaration added when that UI is built. The bot
 side doesn't need it: the i18n lookup raising on an unknown key covers typos.
 
+### LFG (Looking for Game)
+
+LFG is the first feature with **zero database rows for runtime state** — a post and its
+joiner list live entirely in the Discord message. `Lfg::PostMessage` renders a Components
+V2 container whose muted `-#` machine line carries the full reconstructable state (role,
+creator, start timestamp, notify-reply id, base64 message, joiner ids); `parse` reads it
+back out of a fetched message. Handlers and jobs REST-fetch the message, `parse` it,
+mutate, and edit — never touching Postgres. Cooldowns live in process memory
+(`Lfg::Cooldown`, mirrors `Moderation::SpamTracker`). Both lifecycle jobs (`Lfg::StartJob`,
+`Lfg::ExpiryJob`) are scheduled at creation with `set(wait_until:)`, never cancelled, and
+no-op on a 404.
+
+**allowed_mentions matrix (security-critical — the feature exists to stop unwanted pings):**
+- create the post: role only — `{parse: [], roles: [role_id]}`, carried on the plain-content
+  subject (subject-first flow so the ping + push preview fire, then `convert_to_v2` brands it).
+- every post edit (joiner-list update): nobody — `convert_to_v2` sends `{parse: []}`.
+- rolling notify reply (a join after start): creator only — `{parse: [], users: [creator_id]}`.
+- start re-ping (`StartJob`): joiners only — `{parse: [], users: joiner_ids}`, never the role.
+
+Every ping-bearing message uses the subject-first create (`Lfg::PingReply` for the replies)
+because V2 edits never ping and have empty push previews.
+
 ## Sharding
 
 Static only (`SHARD_COUNT`, floored at 1). discordrb is one shard per `Bot` instance,
