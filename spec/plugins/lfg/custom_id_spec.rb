@@ -5,52 +5,54 @@ require "rails_helper"
 RSpec.describe Lfg::CustomId do
   let(:creator_id) { 123 }
   let(:start_ts) { 456 }
+  let(:role_id) { 789 }
 
   describe ".join" do
-    subject(:custom_id) { described_class.join(creator_id, start_ts) }
+    subject(:custom_id) { described_class.join(creator_id, start_ts, role_id) }
 
-    it { is_expected.to eq("lfg:join:123:456") }
+    it { is_expected.to eq("lfg:join:123:456:789") }
   end
 
   describe ".done" do
-    subject(:custom_id) { described_class.done(creator_id, start_ts) }
+    subject(:custom_id) { described_class.done(creator_id, start_ts, role_id) }
 
-    it { is_expected.to eq("lfg:done:123:456") }
+    it { is_expected.to eq("lfg:done:123:456:789") }
   end
 
   describe ".parse" do
     subject(:parsed) { described_class.parse(custom_id) }
 
     context "with a join custom_id" do
-      let(:custom_id) { described_class.join(creator_id, start_ts) }
+      let(:custom_id) { described_class.join(creator_id, start_ts, role_id) }
 
-      it "round-trips the action, creator_id, and start_ts" do
-        expect(parsed).to eq(action: :join, creator_id: 123, start_ts: 456)
+      it "round-trips the action, creator_id, start_ts, and role_id" do
+        expect(parsed).to eq(action: :join, creator_id: 123, start_ts: 456, role_id: 789)
       end
     end
 
     context "with a done custom_id" do
-      let(:custom_id) { described_class.done(creator_id, start_ts) }
+      let(:custom_id) { described_class.done(creator_id, start_ts, role_id) }
 
-      it "round-trips the action, creator_id, and start_ts" do
-        expect(parsed).to eq(action: :done, creator_id: 123, start_ts: 456)
+      it "round-trips the action, creator_id, start_ts, and role_id" do
+        expect(parsed).to eq(action: :done, creator_id: 123, start_ts: 456, role_id: 789)
       end
     end
 
     context "with any custom_id" do
-      let(:custom_id) { described_class.join(creator_id, start_ts) }
+      let(:custom_id) { described_class.join(creator_id, start_ts, role_id) }
 
-      it "coerces creator_id and start_ts to integers" do
+      it "coerces creator_id, start_ts, and role_id to integers" do
         expect(parsed[:creator_id]).to be_a(Integer)
         expect(parsed[:start_ts]).to be_a(Integer)
+        expect(parsed[:role_id]).to be_a(Integer)
       end
     end
 
     context "with a truncated custom_id missing segments" do
       let(:custom_id) { "lfg:join" }
 
-      it "returns nil for the absent creator_id and start_ts" do
-        expect(parsed).to eq(action: :join, creator_id: nil, start_ts: nil)
+      it "returns nil for the absent creator_id, start_ts, and role_id" do
+        expect(parsed).to eq(action: :join, creator_id: nil, start_ts: nil, role_id: nil)
       end
     end
 
@@ -58,7 +60,7 @@ RSpec.describe Lfg::CustomId do
       let(:custom_id) { "lfg" }
 
       it "returns nil for every absent segment" do
-        expect(parsed).to eq(action: nil, creator_id: nil, start_ts: nil)
+        expect(parsed).to eq(action: nil, creator_id: nil, start_ts: nil, role_id: nil)
       end
     end
   end

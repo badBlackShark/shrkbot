@@ -28,6 +28,7 @@ RSpec.describe Lfg::PostCreation do
     allow(Lfg::ExpiryJob).to receive(:set).and_return(job_scheduler)
     allow(Bot::ActivityLog).to receive(:enabled?).and_return(false)
     allow(Lfg::Cooldown).to receive(:instance).and_return(cooldown_instance)
+    allow(Ops::Lfg::Message::Post).to receive(:call)
   end
 
   def create_post
@@ -50,6 +51,10 @@ RSpec.describe Lfg::PostCreation do
       expect(outcome.ok?).to be(true)
     end
 
+    it "confirms the post is up" do
+      expect(outcome.message).to eq("Your Looking for Game post is up.")
+    end
+
     it "sends with role-only allowed_mentions and a role-pinging subject" do
       outcome
       expect(Bot::Discord::Components).to have_received(:send_to).with(
@@ -57,6 +62,15 @@ RSpec.describe Lfg::PostCreation do
         anything,
         allowed_mentions: {parse: [], roles: [55]},
         subject: a_string_including("<@&55>")
+      )
+    end
+
+    it "records the posted message" do
+      outcome
+      expect(Ops::Lfg::Message::Post).to have_received(:call).with(
+        server_configuration: config,
+        channel_id: 20,
+        message_id: 500
       )
     end
 
@@ -107,6 +121,11 @@ RSpec.describe Lfg::PostCreation do
       expect(Bot::Discord::Components).not_to have_received(:send_to)
     end
 
+    it "never records a posted message" do
+      outcome
+      expect(Ops::Lfg::Message::Post).not_to have_received(:call)
+    end
+
     context "when activity logging is enabled for lfg.denied" do
       before { allow(Bot::ActivityLog).to receive(:enabled?).and_return(true) }
 
@@ -136,6 +155,11 @@ RSpec.describe Lfg::PostCreation do
       outcome
       expect(Bot::Discord::Components).not_to have_received(:send_to)
     end
+
+    it "never records a posted message" do
+      outcome
+      expect(Ops::Lfg::Message::Post).not_to have_received(:call)
+    end
   end
 
   context "when starting_in is not a valid duration" do
@@ -155,6 +179,11 @@ RSpec.describe Lfg::PostCreation do
       outcome
       expect(Bot::Discord::Components).not_to have_received(:send_to)
     end
+
+    it "never records a posted message" do
+      outcome
+      expect(Ops::Lfg::Message::Post).not_to have_received(:call)
+    end
   end
 
   context "when the actor is on cooldown" do
@@ -171,6 +200,11 @@ RSpec.describe Lfg::PostCreation do
       outcome
       expect(Bot::Discord::Components).not_to have_received(:send_to)
       expect(cooldown_instance.remaining(guild_id: config.discord_id, user_id: actor_id, at: Time.current)).to be <= 300
+    end
+
+    it "never records a posted message" do
+      outcome
+      expect(Ops::Lfg::Message::Post).not_to have_received(:call)
     end
   end
 end

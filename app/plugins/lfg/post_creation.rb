@@ -72,6 +72,11 @@ module Lfg
 
     def publish(start)
       message_id = send_post(start)
+      Ops::Lfg::Message::Post.call(
+        server_configuration: @server_configuration,
+        channel_id: @channel.id,
+        message_id:
+      )
       cooldown.start(guild_id:, user_id: actor_id, at: @now, ttl: settings.cooldown_seconds)
       schedule_jobs(start, message_id)
     end
@@ -83,7 +88,6 @@ module Lfg
         start_ts: start,
         message: @message,
         joiner_ids: [],
-        notify_reply_id: nil,
         started: started?(start)
       )
       Bot::Discord::Components.send_to(
@@ -95,7 +99,7 @@ module Lfg
     end
 
     def subject
-      "<@&#{@role_id}> — <@#{actor_id}> is looking for people to play!"
+      "<@&#{@role_id}> — <@#{@member.id}> is looking for people to play. Join the Looking for Game post below."
     end
 
     def actor_id
@@ -129,7 +133,7 @@ module Lfg
     end
 
     def success
-      Outcome.new(ok: true, message: "🎮 Your LFG is up.")
+      Outcome.new(ok: true, message: "Your Looking for Game post is up.")
     end
 
     def log_denial(reason, detail)

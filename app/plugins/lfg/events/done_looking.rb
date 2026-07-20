@@ -2,15 +2,16 @@
 
 module Lfg
   class DoneLooking < Bot::BaseEvent
-    on :button, custom_id: /\Alfg:done:/
     include Lfg::MessageFetching
+
+    on :button, custom_id: /\Alfg:done:/
 
     def handle
       return unauthorized unless authorized?
 
       event.defer(ephemeral: true)
       close
-      event.edit_response(content: "LFG closed.")
+      event.edit_response(content: "Looking for Game closed.")
     end
 
     private
@@ -25,14 +26,17 @@ module Lfg
     end
 
     def close
-      json = fetch_message
-      notify_id = json && PostMessage.parse(json)&.dig(:notify_reply_id)
-      delete_message(notify_id) if notify_id
+      record = Lfg::Message.find_by(message_id: event.message.id)
+      if record
+        delete_message(record.notify_reply_id) if record.notify_reply_id
+        delete_message(record.start_ping_id) if record.start_ping_id
+        Ops::Lfg::Message::Destroy.call(message: record)
+      end
       delete_message(event.message.id)
     end
 
     def unauthorized
-      event.respond(content: "Only the poster or a mod can close this LFG.", ephemeral: true)
+      event.respond(content: "Only the poster or a mod can close this Looking for Game.", ephemeral: true)
     end
   end
 end

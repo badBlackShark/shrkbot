@@ -30,6 +30,7 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
     let!(:assignable_role) { create(:assignable_role, role_set:) }
     let!(:lfg_settings) { create(:lfg_settings, server_configuration: config) }
     let!(:lfg_pingable_role) { create(:lfg_pingable_role, lfg_settings:) }
+    let!(:lfg_message) { create(:lfg_message, server_configuration: config) }
 
     it "removes all associated rows" do
       result
@@ -45,6 +46,7 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
       expect(Roles::AssignableRole.find_by(id: assignable_role.id)).to be_nil
       expect(Lfg::Settings.find_by(id: lfg_settings.id)).to be_nil
       expect(Lfg::PingableRole.find_by(id: lfg_pingable_role.id)).to be_nil
+      expect(Lfg::Message.find_by(id: lfg_message.id)).to be_nil
     end
   end
 

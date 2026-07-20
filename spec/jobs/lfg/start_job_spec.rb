@@ -7,6 +7,7 @@ RSpec.describe Lfg::StartJob do
   subject(:perform) { described_class.perform_now(20, 500) }
 
   let(:joiner_ids) { [1, 2] }
+  let!(:lfg_message) { create(:lfg_message, message_id: 500) }
 
   def message_json(joiner_ids:)
     rendered = Lfg::PostMessage.render(
@@ -15,7 +16,6 @@ RSpec.describe Lfg::StartJob do
       start_ts: 1.hour.ago.to_i,
       message: nil,
       joiner_ids:,
-      notify_reply_id: nil,
       started: true
     )
     JSON.parse(rendered.to_json).to_json
@@ -34,11 +34,31 @@ RSpec.describe Lfg::StartJob do
     perform
   end
 
+  it "records the returned ping id on the message row" do
+    expect(Ops::Lfg::Message::Update).to receive(:call).with(message: lfg_message, start_ping_id: 700)
+    perform
+  end
+
   context "when nobody joined" do
     let(:joiner_ids) { [] }
 
     it "does not deliver a ping reply" do
       expect(Lfg::PingReply).not_to receive(:deliver)
+      perform
+    end
+
+    it "does not update the message row" do
+      expect(Ops::Lfg::Message::Update).not_to receive(:call)
+      perform
+    end
+  end
+
+  context "when no message row exists for the post" do
+    before { lfg_message.destroy }
+
+    it "still re-pings but records nothing" do
+      expect(Lfg::PingReply).to receive(:deliver).and_return(700)
+      expect(Ops::Lfg::Message::Update).not_to receive(:call)
       perform
     end
   end
