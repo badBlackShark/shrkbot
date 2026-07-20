@@ -13,8 +13,7 @@ module Lfg
     private
 
     def cleanup(channel_id, record)
-      delete(channel_id, record.notify_reply_id) if record.notify_reply_id
-      delete(channel_id, record.start_ping_id) if record.start_ping_id
+      record.follow_up_ids.each { |id| delete(channel_id, id) }
       Ops::Lfg::Message::Destroy.call(message: record)
     end
 

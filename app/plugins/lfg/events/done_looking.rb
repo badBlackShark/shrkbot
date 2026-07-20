@@ -28,8 +28,7 @@ module Lfg
     def close
       record = Lfg::Message.find_by(message_id: event.message.id)
       if record
-        delete_message(record.notify_reply_id) if record.notify_reply_id
-        delete_message(record.start_ping_id) if record.start_ping_id
+        record.follow_up_ids.each { |id| delete_message(id) }
         Ops::Lfg::Message::Destroy.call(message: record)
       end
       delete_message(event.message.id)

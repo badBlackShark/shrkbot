@@ -26,10 +26,21 @@ RSpec.describe Lfg::Message do
       expect(message).not_to be_valid
     end
 
-    it "is invalid when not unique" do
-      existing = create(:lfg_message)
-      duplicate = build(:lfg_message, message_id: existing.message_id)
-      expect(duplicate).not_to be_valid
+    context "when another message already uses the id" do
+      let!(:existing) { create(:lfg_message) }
+
+      it "is invalid" do
+        duplicate = build(:lfg_message, message_id: existing.message_id)
+        expect(duplicate).not_to be_valid
+      end
+    end
+  end
+
+  describe "#follow_up_ids" do
+    it "returns the present follow-up message ids, compacting nils" do
+      message.notify_reply_id = 10
+      message.start_ping_id = nil
+      expect(message.follow_up_ids).to eq([10])
     end
   end
 end

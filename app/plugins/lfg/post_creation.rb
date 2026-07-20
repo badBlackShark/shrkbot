@@ -99,7 +99,7 @@ module Lfg
     end
 
     def subject
-      "<@&#{@role_id}> — <@#{@member.id}> is looking for people to play. Join the Looking for Game post below."
+      "<@&#{@role_id}> — <@#{actor_id}> is looking for people to play. Join the Looking for Game post below."
     end
 
     def actor_id

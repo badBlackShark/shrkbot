@@ -23,7 +23,7 @@ module Lfg
     end
 
     def re_ping(channel_id, message_id, joiner_ids)
-      mentions = joiner_ids.map { |id| "<@#{id}>" }.join(" ")
+      mentions = Lfg::Mentions.list(joiner_ids)
       Lfg::PingReply.deliver(
         channel_id:,
         reply_to_id: message_id,

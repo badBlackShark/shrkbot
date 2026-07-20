@@ -34,7 +34,7 @@ module Lfg
     def joiners_block(joiner_ids)
       return "No one's in yet." if joiner_ids.empty?
 
-      "**In (#{joiner_ids.size}):** " + joiner_ids.map { |id| "<@#{id}>" }.join(" ")
+      "**In (#{joiner_ids.size}):** " + Mentions.list(joiner_ids)
     end
 
     def buttons(creator_id, start_ts, role_id)

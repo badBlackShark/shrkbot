@@ -65,7 +65,7 @@ module Lfg
     end
 
     def notify_container(newest_id, joiners)
-      roster = joiners.map { |id| "<@#{id}>" }.join(" ")
+      roster = Mentions.list(joiners)
       Bot::Discord::Components.container(
         [Bot::Discord::Components.text("<@#{newest_id}> just joined. In now (#{joiners.size}): #{roster}")]
       )
