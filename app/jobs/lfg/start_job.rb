@@ -27,10 +27,10 @@ module Lfg
       Lfg::PingReply.deliver(
         channel_id:,
         reply_to_id: message_id,
-        subject: "Looking for Game is starting! #{mentions}",
+        subject: "The game you joined is starting now! #{mentions}",
         allowed_mentions: {parse: [], users: joiner_ids},
         container: Bot::Discord::Components.container(
-          [Bot::Discord::Components.text("Looking for Game is starting! #{mentions}")]
+          [Bot::Discord::Components.text("The game you joined is starting now!")]
         )
       )
     end

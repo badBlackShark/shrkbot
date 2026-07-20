@@ -24,6 +24,8 @@ module Lfg
 
     def act(identity, state)
       user_id = event.user.id
+      return host_notice if user_id == identity[:creator_id]
+
       if state[:joiner_ids].include?(user_id)
         rerender(identity, state[:message], state[:joiner_ids] - [user_id])
       else
@@ -31,12 +33,16 @@ module Lfg
       end
     end
 
+    def host_notice
+      event.send_message(content: "You're the host, you're always in.", ephemeral: true)
+    end
+
     def join(identity, state, user_id)
       return full if state[:joiner_ids].size >= CAP
 
       joiners = state[:joiner_ids] + [user_id]
       rerender(identity, state[:message], joiners)
-      notify(identity, joiners, user_id) if started?(identity)
+      notify(identity, user_id) if started?(identity)
     end
 
     def rerender(identity, note, joiners)
@@ -51,23 +57,22 @@ module Lfg
       Bot::Discord::Components.convert_to_v2(event.channel.id, event.message.id, container)
     end
 
-    def notify(identity, joiners, newest_id)
+    def notify(identity, newest_id)
       record = Lfg::Message.find_by(message_id: event.message.id)
       delete_message(record.notify_reply_id) if record&.notify_reply_id
       reply_id = Lfg::PingReply.deliver(
         channel_id: event.channel.id,
         reply_to_id: event.message.id,
-        subject: "<@#{identity[:creator_id]}> — <@#{newest_id}> just joined your Looking for Game (#{joiners.size} in).",
+        subject: "<@#{identity[:creator_id]}> - <@#{newest_id}> is joining!",
         allowed_mentions: {parse: [], users: [identity[:creator_id]]},
-        container: notify_container(newest_id, joiners)
+        container: notify_container(newest_id)
       )
       Ops::Lfg::Message::Update.call(message: record, notify_reply_id: reply_id) if record
     end
 
-    def notify_container(newest_id, joiners)
-      roster = Mentions.list(joiners)
+    def notify_container(newest_id)
       Bot::Discord::Components.container(
-        [Bot::Discord::Components.text("<@#{newest_id}> just joined. In now (#{joiners.size}): #{roster}")]
+        [Bot::Discord::Components.text("<@#{newest_id}> is joining!")]
       )
     end
 

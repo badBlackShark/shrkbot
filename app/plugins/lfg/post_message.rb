@@ -25,9 +25,9 @@ module Lfg
 
     def heading(role_id:, creator_id:, start_ts:, started:)
       if started
-        "**Looking for Game** — <@#{creator_id}>'s <@&#{role_id}> game is on now. Jump in and you'll be pinged."
+        "<@&#{role_id}> - <@#{creator_id}> is looking for a game right now! Click **Join** to ping them and let them know you're interested."
       else
-        "**Looking for Game** — <@#{creator_id}> wants to play <@&#{role_id}>. Starting <t:#{start_ts}:R>. Hit **Join** to get pinged at start."
+        "<@&#{role_id}> - <@#{creator_id}> is looking to play, starting <t:#{start_ts}:R>! Click **Join** to let them know you'll be joining and to get pinged when the activity starts."
       end
     end
 

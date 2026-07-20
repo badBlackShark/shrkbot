@@ -87,7 +87,7 @@ module Lfg
         creator_id: actor_id,
         start_ts: start,
         message: @message,
-        joiner_ids: [],
+        joiner_ids: [actor_id],
         started: started?(start)
       )
       Bot::Discord::Components.send_to(
@@ -99,7 +99,7 @@ module Lfg
     end
 
     def subject
-      "<@&#{@role_id}> — <@#{actor_id}> is looking for people to play. Join the Looking for Game post below."
+      "<@&#{@role_id}> - <@#{actor_id}> is looking for people to play. Join the Looking for Game post below."
     end
 
     def actor_id

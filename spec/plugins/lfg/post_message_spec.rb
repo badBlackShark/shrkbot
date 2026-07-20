@@ -65,8 +65,8 @@ RSpec.describe Lfg::PostMessage do
       let(:started) { false }
 
       it "uses gathering wording" do
-        expect(text_blocks.first[:content]).to include("wants to play")
-        expect(text_blocks.first[:content]).to include("Hit **Join**")
+        expect(text_blocks.first[:content]).to include("is looking to play, starting")
+        expect(text_blocks.first[:content]).to include("Click **Join**")
       end
     end
 
@@ -74,12 +74,11 @@ RSpec.describe Lfg::PostMessage do
       let(:started) { true }
 
       it "uses started wording" do
-        expect(text_blocks.first[:content]).to include("game is on now")
+        expect(text_blocks.first[:content]).to include("is looking for a game right now")
       end
     end
 
-    it "spells out Looking for Game with no emoji" do
-      expect(text_blocks.first[:content]).to include("Looking for Game")
+    it "has no emoji in the heading" do
       expect(text_blocks.first[:content]).not_to match(/\p{Emoji_Presentation}/)
     end
 

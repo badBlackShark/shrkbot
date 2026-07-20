@@ -3,13 +3,13 @@
 module Lfg
   class Post < Bot::BaseCommand
     command_name :lfg
-    description "Find people to play with — ping a game's role and let others join in."
+    description "Find people to play with. Ping a game's role and let others join in."
     plugin :lfg
 
     options do |opts|
       opts.string("role", "The game role to look for", required: true, autocomplete: true)
-      opts.string("message", "Optional note — what you're playing, the vibe, etc.", required: false)
-      opts.string("starting_in", "Optional — schedule it, e.g. 30m, 2h, 1d (up to 30 days)", required: false)
+      opts.string("message", "Optional note: what you're playing, the vibe, etc.", required: false)
+      opts.string("starting_in", "Optional: schedule it, e.g. 30m, 2h, 1d (up to 30 days)", required: false)
     end
 
     def execute

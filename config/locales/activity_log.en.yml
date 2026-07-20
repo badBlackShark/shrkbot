@@ -2,7 +2,7 @@
 en:
   activity_log:
     lfg:
-      denied: "%{actor}'s Looking for Game request for %{role} was denied — %{reason}."
+      denied: "%{actor}'s Looking for Game request for %{role} was denied: %{reason}."
       reasons:
         bad_duration: that start time isn't valid (try 30m, 2h or 1d, up to 30 days)
         channel_not_allowed: Looking for Game isn't allowed in this channel

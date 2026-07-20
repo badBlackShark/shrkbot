@@ -94,6 +94,25 @@ RSpec.describe Lfg::Join do
     end
   end
 
+  context "when the clicker is the creator" do
+    let(:user) { double("user", id: creator_id) }
+
+    it "responds with a host notice ephemeral message" do
+      expect(event).to receive(:send_message).with(hash_including(ephemeral: true))
+      handle
+    end
+
+    it "does not re-render" do
+      handle
+      expect(Bot::Discord::Components).not_to have_received(:convert_to_v2)
+    end
+
+    it "does not deliver a ping reply" do
+      expect(Lfg::PingReply).not_to receive(:deliver)
+      handle
+    end
+  end
+
   context "started (start_ts in the past), joining" do
     let(:start_ts) { 1.hour.ago.to_i }
 
@@ -108,12 +127,11 @@ RSpec.describe Lfg::Join do
       handle
     end
 
-    it "names all joiners and calls out the newest in the notify container" do
+    it "names the newest joiner in the notify container" do
       handle
       expect(Lfg::PingReply).to have_received(:deliver) do |**kwargs|
         content = kwargs[:container][:components].first[:components].first[:content]
-        expect(content).to include("<@42> just joined")
-        expect(content).to include("(1)")
+        expect(content).to eq("<@42> is joining!")
       end
     end
 
