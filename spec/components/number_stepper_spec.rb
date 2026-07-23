@@ -51,4 +51,29 @@ RSpec.describe Components::NumberStepper do
       expect(html).not_to include("data-number-stepper-max-value")
     end
   end
+
+  context "when default is omitted" do
+    let(:options) { {name: "lfg[default_min_membership_days]", value: nil, min: 0} }
+
+    it "omits the recommended default subscript" do
+      expect(html).not_to include("Recommended default")
+    end
+  end
+
+  context "when a placeholder is given" do
+    let(:options) { {name: "lfg[default_min_membership_days]", value: nil, min: 0, placeholder: "No minimum"} }
+
+    it "renders it on the input" do
+      expect(html).to include('placeholder="No minimum"')
+    end
+  end
+
+  context "when an input width is given" do
+    let(:options) { {name: "lfg[default_min_membership_days]", value: nil, min: 0, input_class: "w-28"} }
+
+    it "uses it instead of the default width" do
+      expect(html).to include("w-28")
+      expect(html).not_to include("w-11")
+    end
+  end
 end
