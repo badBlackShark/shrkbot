@@ -48,6 +48,98 @@ en:
       imprint: Imprint
       privacy: Privacy policy
       terms: Terms of service
+    lfg:
+      channels_field:
+        help: Channels where members can post an LFG. Leave empty to allow every channel.
+        label: Allowed channels
+        none: No channels have synced yet. shrkbot needs to be in the server first.
+        nudge: With no channels chosen, /lfg works in every channel. Consider scoping
+          it to a few dedicated channels.
+        placeholder: Choose channels
+      defaults_card:
+        cooldown:
+          default: 300 seconds, which is 5 minutes
+          help: How long a member must wait between posts. Set to 0 to disable the
+            cooldown.
+          label: Cooldown
+          unit: seconds
+        excluded:
+          help: Members with any of these roles can't post. Leave empty to exclude
+            no one.
+          label: Excluded roles
+          placeholder: Choose roles
+        help: Server-wide Looking for Game settings. The per-role cards below add
+          extra gates on top of these.
+        lifetime:
+          default: 360 minutes, which is 6 hours
+          help: The duration the "Looking for Game" post remains visible after it
+            starts. For scheduled posts, this time only starts with the actual session,
+            not during the "gathering interest" period.
+          label: Post lifetime
+          unit: minutes
+        min_days:
+          help: How long a member must have been in the server before they can post.
+            Leave blank for no minimum.
+          label: Minimum membership
+          placeholder: No minimum
+          unit: days
+        required:
+          help: Members need at least one of these roles to post at all. Leave empty
+            to allow everyone.
+          label: Required roles
+          placeholder: Choose roles
+        subtitle: Server-wide gates, allowed channels, cooldown and post lifetime
+        title: Defaults
+      pingable_role_card:
+        channel:
+          help: Restrict this role to these channels, overriding the allowed channels
+            above. Leave empty to inherit the default.
+          label: Channel override
+          placeholder: Inherit allowed channels
+        delete: Remove role
+        excluded:
+          help: On top of the defaults above, members with any of these can't ping
+            this role. Leave empty for no extra exclusion.
+          label: Additional excluded roles
+          placeholder: Choose roles
+        min_days:
+          help: Overrides the default minimum membership for pinging this role. Leave
+            blank to inherit the default.
+          label: Minimum membership override
+          placeholder: Inherit default
+          unit: days
+        required:
+          help: On top of the defaults above, members need at least one of these to
+            ping this role. Leave empty for no extra requirement.
+          label: Additional required roles
+          placeholder: Choose roles
+        role:
+          label: Role to ping
+          placeholder: Choose a role
+        summary:
+          one: "%{count} extra gate"
+          other: "%{count} extra gates"
+        unpicked: Choose a role
+      pingable_roles_card:
+        add: Add role
+        help: The roles members can ping with /lfg, each with its own extra gates.
+          Only configured roles appear in the command.
+        label: Pingable roles
+      setup_guide_card:
+        intro: 'Neither is required, but we recommend both for the smoothest Looking
+          for Game experience:'
+        non_mentionable:
+          body: In Server Settings, turn off "Allow anyone to @mention this role"
+            for every role you list below. shrkbot pings them for members, so you
+            can switch off general-purpose role pings entirely.
+          title: Make your LFG roles non-mentionable
+        subtitle: Two optional Discord settings we recommend
+        title: Recommended setup
+        visibility:
+          body: In Server Settings - Integrations - shrkbot, limit the /lfg command
+            to the channels and roles that should use it. That's your first line of
+            control over who posts.
+          title: Restrict who can run /lfg
     logging:
       config_form:
         channel:
@@ -58,6 +150,8 @@ en:
         events:
           enabled_count: enabled
           event:
+            lfg:
+              denied: Looking for Game request denied
             moderation:
               member_banned: Member banned
               member_kicked: Member kicked
@@ -68,6 +162,7 @@ en:
           help: Pick which events shrkbot writes to the log channel.
           label: Logged events
           plugin:
+            lfg: Looking for Game
             moderation: Moderation
             roles: Roles
           toggle_all: Toggle all
@@ -239,6 +334,9 @@ en:
       configure: Configure
       needs_setup_hint: Complete setup before enabling this plugin.
       plugin:
+        lfg:
+          description: Let members find people to play with, on the fly or scheduled.
+          name: Looking for Game
         logging:
           description: Record moderation events to a channel of your choice.
           name: Logging
@@ -369,6 +467,8 @@ en:
   servers:
     image_scanning:
       saved: Scam Image Detection settings saved.
+    lfg:
+      saved: Looking for Game settings saved.
     logging:
       saved: Logging settings saved.
     moderation:
@@ -482,6 +582,12 @@ en:
         refresh: Refresh
         subtitle: Pick a server to configure shrkbot.
         title: Your servers
+      lfg:
+        show:
+          description: Let members find people to play with, on the fly or scheduled.
+            Only shrkbot pings - so you can turn off general-purpose role pings.
+          gate_message: Enable the plugin to configure pingable roles and gates.
+          title: Looking for Game
       logging:
         show:
           description: Record moderation events to a channel of your choice.

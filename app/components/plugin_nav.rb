@@ -8,7 +8,8 @@ module Components::PluginNav
     reminders: "bell-ringing",
     moderation: "shield",
     spam_protection: "megaphone-slash",
-    image_scanning: "scan"
+    image_scanning: "scan",
+    lfg: "game-controller"
   }.freeze
 
   def plugin_icon(key)
@@ -24,6 +25,7 @@ module Components::PluginNav
     when :moderation then server_moderation_path(server_id)
     when :spam_protection then server_spam_protection_path(server_id)
     when :image_scanning then server_image_scanning_path(server_id)
+    when :lfg then server_lfg_path(server_id)
     end
   end
 end

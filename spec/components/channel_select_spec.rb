@@ -31,4 +31,21 @@ RSpec.describe Components::ChannelSelect do
   it "renders a blank option when include_blank is set" do
     expect(html).to include('value=""')
   end
+
+  context "when multiple is true" do
+    subject(:html) do
+      described_class.new(
+        name: "lfg[allowed_channel_ids][]",
+        options: [Components::TomSelect::Option.for(value: 111, label: "general")],
+        selected: [111],
+        placeholder: "Choose channels",
+        multiple: true
+      ).call
+    end
+
+    it "renders a select with the multiple attribute" do
+      expect(html).to include("<select")
+      expect(html).to include("multiple")
+    end
+  end
 end
