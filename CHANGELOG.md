@@ -5,6 +5,12 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.5.1] - 2026-07-23
+
+### Fixed
+- The Looking for Game config page silently discarded every save on the live bot. The `lfg` plugin row was missing from the production database (seeds only ran when the database was first created), so saves returned 404 and the page reloaded with nothing persisted. Plugin seeding now runs on every boot. ([#208](https://github.com/badBlackShark/shrkbot/pull/208))
+- The minimum-membership-age fields on the Looking for Game config page showed the browser's default spinner arrows instead of the site's +/- stepper controls. ([#208](https://github.com/badBlackShark/shrkbot/pull/208))
+
 ## [3.5.0] - 2026-07-23
 
 ### Added
