@@ -5,6 +5,15 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.5.0] - 2026-07-23
+
+### Added
+- New plugin: Looking for Game. `/lfg` posts a group-up call that pings a configured role, with a Join button other members press to sign up, an optional start time that re-pings the joiners when it arrives, and a "Done looking" button for the creator. Posts store nothing in shrkbot's database; the state lives in the Discord message itself, and the post is deleted when it expires. ([#201](https://github.com/badBlackShark/shrkbot/pull/201), [#202](https://github.com/badBlackShark/shrkbot/pull/202))
+- A Looking for Game config page on the website: which roles can be pinged, which channels allow posts, required and excluded role gates, a minimum-membership age, a cooldown, and how long a post stays up. Each pingable role can add its own role gates and override the channel list and membership age, and denied `/lfg` attempts can be surfaced on the logging page. ([#204](https://github.com/badBlackShark/shrkbot/pull/204))
+
+### Fixed
+- Welcome messages no longer render `@unknown-user` on servers with membership screening. The member is still pending when Discord announces the join, so the mention never resolved and stayed broken on the posted message; the welcome is now held until onboarding completes. On those servers the welcome now lands after Discord's own join message instead of before it. ([#206](https://github.com/badBlackShark/shrkbot/pull/206))
+
 ## [3.4.0] - 2026-07-18
 
 ### Added
