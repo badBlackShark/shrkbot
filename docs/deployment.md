@@ -111,7 +111,11 @@ bin/kamal setup
 first, see above), builds the amd64 app image, pushes it to GHCR, starts the
 web/bot/jobs processes, and has kamal-proxy provision the TLS certificate.
 Migrations run automatically on web boot via the entrypoint (`RUN_DB_PREPARE=1`
-is set on the web role only, so the three processes don't race).
+is set on the web role only, so the three processes don't race). Seeds run on
+every boot too, not just the first: `db/seeds.rb` upserts the `plugins` table
+from `PluginCatalog`, and `db:prepare` alone only seeds a database it just
+created — so a plugin added to the catalog after launch would never get its row,
+and every config-page save for it would 404 on `Plugin.find_by!`.
 
 ## Redeploys
 

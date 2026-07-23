@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 if [ -n "${RUN_DB_PREPARE}" ]; then
-  ./bin/rails db:prepare
+  ./bin/rails db:prepare db:seed
 fi
 
 exec "${@}"
