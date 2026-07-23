@@ -14,7 +14,7 @@ class Components::Lfg::CooldownCard < Components::Base
         value: @value,
         min: 0,
         max: 86_400,
-        default: 300,
+        default: t(".default"),
         unit: t(".unit")
       )
     end

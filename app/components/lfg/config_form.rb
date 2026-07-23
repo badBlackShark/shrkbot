@@ -12,10 +12,10 @@ class Components::Lfg::ConfigForm < Components::Base
       enable_error_callout
       render Components::Lfg::SetupGuideCard.new
       render Components::Lfg::DefaultsCard.new(settings: @settings, role_options:)
-      render Components::Lfg::PingableRolesCard.new(settings: @settings, context: card_context)
       render Components::Lfg::ChannelsCard.new(channels:, selected: @settings.allowed_channel_ids)
       render Components::Lfg::CooldownCard.new(value: @settings.cooldown_seconds)
       render Components::Lfg::LifetimeCard.new(value: @settings.post_lifetime_minutes)
+      render Components::Lfg::PingableRolesCard.new(settings: @settings, context: card_context)
     end
   end
 

@@ -57,6 +57,7 @@ en:
           it to a few dedicated channels.
         placeholder: Choose channels
       cooldown_card:
+        default: 300 seconds, which is 5 minutes
         help: How long a member must wait between posts. Set to 0 to disable the cooldown.
         label: Cooldown
         unit: seconds
@@ -81,8 +82,10 @@ en:
           placeholder: Choose roles
         title: Defaults
       lifetime_card:
-        help: How long the post stays up after it starts. For a scheduled post, that's
-          the gathering window plus this after kickoff.
+        default: 360 minutes, which is 6 hours
+        help: The duration the "Looking for Game" post remains visible after it starts.
+          For scheduled posts, this time only starts with the actual session, not
+          during the "gathering interest" period.
         label: Post lifetime
         unit: minutes
       pingable_role_card:
@@ -121,15 +124,15 @@ en:
           Only configured roles appear in the command.
         label: Pingable roles
       setup_guide_card:
-        intro: 'Looking for Game lets members ping a role to find people to play with
-          - on the spot or scheduled. Two Discord settings make it work the way it''s
-          meant to:'
+        intro: 'Neither is required, but we recommend both for the smoothest Looking
+          for Game experience:'
         non_mentionable:
           body: In Server Settings, turn off "Allow anyone to @mention this role"
             for every role you list below. shrkbot pings them for members, so you
             can switch off general-purpose role pings entirely.
           title: Make your LFG roles non-mentionable
-        title: Before members can use /lfg
+        subtitle: Two optional Discord settings we recommend
+        title: Recommended setup
         visibility:
           body: In Server Settings - Integrations - shrkbot, limit the /lfg command
             to the channels and roles that should use it. That's your first line of
@@ -329,6 +332,9 @@ en:
       configure: Configure
       needs_setup_hint: Complete setup before enabling this plugin.
       plugin:
+        lfg:
+          description: Let members find people to play with, on the fly or scheduled.
+          name: Looking for Game
         logging:
           description: Record moderation events to a channel of your choice.
           name: Logging

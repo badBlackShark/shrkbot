@@ -12,4 +12,8 @@ RSpec.describe Components::Lfg::CooldownCard do
     expect(html).to include('name="lfg[cooldown_seconds]"')
     expect(html).to include('value="120"')
   end
+
+  it "explains the recommended default in human terms" do
+    expect(html).to include("300 seconds, which is 5 minutes")
+  end
 end

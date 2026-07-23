@@ -12,4 +12,8 @@ RSpec.describe Components::Lfg::LifetimeCard do
     expect(html).to include('name="lfg[post_lifetime_minutes]"')
     expect(html).to include('value="240"')
   end
+
+  it "explains the recommended default in human terms" do
+    expect(html).to include("360 minutes, which is 6 hours")
+  end
 end

@@ -14,7 +14,7 @@ class Components::Lfg::LifetimeCard < Components::Base
         value: @value,
         min: 5,
         max: 10_080,
-        default: 360,
+        default: t(".default"),
         unit: t(".unit")
       )
     end

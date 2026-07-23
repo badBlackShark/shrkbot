@@ -7,6 +7,14 @@ RSpec.describe PluginCatalog do
     it "returns every definition" do
       expect(described_class.all).to eq(PluginCatalog::DEFINITIONS)
     end
+
+    it "has a sidebar name and description translation for every top-level plugin" do
+      top_level = described_class.all.reject { |definition| described_class.sub_plugin?(definition.key) }
+      top_level.each do |definition|
+        expect(I18n.exists?("components.plugin_row.plugin.#{definition.key}.name", :en)).to be(true)
+        expect(I18n.exists?("components.plugin_row.plugin.#{definition.key}.description", :en)).to be(true)
+      end
+    end
   end
 
   describe ".find" do
