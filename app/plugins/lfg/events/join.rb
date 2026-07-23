@@ -65,14 +65,14 @@ module Lfg
         reply_to_id: event.message.id,
         subject: "<@#{identity[:creator_id]}> - <@#{newest_id}> is joining!",
         allowed_mentions: {parse: [], users: [identity[:creator_id]]},
-        container: notify_container(newest_id)
+        container: notify_container(identity[:creator_id], newest_id)
       )
       Ops::Lfg::Message::Update.call(message: record, notify_reply_id: reply_id) if record
     end
 
-    def notify_container(newest_id)
+    def notify_container(creator_id, newest_id)
       Bot::Discord::Components.container(
-        [Bot::Discord::Components.text("<@#{newest_id}> is joining!")]
+        [Bot::Discord::Components.text("<@#{creator_id}> - <@#{newest_id}> is joining!")]
       )
     end
 

@@ -127,11 +127,11 @@ RSpec.describe Lfg::Join do
       handle
     end
 
-    it "names the newest joiner in the notify container" do
+    it "names the creator and the newest joiner in the notify container so the pinged creator is mentioned" do
       handle
       expect(Lfg::PingReply).to have_received(:deliver) do |**kwargs|
         content = kwargs[:container][:components].first[:components].first[:content]
-        expect(content).to eq("<@42> is joining!")
+        expect(content).to eq("<@#{creator_id}> - <@42> is joining!")
       end
     end
 

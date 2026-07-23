@@ -30,7 +30,7 @@ module Lfg
         subject: "The game you joined is starting now! #{mentions}",
         allowed_mentions: {parse: [], users: joiner_ids},
         container: Bot::Discord::Components.container(
-          [Bot::Discord::Components.text("The game you joined is starting now!")]
+          [Bot::Discord::Components.text("The game you joined is starting now! #{mentions}")]
         )
       )
     end

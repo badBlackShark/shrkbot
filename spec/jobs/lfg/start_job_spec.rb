@@ -39,6 +39,15 @@ RSpec.describe Lfg::StartJob do
     perform
   end
 
+  it "mentions the joiners in the container so the pinged joiners are named" do
+    expect(Lfg::PingReply).to receive(:deliver) do |**kwargs|
+      content = kwargs[:container][:components].first[:components].first[:content]
+      expect(content).to include("<@1>").and include("<@2>")
+      700
+    end
+    perform
+  end
+
   context "when nobody joined" do
     let(:joiner_ids) { [] }
 
