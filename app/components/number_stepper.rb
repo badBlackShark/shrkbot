@@ -40,22 +40,20 @@ class Components::NumberStepper < Components::Base
   end
 
   def decrement_button
-    button(
-      type: "button",
-      class: "flex size-8 items-center justify-center rounded-control border border-border-default bg-surface-card text-text-secondary transition-colors hover:bg-surface-sunken hover:text-text-primary",
-      data: {action: "click->number-stepper#decrement"}
-    ) do
-      render Components::Icon.new("minus", class: "size-4")
-    end
+    stepper_button("minus", "decrement")
   end
 
   def increment_button
+    stepper_button("plus", "increment")
+  end
+
+  def stepper_button(icon, method)
     button(
       type: "button",
       class: "flex size-8 items-center justify-center rounded-control border border-border-default bg-surface-card text-text-secondary transition-colors hover:bg-surface-sunken hover:text-text-primary",
-      data: {action: "click->number-stepper#increment"}
+      data: {action: "click->number-stepper##{method}"}
     ) do
-      render Components::Icon.new("plus", class: "size-4")
+      render Components::Icon.new(icon, class: "size-4")
     end
   end
 
