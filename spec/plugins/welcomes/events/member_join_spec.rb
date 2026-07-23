@@ -6,56 +6,55 @@ RSpec.describe Welcomes::MemberJoin do
   subject(:handle) { described_class.new(event).handle }
 
   let(:server) { double("server", id: 123, member_count: 10) }
-  let(:user) { double("user", mention: "<@7>") }
-  let(:bot) { double("bot") }
+  let(:user) { double("user", mention: "<@7>", id: 7, pending: false) }
+  let(:bot) { double("bot", send_message: nil) }
   let(:event) { double("event", server:, user:, bot:) }
+  let(:pending_joins) { Welcomes::PendingJoins.new }
+  let(:setting) { double("settings", channel_id: 555, join_message: "Welcome {user}!", ping_on_join: true) }
 
   before do
+    allow(Welcomes::PendingJoins).to receive(:instance).and_return(pending_joins)
     allow(Welcomes::Settings).to receive(:active_for).with(123).and_return(setting)
   end
 
-  context "with an active setting and a join message" do
-    let(:setting) { double("settings", channel_id: 555, join_message: "Welcome {user}! Members: {membercount}", ping_on_join: true) }
-
-    it "posts the rendered message to the configured channel" do
-      expect(bot).to receive(:send_message).with(555, "Welcome <@7>! Members: 10", false, nil, nil, nil)
+  context "when the member is already through onboarding" do
+    it "welcomes them straight away" do
       handle
+
+      expect(bot).to have_received(:send_message).with(555, "Welcome <@7>!", false, nil, nil, nil)
+    end
+
+    it "holds nothing back" do
+      handle
+
+      expect(pending_joins.forget(guild_id: 123, user_id: 7)).to be(false)
     end
   end
 
-  context "when pinging on join is disabled" do
-    let(:setting) { double("settings", channel_id: 555, join_message: "Welcome {user}!", ping_on_join: false) }
+  context "when the member still has onboarding to finish" do
+    let(:user) { double("user", mention: "<@7>", id: 7, pending: true) }
 
-    it "suppresses the mention so no ping fires" do
-      expect(bot).to receive(:send_message).with(555, "Welcome <@7>!", false, nil, nil, {parse: []})
+    it "holds the welcome back so the mention resolves later" do
       handle
+
+      expect(bot).not_to have_received(:send_message)
+    end
+
+    it "remembers the join so finishing onboarding can trigger it" do
+      handle
+
+      expect(pending_joins.forget(guild_id: 123, user_id: 7)).to be(true)
     end
   end
 
   context "when welcomes is inactive" do
     let(:setting) { nil }
+    let(:user) { double("user", mention: "<@7>", id: 7, pending: true) }
 
-    it "does nothing" do
-      expect(bot).not_to receive(:send_message)
+    it "remembers nothing, since no welcome will ever be sent" do
       handle
-    end
-  end
 
-  context "when the join message is blank" do
-    let(:setting) { double("settings", channel_id: 555, join_message: "") }
-
-    it "does nothing" do
-      expect(bot).not_to receive(:send_message)
-      handle
-    end
-  end
-
-  context "when no channel is set" do
-    let(:setting) { double("settings", channel_id: nil, join_message: "hi") }
-
-    it "does nothing" do
-      expect(bot).not_to receive(:send_message)
-      handle
+      expect(pending_joins.forget(guild_id: 123, user_id: 7)).to be(false)
     end
   end
 end

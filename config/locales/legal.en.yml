@@ -79,6 +79,11 @@ en:
       data_reminders: 'Reminders: the reminder text you write, your Discord ID, the
         target channel and server, whether to deliver by DM, and the due time - kept
         until delivered or deleted by you with /unremind.'
+      data_welcomes: 'Welcome messages: on servers that use Discord''s membership
+        screening, a short-lived in-memory note that a member has joined but not yet
+        finished onboarding - the server ID and their Discord ID, nothing else. It
+        exists so the welcome can wait until they finish, which is what makes the
+        greeting name them correctly. It is never written to disk.'
       deletion_account: Delete your dashboard account and your reminders with the
         "Delete my account" button on your account page.
       deletion_contact: Or contact us (see below) and we'll take care of it.
@@ -144,6 +149,9 @@ en:
         the bot. Global scam fingerprints set by the bot owner are retained indefinitely.'
       retention_reminders: 'Reminders: deleted once delivered, or earlier if you delete
         them.'
+      retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
+        sent or the member leaves, after 24 hours either way, and on every restart.
+        They live in memory only and are never written down.'
       rights_h: Your rights
       rights_p: Under the GDPR you have the right to access, correct, delete, restrict
         or object to our use of your personal data, and the right to data portability.
@@ -161,7 +169,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: July 20th, 2026'
+      updated: 'Last updated: July 23rd, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

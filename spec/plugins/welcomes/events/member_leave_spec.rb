@@ -6,11 +6,13 @@ RSpec.describe Welcomes::MemberLeave do
   subject(:handle) { described_class.new(event).handle }
 
   let(:server) { double("server", id: 123, member_count: 9) }
-  let(:user) { double("user", username: "ghost") }
+  let(:user) { double("user", username: "ghost", id: 7) }
   let(:bot) { double("bot") }
   let(:event) { double("event", server:, user:, bot:) }
+  let(:pending_joins) { Welcomes::PendingJoins.new }
 
   before do
+    allow(Welcomes::PendingJoins).to receive(:instance).and_return(pending_joins)
     allow(Welcomes::Settings).to receive(:active_for).with(123).and_return(setting)
   end
 
@@ -38,6 +40,18 @@ RSpec.describe Welcomes::MemberLeave do
     it "does nothing" do
       expect(bot).not_to receive(:send_message)
       handle
+    end
+  end
+
+  context "when the member leaves before finishing onboarding" do
+    let(:setting) { nil }
+
+    before { pending_joins.remember(guild_id: 123, user_id: 7) }
+
+    it "drops the held-back join instead of waiting out its retention" do
+      handle
+
+      expect(pending_joins.forget(guild_id: 123, user_id: 7)).to be(false)
     end
   end
 end

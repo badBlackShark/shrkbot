@@ -5,6 +5,8 @@ module Welcomes
     on :member_leave
 
     def handle
+      PendingJoins.instance.forget(guild_id: event.server.id, user_id: event.user.id)
+
       setting = Settings.active_for(event.server.id)
       return unless setting&.channel_id.present?
       return if setting.leave_message.blank?
