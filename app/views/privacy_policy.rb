@@ -45,6 +45,8 @@ class Views::PrivacyPolicy < Views::Base
       t(".data_guild"),
       t(".data_account"),
       t(".data_reminders"),
+      t(".data_welcomes"),
+      t(".data_lfg"),
       t(".data_notifications"),
       t(".data_operational")
     )
@@ -79,6 +81,8 @@ class Views::PrivacyPolicy < Views::Base
     bullets(
       t(".retention_guild"),
       t(".retention_reminders"),
+      t(".retention_welcomes"),
+      t(".retention_lfg"),
       t(".retention_phash"),
       t(".retention_account"),
       t(".retention_infra")

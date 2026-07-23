@@ -5,18 +5,14 @@ module Welcomes
     on :member_join
 
     def handle
-      setting = Settings.active_for(event.server.id)
-      return unless setting&.channel_id.present?
-      return if setting.join_message.blank?
+      announcement = JoinAnnouncement.new(bot: event.bot, server: event.server, member: event.user)
+      return unless announcement.enabled?
 
-      content = Message.render(setting.join_message, user: event.user.mention, member_count: event.server.member_count)
-      event.bot.send_message(setting.channel_id, content, false, nil, nil, mention_suppression(setting))
-    end
-
-    private
-
-    def mention_suppression(setting)
-      {parse: []} unless setting.ping_on_join
+      if event.user.pending
+        PendingJoins.instance.remember(guild_id: event.server.id, user_id: event.user.id)
+      else
+        announcement.deliver
+      end
     end
   end
 end
