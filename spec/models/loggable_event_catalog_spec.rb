@@ -9,15 +9,17 @@ RSpec.describe LoggableEventCatalog do
       "moderation.member_kicked",
       "moderation.member_banned",
       "roles.role_gained",
-      "roles.role_lost"
+      "roles.role_lost",
+      "lfg.denied"
     )
   end
 
   it "groups events by plugin for the config matrix" do
     grouped = described_class.grouped_by_plugin
-    expect(grouped.keys).to eq([:moderation, :roles])
+    expect(grouped.keys).to eq([:moderation, :roles, :lfg])
     expect(grouped[:moderation].map(&:event)).to eq([:member_timed_out, :member_kicked, :member_banned])
     expect(grouped[:roles].map(&:event)).to eq([:role_gained, :role_lost])
+    expect(grouped[:lfg].map(&:event)).to eq([:denied])
   end
 
   it "has a log-line translation for every catalogued event" do

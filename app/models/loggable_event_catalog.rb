@@ -12,7 +12,8 @@ class LoggableEventCatalog
     Definition.new(plugin: :moderation, event: :member_kicked),
     Definition.new(plugin: :moderation, event: :member_banned),
     Definition.new(plugin: :roles, event: :role_gained),
-    Definition.new(plugin: :roles, event: :role_lost)
+    Definition.new(plugin: :roles, event: :role_lost),
+    Definition.new(plugin: :lfg, event: :denied)
   ].freeze
 
   def self.all
