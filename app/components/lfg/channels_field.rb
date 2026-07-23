@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-class Components::Lfg::ChannelsCard < Components::Base
+class Components::Lfg::ChannelsField < Components::Base
   def initialize(channels:, selected:)
     @channels = channels
     @selected = selected
   end
 
   def view_template
-    render Components::Card.new do
+    div do
       label(class: "block text-sm font-semibold") { t(".label") }
       p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".help") }
       if @channels.empty?

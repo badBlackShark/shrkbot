@@ -49,26 +49,34 @@ en:
       privacy: Privacy policy
       terms: Terms of service
     lfg:
-      channels_card:
+      channels_field:
         help: Channels where members can post an LFG. Leave empty to allow every channel.
         label: Allowed channels
         none: No channels have synced yet. shrkbot needs to be in the server first.
         nudge: With no channels chosen, /lfg works in every channel. Consider scoping
           it to a few dedicated channels.
         placeholder: Choose channels
-      cooldown_card:
-        default: 300 seconds, which is 5 minutes
-        help: How long a member must wait between posts. Set to 0 to disable the cooldown.
-        label: Cooldown
-        unit: seconds
       defaults_card:
+        cooldown:
+          default: 300 seconds, which is 5 minutes
+          help: How long a member must wait between posts. Set to 0 to disable the
+            cooldown.
+          label: Cooldown
+          unit: seconds
         excluded:
           help: Members with any of these roles can't post. Leave empty to exclude
             no one.
           label: Excluded roles
           placeholder: Choose roles
-        help: The baseline gate to use Looking for Game at all, plus the default membership
-          age. Per-role cards below add extra requirements on top of these.
+        help: Server-wide Looking for Game settings. The per-role cards below add
+          extra gates on top of these.
+        lifetime:
+          default: 360 minutes, which is 6 hours
+          help: The duration the "Looking for Game" post remains visible after it
+            starts. For scheduled posts, this time only starts with the actual session,
+            not during the "gathering interest" period.
+          label: Post lifetime
+          unit: minutes
         min_days:
           help: How long a member must have been in the server before they can post.
             Leave blank for no minimum.
@@ -80,14 +88,8 @@ en:
             to allow everyone.
           label: Required roles
           placeholder: Choose roles
+        subtitle: Server-wide gates, allowed channels, cooldown and post lifetime
         title: Defaults
-      lifetime_card:
-        default: 360 minutes, which is 6 hours
-        help: The duration the "Looking for Game" post remains visible after it starts.
-          For scheduled posts, this time only starts with the actual session, not
-          during the "gathering interest" period.
-        label: Post lifetime
-        unit: minutes
       pingable_role_card:
         channel:
           help: Restrict this role to these channels, overriding the allowed channels
