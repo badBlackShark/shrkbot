@@ -9,6 +9,13 @@ RSpec.describe Welcomes::PendingJoins do
   let(:now) { Time.utc(2026, 7, 23, 12, 0, 0) }
   let(:at) { now }
 
+  describe ".instance" do
+    it "returns a memoized singleton" do
+      expect(described_class.instance).to be_a(described_class)
+      expect(described_class.instance).to equal(described_class.instance)
+    end
+  end
+
   context "when the join is pending" do
     before { store.remember(guild_id: 1, user_id: 7, at: now) }
 
