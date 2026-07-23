@@ -523,6 +523,8 @@ en:
         one dashboard, and let shrkbot handle the rest.'
       more_plugins: More plugins are on the way.
       plugins:
+        lfg: Let members rally a group with a role ping, instantly or scheduled. Others
+          join with one click.
         logging: 'Record moderation events to a private staff channel: role changes,
           joins, leaves.'
         moderation: 'Automated moderation beyond Discord''s AutoMod: catch cross-channel

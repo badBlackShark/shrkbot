@@ -67,7 +67,7 @@ class Views::Home < Views::Base
 
   def plugin_cards(decorative: false)
     div(class: "flex", aria_hidden: decorative ? "true" : nil) do
-      %i[roles welcomes logging moderation reminders].each { |key| plugin_card(key) }
+      %i[roles welcomes logging moderation reminders lfg].each { |key| plugin_card(key) }
     end
   end
 
