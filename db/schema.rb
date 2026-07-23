@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_19_103614) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_20_222741) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,6 +66,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_19_103614) do
     t.check_constraint "punishment::text = ANY (ARRAY['none'::character varying, 'timeout'::character varying, 'kick'::character varying, 'ban'::character varying]::text[])", name: "image_scanning_settings_punishment_check"
     t.check_constraint "sensitivity::text = ANY (ARRAY['relaxed'::character varying, 'standard'::character varying, 'strict'::character varying]::text[])", name: "image_scanning_settings_sensitivity_check"
     t.check_constraint "timeout_seconds >= 60 AND timeout_seconds <= 2419200", name: "image_scanning_settings_timeout_seconds_check"
+  end
+
+  create_table "lfg_messages", id: :string, default: -> { "('lfm_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.bigint "channel_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "message_id", null: false
+    t.bigint "notify_reply_id"
+    t.string "server_configuration_id", null: false
+    t.bigint "start_ping_id"
+    t.datetime "updated_at", null: false
+    t.index ["message_id"], name: "index_lfg_messages_on_message_id", unique: true
+    t.index ["server_configuration_id"], name: "index_lfg_messages_on_server_configuration_id"
   end
 
   create_table "lfg_pingable_roles", id: :string, default: -> { "('lfr_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -428,6 +440,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_19_103614) do
   add_foreign_key "assignable_roles", "role_sets"
   add_foreign_key "channel_overwrites", "server_channels"
   add_foreign_key "image_scanning_settings", "server_configurations"
+  add_foreign_key "lfg_messages", "server_configurations"
   add_foreign_key "lfg_pingable_roles", "lfg_settings", column: "lfg_settings_id"
   add_foreign_key "lfg_settings", "server_configurations"
   add_foreign_key "logging_settings", "server_configurations"

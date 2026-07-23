@@ -63,10 +63,12 @@ en:
       data_lead: 'We store only what the enabled features need:'
       data_lfg: 'Looking for Game: the roles you make pingable and the policy limits
         you set for each of them (which roles or channels may use them, minimum membership
-        age, cooldowns and post lifetime). This is server configuration only — the
-        LFG posts themselves and who joins them live entirely in the Discord messages,
-        under Discord''s retention, and are never stored in our database. A short-lived
-        in-memory cooldown (minutes) throttles spam and is never written down.'
+        age, cooldowns and post lifetime). This is server configuration only. Who
+        joins a post lives entirely in the Discord message, under Discord''s retention
+        — we never store joiners or post content. We keep only the non-personal message
+        references needed to manage and clean up a post (channel and message IDs,
+        and the IDs of the follow-up messages we post for it). A short-lived in-memory
+        cooldown (minutes) throttles spam and is never written down.'
       data_notifications: 'Dashboard notifications: short activity entries (an event
         type plus details such as a plugin or channel name) so admins can see recent
         changes.'
@@ -132,9 +134,11 @@ en:
         (at most 60 days, 30 days and briefly, respectively). Deleted data also drops
         out of database backups as they rotate.
       retention_lfg: 'Looking for Game configuration: deleted automatically with the
-        rest of the server''s configuration the moment the bot is removed. Cooldowns
-        live in memory only and vanish on restart; LFG posts are ordinary Discord
-        messages, kept by Discord until they expire or are deleted.'
+        rest of the server''s configuration the moment the bot is removed. A post''s
+        message references are deleted when the post is closed or expires, and otherwise
+        removed with the server''s configuration. Cooldowns live in memory only and
+        vanish on restart; the posts themselves are ordinary Discord messages, kept
+        by Discord until they expire or are deleted.'
       retention_phash: 'Confirmed scam-image fingerprints: pruned 180 days after they
         were last matched, and removed once every server that confirmed them has removed
         the bot. Global scam fingerprints set by the bot owner are retained indefinitely.'
@@ -157,7 +161,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: July 19th, 2026'
+      updated: 'Last updated: July 20th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

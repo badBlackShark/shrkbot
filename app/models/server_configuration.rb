@@ -11,6 +11,7 @@ class ServerConfiguration < ApplicationRecord
   has_one :spam_protection_settings, class_name: "Moderation::SpamProtection::Settings", dependent: :delete
   has_one :image_scanning_settings, class_name: "Moderation::ImageScanning::Settings", dependent: :delete
   has_one :lfg_settings, class_name: "Lfg::Settings", dependent: :destroy
+  has_many :lfg_messages, class_name: "Lfg::Message", dependent: :delete_all
 
   has_many :phash_confirmations, class_name: "Moderation::PhashConfirmation", dependent: :delete_all
 

@@ -37,7 +37,10 @@ ActiveRecordDoctor.configure do
       "moderation_settings.staff_role_id",
       "moderation_verdicts.log_channel_id",
       "moderation_verdicts.log_message_id",
-      "lfg_pingable_roles.role_id"
+      "lfg_pingable_roles.role_id",
+      "lfg_messages.channel_id",
+      "lfg_messages.notify_reply_id",
+      "lfg_messages.start_ping_id"
     ]
 
   # These are NOT NULL with a DB default, so they're never nil — presence is wrong

@@ -58,6 +58,23 @@ module Bot
         {type: MEDIA_GALLERY, items: urls.map { |url| {media: {url:}} }}
       end
 
+      def create_message(channel_id:, content:, allowed_mentions:, reply_to_id: nil)
+        response = Discordrb::API::Channel.create_message(
+          Bot::Config.rest_token,
+          channel_id,
+          content,
+          false,
+          nil,
+          nil,
+          nil,
+          allowed_mentions,
+          reply_to_id && {message_id: reply_to_id},
+          nil,
+          nil
+        )
+        JSON.parse(response)["id"]
+      end
+
       def send_to(channel, rendered, allowed_mentions: nil, attachments: nil, subject: nil)
         unless subject
           return channel.send_message(nil, false, nil, attachments, allowed_mentions, nil, rendered[:components], rendered[:flags])
