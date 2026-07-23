@@ -13,12 +13,9 @@ module Lfg
     end
 
     def execute
-      config = server_configuration
-      return event.respond(content: "LFG isn't set up here.", ephemeral: true) unless config&.lfg_settings
-
       event.defer(ephemeral: true)
       outcome = Lfg::PostCreation.call(
-        server_configuration: config,
+        server_configuration:,
         channel: event.channel,
         bot: event.bot,
         member: event.server.member(event.user.id),
@@ -27,7 +24,7 @@ module Lfg
         starting_in: event.options["starting_in"],
         mention_permission: event.interaction.application_permissions&.mention_everyone
       )
-      event.edit_response(content: outcome.message)
+      event.edit_response(content: outcome.message, allowed_mentions: {parse: []})
     end
 
     def autocomplete

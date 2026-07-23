@@ -47,28 +47,30 @@ RSpec.describe Lfg::EffectivePolicy do
     end
   end
 
-  describe "#required_role_ids" do
-    subject(:required_role_ids) { policy.required_role_ids }
+  describe "#feature_required_role_ids" do
+    subject(:feature_required_role_ids) { policy.feature_required_role_ids }
 
-    context "when the role override is nil" do
-      it "inherits the settings default" do
-        expect(required_role_ids).to eq([1, 2])
+    it "is always the settings default" do
+      expect(feature_required_role_ids).to eq([1, 2])
+    end
+  end
+
+  describe "#role_required_role_ids" do
+    subject(:role_required_role_ids_result) { policy.role_required_role_ids }
+
+    context "when the role has no required roles of its own" do
+      let(:role_required_role_ids) { nil }
+
+      it "returns an empty array" do
+        expect(role_required_role_ids_result).to eq([])
       end
     end
 
-    context "when the role override is an empty array" do
-      let(:role_required_role_ids) { [] }
-
-      it "returns the empty array, not the default" do
-        expect(required_role_ids).to eq([])
-      end
-    end
-
-    context "when the role override is a populated array" do
+    context "when the role has its own required roles" do
       let(:role_required_role_ids) { [10] }
 
-      it "returns the role override" do
-        expect(required_role_ids).to eq([10])
+      it "returns the role's own required roles" do
+        expect(role_required_role_ids_result).to eq([10])
       end
     end
   end
@@ -76,25 +78,27 @@ RSpec.describe Lfg::EffectivePolicy do
   describe "#excluded_role_ids" do
     subject(:excluded_role_ids) { policy.excluded_role_ids }
 
-    context "when the role override is nil" do
-      it "inherits the settings default" do
+    context "when the role has no excluded roles of its own" do
+      let(:role_excluded_role_ids) { nil }
+
+      it "is just the settings default" do
         expect(excluded_role_ids).to eq([3, 4])
       end
     end
 
-    context "when the role override is an empty array" do
-      let(:role_excluded_role_ids) { [] }
+    context "when the role has its own excluded roles" do
+      let(:role_excluded_role_ids) { [10] }
 
-      it "returns the empty array, not the default" do
-        expect(excluded_role_ids).to eq([])
+      it "is the union of the default and the role's own" do
+        expect(excluded_role_ids).to contain_exactly(3, 4, 10)
       end
     end
 
-    context "when the role override is a populated array" do
-      let(:role_excluded_role_ids) { [10] }
+    context "when the role's excluded roles overlap with the default" do
+      let(:role_excluded_role_ids) { [3, 10] }
 
-      it "returns the role override" do
-        expect(excluded_role_ids).to eq([10])
+      it "dedupes the union" do
+        expect(excluded_role_ids).to contain_exactly(3, 4, 10)
       end
     end
   end

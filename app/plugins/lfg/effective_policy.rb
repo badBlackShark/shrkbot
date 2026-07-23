@@ -11,12 +11,16 @@ module Lfg
       @pingable_role.min_membership_days || @settings.default_min_membership_days
     end
 
-    def required_role_ids
-      override(@pingable_role.required_role_ids, @settings.default_required_role_ids)
+    def feature_required_role_ids
+      @settings.default_required_role_ids
+    end
+
+    def role_required_role_ids
+      @pingable_role.required_role_ids || []
     end
 
     def excluded_role_ids
-      override(@pingable_role.excluded_role_ids, @settings.default_excluded_role_ids)
+      (@settings.default_excluded_role_ids + (@pingable_role.excluded_role_ids || [])).uniq
     end
 
     def allowed_channel_ids

@@ -22,9 +22,10 @@ module Lfg
     end
 
     def result
-      return denial(:channel_not_allowed) unless channel_allowed?
-      return denial(:missing_required_role) unless required_met?
-      return denial(:has_excluded_role) if excluded_present?
+      return denial(:channel_not_allowed, @effective.allowed_channel_ids) unless channel_allowed?
+      return denial(:missing_required_role, @effective.feature_required_role_ids) unless gate_met?(@effective.feature_required_role_ids)
+      return denial(:missing_game_role, @effective.role_required_role_ids) unless gate_met?(@effective.role_required_role_ids)
+      return denial(:has_excluded_role, blocking_excluded_role_ids) if blocking_excluded_role_ids.any?
       return denial(:too_new, @effective.min_membership_days) unless old_enough?
       return denial(:cooldown, @cooldown_remaining) if @cooldown_remaining.positive?
 
@@ -38,13 +39,12 @@ module Lfg
       allowed.empty? || allowed.include?(@channel_id)
     end
 
-    def required_met?
-      required = @effective.required_role_ids
+    def gate_met?(required)
       required.empty? || required.intersect?(@member_role_ids)
     end
 
-    def excluded_present?
-      @effective.excluded_role_ids.intersect?(@member_role_ids)
+    def blocking_excluded_role_ids
+      @blocking_excluded_role_ids ||= @effective.excluded_role_ids & @member_role_ids
     end
 
     def old_enough?

@@ -6,9 +6,6 @@ RSpec.describe Lfg::Denial do
   describe ".reason_text" do
     %i[
       bad_duration
-      channel_not_allowed
-      has_excluded_role
-      missing_required_role
       no_permission
       role_not_configured
     ].each do |reason|
@@ -27,6 +24,25 @@ RSpec.describe Lfg::Denial do
 
     it "humanizes a sub-minute cooldown without a minutes segment" do
       expect(described_class.reason_text(:cooldown, 5)).to include("5s")
+    end
+
+    it "renders channel mentions for channel_not_allowed" do
+      text = described_class.reason_text(:channel_not_allowed, [20, 21])
+
+      expect(text).to include("<#20>")
+      expect(text).to include("<#21>")
+    end
+
+    it "renders role mentions for missing_required_role" do
+      expect(described_class.reason_text(:missing_required_role, [55])).to include("<@&55>")
+    end
+
+    it "renders role mentions for missing_game_role" do
+      expect(described_class.reason_text(:missing_game_role, [55])).to include("<@&55>")
+    end
+
+    it "renders role mentions for has_excluded_role" do
+      expect(described_class.reason_text(:has_excluded_role, [55])).to include("<@&55>")
     end
   end
 

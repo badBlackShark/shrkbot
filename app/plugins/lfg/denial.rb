@@ -20,8 +20,18 @@ module Lfg
       case reason
       when :too_new then {days: detail}
       when :cooldown then {time: humanize_seconds(detail.to_i)}
+      when :channel_not_allowed then {channels: channel_mentions(detail)}
+      when :missing_required_role, :missing_game_role, :has_excluded_role then {roles: role_mentions(detail)}
       else {}
       end
+    end
+
+    def channel_mentions(ids)
+      Array(ids).map { |id| "<##{id}>" }.join(" ")
+    end
+
+    def role_mentions(ids)
+      Array(ids).map { |id| "<@&#{id}>" }.join(" ")
     end
 
     def humanize_seconds(total)
@@ -29,6 +39,6 @@ module Lfg
       minutes.zero? ? "#{seconds}s" : "#{minutes}m #{seconds}s"
     end
 
-    private_class_method :interpolations, :humanize_seconds
+    private_class_method :interpolations, :channel_mentions, :role_mentions, :humanize_seconds
   end
 end

@@ -5,10 +5,13 @@ en:
       denied: "%{actor}'s Looking for Game request for %{role} was denied: %{reason}."
       reasons:
         bad_duration: that start time isn't valid (try 30m, 2h or 1d, up to 30 days)
-        channel_not_allowed: Looking for Game isn't allowed in this channel
+        channel_not_allowed: 'Looking for Game can only be used in: %{channels}'
         cooldown: on cooldown (%{time} left)
-        has_excluded_role: a role excluded from Looking for Game is present
-        missing_required_role: a required role is missing
+        has_excluded_role: 'you have a role that''s blocked from Looking for Game:
+          %{roles}'
+        missing_game_role: 'you need one of these roles to look for this game: %{roles}'
+        missing_required_role: 'you need one of these roles to use Looking for Game:
+          %{roles}'
         no_permission: shrkbot is missing the Mention All Roles permission here
         role_not_configured: that role isn't set up for Looking for Game
         too_new: membership is too new (needs %{days} days)

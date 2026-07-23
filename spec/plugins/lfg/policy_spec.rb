@@ -20,14 +20,16 @@ RSpec.describe Lfg::Policy do
   let(:member_joined_at) { now - 100.days }
   let(:cooldown_remaining) { 0 }
   let(:min_membership_days) { nil }
-  let(:required_role_ids) { [] }
+  let(:feature_required_role_ids) { [] }
+  let(:role_required_role_ids) { [] }
   let(:excluded_role_ids) { [] }
   let(:allowed_channel_ids) { [] }
   let(:effective) do
     double(
       "effective",
       min_membership_days:,
-      required_role_ids:,
+      feature_required_role_ids:,
+      role_required_role_ids:,
       excluded_role_ids:,
       allowed_channel_ids:
     )
@@ -43,31 +45,59 @@ RSpec.describe Lfg::Policy do
   context "when the channel isn't allowed" do
     let(:allowed_channel_ids) { [999] }
 
-    it "denies with channel_not_allowed" do
+    it "denies with channel_not_allowed and the allowed channels as detail" do
       expect(result.denied?).to be(true)
       expect(result.reason).to eq(:channel_not_allowed)
+      expect(result.detail).to eq([999])
     end
 
     it "wins even when a later check would also fail" do
-      allow(effective).to receive(:required_role_ids).and_return([12345])
+      allow(effective).to receive(:feature_required_role_ids).and_return([12345])
 
       expect(result.reason).to eq(:channel_not_allowed)
     end
   end
 
-  context "when a required role is missing" do
-    let(:required_role_ids) { [999] }
+  context "when the feature-level required role is missing" do
+    let(:feature_required_role_ids) { [999] }
 
-    it "denies with missing_required_role" do
+    it "denies with missing_required_role and the feature set as detail" do
       expect(result.denied?).to be(true)
+      expect(result.reason).to eq(:missing_required_role)
+      expect(result.detail).to eq([999])
+    end
+
+    it "fails on the feature gate even when the member holds a role-required id" do
+      allow(effective).to receive(:role_required_role_ids).and_return([7])
+
       expect(result.reason).to eq(:missing_required_role)
     end
   end
 
-  context "when a required role is present" do
-    let(:required_role_ids) { [7] }
+  context "when the feature-level required role is present" do
+    let(:feature_required_role_ids) { [7] }
 
-    it "passes that check" do
+    it "passes that gate" do
+      expect(result.ok?).to be(true)
+    end
+  end
+
+  context "when the per-role required role is missing" do
+    let(:feature_required_role_ids) { [7] }
+    let(:role_required_role_ids) { [999] }
+
+    it "denies with missing_game_role and the role set as detail" do
+      expect(result.denied?).to be(true)
+      expect(result.reason).to eq(:missing_game_role)
+      expect(result.detail).to eq([999])
+    end
+  end
+
+  context "when both the feature and per-role required roles are satisfied" do
+    let(:feature_required_role_ids) { [7] }
+    let(:role_required_role_ids) { [7] }
+
+    it "passes both gates" do
       expect(result.ok?).to be(true)
     end
   end
@@ -75,9 +105,21 @@ RSpec.describe Lfg::Policy do
   context "when an excluded role is present" do
     let(:excluded_role_ids) { [7] }
 
-    it "denies with has_excluded_role" do
+    it "denies with has_excluded_role and the blocking ids as detail" do
       expect(result.denied?).to be(true)
       expect(result.reason).to eq(:has_excluded_role)
+      expect(result.detail).to eq([7])
+    end
+  end
+
+  context "when the member holds only some of the excluded roles" do
+    let(:member_role_ids) { [7, 8] }
+    let(:excluded_role_ids) { [8, 9] }
+
+    it "denies with only the intersecting ids as detail" do
+      expect(result.denied?).to be(true)
+      expect(result.reason).to eq(:has_excluded_role)
+      expect(result.detail).to eq([8])
     end
   end
 

@@ -43,8 +43,8 @@ RSpec.describe Lfg::Post do
       execute
     end
 
-    it "edits the response with the outcome message" do
-      expect(event).to receive(:edit_response).with(content: outcome.message)
+    it "edits the response with the outcome message and suppressed mentions" do
+      expect(event).to receive(:edit_response).with(content: outcome.message, allowed_mentions: {parse: []})
       execute
     end
 
@@ -57,16 +57,6 @@ RSpec.describe Lfg::Post do
           .and_return(outcome)
         execute
       end
-    end
-  end
-
-  context "when LFG isn't configured for this server" do
-    let(:server) { double("server", id: 999_999, member: member) }
-
-    it "responds without calling Lfg::PostCreation" do
-      expect(Lfg::PostCreation).not_to receive(:call)
-      expect(event).to receive(:respond).with(content: "LFG isn't set up here.", ephemeral: true)
-      execute
     end
   end
 
