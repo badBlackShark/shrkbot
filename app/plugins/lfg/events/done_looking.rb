@@ -26,12 +26,9 @@ module Lfg
     end
 
     def close
-      record = Lfg::Message.find_by(message_id: event.message.id)
-      if record
-        record.follow_up_ids.each { |id| delete_message(id) }
-        Ops::Lfg::Message::Destroy.call(message: record)
+      Lfg::PostCleanup.close(Lfg::Message.find_by(message_id: event.message.id), event.message.id) do |id|
+        delete_message(id)
       end
-      delete_message(event.message.id)
     end
 
     def unauthorized

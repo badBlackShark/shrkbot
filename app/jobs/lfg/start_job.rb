@@ -23,15 +23,13 @@ module Lfg
     end
 
     def re_ping(channel_id, message_id, joiner_ids)
-      mentions = Lfg::Mentions.list(joiner_ids)
+      announcement = "The game you joined is starting now! #{Lfg::Mentions.list(joiner_ids)}"
       Lfg::PingReply.deliver(
         channel_id:,
         reply_to_id: message_id,
-        subject: "The game you joined is starting now! #{mentions}",
+        subject: announcement,
         allowed_mentions: {parse: [], users: joiner_ids},
-        container: Bot::Discord::Components.container(
-          [Bot::Discord::Components.text("The game you joined is starting now! #{mentions}")]
-        )
+        container: Bot::Discord::Components.container([Bot::Discord::Components.text(announcement)])
       )
     end
   end

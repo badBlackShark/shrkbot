@@ -5,17 +5,12 @@ module Lfg
     queue_as :default
 
     def perform(channel_id, message_id)
-      record = Lfg::Message.find_by(message_id:)
-      cleanup(channel_id, record) if record
-      delete(channel_id, message_id)
+      Lfg::PostCleanup.close(Lfg::Message.find_by(message_id:), message_id) do |id|
+        delete(channel_id, id)
+      end
     end
 
     private
-
-    def cleanup(channel_id, record)
-      record.follow_up_ids.each { |id| delete(channel_id, id) }
-      Ops::Lfg::Message::Destroy.call(message: record)
-    end
 
     def delete(channel_id, message_id)
       Discordrb::API::Channel.delete_message(Bot::Config.rest_token, channel_id, message_id)

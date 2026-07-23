@@ -60,20 +60,15 @@ module Lfg
     def notify(identity, newest_id)
       record = Lfg::Message.find_by(message_id: event.message.id)
       delete_message(record.notify_reply_id) if record&.notify_reply_id
+      announcement = "<@#{identity[:creator_id]}> - <@#{newest_id}> is joining!"
       reply_id = Lfg::PingReply.deliver(
         channel_id: event.channel.id,
         reply_to_id: event.message.id,
-        subject: "<@#{identity[:creator_id]}> - <@#{newest_id}> is joining!",
+        subject: announcement,
         allowed_mentions: {parse: [], users: [identity[:creator_id]]},
-        container: notify_container(identity[:creator_id], newest_id)
+        container: Bot::Discord::Components.container([Bot::Discord::Components.text(announcement)])
       )
       Ops::Lfg::Message::Update.call(message: record, notify_reply_id: reply_id) if record
-    end
-
-    def notify_container(creator_id, newest_id)
-      Bot::Discord::Components.container(
-        [Bot::Discord::Components.text("<@#{creator_id}> - <@#{newest_id}> is joining!")]
-      )
     end
 
     def full
