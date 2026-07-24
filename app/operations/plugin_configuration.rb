@@ -14,6 +14,15 @@ module Ops
       activation
     end
 
+    def save_activation!(activation)
+      activation.save!
+      return unless activation.saved_change_to_enabled?
+
+      ActiveRecord.after_all_transactions_commit do
+        Bot::ConfigBus.sync_commands(server_configuration)
+      end
+    end
+
     def plugin_key
       raise AbstractMethodError, "#{self.class} must implement #plugin_key"
     end

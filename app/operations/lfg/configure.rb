@@ -34,7 +34,7 @@ module Ops
         transaction do
           settings.save!
           reconcile_pingable_roles(settings)
-          activation.save!
+          save_activation!(activation)
         end
         ok(activation)
       rescue ActiveRecord::RecordInvalid => error

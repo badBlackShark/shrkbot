@@ -19,7 +19,7 @@ module Ops
         return account_age_failure(settings, activation) unless settings.valid?
 
         settings.save!
-        activation.save!
+        save_activation!(activation)
         ok(activation)
       end
 

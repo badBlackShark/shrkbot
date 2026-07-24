@@ -15,7 +15,7 @@ module Ops
         return failure(messages(settings, activation), value: activation) unless settings.valid? && activation.valid?
 
         settings.save!
-        activation.save!
+        save_activation!(activation)
         ok(activation)
       end
 

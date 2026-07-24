@@ -20,7 +20,7 @@ module Ops
         transaction do
           setting.save!
           reconcile_sets(setting)
-          activation.save!
+          save_activation!(activation)
         end
         plan.publish
         ok(activation)
