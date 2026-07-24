@@ -5,6 +5,11 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.5.2] - 2026-07-24
+
+### Fixed
+- Enabling a plugin from its own config page, rather than from the dashboard plugin card, left its slash commands unregistered on Discord until the next bot restart. Turning Looking for Game on from the LFG page enabled it everywhere except Discord's command list, so `/lfg` never showed up. Every plugin config page now registers and unregisters its commands as the enable switch changes. ([#210](https://github.com/badBlackShark/shrkbot/pull/210))
+
 ## [3.5.1] - 2026-07-23
 
 ### Fixed
