@@ -2,6 +2,10 @@
 
 module Welcomes
   class JoinAnnouncement
+    # Stripping the mention drops the user object from the payload, so clients that have not lazily
+    # loaded the member render it as @unknown-user. Keep the mention real and silence the message.
+    SUPPRESS_NOTIFICATIONS = 1 << 12
+
     def initialize(bot:, server:, member:)
       @bot = bot
       @server = server
@@ -15,7 +19,7 @@ module Welcomes
     def deliver
       return unless enabled?
 
-      @bot.send_message(setting.channel_id, content, false, nil, nil, mention_suppression)
+      @bot.send_message(setting.channel_id, content, false, nil, nil, allowed_mentions, nil, nil, flags)
     end
 
     private
@@ -25,11 +29,21 @@ module Welcomes
     end
 
     def content
-      Message.render(setting.join_message, user: @member.mention, member_count: @server.member_count)
+      Message.render(
+        setting.join_message,
+        user: @member.mention,
+        username: @member.username,
+        displayname: @member.display_name,
+        member_count: @server.member_count
+      )
     end
 
-    def mention_suppression
-      {parse: []} unless setting.ping_on_join
+    def allowed_mentions
+      {parse: [], users: [@member.id]} unless setting.ping_on_join
+    end
+
+    def flags
+      setting.ping_on_join ? 0 : SUPPRESS_NOTIFICATIONS
     end
   end
 end

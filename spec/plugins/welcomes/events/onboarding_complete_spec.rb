@@ -6,7 +6,7 @@ RSpec.describe Welcomes::OnboardingComplete do
   subject(:handle) { described_class.new(event).handle }
 
   let(:server) { double("server", id: 123, member_count: 10) }
-  let(:user) { double("user", mention: "<@7>", id: 7, pending: false) }
+  let(:user) { double("user", mention: "<@7>", id: 7, username: "newmember", display_name: "New Member", pending: false) }
   let(:bot) { double("bot", send_message: nil) }
   let(:event) { double("event", server:, user:, bot:) }
   let(:pending_joins) { Welcomes::PendingJoins.new }
@@ -23,7 +23,7 @@ RSpec.describe Welcomes::OnboardingComplete do
     it "posts the welcome it held back" do
       handle
 
-      expect(bot).to have_received(:send_message).with(555, "Welcome <@7>! Members: 10", false, nil, nil, nil)
+      expect(bot).to have_received(:send_message).with(555, "Welcome <@7>! Members: 10", false, nil, nil, nil, nil, nil, 0)
     end
 
     it "posts it only once, however many updates follow" do
@@ -43,7 +43,7 @@ RSpec.describe Welcomes::OnboardingComplete do
   end
 
   context "when the member has onboarding left to finish" do
-    let(:user) { double("user", mention: "<@7>", id: 7, pending: true) }
+    let(:user) { double("user", mention: "<@7>", id: 7, username: "newmember", display_name: "New Member", pending: true) }
 
     before { pending_joins.remember(guild_id: 123, user_id: 7) }
 

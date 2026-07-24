@@ -6,7 +6,7 @@ RSpec.describe Welcomes::MemberLeave do
   subject(:handle) { described_class.new(event).handle }
 
   let(:server) { double("server", id: 123, member_count: 9) }
-  let(:user) { double("user", username: "ghost", id: 7) }
+  let(:user) { double("user", username: "ghost", display_name: "Ghost", id: 7) }
   let(:bot) { double("bot") }
   let(:event) { double("event", server:, user:, bot:) }
   let(:pending_joins) { Welcomes::PendingJoins.new }
@@ -21,6 +21,15 @@ RSpec.describe Welcomes::MemberLeave do
 
     it "posts the rendered message with the @handle and suppresses all mentions" do
       expect(bot).to receive(:send_message).with(555, "@ghost left. 9 remain.", false, nil, nil, {parse: []})
+      handle
+    end
+  end
+
+  context "with the name placeholders in the leave message" do
+    let(:setting) { double("settings", channel_id: 555, leave_message: "{displayname} ({username}) left.") }
+
+    it "renders the display name and username" do
+      expect(bot).to receive(:send_message).with(555, "Ghost (ghost) left.", false, nil, nil, {parse: []})
       handle
     end
   end

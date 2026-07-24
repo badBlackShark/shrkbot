@@ -4,6 +4,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   FIELD = "w-full resize-none rounded-control border-[1.5px] border-border-strong bg-surface-card px-3 py-2 " \
     "text-sm text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
     "focus:ring-3 focus:ring-[var(--focus-ring)]"
+  PLACEHOLDERS = %w[user username displayname membercount].freeze
 
   def initialize(server_configuration:, enable_error: nil)
     @config = server_configuration
@@ -86,10 +87,10 @@ class Components::Welcomes::ConfigForm < Components::Base
   def placeholder_help
     render Components::Callout.new(variant: :neutral) do
       span(class: "font-semibold") { t(".placeholders.intro") }
-      whitespace
-      placeholder_chip("{user}", t(".placeholders.user"))
-      whitespace
-      placeholder_chip("{membercount}", t(".placeholders.membercount"))
+      PLACEHOLDERS.each do |name|
+        whitespace
+        placeholder_chip("{#{name}}", t(".placeholders.#{name}"))
+      end
     end
   end
 

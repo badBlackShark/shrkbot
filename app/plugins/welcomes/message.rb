@@ -4,10 +4,13 @@ module Welcomes
   module Message
     module_function
 
-    def render(template, user:, member_count:)
-      template.to_s
-        .gsub("{user}", user.to_s)
-        .gsub("{membercount}", member_count.to_s)
+    def render(template, user:, username:, displayname:, member_count:)
+      {
+        "{user}" => user,
+        "{username}" => username,
+        "{displayname}" => displayname,
+        "{membercount}" => member_count
+      }.reduce(template.to_s) { |text, (token, value)| text.gsub(token) { value.to_s } }
     end
   end
 end

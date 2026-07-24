@@ -443,13 +443,18 @@ en:
           label: Leave message
           placeholder: "{user} has left the server."
         ping_on_join:
-          help: Ping new members when the join message mentions them. Off shows the
-            mention without sending a notification.
+          help: Off delivers silently - the mention badge still shows, but no sound
+            or push. The mention itself stays real, because stripping it risks rendering
+            as "@unknown-user".
           label: Ping on join
         placeholders:
+          displayname: Expands to the member's nickname on this server, or their display
+            name if they have none.
           intro: 'Placeholders:'
           membercount: Expands to the server's current member count.
-          user: Expands to the member who joined or left.
+          user: Expands to a mention of the member on join, and to their plain @handle
+            on leave.
+          username: Expands to the member's Discord username, without a mention.
         preview:
           empty: This message is off.
           label: Live preview
