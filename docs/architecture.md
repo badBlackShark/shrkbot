@@ -633,7 +633,7 @@ reference that doesn't resolve to an existing row is a 422, never an
 auto-created stub — tournaments must be PUT before games that reference them.
 
 **Result data is deliberately not persisted:** `Games#update` builds a
-`TwilightStruggle::Result` (an `ActiveModel::Model`, not an `ApplicationRecord`)
+`TwilightStruggle::GameResult` (an `ActiveModel::Model`, not an `ApplicationRecord`)
 from the request body and validates it, but never saves it or passes it to an
 operation — only `external_id` and the resolved `tournament` reach
 `Ops::TwilightStruggle::Games::Upsert`. Validating an object that's never

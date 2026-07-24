@@ -3,12 +3,8 @@
 require "rails_helper"
 
 RSpec.describe "Api::TwilightStruggle::V1::Tournaments", type: :request do
-  before do
-    allow(ENV).to receive(:fetch).and_call_original
-    allow(ENV).to receive(:fetch).with("TWILIGHT_STRUGGLE_API_KEYS", "").and_return("key-one,key-two")
-  end
+  include_context "twilight struggle api auth"
 
-  let(:headers) { {"Authorization" => "Bearer key-one"} }
   let(:external_id) { "tst-ext-new" }
   let(:params) { {tournament: {name: "Ameritash 2026"}} }
 

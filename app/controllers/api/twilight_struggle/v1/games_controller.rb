@@ -5,8 +5,8 @@ module Api
     module V1
       class GamesController < Api::TwilightStruggle::BaseController
         def update
-          result_payload = ::TwilightStruggle::Result.new(result_attributes)
-          return render json: {errors: result_payload.errors.full_messages}, status: :unprocessable_content if result_payload.invalid?
+          game_result = ::TwilightStruggle::GameResult.new(result_attributes)
+          return render_errors(game_result.errors.full_messages) if game_result.invalid?
 
           tournament = referenced_tournament(game_params[:tournament_external_id], :tournament_external_id)
 

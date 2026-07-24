@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module TwilightStruggle
-  class Result
+  class GameResult
     include ActiveModel::Model
     include ActiveModel::Attributes
 

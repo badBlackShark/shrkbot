@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe TwilightStruggle::Result do
+RSpec.describe TwilightStruggle::GameResult do
   subject(:result) { described_class.new(attributes) }
 
   let(:attributes) do

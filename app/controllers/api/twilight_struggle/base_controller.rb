@@ -31,12 +31,14 @@ module Api
       end
 
       def render_upsert(result)
-        if result.failure?
-          render json: {errors: result.errors}, status: :unprocessable_content
-        else
-          record = result.value
-          render json: {id: record.id, external_id: record.external_id}, status: record.previously_new_record? ? :created : :ok
-        end
+        return render_errors(result.errors) if result.failure?
+
+        record = result.value
+        render json: {id: record.id, external_id: record.external_id}, status: record.previously_new_record? ? :created : :ok
+      end
+
+      def render_errors(errors)
+        render json: {errors:}, status: :unprocessable_content
       end
 
       def referenced_tournament(external_id, field)
@@ -46,7 +48,7 @@ module Api
       end
 
       def render_unknown_reference(error)
-        render json: {errors: [error.message]}, status: :unprocessable_content
+        render_errors([error.message])
       end
     end
   end
