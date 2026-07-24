@@ -177,6 +177,19 @@ RSpec.describe Ops::Lfg::Configure do
       end
     end
 
+    context "when the plugin is switched back off" do
+      let(:enabled) { "0" }
+
+      before do
+        create(:plugin_activation, server_configuration: config, plugin:, enabled: true)
+      end
+
+      it "asks the bot to drop the guild's commands again" do
+        result
+        expect(Bot::ConfigBus).to have_received(:sync_commands).with(config)
+      end
+    end
+
     context "when the save fails" do
       let(:cooldown_seconds) { -1 }
 
