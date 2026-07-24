@@ -154,6 +154,52 @@ RSpec.describe Ops::Lfg::Configure do
     end
   end
 
+  context "guild command registration" do
+    before do
+      allow(Bot::ConfigBus).to receive(:sync_commands)
+    end
+
+    it "asks the bot to re-register the guild's commands when the plugin is switched on" do
+      result
+      expect(Bot::ConfigBus).to have_received(:sync_commands).with(config)
+    end
+
+    context "when the plugin was already enabled and only a setting changed" do
+      let(:cooldown_seconds) { 900 }
+
+      before do
+        create(:plugin_activation, server_configuration: config, plugin:, enabled: true)
+      end
+
+      it "leaves the registered commands alone" do
+        result
+        expect(Bot::ConfigBus).not_to have_received(:sync_commands)
+      end
+    end
+
+    context "when the plugin is switched back off" do
+      let(:enabled) { "0" }
+
+      before do
+        create(:plugin_activation, server_configuration: config, plugin:, enabled: true)
+      end
+
+      it "asks the bot to drop the guild's commands again" do
+        result
+        expect(Bot::ConfigBus).to have_received(:sync_commands).with(config)
+      end
+    end
+
+    context "when the save fails" do
+      let(:cooldown_seconds) { -1 }
+
+      it "does not ask the bot to re-register anything" do
+        expect(result).to be_failure
+        expect(Bot::ConfigBus).not_to have_received(:sync_commands)
+      end
+    end
+  end
+
   context "atomicity: an invalid pingable role rolls back settings changes too" do
     let(:enabled) { "0" }
     let(:cooldown_seconds) { 900 }

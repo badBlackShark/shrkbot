@@ -242,7 +242,11 @@ concept Discord can't express. A command with no declaration is available to eve
 Declared with `register_in`:
 
 - `:guild` (default) — bulk-overwritten per guild on ready (`Bot::CommandBackfill`),
-  server join (`Bot::CommandSetup`), and plugin toggle (Bot::ConfigBus `commands_sync`). A
+  server join (`Bot::CommandSetup`), and plugin toggle (Bot::ConfigBus `commands_sync`,
+  published by `Ops::ServerConfiguration::Plugins::Toggle` for the dashboard's plugin
+  cards and by `Ops::PluginConfiguration#save_activation!` for the enable switch on a
+  plugin's own config page — a plugin's Configure operation must persist its activation
+  through that helper, or its commands never appear). A
   command's `plugin :key` macro ties it to a `PluginCatalog` key; it only registers
   in guilds where that plugin (and its parent, if any) is enabled. Plugin-less guild
   commands register in every guild. Guild commands cannot appear in DMs.
