@@ -6,7 +6,7 @@ RSpec.describe Welcomes::MemberJoin do
   subject(:handle) { described_class.new(event).handle }
 
   let(:server) { double("server", id: 123, member_count: 10) }
-  let(:user) { double("user", mention: "<@7>", id: 7, pending: false) }
+  let(:user) { double("user", mention: "<@7>", id: 7, username: "newmember", display_name: "New Member", pending: false) }
   let(:bot) { double("bot", send_message: nil) }
   let(:event) { double("event", server:, user:, bot:) }
   let(:pending_joins) { Welcomes::PendingJoins.new }
@@ -21,7 +21,7 @@ RSpec.describe Welcomes::MemberJoin do
     it "welcomes them straight away" do
       handle
 
-      expect(bot).to have_received(:send_message).with(555, "Welcome <@7>!", false, nil, nil, nil)
+      expect(bot).to have_received(:send_message).with(555, "Welcome <@7>!", false, nil, nil, nil, nil, nil, 0)
     end
 
     it "holds nothing back" do
@@ -32,7 +32,7 @@ RSpec.describe Welcomes::MemberJoin do
   end
 
   context "when the member still has onboarding to finish" do
-    let(:user) { double("user", mention: "<@7>", id: 7, pending: true) }
+    let(:user) { double("user", mention: "<@7>", id: 7, username: "newmember", display_name: "New Member", pending: true) }
 
     it "holds the welcome back so the mention resolves later" do
       handle
@@ -49,7 +49,7 @@ RSpec.describe Welcomes::MemberJoin do
 
   context "when welcomes is inactive" do
     let(:setting) { nil }
-    let(:user) { double("user", mention: "<@7>", id: 7, pending: true) }
+    let(:user) { double("user", mention: "<@7>", id: 7, username: "newmember", display_name: "New Member", pending: true) }
 
     it "remembers nothing, since no welcome will ever be sent" do
       handle

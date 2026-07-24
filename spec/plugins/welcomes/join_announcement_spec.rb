@@ -6,7 +6,7 @@ RSpec.describe Welcomes::JoinAnnouncement do
   subject(:deliver) { described_class.new(bot:, server:, member:).deliver }
 
   let(:server) { double("server", id: 123, member_count: 10) }
-  let(:member) { double("member", mention: "<@7>") }
+  let(:member) { double("member", id: 7, mention: "<@7>", username: "newmember", display_name: "New Member") }
   let(:bot) { double("bot") }
 
   before do
@@ -17,7 +17,16 @@ RSpec.describe Welcomes::JoinAnnouncement do
     let(:setting) { double("settings", channel_id: 555, join_message: "Welcome {user}! Members: {membercount}", ping_on_join: true) }
 
     it "posts the rendered message to the configured channel" do
-      expect(bot).to receive(:send_message).with(555, "Welcome <@7>! Members: 10", false, nil, nil, nil)
+      expect(bot).to receive(:send_message).with(555, "Welcome <@7>! Members: 10", false, nil, nil, nil, nil, nil, 0)
+      deliver
+    end
+  end
+
+  context "with the name placeholders in the join message" do
+    let(:setting) { double("settings", channel_id: 555, join_message: "{username} aka {displayname}", ping_on_join: true) }
+
+    it "renders the username and display name" do
+      expect(bot).to receive(:send_message).with(555, "newmember aka New Member", false, nil, nil, nil, nil, nil, 0)
       deliver
     end
   end
@@ -25,8 +34,18 @@ RSpec.describe Welcomes::JoinAnnouncement do
   context "when pinging on join is disabled" do
     let(:setting) { double("settings", channel_id: 555, join_message: "Welcome {user}!", ping_on_join: false) }
 
-    it "suppresses the mention so no ping fires" do
-      expect(bot).to receive(:send_message).with(555, "Welcome <@7>!", false, nil, nil, {parse: []})
+    it "keeps the mention resolvable but sends the message silently" do
+      expect(bot).to receive(:send_message).with(
+        555,
+        "Welcome <@7>!",
+        false,
+        nil,
+        nil,
+        {parse: [], users: [7]},
+        nil,
+        nil,
+        described_class::SUPPRESS_NOTIFICATIONS
+      )
       deliver
     end
   end

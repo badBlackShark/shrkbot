@@ -11,8 +11,19 @@ module Welcomes
       return unless setting&.channel_id.present?
       return if setting.leave_message.blank?
 
-      content = Message.render(setting.leave_message, user: "@#{event.user.username}", member_count: event.server.member_count)
-      event.bot.send_message(setting.channel_id, content, false, nil, nil, {parse: []})
+      event.bot.send_message(setting.channel_id, content(setting.leave_message), false, nil, nil, {parse: []})
+    end
+
+    private
+
+    def content(template)
+      Message.render(
+        template,
+        user: "@#{event.user.username}",
+        username: event.user.username,
+        displayname: event.user.display_name,
+        member_count: event.server.member_count
+      )
     end
   end
 end
