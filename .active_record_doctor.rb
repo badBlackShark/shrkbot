@@ -40,8 +40,16 @@ ActiveRecordDoctor.configure do
       "lfg_pingable_roles.role_id",
       "lfg_messages.channel_id",
       "lfg_messages.notify_reply_id",
-      "lfg_messages.start_ping_id"
+      "lfg_messages.start_ping_id",
+      "twilight_struggle_games.discord_channel_id",
+      "twilight_struggle_games.discord_message_id"
     ]
+
+  # The unique index on external_id is partial (WHERE external_id IS NOT NULL) because
+  # the synthetic "friendly" tournament has none; the detector doesn't recognise partial
+  # indexes as satisfying the uniqueness validation.
+  detector :missing_unique_indexes,
+    ignore_columns: ["TwilightStruggle::Tournament(external_id)"]
 
   # These are NOT NULL with a DB default, so they're never nil — presence is wrong
   # for booleans (it rejects false) and the default already guarantees integrity.

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  draw :twilight_struggle
+
   get "up" => "rails/health#show", :as => :rails_health_check
 
   root "pages#home"

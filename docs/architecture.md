@@ -601,3 +601,50 @@ An optional `server_id` param narrows to one server ("this server" scope).
 notification. `Ops::Notifications::MarkRead` bulk-updates `read_at` via
 `update_all` for the caller-supplied `ServerConfiguration` objects (never raw
 ids — the controller loads and authorizes them first).
+
+## Twilight Struggle integration
+
+A token-authenticated JSON API for twilight-struggle.com to push tournament and
+game-result data, which the bot later renders into a Discord message. Full
+external contract: `docs/twilight-struggle-api.md`.
+
+**Namespace and routes:** `Api::TwilightStruggle::V1::{Tournaments,Games}Controller`,
+subclassing `Api::TwilightStruggle::BaseController < ActionController::API`. Routes
+live in their own file (`config/routes/twilight_struggle.rb`, loaded from
+`config/routes.rb` via `draw :twilight_struggle`) rather than inline in the main
+`draw do` block, keeping a self-contained external API surface easy to find and
+diff separately from the dashboard's routes. Both resources are `only: [:update,
+:destroy]`, `param: :external_id` — there is no create action because update is
+the upsert.
+
+**Auth:** `ActionController::HttpAuthentication::Token::ControllerMethods`
+(`ActionController::API` doesn't include it by default) checks the bearer token
+against every key in `TWILIGHT_STRUGGLE_API_KEYS` (comma-separated) via
+`ActiveSupport::SecurityUtils.secure_compare`. Multiple simultaneous keys let the
+client rotate with overlap (add new, switch, drop old) instead of a hard cutover;
+an unset/empty env var means zero keys, so every request is rejected (fail closed).
+
+**Upsert-by-external_id:** both `Tournaments#update` and `Games#update` are
+idempotent PUTs keyed on the caller's own id (`external_id`), not ours — the
+first PUT creates, every later PUT with the same id updates the same row.
+`Ops::TwilightStruggle::Tournaments::Upsert` / `Ops::TwilightStruggle::Games::Upsert`
+`find_or_initialize_by(external_id:)`. A `parent_external_id` / `tournament_external_id`
+reference that doesn't resolve to an existing row is a 422, never an
+auto-created stub — tournaments must be PUT before games that reference them.
+
+**Result data is deliberately not persisted:** `Games#update` builds a
+`TwilightStruggle::Result` (an `ActiveModel::Model`, not an `ApplicationRecord`)
+from the request body and validates it, but never saves it or passes it to an
+operation — only `external_id` and the resolved `tournament` reach
+`Ops::TwilightStruggle::Games::Upsert`. Validating an object that's never
+persisted is how the API contract (required fields, `winning_side` enum,
+`winning_turn` range, video URL scheme/count) is enforced without storing
+player names or other result data we don't need after the message is posted.
+
+**Friendly-tournament singleton:** a game PUT with no `tournament_external_id`
+is a "friendly" game. `Ops::TwilightStruggle::Games::Upsert` attaches it to the
+one `TwilightStruggle::Tournament` row with `friendly: true`, creating it
+(`I18n.t("twilight_struggle.friendly_tournament_name")`) on first use and
+recovering from a `RecordNotUnique` race via the table's partial unique index
+on `friendly`. A friendly tournament has no `external_id` — the model's
+check constraint requires `friendly` and `external_id IS NULL` to agree.
