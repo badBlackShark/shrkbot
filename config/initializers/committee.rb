@@ -26,6 +26,10 @@ module TwilightStruggleApiSchema
   DIR = Rails.root.join("config/api/twilight-struggle/v1")
 
   def self.driver
+    Committee::Drivers.load_from_data(document, parser_options: {strict_reference_validation: true})
+  end
+
+  def self.document
     document = {
       "openapi" => "3.0.3",
       "info" => {"title" => "shrkbot Twilight Struggle API", "version" => "1.0"},
@@ -39,7 +43,7 @@ module TwilightStruggleApiSchema
       merge_disjoint!(document["components"]["schemas"], fragment.dig("components", "schemas") || {}, path)
     end
 
-    Committee::Drivers.load_from_data(document, parser_options: {strict_reference_validation: true})
+    document
   end
 
   def self.merge_disjoint!(into, from, source)
