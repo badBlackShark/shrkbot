@@ -634,9 +634,12 @@ auto-created stub — tournaments must be PUT before games that reference them.
 
 **Result data is deliberately not persisted:** the request-validation
 middleware (`committee`, wired in `config/initializers/committee.rb`) checks the
-whole game body against `config/api/twilight-struggle-v1.yaml` — required fields,
-`winning_side` enum, `winning_turn` range, video URL scheme/count — before the
-controller runs. `Games#update` then reads only `external_id` and
+whole game body against the OpenAPI contract in `config/api/twilight-struggle/v1/`
+(one file per resource, merged at boot) — required fields, `winning_side` enum,
+`winning_turn` range, video URL scheme/count — before the controller runs. A
+`TwilightStruggleApiAuthentication` Rack middleware runs ahead of committee, so
+the bearer-token check fails closed before any schema validation or controller
+code. `Games#update` then reads only `external_id` and
 `tournament_external_id`; only `external_id` and the resolved `tournament` reach
 `Ops::TwilightStruggle::Games::Upsert`. The player names and other result fields
 are validated as they pass through the schema and are never read into a record,

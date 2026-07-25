@@ -3,8 +3,6 @@
 module Api
   module TwilightStruggle
     class BaseController < ActionController::API
-      include ActionController::HttpAuthentication::Token::ControllerMethods
-
       class UnknownTournament < StandardError
         attr_reader :field
 
@@ -14,21 +12,9 @@ module Api
         end
       end
 
-      before_action :authenticate_client
-
       rescue_from UnknownTournament, with: :render_unknown_reference
 
       private
-
-      def authenticate_client
-        authenticate_or_request_with_http_token do |token, _options|
-          token.present? && api_keys.any? { |key| ActiveSupport::SecurityUtils.secure_compare(token, key) }
-        end
-      end
-
-      def api_keys
-        ENV.fetch("TWILIGHT_STRUGGLE_API_KEYS", "").split(",").map(&:strip).reject(&:empty?)
-      end
 
       def render_upsert(result)
         return render_errors(result.errors) if result.failure?

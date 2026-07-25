@@ -9,7 +9,8 @@ Base URL: `https://shrkbot.com/api/twilight-struggle/v1`
 All requests and responses are JSON. Send `Content-Type: application/json`.
 
 The machine-readable request contract is an OpenAPI 3 document,
-`config/api/twilight-struggle-v1.yaml` (ask us for a copy). Request bodies are
+`config/api/twilight-struggle/v1/` (one file per resource; ask us for a copy).
+Request bodies are
 validated against it before they reach our code; a body that doesn't conform
 gets a `422` with an `errors` array. The field tables below mirror it in prose.
 

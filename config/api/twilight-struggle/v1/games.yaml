@@ -1,45 +1,4 @@
-openapi: 3.0.3
-info:
-  title: shrkbot Twilight Struggle API
-  version: "1.0"
-  description: >
-    Ingestion API for twilight-struggle.com. Tournaments and games are upserted
-    idempotently (PUT, with a caller-chosen external id as the key) and removed
-    (DELETE). Game-result payloads are validated against this schema but never
-    persisted. This file is the request contract: the request-validation
-    middleware rejects any body that does not conform.
 paths:
-  /tournaments/{external_id}:
-    parameters:
-      - name: external_id
-        in: path
-        required: true
-        schema:
-          type: string
-    put:
-      summary: Create or update a tournament
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [tournament]
-              properties:
-                tournament:
-                  $ref: "#/components/schemas/TournamentInput"
-      responses:
-        "200":
-          description: Tournament updated
-        "201":
-          description: Tournament created
-        "422":
-          description: Validation failed
-    delete:
-      summary: Delete a tournament
-      responses:
-        "204":
-          description: Tournament deleted, or no such tournament
   /games/{external_id}:
     parameters:
       - name: external_id
@@ -73,17 +32,6 @@ paths:
           description: Game deleted, or no such game
 components:
   schemas:
-    TournamentInput:
-      type: object
-      required: [name]
-      properties:
-        name:
-          type: string
-          minLength: 1
-        parent_external_id:
-          type: string
-        status:
-          type: string
     GameInput:
       type: object
       required: [usa_player, ussr_player, winning_side, winning_method, reported_at]
