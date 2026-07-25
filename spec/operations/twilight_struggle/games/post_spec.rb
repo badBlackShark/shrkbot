@@ -6,10 +6,6 @@ require "discordrb"
 RSpec.describe Ops::TwilightStruggle::Games::Post do
   subject(:result) { described_class.call(game:, report:) }
 
-  def body_text(rendered)
-    rendered[:components].first[:components].map { |block| block[:content] }.join
-  end
-
   let(:usa) { TwilightStruggle::Player.new(name: "Alice", flag: "🇺🇸", discord_id: "111") }
   let(:ussr) { TwilightStruggle::Player.new(name: "Bob", flag: "🇷🇺", discord_id: "222") }
   let(:video_urls) { [] }
@@ -29,21 +25,16 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
   let(:tournament) { create(:twilight_struggle_tournament) }
   let(:game) { create(:twilight_struggle_game, tournament:) }
 
-  let(:created_components_messages) { [] }
-  let(:created_plain_messages) { [] }
+  let(:created_messages) { [] }
   let(:edited_messages) { [] }
 
   before do
-    allow(Bot::Discord::Components).to receive(:create_components_message) do |channel_id:, rendered:, allowed_mentions:|
-      created_components_messages << {channel_id:, rendered:, allowed_mentions:}
-      "999"
-    end
     allow(Bot::Discord::Components).to receive(:create_message) do |channel_id:, content:, allowed_mentions:|
-      created_plain_messages << {channel_id:, content:, allowed_mentions:}
+      created_messages << {channel_id:, content:, allowed_mentions:}
       "999"
     end
-    allow(Bot::Discord::Components).to receive(:edit_components) do |channel_id, message_id, rendered|
-      edited_messages << {channel_id:, message_id:, rendered:}
+    allow(Bot::Discord::Components).to receive(:edit_content) do |channel_id, message_id, content|
+      edited_messages << {channel_id:, message_id:, content:}
       nil
     end
   end
@@ -51,9 +42,8 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
   context "when no destination channel is configured anywhere in the chain" do
     it "does not touch the Discord API" do
       result
-      expect(Bot::Discord::Components).not_to have_received(:create_components_message)
       expect(Bot::Discord::Components).not_to have_received(:create_message)
-      expect(Bot::Discord::Components).not_to have_received(:edit_components)
+      expect(Bot::Discord::Components).not_to have_received(:edit_content)
     end
 
     it "returns success" do
@@ -71,7 +61,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
 
     it "creates in that channel" do
       result
-      expect(created_components_messages.first[:channel_id]).to eq(555)
+      expect(created_messages.first[:channel_id]).to eq(555)
     end
 
     it "persists the channel and message ids on the game" do
@@ -88,7 +78,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
 
     it "creates in the parent's channel" do
       result
-      expect(created_components_messages.first[:channel_id]).to eq(777)
+      expect(created_messages.first[:channel_id]).to eq(777)
     end
   end
 
@@ -104,7 +94,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
 
     it "does not call create" do
       result
-      expect(Bot::Discord::Components).not_to have_received(:create_components_message)
+      expect(Bot::Discord::Components).not_to have_received(:create_message)
     end
 
     it "leaves the stored ids unchanged" do
@@ -123,14 +113,14 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
 
     context "when edit raises Discordrb::Errors::UnknownMessage (message deleted by a human)" do
       before do
-        allow(Bot::Discord::Components).to receive(:edit_components).and_raise(
+        allow(Bot::Discord::Components).to receive(:edit_content).and_raise(
           Discordrb::Errors::UnknownMessage.new("Unknown Message")
         )
       end
 
       it "falls back to creating a fresh message in the currently configured channel" do
         result
-        expect(created_components_messages.first[:channel_id]).to eq(555)
+        expect(created_messages.first[:channel_id]).to eq(555)
       end
 
       it "stores the new channel and message ids" do
@@ -143,7 +133,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
 
     context "when edit raises a different error" do
       before do
-        allow(Bot::Discord::Components).to receive(:edit_components).and_raise(Discordrb::Errors::NoPermission.new("nope"))
+        allow(Bot::Discord::Components).to receive(:edit_content).and_raise(Discordrb::Errors::NoPermission.new("nope"))
       end
 
       it "propagates the error" do
@@ -152,7 +142,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
 
       it "does not fall back to create" do
         expect { result }.to raise_error(Discordrb::Errors::NoPermission)
-        expect(Bot::Discord::Components).not_to have_received(:create_components_message)
+        expect(Bot::Discord::Components).not_to have_received(:create_message)
       end
 
       it "leaves the stored ids unchanged" do
@@ -168,7 +158,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
     let(:tournament) { create(:twilight_struggle_tournament, discord_channel_id: "555") }
 
     before do
-      allow(Bot::Discord::Components).to receive(:create_components_message).and_raise(Discordrb::Errors::NoPermission.new("boom"))
+      allow(Bot::Discord::Components).to receive(:create_message).and_raise(Discordrb::Errors::NoPermission.new("boom"))
     end
 
     it "propagates the error" do
@@ -182,18 +172,30 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
     context "when video_urls is present" do
       let(:video_urls) { ["https://example.com/1"] }
 
-      it "uses the with-video template" do
+      it "uses the video template, spoiler-free even on a decided game" do
         result
-        expect(body_text(created_components_messages.first[:rendered])).to include("Recording below.")
+        content = created_messages.first[:content]
+        expect(content).to include("https://example.com/1")
+        expect(content).not_to include("defeated")
+        expect(content).not_to include("defcon")
       end
     end
 
-    context "when video_urls is empty" do
-      let(:video_urls) { [] }
+    context "when video_urls is empty and the game is a tie" do
+      let(:report) do
+        TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "tie", winning_turn: 6, winning_method: "defcon", game_code: "R1")
+      end
 
-      it "uses the without-video template" do
+      it "uses the tie template" do
         result
-        expect(body_text(created_components_messages.first[:rendered])).not_to include("Recording below.")
+        expect(created_messages.first[:content]).to include("tied with")
+      end
+    end
+
+    context "when video_urls is empty and the game is decided" do
+      it "uses the win template" do
+        result
+        expect(created_messages.first[:content]).to include("has defeated")
       end
     end
   end
@@ -204,46 +206,25 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
     context "when ping_players is false" do
       let(:ping_players) { false }
 
-      it "creates a single components message with locked-down mentions" do
+      it "creates a single message with locked-down mentions" do
         result
-        expect(created_components_messages.size).to eq(1)
-        expect(created_plain_messages).to be_empty
-        expect(created_components_messages.first[:allowed_mentions]).to eq({parse: []})
+        expect(created_messages.size).to eq(1)
+        expect(created_messages.first[:allowed_mentions]).to eq({parse: [], users: []})
       end
 
       it "does not call edit" do
         result
-        expect(Bot::Discord::Components).not_to have_received(:edit_components)
+        expect(Bot::Discord::Components).not_to have_received(:edit_content)
       end
     end
 
     context "when ping_players is true" do
       let(:ping_players) { true }
 
-      it "creates a plain-text message listing both mentions" do
+      it "creates a single message carrying both mentions" do
         result
-        plain = created_plain_messages.first
-        expect(plain[:content]).to eq("<@111> <@222>")
-        expect(plain[:allowed_mentions]).to eq({parse: [], users: %w[111 222]})
-      end
-
-      it "then edits the created message into the components form" do
-        result
-        edited = edited_messages.first
-        expect(edited[:channel_id]).to eq(555)
-        expect(edited[:message_id]).to eq("999")
-        expect(edited[:rendered]).to have_key(:components)
-      end
-
-      context "when the conversion edit fails" do
-        before do
-          allow(Bot::Discord::Components).to receive(:edit_components).and_raise(Discordrb::Errors::NoPermission.new("boom"))
-        end
-
-        it "still stores the created message location before raising" do
-          expect { result }.to raise_error(Discordrb::Errors::NoPermission)
-          expect(game.reload.discord_message_id).to eq(999)
-        end
+        created = created_messages.first
+        expect(created[:allowed_mentions]).to eq({parse: [], users: %w[111 222]})
       end
     end
   end

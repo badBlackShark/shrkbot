@@ -661,10 +661,12 @@ recovering from a `RecordNotUnique` race via the table's partial unique index
 on `friendly`. A friendly tournament has no `external_id` — the model's
 check constraint requires `friendly` and `external_id IS NULL` to agree.
 
-**Posting runs in a job, and the payload rides along in it.** `Games#update`
-enqueues `TwilightStruggle::PostJob` with the game and the raw result payload;
-the job builds a `GameReport` from it and hands both to
-`Ops::TwilightStruggle::Games::Post`. That op deliberately does not rescue
+**Posting runs in a job, and the payload rides along in it.**
+`Ops::TwilightStruggle::Games::Upsert` enqueues `TwilightStruggle::PostJob`
+with the saved game and the raw result payload — the enqueue is the operation's
+side effect, not the controller's, the same way `Ops::…::Plugins::Toggle`
+publishes on the config bus. The job builds a `GameReport` from the payload and
+hands both to `Ops::TwilightStruggle::Games::Post`. That op deliberately does not rescue
 Discord errors — they propagate so the job's `retry_on` sees them. Permanent
 failures (`UnknownChannel`, `NoPermission`, a deleted game) are `discard_on`ed
 instead, so they leave no failed-execution row.
@@ -689,6 +691,22 @@ are stated in the privacy policy; changing either means changing that copy too.
 `Bot::Discord::Components` is the single Discord seam. Because the job runs in
 `bin/jobs`, which loads discordrb, there is no need for a separate HTTP client
 — an earlier `Bot::Discord::MessageApi` written for the web process was deleted
-when posting moved to the job. Note the split inside the seam:
-`edit_components` raises so callers that want retries get them, while
-`convert_to_v2` is the rescuing wrapper the fire-and-forget callers use.
+when posting moved to the job. Posting uses its `create_message` /
+`edit_content` / `delete_message`; `edit_content` does not rescue, because the
+job needs the failure to retry on.
+
+**These messages are plain text, deliberately unlike everything else the bot
+sends.** No accent container, no components, no link buttons — the site's own
+result announcements are plain text and that is what these players read, so the
+convention documented above does not apply here. Video URLs go in the message
+body as bare links and Discord builds its own embed.
+
+The shape is entirely template-driven, three templates per tournament
+(inherited down the bracket chain like the channel): `template_win`,
+`template_tie`, and `template_video`. A game with a video always uses the video
+template, which is deliberately spoiler-free — both players and the link, no
+winner, turn or method. `TwilightStruggle::Message` renders the chosen template
+through `TemplateText` and exposes `content` plus `mention_ids`; the token list
+lives in `docs/twilight-struggle-api.md`. Every send passes
+`allowed_mentions: {parse: [], users: mention_ids}`, so a player named
+`@everyone` cannot ping the server and only the two players' ids can notify.

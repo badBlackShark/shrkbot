@@ -4,21 +4,24 @@ module Ops
   module TwilightStruggle
     module Games
       class Upsert < ApplicationOperation
-        receives :external_id
+        receives :external_id, :payload
         receives :tournament, optional: true
 
         def call
           record = ::TwilightStruggle::Game.find_or_initialize_by(external_id:)
           record.tournament = tournament || friendly_tournament
 
-          if record.save
-            ok(record)
-          else
-            failure(record.errors.full_messages)
-          end
+          return failure(record.errors.full_messages) unless record.save
+
+          enqueue_post(record)
+          ok(record)
         end
 
         private
+
+        def enqueue_post(record)
+          ::TwilightStruggle::PostJob.perform_later(record, payload)
+        end
 
         def friendly_tournament
           ::TwilightStruggle::Tournament.find_by(friendly: true) || create_friendly_tournament

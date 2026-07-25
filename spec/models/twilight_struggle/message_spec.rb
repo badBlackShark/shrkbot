@@ -3,31 +3,21 @@
 require "rails_helper"
 
 RSpec.describe TwilightStruggle::Message do
-  def body_text(rendered)
-    rendered[:components].first[:components].map { |block| block[:content] }.join
-  end
-
-  def buttons(rendered)
-    action_row = rendered[:components].find { |block| block[:type] == Bot::Discord::Components::ACTION_ROW }
-    action_row ? action_row[:components] : []
-  end
-
-  let(:usa) { TwilightStruggle::Player.new(name: "Alice", flag: "🇺🇸", discord_id: "111") }
-  let(:ussr) { TwilightStruggle::Player.new(name: "Bob", flag: "🇷🇺", discord_id: "222") }
+  let(:usa) { TwilightStruggle::Player.new(name: "M B", flag: "🇵🇱", discord_id: "111") }
+  let(:ussr) { TwilightStruggle::Player.new(name: "L S", flag: "🇦🇷", discord_id: "222") }
   let(:report) do
     TwilightStruggle::GameReport.new(
       usa:,
       ussr:,
       winning_side: "usa",
-      winning_turn: 6,
-      winning_method: "defcon",
-      game_code: "R1",
-      game_date: "2026-07-20",
+      winning_turn: 7,
+      winning_method: "VP Track (+20)",
+      game_code: "G372",
       video_urls: []
     )
   end
-  let(:template) { "{winner} beat {loser} on {turn} via {method}" }
-  let(:tournament_name) { "OTSL 2026" }
+  let(:template) { "{winning_player} beat {losing_player} on {turn} via {winning_method}" }
+  let(:tournament_name) { "OTSL 2026 - Season 8" }
   let(:ping_players) { false }
   let(:message) do
     described_class.new(
@@ -38,55 +28,94 @@ RSpec.describe TwilightStruggle::Message do
     )
   end
 
-  describe "#rendered" do
-    subject(:rendered) { message.rendered }
+  describe "#content" do
+    subject(:content) { message.content }
 
-    it "substitutes tokens into the body" do
-      expect(body_text(rendered)).to eq("Alice beat Bob on Turn 6 via defcon")
+    context "win template shape" do
+      let(:template) { "{tournament_name}: {game_id} - {winning_player} ({winning_side}) has defeated {losing_player} in {turn} ({winning_method})" }
+
+      it "matches the site's result phrasing" do
+        expect(content).to eq("OTSL 2026 - Season 8: G372 - M B 🇵🇱 (USA) has defeated L S 🇦🇷 in Turn 7 (VP Track (+20))")
+      end
+    end
+
+    context "tie template shape" do
+      let(:template) { "{tournament_name}: {game_id} - {usa_player} (USA) tied with {ussr_player} in {turn} ({winning_method})" }
+      let(:report) do
+        TwilightStruggle::GameReport.new(
+          usa: TwilightStruggle::Player.new(name: "M N", flag: "🇦🇩", discord_id: "111"),
+          ussr: TwilightStruggle::Player.new(name: "D C", flag: "🇰🇷", discord_id: "222"),
+          winning_side: "tie",
+          winning_turn: 10,
+          winning_method: "Wargames",
+          game_code: "C204"
+        )
+      end
+      let(:tournament_name) { "RATS Cup 2026" }
+
+      it "matches the site's tie phrasing" do
+        expect(content).to eq("RATS Cup 2026: C204 - M N 🇦🇩 (USA) tied with D C 🇰🇷 in Turn 10 (Wargames)")
+      end
+    end
+
+    context "video template shape" do
+      let(:template) { "{tournament_name}: {game_id} - {usa_player} vs {ussr_player} {videos}" }
+      let(:report) do
+        TwilightStruggle::GameReport.new(
+          usa: TwilightStruggle::Player.new(name: "T B", flag: "🇵🇱", discord_id: "111"),
+          ussr: TwilightStruggle::Player.new(name: "A S", flag: "🇸🇪", discord_id: "222"),
+          winning_side: "usa",
+          winning_turn: 5,
+          winning_method: "defcon",
+          game_code: "S378",
+          video_urls: ["https://youtu.be/videolink"]
+        )
+      end
+      let(:tournament_name) { "OTSL 2026 - Season 8" }
+
+      it "is spoiler-free, no winner or turn or method leaking through" do
+        expect(content).to eq("OTSL 2026 - Season 8: S378 - T B 🇵🇱 vs A S 🇸🇪 https://youtu.be/videolink")
+      end
     end
 
     context "with an unknown token in the template" do
-      let(:template) { "{winner} claims {trophy}" }
+      let(:template) { "{winning_player} claims {trophy}" }
 
       it "leaves it literal" do
-        expect(body_text(rendered)).to eq("Alice claims {trophy}")
+        expect(content).to eq("M B 🇵🇱 claims {trophy}")
       end
     end
 
-    context "result token" do
-      let(:template) { "{result}" }
+    context "player token" do
+      let(:template) { "{usa_player}" }
 
-      context "on a usa win" do
-        it "reads winner then loser" do
-          expect(body_text(rendered)).to eq("🇺🇸 **Alice** (USA) beat 🇷🇺 **Bob** (USSR)")
+      context "when the player has no flag" do
+        let(:usa) { TwilightStruggle::Player.new(name: "M B", discord_id: "111") }
+
+        it "has no trailing or doubled space" do
+          expect(content).to eq("M B")
         end
       end
 
-      context "on a ussr win" do
-        let(:report) do
-          TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "ussr")
+      context "when ping_players is true" do
+        let(:ping_players) { true }
+
+        it "renders the ping followed by the flag" do
+          expect(content).to eq("<@111> 🇵🇱")
         end
 
-        it "reads winner then loser" do
-          expect(body_text(rendered)).to eq("🇷🇺 **Bob** (USSR) beat 🇺🇸 **Alice** (USA)")
-        end
-      end
+        context "when the player has no discord_id" do
+          let(:usa) { TwilightStruggle::Player.new(name: "M B", flag: "🇵🇱") }
 
-      context "on a tie" do
-        let(:report) do
-          TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "tie")
-        end
-
-        it "reads usa and ussr drew, usa first" do
-          expect(body_text(rendered)).to eq("🇺🇸 **Alice** (USA) and 🇷🇺 **Bob** (USSR) drew")
+          it "falls back to the name" do
+            expect(content).to eq("M B 🇵🇱")
+          end
         end
       end
 
-      context "when a player has no flag" do
-        let(:usa) { TwilightStruggle::Player.new(name: "Alice", discord_id: "111") }
-
-        it "has no double space where the flag would be" do
-          expect(body_text(rendered)).to eq("**Alice** (USA) beat 🇷🇺 **Bob** (USSR)")
+      context "when ping_players is false" do
+        it "renders the plain name followed by the flag" do
+          expect(content).to eq("M B 🇵🇱")
         end
       end
     end
@@ -95,73 +124,60 @@ RSpec.describe TwilightStruggle::Message do
       let(:template) { "{turn}" }
 
       context "at turn 11" do
-        let(:report) do
-          TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "usa", winning_turn: 11)
-        end
+        let(:report) { TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "usa", winning_turn: 11) }
 
         it "renders Final Scoring" do
-          expect(body_text(rendered)).to eq("Final Scoring")
+          expect(content).to eq("Final Scoring")
         end
       end
 
       context "at turn 6" do
-        let(:report) do
-          TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "usa", winning_turn: 6)
-        end
+        let(:report) { TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "usa", winning_turn: 6) }
 
         it "renders Turn 6" do
-          expect(body_text(rendered)).to eq("Turn 6")
+          expect(content).to eq("Turn 6")
+        end
+      end
+
+      context "when nil" do
+        let(:report) { TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "usa", winning_turn: nil) }
+
+        it "renders empty" do
+          expect(content).to eq("")
         end
       end
     end
 
-    context "player rendering" do
-      let(:template) { "{usa} {ussr}" }
+    context "on a tie" do
+      let(:template) { "[{winning_player}][{losing_player}][{winning_side}][{losing_side}]" }
+      let(:report) { TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "tie") }
 
-      context "when ping_players is true" do
-        let(:ping_players) { true }
-
-        it "renders players as pings" do
-          expect(body_text(rendered)).to eq("<@111> <@222>")
-        end
-      end
-
-      context "when ping_players is false" do
-        it "renders players as plain names" do
-          expect(body_text(rendered)).to eq("Alice Bob")
-        end
+      it "leaves the winner/loser tokens empty without a conditional at the call site" do
+        expect(content).to eq("[][][][]")
       end
     end
 
-    context "video buttons" do
-      context "with one video" do
-        let(:report) do
-          TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "usa", video_urls: ["https://example.com/1"])
-        end
+    context "videos token" do
+      let(:template) { "{videos}" }
 
-        it "labels the single button Watch" do
-          expect(buttons(rendered).map { |b| b[:label] }).to eq(["Watch"])
-        end
-      end
-
-      context "with three videos" do
+      context "with multiple urls" do
         let(:report) do
           TwilightStruggle::GameReport.new(
             usa:,
             ussr:,
             winning_side: "usa",
-            video_urls: ["https://example.com/1", "https://example.com/2", "https://example.com/3"]
+            video_urls: ["https://example.com/1", "https://example.com/2"]
           )
         end
 
-        it "labels them Watch 1 through Watch 3" do
-          expect(buttons(rendered).map { |b| b[:label] }).to eq(["Watch 1", "Watch 2", "Watch 3"])
+        it "joins them with a single space" do
+          expect(content).to eq("https://example.com/1 https://example.com/2")
         end
       end
 
-      context "with no videos" do
-        it "adds no buttons" do
-          expect(buttons(rendered)).to eq([])
+      context "with no urls" do
+        it "is empty" do
+          expect(content).to eq("")
         end
       end
     end
@@ -182,7 +198,7 @@ RSpec.describe TwilightStruggle::Message do
       end
 
       context "when a player has no discord_id" do
-        let(:usa) { TwilightStruggle::Player.new(name: "Alice") }
+        let(:usa) { TwilightStruggle::Player.new(name: "M B") }
 
         it "drops the missing one" do
           expect(message.mention_ids).to eq(["222"])

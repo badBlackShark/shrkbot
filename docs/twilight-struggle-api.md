@@ -196,3 +196,40 @@ retrying cannot fix either. Nothing is reported back to you in that case.
 The result payload lives only for as long as that job does. It is never
 written to the game record, so the only way to change a posted message is to
 send the game again.
+
+### What the message looks like
+
+Plain text, matching the announcements the site already produces:
+
+```
+OTSL 2026 - Season 8: G372 - M B 🇵🇱 (USA) has defeated L S 🇦🇷 in Turn 7 (VP Track (+20))
+RATS Cup 2026: C204 - M N 🇦🇩 (USA) tied with D C 🇰🇷 in Turn 10 (Wargames)
+OTSL 2026 - Season 8: S378 - T B 🇵🇱 vs A S 🇸🇪 https://youtu.be/videolink
+```
+
+Each tournament has three templates, inherited from its parent tournament when
+unset: one for a decided game, one for a tie, and one for a game with a video.
+**A game with `video_urls` always uses the video template, which is
+spoiler-free** — both players and the link, no winner, turn or method. Video
+URLs are posted as bare links so Discord builds its own embed.
+
+Templates are written with `{token}` placeholders. Unknown tokens are left
+alone, so a stray brace renders literally rather than breaking the message.
+
+| token | renders |
+|---|---|
+| `{tournament_name}` | the tournament's name |
+| `{game_id}` | the `game_code` you sent |
+| `{turn}` | `Turn 7`, or `Final Scoring` at turn 11 |
+| `{winning_method}` | the `winning_method` you sent |
+| `{winning_player}` / `{losing_player}` | name and flag; empty on a tie |
+| `{winning_side}` / `{losing_side}` | `USA` or `USSR`; empty on a tie |
+| `{usa_player}` / `{ussr_player}` | name and flag for that side |
+| `{usa_name}` / `{ussr_name}` / `{winning_name}` / `{losing_name}` | name only |
+| `{usa_flag}` / `{ussr_flag}` / `{winning_flag}` / `{losing_flag}` | flag only |
+| `{videos}` | the video URLs, space separated |
+
+A tournament can be set to mention its players instead of naming them, in
+which case the player tokens render as Discord mentions for anyone whose
+`discord_id` you sent, falling back to their name. Only those two ids can ever
+notify anyone — a player named `@everyone` cannot ping the server.

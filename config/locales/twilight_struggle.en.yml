@@ -2,11 +2,9 @@
 en:
   twilight_struggle:
     default_template:
-      with_video: |-
-        {result} - {turn}, {method}
-        Recording below.
-        -# {tournament} - {game_code} - {date}
-      without_video: |-
-        {result} - {turn}, {method}
-        -# {tournament} - {game_code} - {date}
+      tie: "{tournament_name}: {game_id} - {usa_player} (USA) tied with {ussr_player}
+        in {turn} ({winning_method})"
+      video: "{tournament_name}: {game_id} - {usa_player} vs {ussr_player} {videos}"
+      win: "{tournament_name}: {game_id} - {winning_player} ({winning_side}) has defeated
+        {losing_player} in {turn} ({winning_method})"
     friendly_tournament_name: Friendly games

@@ -3,10 +3,11 @@
 require "rails_helper"
 
 RSpec.describe Ops::TwilightStruggle::Games::Upsert do
-  subject(:result) { described_class.call(external_id:, tournament:) }
+  subject(:result) { described_class.call(external_id:, tournament:, payload:) }
 
   let(:external_id) { "ext-game-1" }
   let(:tournament) { create(:twilight_struggle_tournament) }
+  let(:payload) { {"winning_side" => "usa"} }
 
   it "creates a game when none exists" do
     expect { result }.to change(TwilightStruggle::Game, :count).by(1)
@@ -16,12 +17,23 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
     expect(result.value.tournament).to eq(tournament)
   end
 
+  it "enqueues the post job with the saved game and the payload" do
+    expect { result }.to have_enqueued_job(TwilightStruggle::PostJob).with(
+      an_object_having_attributes(external_id:),
+      payload
+    )
+  end
+
   context "with a blank external_id" do
     let(:external_id) { "" }
 
     it "returns a failure with the validation errors" do
       expect(result).to be_failure
       expect(result.errors).to be_present
+    end
+
+    it "does not enqueue a post job" do
+      expect { result }.not_to have_enqueued_job(TwilightStruggle::PostJob)
     end
   end
 
@@ -43,7 +55,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
     end
 
     context "when a friendly game already exists" do
-      before { described_class.call(external_id: "ext-game-0", tournament: nil) }
+      before { described_class.call(external_id: "ext-game-0", tournament: nil, payload:) }
 
       it "reuses the same friendly tournament" do
         result

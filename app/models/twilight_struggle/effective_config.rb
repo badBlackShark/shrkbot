@@ -14,12 +14,16 @@ module TwilightStruggle
       channel_node&.server_configuration
     end
 
-    def template_with_video
-      first_present(:template_with_video) || I18n.t("twilight_struggle.default_template.with_video")
+    def template_win
+      first_present(:template_win) || I18n.t("twilight_struggle.default_template.win")
     end
 
-    def template_without_video
-      first_present(:template_without_video) || I18n.t("twilight_struggle.default_template.without_video")
+    def template_tie
+      first_present(:template_tie) || I18n.t("twilight_struggle.default_template.tie")
+    end
+
+    def template_video
+      first_present(:template_video) || I18n.t("twilight_struggle.default_template.video")
     end
 
     def ping_players?

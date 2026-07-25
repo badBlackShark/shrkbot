@@ -60,57 +60,22 @@ RSpec.describe Bot::Discord::Components do
     end
   end
 
-  describe ".create_components_message" do
-    subject(:create_components_message) { described_class.create_components_message(channel_id: 20, rendered:, allowed_mentions:) }
-
-    let(:rendered) { described_class.container([described_class.text("hello")]) }
-    let(:allowed_mentions) { {parse: []} }
-
-    before do
-      allow(Bot::Config).to receive(:rest_token).and_return("Bot tok")
-      allow(Discordrb::API::Channel).to receive(:create_message).and_return({id: "7"}.to_json)
-    end
-
-    it "returns the created message's id as a string" do
-      expect(create_components_message).to eq("7")
-    end
-
-    it "sends the rendered components and flags with no plain-text content" do
-      expect(Discordrb::API::Channel).to receive(:create_message) do |token, channel_id, message, _tts, _embeds, _nonce, _attachments, mentions, message_reference, components, flags|
-        expect(token).to eq("Bot tok")
-        expect(channel_id).to eq(20)
-        expect(message).to be_nil
-        expect(mentions).to eq(allowed_mentions)
-        expect(message_reference).to be_nil
-        expect(components).to eq(rendered[:components])
-        expect(flags).to eq(rendered[:flags])
-        {id: "7"}.to_json
-      end
-      create_components_message
-    end
-  end
-
-  describe ".edit_components" do
-    subject(:edit_components) { described_class.edit_components(20, 30, rendered) }
-
-    let(:rendered) { described_class.container([described_class.text("hello")]) }
+  describe ".edit_content" do
+    subject(:edit_content) { described_class.edit_content(20, 30, "hello") }
 
     before do
       allow(Bot::Config).to receive(:rest_token).and_return("Bot tok")
       allow(Discordrb::API::Channel).to receive(:edit_message)
     end
 
-    it "edits the message with the rendered components, suppressing mention re-parsing" do
-      edit_components
+    it "edits the message with the given content, suppressing mention re-parsing" do
+      edit_content
       expect(Discordrb::API::Channel).to have_received(:edit_message).with(
         "Bot tok",
         20,
         30,
-        nil,
-        {parse: []},
-        nil,
-        rendered[:components],
-        rendered[:flags]
+        "hello",
+        {parse: []}
       )
     end
 
@@ -120,7 +85,7 @@ RSpec.describe Bot::Discord::Components do
       end
 
       it "propagates the error" do
-        expect { edit_components }.to raise_error(Discordrb::Errors::UnknownMessage)
+        expect { edit_content }.to raise_error(Discordrb::Errors::UnknownMessage)
       end
     end
   end

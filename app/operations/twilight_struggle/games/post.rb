@@ -31,7 +31,9 @@ module Ops
         end
 
         def template
-          report.video_urls.present? ? config.template_with_video : config.template_without_video
+          return config.template_video if report.video_urls.present?
+
+          report.tie? ? config.template_tie : config.template_win
         end
 
         def deliver
@@ -43,37 +45,18 @@ module Ops
         end
 
         def edit_posted
-          edit_message(game.discord_channel_id, game.discord_message_id)
+          ::Bot::Discord::Components.edit_content(game.discord_channel_id, game.discord_message_id, message.content)
         rescue Discordrb::Errors::UnknownMessage
           create_new(config.channel_id)
         end
 
         def create_new(channel_id)
-          return persist_location(channel_id, create_components(channel_id)) if message.mention_ids.empty?
-
-          message_id = create_mention_subject(channel_id)
-          persist_location(channel_id, message_id)
-          edit_message(channel_id, message_id)
-        end
-
-        def create_components(channel_id)
-          ::Bot::Discord::Components.create_components_message(
+          message_id = ::Bot::Discord::Components.create_message(
             channel_id:,
-            rendered: message.rendered,
-            allowed_mentions: {parse: []}
-          )
-        end
-
-        def create_mention_subject(channel_id)
-          ::Bot::Discord::Components.create_message(
-            channel_id:,
-            content: message.mention_ids.map { |id| "<@#{id}>" }.join(" "),
+            content: message.content,
             allowed_mentions: {parse: [], users: message.mention_ids}
           )
-        end
-
-        def edit_message(channel_id, message_id)
-          ::Bot::Discord::Components.edit_components(channel_id, message_id, message.rendered)
+          persist_location(channel_id, message_id)
         end
 
         def persist_location(channel_id, message_id)

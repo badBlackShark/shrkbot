@@ -102,36 +102,36 @@ RSpec.describe TwilightStruggle::EffectiveConfig do
     end
   end
 
-  describe "#template_with_video" do
+  describe "#template_win" do
     context "when the tournament has its own template" do
-      let(:tournament) { create(:twilight_struggle_tournament, template_with_video: "own template") }
+      let(:tournament) { create(:twilight_struggle_tournament, template_win: "own template") }
 
       it "returns its own template" do
-        expect(config.template_with_video).to eq("own template")
+        expect(config.template_win).to eq("own template")
       end
     end
 
     context "when the tournament has none but the parent does" do
-      let(:parent) { create(:twilight_struggle_tournament, template_with_video: "parent template") }
+      let(:parent) { create(:twilight_struggle_tournament, template_win: "parent template") }
       let(:tournament) { create(:twilight_struggle_tournament, parent:) }
 
       it "inherits the parent's template" do
-        expect(config.template_with_video).to eq("parent template")
+        expect(config.template_win).to eq("parent template")
       end
     end
 
     context "when the tournament's own template is blank" do
-      let(:parent) { create(:twilight_struggle_tournament, template_with_video: "parent template") }
+      let(:parent) { create(:twilight_struggle_tournament, template_win: "parent template") }
       let(:tournament) do
         create(
           :twilight_struggle_tournament,
           parent:,
-          template_with_video: ""
+          template_win: ""
         )
       end
 
       it "falls through to the parent's template" do
-        expect(config.template_with_video).to eq("parent template")
+        expect(config.template_win).to eq("parent template")
       end
     end
 
@@ -139,18 +139,41 @@ RSpec.describe TwilightStruggle::EffectiveConfig do
       let(:tournament) { create(:twilight_struggle_tournament) }
 
       it "returns the i18n default" do
-        expect(config.template_with_video).to eq(I18n.t("twilight_struggle.default_template.with_video"))
+        expect(config.template_win).to eq(I18n.t("twilight_struggle.default_template.win"))
       end
     end
   end
 
-  describe "#template_without_video" do
+  describe "#template_tie" do
+    context "when the tournament has its own template" do
+      let(:tournament) { create(:twilight_struggle_tournament, template_tie: "own template") }
+
+      it "returns its own template" do
+        expect(config.template_tie).to eq("own template")
+      end
+    end
+
     context "when the tournament has none but the parent does" do
-      let(:parent) { create(:twilight_struggle_tournament, template_without_video: "parent template") }
+      let(:parent) { create(:twilight_struggle_tournament, template_tie: "parent template") }
       let(:tournament) { create(:twilight_struggle_tournament, parent:) }
 
       it "inherits the parent's template" do
-        expect(config.template_without_video).to eq("parent template")
+        expect(config.template_tie).to eq("parent template")
+      end
+    end
+
+    context "when the tournament's own template is blank" do
+      let(:parent) { create(:twilight_struggle_tournament, template_tie: "parent template") }
+      let(:tournament) do
+        create(
+          :twilight_struggle_tournament,
+          parent:,
+          template_tie: ""
+        )
+      end
+
+      it "falls through to the parent's template" do
+        expect(config.template_tie).to eq("parent template")
       end
     end
 
@@ -158,7 +181,49 @@ RSpec.describe TwilightStruggle::EffectiveConfig do
       let(:tournament) { create(:twilight_struggle_tournament) }
 
       it "returns the i18n default" do
-        expect(config.template_without_video).to eq(I18n.t("twilight_struggle.default_template.without_video"))
+        expect(config.template_tie).to eq(I18n.t("twilight_struggle.default_template.tie"))
+      end
+    end
+  end
+
+  describe "#template_video" do
+    context "when the tournament has its own template" do
+      let(:tournament) { create(:twilight_struggle_tournament, template_video: "own template") }
+
+      it "returns its own template" do
+        expect(config.template_video).to eq("own template")
+      end
+    end
+
+    context "when the tournament has none but the parent does" do
+      let(:parent) { create(:twilight_struggle_tournament, template_video: "parent template") }
+      let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+      it "inherits the parent's template" do
+        expect(config.template_video).to eq("parent template")
+      end
+    end
+
+    context "when the tournament's own template is blank" do
+      let(:parent) { create(:twilight_struggle_tournament, template_video: "parent template") }
+      let(:tournament) do
+        create(
+          :twilight_struggle_tournament,
+          parent:,
+          template_video: ""
+        )
+      end
+
+      it "falls through to the parent's template" do
+        expect(config.template_video).to eq("parent template")
+      end
+    end
+
+    context "when nothing in the chain has a template" do
+      let(:tournament) { create(:twilight_struggle_tournament) }
+
+      it "returns the i18n default" do
+        expect(config.template_video).to eq(I18n.t("twilight_struggle.default_template.video"))
       end
     end
   end

@@ -4,7 +4,6 @@ module TwilightStruggle
   class Message
     SIDE_LABELS = {usa: "USA", ussr: "USSR"}.freeze
     FINAL_SCORING_TURN = 11
-    MAX_VIDEO_BUTTONS = 5
 
     def initialize(report:, template:, tournament_name:, ping_players: false)
       @report = report
@@ -13,8 +12,8 @@ module TwilightStruggle
       @ping_players = ping_players
     end
 
-    def rendered
-      Bot::Discord::Components.container([Bot::Discord::Components.text(body)], buttons: video_buttons)
+    def content
+      TemplateText.render(@template, tokens)
     end
 
     def mention_ids
@@ -25,30 +24,37 @@ module TwilightStruggle
 
     private
 
-    def body
-      TemplateText.render(@template, tokens)
-    end
-
     def tokens
       {
-        usa: render_player(@report.usa),
-        ussr: render_player(@report.ussr),
+        tournament_name: @tournament_name,
+        game_id: @report.game_code,
+        turn:,
+        winning_method: @report.winning_method,
+        winning_player: render_player(@report.winner),
+        losing_player: render_player(@report.loser),
+        winning_side: side_label(@report.winner_side),
+        losing_side: side_label(@report.loser_side),
+        usa_player: render_player(@report.usa),
+        ussr_player: render_player(@report.ussr),
+        usa_name: render_name(@report.usa),
+        ussr_name: render_name(@report.ussr),
+        winning_name: render_name(@report.winner),
+        losing_name: render_name(@report.loser),
         usa_flag: flag_of(@report.usa),
         ussr_flag: flag_of(@report.ussr),
-        winner: render_player(@report.winner),
-        loser: render_player(@report.loser),
-        winner_flag: flag_of(@report.winner),
-        loser_flag: flag_of(@report.loser),
-        result:,
-        turn:,
-        method: @report.winning_method,
-        game_code: @report.game_code,
-        tournament: @tournament_name,
-        date: @report.game_date
+        winning_flag: flag_of(@report.winner),
+        losing_flag: flag_of(@report.loser),
+        videos: @report.video_urls.join(" ")
       }
     end
 
     def render_player(player)
+      return "" if player.nil?
+
+      [render_name(player), flag_of(player)].compact_blank.join(" ")
+    end
+
+    def render_name(player)
       return "" if player.nil?
 
       @ping_players ? player.to_ping : player.to_s
@@ -58,20 +64,8 @@ module TwilightStruggle
       player&.flag.to_s
     end
 
-    def result
-      @report.tie? ? tie_result : decided_result
-    end
-
-    def decided_result
-      "#{side_fragment(@report.winner, @report.winner_side)} beat #{side_fragment(@report.loser, @report.loser_side)}"
-    end
-
-    def tie_result
-      "#{side_fragment(@report.usa, :usa)} and #{side_fragment(@report.ussr, :ussr)} drew"
-    end
-
-    def side_fragment(player, side)
-      [flag_of(player), "**#{render_player(player)}**", "(#{SIDE_LABELS.fetch(side)})"].compact_blank.join(" ")
+    def side_label(side)
+      side ? SIDE_LABELS.fetch(side) : ""
     end
 
     def turn
@@ -79,19 +73,6 @@ module TwilightStruggle
       return "Final Scoring" if @report.winning_turn == FINAL_SCORING_TURN
 
       "Turn #{@report.winning_turn}"
-    end
-
-    def video_buttons
-      urls = capped_video_urls
-      urls.each_with_index.map { |url, index| Bot::Discord::Components.link_button(url:, label: video_label(index, urls.size)) }
-    end
-
-    def capped_video_urls
-      @report.video_urls.first(MAX_VIDEO_BUTTONS)
-    end
-
-    def video_label(index, total)
-      (total == 1) ? "Watch" : "Watch #{index + 1}"
     end
   end
 end

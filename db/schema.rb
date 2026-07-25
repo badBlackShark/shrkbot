@@ -446,8 +446,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_143057) do
     t.boolean "ping_players"
     t.string "server_configuration_id"
     t.string "status"
-    t.text "template_with_video"
-    t.text "template_without_video"
+    t.text "template_tie"
+    t.text "template_video"
+    t.text "template_win"
     t.datetime "updated_at", null: false
     t.index ["external_id"], name: "index_twilight_struggle_tournaments_on_external_id", unique: true, where: "(external_id IS NOT NULL)"
     t.index ["friendly"], name: "index_twilight_struggle_tournaments_on_friendly", unique: true, where: "friendly"

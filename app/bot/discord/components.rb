@@ -59,25 +59,20 @@ module Bot
       end
 
       def create_message(channel_id:, content:, allowed_mentions:, reply_to_id: nil)
-        perform_create(
+        response = Discordrb::API::Channel.create_message(
+          Bot::Config.rest_token,
           channel_id,
           content,
+          false,
+          nil,
+          nil,
+          nil,
           allowed_mentions,
           reply_to_id && {message_id: reply_to_id},
           nil,
           nil
         )
-      end
-
-      def create_components_message(channel_id:, rendered:, allowed_mentions:)
-        perform_create(
-          channel_id,
-          nil,
-          allowed_mentions,
-          nil,
-          rendered[:components],
-          rendered[:flags]
-        )
+        JSON.parse(response)["id"]
       end
 
       def send_to(channel, rendered, allowed_mentions: nil, attachments: nil, subject: nil)
@@ -90,7 +85,7 @@ module Bot
         message
       end
 
-      def edit_components(channel_id, message_id, rendered)
+      def convert_to_v2(channel_id, message_id, rendered)
         Discordrb::API::Channel.edit_message(
           Bot::Config.rest_token,
           channel_id,
@@ -101,36 +96,17 @@ module Bot
           rendered[:components],
           rendered[:flags]
         )
-      end
-
-      def convert_to_v2(channel_id, message_id, rendered)
-        edit_components(channel_id, message_id, rendered)
       rescue => e
         Rails.logger.warn("[Components] message #{message_id} left as plain text: #{e.class}: #{e.message}")
+      end
+
+      def edit_content(channel_id, message_id, content)
+        Discordrb::API::Channel.edit_message(Bot::Config.rest_token, channel_id, message_id, content, {parse: []})
       end
 
       def delete_message(channel_id, message_id)
         Discordrb::API::Channel.delete_message(Bot::Config.rest_token, channel_id, message_id)
       end
-
-      def perform_create(channel_id, message, allowed_mentions, message_reference, components, flags)
-        response = Discordrb::API::Channel.create_message(
-          Bot::Config.rest_token,
-          channel_id,
-          message,
-          false,
-          nil,
-          nil,
-          nil,
-          allowed_mentions,
-          message_reference,
-          components,
-          flags
-        )
-        JSON.parse(response)["id"]
-      end
-
-      private_class_method :perform_create
     end
   end
 end
