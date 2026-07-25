@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "json"
+require_relative "../lib/twilight_struggle_api_schema"
+
+puts JSON.pretty_generate(TwilightStruggleApiSchema.document)
