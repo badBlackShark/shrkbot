@@ -37,19 +37,29 @@ module Bot
     def include_guild?(reg)
       return true if reg.plugin.nil?
 
-      parent_key = PluginCatalog.find(reg.plugin)&.parent
+      definition = PluginCatalog.find(reg.plugin)
+      return false unless bespoke_granted?(definition)
+
+      parent_key = definition&.parent
       enabled_keys.include?(reg.plugin) && (parent_key.nil? || enabled_keys.include?(parent_key))
     end
 
-    def enabled_keys
-      @enabled_keys ||= fetch_enabled_keys
+    def bespoke_granted?(definition)
+      return true unless definition&.bespoke
+
+      granted_keys.include?(definition.key)
     end
 
-    def fetch_enabled_keys
-      config = ServerConfiguration.find_by(discord_id: @discord_id)
-      return [] unless config
+    def granted_keys
+      @granted_keys ||= server_configuration ? BespokePluginGrant.granted_keys(server_configuration) : Set.new
+    end
 
-      config.plugins.enabled.pluck(:key).map(&:to_sym)
+    def enabled_keys
+      @enabled_keys ||= server_configuration ? server_configuration.plugins.enabled.pluck(:key).map(&:to_sym) : []
+    end
+
+    def server_configuration
+      @server_configuration ||= ServerConfiguration.find_by(discord_id: @discord_id)
     end
   end
 end

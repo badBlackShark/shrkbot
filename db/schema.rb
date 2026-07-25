@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_24_153009) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_25_132816) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_24_153009) do
     t.string "role_set_id", null: false
     t.datetime "updated_at", null: false
     t.index ["role_set_id", "role_id"], name: "index_assignable_roles_on_role_set_id_and_role_id", unique: true
+  end
+
+  create_table "bespoke_plugin_grants", id: :string, default: -> { "('bpg_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "plugin_key", null: false
+    t.string "server_configuration_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["server_configuration_id", "plugin_key"], name: "index_bespoke_plugin_grants_on_server_and_plugin_key", unique: true
   end
 
   create_table "bot_settings", id: :string, default: -> { "('bst_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -464,6 +472,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_24_153009) do
   end
 
   add_foreign_key "assignable_roles", "role_sets"
+  add_foreign_key "bespoke_plugin_grants", "server_configurations"
   add_foreign_key "channel_overwrites", "server_channels"
   add_foreign_key "image_scanning_settings", "server_configurations"
   add_foreign_key "lfg_messages", "server_configurations"

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class PluginCatalog
-  Definition = Data.define(:key, :name, :description, :channel_setting, :requires_plugin, :parent, :prerequisite) do
-    def initialize(key:, name:, description:, channel_setting: nil, requires_plugin: nil, parent: nil, prerequisite: nil)
+  Definition = Data.define(:key, :name, :description, :channel_setting, :requires_plugin, :parent, :prerequisite, :bespoke) do
+    def initialize(key:, name:, description:, channel_setting: nil, requires_plugin: nil, parent: nil, prerequisite: nil, bespoke: false)
       super
     end
 
@@ -11,6 +11,7 @@ class PluginCatalog
     end
 
     def prerequisites_met?(server_configuration, enabled_keys: nil)
+      return false unless granted?(server_configuration)
       return false unless required_plugins_enabled?(server_configuration, enabled_keys)
       return false unless channel_met?(server_configuration)
       return false unless prerequisite.nil? || prerequisite.call(server_configuration)
@@ -19,6 +20,12 @@ class PluginCatalog
     end
 
     private
+
+    def granted?(server_configuration)
+      return true unless bespoke
+
+      ::BespokePluginGrant.exists?(server_configuration:, plugin_key: key)
+    end
 
     def required_plugins_enabled?(server_configuration, enabled_keys)
       required = [requires_plugin, parent].compact
@@ -55,6 +62,15 @@ class PluginCatalog
 
   def self.channel_backed
     DEFINITIONS.select(&:channel_backed?)
+  end
+
+  def self.bespoke
+    DEFINITIONS.select(&:bespoke)
+  end
+
+  def self.visible_for(server_configuration)
+    granted = BespokePluginGrant.granted_keys(server_configuration)
+    DEFINITIONS.reject { |definition| definition.bespoke && !granted.include?(definition.key) }
   end
 
   def self.sub_plugin?(key)

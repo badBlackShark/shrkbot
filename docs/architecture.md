@@ -206,6 +206,14 @@ that channel is configured. This is enforced in two places:
 `Ops::ServerConfiguration::TogglePlugin` gives the friendly failure, and a
 `PluginActivation` validation backstops any write that skips the op.
 
+A **bespoke** plugin (`Definition#bespoke`) is hand-activated by the bot owner per
+server rather than self-serve. `bespoke_plugin_grants` (guild ↔ plugin key, cascaded
+off `ServerConfiguration`) records the grant; `PluginCatalog.visible_for` is the filter
+the dashboard/sidebar uses to hide ungranted bespoke plugins entirely, and
+`Bot::GuildCommandSet` requires a grant before registering a bespoke plugin's guild
+commands. `prerequisites_met?` gates on the grant first, so the enable path is
+backstopped the same way as the other prerequisite checks.
+
 ## Commands and events
 
 discordrb is `require: false` — only `bin/bot` and `bin/jobs` load it. Commands and

@@ -14,7 +14,7 @@ class PluginStatus
   def self.rows(server_configuration)
     activations = server_configuration.plugin_activations.includes(:plugin).index_by { |activation| activation.plugin.key }
     enabled_keys = server_configuration.enabled_plugin_keys
-    catalog_rows = PluginCatalog.all.map do |definition|
+    catalog_rows = PluginCatalog.visible_for(server_configuration).map do |definition|
       Row.new(
         key: definition.key,
         enabled: activations[definition.key]&.enabled? || false,

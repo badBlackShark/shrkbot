@@ -33,6 +33,52 @@ RSpec.describe PluginCatalog do
     end
   end
 
+  describe ".bespoke" do
+    include_context "with a bespoke plugin definition"
+
+    it "selects only bespoke definitions" do
+      expect(described_class.bespoke).to eq([bespoke_definition])
+    end
+  end
+
+  describe ".visible_for" do
+    include_context "with a bespoke plugin definition"
+
+    let(:config) { create(:server_configuration) }
+
+    it "hides an ungranted bespoke definition" do
+      expect(described_class.visible_for(config)).not_to include(bespoke_definition)
+    end
+
+    it "includes a granted bespoke definition" do
+      create(:bespoke_plugin_grant, server_configuration: config, plugin_key: bespoke_definition.key)
+
+      expect(described_class.visible_for(config)).to include(bespoke_definition)
+    end
+
+    it "always includes non-bespoke definitions" do
+      expect(described_class.visible_for(config)).to include(described_class.find(:logging))
+    end
+  end
+
+  describe "bespoke definitions and prerequisites_met?" do
+    subject(:check) { bespoke_definition.prerequisites_met?(config) }
+
+    include_context "with a bespoke plugin definition"
+
+    let(:config) { create(:server_configuration) }
+
+    context "when ungranted" do
+      it { is_expected.to be(false) }
+    end
+
+    context "when granted" do
+      before { create(:bespoke_plugin_grant, server_configuration: config, plugin_key: bespoke_definition.key) }
+
+      it { is_expected.to be(true) }
+    end
+  end
+
   describe ".sub_plugin?" do
     it "returns true for :spam_protection" do
       expect(described_class.sub_plugin?(:spam_protection)).to be(true)

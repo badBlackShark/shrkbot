@@ -23,6 +23,7 @@ Rails.application.routes.draw do
 
   namespace :admin do
     resource :settings, only: [:show, :update]
+    resources :bespoke_plugin_grants, only: [:index, :create, :destroy]
   end
 
   resources :servers, only: [:index, :show], param: :id do

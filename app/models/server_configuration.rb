@@ -3,6 +3,7 @@
 class ServerConfiguration < ApplicationRecord
   has_many :plugin_activations, dependent: :delete_all
   has_many :plugins, through: :plugin_activations
+  has_many :bespoke_plugin_grants, dependent: :delete_all
 
   has_one :logging_setting, dependent: :delete
   has_one :role_setting, class_name: "Roles::Settings", dependent: :destroy
