@@ -142,6 +142,20 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
             expect(response).to have_http_status(:not_found)
           end
         end
+
+        context "when the server already subscribes to the tournament" do
+          let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration: config) }
+
+          it "sends the user back to the list with the reason" do
+            subscribe
+            expect(response).to redirect_to(server_twilight_struggle_path(guild.id))
+            expect(flash[:alert]).to be_present
+          end
+
+          it "does not subscribe twice" do
+            expect { subscribe }.not_to change(TwilightStruggle::Destination, :count)
+          end
+        end
       end
 
       describe "DELETE /servers/:server_id/twilight_struggle/destinations/:id" do
