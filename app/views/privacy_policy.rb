@@ -47,6 +47,7 @@ class Views::PrivacyPolicy < Views::Base
       t(".data_reminders"),
       t(".data_welcomes"),
       t(".data_lfg"),
+      t(".data_twilight_struggle"),
       t(".data_notifications"),
       t(".data_operational")
     )
@@ -59,6 +60,7 @@ class Views::PrivacyPolicy < Views::Base
     paragraph(t(".messages_p_3"))
     paragraph(t(".messages_p_4"))
     paragraph(t(".messages_p_5"))
+    paragraph(t(".messages_p_6"))
   end
 
   def not_section
@@ -83,6 +85,7 @@ class Views::PrivacyPolicy < Views::Base
       t(".retention_reminders"),
       t(".retention_welcomes"),
       t(".retention_lfg"),
+      t(".retention_twilight_struggle"),
       t(".retention_phash"),
       t(".retention_account"),
       t(".retention_infra")

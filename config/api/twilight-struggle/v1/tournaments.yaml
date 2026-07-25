@@ -1,0 +1,49 @@
+paths:
+  /tournaments/{external_id}:
+    parameters:
+      - name: external_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: "otsl-2026"
+    put:
+      summary: Create or update a tournament
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tournament]
+              properties:
+                tournament:
+                  $ref: "#/components/schemas/TournamentInput"
+      responses:
+        "200":
+          description: Tournament updated
+        "201":
+          description: Tournament created
+        "422":
+          description: Validation failed
+    delete:
+      summary: Delete a tournament
+      responses:
+        "204":
+          description: Tournament deleted, or no such tournament
+components:
+  schemas:
+    TournamentInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          example: "Online Twilight Struggle League"
+        parent_external_id:
+          type: string
+          example: "otsl"
+        status:
+          type: string
+          example: "closed"

@@ -55,6 +55,7 @@ env:
     - OWNER_GUILD_ID
     - DISCORD_CLIENT_ID
     - DISCORD_CLIENT_SECRET
+    - TWILIGHT_STRUGGLE_API_KEYS
 
 accessories:
   db:

@@ -79,6 +79,9 @@ en:
       data_reminders: 'Reminders: the reminder text you write, your Discord ID, the
         target channel and server, whether to deliver by DM, and the due time - kept
         until delivered or deleted by you with /unremind.'
+      data_twilight_struggle: 'Twilight Struggle integration: on servers using it,
+        the tournament names and identifiers supplied by twilight-struggle.com, and
+        references (channel and message IDs) to the messages we post about them.'
       data_welcomes: 'Welcome messages: on servers that use Discord''s membership
         screening, a short-lived in-memory note that a member has joined but not yet
         finished onboarding - the server ID and their Discord ID, nothing else. It
@@ -127,6 +130,12 @@ en:
         a server's own moderators confirmed, so a match can trigger that server's
         configured action (flagging, removal, and any punishment). These hashes are
         not linked to any user or server.
+      messages_p_6: Game results sent to us by twilight-struggle.com for the Twilight
+        Struggle integration include player names and, if provided, players' Discord
+        IDs. These are rendered into the Discord message we post - a Discord ID lets
+        us mention that player - and are not stored by us. The posted message is an
+        ordinary Discord message, stored by Discord in that channel - it is not deleted
+        when the underlying tournament or game record is removed.
       not_h: What we don't do
       not_p: We don't sell data, we don't advertise, we don't profile you, we don't
         run analytics, and we don't store your servers' member lists or conversations.
@@ -149,6 +158,8 @@ en:
         the bot. Global scam fingerprints set by the bot owner are retained indefinitely.'
       retention_reminders: 'Reminders: deleted once delivered, or earlier if you delete
         them.'
+      retention_twilight_struggle: Twilight Struggle integration data - kept until
+        the tournament is deleted through the integration.
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down.'
@@ -169,7 +180,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: July 23rd, 2026'
+      updated: 'Last updated: July 25th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

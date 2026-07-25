@@ -1,0 +1,92 @@
+paths:
+  /games/{external_id}:
+    parameters:
+      - name: external_id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: "1024"
+    put:
+      summary: Create or update a game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [game]
+              properties:
+                game:
+                  $ref: "#/components/schemas/GameInput"
+      responses:
+        "200":
+          description: Game updated
+        "201":
+          description: Game created
+        "422":
+          description: Validation failed
+    delete:
+      summary: Delete a game and, once posting exists, its posted Discord message
+      responses:
+        "204":
+          description: Game deleted, or no such game
+components:
+  schemas:
+    GameInput:
+      type: object
+      required: [usa, ussr, winning_side, winning_method, reported_at]
+      properties:
+        tournament_external_id:
+          type: string
+          example: "otsl-2026"
+        game_code:
+          type: string
+          maxLength: 60
+          example: "R1"
+        game_date:
+          type: string
+          example: "2026-07-20"
+        reported_at:
+          type: string
+          example: "2026-07-24T10:00:00Z"
+        winning_side:
+          type: string
+          enum: [usa, ussr, tie]
+          example: "usa"
+        winning_turn:
+          type: integer
+          minimum: 1
+          maximum: 11
+          example: 6
+        winning_method:
+          type: string
+          maxLength: 60
+          example: "defcon"
+        usa:
+          $ref: "#/components/schemas/PlayerInput"
+        ussr:
+          $ref: "#/components/schemas/PlayerInput"
+        video_urls:
+          type: array
+          maxItems: 5
+          example: ["https://youtu.be/dQw4w9WgXcQ"]
+          items:
+            type: string
+            pattern: "^https?://"
+            example: "https://youtu.be/dQw4w9WgXcQ"
+    PlayerInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+          example: "Alice"
+        flag:
+          type: string
+          maxLength: 8
+          example: "🇺🇸"
+        discord_id:
+          type: string
+          example: "123456789012345678"
