@@ -37,6 +37,11 @@ gem "phosphor_icons"
 # Catches migrations unsafe under rolling deploys (dropped columns, renames)
 gem "strong_migrations"
 
+# Validates API requests against an OpenAPI schema (config/api/*.yaml); the schema
+# doubles as the machine-readable API docs. Runtime dep: the web process runs the
+# request-validation middleware.
+gem "committee"
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 

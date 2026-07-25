@@ -8,6 +8,11 @@ Base URL: `https://shrkbot.com/api/twilight-struggle/v1`
 
 All requests and responses are JSON. Send `Content-Type: application/json`.
 
+The machine-readable request contract is an OpenAPI 3 document,
+`config/api/twilight-struggle-v1.yaml` (ask us for a copy). Request bodies are
+validated against it before they reach our code; a body that doesn't conform
+gets a `422` with an `errors` array. The field tables below mirror it in prose.
+
 ## Authentication
 
 Every request needs:
@@ -87,7 +92,8 @@ to send it back to us.
 ### `DELETE /tournaments/:external_id`
 
 Deletes the tournament and its games. Idempotent — deleting an unknown id
-still returns `204`.
+still returns `204`. This never touches Discord: any result messages already
+posted for those games stay up.
 
 ## Games
 
@@ -158,7 +164,7 @@ Response (`201` or `200`):
 
 ### `DELETE /games/:external_id`
 
-Idempotent — deleting an unknown id still returns `204`. This only removes
-shrkbot's reference to the game; it does **not** delete any Discord message
-already posted for it. Delete the message yourself in Discord if that's what
-you want.
+Idempotent — deleting an unknown id still returns `204`. Once result-posting
+is live, deleting a game also deletes the Discord message shrkbot posted for
+it, so a `DELETE` is the way to retract a published result. (Deleting the
+game's tournament does not — only a game `DELETE` removes the message.)

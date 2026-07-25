@@ -33,6 +33,17 @@ RSpec.describe "Api::TwilightStruggle::V1::Tournaments", type: :request do
       end
     end
 
+    context "with no Authorization header and an invalid body" do
+      let(:headers) { {} }
+      let(:params) { {tournament: {}} }
+
+      it "fails closed on auth before validating the schema" do
+        put_tournament
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
     context "with an empty bearer token" do
       let(:headers) { {"Authorization" => "Bearer "} }
 
@@ -136,6 +147,21 @@ RSpec.describe "Api::TwilightStruggle::V1::Tournaments", type: :request do
 
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.parsed_body["errors"]).to be_present
+      end
+    end
+
+    context "with a whitespace-only name that the schema lets through" do
+      let(:params) { {tournament: {name: "   "}} }
+
+      it "returns 422 from the model validation with an errors array" do
+        put_tournament
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body["errors"]).to be_present
+      end
+
+      it "does not create a tournament row" do
+        expect { put_tournament }.not_to change(TwilightStruggle::Tournament, :count)
       end
     end
   end

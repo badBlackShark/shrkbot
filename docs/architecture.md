@@ -632,14 +632,15 @@ first PUT creates, every later PUT with the same id updates the same row.
 reference that doesn't resolve to an existing row is a 422, never an
 auto-created stub — tournaments must be PUT before games that reference them.
 
-**Result data is deliberately not persisted:** `Games#update` builds a
-`TwilightStruggle::GameResult` (an `ActiveModel::Model`, not an `ApplicationRecord`)
-from the request body and validates it, but never saves it or passes it to an
-operation — only `external_id` and the resolved `tournament` reach
-`Ops::TwilightStruggle::Games::Upsert`. Validating an object that's never
-persisted is how the API contract (required fields, `winning_side` enum,
-`winning_turn` range, video URL scheme/count) is enforced without storing
-player names or other result data we don't need after the message is posted.
+**Result data is deliberately not persisted:** the request-validation
+middleware (`committee`, wired in `config/initializers/committee.rb`) checks the
+whole game body against `config/api/twilight-struggle-v1.yaml` — required fields,
+`winning_side` enum, `winning_turn` range, video URL scheme/count — before the
+controller runs. `Games#update` then reads only `external_id` and
+`tournament_external_id`; only `external_id` and the resolved `tournament` reach
+`Ops::TwilightStruggle::Games::Upsert`. The player names and other result fields
+are validated as they pass through the schema and are never read into a record,
+so nothing we don't need after the message is posted touches the database.
 
 **Friendly-tournament singleton:** a game PUT with no `tournament_external_id`
 is a "friendly" game. `Ops::TwilightStruggle::Games::Upsert` attaches it to the

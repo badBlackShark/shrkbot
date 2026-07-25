@@ -1,0 +1,127 @@
+openapi: 3.0.3
+info:
+  title: shrkbot Twilight Struggle API
+  version: "1.0"
+  description: >
+    Ingestion API for twilight-struggle.com. Tournaments and games are upserted
+    idempotently (PUT, with a caller-chosen external id as the key) and removed
+    (DELETE). Game-result payloads are validated against this schema but never
+    persisted. This file is the request contract: the request-validation
+    middleware rejects any body that does not conform.
+paths:
+  /tournaments/{external_id}:
+    parameters:
+      - name: external_id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      summary: Create or update a tournament
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tournament]
+              properties:
+                tournament:
+                  $ref: "#/components/schemas/TournamentInput"
+      responses:
+        "200":
+          description: Tournament updated
+        "201":
+          description: Tournament created
+        "422":
+          description: Validation failed
+    delete:
+      summary: Delete a tournament
+      responses:
+        "204":
+          description: Tournament deleted, or no such tournament
+  /games/{external_id}:
+    parameters:
+      - name: external_id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      summary: Create or update a game
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [game]
+              properties:
+                game:
+                  $ref: "#/components/schemas/GameInput"
+      responses:
+        "200":
+          description: Game updated
+        "201":
+          description: Game created
+        "422":
+          description: Validation failed
+    delete:
+      summary: Delete a game and, once posting exists, its posted Discord message
+      responses:
+        "204":
+          description: Game deleted, or no such game
+components:
+  schemas:
+    TournamentInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        parent_external_id:
+          type: string
+        status:
+          type: string
+    GameInput:
+      type: object
+      required: [usa_player, ussr_player, winning_side, winning_method, reported_at]
+      properties:
+        tournament_external_id:
+          type: string
+        game_code:
+          type: string
+          maxLength: 60
+        game_date:
+          type: string
+        reported_at:
+          type: string
+        winning_side:
+          type: string
+          enum: [usa, ussr, tie]
+        winning_turn:
+          type: integer
+          minimum: 1
+          maximum: 11
+        winning_method:
+          type: string
+          maxLength: 60
+        usa_player:
+          type: string
+          maxLength: 100
+        usa_flag:
+          type: string
+          maxLength: 8
+        ussr_player:
+          type: string
+          maxLength: 100
+        ussr_flag:
+          type: string
+          maxLength: 8
+        video_urls:
+          type: array
+          maxItems: 5
+          items:
+            type: string
+            pattern: "^https?://"
