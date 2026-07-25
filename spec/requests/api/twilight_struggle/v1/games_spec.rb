@@ -15,10 +15,8 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
       winning_side: "usa",
       winning_turn: 6,
       winning_method: "Objectives",
-      usa_player: "Alice",
-      usa_flag: "🇺🇸",
-      ussr_player: "Bob",
-      ussr_flag: "🇷🇺",
+      usa: {name: "Alice", flag: "🇺🇸"},
+      ussr: {name: "Bob", flag: "🇷🇺"},
       video_urls: ["https://example.com/video"]
     }
   end
@@ -149,6 +147,16 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
 
         game = TwilightStruggle::Game.find_by(external_id:)
         expect(game.tournament.friendly?).to be true
+      end
+    end
+
+    context "with a player object missing its name" do
+      let(:params) { {game: valid_result_attributes.merge(tournament_external_id: tournament.external_id, usa: {flag: "🇺🇸"})} }
+
+      it "returns 422" do
+        put_game
+
+        expect(response).to have_http_status(:unprocessable_content)
       end
     end
 

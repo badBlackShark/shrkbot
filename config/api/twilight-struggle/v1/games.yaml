@@ -34,7 +34,7 @@ components:
   schemas:
     GameInput:
       type: object
-      required: [usa_player, ussr_player, winning_side, winning_method, reported_at]
+      required: [usa, ussr, winning_side, winning_method, reported_at]
       properties:
         tournament_external_id:
           type: string
@@ -55,21 +55,25 @@ components:
         winning_method:
           type: string
           maxLength: 60
-        usa_player:
-          type: string
-          maxLength: 100
-        usa_flag:
-          type: string
-          maxLength: 8
-        ussr_player:
-          type: string
-          maxLength: 100
-        ussr_flag:
-          type: string
-          maxLength: 8
+        usa:
+          $ref: "#/components/schemas/PlayerInput"
+        ussr:
+          $ref: "#/components/schemas/PlayerInput"
         video_urls:
           type: array
           maxItems: 5
           items:
             type: string
             pattern: "^https?://"
+    PlayerInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        flag:
+          type: string
+          maxLength: 8
+        discord_id:
+          type: string

@@ -131,10 +131,11 @@ en:
         configured action (flagging, removal, and any punishment). These hashes are
         not linked to any user or server.
       messages_p_6: Game results sent to us by twilight-struggle.com for the Twilight
-        Struggle integration include player names. These are rendered into the Discord
-        message we post and are not stored by us. The posted message is an ordinary
-        Discord message, stored by Discord in that channel - it is not deleted when
-        the underlying tournament or game record is removed.
+        Struggle integration include player names and, if provided, players' Discord
+        IDs. These are rendered into the Discord message we post - a Discord ID lets
+        us mention that player - and are not stored by us. The posted message is an
+        ordinary Discord message, stored by Discord in that channel - it is not deleted
+        when the underlying tournament or game record is removed.
       not_h: What we don't do
       not_p: We don't sell data, we don't advertise, we don't profile you, we don't
         run analytics, and we don't store your servers' member lists or conversations.
@@ -179,7 +180,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: July 24th, 2026'
+      updated: 'Last updated: July 25th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

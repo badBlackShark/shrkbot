@@ -117,10 +117,8 @@ Request body:
     "winning_side": "usa",
     "winning_turn": 6,
     "winning_method": "Objectives",
-    "usa_player": "Alice",
-    "usa_flag": "🇺🇸",
-    "ussr_player": "Bob",
-    "ussr_flag": "🇷🇺",
+    "usa": { "name": "Alice", "flag": "🇺🇸" },
+    "ussr": { "name": "Bob", "flag": "🇷🇺" },
     "video_urls": ["https://example.com/video"]
   }
 }
@@ -137,11 +135,17 @@ Field table:
 | `winning_side` | string | yes | One of `usa`, `ussr`, `tie` — send these exact names, not your internal `1`/`2`/`3` side codes. |
 | `winning_turn` | integer | no | `1`–`11`. |
 | `winning_method` | string | yes | Free text, max 60 characters (e.g. `"Objectives"`, `"Final scoring"`). |
-| `usa_player` | string | yes | Max 100 characters. |
-| `usa_flag` | string | no | Max 8 characters — meant for a flag emoji. |
-| `ussr_player` | string | yes | Max 100 characters. |
-| `ussr_flag` | string | no | Max 8 characters. |
+| `usa` | object | yes | The US player — see the Player fields below. |
+| `ussr` | object | yes | The USSR player — see the Player fields below. |
 | `video_urls` | array of strings | no | Max 5. Each must be `http://` or `https://` — any other scheme (including `javascript:`) is rejected. |
+
+Each player (`usa`, `ussr`) is an object:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `name` | string | yes | Max 100 characters. |
+| `flag` | string | no | Max 8 characters — meant for a flag emoji. |
+| `discord_id` | string | no | The player's Discord user ID, as a string (snowflakes exceed JSON's safe integer range). If sent, we may render their name as a Discord mention in the posted result; we never store it. |
 
 **Friendly games:** omit `tournament_external_id` entirely and the game is
 grouped under shrkbot's internal "Friendly games" tournament instead of being
