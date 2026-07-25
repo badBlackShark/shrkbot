@@ -5,12 +5,13 @@ module Welcomes
     module_function
 
     def render(template, user:, username:, displayname:, member_count:)
-      {
-        "{user}" => user,
-        "{username}" => username,
-        "{displayname}" => displayname,
-        "{membercount}" => member_count
-      }.reduce(template.to_s) { |text, (token, value)| text.gsub(token) { value.to_s } }
+      TemplateText.render(
+        template,
+        user:,
+        username:,
+        displayname:,
+        membercount: member_count
+      )
     end
   end
 end

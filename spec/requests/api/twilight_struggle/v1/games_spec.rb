@@ -24,6 +24,10 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
 
   describe "PUT /api/twilight-struggle/v1/games/:external_id" do
     subject(:put_game) do
+      put_again
+    end
+
+    def put_again
       put api_twilight_struggle_v1_game_path(external_id), params:, headers:, as: :json
     end
 
@@ -203,6 +207,33 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
         expect(response).to have_http_status(:unprocessable_content)
       end
     end
+
+    context "with a successful upsert" do
+      it "enqueues a post job with the game and the submitted payload" do
+        expect { put_game }.to have_enqueued_job(TwilightStruggle::PostJob).with { |game, payload|
+          expect(game).to eq(TwilightStruggle::Game.find_by(external_id:))
+          expect(payload).to eq(valid_result_attributes.merge(tournament_external_id: tournament.external_id).deep_stringify_keys)
+        }
+      end
+    end
+
+    context "when the upsert itself fails" do
+      before do
+        allow(Ops::TwilightStruggle::Games::Upsert).to receive(:call)
+          .and_return(Ops::ApplicationOperation::Result.new(false, nil, ["Tournament must exist"], []))
+      end
+
+      it "returns 422 with the errors" do
+        put_game
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body["errors"]).to eq(["Tournament must exist"])
+      end
+
+      it "does not enqueue a post job" do
+        expect { put_game }.not_to have_enqueued_job(TwilightStruggle::PostJob)
+      end
+    end
   end
 
   describe "DELETE /api/twilight-struggle/v1/games/:external_id" do
@@ -221,6 +252,26 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
 
       it "deletes the row" do
         expect { delete_game }.to change(TwilightStruggle::Game, :count).by(-1)
+      end
+
+      it "does not enqueue a delete job for a game that was never posted" do
+        expect { delete_game }.not_to have_enqueued_job(TwilightStruggle::DeleteMessageJob)
+      end
+    end
+
+    context "when the game has a posted Discord message" do
+      let!(:game) do
+        create(:twilight_struggle_game, external_id:, discord_channel_id: 222222222222222222, discord_message_id: 991)
+      end
+
+      it "enqueues a delete job for the posted message" do
+        expect { delete_game }.to have_enqueued_job(TwilightStruggle::DeleteMessageJob).with(222222222222222222, 991)
+      end
+
+      it "returns 204" do
+        delete_game
+
+        expect(response).to have_http_status(:no_content)
       end
     end
 

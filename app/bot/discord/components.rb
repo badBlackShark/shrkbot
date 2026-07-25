@@ -99,6 +99,14 @@ module Bot
       rescue => e
         Rails.logger.warn("[Components] message #{message_id} left as plain text: #{e.class}: #{e.message}")
       end
+
+      def edit_content(channel_id, message_id, content)
+        Discordrb::API::Channel.edit_message(Bot::Config.rest_token, channel_id, message_id, content, {parse: []})
+      end
+
+      def delete_message(channel_id, message_id)
+        Discordrb::API::Channel.delete_message(Bot::Config.rest_token, channel_id, message_id)
+      end
     end
   end
 end

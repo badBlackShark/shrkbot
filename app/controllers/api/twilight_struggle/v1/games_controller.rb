@@ -7,7 +7,13 @@ module Api
         def update
           tournament = referenced_tournament(params.dig(:game, :tournament_external_id), :tournament_external_id)
 
-          render_upsert(Ops::TwilightStruggle::Games::Upsert.call(external_id: params[:external_id], tournament:))
+          render_upsert(
+            Ops::TwilightStruggle::Games::Upsert.call(
+              external_id: params[:external_id],
+              tournament:,
+              payload: params[:game].to_unsafe_h.to_h
+            )
+          )
         end
 
         def destroy

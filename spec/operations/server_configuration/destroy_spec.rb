@@ -50,6 +50,36 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
     end
   end
 
+  context "twilight struggle tournament handling" do
+    let!(:tournament) do
+      create(:twilight_struggle_tournament, server_configuration: config, discord_channel_id: 123456789012345678)
+    end
+    let!(:other_config) { create(:server_configuration) }
+    let!(:other_tournament) do
+      create(:twilight_struggle_tournament, server_configuration: other_config, discord_channel_id: 876543210987654321)
+    end
+
+    it "nulls the destination on tournaments pointing at the server configuration" do
+      result
+
+      tournament.reload
+      expect(tournament.server_configuration_id).to be_nil
+      expect(tournament.discord_channel_id).to be_nil
+    end
+
+    it "leaves the tournament row itself in place" do
+      expect { result }.not_to change(TwilightStruggle::Tournament, :count)
+    end
+
+    it "leaves tournaments pointing at other server configurations untouched" do
+      result
+
+      other_tournament.reload
+      expect(other_tournament.server_configuration_id).to eq(other_config.id)
+      expect(other_tournament.discord_channel_id).to eq(876543210987654321)
+    end
+  end
+
   context "reminder handling" do
     let(:guild_id) { config.discord_id }
     let!(:channel_reminder) { create(:reminder, server_id: guild_id, deliver_via_dm: false) }
