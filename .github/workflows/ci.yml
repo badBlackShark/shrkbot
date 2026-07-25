@@ -211,9 +211,9 @@ jobs:
           bundler-cache: true
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
 
       # bin/openapi merges the schema fragments with plain Ruby (no app boot, no
       # DB), so this job stays a lightweight Ruby+Node runner like the other jobs.
@@ -227,14 +227,14 @@ jobs:
 
       - name: Upload the API docs as a build artifact
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: twilight-struggle-api-docs
           path: _site/index.html
 
       - name: Upload the API docs for GitHub Pages
         if: github.event_name == 'push'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
@@ -259,5 +259,5 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
