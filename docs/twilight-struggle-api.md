@@ -63,7 +63,7 @@ Request body:
 ```json
 {
   "tournament": {
-    "name": "Ameritash 2026",
+    "name": "Online Twilight Struggle League",
     "parent_external_id": null,
     "status": null
   }

@@ -17,8 +17,13 @@ module TwilightStruggleApiSchema
     document = {
       "openapi" => "3.0.3",
       "info" => {"title" => "shrkbot Twilight Struggle API", "version" => "1.0"},
+      "servers" => [{"url" => "https://shrkbot.com/api/twilight-struggle/v1"}],
+      "security" => [{"bearerAuth" => []}],
       "paths" => {},
-      "components" => {"schemas" => {}}
+      "components" => {
+        "securitySchemes" => {"bearerAuth" => {"type" => "http", "scheme" => "bearer"}},
+        "schemas" => {}
+      }
     }
 
     Dir.glob(File.join(DIR, "*.yaml")).sort.each do |path|

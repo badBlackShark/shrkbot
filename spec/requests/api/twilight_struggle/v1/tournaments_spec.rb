@@ -6,7 +6,7 @@ RSpec.describe "Api::TwilightStruggle::V1::Tournaments", type: :request do
   include_context "twilight struggle api auth"
 
   let(:external_id) { "tst-ext-new" }
-  let(:params) { {tournament: {name: "Ameritash 2026"}} }
+  let(:params) { {tournament: {name: "Online Twilight Struggle League"}} }
 
   describe "PUT /api/twilight-struggle/v1/tournaments/:external_id" do
     subject(:put_tournament) do
@@ -110,7 +110,7 @@ RSpec.describe "Api::TwilightStruggle::V1::Tournaments", type: :request do
       end
 
       it "changes the updated field" do
-        expect { put_tournament }.to change { tournament.reload.name }.from("Old Name").to("Ameritash 2026")
+        expect { put_tournament }.to change { tournament.reload.name }.from("Old Name").to("Online Twilight Struggle League")
       end
     end
 
