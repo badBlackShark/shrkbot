@@ -22,9 +22,13 @@ end
 
 Rails.application.config.middleware.use(TwilightStruggleApiAuthentication)
 
+# coerce_form_params is misnamed on the OpenAPI 3 driver — it governs the whole
+# request body, and it defaults to true, which silently casts a JSON `"7"` into
+# the integer the schema asks for. We want a typed contract, not a forgiving one.
 Rails.application.config.middleware.use(
   Committee::Middleware::RequestValidation,
   schema: TwilightStruggleApiSchema.driver,
   prefix: "/api/twilight-struggle/v1",
+  coerce_form_params: false,
   error_class: SchemaValidationError
 )

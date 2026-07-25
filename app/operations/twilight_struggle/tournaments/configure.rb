@@ -30,12 +30,26 @@ module Ops
         def settings
           {
             discord_channel_id: discord_channel_id.presence,
-            template_win: template_win.presence,
-            template_tie: template_tie.presence,
-            template_video: template_video.presence,
+            template_win: override(:win, template_win),
+            template_tie: override(:tie, template_tie),
+            template_video: override(:video, template_video),
             ping_players: ping_preference,
             archived_at: archived_at
           }
+        end
+
+        # The form arrives pre-filled with whatever the tournament would inherit,
+        # so text that came back untouched is not an override — storing it would
+        # freeze a copy and stop the tournament tracking its parent.
+        def override(kind, submitted)
+          submitted = submitted.presence
+          return nil if submitted == inherited.public_send(:"template_#{kind}")
+
+          submitted
+        end
+
+        def inherited
+          @inherited ||= ::TwilightStruggle::EffectiveConfig.new(tournament.parent)
         end
 
         def ping_preference

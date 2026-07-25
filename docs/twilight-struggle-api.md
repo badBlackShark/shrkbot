@@ -14,6 +14,10 @@ Request bodies are
 validated against it before they reach our code; a body that doesn't conform
 gets a `422` with an `errors` array. The field tables below mirror it in prose.
 
+**Types are strict — we do not coerce.** The one non-string field is
+`winning_turn`; send it as a JSON number (`7`), not a string (`"7"`). A string
+there is a `422`.
+
 ## Authentication
 
 Every request needs:

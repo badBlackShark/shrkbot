@@ -48,6 +48,31 @@ RSpec.describe Ops::TwilightStruggle::Tournaments::Configure do
     expect(tournament.reload.template_tie).to be_nil
   end
 
+  describe "a template that came back exactly as it was pre-filled" do
+    let(:attributes) { super().merge(template_win: I18n.t("twilight_struggle.default_template.win")) }
+
+    it "is not stored as an override" do
+      result
+      expect(tournament.reload.template_win).to be_nil
+    end
+
+    context "when the tournament hangs under a parent with its own wording" do
+      let(:parent) { create(:twilight_struggle_tournament, server_configuration:, template_win: "{winning_name} takes it") }
+      let(:tournament) { create(:twilight_struggle_tournament, server_configuration:, parent:) }
+      let(:attributes) { super().merge(template_win: "{winning_name} takes it") }
+
+      it "keeps following the parent rather than freezing a copy" do
+        result
+        expect(tournament.reload.template_win).to be_nil
+      end
+
+      it "stores an edit that differs from the parent" do
+        described_class.call(**attributes.merge(server_configuration:, tournament:, template_win: "{winning_name} smashed it"))
+        expect(tournament.reload.template_win).to eq("{winning_name} smashed it")
+      end
+    end
+  end
+
   it "never touches the destination server" do
     result
     expect(tournament.reload.server_configuration).to eq(server_configuration)

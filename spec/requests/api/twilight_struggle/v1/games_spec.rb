@@ -184,6 +184,16 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
       end
     end
 
+    context "with a winning_turn sent as a string instead of an integer" do
+      let(:params) { {game: valid_result_attributes.merge(tournament_external_id: tournament.external_id, winning_turn: "7")} }
+
+      it "returns 422" do
+        put_game
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
     context "with a javascript: URL in video_urls" do
       let(:params) do
         {game: valid_result_attributes.merge(tournament_external_id: tournament.external_id, video_urls: ["javascript:alert(1)"])}

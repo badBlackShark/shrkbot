@@ -477,8 +477,9 @@ en:
         show: Name and tag
       template_card:
         empty: Nothing would be posted.
-        inherit: Leave empty to inherit from the tournament above, or to use the default
-          shown.
+        inherit: Pre-filled with what this tournament would use anyway, so you can
+          edit one detail instead of retyping the lot. Leave it untouched and it keeps
+          following that default; clear it out and it goes back to it.
         preview: Live preview
         tie:
           help: Used when the game ended in a tie.

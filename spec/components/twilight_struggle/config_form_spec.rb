@@ -20,6 +20,24 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
       .and include("tournament[template_video]")
   end
 
+  it "pre-fills each template so one detail can be edited without retyping the lot" do
+    expect(html).to include(I18n.t("twilight_struggle.default_template.win"))
+      .and include(I18n.t("twilight_struggle.default_template.tie"))
+      .and include(I18n.t("twilight_struggle.default_template.video"))
+  end
+
+  context "when the tournament has its own wording" do
+    let(:tournament) { create(:twilight_struggle_tournament, server_configuration:, template_win: "{winning_name} took it") }
+
+    it "puts that in the box instead of the default" do
+      expect(html).to include("{winning_name} took it</textarea>")
+    end
+
+    it "keeps the default as the placeholder, as the hint you get back by clearing the box" do
+      expect(html).to include(%(placeholder="#{I18n.t("twilight_struggle.default_template.win")}"))
+    end
+  end
+
   it "renders no enable error by default" do
     expect(html).not_to include("Something went wrong")
   end

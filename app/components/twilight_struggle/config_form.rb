@@ -46,8 +46,8 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
   def template_card(kind)
     render Components::TwilightStruggle::TemplateCard.new(
       kind:,
-      value: @tournament.public_send(:"template_#{kind}"),
-      placeholder: inherited.public_send(:"template_#{kind}"),
+      value: @tournament.public_send(:"template_#{kind}").presence || inherited_template(kind),
+      placeholder: inherited_template(kind),
       channel: channel_label
     )
   end
@@ -86,6 +86,10 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
 
   def channel_options
     @channel_options ||= ChannelOptions.new(@tournament.server_configuration)
+  end
+
+  def inherited_template(kind)
+    inherited.public_send(:"template_#{kind}")
   end
 
   def inherited
