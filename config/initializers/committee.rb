@@ -35,11 +35,19 @@ module TwilightStruggleApiSchema
 
     Dir.glob(DIR.join("*.yaml")).sort.each do |path|
       fragment = YAML.safe_load_file(path)
-      document["paths"].merge!(fragment.fetch("paths", {}))
-      document["components"]["schemas"].merge!(fragment.dig("components", "schemas") || {})
+      merge_disjoint!(document["paths"], fragment.fetch("paths", {}), path)
+      merge_disjoint!(document["components"]["schemas"], fragment.dig("components", "schemas") || {}, path)
     end
 
     Committee::Drivers.load_from_data(document, parser_options: {strict_reference_validation: true})
+  end
+
+  def self.merge_disjoint!(into, from, source)
+    from.each do |key, value|
+      raise "#{source}: #{key.inspect} is already defined by another schema fragment" if into.key?(key)
+
+      into[key] = value
+    end
   end
 end
 
