@@ -116,7 +116,7 @@ Request body:
     "reported_at": "2026-07-24T10:00:00Z",
     "winning_side": "usa",
     "winning_turn": 6,
-    "winning_method": "Objectives",
+    "winning_method": "defcon",
     "usa": { "name": "Alice", "flag": "🇺🇸" },
     "ussr": { "name": "Bob", "flag": "🇷🇺" },
     "video_urls": ["https://example.com/video"]
@@ -134,7 +134,7 @@ Field table:
 | `reported_at` | datetime | yes | When the result was reported. |
 | `winning_side` | string | yes | One of `usa`, `ussr`, `tie` — send these exact names, not your internal `1`/`2`/`3` side codes. |
 | `winning_turn` | integer | no | `1`–`11`. |
-| `winning_method` | string | yes | Free text, max 60 characters (e.g. `"Objectives"`, `"Final scoring"`). |
+| `winning_method` | string | yes | Free text, max 60 characters (e.g. `"defcon"`). |
 | `usa` | object | yes | The US player — see the Player fields below. |
 | `ussr` | object | yes | The USSR player — see the Player fields below. |
 | `video_urls` | array of strings | no | Max 5. Each must be `http://` or `https://` — any other scheme (including `javascript:`) is rejected. |

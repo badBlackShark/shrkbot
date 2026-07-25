@@ -62,7 +62,7 @@ components:
         winning_method:
           type: string
           maxLength: 60
-          example: "Objectives"
+          example: "defcon"
         usa:
           $ref: "#/components/schemas/PlayerInput"
         ussr:
