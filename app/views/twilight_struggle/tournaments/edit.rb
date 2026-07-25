@@ -1,39 +1,39 @@
 # frozen_string_literal: true
 
 class Views::TwilightStruggle::Tournaments::Edit < Views::Base
-  include Phlex::Rails::Helpers::FormWith
-
-  def initialize(user:, tournament:)
+  def initialize(user:, tournament:, enabled:)
     @user = user
     @tournament = tournament
+    @enabled = enabled
   end
 
   def view_template
-    render Components::AppShell.new(user: @user) do
-      div(class: "mx-auto max-w-3xl px-6 pb-28 pt-8") do
-        render Components::Breadcrumb.new(crumbs)
-        form_with(url: twilight_struggle_tournament_path(@tournament), method: :patch, data: form_data) do
-          render Components::PageHeading.new(title: @tournament.name, subtitle: t(".subtitle", server: @tournament.server_configuration.name))
-          render Components::TwilightStruggle::ConfigForm.new(tournament: @tournament)
-          render Components::SaveBar.new
-        end
+    render Components::PluginShell.new(user: @user, server_configuration: server_configuration, active_key: ::TwilightStruggle::PLUGIN_KEY) do
+      render Components::ConfigPage.new(
+        header: header,
+        server_configuration: server_configuration,
+        url: twilight_struggle_tournament_path(@tournament),
+        toggle: {field: "tournament[enabled]", enabled: @enabled},
+        gate: {type: :enable, message: t(".gate_message")},
+        parent_crumb: {label: t(".tournaments"), href: twilight_struggle_tournaments_path}
+      ) do
+        render Components::TwilightStruggle::ConfigForm.new(tournament: @tournament)
       end
     end
   end
 
   private
 
-  def crumbs
-    [
-      {label: t(".tournaments"), href: twilight_struggle_tournaments_path},
-      {label: @tournament.name}
-    ]
+  def header
+    Components::ConfigPageHeader.new(
+      icon: "trophy",
+      title: t(".title"),
+      badge: @tournament.name,
+      description: t(".description")
+    )
   end
 
-  def form_data
-    {
-      controller: "save-bar",
-      action: "input->save-bar#check change->save-bar#check turbo:submit-end->save-bar#saved"
-    }
+  def server_configuration
+    @tournament.server_configuration
   end
 end

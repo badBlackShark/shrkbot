@@ -3,12 +3,14 @@
 class Components::TwilightStruggle::ConfigForm < Components::Base
   TEMPLATES = [:win, :tie, :video].freeze
 
-  def initialize(tournament:)
+  def initialize(tournament:, enable_error: nil)
     @tournament = tournament
+    @enable_error = enable_error
   end
 
   def view_template
-    div(class: "flex flex-col gap-5", data: {controller: "twilight-struggle-preview", action: "input->twilight-struggle-preview#render"}) do
+    div(id: "twilight_struggle-config", class: "flex flex-col gap-5", data: {controller: "twilight-struggle-preview", action: "input->twilight-struggle-preview#render"}) do
+      enable_error_callout
       channel_card
       TEMPLATES.each { |kind| template_card(kind) }
       render Components::TwilightStruggle::TokenHelpCard.new
@@ -19,6 +21,12 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
   end
 
   private
+
+  def enable_error_callout
+    return unless @enable_error
+
+    render Components::Callout.new(variant: :danger) { @enable_error }
+  end
 
   def channel_card
     render Components::ChannelCard.new(

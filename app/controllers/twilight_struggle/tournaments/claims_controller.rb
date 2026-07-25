@@ -35,6 +35,12 @@ class TwilightStruggle::Tournaments::ClaimsController < ApplicationController
     @target_server = @tournament.claimed? ? nil : @twilight_struggle_servers.find_by(id: params[:server_configuration_id])
   end
 
+  def flash_for(result, success_key)
+    return {notice: t("twilight_struggle.#{success_key}")} if result.success?
+
+    {alert: result.errors.to_sentence}
+  end
+
   def destination_after(result)
     return twilight_struggle_tournaments_path if result.failure?
 

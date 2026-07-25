@@ -3,12 +3,15 @@
 require "rails_helper"
 
 RSpec.describe Ops::TwilightStruggle::Tournaments::Configure do
-  subject(:result) { described_class.call(tournament:, **attributes) }
+  subject(:result) { described_class.call(server_configuration:, tournament:, **attributes) }
 
   let(:server_configuration) { create(:server_configuration) }
   let(:tournament) { create(:twilight_struggle_tournament, server_configuration:) }
+  let!(:plugin) { create(:plugin, key: "twilight_struggle", name: "Twilight Struggle") }
+  let!(:grant) { create(:bespoke_plugin_grant, server_configuration:, plugin_key: "twilight_struggle") }
   let(:attributes) do
     {
+      enabled: "1",
       discord_channel_id: "555",
       template_win: "{winning_player} won",
       template_tie: "",
@@ -18,8 +21,16 @@ RSpec.describe Ops::TwilightStruggle::Tournaments::Configure do
     }
   end
 
+  before do
+    allow(Bot::ConfigBus).to receive(:sync_commands)
+  end
+
   it "succeeds" do
     expect(result).to be_success
+  end
+
+  it "returns the plugin activation, like the other plugin config ops" do
+    expect(result.value).to be_a(PluginActivation)
   end
 
   it "stores the channel" do
@@ -40,6 +51,45 @@ RSpec.describe Ops::TwilightStruggle::Tournaments::Configure do
   it "never touches the destination server" do
     result
     expect(tournament.reload.server_configuration).to eq(server_configuration)
+  end
+
+  describe "the enable toggle" do
+    it "enables the plugin for the server" do
+      result
+      expect(server_configuration.reload.enabled_plugin_keys).to include(:twilight_struggle)
+    end
+
+    it "resyncs the guild commands" do
+      result
+      expect(Bot::ConfigBus).to have_received(:sync_commands).with(server_configuration)
+    end
+
+    context "when switched off" do
+      let(:attributes) { super().merge(enabled: "0") }
+
+      it "disables the plugin" do
+        result
+        expect(server_configuration.reload.enabled_plugin_keys).not_to include(:twilight_struggle)
+      end
+
+      it "still saves the tournament settings" do
+        result
+        expect(tournament.reload.discord_channel_id).to eq(555)
+      end
+    end
+
+    context "when the server has no grant" do
+      let!(:grant) { nil }
+
+      it "fails" do
+        expect(result).to be_failure
+      end
+
+      it "leaves the tournament untouched" do
+        result
+        expect(tournament.reload.discord_channel_id).to be_nil
+      end
+    end
   end
 
   describe "the ping preference" do

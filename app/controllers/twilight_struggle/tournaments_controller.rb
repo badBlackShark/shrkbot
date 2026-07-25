@@ -2,6 +2,7 @@
 
 class TwilightStruggle::TournamentsController < ApplicationController
   include SetsTwilightStruggleServers
+  include ConfiguresPlugin
 
   before_action :load_tournament, only: [:edit, :update]
 
@@ -17,7 +18,8 @@ class TwilightStruggle::TournamentsController < ApplicationController
   def edit
     render Views::TwilightStruggle::Tournaments::Edit.new(
       user: current_user,
-      tournament: @tournament
+      tournament: @tournament,
+      enabled: plugin_enabled?
     )
   end
 
@@ -25,7 +27,9 @@ class TwilightStruggle::TournamentsController < ApplicationController
     return head :not_found unless guild_channel?
 
     result = Ops::TwilightStruggle::Tournaments::Configure.call(
+      server_configuration: @server_configuration,
       tournament: @tournament,
+      enabled: tournament_params[:enabled],
       discord_channel_id: tournament_params[:discord_channel_id],
       template_win: tournament_params[:template_win],
       template_tie: tournament_params[:template_tie],
@@ -33,21 +37,29 @@ class TwilightStruggle::TournamentsController < ApplicationController
       ping_players: tournament_params[:ping_players],
       archived: tournament_params[:archived]
     )
-    redirect_to edit_twilight_struggle_tournament_path(@tournament), **flash_for(result, "saved")
+    respond_with_configuration(result)
   end
 
   private
 
   def load_tournament
     @tournament = TwilightStruggle::Tournament.find_by(id: params[:id])
-    return if @tournament&.claimed? && manages?(@tournament)
+    return redirect_to(twilight_struggle_tournaments_path, alert: t("twilight_struggle.tournament_not_available")) unless @tournament&.claimed? && manages?(@tournament)
 
-    redirect_to twilight_struggle_tournaments_path, alert: t("twilight_struggle.tournament_not_available")
+    @server_configuration = @tournament.server_configuration
+  end
+
+  def plugin_key
+    TwilightStruggle::PLUGIN_KEY
+  end
+
+  def configuration_url
+    edit_twilight_struggle_tournament_path(@tournament)
   end
 
   def guild_channel?
     channel_id = tournament_params[:discord_channel_id]
-    channel_id.blank? || @tournament.server_configuration.server_channels.exists?(discord_id: channel_id)
+    channel_id.blank? || @server_configuration.server_channels.exists?(discord_id: channel_id)
   end
 
   def tournament_list
@@ -64,7 +76,7 @@ class TwilightStruggle::TournamentsController < ApplicationController
 
   def tournament_params
     params.expect(
-      tournament: [:discord_channel_id, :template_win, :template_tie, :template_video, :ping_players, :archived]
+      tournament: [:enabled, :discord_channel_id, :template_win, :template_tie, :template_video, :ping_players, :archived]
     )
   end
 end

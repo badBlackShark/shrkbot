@@ -591,6 +591,8 @@ en:
       saved: Role settings saved.
     spam_protection:
       saved: Cross-Channel Spam Guard settings saved.
+    twilight_struggle:
+      saved: Twilight Struggle settings saved.
     unknown_plugin: That plugin doesn't exist.
     welcomes:
       saved: Welcomes settings saved.
@@ -776,7 +778,12 @@ en:
     twilight_struggle:
       tournaments:
         edit:
-          subtitle: Posting into %{server}.
+          description: Where this tournament's results are posted and how they read.
+            The toggle is server-wide - turning it off stops every Twilight Struggle
+            post in this server, without losing what you set up here.
+          gate_message: Enable Twilight Struggle to give this tournament a channel
+            and its own message wording.
+          title: Twilight Struggle
           tournaments: Tournaments
         index:
           empty_archived: Nothing has been archived.

@@ -4,7 +4,9 @@ module Ops
   module TwilightStruggle
     module Tournaments
       class Configure < ApplicationOperation
-        receives :tournament
+        include Ops::PluginConfiguration
+
+        receives :server_configuration, :tournament, :enabled
         receives :discord_channel_id, optional: true
         receives :template_win, optional: true
         receives :template_tie, optional: true
@@ -13,20 +15,28 @@ module Ops
         receives :archived, optional: true
 
         def call
-          tournament.assign_attributes(
+          tournament.assign_attributes(settings)
+          activation = staged_activation
+
+          return failure(messages(tournament, activation), value: activation) unless tournament.valid? && activation.valid?
+
+          tournament.save!
+          save_activation!(activation)
+          ok(activation)
+        end
+
+        private
+
+        def settings
+          {
             discord_channel_id: discord_channel_id.presence,
             template_win: template_win.presence,
             template_tie: template_tie.presence,
             template_video: template_video.presence,
             ping_players: ping_preference,
             archived_at: archived_at
-          )
-          return failure(tournament.errors.full_messages) unless tournament.save
-
-          ok(tournament)
+          }
         end
-
-        private
 
         def ping_preference
           return nil if ping_players.blank?
@@ -38,6 +48,10 @@ module Ops
           return nil unless truthy?(archived)
 
           tournament.archived_at || Time.current
+        end
+
+        def plugin_key
+          ::TwilightStruggle::PLUGIN_KEY
         end
       end
     end

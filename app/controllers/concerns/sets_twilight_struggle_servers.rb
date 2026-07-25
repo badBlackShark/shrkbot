@@ -22,19 +22,7 @@ module SetsTwilightStruggleServers
     redirect_to servers_path, alert: t("twilight_struggle.no_access")
   end
 
-  def flash_for(result, success_key)
-    return {notice: t("twilight_struggle.#{success_key}")} if result.success?
-
-    {alert: result.errors.to_sentence}
-  end
-
   def manages?(tournament)
-    current_user.owner? || hosts?(tournament.server_configuration)
-  end
-
-  def hosts?(server_configuration)
-    return false if server_configuration.nil?
-
-    @twilight_struggle_servers.any? { |candidate| candidate.id == server_configuration.id }
+    current_user.owner? || @twilight_struggle_servers.any? { |server| server.id == tournament.server_configuration_id }
   end
 end
