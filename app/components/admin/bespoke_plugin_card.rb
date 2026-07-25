@@ -53,9 +53,7 @@ class Components::Admin::BespokePluginCard < Components::Base
   end
 
   def server_options
-    ungranted_servers.map do |config|
-      Components::TomSelect::Option.for(value: config.id, label: config.name.presence || config.discord_id.to_s)
-    end
+    ServerOptions.new(ungranted_servers).options
   end
 
   def ungranted_servers

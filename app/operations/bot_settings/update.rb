@@ -9,12 +9,6 @@ module Ops
         BotSetting.owner_error_dms = truthy?(owner_error_dms)
         ok(BotSetting.owner_error_dms?)
       end
-
-      private
-
-      def truthy?(value)
-        ActiveModel::Type::Boolean.new.cast(value)
-      end
     end
   end
 end

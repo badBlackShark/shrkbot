@@ -14,4 +14,15 @@ module SetsManageableServers
   def manageable_server_ids
     Array(session[SESSION_KEY])
   end
+
+  def live_manageable_ids
+    ids = ManageableServers.cached_for(session[:discord_token]).map(&:id)
+    remember_manageable_servers(ServerConfiguration.configured_ids_among(ids))
+    session.delete(:reauth_attempted)
+    ids
+  rescue Bot::Discord::UserGuilds::Unauthorized
+    raise
+  rescue Bot::Discord::UserGuilds::Error
+    manageable_server_ids
+  end
 end

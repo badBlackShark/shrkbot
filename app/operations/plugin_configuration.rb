@@ -5,7 +5,7 @@ module Ops
     private
 
     def enabling?
-      ActiveModel::Type::Boolean.new.cast(enabled)
+      truthy?(enabled)
     end
 
     def staged_activation

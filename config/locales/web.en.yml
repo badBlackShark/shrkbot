@@ -365,6 +365,9 @@ en:
         roles:
           description: Let members give themselves roles from a menu.
           name: Roles
+        twilight_struggle:
+          description: Post results from twilight-struggle.com as they are reported.
+          name: Twilight Struggle
         welcomes:
           description: Greet new members and say goodbye when they leave.
           name: Welcomes
@@ -438,6 +441,88 @@ en:
       pre: 'shrkbot is '
     theme_toggle:
       toggle_theme: Toggle dark mode
+    twilight_struggle:
+      archive_filter:
+        active: Active
+        archived: Archived
+      claim_form:
+        claim: Claim
+        no_servers: No server you manage has the Twilight Struggle plugin.
+        placeholder: Choose a server
+      config_form:
+        archive:
+          help: Hides it from the tournament list. It is not an off switch - a result
+            that still arrives is still posted.
+          label: Archive this tournament
+        channel:
+          help: Where results for this tournament are posted. With no channel, nothing
+            is posted.
+          help_inherited: Where results for this tournament are posted. Leave empty
+            to use %{channel}, inherited from the tournament above.
+          label: Results channel
+      destination_actions:
+        configure: Configure
+        release: Release
+        release_confirm: Release this tournament? Its channel is cleared and any server
+          can claim it next. Results already posted stay up.
+      message_preview:
+        empty: Nothing would be posted.
+        label: Live preview
+        tie: Tie
+        video: With a video
+        win: Decided game
+      ping_card:
+        help: Whether players are mentioned or written out by name. A mention only
+          works for players whose Discord ID twilight-struggle.com sends with the
+          result; everyone else falls back to their name either way.
+        inherit: Inherit
+        inherits_to: 'Inherited setting: %{setting}.'
+        label: Player names
+        mention: Mention
+        names: Names
+      template_card:
+        inherit: Leave empty to inherit from the tournament above, or to use the default
+          shown.
+        tie:
+          help: Used when the game ended in a tie.
+          label: Tie
+        video:
+          help: Used whenever the result comes with a video, ahead of the other two.
+            Keep it spoiler-free - no winner, turn or method.
+          label: Game with a video
+        win:
+          help: Used when one player won.
+          label: Decided game
+      token_help_card:
+        help: Anything in braces is replaced when the message is built. A token we
+          do not know is left exactly as you typed it.
+        label: Tokens
+        tokens:
+          game_id: The game's code on twilight-struggle.com, such as G372.
+          losing_flag: The losing player's flag. Empty on a tie.
+          losing_name: The losing player's name, without their flag. Empty on a tie.
+          losing_player: The losing player's name and flag. Empty on a tie.
+          losing_side: USA or USSR, whichever lost. Empty on a tie.
+          tournament_name: The tournament's name.
+          turn: The turn the game ended on, such as Turn 7. Turn 11 reads Final Scoring.
+          usa_flag: The USA player's flag.
+          usa_name: The USA player's name, without their flag.
+          usa_player: The USA player's name and flag.
+          ussr_flag: The USSR player's flag.
+          ussr_name: The USSR player's name, without their flag.
+          ussr_player: The USSR player's name and flag.
+          videos: The video links, separated by spaces. Discord builds the embed.
+          winning_flag: The winning player's flag. Empty on a tie.
+          winning_method: How the game ended, such as VP Track (+20).
+          winning_name: The winning player's name, without their flag. Empty on a
+            tie.
+          winning_player: The winning player's name and flag. Empty on a tie.
+          winning_side: USA or USSR, whichever won. Empty on a tie.
+      tournament_row:
+        archived: Archived
+        closed: Closed
+        friendly: Friendlies
+        under: Part of %{parent}
     version_badge:
       label: shrkbot %{version} release notes
       released: Released %{date}
@@ -688,3 +773,16 @@ en:
           description: Greet new members and say goodbye when they leave.
           gate_message: Enable the plugin to configure messages.
           title: Welcomes
+    twilight_struggle:
+      tournaments:
+        edit:
+          subtitle: Posting into %{server}.
+          tournaments: Tournaments
+        index:
+          empty_archived: Nothing has been archived.
+          empty_body: twilight-struggle.com has not sent us any tournaments yet. They
+            appear here as soon as it does.
+          empty_title: No tournaments yet
+          subtitle: Tournaments pushed to shrkbot by twilight-struggle.com. Claim
+            one to post its results in your server.
+          title: Twilight Struggle

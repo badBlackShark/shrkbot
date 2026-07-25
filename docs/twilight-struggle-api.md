@@ -178,8 +178,15 @@ game `DELETE` removes the message.)
 
 A game `PUT` renders the result into a Discord message when the game's
 tournament, or any tournament above it in the parent chain, has a destination
-channel configured. Until a destination is configured, the game is stored and
-nothing is posted; once one is configured, the next `PUT` for that game posts it.
+channel configured *and* the Twilight Struggle plugin is enabled on the server
+that owns that channel. Until both hold, the game is stored and nothing is
+posted; once they do, the next `PUT` for that game posts it.
+
+Both are set up in shrkbot's dashboard, not through this API: the bot owner
+grants the plugin to a server, an admin of that server claims the tournament
+from `/twilight-struggle/tournaments`, then picks its channel and templates.
+Disabling the plugin stops every post for that server without losing any
+configuration.
 
 A repeat `PUT` for the same game re-renders the existing message in place
 rather than posting a new one. `DELETE /games/:external_id` also deletes the

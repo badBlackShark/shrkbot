@@ -9,13 +9,21 @@ module Ops
         receives :game, :report
 
         def call
-          return ok(game) if config.channel_id.blank?
+          return ok(game) unless posting_enabled?
 
           deliver
           ok(game)
         end
 
         private
+
+        def posting_enabled?
+          config.channel_id.present? && plugin_enabled?
+        end
+
+        def plugin_enabled?
+          config.server_configuration&.enabled_plugin_keys&.include?(::TwilightStruggle::PLUGIN_KEY)
+        end
 
         def config
           @config ||= ::TwilightStruggle::EffectiveConfig.new(game.tournament)

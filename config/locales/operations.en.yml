@@ -24,3 +24,6 @@ en:
       plugins:
         requires_settings: "%{plugin} can't be enabled until its required settings
           are configured."
+    twilight_struggle:
+      tournaments:
+        already_claimed: Another server claimed this tournament first.
