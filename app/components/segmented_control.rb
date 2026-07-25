@@ -5,10 +5,11 @@ class Components::SegmentedControl < Components::Base
   INACTIVE = "border-border-default text-text-secondary font-medium"
   BASE = "flex-1 h-10 rounded-control border-[1.5px] text-sm transition-colors"
 
-  def initialize(name:, value:, options:)
+  def initialize(name:, value:, options:, input_data: {})
     @name = name
     @value = value.to_s
     @options = options
+    @input_data = input_data
   end
 
   def view_template
@@ -16,7 +17,7 @@ class Components::SegmentedControl < Components::Base
       class: "flex gap-2",
       data: {controller: "segmented", segmented_active_class: ACTIVE, segmented_inactive_class: INACTIVE}
     ) do
-      input(type: "hidden", name: @name, value: @value, data: {segmented_target: "input"})
+      input(type: "hidden", name: @name, value: @value, data: {segmented_target: "input", **@input_data})
       @options.each { |opt| option_button(opt) }
     end
   end

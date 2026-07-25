@@ -82,10 +82,11 @@ en:
       data_twilight_struggle: 'Twilight Struggle integration: on servers using it,
         the tournament names and identifiers supplied by twilight-struggle.com, the
         Discord server and channel chosen as a tournament''s destination, and the
-        message templates configured for it, plus references (channel and message
-        IDs) to the messages we post there. The result details themselves - player
-        names, flags, Discord IDs and dates - live only in the queued job that posts
-        the message, never on the tournament or game record.'
+        message settings configured for it - the templates, whether players are mentioned,
+        and whether it is archived - plus references (channel and message IDs) to
+        the messages we post there. The result details themselves - player names,
+        flags, Discord IDs and dates - live only in the queued job that posts the
+        message, never on the tournament or game record.'
       data_welcomes: 'Welcome messages: on servers that use Discord''s membership
         screening, a short-lived in-memory note that a member has joined but not yet
         finished onboarding - the server ID and their Discord ID, nothing else. It

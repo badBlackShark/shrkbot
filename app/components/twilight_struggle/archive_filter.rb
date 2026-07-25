@@ -1,0 +1,24 @@
+# frozen_string_literal: true
+
+class Components::TwilightStruggle::ArchiveFilter < Components::Base
+  ACTIVE = "border-accent bg-accent-soft text-accent-soft-fg font-semibold"
+  INACTIVE = "border-border-default text-text-secondary font-medium hover:bg-surface-sunken"
+  BASE = "inline-flex h-8 items-center rounded-control border-[1.5px] px-3 text-xs transition-colors"
+
+  def initialize(archived:)
+    @archived = archived
+  end
+
+  def view_template
+    div(class: "flex gap-2") do
+      tab(t(".active"), twilight_struggle_tournaments_path, !@archived)
+      tab(t(".archived"), twilight_struggle_tournaments_path(archived: 1), @archived)
+    end
+  end
+
+  private
+
+  def tab(label, href, current)
+    a(href:, aria_current: current ? "page" : nil, class: "#{BASE} #{current ? ACTIVE : INACTIVE}") { label }
+  end
+end

@@ -38,20 +38,4 @@ RSpec.describe TwilightStruggle::Player do
 
     it { is_expected.to eq("Alice") }
   end
-
-  describe "#to_ping" do
-    subject { player.to_ping }
-
-    context "with a discord_id" do
-      let(:player) { described_class.new(name: "Alice", discord_id: "123") }
-
-      it { is_expected.to eq("<@123>") }
-    end
-
-    context "without a discord_id" do
-      let(:player) { described_class.new(name: "Alice") }
-
-      it { is_expected.to eq("Alice") }
-    end
-  end
 end

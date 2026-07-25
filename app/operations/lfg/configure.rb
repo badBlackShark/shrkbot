@@ -64,10 +64,6 @@ module Ops
       def plugin_key
         :lfg
       end
-
-      def truthy?(value)
-        ActiveModel::Type::Boolean.new.cast(value)
-      end
     end
   end
 end

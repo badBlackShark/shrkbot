@@ -79,11 +79,14 @@ services:
     command: bin/jobs
     restart: unless-stopped
     environment:
+      REDIS_URL: redis://redis:6379/0
       RAILS_ENV: development
       DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
     volumes:
       - ./:/app
     depends_on:
+      redis:
+        condition: service_healthy
       db:
         condition: service_healthy
 

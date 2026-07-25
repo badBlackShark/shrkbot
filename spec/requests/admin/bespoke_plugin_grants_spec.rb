@@ -93,7 +93,7 @@ RSpec.describe "Admin bespoke plugin grants", type: :request do
       end
 
       context "when no bespoke plugins exist" do
-        let(:catalog_definitions) { PluginCatalog::DEFINITIONS }
+        let(:catalog_definitions) { PluginCatalog::DEFINITIONS.reject(&:bespoke) }
 
         it "renders the empty state" do
           index_page

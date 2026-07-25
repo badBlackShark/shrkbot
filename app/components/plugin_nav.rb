@@ -9,7 +9,8 @@ module Components::PluginNav
     moderation: "shield",
     spam_protection: "megaphone-slash",
     image_scanning: "scan",
-    lfg: "game-controller"
+    lfg: "game-controller",
+    twilight_struggle: "trophy"
   }.freeze
 
   def plugin_icon(key)
@@ -26,6 +27,7 @@ module Components::PluginNav
     when :spam_protection then server_spam_protection_path(server_id)
     when :image_scanning then server_image_scanning_path(server_id)
     when :lfg then server_lfg_path(server_id)
+    when :twilight_struggle then twilight_struggle_tournaments_path
     end
   end
 end

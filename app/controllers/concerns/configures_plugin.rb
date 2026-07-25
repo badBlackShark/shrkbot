@@ -5,8 +5,12 @@ module ConfiguresPlugin
 
   private
 
+  def plugin_key
+    controller_name.to_sym
+  end
+
   def plugin_enabled?
-    @server_configuration.enabled_plugin_keys.include?(controller_name.to_sym)
+    @server_configuration.enabled_plugin_keys.include?(plugin_key)
   end
 
   def respond_with_configuration(result, error_keys: [:enabled])
@@ -17,8 +21,12 @@ module ConfiguresPlugin
     @toast = {level: "notice", message: saved_message} if result.success?
     respond_to do |format|
       format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
-      format.html { redirect_to url_for(action: :show), **flash_for(result) }
+      format.html { redirect_to configuration_url, **flash_for(result) }
     end
+  end
+
+  def configuration_url
+    url_for(action: :show)
   end
 
   def flash_for(result)
@@ -28,6 +36,6 @@ module ConfiguresPlugin
   end
 
   def saved_message
-    t("servers.#{controller_name}.saved")
+    t("servers.#{plugin_key}.saved")
   end
 end

@@ -56,6 +56,15 @@ RSpec.describe TwilightStruggle::Message do
       it "matches the site's tie phrasing" do
         expect(content).to eq("RATS Cup 2026: C204 - M N 🇦🇩 (USA) tied with D C 🇰🇷 in Turn 10 (Wargames)")
       end
+
+      context "when tags are on and the template asks for a winner there is not" do
+        let(:template) { "{winning_player}|{winning_name}" }
+        let(:ping_players) { true }
+
+        it "renders empty rather than a stray tag" do
+          expect(content).to eq("|")
+        end
+      end
     end
 
     context "video template shape" do
@@ -100,14 +109,14 @@ RSpec.describe TwilightStruggle::Message do
       context "when ping_players is true" do
         let(:ping_players) { true }
 
-        it "renders the ping followed by the flag" do
-          expect(content).to eq("<@111> 🇵🇱")
+        it "keeps the real name and appends the tag after the flag" do
+          expect(content).to eq("M B 🇵🇱 (<@111>)")
         end
 
         context "when the player has no discord_id" do
           let(:usa) { TwilightStruggle::Player.new(name: "M B", flag: "🇵🇱") }
 
-          it "falls back to the name" do
+          it "renders the name alone, with no empty brackets" do
             expect(content).to eq("M B 🇵🇱")
           end
         end
@@ -178,30 +187,6 @@ RSpec.describe TwilightStruggle::Message do
       context "with no urls" do
         it "is empty" do
           expect(content).to eq("")
-        end
-      end
-    end
-  end
-
-  describe "#mention_ids" do
-    subject { message.mention_ids }
-
-    context "when ping_players is false" do
-      it { is_expected.to eq([]) }
-    end
-
-    context "when ping_players is true" do
-      let(:ping_players) { true }
-
-      it "returns both discord_ids" do
-        expect(message.mention_ids).to eq(%w[111 222])
-      end
-
-      context "when a player has no discord_id" do
-        let(:usa) { TwilightStruggle::Player.new(name: "M B") }
-
-        it "drops the missing one" do
-          expect(message.mention_ids).to eq(["222"])
         end
       end
     end

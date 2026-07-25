@@ -37,7 +37,11 @@ RSpec.describe PluginCatalog do
     include_context "with a bespoke plugin definition"
 
     it "selects only bespoke definitions" do
-      expect(described_class.bespoke).to eq([bespoke_definition])
+      expect(described_class.bespoke).to all(have_attributes(bespoke: true))
+    end
+
+    it "includes a stubbed-in bespoke definition" do
+      expect(described_class.bespoke).to include(bespoke_definition)
     end
   end
 

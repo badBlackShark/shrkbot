@@ -9,13 +9,23 @@ module Ops
         receives :game, :report
 
         def call
-          return ok(game) if config.channel_id.blank?
+          return skipped("no destination channel is configured on it or any tournament above it") if config.channel_id.blank?
+          return skipped("the Twilight Struggle plugin is disabled for #{config.server_configuration&.name}") unless plugin_enabled?
 
           deliver
           ok(game)
         end
 
         private
+
+        def skipped(reason)
+          Rails.logger.info { "#{self.class} skipped game #{game.external_id}: #{reason}." }
+          ok(game)
+        end
+
+        def plugin_enabled?
+          config.server_configuration&.enabled_plugin_keys&.include?(::TwilightStruggle::PLUGIN_KEY)
+        end
 
         def config
           @config ||= ::TwilightStruggle::EffectiveConfig.new(game.tournament)
@@ -54,8 +64,9 @@ module Ops
           message_id = ::Bot::Discord::Components.create_message(
             channel_id:,
             content: message.content,
-            allowed_mentions: {parse: [], users: message.mention_ids}
+            allowed_mentions: {parse: []}
           )
+          Rails.logger.info { "#{self.class} posted game #{game.external_id} as message #{message_id} in channel #{channel_id}." }
           persist_location(channel_id, message_id)
         end
 

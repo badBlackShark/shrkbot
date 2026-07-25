@@ -84,5 +84,9 @@ module Ops
     def transaction(&)
       ActiveRecord::Base.transaction(&)
     end
+
+    def truthy?(value)
+      ActiveModel::Type::Boolean.new.cast(value)
+    end
   end
 end

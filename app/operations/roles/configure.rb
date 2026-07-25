@@ -122,10 +122,6 @@ module Ops
       def plan
         @plan ||= ::Roles::MenuSyncPlan.new
       end
-
-      def truthy?(value)
-        ActiveModel::Type::Boolean.new.cast(value)
-      end
     end
   end
 end

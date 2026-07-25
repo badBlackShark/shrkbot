@@ -98,6 +98,16 @@ that server from the admin panel (`BespokePluginGrant`). The grant is folded int
 `prerequisites_met?` alongside the other checks, so the enable path is backstopped the
 same way as `requires_plugin:`/`parent:`.
 
+A bespoke plugin whose data isn't server-scoped can hang its config off a **standalone
+page** instead of `/servers/:id/...`; Twilight Struggle is the reference. Return that
+route from `Components::PluginNav#plugin_config_path` (it ignores the `server_id`
+argument) and the plugin tile and sidebar link to it like any other. Such a controller
+can't use `RequiresManageableServer` — there's no `:server_id` in the path — so it
+derives the user's servers instead: `SetsTwilightStruggleServers` intersects
+`live_manageable_ids` with the servers holding a grant, and every action authorizes
+against that set. The plugin's own enable toggle stays the per-server kill switch;
+check it wherever the plugin acts on a server (`Ops::TwilightStruggle::Games::Post`).
+
 ## 4. Writes go through operations
 
 All settings writes and runtime mutations are operations under
