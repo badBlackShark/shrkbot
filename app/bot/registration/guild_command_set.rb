@@ -55,7 +55,7 @@ module Bot
     end
 
     def enabled_keys
-      @enabled_keys ||= server_configuration ? server_configuration.plugins.enabled.pluck(:key).map(&:to_sym) : []
+      @enabled_keys ||= server_configuration ? server_configuration.plugins.enabled.pluck(:key).map(&:to_sym).to_set : Set.new
     end
 
     def server_configuration

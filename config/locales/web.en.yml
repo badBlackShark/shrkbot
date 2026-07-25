@@ -533,8 +533,7 @@ en:
       bespoke_plugin_grants:
         index:
           empty_body: Bespoke plugins are hidden from every server until you grant
-            them here. None are built yet - this page fills up when the first one
-            ships.
+            them here. None are built yet.
           empty_title: No bespoke plugins yet
           subtitle: Plugins you activate by hand, one server at a time.
           title: Bespoke plugins

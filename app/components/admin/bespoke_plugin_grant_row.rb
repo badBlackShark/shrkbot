@@ -26,7 +26,7 @@ class Components::Admin::BespokePluginGrantRow < Components::Base
       admin_bespoke_plugin_grant_path(@grant),
       method: :delete,
       data: {turbo_confirm: t(".confirm")},
-      class: "flex-none rounded-control border border-danger px-2.5 py-1 text-xs font-semibold text-danger transition-colors hover:bg-danger-soft"
+      class: Components::Button.css(variant: :danger_outline, size: :sm, extra: "flex-none")
     ) { t(".revoke") }
   end
 end
