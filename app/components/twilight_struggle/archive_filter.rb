@@ -5,14 +5,15 @@ class Components::TwilightStruggle::ArchiveFilter < Components::Base
   INACTIVE = "border-border-default text-text-secondary font-medium hover:bg-surface-sunken"
   BASE = "inline-flex h-8 items-center rounded-control border-[1.5px] px-3 text-xs transition-colors"
 
-  def initialize(archived:)
+  def initialize(server_configuration:, archived:)
+    @server_configuration = server_configuration
     @archived = archived
   end
 
   def view_template
     div(class: "flex gap-2") do
-      tab(t(".active"), twilight_struggle_tournaments_path, !@archived)
-      tab(t(".archived"), twilight_struggle_tournaments_path(archived: 1), @archived)
+      tab(t(".active"), server_twilight_struggle_path(@server_configuration.discord_id), !@archived)
+      tab(t(".archived"), server_twilight_struggle_path(@server_configuration.discord_id, archived: 1), @archived)
     end
   end
 

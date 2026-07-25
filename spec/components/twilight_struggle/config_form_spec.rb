@@ -3,11 +3,12 @@
 require "rails_helper"
 
 RSpec.describe Components::TwilightStruggle::ConfigForm do
-  subject(:html) { described_class.new(tournament:, enable_error:).render_in(view_context) }
+  subject(:html) { described_class.new(destination:, enable_error:).render_in(view_context) }
 
   let(:view_context) { ApplicationController.new.view_context }
   let(:server_configuration) { create(:server_configuration) }
-  let(:tournament) { create(:twilight_struggle_tournament, server_configuration:) }
+  let(:tournament) { create(:twilight_struggle_tournament) }
+  let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:) }
   let(:enable_error) { nil }
 
   before do
@@ -15,9 +16,9 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
   end
 
   it "renders the three template editors" do
-    expect(html).to include("tournament[template_win]")
-      .and include("tournament[template_tie]")
-      .and include("tournament[template_video]")
+    expect(html).to include("destination[template_win]")
+      .and include("destination[template_tie]")
+      .and include("destination[template_video]")
   end
 
   it "pre-fills each template so one detail can be edited without retyping the lot" do
@@ -26,8 +27,8 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
       .and include(I18n.t("twilight_struggle.default_template.video"))
   end
 
-  context "when the tournament has its own wording" do
-    let(:tournament) { create(:twilight_struggle_tournament, server_configuration:, template_win: "{winning_name} took it") }
+  context "when the destination has its own wording" do
+    let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, template_win: "{winning_name} took it") }
 
     it "puts that in the box instead of the default" do
       expect(html).to include("{winning_name} took it</textarea>")
@@ -55,9 +56,10 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
       expect(html).to include("With no channel, nothing is posted")
     end
 
-    context "when a parent tournament already has a channel in the same server" do
-      let(:parent) { create(:twilight_struggle_tournament, server_configuration:, discord_channel_id: 4242) }
-      let(:tournament) { create(:twilight_struggle_tournament, server_configuration:, parent:) }
+    context "when this server's destination for a parent tournament already has a channel" do
+      let(:parent) { create(:twilight_struggle_tournament) }
+      let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+      let!(:parent_destination) { create(:twilight_struggle_destination, tournament: parent, server_configuration:, discord_channel_id: 4242) }
 
       it "names the inherited channel instead" do
         expect(html).to include("inherited from the tournament above").and include("# results")
@@ -65,8 +67,9 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
     end
 
     context "when the inherited channel lives in a server the user cannot see" do
-      let(:parent) { create(:twilight_struggle_tournament, server_configuration: create(:server_configuration), discord_channel_id: 999) }
-      let(:tournament) { create(:twilight_struggle_tournament, server_configuration:, parent:) }
+      let(:parent) { create(:twilight_struggle_tournament) }
+      let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+      let!(:parent_destination) { create(:twilight_struggle_destination, tournament: parent, server_configuration: create(:server_configuration), discord_channel_id: 999) }
 
       it "falls back to the plain help rather than leaking a channel name" do
         expect(html).to include("With no channel, nothing is posted")
@@ -75,8 +78,8 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
   end
 
   describe "the preview channel label" do
-    context "when the tournament has its own channel" do
-      let(:tournament) { create(:twilight_struggle_tournament, server_configuration:, discord_channel_id: 4242) }
+    context "when the destination has its own channel" do
+      let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, discord_channel_id: 4242) }
 
       it "shows it above the preview" do
         expect(html).to include("# results")

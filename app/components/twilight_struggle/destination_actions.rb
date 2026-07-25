@@ -1,24 +1,25 @@
 # frozen_string_literal: true
 
 class Components::TwilightStruggle::DestinationActions < Components::Base
-  include Phlex::Rails::Helpers::FormWith
-
-  def initialize(tournament:)
-    @tournament = tournament
+  def initialize(destination:, channel_label: nil)
+    @destination = destination
+    @channel_label = channel_label
   end
 
   def view_template
     div(class: "flex flex-none items-center gap-2") do
-      server_name
+      channel_span
       configure_link
-      release_form
+      unsubscribe_link
     end
   end
 
   private
 
-  def server_name
-    span(class: "text-sm text-text-secondary") { @tournament.server_configuration.name }
+  def channel_span
+    return unless @channel_label
+
+    span(class: "text-sm text-text-secondary") { @channel_label }
   end
 
   def configure_link
@@ -26,19 +27,17 @@ class Components::TwilightStruggle::DestinationActions < Components::Base
       variant: :secondary,
       size: :sm,
       label: t(".configure"),
-      href: edit_twilight_struggle_tournament_path(@tournament)
+      href: edit_server_twilight_struggle_destination_path(@destination.server_configuration.discord_id, @destination)
     )
   end
 
-  def release_form
-    form_with(url: twilight_struggle_tournament_claim_path(@tournament), method: :delete) do
-      render Components::Button.new(
-        variant: :ghost,
-        size: :sm,
-        type: "submit",
-        label: t(".release"),
-        data: {turbo_confirm: t(".release_confirm")}
-      )
-    end
+  def unsubscribe_link
+    render Components::Button.new(
+      variant: :ghost,
+      size: :sm,
+      label: t(".unsubscribe"),
+      href: server_twilight_struggle_destination_path(@destination.server_configuration.discord_id, @destination),
+      data: {turbo_method: :delete, turbo_confirm: t(".unsubscribe_confirm")}
+    )
   end
 end

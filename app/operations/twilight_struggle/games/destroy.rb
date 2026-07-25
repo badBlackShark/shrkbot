@@ -9,19 +9,10 @@ module Ops
         receives :game
 
         def call
-          channel_id = game.discord_channel_id
-          message_id = game.discord_message_id
+          locations = game.posted_messages.pluck(:discord_channel_id, :discord_message_id)
           game.destroy!
-          enqueue_delete_message(channel_id, message_id)
+          locations.each { |channel_id, message_id| ::TwilightStruggle::DeleteMessageJob.perform_later(channel_id, message_id) }
           ok
-        end
-
-        private
-
-        def enqueue_delete_message(channel_id, message_id)
-          return if channel_id.blank? || message_id.blank?
-
-          ::TwilightStruggle::DeleteMessageJob.perform_later(channel_id, message_id)
         end
       end
     end

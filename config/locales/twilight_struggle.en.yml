@@ -1,7 +1,6 @@
 ---
 en:
   twilight_struggle:
-    claimed: Tournament claimed.
     default_template:
       tie: "{tournament_name}: {game_id} - {usa_player} (USA) tied with {ussr_player}
         in {turn} ({winning_method})"
@@ -9,6 +8,3 @@ en:
       win: "{tournament_name}: {game_id} - {winning_player} ({winning_side}) has defeated
         {losing_player} in {turn} ({winning_method})"
     friendly_tournament_name: Friendly games
-    no_access: Twilight Struggle is not enabled for any server you manage.
-    released: Tournament released.
-    tournament_not_available: That tournament is not available to configure.

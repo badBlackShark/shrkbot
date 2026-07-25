@@ -100,7 +100,7 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
 
         game = TwilightStruggle::Game.find_by(external_id:)
         expect(game.attributes.keys).to match_array(
-          %w[id external_id tournament_id discord_channel_id discord_message_id created_at updated_at]
+          %w[id external_id tournament_id created_at updated_at]
         )
       end
     end
@@ -218,10 +218,14 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
       end
     end
 
-    context "with a successful upsert" do
-      it "enqueues a post job with the game and the submitted payload" do
-        expect { put_game }.to have_enqueued_job(TwilightStruggle::PostJob).with { |game, payload|
+    context "with a successful upsert and a server subscribed to the tournament" do
+      let(:server_configuration) { create(:server_configuration) }
+      let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:) }
+
+      it "enqueues a post job with the game, the subscribing server and the submitted payload" do
+        expect { put_game }.to have_enqueued_job(TwilightStruggle::PostJob).with { |game, server, payload|
           expect(game).to eq(TwilightStruggle::Game.find_by(external_id:))
+          expect(server).to eq(server_configuration)
           expect(payload).to eq(valid_result_attributes.merge(tournament_external_id: tournament.external_id).deep_stringify_keys)
         }
       end
@@ -270,8 +274,9 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
     end
 
     context "when the game has a posted Discord message" do
-      let!(:game) do
-        create(:twilight_struggle_game, external_id:, discord_channel_id: 222222222222222222, discord_message_id: 991)
+      let!(:game) { create(:twilight_struggle_game, external_id:) }
+      let!(:posted_message) do
+        create(:twilight_struggle_posted_message, game:, discord_channel_id: 222222222222222222, discord_message_id: 991)
       end
 
       it "enqueues a delete job for the posted message" do

@@ -159,8 +159,8 @@ rejected.
 the winning side/method/turn, and the video URLs are used once to build the
 Discord message and are then discarded — shrkbot does not store them. Only
 the game's own id, its tournament link, and (once posted) the Discord
-channel/message id of the posted result are kept. See the privacy policy for
-the full data inventory.
+channel/message id of each subscribing server's posted result are kept — one
+pair per server. See the privacy policy for the full data inventory.
 
 Response (`201` or `200`):
 
@@ -180,31 +180,35 @@ game `DELETE` removes the message.)
 
 ## Posting results to Discord
 
-A game `PUT` renders the result into a Discord message when the game's
-tournament, or any tournament above it in the parent chain, has a destination
-channel configured *and* the Twilight Struggle plugin is enabled on the server
-that owns that channel. Until both hold, the game is stored and nothing is
-posted; once they do, the next `PUT` for that game posts it.
+A game `PUT` fans out to every server subscribed to the game's tournament, or
+to any tournament above it in the parent chain — several servers may subscribe
+to the same tournament feed. For each subscribing server, the result renders
+into a Discord message when that server has a channel configured (on the
+tournament itself or inherited from an ancestor) *and* the Twilight Struggle
+plugin is enabled for that server. A server missing either is skipped; the
+others still get posted. One background job runs per subscribing server.
 
-Both are set up in shrkbot's dashboard, not through this API: the bot owner
-grants the plugin to a server, an admin of that server claims the tournament
-from `/twilight-struggle/tournaments`, then picks its channel and templates.
-Disabling the plugin stops every post for that server without losing any
-configuration.
+Subscribing and configuration happen in shrkbot's dashboard, not through this
+API: the bot owner grants the plugin to a server, an admin of that server
+subscribes to the tournament from `/servers/:server_id/twilight_struggle`, then
+picks the channel and templates for that server. Disabling the plugin stops
+every post for that server without losing any configuration; it has no effect
+on other subscribed servers.
 
-A repeat `PUT` for the same game re-renders the existing message in place
-rather than posting a new one. `DELETE /games/:external_id` also deletes the
-posted Discord message; `DELETE /tournaments/:external_id` never touches
-Discord.
+A repeat `PUT` for the same game re-renders each server's existing message in
+place rather than posting a new one, tracked per server. `DELETE
+/games/:external_id` deletes the posted Discord message in every subscribing
+server it went to; `DELETE /tournaments/:external_id` never touches Discord.
 
-Posting happens in a background job, so the response comes back without
-waiting on Discord and never carries a posting error — a `PUT` that answers
-`200`/`201` means the game was stored, not that the message is up yet. If
-Discord is unreachable or rate-limits us the job retries with backoff; if the
-destination channel is gone or the bot was kicked it gives up, because
-retrying cannot fix either. Nothing is reported back to you in that case.
+Posting happens in a background job per server, so the response comes back
+without waiting on Discord and never carries a posting error — a `PUT` that
+answers `200`/`201` means the game was stored, not that any message is up yet.
+If Discord is unreachable or rate-limits us that server's job retries with
+backoff; if the destination channel is gone or the bot was kicked for that
+server it gives up, because retrying cannot fix either — other servers'
+jobs are unaffected. Nothing is reported back to you in that case.
 
-The result payload lives only for as long as that job does. It is never
+The result payload lives only for as long as each job does. It is never
 written to the game record, so the only way to change a posted message is to
 send the game again.
 

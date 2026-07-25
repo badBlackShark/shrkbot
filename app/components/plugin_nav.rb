@@ -27,7 +27,7 @@ module Components::PluginNav
     when :spam_protection then server_spam_protection_path(server_id)
     when :image_scanning then server_image_scanning_path(server_id)
     when :lfg then server_lfg_path(server_id)
-    when :twilight_struggle then twilight_struggle_tournaments_path
+    when :twilight_struggle then server_twilight_struggle_path(server_id)
     end
   end
 end

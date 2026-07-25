@@ -26,7 +26,7 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
 
   def field
     textarea(
-      name: "tournament[template_#{@kind}]",
+      name: "destination[template_#{@kind}]",
       rows: 2,
       class: FIELD,
       placeholder: @placeholder,

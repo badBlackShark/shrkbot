@@ -41,9 +41,9 @@ ActiveRecordDoctor.configure do
       "lfg_messages.channel_id",
       "lfg_messages.notify_reply_id",
       "lfg_messages.start_ping_id",
-      "twilight_struggle_games.discord_channel_id",
-      "twilight_struggle_games.discord_message_id",
-      "twilight_struggle_tournaments.discord_channel_id"
+      "twilight_struggle_destinations.discord_channel_id",
+      "twilight_struggle_posted_messages.discord_channel_id",
+      "twilight_struggle_posted_messages.discord_message_id"
     ]
 
   # The unique index on external_id is partial (WHERE external_id IS NOT NULL) because

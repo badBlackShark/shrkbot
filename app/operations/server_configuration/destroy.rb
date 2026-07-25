@@ -7,18 +7,11 @@ module Ops
 
       def call
         purge_reminders
-        clear_twilight_struggle_destinations
         server_configuration.destroy!
         ok(server_configuration)
       end
 
       private
-
-      def clear_twilight_struggle_destinations
-        ::TwilightStruggle::Tournament
-          .where(server_configuration:)
-          .update_all(server_configuration_id: nil, discord_channel_id: nil)
-      end
 
       def purge_reminders
         reminders = ::Reminders::Reminder.where(server_id: server_configuration.discord_id)

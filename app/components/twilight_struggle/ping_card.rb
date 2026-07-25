@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Components::TwilightStruggle::PingCard < Components::Base
-  def initialize(tournament:, inherited:)
-    @tournament = tournament
+  def initialize(destination:, inherited:)
+    @destination = destination
     @inherited = inherited
   end
 
@@ -11,7 +11,7 @@ class Components::TwilightStruggle::PingCard < Components::Base
       p(class: "text-sm font-semibold") { t(".label") }
       p(class: "mb-3 mt-0.5 text-sm text-text-secondary") { t(".help") }
       render Components::SegmentedControl.new(
-        name: "tournament[ping_players]",
+        name: "destination[ping_players]",
         value: current,
         input_data: {twilight_struggle_preview_target: "ping"},
         options:
@@ -23,7 +23,7 @@ class Components::TwilightStruggle::PingCard < Components::Base
   private
 
   def parent
-    @tournament.parent
+    @inherited.inherited_from
   end
 
   def options
@@ -34,13 +34,13 @@ class Components::TwilightStruggle::PingCard < Components::Base
   end
 
   def current
-    return "" if parent && @tournament.ping_players.nil?
+    return "" if parent && @destination.ping_players.nil?
 
     resolved? ? "1" : "0"
   end
 
   def resolved?
-    return @tournament.ping_players unless @tournament.ping_players.nil?
+    return @destination.ping_players unless @destination.ping_players.nil?
 
     @inherited.ping_players?
   end

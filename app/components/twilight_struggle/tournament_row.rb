@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 class Components::TwilightStruggle::TournamentRow < Components::Base
-  def initialize(tournament:, servers:)
+  def initialize(tournament:, destination:, server_configuration:, channel_labels:)
     @tournament = tournament
-    @servers = servers
+    @destination = destination
+    @server_configuration = server_configuration
+    @channel_labels = channel_labels
   end
 
   def view_template
@@ -28,7 +30,7 @@ class Components::TwilightStruggle::TournamentRow < Components::Base
   def badges
     render Components::Badge.new(variant: :neutral) { t(".friendly") } if @tournament.friendly?
     render Components::Badge.new(variant: :neutral) { t(".closed") } if @tournament.closed_upstream?
-    render Components::Badge.new(variant: :warning) { t(".archived") } if @tournament.manually_archived?
+    render Components::Badge.new(variant: :warning) { t(".archived") } if @destination&.manually_archived?
   end
 
   def parent_line
@@ -38,10 +40,13 @@ class Components::TwilightStruggle::TournamentRow < Components::Base
   end
 
   def actions
-    if @tournament.claimed?
-      render Components::TwilightStruggle::DestinationActions.new(tournament: @tournament)
+    if @destination
+      render Components::TwilightStruggle::DestinationActions.new(
+        destination: @destination,
+        channel_label: @channel_labels[@destination.discord_channel_id]
+      )
     else
-      render Components::TwilightStruggle::ClaimForm.new(tournament: @tournament, servers: @servers)
+      render Components::TwilightStruggle::SubscribeButton.new(tournament: @tournament, server_configuration: @server_configuration)
     end
   end
 end

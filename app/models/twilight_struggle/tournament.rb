@@ -7,13 +7,9 @@ module TwilightStruggle
     CLOSED_STATUS = "closed"
 
     belongs_to :parent, class_name: "TwilightStruggle::Tournament", optional: true
-    belongs_to :server_configuration, optional: true
     has_many :children, class_name: "TwilightStruggle::Tournament", foreign_key: :parent_id, inverse_of: :parent, dependent: :destroy
-    has_many :games, class_name: "TwilightStruggle::Game", dependent: :delete_all
-
-    scope :unarchived, -> { where(archived_at: nil).where("status IS DISTINCT FROM ?", CLOSED_STATUS) }
-    scope :archived, -> { where.not(archived_at: nil).or(where(status: CLOSED_STATUS)) }
-    scope :unclaimed, -> { where(server_configuration_id: nil) }
+    has_many :games, class_name: "TwilightStruggle::Game", dependent: :destroy
+    has_many :destinations, class_name: "TwilightStruggle::Destination", dependent: :delete_all
 
     validates :name, presence: true
     validates :friendly, inclusion: {in: [true, false]}
@@ -22,20 +18,26 @@ module TwilightStruggle
     validates :external_id, absence: true, if: :friendly?
     validate :parent_chain_must_not_cycle
 
-    def archived?
-      manually_archived? || closed_upstream?
-    end
-
-    def manually_archived?
-      archived_at.present?
-    end
-
     def closed_upstream?
       status == CLOSED_STATUS
     end
 
-    def claimed?
-      server_configuration_id.present?
+    def chain
+      nodes = []
+      current = self
+
+      while current
+        nodes << current
+        current = current.parent
+      end
+
+      nodes
+    end
+
+    def subscribed_servers
+      ::ServerConfiguration.where(
+        id: Destination.where(tournament: chain).select(:server_configuration_id)
+      )
     end
 
     private

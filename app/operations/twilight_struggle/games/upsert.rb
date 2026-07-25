@@ -20,7 +20,15 @@ module Ops
         private
 
         def enqueue_post(record)
-          ::TwilightStruggle::PostJob.perform_later(record, payload)
+          servers = record.tournament.subscribed_servers.to_a
+
+          return log_no_subscribers(record) if servers.empty?
+
+          servers.each { |server| ::TwilightStruggle::PostJob.perform_later(record, server, payload) }
+        end
+
+        def log_no_subscribers(record)
+          Rails.logger.info { "#{self.class} did not post game #{record.external_id}: no server subscribes to #{record.tournament.name}." }
         end
 
         def friendly_tournament
