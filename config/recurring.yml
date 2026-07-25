@@ -19,3 +19,9 @@ production:
   moderation_phash_prune:
     command: "Ops::Moderation::Phashes::Prune.call"
     schedule: every day at 5am
+  clear_finished_twilight_struggle_posts:
+    command: "SolidQueue::Job.clear_finished_in_batches(class_name: \"TwilightStruggle::PostJob\", finished_before: Time.current)"
+    schedule: every hour at minute 27
+  clear_stale_twilight_struggle_post_failures:
+    command: "SolidQueue::FailedExecution.joins(:job).where(solid_queue_jobs: {class_name: \"TwilightStruggle::PostJob\"}).where(created_at: ...48.hours.ago).discard_all_in_batches"
+    schedule: every hour at minute 42

@@ -174,10 +174,6 @@ RSpec.describe "Api::TwilightStruggle::V1::Tournaments", type: :request do
     context "when the tournament exists" do
       let!(:tournament) { create(:twilight_struggle_tournament, external_id:) }
 
-      before do
-        allow(Bot::Discord::MessageApi).to receive(:delete)
-      end
-
       it "returns 204" do
         delete_tournament
 
@@ -186,12 +182,6 @@ RSpec.describe "Api::TwilightStruggle::V1::Tournaments", type: :request do
 
       it "deletes the row" do
         expect { delete_tournament }.to change(TwilightStruggle::Tournament, :count).by(-1)
-      end
-
-      it "does not contact Discord" do
-        delete_tournament
-
-        expect(Bot::Discord::MessageApi).not_to have_received(:delete)
       end
     end
 

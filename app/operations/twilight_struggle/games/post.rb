@@ -13,8 +13,6 @@ module Ops
 
           deliver
           ok(game)
-        rescue ::Bot::Discord::MessageApi::Error => error
-          failure(error.message)
         end
 
         private
@@ -46,9 +44,7 @@ module Ops
 
         def edit_posted
           edit_message(game.discord_channel_id, game.discord_message_id)
-        rescue ::Bot::Discord::MessageApi::Error => error
-          raise unless error.status == 404
-
+        rescue Discordrb::Errors::UnknownMessage
           create_new(config.channel_id)
         end
 
@@ -61,32 +57,23 @@ module Ops
         end
 
         def create_components(channel_id)
-          ::Bot::Discord::MessageApi.create(
+          ::Bot::Discord::Components.create_components_message(
             channel_id:,
-            body: components_body
+            rendered: message.rendered,
+            allowed_mentions: {parse: []}
           )
         end
 
         def create_mention_subject(channel_id)
-          ::Bot::Discord::MessageApi.create(
+          ::Bot::Discord::Components.create_message(
             channel_id:,
-            body: {
-              content: message.mention_ids.map { |id| "<@#{id}>" }.join(" "),
-              allowed_mentions: {parse: [], users: message.mention_ids}
-            }
+            content: message.mention_ids.map { |id| "<@#{id}>" }.join(" "),
+            allowed_mentions: {parse: [], users: message.mention_ids}
           )
         end
 
         def edit_message(channel_id, message_id)
-          ::Bot::Discord::MessageApi.edit(
-            channel_id:,
-            message_id:,
-            body: components_body
-          )
-        end
-
-        def components_body
-          message.rendered.merge(allowed_mentions: {parse: []})
+          ::Bot::Discord::Components.edit_components(channel_id, message_id, message.rendered)
         end
 
         def persist_location(channel_id, message_id)

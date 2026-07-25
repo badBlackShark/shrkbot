@@ -9,19 +9,19 @@ module Ops
         receives :game
 
         def call
-          delete_message
+          channel_id = game.discord_channel_id
+          message_id = game.discord_message_id
           game.destroy!
+          enqueue_delete_message(channel_id, message_id)
           ok
         end
 
         private
 
-        def delete_message
-          return if game.discord_channel_id.blank? || game.discord_message_id.blank?
+        def enqueue_delete_message(channel_id, message_id)
+          return if channel_id.blank? || message_id.blank?
 
-          ::Bot::Discord::MessageApi.delete(channel_id: game.discord_channel_id, message_id: game.discord_message_id)
-        rescue ::Bot::Discord::MessageApi::Error => error
-          Rails.logger.warn("[TwilightStruggle] message #{game.discord_message_id} not deleted: #{error.class}: #{error.message}")
+          ::TwilightStruggle::DeleteMessageJob.perform_later(channel_id, message_id)
         end
       end
     end

@@ -22,11 +22,11 @@ RSpec.describe Bot::Discord::Components do
 
     before do
       allow(Bot::Config).to receive(:token).and_return("tok")
-      allow(Discordrb::API::Channel).to receive(:create_message).and_return({id: 7}.to_json)
+      allow(Discordrb::API::Channel).to receive(:create_message).and_return({id: "7"}.to_json)
     end
 
     it "returns the created message's id" do
-      expect(create_message).to eq(7)
+      expect(create_message).to eq("7")
     end
 
     it "passes content and allowed_mentions through" do
@@ -34,7 +34,7 @@ RSpec.describe Bot::Discord::Components do
         expect(channel_id).to eq(20)
         expect(content).to eq("hello")
         expect(mentions).to eq(allowed_mentions)
-        {id: 7}.to_json
+        {id: "7"}.to_json
       end
       create_message
     end
@@ -42,7 +42,7 @@ RSpec.describe Bot::Discord::Components do
     it "omits the message_reference when reply_to_id is not given" do
       expect(Discordrb::API::Channel).to receive(:create_message) do |*args|
         expect(args[8]).to be_nil
-        {id: 7}.to_json
+        {id: "7"}.to_json
       end
       create_message
     end
@@ -53,9 +53,98 @@ RSpec.describe Bot::Discord::Components do
       it "sets message_reference to the replied-to message id" do
         expect(Discordrb::API::Channel).to receive(:create_message) do |*args|
           expect(args[8]).to eq({message_id: 500})
-          {id: 7}.to_json
+          {id: "7"}.to_json
         end
         create_message
+      end
+    end
+  end
+
+  describe ".create_components_message" do
+    subject(:create_components_message) { described_class.create_components_message(channel_id: 20, rendered:, allowed_mentions:) }
+
+    let(:rendered) { described_class.container([described_class.text("hello")]) }
+    let(:allowed_mentions) { {parse: []} }
+
+    before do
+      allow(Bot::Config).to receive(:rest_token).and_return("Bot tok")
+      allow(Discordrb::API::Channel).to receive(:create_message).and_return({id: "7"}.to_json)
+    end
+
+    it "returns the created message's id as a string" do
+      expect(create_components_message).to eq("7")
+    end
+
+    it "sends the rendered components and flags with no plain-text content" do
+      expect(Discordrb::API::Channel).to receive(:create_message) do |token, channel_id, message, _tts, _embeds, _nonce, _attachments, mentions, message_reference, components, flags|
+        expect(token).to eq("Bot tok")
+        expect(channel_id).to eq(20)
+        expect(message).to be_nil
+        expect(mentions).to eq(allowed_mentions)
+        expect(message_reference).to be_nil
+        expect(components).to eq(rendered[:components])
+        expect(flags).to eq(rendered[:flags])
+        {id: "7"}.to_json
+      end
+      create_components_message
+    end
+  end
+
+  describe ".edit_components" do
+    subject(:edit_components) { described_class.edit_components(20, 30, rendered) }
+
+    let(:rendered) { described_class.container([described_class.text("hello")]) }
+
+    before do
+      allow(Bot::Config).to receive(:rest_token).and_return("Bot tok")
+      allow(Discordrb::API::Channel).to receive(:edit_message)
+    end
+
+    it "edits the message with the rendered components, suppressing mention re-parsing" do
+      edit_components
+      expect(Discordrb::API::Channel).to have_received(:edit_message).with(
+        "Bot tok",
+        20,
+        30,
+        nil,
+        {parse: []},
+        nil,
+        rendered[:components],
+        rendered[:flags]
+      )
+    end
+
+    context "when the edit raises" do
+      before do
+        allow(Discordrb::API::Channel).to receive(:edit_message).and_raise(Discordrb::Errors::UnknownMessage.new("Unknown Message"))
+      end
+
+      it "propagates the error" do
+        expect { edit_components }.to raise_error(Discordrb::Errors::UnknownMessage)
+      end
+    end
+  end
+
+  describe ".delete_message" do
+    subject(:delete_message) { described_class.delete_message(20, 30) }
+
+    before do
+      allow(Bot::Config).to receive(:rest_token).and_return("Bot tok")
+      allow(Discordrb::API::Channel).to receive(:delete_message)
+    end
+
+    it "issues the delete against the given channel and message" do
+      delete_message
+      expect(Discordrb::API::Channel).to have_received(:delete_message).with("Bot tok", 20, 30)
+    end
+
+    context "when the delete raises" do
+      before do
+        allow(Discordrb::API::Channel).to receive(:delete_message).and_raise(Discordrb::Errors::UnknownMessage.new("Unknown Message"))
+      end
+
+      it "propagates the error" do
+        expect { delete_message }.to raise_error(Discordrb::Errors::UnknownMessage)
       end
     end
   end

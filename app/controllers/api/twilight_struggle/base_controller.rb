@@ -16,11 +16,11 @@ module Api
 
       private
 
-      def render_upsert(result, created:)
+      def render_upsert(result)
         return render_errors(result.errors) if result.failure?
 
         record = result.value
-        render json: {id: record.id, external_id: record.external_id}, status: created ? :created : :ok
+        render json: {id: record.id, external_id: record.external_id}, status: record.previously_new_record? ? :created : :ok
       end
 
       def render_errors(errors)

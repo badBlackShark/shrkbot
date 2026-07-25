@@ -186,11 +186,13 @@ rather than posting a new one. `DELETE /games/:external_id` also deletes the
 posted Discord message; `DELETE /tournaments/:external_id` never touches
 Discord.
 
-Posting happens inside the request that stores the game. If Discord rejects
-the message or is unreachable, the game is still stored and the response is
-still `200`/`201` — posting failures don't surface as API errors. Send the
-same `PUT` again to retry the post.
+Posting happens in a background job, so the response comes back without
+waiting on Discord and never carries a posting error — a `PUT` that answers
+`200`/`201` means the game was stored, not that the message is up yet. If
+Discord is unreachable or rate-limits us the job retries with backoff; if the
+destination channel is gone or the bot was kicked it gives up, because
+retrying cannot fix either. Nothing is reported back to you in that case.
 
-The result payload is rendered into the message and then discarded; it is
-never stored, so the only way to change a posted message is to send the game
-again.
+The result payload lives only for as long as that job does. It is never
+written to the game record, so the only way to change a posted message is to
+send the game again.

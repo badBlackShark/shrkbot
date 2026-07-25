@@ -661,17 +661,34 @@ recovering from a `RecordNotUnique` race via the table's partial unique index
 on `friendly`. A friendly tournament has no `external_id` — the model's
 check constraint requires `friendly` and `external_id IS NULL` to agree.
 
-**Posting runs synchronously, in the web process:** `discordrb` is loaded only
-by `bin/bot` and `bin/jobs` (see Processes above), so code running under Puma
-has no gateway connection and no discordrb objects to hand to the
-`Bot::Discord::Components` builders — those stay bot/job-only.
-`Ops::TwilightStruggle::Games::Post` instead talks to Discord through
-`Bot::Discord::MessageApi`, a small `Net::HTTP` REST client authenticated with
-the bot token, callable from any process. Posting happens inline in
-`Games#update` rather than through a background job because a job's arguments
-(the game, its report) would sit in Solid Queue's Postgres-backed job table —
-player names and the rest of the result payload would then be persisted, which
-the privacy policy promises they never are. Doing the
-Discord call in the request keeps player data out of storage entirely, at the
-cost of the request blocking on a Discord round-trip; a failed post is logged
-and the caller's later retry `PUT` re-attempts it.
+**Posting runs in a job, and the payload rides along in it.** `Games#update`
+enqueues `TwilightStruggle::PostJob` with the game and the raw result payload;
+the job builds a `GameReport` from it and hands both to
+`Ops::TwilightStruggle::Games::Post`. That op deliberately does not rescue
+Discord errors — they propagate so the job's `retry_on` sees them. Permanent
+failures (`UnknownChannel`, `NoPermission`, a deleted game) are `discard_on`ed
+instead, so they leave no failed-execution row.
+
+The alternative — posting inline in the request — was built first and rejected.
+It kept the result payload out of Postgres entirely, but bought that with no
+retry at all: a Discord blip lost the post silently, the site got a `200`, and
+nobody on either side learned the result never appeared. It also put a Discord
+round-trip (two, on the ping path) inside the caller's request latency. The
+privacy gain was close to zero, because the message we post publishes those
+same player names to a Discord channel permanently — that is the whole feature.
+Holding them in a job row for the seconds it takes to deliver is not the part
+worth optimising.
+
+What that costs, and how it is bounded: player names now sit in
+`solid_queue_jobs.arguments`. Solid Queue's global retention would keep a
+finished job for a day and a failed one for thirty, so `config/recurring.yml`
+sweeps `TwilightStruggle::PostJob` specifically — finished rows hourly,
+failed executions after 48 hours (a deliberate debugging window). Both numbers
+are stated in the privacy policy; changing either means changing that copy too.
+
+`Bot::Discord::Components` is the single Discord seam. Because the job runs in
+`bin/jobs`, which loads discordrb, there is no need for a separate HTTP client
+— an earlier `Bot::Discord::MessageApi` written for the web process was deleted
+when posting moved to the job. Note the split inside the seam:
+`edit_components` raises so callers that want retries get them, while
+`convert_to_v2` is the rescuing wrapper the fire-and-forget callers use.
