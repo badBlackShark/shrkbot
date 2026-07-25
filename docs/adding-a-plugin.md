@@ -92,6 +92,12 @@ before a child can enable. Both are folded into `prerequisites_met?` and backsto
 the `PluginActivation` validation. Example: the moderation group's sub-plugins set
 `parent: :moderation`, and `:moderation` sets `requires_plugin: :logging`.
 
+`bespoke: true` marks a plugin as bot-owner-granted: it's hidden from every server's
+dashboard and its guild commands aren't registered until the bot owner grants it to
+that server from the admin panel (`BespokePluginGrant`). The grant is folded into
+`prerequisites_met?` alongside the other checks, so the enable path is backstopped the
+same way as `requires_plugin:`/`parent:`.
+
 ## 4. Writes go through operations
 
 All settings writes and runtime mutations are operations under

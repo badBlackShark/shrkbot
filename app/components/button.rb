@@ -7,7 +7,8 @@ class Components::Button < Components::Base
     primary: "chamfer-cta bg-accent-fill text-white hover:bg-accent-fill-hover font-semibold",
     secondary: "rounded-control border border-border-strong bg-surface-card hover:bg-surface-sunken font-semibold",
     ghost: "rounded-control text-text-secondary hover:bg-surface-sunken font-semibold",
-    danger: "rounded-control bg-danger text-white hover:bg-danger/90 font-semibold"
+    danger: "rounded-control bg-danger text-white hover:bg-danger/90 font-semibold",
+    danger_outline: "rounded-control border border-danger text-danger hover:bg-danger-soft font-semibold"
   }.freeze
 
   SIZES = {

@@ -99,9 +99,35 @@ RSpec.describe Bot::GuildCommandSet do
       end
     end
 
+    context "plugin command for a bespoke plugin" do
+      include_context "with a bespoke plugin definition"
+
+      let(:bespoke_plugin) { create(:plugin, key: "bespoke_thing", name: "Bespoke Thing") }
+      let(:bespoke_cmd) { make_command(name: :bespoke, plugin_key: :bespoke_thing) }
+      let(:commands) { [bespoke_cmd] }
+
+      it "is excluded without a grant" do
+        expect(payloads).to be_empty
+      end
+
+      context "when the server has been granted the plugin and the activation is enabled" do
+        before do
+          create(:bespoke_plugin_grant, server_configuration: server, plugin_key: bespoke_definition.key)
+          create(:plugin_activation, server_configuration: server, plugin: bespoke_plugin, enabled: true)
+        end
+
+        it "is included" do
+          expect(payloads.map { |p| p[:name] }).to include(:bespoke)
+        end
+      end
+    end
+
     context "when there is no ServerConfiguration row" do
+      include_context "with a bespoke plugin definition"
+
       let(:discord_id) { 999_999_999 }
-      let(:commands) { [plugin_less_cmd, image_scanning_cmd] }
+      let(:bespoke_cmd) { make_command(name: :bespoke, plugin_key: :bespoke_thing) }
+      let(:commands) { [plugin_less_cmd, image_scanning_cmd, bespoke_cmd] }
 
       it "includes only plugin-less commands" do
         expect(payloads.map { |p| p[:name] }).to eq([:ping])

@@ -42,7 +42,7 @@ class Views::Accounts::Show < Views::Base
         account_path,
         method: :delete,
         data: {turbo_confirm: t(".confirm")},
-        class: "rounded-md border border-danger px-4 py-2 text-sm font-semibold text-danger transition-colors hover:bg-danger-soft"
+        class: Components::Button.css(variant: :danger_outline)
       ) { t(".button") }
     end
   end

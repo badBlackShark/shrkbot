@@ -3,6 +3,9 @@ en:
   accounts:
     deleted: Your account and all associated data have been deleted.
   admin:
+    bespoke_plugin_grants:
+      granted: Plugin granted.
+      revoked: Plugin revoked.
     owner_only: Only the bot owner can open that page.
     settings:
       dms_disabled: Error DMs disabled.
@@ -14,12 +17,23 @@ en:
     login_required: Please sign in to continue.
   components:
     admin:
+      bespoke_plugin_card:
+        all_granted: Every server already has this plugin.
+        grant: Grant
+        granted: Granted to
+        none: Not granted to any server yet.
+        placeholder: Choose a server
+      bespoke_plugin_grant_row:
+        confirm: Revoke this plugin? The server loses the page and its commands, and
+          the plugin is switched off.
+        revoke: Revoke
       owner_dm_card:
         description: Sends you a Discord DM when shrkbot hits an unexpected error.
         label: DM me on errors
     app_shell:
       account: Account
       add_server: Add another server
+      admin_bespoke_plugins: Bespoke plugins
       admin_settings: Admin settings
       log_out: Log out
       notifications: Notifications
@@ -516,6 +530,13 @@ en:
         subtitle: What shrkbot stores about you.
         title: Account
     admin:
+      bespoke_plugin_grants:
+        index:
+          empty_body: Bespoke plugins are hidden from every server until you grant
+            them here. None are built yet.
+          empty_title: No bespoke plugins yet
+          subtitle: Plugins you activate by hand, one server at a time.
+          title: Bespoke plugins
       settings:
         show:
           subtitle: Global settings for shrkbot's owner.
