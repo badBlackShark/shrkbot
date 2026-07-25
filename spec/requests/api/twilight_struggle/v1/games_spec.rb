@@ -24,6 +24,10 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
 
   describe "PUT /api/twilight-struggle/v1/games/:external_id" do
     subject(:put_game) do
+      put_again
+    end
+
+    def put_again
       put api_twilight_struggle_v1_game_path(external_id), params:, headers:, as: :json
     end
 
@@ -203,6 +207,124 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
         expect(response).to have_http_status(:unprocessable_content)
       end
     end
+
+    context "with a tournament that has a destination channel configured" do
+      let(:tournament) { create(:twilight_struggle_tournament, discord_channel_id: 555555555555555555) }
+
+      before do
+        allow(Bot::Discord::MessageApi).to receive(:create).and_return("991")
+        allow(Bot::Discord::MessageApi).to receive(:edit)
+      end
+
+      it "posts the rendered result to that channel" do
+        put_game
+
+        expect(Bot::Discord::MessageApi).to have_received(:create).with(channel_id: tournament.discord_channel_id, body: anything)
+      end
+
+      it "stores the posted message location on the game" do
+        put_game
+
+        game = TwilightStruggle::Game.find_by(external_id:)
+        expect(game.discord_channel_id).to eq(tournament.discord_channel_id)
+        expect(game.discord_message_id).to eq(991)
+      end
+
+      it "still returns 201 on the first PUT" do
+        put_game
+
+        expect(response).to have_http_status(:created)
+      end
+
+      it "returns 200 on a second PUT for the same game" do
+        put_game
+        put_again
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "edits the existing message instead of creating a new one on a second PUT" do
+        put_game
+        put_again
+
+        expect(Bot::Discord::MessageApi).to have_received(:edit).once
+        expect(Bot::Discord::MessageApi).to have_received(:create).once
+      end
+    end
+
+    context "with a bracket tournament inheriting its parent league's channel" do
+      let(:league) { create(:twilight_struggle_tournament, discord_channel_id: 444444444444444444) }
+      let(:tournament) { create(:twilight_struggle_tournament, parent: league) }
+
+      before do
+        allow(Bot::Discord::MessageApi).to receive(:create).and_return("991")
+      end
+
+      it "posts to the parent league's channel" do
+        put_game
+
+        expect(Bot::Discord::MessageApi).to have_received(:create).with(channel_id: league.discord_channel_id, body: anything)
+      end
+    end
+
+    context "when no tournament in the chain has a destination configured" do
+      before do
+        allow(Bot::Discord::MessageApi).to receive(:create)
+      end
+
+      it "does not contact Discord" do
+        put_game
+
+        expect(Bot::Discord::MessageApi).not_to have_received(:create)
+      end
+
+      it "still returns 201" do
+        put_game
+
+        expect(response).to have_http_status(:created)
+      end
+    end
+
+    context "when the upsert itself fails" do
+      before do
+        allow(Ops::TwilightStruggle::Games::Upsert).to receive(:call)
+          .and_return(Ops::ApplicationOperation::Result.new(false, nil, ["Tournament must exist"], []))
+        allow(Bot::Discord::MessageApi).to receive(:create)
+      end
+
+      it "returns 422 with the errors" do
+        put_game
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.parsed_body["errors"]).to eq(["Tournament must exist"])
+      end
+
+      it "does not post to Discord" do
+        put_game
+
+        expect(Bot::Discord::MessageApi).not_to have_received(:create)
+      end
+    end
+
+    context "when Discord rejects the post" do
+      let(:tournament) { create(:twilight_struggle_tournament, discord_channel_id: 333333333333333333) }
+
+      before do
+        allow(Bot::Discord::MessageApi).to receive(:create).and_raise(Bot::Discord::MessageApi::Error.new("boom"))
+      end
+
+      it "still returns 201" do
+        put_game
+
+        expect(response).to have_http_status(:created)
+      end
+
+      it "still stores the game row" do
+        put_game
+
+        expect(TwilightStruggle::Game.find_by(external_id:)).to be_present
+      end
+    end
   end
 
   describe "DELETE /api/twilight-struggle/v1/games/:external_id" do
@@ -213,6 +335,10 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
     context "when the game exists" do
       let!(:game) { create(:twilight_struggle_game, external_id:) }
 
+      before do
+        allow(Bot::Discord::MessageApi).to receive(:delete)
+      end
+
       it "returns 204" do
         delete_game
 
@@ -221,6 +347,34 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
 
       it "deletes the row" do
         expect { delete_game }.to change(TwilightStruggle::Game, :count).by(-1)
+      end
+
+      it "does not contact Discord for a game that was never posted" do
+        delete_game
+
+        expect(Bot::Discord::MessageApi).not_to have_received(:delete)
+      end
+    end
+
+    context "when the game has a posted Discord message" do
+      let!(:game) do
+        create(:twilight_struggle_game, external_id:, discord_channel_id: 222222222222222222, discord_message_id: 991)
+      end
+
+      before do
+        allow(Bot::Discord::MessageApi).to receive(:delete)
+      end
+
+      it "deletes the posted message" do
+        delete_game
+
+        expect(Bot::Discord::MessageApi).to have_received(:delete).with(channel_id: 222222222222222222, message_id: 991)
+      end
+
+      it "returns 204" do
+        delete_game
+
+        expect(response).to have_http_status(:no_content)
       end
     end
 

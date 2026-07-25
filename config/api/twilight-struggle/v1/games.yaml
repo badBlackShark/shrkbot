@@ -27,7 +27,7 @@ paths:
         "422":
           description: Validation failed
     delete:
-      summary: Delete a game and, once posting exists, its posted Discord message
+      summary: Delete a game and its posted Discord message
       responses:
         "204":
           description: Game deleted, or no such game

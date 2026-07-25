@@ -1,4 +1,12 @@
 ---
 en:
   twilight_struggle:
+    default_template:
+      with_video: |-
+        {result} - {turn}, {method}
+        Recording below.
+        -# {tournament} - {game_code} - {date}
+      without_video: |-
+        {result} - {turn}, {method}
+        -# {tournament} - {game_code} - {date}
     friendly_tournament_name: Friendly games

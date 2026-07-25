@@ -13,7 +13,7 @@ module Api
             parent:,
             status: params.dig(:tournament, :status)
           )
-          render_upsert(result)
+          render_upsert(result, created: result.value&.previously_new_record?)
         end
 
         def destroy

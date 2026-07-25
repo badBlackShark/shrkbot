@@ -80,8 +80,11 @@ en:
         target channel and server, whether to deliver by DM, and the due time - kept
         until delivered or deleted by you with /unremind.'
       data_twilight_struggle: 'Twilight Struggle integration: on servers using it,
-        the tournament names and identifiers supplied by twilight-struggle.com, and
-        references (channel and message IDs) to the messages we post about them.'
+        the tournament names and identifiers supplied by twilight-struggle.com, the
+        Discord server and channel chosen as a tournament''s destination, and the
+        message templates configured for it, plus references (channel and message
+        IDs) to the messages we post there. The result payload itself - player names,
+        flags, Discord IDs and dates - is rendered into that message and never stored.'
       data_welcomes: 'Welcome messages: on servers that use Discord''s membership
         screening, a short-lived in-memory note that a member has joined but not yet
         finished onboarding - the server ID and their Discord ID, nothing else. It
@@ -158,8 +161,10 @@ en:
         the bot. Global scam fingerprints set by the bot owner are retained indefinitely.'
       retention_reminders: 'Reminders: deleted once delivered, or earlier if you delete
         them.'
-      retention_twilight_struggle: Twilight Struggle integration data - kept until
-        the tournament is deleted through the integration.
+      retention_twilight_struggle: 'Twilight Struggle integration: tournament and
+        game data is kept until deleted through the integration. A tournament''s destination
+        server and channel are cleared the moment the bot is removed from that server,
+        independently of the tournament itself.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down.'

@@ -7,6 +7,7 @@ module TwilightStruggle
     CLOSED_STATUS = "closed"
 
     belongs_to :parent, class_name: "TwilightStruggle::Tournament", optional: true
+    belongs_to :server_configuration, optional: true
     has_many :children, class_name: "TwilightStruggle::Tournament", foreign_key: :parent_id, inverse_of: :parent, dependent: :destroy
     has_many :games, class_name: "TwilightStruggle::Game", dependent: :delete_all
 

@@ -660,3 +660,18 @@ one `TwilightStruggle::Tournament` row with `friendly: true`, creating it
 recovering from a `RecordNotUnique` race via the table's partial unique index
 on `friendly`. A friendly tournament has no `external_id` — the model's
 check constraint requires `friendly` and `external_id IS NULL` to agree.
+
+**Posting runs synchronously, in the web process:** `discordrb` is loaded only
+by `bin/bot` and `bin/jobs` (see Processes above), so code running under Puma
+has no gateway connection and no discordrb objects to hand to the
+`Bot::Discord::Components` builders — those stay bot/job-only.
+`Ops::TwilightStruggle::Games::Post` instead talks to Discord through
+`Bot::Discord::MessageApi`, a small `Net::HTTP` REST client authenticated with
+the bot token, callable from any process. Posting happens inline in
+`Games#update` rather than through a background job because a job's arguments
+(the game, its report) would sit in Solid Queue's Postgres-backed job table —
+player names and the rest of the result payload would then be persisted, which
+the privacy policy promises they never are. Doing the
+Discord call in the request keeps player data out of storage entirely, at the
+cost of the request blocking on a Discord round-trip; a failed post is logged
+and the caller's later retry `PUT` re-attempts it.

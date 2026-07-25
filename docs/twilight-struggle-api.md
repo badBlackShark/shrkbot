@@ -169,7 +169,28 @@ Response (`201` or `200`):
 
 ### `DELETE /games/:external_id`
 
-Idempotent — deleting an unknown id still returns `204`. Once result-posting
-is live, deleting a game also deletes the Discord message shrkbot posted for
-it, so a `DELETE` is the way to retract a published result. (Deleting the
-game's tournament does not — only a game `DELETE` removes the message.)
+Idempotent — deleting an unknown id still returns `204`. Deleting a game also
+deletes the Discord message shrkbot posted for it, so a `DELETE` is the way to
+retract a published result. (Deleting the game's tournament does not — only a
+game `DELETE` removes the message.)
+
+## Posting results to Discord
+
+A game `PUT` renders the result into a Discord message when the game's
+tournament, or any tournament above it in the parent chain, has a destination
+channel configured. Until a destination is configured, the game is stored and
+nothing is posted; once one is configured, the next `PUT` for that game posts it.
+
+A repeat `PUT` for the same game re-renders the existing message in place
+rather than posting a new one. `DELETE /games/:external_id` also deletes the
+posted Discord message; `DELETE /tournaments/:external_id` never touches
+Discord.
+
+Posting happens inside the request that stores the game. If Discord rejects
+the message or is unreachable, the game is still stored and the response is
+still `200`/`201` — posting failures don't surface as API errors. Send the
+same `PUT` again to retry the post.
+
+The result payload is rendered into the message and then discarded; it is
+never stored, so the only way to change a posted message is to send the game
+again.

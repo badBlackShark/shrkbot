@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_25_132816) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_25_143057) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -438,15 +438,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_132816) do
   create_table "twilight_struggle_tournaments", id: :string, default: -> { "('tst_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "archived_at"
     t.datetime "created_at", null: false
+    t.bigint "discord_channel_id"
     t.string "external_id"
     t.boolean "friendly", default: false, null: false
     t.string "name", null: false
     t.string "parent_id"
+    t.boolean "ping_players"
+    t.string "server_configuration_id"
     t.string "status"
+    t.text "template_with_video"
+    t.text "template_without_video"
     t.datetime "updated_at", null: false
     t.index ["external_id"], name: "index_twilight_struggle_tournaments_on_external_id", unique: true, where: "(external_id IS NOT NULL)"
     t.index ["friendly"], name: "index_twilight_struggle_tournaments_on_friendly", unique: true, where: "friendly"
     t.index ["parent_id"], name: "index_twilight_struggle_tournaments_on_parent_id"
+    t.index ["server_configuration_id"], name: "index_twilight_struggle_tournaments_on_server_configuration_id"
     t.check_constraint "friendly AND external_id IS NULL OR NOT friendly AND external_id IS NOT NULL", name: "twilight_struggle_tournaments_friendly_external_id_check"
   end
 
@@ -498,6 +504,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_132816) do
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "spam_protection_settings", "server_configurations"
   add_foreign_key "twilight_struggle_games", "twilight_struggle_tournaments", column: "tournament_id"
+  add_foreign_key "twilight_struggle_tournaments", "server_configurations"
   add_foreign_key "twilight_struggle_tournaments", "twilight_struggle_tournaments", column: "parent_id"
   add_foreign_key "welcome_settings", "server_configurations"
 end
