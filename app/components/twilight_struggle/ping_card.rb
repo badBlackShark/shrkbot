@@ -14,25 +14,42 @@ class Components::TwilightStruggle::PingCard < Components::Base
         name: "tournament[ping_players]",
         value: current,
         input_data: {twilight_struggle_preview_target: "ping"},
-        options: [
-          {value: "", label: t(".inherit")},
-          {value: "1", label: t(".mention")},
-          {value: "0", label: t(".names")}
-        ]
+        options:
       )
-      p(class: "mt-2 text-xs text-text-secondary") { t(".inherits_to", setting: inherited_label) }
+      inherit_note
     end
   end
 
   private
 
-  def current
-    return "" if @tournament.ping_players.nil?
-
-    @tournament.ping_players ? "1" : "0"
+  def parent
+    @tournament.parent
   end
 
-  def inherited_label
-    @inherited.ping_players? ? t(".mention") : t(".names")
+  def options
+    choices = [{value: "1", label: t(".show")}, {value: "0", label: t(".hide")}]
+    return choices unless parent
+
+    [{value: "", label: t(".inherit")}, *choices]
+  end
+
+  def current
+    return "" if parent && @tournament.ping_players.nil?
+
+    resolved? ? "1" : "0"
+  end
+
+  def resolved?
+    return @tournament.ping_players unless @tournament.ping_players.nil?
+
+    @inherited.ping_players?
+  end
+
+  def inherit_note
+    return unless parent
+
+    p(class: "mt-2 text-xs text-text-secondary") do
+      t(".inherits_from", parent: parent.name, setting: @inherited.ping_players? ? t(".show") : t(".hide"))
+    end
   end
 end

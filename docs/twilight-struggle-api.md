@@ -145,7 +145,7 @@ Each player (`usa`, `ussr`) is an object:
 | --- | --- | --- | --- |
 | `name` | string | yes | Max 100 characters. |
 | `flag` | string | no | Max 8 characters — meant for a flag emoji. |
-| `discord_id` | string | no | The player's Discord user ID, as a string (snowflakes exceed JSON's safe integer range). If sent, we may render their name as a Discord mention in the posted result; we never store it. |
+| `discord_id` | string | no | The player's Discord user ID, as a string (snowflakes exceed JSON's safe integer range). If sent, we may show their Discord tag alongside their name in the posted result; we never store it. |
 
 **Friendly games:** omit `tournament_external_id` entirely and the game is
 grouped under shrkbot's internal "Friendly games" tournament instead of being
@@ -232,11 +232,16 @@ alone, so a stray brace renders literally rather than breaking the message.
 | `{winning_player}` / `{losing_player}` | name and flag; empty on a tie |
 | `{winning_side}` / `{losing_side}` | `USA` or `USSR`; empty on a tie |
 | `{usa_player}` / `{ussr_player}` | name and flag for that side |
-| `{usa_name}` / `{ussr_name}` / `{winning_name}` / `{losing_name}` | name only |
+| `{usa_name}` / `{ussr_name}` / `{winning_name}` / `{losing_name}` | name, no flag |
 | `{usa_flag}` / `{ussr_flag}` / `{winning_flag}` / `{losing_flag}` | flag only |
 | `{videos}` | the video URLs, space separated |
 
-A tournament can be set to mention its players instead of naming them, in
-which case the player tokens render as Discord mentions for anyone whose
-`discord_id` you sent, falling back to their name. Only those two ids can ever
-notify anyone — a player named `@everyone` cannot ping the server.
+A tournament can be set to show Discord tags. Then every token that carries a
+player's name also carries their tag in brackets after it — `Alice 🇺🇸 (@alice)`
+— for anyone whose `discord_id` you sent; players without one just get their
+name. The name is never replaced, so a snowflake that has gone stale, or a
+player who has left the server, still reads correctly.
+
+**No posted message ever notifies anyone.** Tags identify a player and link to
+their profile; they do not ping. A player named `@everyone` cannot ping the
+server either.

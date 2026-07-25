@@ -18,9 +18,5 @@ module TwilightStruggle
     def to_s
       name
     end
-
-    def to_ping
-      discord_id.present? ? "<@#{discord_id}>" : name
-    end
   end
 end

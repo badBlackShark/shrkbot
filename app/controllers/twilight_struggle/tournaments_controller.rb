@@ -19,6 +19,7 @@ class TwilightStruggle::TournamentsController < ApplicationController
     render Views::TwilightStruggle::Tournaments::Edit.new(
       user: current_user,
       tournament: @tournament,
+      tournaments: tournament_list.configurable,
       enabled: plugin_enabled?
     )
   end

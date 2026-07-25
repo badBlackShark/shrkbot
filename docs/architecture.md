@@ -706,7 +706,10 @@ The shape is entirely template-driven, three templates per tournament
 `template_tie`, and `template_video`. A game with a video always uses the video
 template, which is deliberately spoiler-free — both players and the link, no
 winner, turn or method. `TwilightStruggle::Message` renders the chosen template
-through `TemplateText` and exposes `content` plus `mention_ids`; the token list
-lives in `docs/twilight-struggle-api.md`. Every send passes
-`allowed_mentions: {parse: [], users: mention_ids}`, so a player named
-`@everyone` cannot ping the server and only the two players' ids can notify.
+through `TemplateText` and exposes `content`; the token list lives in
+`docs/twilight-struggle-api.md`. A tournament can opt into Discord tags, which
+append `(<@id>)` after a player's name and flag rather than replacing the name —
+a stale snowflake or a departed player still leaves something readable. Every
+send passes `allowed_mentions: {parse: []}`, so no message ever notifies anyone:
+the tags are there to identify a player, not to ping them, and a player named
+`@everyone` cannot ping the server.

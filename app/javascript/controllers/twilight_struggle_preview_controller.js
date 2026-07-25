@@ -4,8 +4,8 @@ const GAMES = {
   win: {
     tournament: "OTSL 2026 - Season 8",
     code: "G372",
-    usa: { name: "M B", flag: "🇵🇱", id: "1" },
-    ussr: { name: "L S", flag: "🇦🇷", id: "2" },
+    usa: { name: "Michał Bąk", flag: "🇵🇱", handle: "michal" },
+    ussr: { name: "Lucas Sosa", flag: "🇦🇷" },
     winner: "usa",
     turn: "Turn 7",
     method: "VP Track (+20)",
@@ -14,8 +14,8 @@ const GAMES = {
   tie: {
     tournament: "RATS Cup 2026",
     code: "C204",
-    usa: { name: "M N", flag: "🇦🇩", id: "1" },
-    ussr: { name: "D C", flag: "🇰🇷", id: "2" },
+    usa: { name: "Marc Naudi", flag: "🇦🇩", handle: "marc" },
+    ussr: { name: "Ji-woo Han", flag: "🇰🇷" },
     winner: null,
     turn: "Turn 10",
     method: "Wargames",
@@ -24,8 +24,8 @@ const GAMES = {
   video: {
     tournament: "OTSL 2026 - Season 8",
     code: "S378",
-    usa: { name: "T B", flag: "🇵🇱", id: "1" },
-    ussr: { name: "A S", flag: "🇸🇪", id: "2" },
+    usa: { name: "Tomasz Borowski", flag: "🇵🇱", handle: "tomasz" },
+    ussr: { name: "Astrid Lindqvist", flag: "🇸🇪" },
     winner: null,
     turn: "Turn 4",
     method: "DEFCON",
@@ -34,6 +34,7 @@ const GAMES = {
 }
 
 const SIDES = { usa: "USA", ussr: "USSR" }
+const TOKEN = /\{(\w+)\}/g
 
 export default class extends Controller {
   static targets = [
@@ -54,19 +55,55 @@ export default class extends Controller {
 
   paint(input, output, game) {
     const template = input.value.trim() || input.placeholder
+    output.replaceChildren()
 
     if (!template) {
-      output.textContent = output.dataset.emptyHint
-      output.classList.add("discord-empty-hint")
+      output.append(this.hint(output.dataset.emptyHint))
       return
     }
 
-    output.classList.remove("discord-empty-hint")
-    output.textContent = this.fill(template, this.tokens(game))
+    for (const node of this.nodes(template, this.tokens(game))) output.append(node)
   }
 
-  fill(template, tokens) {
-    return template.replace(/\{(\w+)\}/g, (match, name) => (name in tokens ? tokens[name] : match))
+  nodes(template, tokens) {
+    const out = []
+    let last = 0
+    let match
+
+    TOKEN.lastIndex = 0
+    while ((match = TOKEN.exec(template))) {
+      if (match.index > last) out.push(this.text(template.slice(last, match.index)))
+      out.push(...this.tokenNodes(match[0], tokens[match[1]]))
+      last = TOKEN.lastIndex
+    }
+    if (last < template.length) out.push(this.text(template.slice(last)))
+
+    return out
+  }
+
+  tokenNodes(literal, value) {
+    if (value === undefined) return [this.text(literal)]
+    if (typeof value === "string") return [this.text(value)]
+
+    return [this.text(`${value.text} (`), this.pill(`@${value.handle}`), this.text(")")]
+  }
+
+  text(value) {
+    return document.createTextNode(value)
+  }
+
+  pill(value) {
+    const span = document.createElement("span")
+    span.className = "discord-mention"
+    span.textContent = value
+    return span
+  }
+
+  hint(value) {
+    const span = document.createElement("span")
+    span.className = "discord-empty-hint"
+    span.textContent = value
+    return span
   }
 
   tokens(game) {
@@ -97,18 +134,22 @@ export default class extends Controller {
   }
 
   player(person) {
-    if (!person) return ""
-
-    return [this.name(person), person.flag].filter(Boolean).join(" ")
+    return this.tagged(person, [person?.name, person?.flag])
   }
 
   name(person) {
-    if (!person) return ""
-
-    return this.pings ? `@${person.name}` : person.name
+    return this.tagged(person, [person?.name])
   }
 
-  get pings() {
+  tagged(person, parts) {
+    const text = parts.filter(Boolean).join(" ")
+    if (!text) return ""
+    if (!this.tags || !person.handle) return text
+
+    return { text, handle: person.handle }
+  }
+
+  get tags() {
     return this.hasPingTarget && this.pingTarget.value === "1"
   }
 }

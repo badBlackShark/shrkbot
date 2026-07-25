@@ -5,10 +5,11 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
     "font-mono text-sm text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
     "focus:ring-3 focus:ring-[var(--focus-ring)]"
 
-  def initialize(kind:, value:, placeholder:)
+  def initialize(kind:, value:, placeholder:, channel:)
     @kind = kind
     @value = value
     @placeholder = placeholder
+    @channel = channel
   end
 
   def view_template
@@ -16,7 +17,8 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
       label(class: "block text-sm font-semibold") { t(".#{@kind}.label") }
       p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".#{@kind}.help") }
       field
-      p(class: "mt-1.5 text-xs text-text-secondary") { t(".inherit") }
+      p(class: "mb-3 mt-1.5 text-xs text-text-secondary") { t(".inherit") }
+      preview
     end
   end
 
@@ -30,5 +32,13 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
       placeholder: @placeholder,
       data: {twilight_struggle_preview_target: "#{@kind}Template"}
     ) { @value }
+  end
+
+  def preview
+    render Components::DiscordMessagePreview.new(
+      label: t(".preview"),
+      channel: @channel,
+      messages: [{body_data: {twilight_struggle_preview_target: "#{@kind}Output", empty_hint: t(".empty")}}]
+    )
   end
 end

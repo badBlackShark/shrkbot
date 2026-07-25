@@ -45,6 +45,14 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
   end
 
   context "when no destination channel is configured anywhere in the chain" do
+    it "logs which gate stopped it, since the job would otherwise finish silently" do
+      allow(Rails.logger).to receive(:info)
+      result
+      expect(Rails.logger).to have_received(:info) do |&block|
+        expect(block.call).to include("no destination channel")
+      end
+    end
+
     it "does not touch the Discord API" do
       result
       expect(Bot::Discord::Components).not_to have_received(:create_message)
@@ -64,6 +72,14 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
   context "when a channel is configured but the plugin is disabled on the destination server" do
     let(:tournament) { create(:twilight_struggle_tournament, discord_channel_id: "555", server_configuration: destination) }
     let!(:activation) { create(:plugin_activation, server_configuration: destination, plugin: twilight_struggle_plugin, enabled: false) }
+
+    it "names the disabled plugin as the reason" do
+      allow(Rails.logger).to receive(:info)
+      result
+      expect(Rails.logger).to have_received(:info) do |&block|
+        expect(block.call).to include("plugin is disabled")
+      end
+    end
 
     it "does not touch the Discord API" do
       result
@@ -90,6 +106,14 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
     it "creates in that channel" do
       result
       expect(created_messages.first[:channel_id]).to eq(555)
+    end
+
+    it "logs where it landed, so a live post can be traced" do
+      allow(Rails.logger).to receive(:info)
+      result
+      expect(Rails.logger).to have_received(:info) do |&block|
+        expect(block.call).to include("posted game").and include("999").and include("555")
+      end
     end
 
     it "persists the channel and message ids on the game" do
@@ -228,16 +252,20 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
     end
   end
 
-  context "pings" do
+  context "discord tags" do
     let(:tournament) { create(:twilight_struggle_tournament, discord_channel_id: "555", server_configuration: destination, ping_players:) }
 
-    context "when ping_players is false" do
+    context "when tags are off" do
       let(:ping_players) { false }
 
-      it "creates a single message with locked-down mentions" do
+      it "creates a single message" do
         result
         expect(created_messages.size).to eq(1)
-        expect(created_messages.first[:allowed_mentions]).to eq({parse: [], users: []})
+      end
+
+      it "renders plain names" do
+        result
+        expect(created_messages.first[:content]).not_to include("<@")
       end
 
       it "does not call edit" do
@@ -246,13 +274,17 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
       end
     end
 
-    context "when ping_players is true" do
+    context "when tags are on" do
       let(:ping_players) { true }
 
-      it "creates a single message carrying both mentions" do
+      it "renders each tag next to the name it belongs to" do
         result
-        created = created_messages.first
-        expect(created[:allowed_mentions]).to eq({parse: [], users: %w[111 222]})
+        expect(created_messages.first[:content]).to include("Alice 🇺🇸 (<@111>)").and include("Bob 🇷🇺 (<@222>)")
+      end
+
+      it "still notifies nobody" do
+        result
+        expect(created_messages.first[:allowed_mentions]).to eq({parse: []})
       end
     end
   end

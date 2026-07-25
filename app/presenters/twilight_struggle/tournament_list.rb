@@ -14,6 +14,10 @@ module TwilightStruggle
       scope.where(server_configuration: @server_configurations).or(scope.unclaimed)
     end
 
+    def configurable
+      all.where.not(server_configuration_id: nil)
+    end
+
     private
 
     def scope

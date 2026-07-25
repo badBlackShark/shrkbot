@@ -16,12 +16,6 @@ module TwilightStruggle
       TemplateText.render(@template, tokens)
     end
 
-    def mention_ids
-      return [] unless @ping_players
-
-      [@report.usa.discord_id, @report.ussr.discord_id].compact
-    end
-
     private
 
     def tokens
@@ -51,13 +45,19 @@ module TwilightStruggle
     def render_player(player)
       return "" if player.nil?
 
-      [render_name(player), flag_of(player)].compact_blank.join(" ")
+      [player.name, flag_of(player), mention_of(player)].compact_blank.join(" ")
     end
 
     def render_name(player)
       return "" if player.nil?
 
-      @ping_players ? player.to_ping : player.to_s
+      [player.name, mention_of(player)].compact_blank.join(" ")
+    end
+
+    def mention_of(player)
+      return "" unless @ping_players && player.discord_id.present?
+
+      "(<@#{player.discord_id}>)"
     end
 
     def flag_of(player)

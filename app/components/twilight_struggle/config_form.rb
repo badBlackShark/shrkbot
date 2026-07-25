@@ -12,10 +12,9 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
     div(id: "twilight_struggle-config", class: "flex flex-col gap-5", data: {controller: "twilight-struggle-preview", action: "input->twilight-struggle-preview#render"}) do
       enable_error_callout
       channel_card
-      TEMPLATES.each { |kind| template_card(kind) }
-      render Components::TwilightStruggle::TokenHelpCard.new
-      render Components::TwilightStruggle::MessagePreview.new(channel: channel_label)
       render Components::TwilightStruggle::PingCard.new(tournament: @tournament, inherited:)
+      render Components::TwilightStruggle::TokenHelpCard.new
+      TEMPLATES.each { |kind| template_card(kind) }
       archive_card
     end
   end
@@ -48,7 +47,8 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
     render Components::TwilightStruggle::TemplateCard.new(
       kind:,
       value: @tournament.public_send(:"template_#{kind}"),
-      placeholder: inherited.public_send(:"template_#{kind}")
+      placeholder: inherited.public_send(:"template_#{kind}"),
+      channel: channel_label
     )
   end
 

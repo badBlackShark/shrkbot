@@ -465,24 +465,21 @@ en:
         release: Release
         release_confirm: Release this tournament? Its channel is cleared and any server
           can claim it next. Results already posted stay up.
-      message_preview:
-        empty: Nothing would be posted.
-        label: Live preview
-        tie: Tie
-        video: With a video
-        win: Decided game
       ping_card:
-        help: Whether players are mentioned or written out by name. A mention only
-          works for players whose Discord ID twilight-struggle.com sends with the
-          result; everyone else falls back to their name either way.
+        help: Adds a player's Discord tag in brackets after their name, for players
+          whose Discord ID twilight-struggle.com sends with the result. Everyone else
+          just gets their name. Tags never notify anyone - they are there so you can
+          see who a result belongs to, and they survive a player leaving the server.
+        hide: Name only
         inherit: Inherit
-        inherits_to: 'Inherited setting: %{setting}.'
-        label: Player names
-        mention: Mention
-        names: Names
+        inherits_from: "%{parent} is set to %{setting}."
+        label: Discord tags
+        show: Name and tag
       template_card:
+        empty: Nothing would be posted.
         inherit: Leave empty to inherit from the tournament above, or to use the default
           shown.
+        preview: Live preview
         tie:
           help: Used when the game ended in a tie.
           label: Tie
@@ -522,6 +519,9 @@ en:
         archived: Archived
         closed: Closed
         friendly: Friendlies
+        under: Part of %{parent}
+      tournament_switcher:
+        label: Switch tournament
         under: Part of %{parent}
     version_badge:
       label: shrkbot %{version} release notes

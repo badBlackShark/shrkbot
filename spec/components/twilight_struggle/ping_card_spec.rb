@@ -9,42 +9,55 @@ RSpec.describe Components::TwilightStruggle::PingCard do
   let(:tournament) { create(:twilight_struggle_tournament) }
   let(:inherited) { TwilightStruggle::EffectiveConfig.new(tournament.parent) }
 
-  it "offers all three states" do
-    expect(html).to include("Inherit").and include("Mention").and include("Names")
+  context "when the tournament has no parent" do
+    it "offers only the two real choices, since there is nothing to inherit from" do
+      expect(html).to include("Name and tag").and include("Name only")
+      expect(html).not_to include("Inherit")
+    end
+
+    it "defaults to name only" do
+      expect(html).to include('value="0" data-segmented-target="input"')
+    end
+
+    it "does not claim anything is inherited" do
+      expect(html).not_to include("is set to")
+    end
+
+    context "when tags are switched on" do
+      let(:tournament) { create(:twilight_struggle_tournament, ping_players: true) }
+
+      it "selects name and tag" do
+        expect(html).to include('value="1" data-segmented-target="input"')
+      end
+    end
   end
 
-  context "when the tournament sets no preference" do
-    it "leaves the control on inherit" do
+  context "when the tournament hangs under a parent" do
+    let(:parent) { create(:twilight_struggle_tournament, name: "OTSL 2026", ping_players: true) }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+    it "offers inherit as well" do
+      expect(html).to include("Inherit")
+    end
+
+    it "starts on inherit while the tournament sets nothing" do
       expect(html).to include('value="" data-segmented-target="input"')
     end
 
-    it "spells out what inherit currently resolves to" do
-      expect(html).to include("Inherited setting: Names.")
+    it "names the parent and what it resolves to" do
+      expect(html).to include("OTSL 2026 is set to Name and tag.")
     end
-  end
 
-  context "when the tournament mentions players" do
-    let(:tournament) { create(:twilight_struggle_tournament, ping_players: true) }
+    context "when the tournament overrides the parent" do
+      let(:tournament) { create(:twilight_struggle_tournament, parent:, ping_players: false) }
 
-    it "selects mention" do
-      expect(html).to include('value="1" data-segmented-target="input"')
-    end
-  end
+      it "selects the override" do
+        expect(html).to include('value="0" data-segmented-target="input"')
+      end
 
-  context "when the tournament uses names" do
-    let(:tournament) { create(:twilight_struggle_tournament, ping_players: false) }
-
-    it "selects names" do
-      expect(html).to include('value="0" data-segmented-target="input"')
-    end
-  end
-
-  context "when a parent tournament mentions players" do
-    let(:parent) { create(:twilight_struggle_tournament, ping_players: true) }
-    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
-
-    it "says inherit resolves to mention" do
-      expect(html).to include("Inherited setting: Mention.")
+      it "still names what inherit would give" do
+        expect(html).to include("OTSL 2026 is set to Name and tag.")
+      end
     end
   end
 end

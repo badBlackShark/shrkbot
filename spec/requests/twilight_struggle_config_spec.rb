@@ -263,6 +263,29 @@ RSpec.describe "Twilight Struggle config", type: :request do
         expect(response.body).to include(I18n.t("twilight_struggle.default_template.win"))
       end
 
+      it "gives each template its own preview, so you see a change without scrolling" do
+        get edit_twilight_struggle_tournament_path(tournament)
+        expect(response.body.scan("twilight-struggle-preview-target=\"winOutput\"").size).to eq(1)
+        expect(response.body.scan("twilight-struggle-preview-target=\"tieOutput\"").size).to eq(1)
+        expect(response.body.scan("twilight-struggle-preview-target=\"videoOutput\"").size).to eq(1)
+      end
+
+      context "with another tournament to jump to" do
+        let!(:sibling) { create(:twilight_struggle_tournament, name: "RATS Cup 2026", server_configuration: config) }
+
+        it "offers it in the switcher" do
+          get edit_twilight_struggle_tournament_path(tournament)
+          expect(response.body).to include(edit_twilight_struggle_tournament_path(sibling))
+          expect(response.body).to include("RATS Cup 2026")
+        end
+
+        it "leaves an unclaimed tournament out of the switcher" do
+          unclaimed = create(:twilight_struggle_tournament, name: "Nobody's Cup")
+          get edit_twilight_struggle_tournament_path(tournament)
+          expect(response.body).not_to include(edit_twilight_struggle_tournament_path(unclaimed))
+        end
+      end
+
       it "renders the plugin sidebar with Twilight Struggle active" do
         get edit_twilight_struggle_tournament_path(tournament)
         expect(response.body).to include("plugin-sidebar")
