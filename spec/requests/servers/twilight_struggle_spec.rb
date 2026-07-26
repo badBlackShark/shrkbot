@@ -301,6 +301,34 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           expect(response).to redirect_to(edit_server_twilight_struggle_destination_path(guild.id, tournament))
         end
 
+        context "when Turbo submits the form" do
+          subject(:save_settings) do
+            patch server_twilight_struggle_destination_path(guild.id, tournament), params: {destination: attributes}, **turbo
+          end
+
+          it "replaces the form and the sidebar in place" do
+            save_settings
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to include("twilight_struggle-config")
+            expect(response.body).to include("plugin-sidebar")
+          end
+
+          it "saves the settings" do
+            save_settings
+            expect(destination.reload.discord_channel_id).to eq(4242)
+          end
+
+          context "with the subscription toggle switched off" do
+            let(:attributes) { super().merge(subscribed: "0") }
+
+            it "unsubscribes without erroring on the re-render" do
+              save_settings
+              expect(response).to have_http_status(:ok)
+              expect(TwilightStruggle::Destination.exists?(destination.id)).to be(false)
+            end
+          end
+        end
+
         context "when the channel belongs to a different guild" do
           let(:attributes) { super().merge(discord_channel_id: "9999") }
 
