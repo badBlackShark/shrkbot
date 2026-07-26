@@ -458,9 +458,10 @@ en:
           label: Results channel
       destination_actions:
         configure: Configure
+        subscribe: Subscribe
         unsubscribe: Unsubscribe
-        unsubscribe_confirm: Stop posting this tournament's results here? Results
-          already posted stay up.
+        unsubscribe_confirm: Stop posting this tournament's results here? Its channel
+          and message wording are discarded. Results already posted stay up.
       ping_card:
         help: Adds a player's Discord tag in brackets after their name, for players
           whose Discord ID twilight-struggle.com sends with the result. Everyone else
@@ -471,8 +472,6 @@ en:
         inherits_from: "%{parent} is set to %{setting}."
         label: Discord tags
         show: Name and tag
-      subscribe_button:
-        subscribe: Subscribe
       template_card:
         empty: Nothing would be posted.
         inherit: Pre-filled with what this tournament would use anyway, so you can
@@ -591,7 +590,6 @@ en:
     spam_protection:
       saved: Cross-Channel Spam Guard settings saved.
     twilight_struggle:
-      destination_not_found: That destination isn't set up for this server.
       saved: Twilight Struggle settings saved.
       subscribed: Subscribed. Configure where and how results post below.
       unsubscribed: Unsubscribed. Results already posted stay up.
@@ -776,10 +774,12 @@ en:
         destinations:
           edit:
             description: Where this server posts this tournament's results and how
-              they read. The toggle is server-wide - turning it off stops every Twilight
-              Struggle post in this server, without losing what you set up here.
-            gate_message: Enable Twilight Struggle to give this destination a channel
-              and its own message wording.
+              they read. You can set all of it up before subscribing.
+            prereq_gate_cta: Open Twilight Struggle
+            prereq_gate_message: Twilight Struggle is switched off for this server,
+              so nothing is posted anywhere yet.
+            prereq_gate_title: The plugin is disabled
+            subscribe: Post %{tournament} results in this server
             title: Twilight Struggle
             tournaments: Tournaments
         show:
@@ -789,6 +789,7 @@ en:
           empty_body: twilight-struggle.com has not sent us any tournaments yet. They
             appear here as soon as it does.
           empty_title: No tournaments yet
+          gate_message: Enable Twilight Struggle to subscribe this server to tournaments.
           title: Twilight Struggle
       welcomes:
         show:

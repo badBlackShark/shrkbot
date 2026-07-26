@@ -1,25 +1,29 @@
 # frozen_string_literal: true
 
 class Components::TwilightStruggle::DestinationActions < Components::Base
-  def initialize(destination:, channel_label: nil)
+  ACTION_WIDTH = "min-w-28"
+
+  def initialize(tournament:, destination:, server_configuration:, channel_label: nil)
+    @tournament = tournament
     @destination = destination
+    @server_configuration = server_configuration
     @channel_label = channel_label
   end
 
   def view_template
     div(class: "flex flex-none items-center gap-2") do
-      channel_span
+      channel_chip
       configure_link
-      unsubscribe_link
+      @destination ? unsubscribe_link : subscribe_link
     end
   end
 
   private
 
-  def channel_span
+  def channel_chip
     return unless @channel_label
 
-    span(class: "text-sm text-text-secondary") { @channel_label }
+    render Components::ChannelChip.new(label: @channel_label)
   end
 
   def configure_link
@@ -27,16 +31,27 @@ class Components::TwilightStruggle::DestinationActions < Components::Base
       variant: :secondary,
       size: :sm,
       label: t(".configure"),
-      href: edit_server_twilight_struggle_destination_path(@destination.server_configuration.discord_id, @destination)
+      href: edit_server_twilight_struggle_destination_path(@server_configuration.discord_id, @tournament)
+    )
+  end
+
+  def subscribe_link
+    render Components::Button.new(
+      size: :sm,
+      class: ACTION_WIDTH,
+      label: t(".subscribe"),
+      href: server_twilight_struggle_destinations_path(@server_configuration.discord_id, tournament_id: @tournament.id),
+      data: {turbo_method: :post}
     )
   end
 
   def unsubscribe_link
     render Components::Button.new(
-      variant: :ghost,
+      variant: :danger_outline,
       size: :sm,
+      class: ACTION_WIDTH,
       label: t(".unsubscribe"),
-      href: server_twilight_struggle_destination_path(@destination.server_configuration.discord_id, @destination),
+      href: server_twilight_struggle_destination_path(@server_configuration.discord_id, @tournament),
       data: {turbo_method: :delete, turbo_confirm: t(".unsubscribe_confirm")}
     )
   end

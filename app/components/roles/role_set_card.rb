@@ -152,7 +152,7 @@ class Components::Roles::RoleSetCard < Components::Base
   def subtitle
     count = t(".roles.count", count: @data.selected_role_ids.size)
     label = channel_label
-    label ? "##{label} · #{count}" : count
+    label ? "#{label} · #{count}" : count
   end
 
   def channel_label
@@ -160,7 +160,6 @@ class Components::Roles::RoleSetCard < Components::Base
   end
 
   def default_channel_label
-    name = @context.channels_by_id[@context.default_channel_id.to_i]
-    name ? "##{name}" : t(".channel.no_default")
+    @context.channels_by_id[@context.default_channel_id.to_i] || t(".channel.no_default")
   end
 end

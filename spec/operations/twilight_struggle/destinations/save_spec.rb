@@ -2,17 +2,14 @@
 
 require "rails_helper"
 
-RSpec.describe Ops::TwilightStruggle::Destinations::Update do
+RSpec.describe Ops::TwilightStruggle::Destinations::Save do
   subject(:result) { described_class.call(destination:, **attributes) }
 
   let(:server_configuration) { create(:server_configuration) }
   let(:tournament) { create(:twilight_struggle_tournament) }
   let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:) }
-  let!(:plugin) { create(:plugin, key: "twilight_struggle", name: "Twilight Struggle") }
-  let!(:grant) { create(:bespoke_plugin_grant, server_configuration:, plugin_key: "twilight_struggle") }
   let(:attributes) do
     {
-      enabled: "1",
       discord_channel_id: "555",
       template_win: "{winning_player} won",
       template_tie: "",
@@ -22,16 +19,12 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Update do
     }
   end
 
-  before do
-    allow(Bot::ConfigBus).to receive(:sync_commands)
-  end
-
   it "succeeds" do
     expect(result).to be_success
   end
 
-  it "returns the plugin activation, like the other plugin config ops" do
-    expect(result.value).to be_a(PluginActivation)
+  it "returns the destination" do
+    expect(result.value).to eq(destination)
   end
 
   it "stores the channel" do
@@ -47,6 +40,43 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Update do
   it "leaves a blank template nil so it inherits" do
     result
     expect(destination.reload.template_tie).to be_nil
+  end
+
+  it "never touches the tournament" do
+    result
+    expect(destination.reload.tournament).to eq(tournament)
+  end
+
+  describe "a destination that does not exist yet" do
+    let(:destination) { server_configuration.twilight_struggle_destinations.new(tournament:) }
+
+    it "subscribes the server" do
+      expect { result }.to change(TwilightStruggle::Destination, :count).by(1)
+    end
+
+    it "stores the submitted settings on the new row" do
+      result
+      expect(destination.reload.discord_channel_id).to eq(555)
+    end
+
+    context "with nothing submitted" do
+      let(:attributes) { {} }
+
+      it "subscribes with everything left to inherit" do
+        result
+        expect(destination.reload.discord_channel_id).to be_nil
+        expect(destination.template_win).to be_nil
+      end
+    end
+
+    context "when the server already subscribes to the tournament" do
+      let!(:existing) { create(:twilight_struggle_destination, tournament:, server_configuration:) }
+
+      it "fails rather than subscribing twice" do
+        expect(result).to be_failure
+        expect(TwilightStruggle::Destination.where(tournament:, server_configuration:).count).to eq(1)
+      end
+    end
   end
 
   describe "a template that came back exactly as it was pre-filled" do
@@ -73,50 +103,6 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Update do
       it "stores an edit that differs from the parent" do
         described_class.call(**attributes.merge(destination:, template_win: "{winning_name} smashed it"))
         expect(destination.reload.template_win).to eq("{winning_name} smashed it")
-      end
-    end
-  end
-
-  it "never touches the tournament" do
-    result
-    expect(destination.reload.tournament).to eq(tournament)
-  end
-
-  describe "the enable toggle" do
-    it "enables the plugin for the server" do
-      result
-      expect(server_configuration.reload.enabled_plugin_keys).to include(:twilight_struggle)
-    end
-
-    it "resyncs the guild commands" do
-      result
-      expect(Bot::ConfigBus).to have_received(:sync_commands).with(server_configuration)
-    end
-
-    context "when switched off" do
-      let(:attributes) { super().merge(enabled: "0") }
-
-      it "disables the plugin" do
-        result
-        expect(server_configuration.reload.enabled_plugin_keys).not_to include(:twilight_struggle)
-      end
-
-      it "still saves the destination settings" do
-        result
-        expect(destination.reload.discord_channel_id).to eq(555)
-      end
-    end
-
-    context "when the server has no grant" do
-      let!(:grant) { nil }
-
-      it "fails" do
-        expect(result).to be_failure
-      end
-
-      it "leaves the destination untouched" do
-        result
-        expect(destination.reload.discord_channel_id).to be_nil
       end
     end
   end

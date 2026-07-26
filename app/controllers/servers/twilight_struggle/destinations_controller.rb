@@ -6,36 +6,30 @@ class Servers::TwilightStruggle::DestinationsController < ApplicationController
   include RequiresGrantedPlugin
   include VerifiesGuildChannels
 
-  before_action :load_destination, only: [:edit, :update, :destroy]
+  before_action :load_destination
 
   def create
-    tournament = ::TwilightStruggle::Tournament.find_by(id: params[:tournament_id])
-    return head :not_found unless tournament
+    result = Ops::TwilightStruggle::Destinations::Save.call(destination: @destination)
+    return redirect_to server_twilight_struggle_path(params[:server_id]), alert: result.errors.to_sentence if result.failure?
 
-    result = Ops::TwilightStruggle::Destinations::Create.call(server_configuration: @server_configuration, tournament:)
-    if result.success?
-      redirect_to edit_server_twilight_struggle_destination_path(params[:server_id], result.value),
-        notice: t("servers.twilight_struggle.subscribed")
-    else
-      redirect_to server_twilight_struggle_path(params[:server_id]), alert: result.errors.to_sentence
-    end
+    redirect_to configuration_url, notice: t("servers.twilight_struggle.subscribed")
   end
 
   def edit
     render Views::Servers::TwilightStruggle::Destinations::Edit.new(
       user: current_user,
       destination: @destination,
-      destinations: @server_configuration.twilight_struggle_destinations,
+      destinations: @server_configuration.twilight_struggle_destinations.includes(:tournament),
       enabled: plugin_enabled?
     )
   end
 
   def update
     return head :not_found unless guild_channels?(destination_params[:discord_channel_id])
+    return respond_with_save(unsubscribed) unless subscribing?
 
-    result = Ops::TwilightStruggle::Destinations::Update.call(
+    result = Ops::TwilightStruggle::Destinations::Save.call(
       destination: @destination,
-      enabled: destination_params[:enabled],
       discord_channel_id: destination_params[:discord_channel_id],
       template_win: destination_params[:template_win],
       template_tie: destination_params[:template_tie],
@@ -43,21 +37,31 @@ class Servers::TwilightStruggle::DestinationsController < ApplicationController
       ping_players: destination_params[:ping_players],
       archived: destination_params[:archived]
     )
-    respond_with_configuration(result)
+    respond_with_save(result)
   end
 
   def destroy
-    Ops::TwilightStruggle::Destinations::Destroy.call(destination: @destination)
+    unsubscribed
     redirect_to server_twilight_struggle_path(params[:server_id]), notice: t("servers.twilight_struggle.unsubscribed")
   end
 
   private
 
   def load_destination
-    @destination = @server_configuration.twilight_struggle_destinations.find_by(id: params[:id])
-    return if @destination
+    tournament = ::TwilightStruggle::Tournament.find_by(id: params[:tournament_id])
+    return head :not_found unless tournament
 
-    redirect_to server_twilight_struggle_path(params[:server_id]), alert: t("servers.twilight_struggle.destination_not_found")
+    @destination = @server_configuration.twilight_struggle_destinations.find_by(tournament:) ||
+      @server_configuration.twilight_struggle_destinations.new(tournament:)
+  end
+
+  def subscribing?
+    ActiveModel::Type::Boolean.new.cast(destination_params[:subscribed])
+  end
+
+  def unsubscribed
+    Ops::TwilightStruggle::Destinations::Destroy.call(destination: @destination) if @destination.persisted?
+    Ops::ApplicationOperation::Result.new(true, @destination, [], [])
   end
 
   def plugin_key
@@ -65,12 +69,12 @@ class Servers::TwilightStruggle::DestinationsController < ApplicationController
   end
 
   def configuration_url
-    edit_server_twilight_struggle_destination_path(params[:server_id], @destination)
+    edit_server_twilight_struggle_destination_path(params[:server_id], @destination.tournament)
   end
 
   def destination_params
     params.expect(
-      destination: [:enabled, :discord_channel_id, :template_win, :template_tie, :template_video, :ping_players, :archived]
+      destination: [:subscribed, :discord_channel_id, :template_win, :template_tie, :template_video, :ping_players, :archived]
     )
   end
 end

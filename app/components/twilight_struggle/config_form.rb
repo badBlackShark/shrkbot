@@ -3,14 +3,12 @@
 class Components::TwilightStruggle::ConfigForm < Components::Base
   TEMPLATES = [:win, :tie, :video].freeze
 
-  def initialize(destination:, enable_error: nil)
+  def initialize(destination:)
     @destination = destination
-    @enable_error = enable_error
   end
 
   def view_template
     div(id: "twilight_struggle-config", class: "flex flex-col gap-5", data: {controller: "twilight-struggle-preview", action: "input->twilight-struggle-preview#render"}) do
-      enable_error_callout
       channel_card
       render Components::TwilightStruggle::PingCard.new(destination: @destination, inherited:)
       render Components::TwilightStruggle::TokenHelpCard.new
@@ -62,22 +60,19 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
   end
 
   def channel_label
-    label_for(@destination.discord_channel_id) || inherited_channel_label
+    channel_names[@destination.discord_channel_id] || channel_names[inherited.channel_id]
   end
 
   def inherited_channel_label
-    @inherited_channel_label ||= label_for(inherited.channel_id)
-  end
-
-  def label_for(channel_id)
-    return nil if channel_id.blank?
-
-    name = channel_names[channel_id]
-    "# #{name}" if name
+    @inherited_channel_label ||= qualified_channel_names[inherited.channel_id]
   end
 
   def channel_names
     @channel_names ||= channel_options.labels_by_id
+  end
+
+  def qualified_channel_names
+    @qualified_channel_names ||= channel_options.qualified_labels_by_id
   end
 
   def channels

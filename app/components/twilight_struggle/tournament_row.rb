@@ -40,13 +40,17 @@ class Components::TwilightStruggle::TournamentRow < Components::Base
   end
 
   def actions
-    if @destination
-      render Components::TwilightStruggle::DestinationActions.new(
-        destination: @destination,
-        channel_label: @channel_labels[@destination.discord_channel_id]
-      )
-    else
-      render Components::TwilightStruggle::SubscribeButton.new(tournament: @tournament, server_configuration: @server_configuration)
-    end
+    render Components::TwilightStruggle::DestinationActions.new(
+      tournament: @tournament,
+      destination: @destination,
+      server_configuration: @server_configuration,
+      channel_label:
+    )
+  end
+
+  def channel_label
+    return nil unless @destination
+
+    @channel_labels[@destination.discord_channel_id]
   end
 end

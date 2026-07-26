@@ -67,7 +67,7 @@ RSpec.describe "Welcomes config", type: :request do
           create(:server_channel, server_configuration: config, name: "general", discord_id: 111)
           config.welcome_settings.update!(channel_id: 111)
           get server_welcomes_path(guild.id)
-          expect(response.body).to include("# general")
+          expect(response.body).to include("#general")
         end
 
         it "renders without a preview channel label when the saved channel no longer exists" do

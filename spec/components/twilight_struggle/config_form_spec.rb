@@ -3,16 +3,16 @@
 require "rails_helper"
 
 RSpec.describe Components::TwilightStruggle::ConfigForm do
-  subject(:html) { described_class.new(destination:, enable_error:).render_in(view_context) }
+  subject(:html) { described_class.new(destination:).render_in(view_context) }
 
   let(:view_context) { ApplicationController.new.view_context }
   let(:server_configuration) { create(:server_configuration) }
   let(:tournament) { create(:twilight_struggle_tournament) }
   let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:) }
-  let(:enable_error) { nil }
 
   before do
-    create(:server_channel, server_configuration:, discord_id: 4242, name: "results")
+    create(:server_channel, server_configuration:, discord_id: 4200, name: "Tournaments", channel_type: ServerChannel::CATEGORY_TYPE)
+    create(:server_channel, server_configuration:, discord_id: 4242, name: "results", parent_id: 4200)
   end
 
   it "renders the three template editors" do
@@ -39,18 +39,6 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
     end
   end
 
-  it "renders no enable error by default" do
-    expect(html).not_to include("Something went wrong")
-  end
-
-  context "with an enable error" do
-    let(:enable_error) { "Something went wrong" }
-
-    it "renders it as a callout" do
-      expect(html).to include("Something went wrong")
-    end
-  end
-
   describe "the channel help" do
     it "explains that no channel means no posts" do
       expect(html).to include("With no channel, nothing is posted")
@@ -62,7 +50,7 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
       let!(:parent_destination) { create(:twilight_struggle_destination, tournament: parent, server_configuration:, discord_channel_id: 4242) }
 
       it "names the inherited channel instead" do
-        expect(html).to include("inherited from the tournament above").and include("# results")
+        expect(html).to include("inherited from the tournament above").and include("Tournaments / #results")
       end
     end
 
@@ -81,8 +69,8 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
     context "when the destination has its own channel" do
       let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, discord_channel_id: 4242) }
 
-      it "shows it above the preview" do
-        expect(html).to include("# results")
+      it "shows it above the preview, as Discord names it" do
+        expect(html).to include("#results")
       end
     end
   end

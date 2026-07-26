@@ -42,7 +42,7 @@ class Components::TwilightStruggle::TournamentSwitcher < Components::Base
 
   def row(destination)
     a(
-      href: edit_server_twilight_struggle_destination_path(destination.server_configuration.discord_id, destination),
+      href: edit_server_twilight_struggle_destination_path(destination.server_configuration.discord_id, destination.tournament),
       class: "flex flex-col gap-0.5 px-3 py-2 text-sm transition-colors hover:bg-surface-sunken"
     ) do
       span(class: "font-medium") { destination.tournament.name }
@@ -57,6 +57,6 @@ class Components::TwilightStruggle::TournamentSwitcher < Components::Base
   end
 
   def others
-    @others ||= @destinations.reject { |destination| destination.id == @current.id }
+    @others ||= @destinations.reject { |destination| destination.tournament_id == @current.tournament_id }
   end
 end

@@ -37,7 +37,8 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
     context "when the server holds the grant" do
       before do
         create(:bespoke_plugin_grant, server_configuration: config, plugin_key: "twilight_struggle")
-        create(:server_channel, server_configuration: config, discord_id: 4242, name: "results")
+        create(:server_channel, server_configuration: config, discord_id: 4200, name: "Tournaments", channel_type: ServerChannel::CATEGORY_TYPE)
+        create(:server_channel, server_configuration: config, discord_id: 4242, name: "results", parent_id: 4200)
       end
 
       describe "GET /servers/:server_id/twilight_struggle" do
@@ -61,24 +62,37 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
             expect(response.body).to include(server_twilight_struggle_destinations_path(guild.id, tournament_id: tournament.id))
           end
 
+          it "offers configure whether or not the server subscribes" do
+            get server_twilight_struggle_path(guild.id)
+            expect(response.body).to include(edit_server_twilight_struggle_destination_path(guild.id, tournament))
+          end
+
           context "with a tournament this server subscribes to" do
             let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration: config) }
 
-            it "offers configure and unsubscribe instead of a subscribe link" do
+            it "offers unsubscribe instead of subscribe" do
               get server_twilight_struggle_path(guild.id)
-              expect(response.body).to include(edit_server_twilight_struggle_destination_path(guild.id, destination))
               expect(response.body).to include(I18n.t("components.twilight_struggle.destination_actions.unsubscribe"))
+              expect(response.body).not_to include(server_twilight_struggle_destinations_path(guild.id, tournament_id: tournament.id))
+            end
+
+            it "names the channel it posts in, under its category" do
+              destination.update!(discord_channel_id: 4242)
+              get server_twilight_struggle_path(guild.id)
+              expect(response.body).to include("Tournaments / #results")
             end
           end
 
           context "with a tournament another server subscribes to" do
-            let!(:other_destination) { create(:twilight_struggle_destination, tournament:, server_configuration: create(:server_configuration)) }
+            let!(:other_destination) do
+              create(:twilight_struggle_destination, tournament:, server_configuration: create(:server_configuration), discord_channel_id: 7777)
+            end
 
-            it "still lists it here, unsubscribed" do
+            it "still lists it here, unsubscribed and without the other server's channel" do
               get server_twilight_struggle_path(guild.id)
               expect(response.body).to include("OTSL 2026")
               expect(response.body).to include(server_twilight_struggle_destinations_path(guild.id, tournament_id: tournament.id))
-              expect(response.body).not_to include(edit_server_twilight_struggle_destination_path(guild.id, other_destination))
+              expect(response.body).not_to include("7777")
             end
           end
 
@@ -130,10 +144,9 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           expect(TwilightStruggle::Destination.find_by(tournament:, server_configuration: config)).to be_present
         end
 
-        it "redirects to the destination's edit page" do
+        it "redirects to the tournament's settings page" do
           subscribe
-          destination = TwilightStruggle::Destination.find_by(tournament:, server_configuration: config)
-          expect(response).to redirect_to(edit_server_twilight_struggle_destination_path(guild.id, destination))
+          expect(response).to redirect_to(edit_server_twilight_struggle_destination_path(guild.id, tournament))
         end
 
         context "when the tournament does not exist" do
@@ -146,37 +159,31 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
         context "when the server already subscribes to the tournament" do
           let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration: config) }
 
-          it "sends the user back to the list with the reason" do
-            subscribe
-            expect(response).to redirect_to(server_twilight_struggle_path(guild.id))
-            expect(flash[:alert]).to be_present
-          end
-
           it "does not subscribe twice" do
             expect { subscribe }.not_to change(TwilightStruggle::Destination, :count)
           end
         end
       end
 
-      describe "DELETE /servers/:server_id/twilight_struggle/destinations/:id" do
+      describe "DELETE /servers/:server_id/twilight_struggle/destinations/:tournament_id" do
         let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration: config) }
 
         it "unsubscribes the server" do
-          delete server_twilight_struggle_destination_path(guild.id, destination)
+          delete server_twilight_struggle_destination_path(guild.id, tournament)
           expect(TwilightStruggle::Destination.exists?(destination.id)).to be(false)
         end
 
         it "redirects back to the list" do
-          delete server_twilight_struggle_destination_path(guild.id, destination)
+          delete server_twilight_struggle_destination_path(guild.id, tournament)
           expect(response).to redirect_to(server_twilight_struggle_path(guild.id))
         end
       end
 
-      describe "GET /servers/:server_id/twilight_struggle/destinations/:id/edit" do
+      describe "GET /servers/:server_id/twilight_struggle/destinations/:tournament_id/edit" do
         let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration: config) }
 
         it "renders the three template editors and the token reference" do
-          get edit_server_twilight_struggle_destination_path(guild.id, destination)
+          get edit_server_twilight_struggle_destination_path(guild.id, tournament)
           expect(response).to have_http_status(:ok)
           expect(response.body).to include("destination[template_win]")
           expect(response.body).to include("destination[template_tie]")
@@ -185,19 +192,19 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
         end
 
         it "offers the server's channels as the destination" do
-          get edit_server_twilight_struggle_destination_path(guild.id, destination)
+          get edit_server_twilight_struggle_destination_path(guild.id, tournament)
           expect(response.body).to include("results")
         end
 
-        it "offers the enable toggle in the page header" do
-          get edit_server_twilight_struggle_destination_path(guild.id, destination)
-          expect(response.body).to include("destination[enabled]")
+        it "offers the subscription toggle in the page header, switched on" do
+          get edit_server_twilight_struggle_destination_path(guild.id, tournament)
+          expect(response.body).to include("destination[subscribed]")
+          expect(response.body).to include(I18n.t("components.config_page.enabled"))
         end
 
         it "gates the settings behind the overlay while the plugin is off" do
-          get edit_server_twilight_struggle_destination_path(guild.id, destination)
-          expect(response.body).to include(I18n.t("components.config_page.disabled_title", plugin: I18n.t("views.servers.twilight_struggle.destinations.edit.title")))
-          expect(response.body).to include(I18n.t("views.servers.twilight_struggle.destinations.edit.gate_message"))
+          get edit_server_twilight_struggle_destination_path(guild.id, tournament)
+          expect(response.body).to include(I18n.t("views.servers.twilight_struggle.destinations.edit.prereq_gate_title"))
           expect(response.body).to include("opacity-45")
         end
 
@@ -207,30 +214,55 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           end
 
           it "lifts the overlay" do
-            get edit_server_twilight_struggle_destination_path(guild.id, destination)
+            get edit_server_twilight_struggle_destination_path(guild.id, tournament)
             expect(response.body).not_to include("opacity-45")
           end
         end
 
-        context "when the destination belongs to another server" do
-          let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration: create(:server_configuration)) }
+        context "when the server does not subscribe to the tournament" do
+          let!(:destination) { nil }
 
-          it "redirects back to this server's list" do
-            get edit_server_twilight_struggle_destination_path(guild.id, destination)
-            expect(response).to redirect_to(server_twilight_struggle_path(guild.id))
+          it "still opens, so the channel and wording can be set up first" do
+            get edit_server_twilight_struggle_destination_path(guild.id, tournament)
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to include("destination[template_win]")
+          end
+
+          it "shows the subscription toggle switched off" do
+            get edit_server_twilight_struggle_destination_path(guild.id, tournament)
+            expect(response.body).to include(I18n.t("components.config_page.disabled"))
+          end
+        end
+
+        context "when another server subscribes to the same tournament" do
+          let!(:destination) { nil }
+          let!(:elsewhere) do
+            create(:twilight_struggle_destination, tournament:, server_configuration: create(:server_configuration), discord_channel_id: 7777)
+          end
+
+          it "shows this server's settings, never the other server's" do
+            get edit_server_twilight_struggle_destination_path(guild.id, tournament)
+            expect(response.body).not_to include("7777")
+          end
+        end
+
+        context "when the tournament does not exist" do
+          it "is not found" do
+            get edit_server_twilight_struggle_destination_path(guild.id, "tst_nope")
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
 
-      describe "PATCH /servers/:server_id/twilight_struggle/destinations/:id" do
+      describe "PATCH /servers/:server_id/twilight_struggle/destinations/:tournament_id" do
         subject(:save_settings) do
-          patch server_twilight_struggle_destination_path(guild.id, destination), params: {destination: attributes}
+          patch server_twilight_struggle_destination_path(guild.id, tournament), params: {destination: attributes}
         end
 
         let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration: config) }
         let(:attributes) do
           {
-            enabled: "1",
+            subscribed: "1",
             discord_channel_id: "4242",
             template_win: "{winning_name} took it",
             template_tie: "",
@@ -250,7 +282,7 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
 
         it "redirects back to the destination's edit page" do
           save_settings
-          expect(response).to redirect_to(edit_server_twilight_struggle_destination_path(guild.id, destination))
+          expect(response).to redirect_to(edit_server_twilight_struggle_destination_path(guild.id, tournament))
         end
 
         context "when the channel belongs to a different guild" do
@@ -262,12 +294,35 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           end
         end
 
-        context "when the destination belongs to another server" do
-          let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration: create(:server_configuration)) }
+        context "when the subscription toggle comes back off" do
+          let(:attributes) { super().merge(subscribed: "0") }
 
-          it "redirects back to this server's list rather than saving" do
+          it "unsubscribes the server" do
             save_settings
-            expect(response).to redirect_to(server_twilight_struggle_path(guild.id))
+            expect(TwilightStruggle::Destination.exists?(destination.id)).to be(false)
+          end
+
+          it "still redirects back to the settings page" do
+            save_settings
+            expect(response).to redirect_to(edit_server_twilight_struggle_destination_path(guild.id, tournament))
+          end
+        end
+
+        context "when the server does not subscribe yet" do
+          let!(:destination) { nil }
+
+          it "subscribes it with the submitted settings" do
+            expect { save_settings }.to change(TwilightStruggle::Destination, :count).by(1)
+            expect(TwilightStruggle::Destination.last.discord_channel_id).to eq(4242)
+          end
+        end
+
+        context "when another server subscribes to the same tournament" do
+          let!(:elsewhere) { create(:twilight_struggle_destination, tournament:, server_configuration: create(:server_configuration)) }
+
+          it "leaves the other server's subscription alone" do
+            save_settings
+            expect(elsewhere.reload.discord_channel_id).to be_nil
           end
         end
       end

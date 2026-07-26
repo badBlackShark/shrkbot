@@ -83,7 +83,7 @@ class Components::ConfigPage < Components::Base
       render Components::Toggle.new(
         name: @toggle[:field],
         checked: @toggle[:enabled],
-        label: t(".enable", plugin: @header.title),
+        label: toggle_label,
         disabled: true
       )
     end
@@ -100,6 +100,10 @@ class Components::ConfigPage < Components::Base
       label: t(".enable", plugin: @header.title),
       data: enable_gate_type? ? {enable_gate_target: "toggle", action: "change->enable-gate#update"} : {}
     )
+  end
+
+  def toggle_label
+    @toggle[:label] || t(".enable", plugin: @header.title)
   end
 
   def body(&block)

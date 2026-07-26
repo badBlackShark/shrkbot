@@ -3,10 +3,8 @@
 module Ops
   module TwilightStruggle
     module Destinations
-      class Update < ApplicationOperation
-        include Ops::PluginConfiguration
-
-        receives :destination, :enabled
+      class Save < ApplicationOperation
+        receives :destination
         receives :discord_channel_id, optional: true
         receives :template_win, optional: true
         receives :template_tie, optional: true
@@ -16,20 +14,13 @@ module Ops
 
         def call
           destination.assign_attributes(settings)
-          activation = staged_activation
 
-          return failure(messages(destination, activation), value: activation) unless destination.valid? && activation.valid?
+          return failure(destination.errors.full_messages, value: destination) unless destination.save
 
-          destination.save!
-          save_activation!(activation)
-          ok(activation)
+          ok(destination)
         end
 
         private
-
-        def server_configuration
-          destination.server_configuration
-        end
 
         def settings
           {
@@ -69,10 +60,6 @@ module Ops
           return nil unless truthy?(archived)
 
           destination.archived_at || Time.current
-        end
-
-        def plugin_key
-          ::TwilightStruggle::PLUGIN_KEY
         end
       end
     end

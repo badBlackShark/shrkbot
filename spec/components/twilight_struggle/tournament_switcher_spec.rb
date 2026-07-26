@@ -21,11 +21,11 @@ RSpec.describe Components::TwilightStruggle::TournamentSwitcher do
   end
 
   it "links to the others" do
-    expect(html).to include(edit_server_twilight_struggle_destination_path(server_configuration.discord_id, other)).and include("RATS Cup 2026")
+    expect(html).to include(edit_server_twilight_struggle_destination_path(server_configuration.discord_id, other_tournament)).and include("RATS Cup 2026")
   end
 
   it "does not link to the one already open" do
-    expect(html).not_to include(edit_server_twilight_struggle_destination_path(server_configuration.discord_id, current))
+    expect(html).not_to include(edit_server_twilight_struggle_destination_path(server_configuration.discord_id, current_tournament))
   end
 
   context "when a listed tournament is a bracket" do
