@@ -177,6 +177,15 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           delete server_twilight_struggle_destination_path(guild.id, tournament)
           expect(response).to redirect_to(server_twilight_struggle_path(guild.id))
         end
+
+        context "when the server does not subscribe to the tournament" do
+          let!(:destination) { nil }
+
+          it "still redirects back to the list rather than erroring" do
+            delete server_twilight_struggle_destination_path(guild.id, tournament)
+            expect(response).to redirect_to(server_twilight_struggle_path(guild.id))
+          end
+        end
       end
 
       describe "GET /servers/:server_id/twilight_struggle/destinations/:tournament_id/edit" do

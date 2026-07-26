@@ -9,9 +9,7 @@ class Servers::TwilightStruggle::DestinationsController < ApplicationController
   before_action :load_destination
 
   def create
-    result = Ops::TwilightStruggle::Destinations::Save.call(destination: @destination)
-    return redirect_to server_twilight_struggle_path(params[:server_id]), alert: result.errors.to_sentence if result.failure?
-
+    Ops::TwilightStruggle::Destinations::Save.call(destination: @destination)
     redirect_to configuration_url, notice: t("servers.twilight_struggle.subscribed")
   end
 
