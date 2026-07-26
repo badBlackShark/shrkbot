@@ -16,6 +16,14 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Destroy do
     expect(result).to be_success
   end
 
+  context "when the server never subscribed in the first place" do
+    let!(:destination) { build(:twilight_struggle_destination) }
+
+    it "succeeds rather than raising, so unsubscribing twice is harmless" do
+      expect(result).to be_success
+    end
+  end
+
   context "when the server has an already-posted message for this tournament's games" do
     let(:tournament) { destination.tournament }
     let(:server_configuration) { destination.server_configuration }

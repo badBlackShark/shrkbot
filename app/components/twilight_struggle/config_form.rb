@@ -19,12 +19,6 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
 
   private
 
-  def enable_error_callout
-    return unless @enable_error
-
-    render Components::Callout.new(variant: :danger) { @enable_error }
-  end
-
   def channel_card
     render Components::ChannelCard.new(
       name: "destination[discord_channel_id]",

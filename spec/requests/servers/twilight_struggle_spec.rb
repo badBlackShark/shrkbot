@@ -211,6 +211,13 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           expect(response.body).to include(I18n.t("components.config_page.enabled"))
         end
 
+        it "names the tournament on the toggle rather than calling it the plugin switch" do
+          get edit_server_twilight_struggle_destination_path(guild.id, tournament)
+          expect(response.body).to include(
+            I18n.t("views.servers.twilight_struggle.destinations.edit.subscribe", tournament: tournament.name)
+          )
+        end
+
         it "gates the settings behind the overlay while the plugin is off" do
           get edit_server_twilight_struggle_destination_path(guild.id, tournament)
           expect(response.body).to include(I18n.t("views.servers.twilight_struggle.destinations.edit.prereq_gate_title"))

@@ -24,7 +24,7 @@ class Servers::TwilightStruggle::DestinationsController < ApplicationController
 
   def update
     return head :not_found unless guild_channels?(destination_params[:discord_channel_id])
-    return respond_with_save(unsubscribed) unless subscribing?
+    return respond_with_save(unsubscribe) unless subscribing?
 
     result = Ops::TwilightStruggle::Destinations::Save.call(
       destination: @destination,
@@ -39,7 +39,7 @@ class Servers::TwilightStruggle::DestinationsController < ApplicationController
   end
 
   def destroy
-    unsubscribed
+    unsubscribe
     redirect_to server_twilight_struggle_path(params[:server_id]), notice: t("servers.twilight_struggle.unsubscribed")
   end
 
@@ -57,9 +57,8 @@ class Servers::TwilightStruggle::DestinationsController < ApplicationController
     ActiveModel::Type::Boolean.new.cast(destination_params[:subscribed])
   end
 
-  def unsubscribed
-    Ops::TwilightStruggle::Destinations::Destroy.call(destination: @destination) if @destination.persisted?
-    Ops::ApplicationOperation::Result.new(true, @destination, [], [])
+  def unsubscribe
+    Ops::TwilightStruggle::Destinations::Destroy.call(destination: @destination)
   end
 
   def plugin_key

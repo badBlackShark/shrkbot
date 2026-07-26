@@ -7,8 +7,8 @@ module Ops
         receives :destination
 
         def call
-          destination.destroy!
-          ok
+          destination.destroy! if destination.persisted?
+          ok(destination)
         end
       end
     end
