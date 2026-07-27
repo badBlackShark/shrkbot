@@ -15,7 +15,10 @@ RSpec.describe "Content Security Policy", type: :request do
     expect(header).to include("default-src 'self'")
     expect(header).to include("object-src 'none'")
     expect(header).to include("base-uri 'self'")
-    expect(header).to include("form-action 'self'")
+  end
+
+  it "allows the sign-in form to reach Discord's OAuth redirect target" do
+    expect(header).to include("form-action 'self' https://discord.com")
   end
 
   it "allows Discord's CDN for images and inline styles for dynamic colours" do
