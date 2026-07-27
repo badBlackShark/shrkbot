@@ -40,6 +40,8 @@ en:
       plugins_on:
         one: "%{count} plugin on"
         other: "%{count} plugins on"
+    bespoke_plugins_link:
+      label: Bespoke Plugins
     channel_card:
       none: No channels have synced yet. shrkbot needs to be in the server first.
       placeholder: Choose a channel
@@ -629,6 +631,29 @@ en:
         show:
           subtitle: Global settings for shrkbot's owner.
           title: Owner settings
+    bespoke_plugins:
+      cost_h: What it costs
+      cost_p: shrkbot is free and stays free. Work done for one server is where that
+        stops. If it's a real chunk of work, we agree a small fee before anything
+        gets written, so you know the number up front. Small additions usually cost
+        nothing.
+      example_h: An example
+      example_p: The Twilight Struggle plugin pulls tournament matches and results
+        from an external ladder site and posts them into the channels each participating
+        server picks. That's the size of thing we mean.
+      intro_1: Every plugin shrkbot ships is built for every server that turns it
+        on. Some things only ever make sense for one server.
+      intro_2: If your community runs on something no bot covers, we can build it
+        into shrkbot and switch it on for you alone. It stays off every other server's
+        dashboard and out of the public plugin list.
+      process_ask: Tell us what should happen. A rough idea is enough to start; we'll
+        ask the questions that pin it down.
+      process_h: How it goes
+      process_scope: We tell you honestly whether it fits. Discord's API has hard
+        limits, and some ideas belong in a bot of your own rather than in shrkbot.
+      process_ship: It gets built with tests, enabled for your server, and maintained
+        like the rest of shrkbot.
+      title: Bespoke plugins
     home:
       add_to_server: Sign in to add shrkbot to your servers
       lede: 'shrkbot provides tools where Discord doesn''t, and gets out of your way
