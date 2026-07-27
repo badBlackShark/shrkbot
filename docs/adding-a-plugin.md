@@ -100,14 +100,16 @@ same way as `requires_plugin:`/`parent:`.
 
 A bespoke plugin still gets an ordinary `/servers/:server_id/<plugin>` page like every
 other plugin — `RequiresManageableServer` works the same way, and `Components::PluginNav#plugin_config_path`
-just returns that path. What makes it bespoke is the grant check: include
-`RequiresGrantedPlugin` after `RequiresManageableServer` (and after `ConfiguresPlugin`
-if the controller overrides `plugin_key`), and it redirects away from any action unless
-`BespokePluginGrant.granted_keys(@server_configuration)` includes the plugin's key.
+just returns that path. What makes it bespoke is the grant check, and it's automatic:
+`PluginCatalog.visible_for` drops ungranted bespoke plugins from the catalog, so
+`app/policies/plugin_access.rb`'s `PluginAccess#manage?`/`#visible?` (built by
+`RequiresManageableServer`'s `require_plugin_access` before_action) already deny access
+without the controller doing anything extra — no separate concern to include.
 Twilight Struggle is the reference: `Servers::TwilightStruggleController` and
-`Servers::TwilightStruggle::DestinationsController` both include it. The plugin's own
-enable toggle stays the per-server kill switch on top of the grant; check it wherever
-the plugin acts on a server (`Ops::TwilightStruggle::Games::Post`).
+`Servers::TwilightStruggle::DestinationsController` rely on that same gate like every
+other plugin controller. The plugin's own enable toggle stays the per-server kill switch
+on top of the grant; check it wherever the plugin acts on a server
+(`Ops::TwilightStruggle::Games::Post`).
 
 ## 4. Writes go through operations
 

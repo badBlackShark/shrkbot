@@ -115,6 +115,13 @@ and the web app, so a given mutation is written once and called from both.
   cached set and sets `@server_configuration`. The check reads the session instead
   of re-hitting Discord's rate-limited guild-list endpoint, and is not spoofable
   (server-signed session).
+- **`app/policies/` holds authorization policies.** `PluginAccess` is the single
+  answer to "may this user configure this plugin on this server", built from
+  Manage Server plus the bespoke grant (`PluginCatalog.visible_for` already drops
+  ungranted bespoke plugins, so the grant check is subsumed). `RequiresManageableServer`
+  enforces it per request via `plugin_key`, **applying
+  `before_action :require_plugin_access` on include** for the same
+  can't-forget-to-authorize reason, and redirects when the answer is no.
 - **Snowflakes submitted from the web are scoped to the guild in the controller.**
   A channel/role id posted by a user is untrusted input: the controller verifies it
   belongs to `@server_configuration` (e.g. `VerifiesGuildChannels#guild_channels?`

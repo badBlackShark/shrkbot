@@ -6,10 +6,12 @@ RSpec.describe Components::PluginSidebar do
   include_context "component view context"
 
   subject(:html) do
-    described_class.new(server_configuration: config, active_key: :logging).render_in(view_context)
+    described_class.new(server_configuration: config, active_key: :logging, access:).render_in(view_context)
   end
 
   let(:config) { create(:server_configuration, discord_id: 900_000_001, name:) }
+  let(:user) { create(:user) }
+  let(:access) { PluginAccess.new(user:, server_configuration: config, manages_server: true) }
 
   context "when the server configuration has a name" do
     let(:name) { "Dev Refuge" }
@@ -27,6 +29,16 @@ RSpec.describe Components::PluginSidebar do
     end
   end
 
+  context "when the user may not configure the plugins" do
+    let(:name) { "Dev Refuge" }
+    let(:access) { PluginAccess.new(user:, server_configuration: config, manages_server: false) }
+
+    it "renders the entries without links and says why" do
+      expect(html).not_to include("/servers/900000001/roles")
+      expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_sidebar.locked")))
+    end
+  end
+
   context "with the moderation group" do
     let(:name) { "Dev Refuge" }
 
@@ -41,7 +53,7 @@ RSpec.describe Components::PluginSidebar do
 
     context "when a sub-plugin page is active" do
       subject(:html) do
-        described_class.new(server_configuration: config, active_key: :image_scanning).render_in(view_context)
+        described_class.new(server_configuration: config, active_key: :image_scanning, access:).render_in(view_context)
       end
 
       it "auto-expands the group" do
@@ -69,7 +81,7 @@ RSpec.describe Components::PluginSidebar do
       end
 
       subject(:html) do
-        described_class.new(server_configuration: config, active_key: :moderation).render_in(view_context)
+        described_class.new(server_configuration: config, active_key: :moderation, access:).render_in(view_context)
       end
 
       it "renders the sidebar without raising" do
@@ -96,7 +108,7 @@ RSpec.describe Components::PluginSidebar do
       end
 
       subject(:html) do
-        described_class.new(server_configuration: config, active_key: :moderation).render_in(view_context)
+        described_class.new(server_configuration: config, active_key: :moderation, access:).render_in(view_context)
       end
 
       it "renders the sidebar with the enabled sub-plugin" do

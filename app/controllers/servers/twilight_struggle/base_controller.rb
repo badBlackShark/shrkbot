@@ -3,7 +3,6 @@
 class Servers::TwilightStruggle::BaseController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
-  include RequiresGrantedPlugin
 
   before_action :load_destination
 

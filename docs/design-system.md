@@ -142,8 +142,9 @@ with `PluginRow` so the two can't drift) — with a status dot, an active highli
 (`aria-current="page"`), and a back-to-dashboard link. It's `hidden md:block`
 (the breadcrumb covers navigation on narrow screens). Catalog plugins join the
 list automatically once they have config routes; Reminders isn't in the catalog
-(it has no activation to toggle) — `PluginStatus::ALWAYS_ON` appends it as a
-locked, always-enabled row, which both the dashboard and the sidebar render.
+(it has no activation to toggle) — `PluginCatalog::GLOBAL_KEYS` names it and
+`PluginStatus.rows` appends it as a locked, always-enabled row, which both the
+dashboard and the sidebar render.
 With a plugin sidebar the footer renders inside the scrolling main pane, so a
 page never scrolls by just the footer height — that would rob the sticky sidebar
 of headroom and make it slide out of view. `<details>` disclosures only animate

@@ -30,7 +30,7 @@ class ServersController < ApplicationController
     render Views::Servers::Show.new(
       server: @server,
       server_configuration: @server_configuration,
-      plugins: PluginStatus.rows(@server_configuration),
+      plugins: PluginStatus.rows(@server_configuration, access: plugin_access),
       user: current_user,
       servers: @configured_servers,
       plugin_counts: @plugin_counts

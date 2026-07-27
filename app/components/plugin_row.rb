@@ -9,12 +9,13 @@ class Components::PluginRow < Components::Base
     disabled: :neutral
   }.freeze
 
-  def initialize(server_id:, key:, enabled:, configured:, locked: false)
+  def initialize(server_id:, key:, enabled:, configured:, locked: false, manageable: true)
     @server_id = server_id
     @key = key
     @enabled = enabled
     @configured = configured
     @locked = locked
+    @manageable = manageable
   end
 
   def view_template
@@ -43,7 +44,9 @@ class Components::PluginRow < Components::Base
   end
 
   def toggle
-    if @locked
+    if !@manageable
+      locked_toggle(checked: @enabled, tooltip: t(".not_manageable"))
+    elsif @locked
       locked_toggle(checked: true, tooltip: t(".plugin.#{@key}.locked"))
     elsif blocked_until_setup?
       locked_toggle(checked: false, tooltip: t(".needs_setup_hint"))
@@ -88,9 +91,10 @@ class Components::PluginRow < Components::Base
   def configure_link
     render Components::Button.new(
       variant: :secondary,
-      href: configure_href,
+      href: @manageable ? configure_href : nil,
       label: t(".configure"),
       trailing_icon: "arrow-right",
+      disabled: !@manageable,
       class: "flex-none"
     )
   end

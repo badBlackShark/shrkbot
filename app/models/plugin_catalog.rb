@@ -53,6 +53,8 @@ class PluginCatalog
     Definition.new(key: :twilight_struggle, name: "Twilight Struggle", description: "Posts results from twilight-struggle.com as they are reported. Subscribe to a tournament, pick its channel, and write the message however you like.", bespoke: true)
   ].freeze
 
+  GLOBAL_KEYS = [:reminders].freeze
+
   def self.all
     DEFINITIONS
   end
