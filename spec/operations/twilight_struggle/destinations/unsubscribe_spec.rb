@@ -23,11 +23,14 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Unsubscribe do
     expect(destination.reload.template_win).to eq("kept")
   end
 
-  it "leaves an already-posted message alone" do
-    game = create(:twilight_struggle_game, tournament:)
-    posted_message = create(:twilight_struggle_posted_message, game:, server_configuration:)
-    result
-    expect(TwilightStruggle::PostedMessage.find_by(id: posted_message.id)).to be_present
+  context "when the server already posted a result for this tournament" do
+    let(:game) { create(:twilight_struggle_game, tournament:) }
+    let!(:posted_message) { create(:twilight_struggle_posted_message, game:, server_configuration:) }
+
+    it "leaves the posted message alone" do
+      result
+      expect(TwilightStruggle::PostedMessage.find_by(id: posted_message.id)).to be_present
+    end
   end
 
   context "when the server never subscribed in the first place" do

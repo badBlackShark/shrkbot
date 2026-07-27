@@ -24,7 +24,7 @@ module TwilightStruggle
     end
 
     def archived?(tournament, destination)
-      tournament.closed_upstream? || (destination&.active? && destination.manually_archived?) || false
+      tournament.closed_upstream? || destination&.archived? || false
     end
   end
 end

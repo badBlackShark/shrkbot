@@ -14,5 +14,9 @@ module TwilightStruggle
     def manually_archived?
       archived_at.present?
     end
+
+    def archived?
+      active? && manually_archived?
+    end
   end
 end

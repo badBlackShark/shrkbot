@@ -30,7 +30,7 @@ class Components::TwilightStruggle::TournamentRow < Components::Base
   def badges
     render Components::Badge.new(variant: :neutral) { t(".friendly") } if @tournament.friendly?
     render Components::Badge.new(variant: :neutral) { t(".closed") } if @tournament.closed_upstream?
-    render Components::Badge.new(variant: :warning) { t(".archived") } if @destination&.active? && @destination.manually_archived?
+    render Components::Badge.new(variant: :warning) { t(".archived") } if @destination&.archived?
   end
 
   def parent_line
