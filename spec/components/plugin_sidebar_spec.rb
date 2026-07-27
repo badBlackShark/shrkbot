@@ -37,6 +37,13 @@ RSpec.describe Components::PluginSidebar do
       expect(html).not_to include("/servers/900000001/roles")
       expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_sidebar.locked")))
     end
+
+    it "collapses Server Shield into one locked entry rather than an open group" do
+      expect(html).to include("Server Shield")
+      expect(html).not_to include("/servers/900000001/moderation")
+      expect(html).not_to include("/servers/900000001/spam_protection")
+      expect(html).not_to include("/servers/900000001/image_scanning")
+    end
   end
 
   context "with the moderation group" do
