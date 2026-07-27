@@ -9,7 +9,7 @@
 
 A Discord bot with a companion website. All per-server configuration lives on the site; the bot handles Discord interactions and events. For what the bot actually does, see [shrkbot.com](https://shrkbot.com).
 
-This README covers getting the bot running locally. Architecture and how-tos (adding plugins, commands, events) live in [docs/](docs/).
+This README covers getting the bot running locally. Architecture and how-tos (adding plugins, commands, events) live in [docs/](docs/). API docs for external APIs can be found at https://badblackshark.github.io/shrkbot/.
 
 ## Prerequisites
 
