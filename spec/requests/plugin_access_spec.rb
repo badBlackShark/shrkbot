@@ -61,4 +61,59 @@ RSpec.describe "Plugin access enforcement", type: :request do
       expect(flash[:alert]).to eq(I18n.t("servers.unknown_plugin"))
     end
   end
+
+  context "when the user manages nothing but administers a tournament" do
+    let(:guild) { Bot::Discord::Guild.new(id: 900_000_302, name: "Organiser Server", owner: false, permissions: 0, icon: nil, member_count: 12) }
+    let(:tournament) { create(:twilight_struggle_tournament) }
+
+    before do
+      create(:bespoke_plugin_grant, server_configuration: config, plugin_key: "twilight_struggle")
+      create(:twilight_struggle_tournament_admin, tournament:, discord_id: 12345)
+      plugin = create(:plugin, key: "twilight_struggle", name: "Twilight Struggle")
+      create(:plugin_activation, server_configuration: config, plugin:, enabled: true)
+    end
+
+    it "allows the twilight_struggle plugin page" do
+      get server_twilight_struggle_path(guild.id)
+      expect(response).to have_http_status(:ok)
+    end
+
+    {
+      roles: :server_roles_path,
+      welcomes: :server_welcomes_path,
+      logging: :server_logging_path,
+      moderation: :server_moderation_path,
+      spam_protection: :server_spam_protection_path,
+      image_scanning: :server_image_scanning_path,
+      lfg: :server_lfg_path,
+      reminders: :server_reminders_path
+    }.each do |key, helper|
+      it "redirects #{key} to the server dashboard" do
+        get public_send(helper, guild.id)
+        expect(response).to redirect_to(server_path(guild.id))
+      end
+    end
+
+    it "keeps the server dashboard itself reachable" do
+      get server_path(guild.id)
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "redirects the plugin toggle for another plugin" do
+      patch server_plugin_path(guild.id, :roles)
+      expect(response).to redirect_to(server_path(guild.id))
+    end
+
+    it "redirects the role set repost action" do
+      post server_role_set_repost_path(guild.id, role_set)
+      expect(response).to redirect_to(server_path(guild.id))
+    end
+
+    it "redirects the plugin toggle for twilight_struggle without changing it" do
+      expect {
+        patch server_plugin_path(guild.id, :twilight_struggle), params: {enabled: "1"}
+      }.not_to change { config.enabled_plugin_keys }
+      expect(response).to redirect_to(server_path(guild.id))
+    end
+  end
 end

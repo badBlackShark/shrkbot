@@ -14,3 +14,6 @@ end
 
 Prosopite.raise = true
 Prosopite.rails_logger = false
+
+# Rejected finding: the tournament-tree walk queries once per chain level, not once per row.
+Prosopite.allow_stack_paths = ["app/models/twilight_struggle/administered_tournaments.rb"]

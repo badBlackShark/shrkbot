@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 class Views::Servers::TwilightStruggle::Show < Views::Base
-  def initialize(server_configuration:, user:, enabled:, subscriptions:, archived:)
+  def initialize(server_configuration:, user:, enabled:, subscriptions:, archived:, toggleable:)
     @config = server_configuration
     @user = user
     @enabled = enabled
     @subscriptions = subscriptions
     @archived = archived
+    @toggleable = toggleable
   end
 
   def view_template
@@ -15,7 +16,7 @@ class Views::Servers::TwilightStruggle::Show < Views::Base
         header: Components::ConfigPageHeader.new(icon: "trophy", title: t(".title"), description: t(".description")),
         server_configuration: @config,
         url: server_twilight_struggle_path(@config.discord_id),
-        toggle: {field: "twilight_struggle[enabled]", enabled: @enabled},
+        toggle: {field: "twilight_struggle[enabled]", enabled: @enabled, locked: !@toggleable, reason: t(".toggle_admin_only")},
         gate: {type: :enable, message: t(".gate_message")}
       ) do
         render Components::TwilightStruggle::ArchiveFilter.new(server_configuration: @config, archived: @archived)

@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
 class ServerDashboard
-  Result = Data.define(:server, :server_configuration, :configured_servers, :plugin_counts, :configured_ids)
+  Result = Data.define(:server, :server_configuration, :configured_servers, :plugin_counts)
 
-  def self.resolve(discord_token:, target_id:, cached_ids:)
-    new(discord_token:, target_id:, cached_ids:).resolve
+  def self.resolve(discord_token:, target_id:, cached_ids:, admin_discord_id:)
+    new(discord_token:, target_id:, cached_ids:, admin_discord_id:).resolve
   end
 
-  def initialize(discord_token:, target_id:, cached_ids:)
+  def initialize(discord_token:, target_id:, cached_ids:, admin_discord_id:)
     @discord_token = discord_token
     @target_id = target_id
     @cached_ids = cached_ids
+    @admin_discord_id = admin_discord_id
   end
 
   def resolve
@@ -24,18 +25,17 @@ class ServerDashboard
   private
 
   def live
-    manageable = ManageableServers.cached_for(@discord_token)
-    server = manageable.find { |candidate| candidate.id == @target_id }
+    visible = VisibleServers.for(@discord_token, @admin_discord_id)
+    server = visible.find { |candidate| candidate.id == @target_id }
     config = ServerConfiguration.find_by(discord_id: @target_id) if server
     return unless server && config
 
-    ids = ServerConfiguration.configured_ids_among(manageable.map(&:id))
+    ids = ServerConfiguration.configured_ids_among(visible.map(&:id))
     Result.new(
       server:,
       server_configuration: config,
-      configured_servers: manageable.select { |candidate| ids.include?(candidate.id) },
-      plugin_counts: PluginActivation.enabled_counts_for(ids),
-      configured_ids: ids
+      configured_servers: visible.select { |candidate| ids.include?(candidate.id) },
+      plugin_counts: PluginActivation.enabled_counts_for(ids)
     )
   end
 
@@ -47,8 +47,7 @@ class ServerDashboard
       server: dashboard.server,
       server_configuration: dashboard.server_configuration,
       configured_servers: dashboard.configured_servers,
-      plugin_counts: dashboard.plugin_counts,
-      configured_ids: @cached_ids
+      plugin_counts: dashboard.plugin_counts
     )
   end
 end

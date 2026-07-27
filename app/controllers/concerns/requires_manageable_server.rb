@@ -3,7 +3,7 @@
 module RequiresManageableServer
   extend ActiveSupport::Concern
 
-  include SetsManageableServers
+  include SetsVisibleServers
   include DiscordReauth
 
   included do
@@ -16,7 +16,7 @@ module RequiresManageableServer
 
   def require_manageable_server
     @server_configuration = ServerConfiguration.find_by(discord_id: params[:server_id])
-    return if @server_configuration && manageable_now?(params[:server_id])
+    return if @server_configuration && visible_now?(params[:server_id])
 
     redirect_to servers_path, alert: t("servers.not_found")
   end
@@ -38,7 +38,7 @@ module RequiresManageableServer
   def server_switcher
     @server_switcher ||= CachedDashboard.for(
       discord_id: params[:server_id].to_i,
-      manageable_ids: manageable_server_ids
+      manageable_ids: visible_server_ids
     )
   end
 end

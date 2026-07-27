@@ -3,6 +3,9 @@
 class Servers::TwilightStruggleController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
+  include AuthorizesTournaments
+
+  before_action :require_toggle_access, only: :update
 
   def show
     render Views::Servers::TwilightStruggle::Show.new(
@@ -10,7 +13,8 @@ class Servers::TwilightStruggleController < ApplicationController
       user: current_user,
       enabled: plugin_enabled?,
       subscriptions:,
-      archived: archived_filter?
+      archived: archived_filter?,
+      toggleable: plugin_access.toggle?(::TwilightStruggle::PLUGIN_KEY)
     )
   end
 
@@ -25,7 +29,11 @@ class Servers::TwilightStruggleController < ApplicationController
   private
 
   def subscriptions
-    TwilightStruggle::SubscriptionList.new(server_configuration: @server_configuration, archived: archived_filter?).rows
+    TwilightStruggle::SubscriptionList.new(
+      server_configuration: @server_configuration,
+      archived: archived_filter?,
+      tournaments: authorized_tournaments
+    ).rows
   end
 
   def archived_filter?

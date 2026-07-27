@@ -6,6 +6,7 @@ RSpec.describe ServerDashboard do
   let(:target_id) { 900_000_001 }
   let(:other_id) { 900_000_002 }
   let(:cached_ids) { [] }
+  let(:admin_discord_id) { 700_000_999 }
 
   let(:target_guild) do
     Bot::Discord::Guild.new(id: target_id, name: "Target", owner: true, permissions: 0, icon: nil, member_count: 100)
@@ -18,7 +19,8 @@ RSpec.describe ServerDashboard do
     described_class.new(
       discord_token: "tok",
       target_id:,
-      cached_ids:
+      cached_ids:,
+      admin_discord_id:
     ).resolve
   end
 
@@ -40,10 +42,6 @@ RSpec.describe ServerDashboard do
 
     it "returns configured_servers containing both manageable configured servers" do
       expect(result.configured_servers).to contain_exactly(target_guild, other_guild)
-    end
-
-    it "returns configured_ids for all configured manageable guilds" do
-      expect(result.configured_ids).to contain_exactly(target_id, other_id)
     end
   end
 
@@ -87,10 +85,6 @@ RSpec.describe ServerDashboard do
 
     it "returns the correct server_configuration from cache" do
       expect(result.server_configuration).to eq(target_config)
-    end
-
-    it "returns configured_ids from the cached_ids" do
-      expect(result.configured_ids).to eq(cached_ids)
     end
   end
 

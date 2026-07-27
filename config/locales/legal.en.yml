@@ -87,7 +87,12 @@ en:
         switched on - plus references (channel and message IDs) to the messages we
         post there, one per subscribing server. The result details themselves - player
         names, flags, Discord IDs and dates - live only in the queued job that posts
-        the message, never on the tournament or game record.'
+        the message, never on the tournament or game record. We also store the Discord
+        IDs of a tournament''s organisers, when twilight-struggle.com sends them,
+        so that an organiser can configure this integration on the servers subscribed
+        to their tournament without being a Discord admin there. Setting a Discord
+        ID on twilight-struggle.com is optional: an organiser who sets none has no
+        record here, and their tournament is configured by the server''s own admins.'
       data_welcomes: 'Welcome messages: on servers that use Discord''s membership
         screening, a short-lived in-memory note that a member has joined but not yet
         finished onboarding - the server ID and their Discord ID, nothing else. It
@@ -100,6 +105,10 @@ en:
       deletion_h: Deleting your data
       deletion_lead: 'Erasure is self-service:'
       deletion_reminders: Delete individual reminders with /unremind.
+      deletion_twilight_struggle: Deleting your account also deletes any tournament-organiser
+        Discord ID we hold for you. That removes what we have; because the ID lives
+        on twilight-struggle.com, a later update from there can send it to us again
+        - removing it there is what stops us receiving it.
       intro_1: This policy explains what the shrkbot Discord bot and its web dashboard
         (together, the "Service") store, why, and the choices you have. It's written
         to be readable rather than dense - if anything is unclear, contact us.
@@ -174,7 +183,9 @@ en:
         subscriptions and the message references belonging to it are deleted the moment
         the bot is removed from that server, whether or not they are switched on;
         the tournaments and games themselves are twilight-struggle.com''s data and
-        are unaffected.'
+        are unaffected. Organiser Discord IDs are kept for as long as twilight-struggle.com
+        keeps sending them - each tournament update replaces the set we hold for that
+        tournament - and are deleted with the tournament.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down.'

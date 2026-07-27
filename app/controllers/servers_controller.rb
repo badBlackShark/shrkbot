@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ServersController < ApplicationController
-  include SetsManageableServers
+  include SetsVisibleServers
 
   rate_limit to: 60, within: 1.minute, by: -> { session[:user_id] }, only: :index
 
@@ -12,11 +12,8 @@ class ServersController < ApplicationController
   include DiscordReauth
 
   def index
-    manageable = ManageableServers.cached_for(session[:discord_token])
-    session.delete(:reauth_attempted)
-    configured = ServerConfiguration.configured_ids_among(manageable.map(&:id))
-    remember_manageable_servers(configured)
-    present, absent = manageable.partition { |server| configured.include?(server.id) }
+    configured = ServerConfiguration.configured_ids_among(visible_servers.map(&:id))
+    present, absent = visible_servers.partition { |server| configured.include?(server.id) }
 
     render Views::Servers::Index.new(
       present:,
@@ -43,11 +40,11 @@ class ServersController < ApplicationController
     result = ServerDashboard.resolve(
       discord_token: session[:discord_token],
       target_id: params[:id].to_i,
-      cached_ids: manageable_server_ids
+      cached_ids: visible_server_ids,
+      admin_discord_id: current_user.discord_id
     )
     return redirect_to(servers_path, alert: t("servers.not_found")) unless result
 
-    remember_manageable_servers(result.configured_ids)
     @server = result.server
     @server_configuration = result.server_configuration
     @configured_servers = result.configured_servers

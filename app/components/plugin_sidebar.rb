@@ -19,7 +19,7 @@ class Components::PluginSidebar < Components::Base
           items.each do |row|
             next if sub_plugin?(row.key)
 
-            (row.key == :moderation) ? moderation_group : nav_item(row)
+            item(row)
           end
         end
       end
@@ -30,6 +30,13 @@ class Components::PluginSidebar < Components::Base
 
   def all_rows
     @all_rows ||= PluginStatus.rows(@config, access: @access)
+  end
+
+  def item(row)
+    return locked_item(row) unless row.manageable
+    return moderation_group if row.key == :moderation
+
+    nav_item(row)
   end
 
   def items
@@ -92,8 +99,6 @@ class Components::PluginSidebar < Components::Base
   end
 
   def nav_item(row)
-    return locked_item(row) unless row.manageable
-
     active = row.key == @active_key
     tone = active ? "bg-accent-soft font-semibold text-accent-soft-fg" : "text-text-secondary hover:bg-surface-card"
     a(
@@ -108,7 +113,7 @@ class Components::PluginSidebar < Components::Base
   end
 
   def locked_item(row)
-    render Components::Tooltip.new(text: t(".locked")) do
+    render Components::Tooltip.new(text: t(".locked"), placement: :down, align: :left, width: "max-w-[11rem]") do
       span(class: "flex cursor-not-allowed items-center gap-2.5 rounded-md px-2.5 py-2 text-text-muted opacity-60") do
         item_tile(row, false)
         span(class: "flex-1 text-[13px]") { t("components.plugin_row.plugin.#{row.key}.name") }

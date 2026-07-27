@@ -164,6 +164,54 @@ RSpec.describe "Api::TwilightStruggle::V1::Tournaments", type: :request do
         expect { put_tournament }.not_to change(TwilightStruggle::Tournament, :count)
       end
     end
+
+    context "with admins" do
+      let(:params) { {tournament: {name: "Online Twilight Struggle League", admins: ["123456789012345678"]}} }
+
+      it "stores them" do
+        put_tournament
+
+        tournament = TwilightStruggle::Tournament.find_by(external_id:)
+        expect(tournament.admins.pluck(:discord_id)).to contain_exactly(123456789012345678)
+      end
+    end
+
+    context "without admins on an existing tournament that already has admins" do
+      let!(:tournament) { create(:twilight_struggle_tournament, external_id:) }
+      let!(:existing_admin) { create(:twilight_struggle_tournament_admin, tournament:) }
+
+      it "leaves them untouched" do
+        put_tournament
+
+        expect(tournament.admins.reload.pluck(:id)).to contain_exactly(existing_admin.id)
+      end
+    end
+
+    context "with an empty admins array on an existing tournament that has admins" do
+      let!(:tournament) { create(:twilight_struggle_tournament, external_id:) }
+      let!(:existing_admin) { create(:twilight_struggle_tournament_admin, tournament:) }
+      let(:params) { {tournament: {name: "Online Twilight Struggle League", admins: []}} }
+
+      it "clears them" do
+        put_tournament
+
+        expect(tournament.admins.reload).to be_empty
+      end
+    end
+
+    context "with a non-numeric admin id" do
+      let(:params) { {tournament: {name: "Online Twilight Struggle League", admins: ["not-a-number"]}} }
+
+      it "returns 422 from schema validation" do
+        put_tournament
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "does not create an admin row" do
+        expect { put_tournament }.not_to change(TwilightStruggle::TournamentAdmin, :count)
+      end
+    end
   end
 
   describe "DELETE /api/twilight-struggle/v1/tournaments/:external_id" do

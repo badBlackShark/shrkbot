@@ -7,7 +7,7 @@ class Servers::TwilightStruggle::DestinationsController < Servers::TwilightStrug
     render Views::Servers::TwilightStruggle::Destinations::Edit.new(
       user: current_user,
       destination: @destination,
-      destinations: @server_configuration.twilight_struggle_destinations.active.includes(:tournament),
+      destinations: switchable_destinations,
       enabled: plugin_enabled?
     )
   end
@@ -29,6 +29,13 @@ class Servers::TwilightStruggle::DestinationsController < Servers::TwilightStrug
   end
 
   private
+
+  def switchable_destinations
+    @server_configuration.twilight_struggle_destinations
+      .active
+      .where(tournament: authorized_tournaments)
+      .includes(:tournament)
+  end
 
   def configuration_url
     edit_server_twilight_struggle_destination_path(params[:server_id], @destination.tournament)

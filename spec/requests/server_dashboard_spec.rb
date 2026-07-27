@@ -109,6 +109,28 @@ RSpec.describe "Server dashboard", type: :request do
         end
       end
 
+      context "when the user can only manage one plugin as a tournament organiser" do
+        let(:guild) { Bot::Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: false, permissions: 0, icon: "icyhash", member_count: 2481) }
+        let(:twilight_struggle_plugin) { create(:plugin, key: "twilight_struggle", name: "Twilight Struggle") }
+
+        before do
+          create(:twilight_struggle_tournament_admin, discord_id: 12345)
+          create(:bespoke_plugin_grant, server_configuration: config, plugin_key: TwilightStruggle::PLUGIN_KEY.to_s)
+          create(:plugin_activation, server_configuration: config, plugin: twilight_struggle_plugin, enabled: true)
+          config.create_role_setting!(channel_id: 7)
+          roles
+        end
+
+        it "lists the unmanageable plugin's name later than the manageable one's" do
+          get_dashboard
+          manageable_index = response.body.index("Twilight Struggle")
+          unmanageable_index = response.body.index("Roles")
+          expect(manageable_index).not_to be_nil
+          expect(unmanageable_index).not_to be_nil
+          expect(unmanageable_index).to be > manageable_index
+        end
+      end
+
       context "when the server is not manageable by the user" do
         before do
           allow(Bot::Discord::UserGuilds).to receive(:call).and_return([])

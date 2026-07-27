@@ -5,6 +5,12 @@ module ConfiguresPlugin
 
   private
 
+  def require_toggle_access
+    return if plugin_access.toggle?(plugin_key)
+
+    redirect_to server_path(params[:server_id]), alert: t("servers.plugin_locked")
+  end
+
   def plugin_enabled?
     @server_configuration.enabled_plugin_keys.include?(plugin_key)
   end

@@ -86,14 +86,20 @@ and the web app, so a given mutation is written once and called from both.
   controllers. We don't persist which servers a user manages (it's a Discord fact,
   fetched per the metadata-sync design, not a DB relationship), so authorization is
   re-verified against live Discord on every server-scoped request.
-  `SetsManageableServers` (included by the picker, dashboard, and
-  `RequiresManageableServer`) exposes `remember_manageable_servers`/
-  `manageable_server_ids`, the session-cached fallback. `RequiresManageableServer`
+  `SetsVisibleServers` (included by the picker, dashboard, notifications, and
+  `RequiresManageableServer`) owns that lookup: `VisibleServers.for` returns every
+  guild the user may reach, and `#live_access` maps each to whether the user also
+  *manages* it, exposed as `visible_now?` / `manages_now?`. `RequiresManageableServer`
   (included by every server-scoped controller) **applies `before_action
   :require_manageable_server` on include** — so a controller can't forget to
-  authorize — which calls `ManageableServers.for` fresh (`#live_manageable_ids`) and
-  sets `@server_configuration`. A demoted admin loses access on their very next
-  request rather than up to two weeks later. Discord being unreachable
+  authorize — which checks `visible_now?` and sets `@server_configuration`. A demoted
+  admin loses access on their very next request rather than up to two weeks later.
+  Two session sets back the outage fallback and the endpoints that don't re-verify:
+  `visible_server_ids` (servers you may open) and `managed_server_ids` (…and may
+  administer). They differ because a plugin can be manageable for a non-Discord-admin
+  reason — see the tournament-organiser input below — and anything scoped to "your
+  servers" as an admin (notifications) must read the narrower set. Discord being
+  unreachable
   (`UserGuilds::Error`) falls back to the session cache rather than locking admins
   out during an outage; a bad/expired token (`UserGuilds::Unauthorized`) is not
   caught here — it propagates to `DiscordReauth`.
@@ -107,14 +113,6 @@ and the web app, so a given mutation is written once and called from both.
   redirects to `session[:return_to]` (falling back to the picker) and clears the
   reauth flag, so re-auth returns the user to where they were instead of always
   landing on the picker.
-  cached in the signed session. `SetsManageableServers` (included by the picker and
-  dashboard) exposes `remember_manageable_servers`, called after proving
-  manageability via Discord. `RequiresManageableServer` (included by every
-  server-scoped controller) **applies `before_action :require_manageable_server`
-  on include** — so a controller can't forget to authorize — which checks the
-  cached set and sets `@server_configuration`. The check reads the session instead
-  of re-hitting Discord's rate-limited guild-list endpoint, and is not spoofable
-  (server-signed session).
 - **`app/policies/` holds authorization policies.** `PluginAccess` is the single
   answer to "may this user configure this plugin on this server", built from
   Manage Server plus the bespoke grant (`PluginCatalog.visible_for` already drops
@@ -122,6 +120,26 @@ and the web app, so a given mutation is written once and called from both.
   enforces it per request via `plugin_key`, **applying
   `before_action :require_plugin_access` on include** for the same
   can't-forget-to-authorize reason, and redirects when the answer is no.
+- **Manage Server is not the only input.** A Twilight Struggle tournament organiser
+  manages that one plugin on any server that holds the bespoke grant, has the
+  plugin enabled, and the organiser is a member of — regardless of which
+  tournament the server subscribes to, so `PluginAccess` falls back to
+  `administered_keys` when the user doesn't manage the server. Page access is
+  deliberately tournament-independent: it only asks whether the user
+  administers *some* tournament at all (`TwilightStruggle::OrganiserServers`),
+  which is what lets an organiser create the server's first subscription
+  themselves. Which specific tournaments they may act on is enforced one layer
+  in, on the actions rather than the page — `TwilightStruggle::AdministeredTournaments`
+  (admin rows + descendants) backs the `AuthorizesTournaments` controller
+  concern, which 404s an organiser out of a tournament they aren't named on.
+  The membership half of the page-access rule is free: Discord already tells us
+  every guild the user is in, and `VisibleServers.for` admits a guild when the
+  user manages it *or* administers a tournament. Someone who leaves the guild
+  drops out of the candidate set, so there is no revocation path to build.
+  The plugin's enabled/disabled switch stays admin-only regardless
+  (`PluginAccess#toggle?`) — flipping it is the organiser's own access gate, so
+  letting them flip it off would lock every organiser on the server out at
+  once and need a Discord admin to undo.
 - **Snowflakes submitted from the web are scoped to the guild in the controller.**
   A channel/role id posted by a user is untrusted input: the controller verifies it
   belongs to `@server_configuration` (e.g. `VerifiesGuildChannels#guild_channels?`
@@ -607,9 +625,11 @@ The web side reads them cross-server, scoped to the session's authorized server 
 — notifications span all manageable servers.
 
 **Auth scope:** `NotificationsController` and `Notifications::ReadsController`
-include `SetsManageableServers`. The query object `AuthorizedNotifications`
+include `SetsVisibleServers`. The query object `AuthorizedNotifications`
 (app/presenters/) joins `server_configurations` and filters by
-`manageable_server_ids` from the session, preventing cross-server data leaks.
+`managed_server_ids` from the session — the narrower of the two sets, so a
+tournament organiser who can open a server's dashboard still doesn't read its
+activity — preventing cross-server data leaks.
 An optional `server_id` param narrows to one server ("this server" scope).
 
 **Ops:** `Ops::Notifications::Dismiss` sets `dismissed_at` on a single

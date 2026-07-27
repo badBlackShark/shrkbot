@@ -69,7 +69,8 @@ Request body:
   "tournament": {
     "name": "Online Twilight Struggle League",
     "parent_external_id": null,
-    "status": null
+    "status": null,
+    "admins": ["123456789012345678"]
   }
 }
 ```
@@ -81,6 +82,32 @@ Fields:
 | `name` | string | yes | |
 | `parent_external_id` | string | no | Your id of an already-`PUT` parent tournament. Groups a sub-event under a larger tournament. Unknown id → `422`. |
 | `status` | string | no | Free text; not currently interpreted by shrkbot. |
+| `admins` | array of strings | no | Discord IDs of the tournament's organisers. See below. |
+
+#### Tournament organisers
+
+An organiser whose Discord ID we hold can reach the Twilight Struggle plugin
+on any server where a shrkbot operator has granted the plugin, a server admin
+has switched it on, and the organiser is a member — they don't need a server
+admin to subscribe for them. Which tournaments they may subscribe and
+configure there is a separate question, governed by the tournament chain: the
+ones they're named on, plus that tournament's descendants. They can do
+everything a server admin can on those tournaments except one thing — they
+can't switch the plugin itself off, since that would lock every organiser on
+the server out at once.
+
+Sending `admins` replaces the whole set we hold for that tournament.
+Omitting the key (or sending `null`) leaves our rows untouched — deliberate,
+so a partial payload can't silently revoke every organiser. Send `[]` to
+clear.
+
+It's opt-in. An organiser with no Discord ID on your side simply has no
+record with us, and the server's own admins configure the tournament for
+them. We never infer an organiser's Discord ID from anywhere else — in
+particular never from the player `discord_id`s in a game payload.
+
+If that person deletes their shrkbot dashboard account, we delete the ID; a
+later `PUT` that still includes it will store it again.
 
 Response (`201` or `200`):
 

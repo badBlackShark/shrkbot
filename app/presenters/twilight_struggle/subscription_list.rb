@@ -2,9 +2,10 @@
 
 module TwilightStruggle
   class SubscriptionList
-    def initialize(server_configuration:, archived: false)
+    def initialize(server_configuration:, archived: false, tournaments: Tournament.all)
       @server_configuration = server_configuration
       @archived = archived
+      @tournaments = tournaments
     end
 
     def rows
@@ -14,7 +15,7 @@ module TwilightStruggle
     private
 
     def pairs
-      Tournament.includes(:parent).order(:name).map do |tournament|
+      @tournaments.includes(:parent).order(:name).map do |tournament|
         [tournament, destinations[tournament.id]]
       end
     end
