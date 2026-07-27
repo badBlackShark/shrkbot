@@ -632,28 +632,37 @@ en:
           subtitle: Global settings for shrkbot's owner.
           title: Owner settings
     bespoke_plugins:
-      cost_h: What it costs
-      cost_p: shrkbot is free and stays free. Work done for one server is where that
-        stops. If it's a real chunk of work, we agree a small fee before anything
-        gets written, so you know the number up front. Small additions usually cost
-        nothing.
-      example_h: An example
-      example_p: The Twilight Struggle plugin pulls tournament matches and results
-        from an external ladder site and posts them into the channels each participating
-        server picks. That's the size of thing we mean.
-      intro_1: Every plugin shrkbot ships is built for every server that turns it
-        on. Some things only ever make sense for one server.
-      intro_2: If your community runs on something no bot covers, we can build it
-        into shrkbot and switch it on for you alone. It stays off every other server's
-        dashboard and out of the public plugin list.
-      process_ask: Tell us what should happen. A rough idea is enough to start; we'll
-        ask the questions that pin it down.
-      process_h: How it goes
-      process_scope: We tell you honestly whether it fits. Discord's API has hard
-        limits, and some ideas belong in a bot of your own rather than in shrkbot.
-      process_ship: It gets built with tests, enabled for your server, and maintained
-        like the rest of shrkbot.
-      title: Bespoke plugins
+      ask_in_server: Ask in the support server
+      cost_body: shrkbot is free and stays free. Work done for one server is where
+        that stops. If your idea is a real chunk of work, I'll name a small fee before
+        anything gets written, so you know the number up front. Small additions usually
+        cost nothing.
+      cost_eyebrow: What it costs
+      example_body: Pulls tournament matches and results from an external ladder site
+        and posts them into the channels each participating server picks. That's the
+        size of thing I mean.
+      example_eyebrow: One that already exists
+      eyebrow: Bespoke plugins
+      headline: Some things only make sense for one server.
+      lede: Every plugin shrkbot ships is built for everyone who turns it on. If your
+        community runs on something no bot covers, I can build it into shrkbot and
+        switch it on for you alone. It stays off every other server's dashboard and
+        out of the public plugin list.
+      steps:
+        ask:
+          body: A rough idea is enough to start. I'll ask the questions that pin it
+            down.
+          title: Say what should happen
+        fit:
+          body: Discord's API has hard limits, and some ideas belong in a bot of your
+            own rather than in shrkbot.
+          title: I tell you if it fits
+        ship:
+          body: Built with tests, switched on for your server, and maintained like
+            the rest of shrkbot.
+          title: It ships and stays shipped
+      steps_eyebrow: How it goes
+      write: Write me
     home:
       add_to_server: Sign in to add shrkbot to your servers
       lede: 'shrkbot provides tools where Discord doesn''t, and gets out of your way

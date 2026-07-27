@@ -11,16 +11,23 @@ RSpec.describe "Bespoke plugins page", type: :request do
     expect(response).to have_http_status(:ok)
   end
 
-  it "includes the page title" do
+  it "leads with the bespoke-plugin pitch" do
     bespoke_plugins
 
-    expect(response.body).to include("Bespoke plugins")
+    expect(response.body).to include("Some things only make sense for one server.")
   end
 
   it "names the fee up front" do
     bespoke_plugins
 
-    expect(response.body).to include("we agree a small fee before anything gets written")
+    expect(response.body).to include("name a small fee before anything gets written")
+  end
+
+  it "offers both contact routes" do
+    bespoke_plugins
+
+    expect(response.body).to include("mailto:info@shrkbot.com")
+    expect(response.body).to include("https://discord.gg/3gwFMTY")
   end
 
   it "links the page from the public top bar" do

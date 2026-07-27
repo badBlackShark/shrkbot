@@ -3,9 +3,6 @@
 class Components::LegalPage < Components::Base
   include Components::LegalProse
 
-  CONTACT_EMAIL = "info@shrkbot.com"
-  SUPPORT_URL = "https://discord.gg/3gwFMTY"
-
   def initialize(title:, updated: nil, user: nil, contact: true)
     @title = title
     @updated = updated
@@ -30,9 +27,9 @@ class Components::LegalPage < Components::Base
     h2(class: "mb-3 mt-10 font-display text-xl font-semibold") { t(".contact_h") }
     p(class: "mb-4 leading-relaxed text-text-secondary") do
       plain "#{t(".contact_operator")} - "
-      a(href: "mailto:#{CONTACT_EMAIL}", class: link_classes) { CONTACT_EMAIL }
+      a(href: "mailto:#{SupportContact::EMAIL}", class: link_classes) { SupportContact::EMAIL }
       plain " / "
-      a(href: SUPPORT_URL, class: link_classes) { t(".contact_support") }
+      a(href: SupportContact::SERVER_URL, class: link_classes) { t(".contact_support") }
     end
   end
 end
