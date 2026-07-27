@@ -5,6 +5,20 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.6.0] - 2026-07-27
+
+### Added
+- Bespoke plugins: plugins the bot owner activates for one specific server, rather than shipping to everyone. A bespoke plugin stays invisible on every other server (no plugin card, no sidebar entry, no config page, no slash commands), and revoking the grant switches it off. Managed from a new owner-only admin page. ([#215](https://github.com/badBlackShark/shrkbot/pull/215))
+- First bespoke plugin: Twilight Struggle, built for twilight-struggle.com and available only to servers the bot owner grants it to. Tournament and game results from the site are posted into a Discord channel of your choice, as plain text matching the site's own announcements. Each tournament gets a channel, three message templates (win, tie, video) with a live preview, a ping control, and an archive toggle; bracket tournaments inherit anything you leave blank from their league. Several servers can subscribe to the same tournament, each with its own channel and wording, and games with a video always use the spoiler-free template. ([#213](https://github.com/badBlackShark/shrkbot/pull/213), [#216](https://github.com/badBlackShark/shrkbot/pull/216), [#217](https://github.com/badBlackShark/shrkbot/pull/217), [#218](https://github.com/badBlackShark/shrkbot/pull/218))
+- Tournament organisers listed on twilight-struggle.com can configure that plugin, including subscribing servers to their tournament, without being a Discord admin of those servers. A server admin still has to switch the plugin on once, which is that server's consent. ([#220](https://github.com/badBlackShark/shrkbot/pull/220))
+- The results API those tournaments arrive on (`/api/twilight-struggle/v1`) is key-gated and issued by the bot owner, not open for general use. Result payloads (player names, flags, winning side and method) are validated and rendered into the Discord message, never stored. ([#213](https://github.com/badBlackShark/shrkbot/pull/213))
+
+### Changed
+- Plugins you can see but not configure now render as locked: a disabled configure button on the plugin card and a non-navigable sidebar entry, instead of an error page after the click. ([#219](https://github.com/badBlackShark/shrkbot/pull/219))
+
+### Fixed
+- Welcome messages with "Ping on join" off no longer render the new member as `@unknown-user` for anyone who was offline when they joined. The mention now resolves for everyone, and the joiner still gets no notification sound or push. A template containing `@everyone` is also no longer pingable on that path. ([#212](https://github.com/badBlackShark/shrkbot/pull/212))
+
 ## [3.5.2] - 2026-07-24
 
 ### Fixed
