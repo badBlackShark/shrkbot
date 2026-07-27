@@ -16,23 +16,27 @@ RSpec.describe TwilightStruggle::TournamentAdmin do
     end
 
     context "when another admin already has that discord_id on the same tournament" do
-      let!(:existing) { create(:twilight_struggle_tournament_admin) }
-
-      it "is invalid" do
-        duplicate = build(
+      subject(:duplicate) do
+        build(
           :twilight_struggle_tournament_admin,
           tournament: existing.tournament,
           discord_id: existing.discord_id
         )
+      end
+
+      let!(:existing) { create(:twilight_struggle_tournament_admin) }
+
+      it "is invalid" do
         expect(duplicate).not_to be_valid
       end
     end
 
     context "when the same discord_id is on a different tournament" do
+      subject(:duplicate) { build(:twilight_struggle_tournament_admin, discord_id: existing.discord_id) }
+
       let!(:existing) { create(:twilight_struggle_tournament_admin) }
 
       it "is valid" do
-        duplicate = build(:twilight_struggle_tournament_admin, discord_id: existing.discord_id)
         expect(duplicate).to be_valid
       end
     end

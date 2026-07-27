@@ -70,6 +70,7 @@ RSpec.describe "Plugin access enforcement", type: :request do
       create(:bespoke_plugin_grant, server_configuration: config, plugin_key: "twilight_struggle")
       create(:twilight_struggle_destination, tournament:, server_configuration: config, active: true)
       create(:twilight_struggle_tournament_admin, tournament:, discord_id: 12345)
+      create(:plugin, key: "twilight_struggle", name: "Twilight Struggle")
     end
 
     it "allows the twilight_struggle plugin page" do
@@ -96,6 +97,21 @@ RSpec.describe "Plugin access enforcement", type: :request do
     it "keeps the server dashboard itself reachable" do
       get server_path(guild.id)
       expect(response).to have_http_status(:ok)
+    end
+
+    it "redirects the plugin toggle for another plugin" do
+      patch server_plugin_path(guild.id, :roles)
+      expect(response).to redirect_to(server_path(guild.id))
+    end
+
+    it "redirects the role set repost action" do
+      post server_role_set_repost_path(guild.id, role_set)
+      expect(response).to redirect_to(server_path(guild.id))
+    end
+
+    it "allows the plugin toggle for twilight_struggle" do
+      patch server_plugin_path(guild.id, :twilight_struggle), params: {enabled: "1"}
+      expect(config.enabled_plugin_keys).to include(:twilight_struggle)
     end
   end
 end
