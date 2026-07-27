@@ -11,7 +11,8 @@ module Api
             external_id: params[:external_id],
             name: params.dig(:tournament, :name),
             parent:,
-            status: params.dig(:tournament, :status)
+            status: params.dig(:tournament, :status),
+            admins: params.dig(:tournament, :admins)
           )
           render_upsert(result)
         end

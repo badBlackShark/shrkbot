@@ -10,6 +10,7 @@ module TwilightStruggle
     has_many :children, class_name: "TwilightStruggle::Tournament", foreign_key: :parent_id, inverse_of: :parent, dependent: :destroy
     has_many :games, class_name: "TwilightStruggle::Game", dependent: :destroy
     has_many :destinations, class_name: "TwilightStruggle::Destination", dependent: :delete_all
+    has_many :admins, class_name: "TwilightStruggle::TournamentAdmin", dependent: :delete_all
 
     validates :name, presence: true
     validates :friendly, inclusion: {in: [true, false]}

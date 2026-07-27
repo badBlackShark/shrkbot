@@ -47,3 +47,9 @@ components:
         status:
           type: string
           example: "closed"
+        admins:
+          type: array
+          items:
+            type: string
+            pattern: "^[0-9]+$"
+            example: "123456789012345678"

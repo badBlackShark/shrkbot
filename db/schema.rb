@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_27_132748) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_27_144813) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -460,6 +460,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_132748) do
     t.index ["server_configuration_id"], name: "idx_on_server_configuration_id_a66cc7cad2"
   end
 
+  create_table "twilight_struggle_tournament_admins", id: :string, default: -> { "('tsa_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "discord_id", null: false
+    t.string "tournament_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["discord_id"], name: "index_twilight_struggle_tournament_admins_on_discord_id"
+    t.index ["tournament_id", "discord_id"], name: "index_ts_tournament_admins_on_tournament_and_discord_id", unique: true
+  end
+
   create_table "twilight_struggle_tournaments", id: :string, default: -> { "('tst_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "external_id"
@@ -526,6 +535,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_132748) do
   add_foreign_key "twilight_struggle_games", "twilight_struggle_tournaments", column: "tournament_id"
   add_foreign_key "twilight_struggle_posted_messages", "server_configurations"
   add_foreign_key "twilight_struggle_posted_messages", "twilight_struggle_games", column: "game_id"
+  add_foreign_key "twilight_struggle_tournament_admins", "twilight_struggle_tournaments", column: "tournament_id"
   add_foreign_key "twilight_struggle_tournaments", "twilight_struggle_tournaments", column: "parent_id"
   add_foreign_key "welcome_settings", "server_configurations"
 end

@@ -7,6 +7,7 @@ module Ops
 
       def call
         ::Reminders::Reminder.for_user(user.discord_id).delete_all
+        ::TwilightStruggle::TournamentAdmin.where(discord_id: user.discord_id).delete_all
         user.destroy!
         ok(user)
       end

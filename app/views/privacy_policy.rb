@@ -99,6 +99,7 @@ class Views::PrivacyPolicy < Views::Base
       t(".deletion_guild"),
       t(".deletion_reminders"),
       t(".deletion_account"),
+      t(".deletion_twilight_struggle"),
       t(".deletion_contact")
     )
   end
