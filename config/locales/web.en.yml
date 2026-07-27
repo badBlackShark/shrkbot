@@ -445,14 +445,10 @@ en:
       archive_filter:
         active: Active
         archived: Archived
-      claim_form:
-        claim: Claim
-        no_servers: No server you manage has the Twilight Struggle plugin.
-        placeholder: Choose a server
       config_form:
         archive:
-          help: Hides it from the tournament list. It is not an off switch - a result
-            that still arrives is still posted.
+          help: Hides it from this server's list. It is not an off switch - a result
+            that still arrives is still posted here.
           label: Archive this tournament
         channel:
           help: Where results for this tournament are posted. With no channel, nothing
@@ -462,9 +458,8 @@ en:
           label: Results channel
       destination_actions:
         configure: Configure
-        release: Release
-        release_confirm: Release this tournament? Its channel is cleared and any server
-          can claim it next. Results already posted stay up.
+        subscribe: Subscribe
+        unsubscribe: Unsubscribe
       ping_card:
         help: Adds a player's Discord tag in brackets after their name, for players
           whose Discord ID twilight-struggle.com sends with the result. Everyone else
@@ -477,10 +472,9 @@ en:
         show: Name and tag
       template_card:
         empty: Nothing would be posted.
-        inherit: Pre-filled with what this tournament would use anyway, so you can
-          edit one detail instead of retyping the lot. Leave it untouched and it keeps
-          following that default; clear it out and it goes back to it.
         preview: Live preview
+        reset_to_default: Reset to default
+        reset_to_parent: Reset to parent
         tie:
           help: Used when the game ended in a tie.
           label: Tie
@@ -594,6 +588,8 @@ en:
       saved: Cross-Channel Spam Guard settings saved.
     twilight_struggle:
       saved: Twilight Struggle settings saved.
+      subscribed: Subscribed. Set where and how its results post below.
+      unsubscribed: Unsubscribed. New results in this tournament won't be posted.
     unknown_plugin: That plugin doesn't exist.
     welcomes:
       saved: Welcomes settings saved.
@@ -771,26 +767,29 @@ en:
             - live on the '
           subline_suffix: "."
           title: Cross-Channel Spam Guard
+      twilight_struggle:
+        destinations:
+          edit:
+            description: Where this server posts this tournament's results and how
+              they read. You can set all of it up before subscribing.
+            prereq_gate_cta: Open Twilight Struggle
+            prereq_gate_message: Twilight Struggle is switched off for this server,
+              so nothing is posted anywhere yet.
+            prereq_gate_title: The plugin is disabled
+            subscribe: Post %{tournament} results in this server
+            title: Twilight Struggle
+            tournaments: Tournaments
+        show:
+          description: Tournaments pushed to shrkbot by twilight-struggle.com. Subscribe
+            to the ones you want posted in this server.
+          empty_archived: Nothing has been archived.
+          empty_body: twilight-struggle.com has not sent us any tournaments yet. They
+            appear here as soon as it does.
+          empty_title: No tournaments yet
+          gate_message: Enable Twilight Struggle to subscribe this server to tournaments.
+          title: Twilight Struggle
       welcomes:
         show:
           description: Greet new members and say goodbye when they leave.
           gate_message: Enable the plugin to configure messages.
           title: Welcomes
-    twilight_struggle:
-      tournaments:
-        edit:
-          description: Where this tournament's results are posted and how they read.
-            The toggle is server-wide - turning it off stops every Twilight Struggle
-            post in this server, without losing what you set up here.
-          gate_message: Enable Twilight Struggle to give this tournament a channel
-            and its own message wording.
-          title: Twilight Struggle
-          tournaments: Tournaments
-        index:
-          empty_archived: Nothing has been archived.
-          empty_body: twilight-struggle.com has not sent us any tournaments yet. They
-            appear here as soon as it does.
-          empty_title: No tournaments yet
-          subtitle: Tournaments pushed to shrkbot by twilight-struggle.com. Claim
-            one to post its results in your server.
-          title: Twilight Struggle

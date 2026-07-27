@@ -40,24 +40,6 @@ RSpec.describe TwilightStruggle::Tournament do
     end
   end
 
-  describe "#archived?" do
-    it "is true when archived_at is set" do
-      tournament.archived_at = Time.current
-      expect(tournament.archived?).to be(true)
-    end
-
-    it "is true when status is closed" do
-      tournament.status = TwilightStruggle::Tournament::CLOSED_STATUS
-      expect(tournament.archived?).to be(true)
-    end
-
-    it "is false otherwise" do
-      tournament.archived_at = nil
-      tournament.status = "open"
-      expect(tournament.archived?).to be(false)
-    end
-  end
-
   describe "#parent" do
     it "rejects a self-parent" do
       persisted = create(:twilight_struggle_tournament)
@@ -87,6 +69,68 @@ RSpec.describe TwilightStruggle::Tournament do
 
       expect(described_class.find_by(id: child.id)).to be_nil
       expect(TwilightStruggle::Game.find_by(id: game.id)).to be_nil
+    end
+  end
+
+  describe "#chain" do
+    let(:grandparent) { create(:twilight_struggle_tournament) }
+    let(:parent) { create(:twilight_struggle_tournament, parent: grandparent) }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+    it "returns itself first" do
+      expect(tournament.chain.first).to eq(tournament)
+    end
+
+    it "walks up to the ancestors, nearest first" do
+      expect(tournament.chain).to eq([tournament, parent, grandparent])
+    end
+
+    context "when there is no parent" do
+      let(:tournament) { create(:twilight_struggle_tournament) }
+
+      it "returns just itself" do
+        expect(tournament.chain).to eq([tournament])
+      end
+    end
+  end
+
+  describe "#subscribed_servers" do
+    let(:parent) { create(:twilight_struggle_tournament) }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+    let(:direct_subscriber) { create(:server_configuration) }
+    let(:ancestor_subscriber) { create(:server_configuration) }
+    let(:elsewhere_subscriber) { create(:server_configuration) }
+    let(:unrelated_tournament) { create(:twilight_struggle_tournament) }
+
+    before do
+      create(:twilight_struggle_destination, tournament:, server_configuration: direct_subscriber)
+      create(:twilight_struggle_destination, tournament: parent, server_configuration: ancestor_subscriber)
+      create(:twilight_struggle_destination, tournament: unrelated_tournament, server_configuration: elsewhere_subscriber)
+    end
+
+    it "finds a server subscribed directly to the tournament" do
+      expect(tournament.subscribed_servers).to include(direct_subscriber)
+    end
+
+    it "finds a server subscribed to an ancestor" do
+      expect(tournament.subscribed_servers).to include(ancestor_subscriber)
+    end
+
+    it "excludes a server subscribed to an unrelated tournament" do
+      expect(tournament.subscribed_servers).not_to include(elsewhere_subscriber)
+    end
+
+    it "does not duplicate a server subscribed to both the tournament and an ancestor" do
+      create(:twilight_struggle_destination, tournament: parent, server_configuration: direct_subscriber)
+
+      expect(tournament.subscribed_servers.where(id: direct_subscriber.id).count).to eq(1)
+    end
+
+    it "excludes a server that unsubscribed but kept its settings" do
+      unsubscribed = create(:server_configuration)
+      create(:twilight_struggle_destination, tournament:, server_configuration: unsubscribed, active: false)
+
+      expect(tournament.subscribed_servers).not_to include(unsubscribed)
     end
   end
 end

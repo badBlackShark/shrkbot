@@ -20,6 +20,9 @@ class ServerConfiguration < ApplicationRecord
   has_many :server_channels, dependent: :destroy
   has_many :server_roles, dependent: :delete_all
 
+  has_many :twilight_struggle_destinations, class_name: "TwilightStruggle::Destination", dependent: :delete_all
+  has_many :twilight_struggle_posted_messages, class_name: "TwilightStruggle::PostedMessage", dependent: :delete_all
+
   validates :discord_id, presence: true, uniqueness: true
 
   def self.configured_ids_among(discord_ids)

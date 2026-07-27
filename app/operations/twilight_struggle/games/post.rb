@@ -6,11 +6,11 @@ module Ops
       class Post < ApplicationOperation
         self.transactional = false
 
-        receives :game, :report
+        receives :game, :server_configuration, :report
 
         def call
-          return skipped("no destination channel is configured on it or any tournament above it") if config.channel_id.blank?
-          return skipped("the Twilight Struggle plugin is disabled for #{config.server_configuration&.name}") unless plugin_enabled?
+          return skipped("no channel is configured for it or any tournament above it") if config.channel_id.blank?
+          return skipped("the Twilight Struggle plugin is disabled") unless plugin_enabled?
 
           deliver
           ok(game)
@@ -19,16 +19,16 @@ module Ops
         private
 
         def skipped(reason)
-          Rails.logger.info { "#{self.class} skipped game #{game.external_id}: #{reason}." }
+          Rails.logger.info { "#{self.class} skipped game #{game.external_id} for #{server_configuration.name}: #{reason}." }
           ok(game)
         end
 
         def plugin_enabled?
-          config.server_configuration&.enabled_plugin_keys&.include?(::TwilightStruggle::PLUGIN_KEY)
+          server_configuration.enabled_plugin_keys.include?(::TwilightStruggle::PLUGIN_KEY)
         end
 
         def config
-          @config ||= ::TwilightStruggle::EffectiveConfig.new(game.tournament)
+          @config ||= ::TwilightStruggle::EffectiveConfig.new(game.tournament, server_configuration)
         end
 
         def message
@@ -47,15 +47,17 @@ module Ops
         end
 
         def deliver
-          posted? ? edit_posted : create_new(config.channel_id)
+          posted ? edit_posted : create_new(config.channel_id)
         end
 
-        def posted?
-          game.discord_channel_id.present? && game.discord_message_id.present?
+        def posted
+          return @posted if defined?(@posted)
+
+          @posted = game.posted_messages.find_by(server_configuration:)
         end
 
         def edit_posted
-          ::Bot::Discord::Components.edit_content(game.discord_channel_id, game.discord_message_id, message.content)
+          ::Bot::Discord::Components.edit_content(posted.discord_channel_id, posted.discord_message_id, message.content)
         rescue Discordrb::Errors::UnknownMessage
           create_new(config.channel_id)
         end
@@ -66,12 +68,13 @@ module Ops
             content: message.content,
             allowed_mentions: {parse: []}
           )
-          Rails.logger.info { "#{self.class} posted game #{game.external_id} as message #{message_id} in channel #{channel_id}." }
+          Rails.logger.info { "#{self.class} posted game #{game.external_id} to #{server_configuration.name} as message #{message_id} in channel #{channel_id}." }
           persist_location(channel_id, message_id)
         end
 
         def persist_location(channel_id, message_id)
-          game.update!(discord_channel_id: channel_id, discord_message_id: message_id)
+          record = posted || game.posted_messages.build(server_configuration:)
+          record.update!(discord_channel_id: channel_id, discord_message_id: message_id)
         end
       end
     end

@@ -2,11 +2,9 @@
 
 module Ops
   module TwilightStruggle
-    module Tournaments
-      class Configure < ApplicationOperation
-        include Ops::PluginConfiguration
-
-        receives :server_configuration, :tournament, :enabled
+    module Destinations
+      class Save < ApplicationOperation
+        receives :destination, :active
         receives :discord_channel_id, optional: true
         receives :template_win, optional: true
         receives :template_tie, optional: true
@@ -15,20 +13,18 @@ module Ops
         receives :archived, optional: true
 
         def call
-          tournament.assign_attributes(settings)
-          activation = staged_activation
+          destination.assign_attributes(settings)
 
-          return failure(messages(tournament, activation), value: activation) unless tournament.valid? && activation.valid?
+          return failure(destination.errors.full_messages, value: destination) unless destination.save
 
-          tournament.save!
-          save_activation!(activation)
-          ok(activation)
+          ok(destination)
         end
 
         private
 
         def settings
           {
+            active: truthy?(active),
             discord_channel_id: discord_channel_id.presence,
             template_win: override(:win, template_win),
             template_tie: override(:tie, template_tie),
@@ -38,9 +34,9 @@ module Ops
           }
         end
 
-        # The form arrives pre-filled with whatever the tournament would inherit,
+        # The form arrives pre-filled with whatever the destination would inherit,
         # so text that came back untouched is not an override — storing it would
-        # freeze a copy and stop the tournament tracking its parent.
+        # freeze a copy and stop it tracking the tournament above.
         def override(kind, submitted)
           submitted = submitted.presence
           return nil if submitted == inherited.public_send(:"template_#{kind}")
@@ -49,7 +45,10 @@ module Ops
         end
 
         def inherited
-          @inherited ||= ::TwilightStruggle::EffectiveConfig.new(tournament.parent)
+          @inherited ||= ::TwilightStruggle::EffectiveConfig.new(
+            destination.tournament.parent,
+            destination.server_configuration
+          )
         end
 
         def ping_preference
@@ -61,11 +60,7 @@ module Ops
         def archived_at
           return nil unless truthy?(archived)
 
-          tournament.archived_at || Time.current
-        end
-
-        def plugin_key
-          ::TwilightStruggle::PLUGIN_KEY
+          destination.archived_at || Time.current
         end
       end
     end

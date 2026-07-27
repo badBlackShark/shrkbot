@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_25_143057) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_27_132748) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -424,10 +424,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_143057) do
     t.check_constraint "window_seconds >= 1 AND window_seconds <= 60", name: "spam_protection_settings_window_seconds_check"
   end
 
-  create_table "twilight_struggle_games", id: :string, default: -> { "('tsg_'::text || gen_random_uuid())" }, force: :cascade do |t|
+  create_table "twilight_struggle_destinations", id: :string, default: -> { "('tsd_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.datetime "archived_at"
     t.datetime "created_at", null: false
     t.bigint "discord_channel_id"
-    t.bigint "discord_message_id"
+    t.boolean "ping_players"
+    t.string "server_configuration_id", null: false
+    t.text "template_tie"
+    t.text "template_video"
+    t.text "template_win"
+    t.string "tournament_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["server_configuration_id"], name: "idx_on_server_configuration_id_49f7b0ea7d"
+    t.index ["tournament_id", "server_configuration_id"], name: "index_twilight_struggle_destinations_on_tournament_and_server", unique: true
+  end
+
+  create_table "twilight_struggle_games", id: :string, default: -> { "('tsg_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
     t.string "external_id", null: false
     t.string "tournament_id", null: false
     t.datetime "updated_at", null: false
@@ -435,25 +449,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_143057) do
     t.index ["tournament_id"], name: "index_twilight_struggle_games_on_tournament_id"
   end
 
-  create_table "twilight_struggle_tournaments", id: :string, default: -> { "('tst_'::text || gen_random_uuid())" }, force: :cascade do |t|
-    t.datetime "archived_at"
+  create_table "twilight_struggle_posted_messages", id: :string, default: -> { "('tsm_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.bigint "discord_channel_id"
+    t.bigint "discord_channel_id", null: false
+    t.bigint "discord_message_id", null: false
+    t.string "game_id", null: false
+    t.string "server_configuration_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["game_id", "server_configuration_id"], name: "index_twilight_struggle_posted_messages_on_game_and_server", unique: true
+    t.index ["server_configuration_id"], name: "idx_on_server_configuration_id_a66cc7cad2"
+  end
+
+  create_table "twilight_struggle_tournaments", id: :string, default: -> { "('tst_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
     t.string "external_id"
     t.boolean "friendly", default: false, null: false
     t.string "name", null: false
     t.string "parent_id"
-    t.boolean "ping_players"
-    t.string "server_configuration_id"
     t.string "status"
-    t.text "template_tie"
-    t.text "template_video"
-    t.text "template_win"
     t.datetime "updated_at", null: false
     t.index ["external_id"], name: "index_twilight_struggle_tournaments_on_external_id", unique: true, where: "(external_id IS NOT NULL)"
     t.index ["friendly"], name: "index_twilight_struggle_tournaments_on_friendly", unique: true, where: "friendly"
     t.index ["parent_id"], name: "index_twilight_struggle_tournaments_on_parent_id"
-    t.index ["server_configuration_id"], name: "index_twilight_struggle_tournaments_on_server_configuration_id"
     t.check_constraint "friendly AND external_id IS NULL OR NOT friendly AND external_id IS NOT NULL", name: "twilight_struggle_tournaments_friendly_external_id_check"
   end
 
@@ -504,8 +521,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_25_143057) do
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "spam_protection_settings", "server_configurations"
+  add_foreign_key "twilight_struggle_destinations", "server_configurations"
+  add_foreign_key "twilight_struggle_destinations", "twilight_struggle_tournaments", column: "tournament_id"
   add_foreign_key "twilight_struggle_games", "twilight_struggle_tournaments", column: "tournament_id"
-  add_foreign_key "twilight_struggle_tournaments", "server_configurations"
+  add_foreign_key "twilight_struggle_posted_messages", "server_configurations"
+  add_foreign_key "twilight_struggle_posted_messages", "twilight_struggle_games", column: "game_id"
   add_foreign_key "twilight_struggle_tournaments", "twilight_struggle_tournaments", column: "parent_id"
   add_foreign_key "welcome_settings", "server_configurations"
 end

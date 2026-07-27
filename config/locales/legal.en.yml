@@ -79,14 +79,15 @@ en:
       data_reminders: 'Reminders: the reminder text you write, your Discord ID, the
         target channel and server, whether to deliver by DM, and the due time - kept
         until delivered or deleted by you with /unremind.'
-      data_twilight_struggle: 'Twilight Struggle integration: on servers using it,
-        the tournament names and identifiers supplied by twilight-struggle.com, the
-        Discord server and channel chosen as a tournament''s destination, and the
-        message settings configured for it - the templates, whether players are mentioned,
-        and whether it is archived - plus references (channel and message IDs) to
-        the messages we post there. The result details themselves - player names,
-        flags, Discord IDs and dates - live only in the queued job that posts the
-        message, never on the tournament or game record.'
+      data_twilight_struggle: 'Twilight Struggle integration: the tournament names
+        and identifiers supplied by twilight-struggle.com. For each server that subscribes
+        to a tournament, we store which tournament it subscribes to, the Discord channel
+        it posts results in, and the message settings it configured - the templates,
+        whether players are mentioned, whether it is archived, and whether it is currently
+        switched on - plus references (channel and message IDs) to the messages we
+        post there, one per subscribing server. The result details themselves - player
+        names, flags, Discord IDs and dates - live only in the queued job that posts
+        the message, never on the tournament or game record.'
       data_welcomes: 'Welcome messages: on servers that use Discord''s membership
         screening, a short-lived in-memory note that a member has joined but not yet
         finished onboarding - the server ID and their Discord ID, nothing else. It
@@ -137,12 +138,13 @@ en:
         not linked to any user or server.
       messages_p_6: Game results sent to us by twilight-struggle.com for the Twilight
         Struggle integration include player names and, if provided, players' Discord
-        IDs. These are rendered into the Discord message we post - a Discord ID lets
-        us mention that player. They are held only in the queued job that posts the
-        message, so that a Discord outage can be retried rather than losing the result,
-        and are cleared once it has been posted. The posted message is an ordinary
-        Discord message, stored by Discord in that channel; deleting the game through
-        the integration deletes it, deleting its tournament does not.
+        IDs. These are rendered into the Discord messages we post, one per subscribing
+        server - a Discord ID lets us mention that player. They are held only in the
+        queued jobs that post the messages, so that a Discord outage can be retried
+        rather than losing the result, and are cleared once each has posted. The posted
+        messages are ordinary Discord messages, stored by Discord in their channels;
+        deleting the game through the integration deletes them, deleting its tournament
+        does not.
       not_h: What we don't do
       not_p: We don't sell data, we don't advertise, we don't profile you, we don't
         run analytics, and we don't store your servers' member lists or conversations.
@@ -168,9 +170,11 @@ en:
       retention_twilight_struggle: 'Twilight Struggle integration: tournament and
         game data is kept until deleted through the integration. The result details
         held in a queued posting job are cleared within an hour of the message going
-        out; if posting keeps failing, the job is discarded within 48 hours. A tournament''s
-        destination server and channel are cleared the moment the bot is removed from
-        that server, independently of the tournament itself.'
+        out; if posting keeps failing, the job is discarded within 48 hours. A server''s
+        subscriptions and the message references belonging to it are deleted the moment
+        the bot is removed from that server, whether or not they are switched on;
+        the tournaments and games themselves are twilight-struggle.com''s data and
+        are unaffected.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down.'
@@ -191,7 +195,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: July 25th, 2026'
+      updated: 'Last updated: July 27th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

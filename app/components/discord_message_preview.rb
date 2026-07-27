@@ -38,7 +38,7 @@ class Components::DiscordMessagePreview < Components::Base
           span(class: "rounded bg-accent-fill px-1.5 py-0.5 text-[10px] font-semibold text-white") { "APP" }
           span(class: "text-[11px] text-[color:var(--discord-muted)]") { message[:timestamp] } if message[:timestamp]
         end
-        p(class: "text-sm leading-relaxed text-[color:var(--discord-text)]", data: message[:body_data] || {})
+        p(class: "whitespace-pre-wrap text-sm leading-relaxed text-[color:var(--discord-text)]", data: message[:body_data] || {})
       end
     end
   end

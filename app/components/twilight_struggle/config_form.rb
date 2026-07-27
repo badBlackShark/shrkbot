@@ -3,16 +3,14 @@
 class Components::TwilightStruggle::ConfigForm < Components::Base
   TEMPLATES = [:win, :tie, :video].freeze
 
-  def initialize(tournament:, enable_error: nil)
-    @tournament = tournament
-    @enable_error = enable_error
+  def initialize(destination:)
+    @destination = destination
   end
 
   def view_template
     div(id: "twilight_struggle-config", class: "flex flex-col gap-5", data: {controller: "twilight-struggle-preview", action: "input->twilight-struggle-preview#render"}) do
-      enable_error_callout
       channel_card
-      render Components::TwilightStruggle::PingCard.new(tournament: @tournament, inherited:)
+      render Components::TwilightStruggle::PingCard.new(destination: @destination, inherited:)
       render Components::TwilightStruggle::TokenHelpCard.new
       TEMPLATES.each { |kind| template_card(kind) }
       archive_card
@@ -21,17 +19,11 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
 
   private
 
-  def enable_error_callout
-    return unless @enable_error
-
-    render Components::Callout.new(variant: :danger) { @enable_error }
-  end
-
   def channel_card
     render Components::ChannelCard.new(
-      name: "tournament[discord_channel_id]",
+      name: "destination[discord_channel_id]",
       channels:,
-      selected: @tournament.discord_channel_id,
+      selected: @destination.discord_channel_id,
       label: t(".channel.label"),
       help: channel_help
     )
@@ -46,38 +38,36 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
   def template_card(kind)
     render Components::TwilightStruggle::TemplateCard.new(
       kind:,
-      value: @tournament.public_send(:"template_#{kind}").presence || inherited_template(kind),
+      value: @destination.public_send(:"template_#{kind}").presence || inherited_template(kind),
       placeholder: inherited_template(kind),
-      channel: channel_label
+      channel: channel_label,
+      inherits_from_parent: inherited.inherited_from.present?
     )
   end
 
   def archive_card
     render Components::ToggleCard.new(
-      name: "tournament[archived]",
-      checked: @tournament.manually_archived?,
+      name: "destination[archived]",
+      checked: @destination.manually_archived?,
       label: t(".archive.label"),
       help: t(".archive.help")
     )
   end
 
   def channel_label
-    label_for(@tournament.discord_channel_id) || inherited_channel_label
+    channel_names[@destination.discord_channel_id] || channel_names[inherited.channel_id]
   end
 
   def inherited_channel_label
-    @inherited_channel_label ||= label_for(inherited.channel_id)
-  end
-
-  def label_for(channel_id)
-    return nil if channel_id.blank?
-
-    name = channel_names[channel_id]
-    "# #{name}" if name
+    @inherited_channel_label ||= qualified_channel_names[inherited.channel_id]
   end
 
   def channel_names
     @channel_names ||= channel_options.labels_by_id
+  end
+
+  def qualified_channel_names
+    @qualified_channel_names ||= channel_options.qualified_labels_by_id
   end
 
   def channels
@@ -85,7 +75,7 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
   end
 
   def channel_options
-    @channel_options ||= ChannelOptions.new(@tournament.server_configuration)
+    @channel_options ||= ChannelOptions.new(@destination.server_configuration)
   end
 
   def inherited_template(kind)
@@ -93,6 +83,6 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
   end
 
   def inherited
-    @inherited ||= ::TwilightStruggle::EffectiveConfig.new(@tournament.parent)
+    @inherited ||= ::TwilightStruggle::EffectiveConfig.new(@destination.tournament.parent, @destination.server_configuration)
   end
 end

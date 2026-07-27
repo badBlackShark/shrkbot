@@ -4,9 +4,10 @@ require "rails_helper"
 require "discordrb"
 
 RSpec.describe TwilightStruggle::PostJob do
-  subject(:perform) { described_class.perform_now(game, payload) }
+  subject(:perform) { described_class.perform_now(game, server_configuration, payload) }
 
   let(:game) { create(:twilight_struggle_game) }
+  let(:server_configuration) { create(:server_configuration) }
   let(:payload) do
     {
       "game_code" => "R1",
@@ -34,10 +35,10 @@ RSpec.describe TwilightStruggle::PostJob do
     expect(TwilightStruggle::GameReport).to have_received(:from_payload).with(payload)
   end
 
-  it "calls the post operation with the game and the built report" do
+  it "calls the post operation with the game, server, and built report" do
     perform
 
-    expect(Ops::TwilightStruggle::Games::Post).to have_received(:call).with(game:, report:)
+    expect(Ops::TwilightStruggle::Games::Post).to have_received(:call).with(game:, server_configuration:, report:)
   end
 
   context "when the destination channel is gone" do

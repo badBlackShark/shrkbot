@@ -2,16 +2,13 @@
 
 module TwilightStruggle
   class EffectiveConfig
-    def initialize(tournament)
+    def initialize(tournament, server_configuration)
       @tournament = tournament
+      @server_configuration = server_configuration
     end
 
     def channel_id
-      channel_node&.discord_channel_id
-    end
-
-    def server_configuration
-      channel_node&.server_configuration
+      first_present(:discord_channel_id)
     end
 
     def template_win
@@ -27,19 +24,17 @@ module TwilightStruggle
     end
 
     def ping_players?
-      chain.find { |tournament| !tournament.ping_players.nil? }&.ping_players || false
+      chain.find { |destination| !destination.ping_players.nil? }&.ping_players || false
+    end
+
+    def inherited_from
+      chain.first&.tournament
     end
 
     private
 
-    def channel_node
-      return @channel_node if defined?(@channel_node)
-
-      @channel_node = chain.find { |tournament| tournament.discord_channel_id.present? }
-    end
-
     def first_present(attribute)
-      chain.filter_map { |tournament| tournament.public_send(attribute).presence }.first
+      chain.filter_map { |destination| destination.public_send(attribute).presence }.first
     end
 
     def chain
@@ -47,15 +42,14 @@ module TwilightStruggle
     end
 
     def build_chain
-      nodes = []
-      current = @tournament
+      return [] if @tournament.nil?
 
-      while current
-        nodes << current
-        current = current.parent
-      end
-
-      nodes
+      lineage = @tournament.chain
+      by_tournament = Destination
+        .active
+        .where(tournament: lineage, server_configuration: @server_configuration)
+        .index_by(&:tournament_id)
+      lineage.filter_map { |tournament| by_tournament[tournament.id] }
     end
   end
 end

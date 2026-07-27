@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Components::TwilightStruggle::TournamentSwitcher < Components::Base
-  def initialize(current:, tournaments:)
+  def initialize(current:, destinations:)
     @current = current
-    @tournaments = tournaments
+    @destinations = destinations
   end
 
   def view_template
@@ -16,7 +16,7 @@ class Components::TwilightStruggle::TournamentSwitcher < Components::Base
           "bg-surface-card px-3 text-sm font-semibold transition-colors hover:bg-surface-sunken " \
           "[&::-webkit-details-marker]:hidden"
       ) do
-        span(class: "whitespace-nowrap") { @current.name }
+        span(class: "whitespace-nowrap") { @current.tournament.name }
         render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 text-text-muted")
       end
       menu
@@ -26,7 +26,7 @@ class Components::TwilightStruggle::TournamentSwitcher < Components::Base
   private
 
   def current_only
-    render Components::Badge.new(variant: :copper) { @current.name }
+    render Components::Badge.new(variant: :copper) { @current.tournament.name }
   end
 
   def menu
@@ -36,27 +36,27 @@ class Components::TwilightStruggle::TournamentSwitcher < Components::Base
         "border-border-default bg-surface-card py-1.5 shadow-lg"
     ) do
       p(class: "px-3 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-widest text-eyebrow") { t(".label") }
-      others.each { |tournament| row(tournament) }
+      others.each { |destination| row(destination) }
     end
   end
 
-  def row(tournament)
+  def row(destination)
     a(
-      href: edit_twilight_struggle_tournament_path(tournament),
+      href: edit_server_twilight_struggle_destination_path(destination.server_configuration.discord_id, destination.tournament),
       class: "flex flex-col gap-0.5 px-3 py-2 text-sm transition-colors hover:bg-surface-sunken"
     ) do
-      span(class: "font-medium") { tournament.name }
-      parent_line(tournament)
+      span(class: "font-medium") { destination.tournament.name }
+      parent_line(destination)
     end
   end
 
-  def parent_line(tournament)
-    return unless tournament.parent
+  def parent_line(destination)
+    return unless destination.tournament.parent
 
-    span(class: "text-xs text-text-secondary") { t(".under", parent: tournament.parent.name) }
+    span(class: "text-xs text-text-secondary") { t(".under", parent: destination.tournament.parent.name) }
   end
 
   def others
-    @others ||= @tournaments.reject { |tournament| tournament.id == @current.id }
+    @others ||= @destinations.reject { |destination| destination.tournament_id == @current.tournament_id }
   end
 end

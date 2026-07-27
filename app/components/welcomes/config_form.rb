@@ -122,12 +122,15 @@ class Components::Welcomes::ConfigForm < Components::Base
   def preview_channel
     return unless @settings.channel_id
 
-    name = @config.server_channels.find_by(discord_id: @settings.channel_id)&.name
-    "# #{name}" if name
+    channel_options.labels_by_id[@settings.channel_id]
   end
 
   def channels
-    @channels ||= ChannelOptions.new(@config).options
+    @channels ||= channel_options.options
+  end
+
+  def channel_options
+    @channel_options ||= ChannelOptions.new(@config)
   end
 
   def camel(name)

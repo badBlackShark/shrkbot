@@ -12,10 +12,21 @@ class ChannelOptions
   end
 
   def labels_by_id
-    channels.to_h { |channel| [channel.discord_id, channel.name] }
+    channels.to_h { |channel| [channel.discord_id, "##{channel.name}"] }
+  end
+
+  def qualified_labels_by_id
+    channels.to_h { |channel| [channel.discord_id, qualified(channel)] }
   end
 
   private
+
+  def qualified(channel)
+    category = categories[channel.parent_id]
+    return "##{channel.name}" unless category
+
+    "#{category.name} / ##{channel.name}"
+  end
 
   def grouped(category, group)
     return group.map { |channel| option_for(channel) } unless category

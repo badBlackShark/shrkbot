@@ -9,8 +9,12 @@ module TwilightStruggle
     discard_on "Discordrb::Errors::UnknownChannel"
     discard_on "Discordrb::Errors::NoPermission"
 
-    def perform(game, payload)
-      Ops::TwilightStruggle::Games::Post.call(game:, report: GameReport.from_payload(payload))
+    def perform(game, server_configuration, payload)
+      Ops::TwilightStruggle::Games::Post.call(
+        game:,
+        server_configuration:,
+        report: GameReport.from_payload(payload)
+      )
     end
   end
 end

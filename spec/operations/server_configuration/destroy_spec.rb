@@ -50,33 +50,41 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
     end
   end
 
-  context "twilight struggle tournament handling" do
-    let!(:tournament) do
-      create(:twilight_struggle_tournament, server_configuration: config, discord_channel_id: 123456789012345678)
+  context "twilight struggle destination handling" do
+    let!(:tournament) { create(:twilight_struggle_tournament) }
+    let!(:destination) do
+      create(:twilight_struggle_destination, tournament:, server_configuration: config, discord_channel_id: 123456789012345678)
     end
+    let!(:game) { create(:twilight_struggle_game, tournament:) }
+    let!(:posted_message) { create(:twilight_struggle_posted_message, game:, server_configuration: config) }
     let!(:other_config) { create(:server_configuration) }
-    let!(:other_tournament) do
-      create(:twilight_struggle_tournament, server_configuration: other_config, discord_channel_id: 876543210987654321)
+    let!(:other_destination) do
+      create(:twilight_struggle_destination, tournament:, server_configuration: other_config, discord_channel_id: 876543210987654321)
     end
+    let!(:other_posted_message) { create(:twilight_struggle_posted_message, game:, server_configuration: other_config) }
 
-    it "nulls the destination on tournaments pointing at the server configuration" do
+    it "destroys the server's destinations" do
       result
 
-      tournament.reload
-      expect(tournament.server_configuration_id).to be_nil
-      expect(tournament.discord_channel_id).to be_nil
+      expect(TwilightStruggle::Destination.find_by(id: destination.id)).to be_nil
     end
 
-    it "leaves the tournament row itself in place" do
+    it "destroys the server's posted-message rows" do
+      result
+
+      expect(TwilightStruggle::PostedMessage.find_by(id: posted_message.id)).to be_nil
+    end
+
+    it "leaves the tournament and game rows in place" do
       expect { result }.not_to change(TwilightStruggle::Tournament, :count)
+      expect { result }.not_to change(TwilightStruggle::Game, :count)
     end
 
-    it "leaves tournaments pointing at other server configurations untouched" do
+    it "leaves other servers' destinations and posted messages untouched" do
       result
 
-      other_tournament.reload
-      expect(other_tournament.server_configuration_id).to eq(other_config.id)
-      expect(other_tournament.discord_channel_id).to eq(876543210987654321)
+      expect(TwilightStruggle::Destination.find_by(id: other_destination.id)).to be_present
+      expect(TwilightStruggle::PostedMessage.find_by(id: other_posted_message.id)).to be_present
     end
   end
 
