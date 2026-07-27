@@ -5,7 +5,7 @@ Rails.application.configure do
     policy.default_src :self
     policy.base_uri :self
     policy.font_src :self, :data
-    policy.form_action :self
+    policy.form_action :self, "https://discord.com"
     policy.img_src :self, :data, "https://cdn.discordapp.com", "https://media.discordapp.net"
     policy.object_src :none
     policy.script_src :self
