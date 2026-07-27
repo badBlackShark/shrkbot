@@ -71,6 +71,29 @@ RSpec.describe TwilightStruggle::EffectiveConfig do
         expect(config.channel_id).to be_nil
       end
     end
+
+    context "when this server unsubscribed but kept its channel" do
+      let(:tournament) { create(:twilight_struggle_tournament) }
+      let!(:destination) do
+        create(:twilight_struggle_destination, tournament:, server_configuration:, discord_channel_id: 4242, active: false)
+      end
+
+      it "resolves as if the destination were not there" do
+        expect(config.channel_id).to be_nil
+      end
+
+      context "when a parent this server is still subscribed to has a channel" do
+        let(:parent) { create(:twilight_struggle_tournament) }
+        let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+        let!(:parent_destination) do
+          create(:twilight_struggle_destination, tournament: parent, server_configuration:, discord_channel_id: 111)
+        end
+
+        it "falls through to the parent" do
+          expect(config.channel_id).to eq(111)
+        end
+      end
+    end
   end
 
   describe "#template_win" do

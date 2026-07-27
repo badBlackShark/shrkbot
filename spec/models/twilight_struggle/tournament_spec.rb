@@ -125,5 +125,12 @@ RSpec.describe TwilightStruggle::Tournament do
 
       expect(tournament.subscribed_servers.where(id: direct_subscriber.id).count).to eq(1)
     end
+
+    it "excludes a server that unsubscribed but kept its settings" do
+      unsubscribed = create(:server_configuration)
+      create(:twilight_struggle_destination, tournament:, server_configuration: unsubscribed, active: false)
+
+      expect(tournament.subscribed_servers).not_to include(unsubscribed)
+    end
   end
 end

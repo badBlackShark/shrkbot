@@ -7,6 +7,8 @@ module TwilightStruggle
     belongs_to :tournament, class_name: "TwilightStruggle::Tournament"
     belongs_to :server_configuration
 
+    scope :active, -> { where(active: true) }
+
     validates :tournament_id, uniqueness: {scope: :server_configuration_id}
 
     def manually_archived?

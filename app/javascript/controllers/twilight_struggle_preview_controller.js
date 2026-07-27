@@ -53,6 +53,12 @@ export default class extends Controller {
     }
   }
 
+  reset({ params: { kind } }) {
+    const input = this[`${kind}TemplateTarget`]
+    input.value = input.placeholder
+    input.dispatchEvent(new Event("input", { bubbles: true }))
+  }
+
   paint(input, output, game) {
     const template = input.value.trim() || input.placeholder
     output.replaceChildren()

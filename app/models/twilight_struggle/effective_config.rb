@@ -46,6 +46,7 @@ module TwilightStruggle
 
       lineage = @tournament.chain
       by_tournament = Destination
+        .active
         .where(tournament: lineage, server_configuration: @server_configuration)
         .index_by(&:tournament_id)
       lineage.filter_map { |tournament| by_tournament[tournament.id] }

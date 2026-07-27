@@ -460,8 +460,6 @@ en:
         configure: Configure
         subscribe: Subscribe
         unsubscribe: Unsubscribe
-        unsubscribe_confirm: Stop posting this tournament's results here? Its channel
-          and message wording are discarded. Results already posted stay up.
       ping_card:
         help: Adds a player's Discord tag in brackets after their name, for players
           whose Discord ID twilight-struggle.com sends with the result. Everyone else
@@ -474,10 +472,9 @@ en:
         show: Name and tag
       template_card:
         empty: Nothing would be posted.
-        inherit: Pre-filled with what this tournament would use anyway, so you can
-          edit one detail instead of retyping the lot. Leave it untouched and it keeps
-          following that default; clear it out and it goes back to it.
         preview: Live preview
+        reset_to_default: Reset to default
+        reset_to_parent: Reset to parent
         tie:
           help: Used when the game ended in a tie.
           label: Tie
@@ -591,8 +588,9 @@ en:
       saved: Cross-Channel Spam Guard settings saved.
     twilight_struggle:
       saved: Twilight Struggle settings saved.
-      subscribed: Subscribed. Configure where and how results post below.
-      unsubscribed: Unsubscribed. Results already posted stay up.
+      subscribed: Subscribed. Set where and how its results post below.
+      unsubscribed: Unsubscribed. Its channel and wording are kept, and results already
+        posted stay up.
     unknown_plugin: That plugin doesn't exist.
     welcomes:
       saved: Welcomes settings saved.

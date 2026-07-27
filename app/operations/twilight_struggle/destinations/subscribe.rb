@@ -3,11 +3,11 @@
 module Ops
   module TwilightStruggle
     module Destinations
-      class Destroy < ApplicationOperation
+      class Subscribe < ApplicationOperation
         receives :destination
 
         def call
-          destination.destroy! if destination.persisted?
+          destination.update!(active: true)
           ok(destination)
         end
       end

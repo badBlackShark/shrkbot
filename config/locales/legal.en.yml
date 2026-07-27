@@ -83,11 +83,11 @@ en:
         and identifiers supplied by twilight-struggle.com. For each server that subscribes
         to a tournament, we store which tournament it subscribes to, the Discord channel
         it posts results in, and the message settings it configured - the templates,
-        whether players are mentioned, and whether it is archived - plus references
-        (channel and message IDs) to the messages we post there, one per subscribing
-        server. The result details themselves - player names, flags, Discord IDs and
-        dates - live only in the queued job that posts the message, never on the tournament
-        or game record.'
+        whether players are mentioned, whether it is archived, and whether it is currently
+        switched on - plus references (channel and message IDs) to the messages we
+        post there, one per subscribing server. The result details themselves - player
+        names, flags, Discord IDs and dates - live only in the queued job that posts
+        the message, never on the tournament or game record.'
       data_welcomes: 'Welcome messages: on servers that use Discord''s membership
         screening, a short-lived in-memory note that a member has joined but not yet
         finished onboarding - the server ID and their Discord ID, nothing else. It
@@ -172,8 +172,9 @@ en:
         held in a queued posting job are cleared within an hour of the message going
         out; if posting keeps failing, the job is discarded within 48 hours. A server''s
         subscriptions and the message references belonging to it are deleted the moment
-        the bot is removed from that server; the tournaments and games themselves
-        are twilight-struggle.com''s data and are unaffected.'
+        the bot is removed from that server, whether or not they are switched on;
+        the tournaments and games themselves are twilight-struggle.com''s data and
+        are unaffected.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down.'
@@ -194,7 +195,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: July 25th, 2026'
+      updated: 'Last updated: July 27th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

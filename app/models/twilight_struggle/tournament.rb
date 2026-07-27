@@ -36,7 +36,7 @@ module TwilightStruggle
 
     def subscribed_servers
       ::ServerConfiguration.where(
-        id: Destination.where(tournament: chain).select(:server_configuration_id)
+        id: Destination.active.where(tournament: chain).select(:server_configuration_id)
       )
     end
 

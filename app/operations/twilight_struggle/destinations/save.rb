@@ -4,7 +4,7 @@ module Ops
   module TwilightStruggle
     module Destinations
       class Save < ApplicationOperation
-        receives :destination
+        receives :destination, :active
         receives :discord_channel_id, optional: true
         receives :template_win, optional: true
         receives :template_tie, optional: true
@@ -24,6 +24,7 @@ module Ops
 
         def settings
           {
+            active: truthy?(active),
             discord_channel_id: discord_channel_id.presence,
             template_win: override(:win, template_win),
             template_tie: override(:tie, template_tie),

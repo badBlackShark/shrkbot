@@ -14,14 +14,18 @@ class Components::TwilightStruggle::DestinationActions < Components::Base
     div(class: "flex flex-none items-center gap-2") do
       channel_chip
       configure_link
-      @destination ? unsubscribe_link : subscribe_link
+      subscribed? ? unsubscribe_link : subscribe_link
     end
   end
 
   private
 
+  def subscribed?
+    @destination&.active?
+  end
+
   def channel_chip
-    return unless @channel_label
+    return unless subscribed? && @channel_label
 
     render Components::ChannelChip.new(label: @channel_label)
   end
@@ -40,7 +44,7 @@ class Components::TwilightStruggle::DestinationActions < Components::Base
       size: :sm,
       class: ACTION_WIDTH,
       label: t(".subscribe"),
-      href: server_twilight_struggle_destinations_path(@server_configuration.discord_id, tournament_id: @tournament.id),
+      href: server_twilight_struggle_subscriptions_path(@server_configuration.discord_id, tournament_id: @tournament.id),
       data: {turbo_method: :post}
     )
   end
@@ -51,8 +55,8 @@ class Components::TwilightStruggle::DestinationActions < Components::Base
       size: :sm,
       class: ACTION_WIDTH,
       label: t(".unsubscribe"),
-      href: server_twilight_struggle_destination_path(@server_configuration.discord_id, @tournament),
-      data: {turbo_method: :delete, turbo_confirm: t(".unsubscribe_confirm")}
+      href: server_twilight_struggle_subscription_path(@server_configuration.discord_id, @tournament),
+      data: {turbo_method: :delete}
     )
   end
 end

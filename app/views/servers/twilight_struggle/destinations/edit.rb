@@ -16,7 +16,7 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
         url: server_twilight_struggle_destination_path(server_configuration.discord_id, tournament),
         toggle: {
           field: "destination[subscribed]",
-          enabled: @destination.persisted?,
+          enabled: @destination.active? && @destination.persisted?,
           label: t(".subscribe", tournament: tournament.name)
         },
         gate:,

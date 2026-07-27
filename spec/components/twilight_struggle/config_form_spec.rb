@@ -39,6 +39,23 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
     end
   end
 
+  describe "the reset button" do
+    it "offers resetting each template back to the default" do
+      expect(html.scan(I18n.t("components.twilight_struggle.template_card.reset_to_default")).size).to eq(6)
+    end
+
+    context "when a parent tournament this server also subscribes to supplies the wording" do
+      let(:parent) { create(:twilight_struggle_tournament) }
+      let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+      let!(:parent_destination) { create(:twilight_struggle_destination, tournament: parent, server_configuration:) }
+
+      it "calls it resetting to the parent instead" do
+        expect(html).to include(I18n.t("components.twilight_struggle.template_card.reset_to_parent"))
+        expect(html).not_to include(I18n.t("components.twilight_struggle.template_card.reset_to_default"))
+      end
+    end
+  end
+
   describe "the channel help" do
     it "explains that no channel means no posts" do
       expect(html).to include("With no channel, nothing is posted")

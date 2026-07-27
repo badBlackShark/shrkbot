@@ -20,10 +20,11 @@ RSpec.describe Components::TwilightStruggle::DestinationActions do
     expect(html).to include(edit_server_twilight_struggle_destination_path(server_configuration.discord_id, tournament))
   end
 
-  it "offers unsubscribing behind a confirmation" do
+  it "offers unsubscribing, with no confirmation to click through since nothing is lost" do
     expect(html).to include(I18n.t("components.twilight_struggle.destination_actions.unsubscribe"))
+    expect(html).to include(server_twilight_struggle_subscription_path(server_configuration.discord_id, tournament))
     expect(html).to include("data-turbo-method=\"delete\"")
-    expect(html).to include(I18n.t("components.twilight_struggle.destination_actions.unsubscribe_confirm"))
+    expect(html).not_to include("turbo-confirm")
   end
 
   it "says nothing about a channel while none is picked" do
@@ -38,11 +39,24 @@ RSpec.describe Components::TwilightStruggle::DestinationActions do
     end
   end
 
+  context "when the server unsubscribed but kept its settings" do
+    let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, active: false, discord_channel_id: 4242) }
+    let(:channel_label) { "Tournaments / #results" }
+
+    it "offers subscribing again" do
+      expect(html).to include(server_twilight_struggle_subscriptions_path(server_configuration.discord_id, tournament_id: tournament.id))
+    end
+
+    it "does not advertise a channel it is not posting to" do
+      expect(html).not_to include("Tournaments / #results")
+    end
+  end
+
   context "when the server does not subscribe to the tournament" do
     let(:destination) { nil }
 
     it "offers subscribing instead of unsubscribing" do
-      expect(html).to include(server_twilight_struggle_destinations_path(server_configuration.discord_id, tournament_id: tournament.id))
+      expect(html).to include(server_twilight_struggle_subscriptions_path(server_configuration.discord_id, tournament_id: tournament.id))
       expect(html).to include("data-turbo-method=\"post\"")
     end
 

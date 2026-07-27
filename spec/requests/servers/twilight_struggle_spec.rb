@@ -59,7 +59,7 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           it "lists tournaments with a subscribe link" do
             get server_twilight_struggle_path(guild.id)
             expect(response.body).to include("OTSL 2026")
-            expect(response.body).to include(server_twilight_struggle_destinations_path(guild.id, tournament_id: tournament.id))
+            expect(response.body).to include(server_twilight_struggle_subscriptions_path(guild.id, tournament_id: tournament.id))
           end
 
           it "offers configure whether or not the server subscribes" do
@@ -73,7 +73,7 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
             it "offers unsubscribe instead of subscribe" do
               get server_twilight_struggle_path(guild.id)
               expect(response.body).to include(I18n.t("components.twilight_struggle.destination_actions.unsubscribe"))
-              expect(response.body).not_to include(server_twilight_struggle_destinations_path(guild.id, tournament_id: tournament.id))
+              expect(response.body).not_to include(server_twilight_struggle_subscriptions_path(guild.id, tournament_id: tournament.id))
             end
 
             it "names the channel it posts in, under its category" do
@@ -91,7 +91,7 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
             it "still lists it here, unsubscribed and without the other server's channel" do
               get server_twilight_struggle_path(guild.id)
               expect(response.body).to include("OTSL 2026")
-              expect(response.body).to include(server_twilight_struggle_destinations_path(guild.id, tournament_id: tournament.id))
+              expect(response.body).to include(server_twilight_struggle_subscriptions_path(guild.id, tournament_id: tournament.id))
               expect(response.body).not_to include("7777")
             end
           end
@@ -134,9 +134,9 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
         end
       end
 
-      describe "POST /servers/:server_id/twilight_struggle/destinations" do
+      describe "POST /servers/:server_id/twilight_struggle/subscriptions" do
         subject(:subscribe) do
-          post server_twilight_struggle_destinations_path(guild.id), params: {tournament_id: tournament.id}
+          post server_twilight_struggle_subscriptions_path(guild.id), params: {tournament_id: tournament.id}
         end
 
         it "subscribes the server to the tournament" do
@@ -151,7 +151,7 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
 
         context "when the tournament does not exist" do
           it "is not found" do
-            post server_twilight_struggle_destinations_path(guild.id), params: {tournament_id: "tst_nope"}
+            post server_twilight_struggle_subscriptions_path(guild.id), params: {tournament_id: "tst_nope"}
             expect(response).to have_http_status(:not_found)
           end
         end
@@ -165,16 +165,16 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
         end
       end
 
-      describe "DELETE /servers/:server_id/twilight_struggle/destinations/:tournament_id" do
+      describe "DELETE /servers/:server_id/twilight_struggle/subscriptions/:tournament_id" do
         let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration: config) }
 
-        it "unsubscribes the server" do
-          delete server_twilight_struggle_destination_path(guild.id, tournament)
-          expect(TwilightStruggle::Destination.exists?(destination.id)).to be(false)
+        it "unsubscribes the server without discarding its settings" do
+          delete server_twilight_struggle_subscription_path(guild.id, tournament)
+          expect(destination.reload).not_to be_active
         end
 
         it "redirects back to the list" do
-          delete server_twilight_struggle_destination_path(guild.id, tournament)
+          delete server_twilight_struggle_subscription_path(guild.id, tournament)
           expect(response).to redirect_to(server_twilight_struggle_path(guild.id))
         end
 
@@ -182,7 +182,7 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           let!(:destination) { nil }
 
           it "still redirects back to the list rather than erroring" do
-            delete server_twilight_struggle_destination_path(guild.id, tournament)
+            delete server_twilight_struggle_subscription_path(guild.id, tournament)
             expect(response).to redirect_to(server_twilight_struggle_path(guild.id))
           end
         end
@@ -324,7 +324,7 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
             it "unsubscribes without erroring on the re-render" do
               save_settings
               expect(response).to have_http_status(:ok)
-              expect(TwilightStruggle::Destination.exists?(destination.id)).to be(false)
+              expect(destination.reload).not_to be_active
             end
           end
         end
@@ -341,9 +341,10 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
         context "when the subscription toggle comes back off" do
           let(:attributes) { super().merge(subscribed: "0") }
 
-          it "unsubscribes the server" do
+          it "unsubscribes the server without discarding its settings" do
             save_settings
-            expect(TwilightStruggle::Destination.exists?(destination.id)).to be(false)
+            expect(destination.reload).not_to be_active
+            expect(destination.discord_channel_id).to eq(4242)
           end
 
           it "still redirects back to the settings page" do

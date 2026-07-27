@@ -40,7 +40,8 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
       kind:,
       value: @destination.public_send(:"template_#{kind}").presence || inherited_template(kind),
       placeholder: inherited_template(kind),
-      channel: channel_label
+      channel: channel_label,
+      inherits_from_parent: inherited.inherited_from.present?
     )
   end
 

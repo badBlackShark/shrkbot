@@ -10,6 +10,7 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Save do
   let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:) }
   let(:attributes) do
     {
+      active: "1",
       discord_channel_id: "555",
       template_win: "{winning_player} won",
       template_tie: "",
@@ -47,6 +48,32 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Save do
     expect(destination.reload.tournament).to eq(tournament)
   end
 
+  describe "the subscription toggle" do
+    it "leaves an active destination active" do
+      result
+      expect(destination.reload).to be_active
+    end
+
+    context "when switched off" do
+      let(:attributes) { super().merge(active: "0") }
+
+      it "unsubscribes without discarding the wording" do
+        result
+        expect(destination.reload).not_to be_active
+        expect(destination.template_win).to eq("{winning_player} won")
+      end
+    end
+
+    context "when switched back on for a destination that was unsubscribed" do
+      let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, active: false) }
+
+      it "subscribes it again" do
+        result
+        expect(destination.reload).to be_active
+      end
+    end
+  end
+
   describe "a destination that does not exist yet" do
     let(:destination) { server_configuration.twilight_struggle_destinations.new(tournament:) }
 
@@ -59,8 +86,8 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Save do
       expect(destination.reload.discord_channel_id).to eq(555)
     end
 
-    context "with nothing submitted" do
-      let(:attributes) { {} }
+    context "with nothing but the toggle submitted" do
+      let(:attributes) { {active: "1"} }
 
       it "subscribes with everything left to inherit" do
         result
