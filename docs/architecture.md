@@ -121,16 +121,25 @@ and the web app, so a given mutation is written once and called from both.
   `before_action :require_plugin_access` on include** for the same
   can't-forget-to-authorize reason, and redirects when the answer is no.
 - **Manage Server is not the only input.** A Twilight Struggle tournament organiser
-  manages that one plugin on the servers subscribed to their tournament, so
-  `PluginAccess` falls back to `administered_keys` when the user doesn't manage the
-  server. The membership half of that rule is free: Discord already tells us every
-  guild the user is in, and `VisibleServers.for` admits a guild when the user manages
-  it *or* administers a tournament it subscribes to. Someone who leaves the guild
+  manages that one plugin on any server that holds the bespoke grant, has the
+  plugin enabled, and the organiser is a member of — regardless of which
+  tournament the server subscribes to, so `PluginAccess` falls back to
+  `administered_keys` when the user doesn't manage the server. Page access is
+  deliberately tournament-independent: it only asks whether the user
+  administers *some* tournament at all (`TwilightStruggle::OrganiserServers`),
+  which is what lets an organiser create the server's first subscription
+  themselves. Which specific tournaments they may act on is enforced one layer
+  in, on the actions rather than the page — `TwilightStruggle::AdministeredTournaments`
+  (admin rows + descendants) backs the `AuthorizesTournaments` controller
+  concern, which 404s an organiser out of a tournament they aren't named on.
+  The membership half of the page-access rule is free: Discord already tells us
+  every guild the user is in, and `VisibleServers.for` admits a guild when the
+  user manages it *or* administers a tournament. Someone who leaves the guild
   drops out of the candidate set, so there is no revocation path to build.
-  `TwilightStruggle::AdministeredServers` answers the second half in one batch —
-  admin rows → tournament descendants → active destinations → servers holding the
-  grant — because instantiating a policy per guild would mean one grants query per
-  guild on the picker.
+  The plugin's enabled/disabled switch stays admin-only regardless
+  (`PluginAccess#toggle?`) — flipping it is the organiser's own access gate, so
+  letting them flip it off would lock every organiser on the server out at
+  once and need a Discord admin to undo.
 - **Snowflakes submitted from the web are scoped to the guild in the controller.**
   A channel/role id posted by a user is untrusted input: the controller verifies it
   belongs to `@server_configuration` (e.g. `VerifiesGuildChannels#guild_channels?`

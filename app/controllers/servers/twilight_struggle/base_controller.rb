@@ -3,6 +3,7 @@
 class Servers::TwilightStruggle::BaseController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
+  include AuthorizesTournaments
 
   before_action :load_destination
 
@@ -10,7 +11,7 @@ class Servers::TwilightStruggle::BaseController < ApplicationController
 
   def load_destination
     tournament = ::TwilightStruggle::Tournament.find_by(id: params[:tournament_id])
-    return head :not_found unless tournament
+    return head :not_found unless tournament && may_administer?(tournament)
 
     @destination = @server_configuration.twilight_struggle_destinations.find_by(tournament:) ||
       @server_configuration.twilight_struggle_destinations.new(tournament:)

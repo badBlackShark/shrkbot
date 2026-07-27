@@ -105,8 +105,9 @@ RSpec.describe "Server picker", type: :request do
 
         before do
           create(:bespoke_plugin_grant, server_configuration: administered_config, plugin_key: "twilight_struggle")
-          create(:twilight_struggle_destination, tournament:, server_configuration: administered_config, active: true)
           create(:twilight_struggle_tournament_admin, tournament:, discord_id: 12345)
+          plugin = create(:plugin, key: "twilight_struggle", name: "Twilight Struggle")
+          create(:plugin_activation, server_configuration: administered_config, plugin:, enabled: true)
           allow(Bot::Discord::UserGuilds).to receive(:call).and_return([unmanaged_guild, administered_guild])
         end
 

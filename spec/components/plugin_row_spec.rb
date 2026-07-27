@@ -6,10 +6,11 @@ RSpec.describe Components::PluginRow do
   include_context "component view context"
 
   subject(:html) do
-    described_class.new(server_id: 900_000_001, key: :roles, enabled: true, configured: true, manageable:).render_in(view_context)
+    described_class.new(server_id: 900_000_001, key: :roles, enabled: true, configured: true, manageable:, toggleable:).render_in(view_context)
   end
 
   let(:manageable) { true }
+  let(:toggleable) { true }
 
   context "when the user may configure the plugin" do
     it "links to the configuration page" do
@@ -31,6 +32,15 @@ RSpec.describe Components::PluginRow do
     it "disables the toggle and says why" do
       expect(html).to include("disabled")
       expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_row.not_manageable")))
+    end
+  end
+
+  context "when the user may configure the plugin but not toggle it" do
+    let(:toggleable) { false }
+
+    it "disables the toggle and says an admin must do it" do
+      expect(html).to include("disabled")
+      expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_row.admin_only")))
     end
   end
 end

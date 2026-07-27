@@ -373,4 +373,50 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
       end
     end
   end
+
+  context "when access is restricted to the organiser's tournaments" do
+    let!(:administered_tournament) { create(:twilight_struggle_tournament, name: "OTSL 2026") }
+    let!(:unadministered_tournament) { create(:twilight_struggle_tournament, name: "RATS Cup 2026") }
+
+    before do
+      create(:plugin, key: "twilight_struggle", name: "Twilight Struggle")
+      allow(Bot::ConfigBus).to receive(:sync_commands)
+    end
+
+    context "when an organiser is signed in" do
+      let(:guild) { Bot::Discord::Guild.new(id: 900_000_205, name: "Organiser Server", owner: false, permissions: 0, icon: nil, member_count: 12) }
+
+      before do
+        create(:server_configuration, discord_id: guild.id, name: "Organiser Server")
+        create(:bespoke_plugin_grant, server_configuration: config, plugin_key: "twilight_struggle")
+        create(:plugin_activation, server_configuration: config, plugin: Plugin.find_by(key: "twilight_struggle"), enabled: true)
+        create(:twilight_struggle_tournament_admin, tournament: administered_tournament, discord_id: 12345)
+        allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
+        post "/auth/discord/callback"
+      end
+
+      it "lists only the tournament they administer" do
+        get server_twilight_struggle_path(guild.id)
+        expect(response.body).to include(administered_tournament.name)
+        expect(response.body).not_to include(unadministered_tournament.name)
+      end
+    end
+
+    context "when a server admin is signed in" do
+      let(:guild) { Bot::Discord::Guild.new(id: 900_000_206, name: "Admin Server", owner: true, permissions: 0, icon: nil, member_count: 5) }
+
+      before do
+        create(:server_configuration, discord_id: guild.id, name: "Admin Server")
+        create(:bespoke_plugin_grant, server_configuration: config, plugin_key: "twilight_struggle")
+        allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
+        post "/auth/discord/callback"
+      end
+
+      it "lists every tournament" do
+        get server_twilight_struggle_path(guild.id)
+        expect(response.body).to include(administered_tournament.name)
+        expect(response.body).to include(unadministered_tournament.name)
+      end
+    end
+  end
 end

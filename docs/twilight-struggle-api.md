@@ -86,10 +86,15 @@ Fields:
 
 #### Tournament organisers
 
-An organiser whose Discord ID we hold can configure the Twilight Struggle
-integration on any server subscribed to that tournament (or to a descendant
-of it), with the same authority as a server admin — but only on servers they
-are actually a member of.
+An organiser whose Discord ID we hold can reach the Twilight Struggle plugin
+on any server where a shrkbot operator has granted the plugin, a server admin
+has switched it on, and the organiser is a member — they don't need a server
+admin to subscribe for them. Which tournaments they may subscribe and
+configure there is a separate question, governed by the tournament chain: the
+ones they're named on, plus that tournament's descendants. They can do
+everything a server admin can on those tournaments except one thing — they
+can't switch the plugin itself off, since that would lock every organiser on
+the server out at once.
 
 Sending `admins` replaces the whole set we hold for that tournament.
 Omitting the key (or sending `null`) leaves our rows untouched — deliberate,
@@ -101,8 +106,8 @@ record with us, and the server's own admins configure the tournament for
 them. We never infer an organiser's Discord ID from anywhere else — in
 particular never from the player `discord_id`s in a game payload.
 
-Authority walks the tournament chain — an organiser named on a parent
-tournament also administers its children.
+Which tournaments an organiser may touch still walks the tournament chain —
+an organiser named on a parent tournament also administers its children.
 
 If that person deletes their shrkbot dashboard account, we delete the ID; a
 later `PUT` that still includes it will store it again.

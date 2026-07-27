@@ -68,9 +68,9 @@ RSpec.describe "Plugin access enforcement", type: :request do
 
     before do
       create(:bespoke_plugin_grant, server_configuration: config, plugin_key: "twilight_struggle")
-      create(:twilight_struggle_destination, tournament:, server_configuration: config, active: true)
       create(:twilight_struggle_tournament_admin, tournament:, discord_id: 12345)
-      create(:plugin, key: "twilight_struggle", name: "Twilight Struggle")
+      plugin = create(:plugin, key: "twilight_struggle", name: "Twilight Struggle")
+      create(:plugin_activation, server_configuration: config, plugin:, enabled: true)
     end
 
     it "allows the twilight_struggle plugin page" do
@@ -109,9 +109,11 @@ RSpec.describe "Plugin access enforcement", type: :request do
       expect(response).to redirect_to(server_path(guild.id))
     end
 
-    it "allows the plugin toggle for twilight_struggle" do
-      patch server_plugin_path(guild.id, :twilight_struggle), params: {enabled: "1"}
-      expect(config.enabled_plugin_keys).to include(:twilight_struggle)
+    it "redirects the plugin toggle for twilight_struggle without changing it" do
+      expect {
+        patch server_plugin_path(guild.id, :twilight_struggle), params: {enabled: "1"}
+      }.not_to change { config.enabled_plugin_keys }
+      expect(response).to redirect_to(server_path(guild.id))
     end
   end
 end

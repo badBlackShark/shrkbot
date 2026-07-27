@@ -29,7 +29,7 @@ RSpec.describe VisibleServers do
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return(
         [manageable_guild, administered_guild, unrelated_guild, large_manageable_guild]
       )
-      allow(TwilightStruggle::AdministeredServers).to receive(:discord_ids_for).and_return(Set[2])
+      allow(TwilightStruggle::OrganiserServers).to receive(:discord_ids_for).and_return(Set[2])
     end
 
     it "always returns manageable guilds" do

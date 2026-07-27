@@ -43,16 +43,17 @@ RSpec.describe PluginAccess do
         expect(access.manage?(:roles)).to be(false)
       end
 
-      context "when the user is a tournament admin of a tournament the server subscribes to" do
+      context "when the user is a tournament organiser" do
         let(:tournament) { create(:twilight_struggle_tournament) }
+        let(:plugin) { create(:plugin, key: "twilight_struggle", name: "Twilight Struggle") }
 
-        before do
-          create(:twilight_struggle_tournament_admin, tournament:, discord_id: user.discord_id)
-          create(:twilight_struggle_destination, tournament:, server_configuration:, active: true)
-        end
+        before { create(:twilight_struggle_tournament_admin, tournament:, discord_id: user.discord_id) }
 
-        context "when the server holds the twilight_struggle bespoke grant" do
-          before { create(:bespoke_plugin_grant, server_configuration:, plugin_key: "twilight_struggle") }
+        context "when the server holds the grant and the plugin is enabled" do
+          before do
+            create(:bespoke_plugin_grant, server_configuration:, plugin_key: "twilight_struggle")
+            create(:plugin_activation, server_configuration:, plugin:, enabled: true)
+          end
 
           it "is true for the twilight_struggle key" do
             expect(access.manage?(:twilight_struggle)).to be(true)
@@ -68,10 +69,23 @@ RSpec.describe PluginAccess do
             expect(access.manage?(:twilight_struggle)).to be(false)
           end
         end
+
+        context "when the grant is present but the plugin is not enabled" do
+          before { create(:bespoke_plugin_grant, server_configuration:, plugin_key: "twilight_struggle") }
+
+          it "is false for the twilight_struggle key" do
+            expect(access.manage?(:twilight_struggle)).to be(false)
+          end
+        end
       end
 
-      context "when the grant is present but the user has no tournament admin row" do
-        before { create(:bespoke_plugin_grant, server_configuration:, plugin_key: "twilight_struggle") }
+      context "when the grant is present and the plugin enabled but the user has no tournament admin row" do
+        let(:plugin) { create(:plugin, key: "twilight_struggle", name: "Twilight Struggle") }
+
+        before do
+          create(:bespoke_plugin_grant, server_configuration:, plugin_key: "twilight_struggle")
+          create(:plugin_activation, server_configuration:, plugin:, enabled: true)
+        end
 
         it "is false for the twilight_struggle key" do
           expect(access.manage?(:twilight_struggle)).to be(false)
@@ -100,6 +114,35 @@ RSpec.describe PluginAccess do
 
       it "is false for an ungranted bespoke key" do
         expect(access.visible?(:bespoke_thing)).to be(false)
+      end
+    end
+  end
+
+  describe "#toggle?" do
+    context "when the user manages the server" do
+      it "is true for a key they manage" do
+        expect(access.toggle?(:roles)).to be(true)
+      end
+
+      it "is false for a bespoke key without a grant" do
+        expect(access.toggle?(:bespoke_thing)).to be(false)
+      end
+    end
+
+    context "when the user is an organiser but does not manage the server" do
+      let(:manages_server) { false }
+      let(:tournament) { create(:twilight_struggle_tournament) }
+      let(:plugin) { create(:plugin, key: "twilight_struggle", name: "Twilight Struggle") }
+
+      before do
+        create(:twilight_struggle_tournament_admin, tournament:, discord_id: user.discord_id)
+        create(:bespoke_plugin_grant, server_configuration:, plugin_key: "twilight_struggle")
+        create(:plugin_activation, server_configuration:, plugin:, enabled: true)
+      end
+
+      it "is false for the twilight_struggle key even though manage? is true" do
+        expect(access.manage?(:twilight_struggle)).to be(true)
+        expect(access.toggle?(:twilight_struggle)).to be(false)
       end
     end
   end

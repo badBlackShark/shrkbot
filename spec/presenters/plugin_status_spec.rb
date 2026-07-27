@@ -31,5 +31,9 @@ RSpec.describe PluginStatus do
         expect(rows.map(&:manageable)).to all(be(false))
       end
     end
+
+    it "mirrors the policy's toggle decision on every catalog and global row" do
+      expect(rows.map(&:toggleable)).to eq(rows.map { |row| access.toggle?(row.key) })
+    end
   end
 end

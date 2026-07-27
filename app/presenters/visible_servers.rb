@@ -6,8 +6,8 @@ class VisibleServers
   CACHE_TTL = 30.seconds
 
   def self.for(discord_token, discord_id)
-    administered = TwilightStruggle::AdministeredServers.discord_ids_for(discord_id)
-    member_servers(discord_token).select { |server| server.manageable? || administered.include?(server.id) }
+    organiser_servers = TwilightStruggle::OrganiserServers.discord_ids_for(discord_id)
+    member_servers(discord_token).select { |server| server.manageable? || organiser_servers.include?(server.id) }
   end
 
   def self.member_servers(discord_token)

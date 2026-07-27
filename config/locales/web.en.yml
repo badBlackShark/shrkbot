@@ -345,6 +345,7 @@ en:
     number_stepper:
       recommended_default: 'Recommended default: %{value}'
     plugin_row:
+      admin_only: Only a server admin can switch this plugin on or off.
       configure: Configure
       needs_setup_hint: Complete setup before enabling this plugin.
       not_manageable: You can't configure this plugin on this server.
@@ -791,6 +792,7 @@ en:
           empty_title: No tournaments yet
           gate_message: Enable Twilight Struggle to subscribe this server to tournaments.
           title: Twilight Struggle
+          toggle_admin_only: Only a server admin can switch this plugin on or off.
       welcomes:
         show:
           description: Greet new members and say goodbye when they leave.

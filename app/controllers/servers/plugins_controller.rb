@@ -2,8 +2,10 @@
 
 class Servers::PluginsController < ApplicationController
   include RequiresManageableServer
+  include ConfiguresPlugin
 
   before_action :set_plugin
+  before_action :require_toggle_access, only: :update
 
   def update
     result = Ops::ServerConfiguration::Plugins::Toggle.call(
