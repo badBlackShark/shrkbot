@@ -4,11 +4,17 @@ paths:
       - name: external_id
         in: path
         required: true
+        description: Your own id for the tournament — whatever you use as its primary key.
         schema:
           type: string
           example: "otsl-2026"
     put:
+      tags: [Tournaments]
       summary: Create or update a tournament
+      description: >-
+        Creates the tournament on the first call for this id and updates it in
+        place on every later one. A tournament must exist before any game or
+        child tournament that references it.
       requestBody:
         required: true
         content:
@@ -22,15 +28,31 @@ paths:
       responses:
         "200":
           description: Tournament updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TournamentUpsertResponse"
         "201":
           description: Tournament created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TournamentUpsertResponse"
+        "401":
+          description: Missing or invalid bearer token
         "422":
-          description: Validation failed
+          description: Validation failed, or `parent_external_id` names a tournament we do not know
     delete:
+      tags: [Tournaments]
       summary: Delete a tournament
+      description: >-
+        Deletes the tournament and its games. This never touches Discord: result
+        messages already posted for those games stay up.
       responses:
         "204":
           description: Tournament deleted, or no such tournament
+        "401":
+          description: Missing or invalid bearer token
 components:
   schemas:
     TournamentInput:
@@ -43,13 +65,31 @@ components:
           example: "Online Twilight Struggle League"
         parent_external_id:
           type: string
+          description: >-
+            Your id of an already-sent parent tournament, which groups this one
+            under a larger event. An id we do not know is a `422`.
           example: "otsl"
         status:
           type: string
+          description: Free text. We store it; nothing in shrkbot interprets it.
           example: "closed"
         admins:
           type: array
+          description: >-
+            Discord IDs of the tournament's organisers. Sending the key replaces
+            the whole set; omitting it (or sending `null`) leaves our rows alone;
+            `[]` clears them.
           items:
             type: string
             pattern: "^[0-9]+$"
             example: "123456789012345678"
+    TournamentUpsertResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: shrkbot's own id, returned for your reference. You never send it back to us.
+          example: "tst_01ABCDEFGHIJKLMNOPQRSTUVWX"
+        external_id:
+          type: string
+          example: "otsl-2026"

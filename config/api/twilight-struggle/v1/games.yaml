@@ -4,11 +4,21 @@ paths:
       - name: external_id
         in: path
         required: true
+        description: >-
+          Your `game_results.id`, not `game_code`. `game_code` is display-only and
+          unique within one tournament, so it cannot identify a game on its own.
         schema:
           type: string
           example: "1024"
     put:
+      tags: [Games]
       summary: Create or update a game
+      description: >-
+        Creates the game on the first call for this id and updates it in place on
+        every later one. Each call re-renders the Discord message every
+        subscribing server already has for this game rather than posting a new
+        one. The response says the game was stored, not that a message is up;
+        posting runs in a background job per server.
       requestBody:
         required: true
         content:
@@ -22,15 +32,31 @@ paths:
       responses:
         "200":
           description: Game updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameUpsertResponse"
         "201":
           description: Game created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameUpsertResponse"
+        "401":
+          description: Missing or invalid bearer token
         "422":
-          description: Validation failed
+          description: Validation failed, or `tournament_external_id` names a tournament we do not know
     delete:
+      tags: [Games]
       summary: Delete a game and its posted Discord message
+      description: >-
+        Deletes the game and the message shrkbot posted for it in every
+        subscribing server, so this is how you retract a published result.
       responses:
         "204":
           description: Game deleted, or no such game
+        "401":
+          description: Missing or invalid bearer token
 components:
   schemas:
     GameInput:
@@ -39,29 +65,38 @@ components:
       properties:
         tournament_external_id:
           type: string
+          description: >-
+            Omit it for a friendly game, which we group under shrkbot's internal
+            "Friendly games" tournament. An id we do not know is a `422`.
           example: "otsl-2026"
         game_code:
           type: string
           maxLength: 60
+          description: Display-only, shown in the posted message as `{game_id}`.
           example: "R1"
         game_date:
           type: string
+          description: When the game was played.
           example: "2026-07-20"
         reported_at:
           type: string
+          description: When the result was reported.
           example: "2026-07-24T10:00:00Z"
         winning_side:
           type: string
           enum: [usa, ussr, tie]
+          description: These exact names, not your internal `1`/`2`/`3` side codes.
           example: "usa"
         winning_turn:
           type: integer
           minimum: 1
           maximum: 11
+          description: A JSON number, not a string. Turn 11 renders as "Final Scoring".
           example: 6
         winning_method:
           type: string
           maxLength: 60
+          description: Free text, rendered as sent.
           example: "defcon"
         usa:
           $ref: "#/components/schemas/PlayerInput"
@@ -70,10 +105,14 @@ components:
         video_urls:
           type: array
           maxItems: 5
+          description: >-
+            A game with any video URL is posted with the spoiler-free template:
+            both players and the links, no winner, turn or method.
           example: ["https://youtu.be/dQw4w9WgXcQ"]
           items:
             type: string
             pattern: "^https?://"
+            description: Any scheme other than `http://` or `https://` is rejected.
             example: "https://youtu.be/dQw4w9WgXcQ"
     PlayerInput:
       type: object
@@ -86,7 +125,22 @@ components:
         flag:
           type: string
           maxLength: 8
+          description: Meant for a flag emoji.
           example: "🇺🇸"
         discord_id:
           type: string
+          description: >-
+            The player's Discord user ID, as a string — snowflakes exceed JSON's
+            safe integer range. Tournaments set to show Discord tags render it
+            alongside the player's name. We never store it.
           example: "123456789012345678"
+    GameUpsertResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: shrkbot's own id, returned for your reference. You never send it back to us.
+          example: "tsg_01ABCDEFGHIJKLMNOPQRSTUVWX"
+        external_id:
+          type: string
+          example: "1024"

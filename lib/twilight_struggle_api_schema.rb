@@ -8,6 +8,8 @@ require "yaml"
 # which must run without booting the app or a database.
 module TwilightStruggleApiSchema
   DIR = File.expand_path("../config/api/twilight-struggle/v1", __dir__)
+  PROSE_DIR = File.join(DIR, "docs")
+  TAGS = ["Tournaments", "Games"].freeze
 
   def self.driver
     Committee::Drivers.load_from_data(document, parser_options: {strict_reference_validation: true})
@@ -16,8 +18,13 @@ module TwilightStruggleApiSchema
   def self.document
     document = {
       "openapi" => "3.0.3",
-      "info" => {"title" => "shrkbot Twilight Struggle API", "version" => "1.0"},
+      "info" => {
+        "title" => "shrkbot Twilight Struggle API",
+        "version" => "1.0",
+        "description" => prose("overview")
+      },
       "servers" => [{"url" => "https://shrkbot.com/api/twilight-struggle/v1"}],
+      "tags" => TAGS.map { |tag| {"name" => tag, "description" => prose(tag.downcase)} },
       "security" => [{"bearerAuth" => []}],
       "paths" => {},
       "components" => {
@@ -34,6 +41,11 @@ module TwilightStruggleApiSchema
 
     document
   end
+
+  def self.prose(name)
+    File.read(File.join(PROSE_DIR, "#{name}.md"))
+  end
+  private_class_method :prose
 
   def self.merge_disjoint!(into, from, source)
     from.each do |key, value|

@@ -218,19 +218,25 @@ jobs:
       # bin/openapi merges the schema fragments with plain Ruby (no app boot, no
       # DB), so this job stays a lightweight Ruby+Node runner like the other jobs.
       - name: Generate the merged OpenAPI document
-        run: bin/openapi > openapi.json
-
-      - name: Render the API docs to a self-contained page
         run: |
-          mkdir -p _site
-          npx --yes @redocly/cli@1.34.5 build-docs openapi.json -o _site/index.html
+          mkdir -p _site/twilight-struggle/v1
+          bin/openapi > _site/twilight-struggle/v1/openapi.json
+
+      - name: Render the API docs with Redoc
+        run: |
+          npx --yes @redocly/cli@1.34.5 build-docs \
+            _site/twilight-struggle/v1/openapi.json \
+            -o _site/twilight-struggle/v1/index.html
+
+      - name: Add the site index
+        run: cp docs/site/index.html _site/index.html
 
       - name: Upload the API docs as a build artifact
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v7
         with:
-          name: twilight-struggle-api-docs
-          path: _site/index.html
+          name: api-docs
+          path: _site
 
       - name: Upload the API docs for GitHub Pages
         if: github.event_name == 'push'
