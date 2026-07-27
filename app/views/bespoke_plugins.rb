@@ -3,7 +3,7 @@
 class Views::BespokePlugins < Views::Base
   include Components::PluginNav
 
-  STEPS = %i[ask fit ship].freeze
+  STEPS = %i[talk build run].freeze
 
   def initialize(user:)
     @user = user
@@ -73,7 +73,12 @@ class Views::BespokePlugins < Views::Base
         div(class: "flex items-start gap-4") do
           render Components::PluginTile.new(icon: plugin_icon(:twilight_struggle))
           div do
-            p(class: "font-display text-sm font-semibold") { t("components.plugin_row.plugin.twilight_struggle.name") }
+            a(
+              href: t(".example_url"),
+              target: "_blank",
+              rel: "noopener",
+              class: "font-display text-sm font-semibold underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
+            ) { t("components.plugin_row.plugin.twilight_struggle.name") }
             p(class: "mt-1 text-sm leading-relaxed text-text-secondary") { t(".example_body") }
           end
         end

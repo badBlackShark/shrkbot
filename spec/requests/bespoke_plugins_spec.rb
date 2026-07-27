@@ -14,13 +14,14 @@ RSpec.describe "Bespoke plugins page", type: :request do
   it "leads with the bespoke-plugin pitch" do
     bespoke_plugins
 
-    expect(response.body).to include("Some things only make sense for one server.")
+    expect(response.body).to include("even if it")
+    expect(response.body).to include("only for you")
   end
 
-  it "names the fee up front" do
+  it "says custom work may carry a fee" do
     bespoke_plugins
 
-    expect(response.body).to include("name a small fee before anything gets written")
+    expect(response.body).to include("might charge a little fee for custom work")
   end
 
   it "offers both contact routes" do
