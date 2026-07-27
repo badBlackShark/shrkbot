@@ -6,20 +6,27 @@ class Components::Tooltip < Components::Base
     down: "top-full mt-2"
   }.freeze
 
-  BUBBLE = "pointer-events-none absolute right-0 z-20 w-max max-w-64 rounded-md " \
+  ALIGNMENTS = {
+    right: "right-0",
+    left: "left-0"
+  }.freeze
+
+  BUBBLE = "pointer-events-none absolute z-20 w-max rounded-md " \
     "border border-border-default bg-surface-card px-3 py-2 text-xs font-medium leading-snug text-text-secondary shadow-lg " \
     "invisible opacity-0 transition-opacity motion-safe:duration-[120ms] " \
     "group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100"
 
-  def initialize(text:, placement: :up)
+  def initialize(text:, placement: :up, align: :right, width: "max-w-64")
     @text = text
     @placement = PLACEMENTS.fetch(placement)
+    @align = ALIGNMENTS.fetch(align)
+    @width = width
   end
 
   def view_template(&block)
     span(class: "group relative inline-flex flex-none") do
       yield
-      span(role: "tooltip", class: "#{BUBBLE} #{@placement}") { @text }
+      span(role: "tooltip", class: "#{BUBBLE} #{@placement} #{@align} #{@width}") { @text }
     end
   end
 end

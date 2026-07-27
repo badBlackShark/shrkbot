@@ -19,7 +19,7 @@ class PluginStatus
         toggleable: access.toggle?(definition.key)
       )
     end
-    catalog_rows + global_rows(access)
+    display_order(catalog_rows + global_rows(access))
   end
 
   def self.row(server_configuration, plugin, access:)
@@ -39,4 +39,14 @@ class PluginStatus
     end
   end
   private_class_method :global_rows
+
+  def self.display_order(rows)
+    rows.sort_by { |row| [row.manageable ? 0 : 1, plugin_name(row.key)] }
+  end
+  private_class_method :display_order
+
+  def self.plugin_name(key)
+    I18n.t("components.plugin_row.plugin.#{key}.name")
+  end
+  private_class_method :plugin_name
 end

@@ -33,6 +33,11 @@ RSpec.describe Components::PluginRow do
       expect(html).to include("disabled")
       expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_row.not_manageable")))
     end
+
+    it "disables the configure button and says why too" do
+      expect(html).not_to include(%(href="/servers/900000001/roles"))
+      expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_row.not_manageable")))
+    end
   end
 
   context "when the user may configure the plugin but not toggle it" do

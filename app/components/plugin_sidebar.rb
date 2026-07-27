@@ -108,7 +108,7 @@ class Components::PluginSidebar < Components::Base
   end
 
   def locked_item(row)
-    render Components::Tooltip.new(text: t(".locked")) do
+    render Components::Tooltip.new(text: t(".locked"), placement: :down, align: :left, width: "max-w-[11rem]") do
       span(class: "flex cursor-not-allowed items-center gap-2.5 rounded-md px-2.5 py-2 text-text-muted opacity-60") do
         item_tile(row, false)
         span(class: "flex-1 text-[13px]") { t("components.plugin_row.plugin.#{row.key}.name") }

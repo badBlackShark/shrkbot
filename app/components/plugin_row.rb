@@ -92,6 +92,14 @@ class Components::PluginRow < Components::Base
   end
 
   def configure_link
+    return configure_button if @manageable
+
+    render Components::Tooltip.new(text: t(".not_manageable")) do
+      configure_button
+    end
+  end
+
+  def configure_button
     render Components::Button.new(
       variant: :secondary,
       href: @manageable ? configure_href : nil,

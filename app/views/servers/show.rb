@@ -57,8 +57,22 @@ class Views::Servers::Show < Views::Base
 
   def plugins_section
     p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins") }
+    div(class: "flex flex-col gap-6") do
+      plugin_groups.each { |group| plugin_group(group) }
+    end
+  end
+
+  def plugin_groups
+    visible_plugins.partition(&:manageable).reject(&:empty?)
+  end
+
+  def visible_plugins
+    @plugins.select { |row| plugin_config_path(@server.id, row.key) && !PluginCatalog.sub_plugin?(row.key) }
+  end
+
+  def plugin_group(rows)
     div(class: "flex flex-col gap-3") do
-      @plugins.select { |row| plugin_config_path(@server.id, row.key) && !PluginCatalog.sub_plugin?(row.key) }.each do |row|
+      rows.each do |row|
         render Components::PluginRow.new(server_id: @server.id, key: row.key, enabled: row.enabled, configured: row.configured, locked: row.locked, manageable: row.manageable, toggleable: row.toggleable)
       end
     end
