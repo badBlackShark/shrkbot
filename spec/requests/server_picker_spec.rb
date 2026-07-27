@@ -98,6 +98,24 @@ RSpec.describe "Server picker", type: :request do
         expect(response.body).not_to include("Lurker Lounge")
       end
 
+      context "when the user manages no guild but administers a tournament" do
+        let(:administered_guild) { Bot::Discord::Guild.new(id: 900_000_005, name: "Organiser Server", owner: false, permissions: 0, icon: nil, member_count: 8) }
+        let(:tournament) { create(:twilight_struggle_tournament) }
+        let(:administered_config) { create(:server_configuration, discord_id: administered_guild.id) }
+
+        before do
+          create(:bespoke_plugin_grant, server_configuration: administered_config, plugin_key: "twilight_struggle")
+          create(:twilight_struggle_destination, tournament:, server_configuration: administered_config, active: true)
+          create(:twilight_struggle_tournament_admin, tournament:, discord_id: 12345)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_return([unmanaged_guild, administered_guild])
+        end
+
+        it "still shows the subscribed, granted server in the list" do
+          get_servers
+          expect(response.body).to include("Organiser Server")
+        end
+      end
+
       context "with no manageable servers" do
         before do
           allow(Bot::Discord::UserGuilds).to receive(:call).and_return([unmanaged_guild])

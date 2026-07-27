@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 class NotificationsController < ApplicationController
-  include SetsManageableServers
+  include SetsVisibleServers
 
   def index
     scope = notification_scope
     authorized = AuthorizedNotifications.new(
-      manageable_ids: manageable_server_ids,
+      manageable_ids: managed_server_ids,
       server_id: (scope == "server") ? params[:server_id] : nil
     )
     render Views::Notifications::Index.new(
@@ -54,7 +54,7 @@ class NotificationsController < ApplicationController
   def authorized_notification
     Notification
       .joins(:server_configuration)
-      .where(server_configurations: {discord_id: manageable_server_ids})
+      .where(server_configurations: {discord_id: managed_server_ids})
       .find_by(id: params[:id])
   end
 end
