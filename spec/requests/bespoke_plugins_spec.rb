@@ -14,8 +14,14 @@ RSpec.describe "Bespoke plugins page", type: :request do
   it "leads with the bespoke-plugin pitch" do
     bespoke_plugins
 
-    expect(response.body).to include("even if it")
+    expect(response.body).to include("can do it all, even if it")
     expect(response.body).to include("only for you")
+  end
+
+  it "sets the headline's brand mark in wordmark colours" do
+    bespoke_plugins
+
+    expect(response.body).to include('<span class="text-accent">shrk</span><span class="text-accent-2-text">bot</span> can do it all')
   end
 
   it "says custom work may carry a fee" do

@@ -23,7 +23,11 @@ class Views::BespokePlugins < Views::Base
   def hero
     section(class: "mx-auto max-w-3xl px-6 pb-14 pt-20") do
       eyebrow(t(".eyebrow"))
-      h1(class: "mb-5 font-display text-4xl font-bold leading-tight tracking-tight") { t(".headline") }
+      h1(class: "mb-5 font-display text-4xl font-bold leading-tight tracking-tight") do
+        render Components::Wordmark.new
+        whitespace
+        plain t(".headline")
+      end
       p(class: "mb-8 text-lg leading-relaxed text-text-secondary") { t(".lede") }
       contact_actions
     end
