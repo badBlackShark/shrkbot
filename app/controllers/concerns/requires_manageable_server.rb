@@ -8,7 +8,8 @@ module RequiresManageableServer
 
   included do
     before_action :require_manageable_server
-    helper_method :server_switcher
+    before_action :require_plugin_access
+    helper_method :server_switcher, :plugin_access
   end
 
   private
@@ -20,8 +21,18 @@ module RequiresManageableServer
     redirect_to servers_path, alert: t("servers.not_found")
   end
 
-  def manageable_now?(discord_id)
-    live_manageable_ids.include?(discord_id.to_i)
+  def require_plugin_access
+    return if plugin_access.manage?(plugin_key)
+
+    redirect_to server_path(params[:server_id]), alert: plugin_access_alert
+  end
+
+  def plugin_access_alert
+    plugin_access.visible?(plugin_key) ? t("servers.plugin_locked") : t("servers.unknown_plugin")
+  end
+
+  def plugin_key
+    controller_name.to_sym
   end
 
   def server_switcher

@@ -11,7 +11,7 @@ class Servers::PluginsController < ApplicationController
       plugin: @plugin,
       enabled: params[:enabled]
     )
-    @row = PluginStatus.row(@server_configuration, @plugin)
+    @row = PluginStatus.row(@server_configuration, @plugin, access: plugin_access)
     @toast = feedback(result)
 
     respond_to do |format|
@@ -21,6 +21,10 @@ class Servers::PluginsController < ApplicationController
   end
 
   private
+
+  def plugin_key
+    params[:key].to_sym
+  end
 
   def feedback(result)
     return {level: "alert", message: result.errors.to_sentence} if result.failure?

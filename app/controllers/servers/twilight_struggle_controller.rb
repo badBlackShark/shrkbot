@@ -3,7 +3,6 @@
 class Servers::TwilightStruggleController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
-  include RequiresGrantedPlugin
 
   def show
     render Views::Servers::TwilightStruggle::Show.new(

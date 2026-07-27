@@ -15,6 +15,13 @@ RSpec.describe Components::PluginShell do
 
   let(:user) { create(:user) }
   let(:config) { create(:server_configuration, discord_id: 900_000_001, name:) }
+  let(:access) { PluginAccess.new(user:, server_configuration: config, manages_server: true) }
+
+  before do
+    without_partial_double_verification do
+      allow(view_context).to receive(:plugin_access).and_return(access)
+    end
+  end
 
   context "when the server configuration has a name" do
     let(:name) { "Dev Refuge" }

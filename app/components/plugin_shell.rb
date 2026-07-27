@@ -14,7 +14,7 @@ class Components::PluginShell < Components::Base
       current_server_id: @server_configuration.discord_id,
       servers: switcher&.configured_servers || [],
       plugin_counts: switcher&.plugin_counts || {},
-      sidebar: Components::PluginSidebar.new(server_configuration: @server_configuration, active_key: @active_key)
+      sidebar: Components::PluginSidebar.new(server_configuration: @server_configuration, active_key: @active_key, access: view_context.plugin_access)
     ), &block
   end
 

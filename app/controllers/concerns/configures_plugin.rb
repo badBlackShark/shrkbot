@@ -5,10 +5,6 @@ module ConfiguresPlugin
 
   private
 
-  def plugin_key
-    controller_name.to_sym
-  end
-
   def plugin_enabled?
     @server_configuration.enabled_plugin_keys.include?(plugin_key)
   end

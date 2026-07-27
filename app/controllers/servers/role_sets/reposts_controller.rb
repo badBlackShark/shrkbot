@@ -24,6 +24,10 @@ class Servers::RoleSets::RepostsController < ApplicationController
 
   private
 
+  def plugin_key
+    :roles
+  end
+
   def roles_enabled?
     @server_configuration.plugins.enabled.exists?(key: "roles")
   end
