@@ -640,8 +640,12 @@ ids — the controller loads and authorizes them first).
 ## Twilight Struggle integration
 
 A token-authenticated JSON API for twilight-struggle.com to push tournament and
-game-result data, which the bot later renders into a Discord message. Full
-external contract: `docs/twilight-struggle-api.md`.
+game-result data, which the bot later renders into a Discord message. The full
+external contract is the OpenAPI document under
+`config/api/twilight-struggle/v1/` — schema plus the prose in its `docs/`
+directory — published to
+[the API docs site](https://badblackshark.github.io/shrkbot/twilight-struggle/v1/)
+by CI.
 
 **Namespace and routes:** `Api::TwilightStruggle::V1::{Tournaments,Games}Controller`,
 subclassing `Api::TwilightStruggle::BaseController < ActionController::API`. Routes
@@ -734,7 +738,7 @@ The shape is entirely template-driven, three templates per tournament
 template, which is deliberately spoiler-free — both players and the link, no
 winner, turn or method. `TwilightStruggle::Message` renders the chosen template
 through `TemplateText` and exposes `content`; the token list lives in
-`docs/twilight-struggle-api.md`. A tournament can opt into Discord tags, which
+`config/api/twilight-struggle/v1/docs/games.md`. A tournament can opt into Discord tags, which
 append `(<@id>)` after a player's name and flag rather than replacing the name —
 a stale snowflake or a departed player still leaves something readable. Every
 send passes `allowed_mentions: {parse: []}`, so no message ever notifies anyone:

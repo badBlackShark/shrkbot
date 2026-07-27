@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>shrkbot APIs</title>
+    <meta name="description" content="Reference documentation for shrkbot's public APIs.">
+    <style>
+      :root {
+        --surface-page: #f5f0e8;
+        --surface-card: #fdfbf7;
+        --text-primary: #1d1a15;
+        --text-secondary: #5f5547;
+        --text-muted: #a3947d;
+        --border-subtle: #ebe4d7;
+        --accent-soft-fg: #266c66;
+        --accent: #37a79e;
+        --eyebrow: #a3947d;
+        --chamfer: 12px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --surface-page: #1a130d;
+          --surface-card: #261c14;
+          --text-primary: #efe7db;
+          --text-secondary: #b1a08a;
+          --text-muted: #7c6e5b;
+          --border-subtle: #33271f;
+          --accent-soft-fg: #9fd6cd;
+          --accent: #46817a;
+          --eyebrow: #e8a06d;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 4rem 1.5rem;
+        background: var(--surface-page);
+        color: var(--text-primary);
+        font-family: system-ui, -apple-system, sans-serif;
+        line-height: 1.6;
+      }
+
+      main {
+        max-width: 44rem;
+        margin: 0 auto;
+      }
+
+      .eyebrow {
+        margin: 0;
+        color: var(--eyebrow);
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0.4rem 0 0.75rem;
+        font-size: 2.25rem;
+        line-height: 1.15;
+      }
+
+      .lede {
+        margin: 0 0 3rem;
+        color: var(--text-secondary);
+        font-size: 1.05rem;
+      }
+
+      h2 {
+        margin: 0 0 0.4rem;
+        font-size: 1.35rem;
+      }
+
+      a {
+        color: var(--accent-soft-fg);
+      }
+
+      a:hover {
+        text-decoration: none;
+      }
+
+      .api {
+        display: block;
+        padding: 1.5rem;
+        background: var(--surface-card);
+        border: 1px solid var(--border-subtle);
+        color: inherit;
+        text-decoration: none;
+        clip-path: polygon(
+          var(--chamfer) 0,
+          calc(100% - var(--chamfer)) 0,
+          100% var(--chamfer),
+          100% calc(100% - var(--chamfer)),
+          calc(100% - var(--chamfer)) 100%,
+          var(--chamfer) 100%,
+          0 calc(100% - var(--chamfer)),
+          0 var(--chamfer)
+        );
+      }
+
+      .api:hover h2,
+      .api:focus-visible h2 {
+        color: var(--accent-soft-fg);
+      }
+
+      .api p {
+        margin: 0;
+        color: var(--text-secondary);
+      }
+
+      code {
+        font-family: ui-monospace, Menlo, monospace;
+        font-size: 0.9em;
+      }
+
+      .base-url {
+        display: block;
+        margin-top: 1rem;
+        color: var(--text-muted);
+      }
+
+      footer {
+        margin-top: 3rem;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">shrkbot</p>
+      <h1>APIs</h1>
+      <p class="lede">
+        Reference documentation for the APIs shrkbot exposes to partner sites. We issue
+        keys per integration, so <a href="mailto:apis@shrkbot.com">get in touch</a> if you
+        need one.
+      </p>
+
+      <a class="api" href="twilight-struggle/v1/">
+        <h2>Twilight Struggle API v1</h2>
+        <p>
+          Push tournaments and game results into shrkbot. It renders each result into a
+          Discord message in the channel every subscribing server picks.
+        </p>
+        <code class="base-url">https://shrkbot.com/api/twilight-struggle/v1</code>
+      </a>
+
+      <footer>
+        <a href="https://shrkbot.com">shrkbot.com</a> ·
+        <a href="https://github.com/badBlackShark/shrkbot">Source</a>
+      </footer>
+    </main>
+  </body>
+</html>
