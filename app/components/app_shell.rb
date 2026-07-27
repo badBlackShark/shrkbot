@@ -44,6 +44,7 @@ class Components::AppShell < Components::Base
       render Components::VersionBadge.new
       server_switcher if @current_server
       div(class: "flex-1")
+      render Components::BespokePluginsLink.new
       notification_frame
       render Components::ThemeToggle.new
       user_menu

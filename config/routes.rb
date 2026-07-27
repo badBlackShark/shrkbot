@@ -16,6 +16,8 @@ Rails.application.routes.draw do
   resource :terms_of_service, only: :show, path: "terms"
   resource :imprint, only: :show
 
+  resource :bespoke_plugins, only: :show, path: "bespoke-plugins"
+
   resources :notifications, only: [:index, :show, :update]
   namespace :notifications do
     resource :read, only: :create

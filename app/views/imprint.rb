@@ -36,7 +36,7 @@ class Views::Imprint < Views::Base
     heading(t(".contact_h"))
     p(class: "mb-4 leading-relaxed text-text-secondary") do
       plain t(".contact_email_pre")
-      a(href: "mailto:#{Components::LegalPage::CONTACT_EMAIL}", class: link_classes) { Components::LegalPage::CONTACT_EMAIL }
+      a(href: "mailto:#{SupportContact::EMAIL}", class: link_classes) { SupportContact::EMAIL }
     end
     p(class: "leading-relaxed text-text-secondary") { t(".contact_phone") }
     p(class: "mb-4 text-sm text-text-muted") { t(".contact_phone_note") }

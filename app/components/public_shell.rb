@@ -28,6 +28,7 @@ class Components::PublicShell < Components::Base
       end
       render Components::VersionBadge.new
       div(class: "flex-1")
+      render Components::BespokePluginsLink.new
       render Components::ThemeToggle.new
       @user ? dashboard_link : sign_in_button
     end
