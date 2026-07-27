@@ -5,6 +5,15 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.7.0] - 2026-07-27
+
+### Added
+- A public page at `/bespoke-plugins` describing bespoke plugin work: how a commission goes, the Twilight Struggle plugin as an example, and how to get in touch. shrkbot itself stays free; a bespoke plugin may carry a small fee agreed up front. Linked from the top bar for both signed-out visitors and dashboard users. ([#227](https://github.com/badBlackShark/shrkbot/pull/227))
+- Public API documentation at [badblackshark.github.io/shrkbot](https://badblackshark.github.io/shrkbot/), generated from the OpenAPI schema. Covers the base URL, key auth, idempotent upserts and status codes, plus per-field descriptions and response bodies for the Twilight Struggle API, so the machine-readable contract no longer has to be requested by mail. ([#226](https://github.com/badBlackShark/shrkbot/pull/226))
+
+### Fixed
+- Signing in with Discord did nothing in Safari and Chromium browsers: the site's Content Security Policy blocked the form submission once it redirected to Discord, with no visible error. Firefox was unaffected, which made it look like a mobile-only problem. ([#225](https://github.com/badBlackShark/shrkbot/pull/225))
+
 ## [3.6.0] - 2026-07-27
 
 ### Added
