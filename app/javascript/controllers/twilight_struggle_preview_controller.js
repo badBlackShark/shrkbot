@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { text, pill, hint, nodes } from "lib/token_preview"
 
 const GAMES = {
   win: {
@@ -64,52 +65,21 @@ export default class extends Controller {
     output.replaceChildren()
 
     if (!template) {
-      output.append(this.hint(output.dataset.emptyHint))
+      output.append(hint(output.dataset.emptyHint))
       return
     }
 
-    for (const node of this.nodes(template, this.tokens(game))) output.append(node)
-  }
-
-  nodes(template, tokens) {
-    const out = []
-    let last = 0
-    let match
-
-    TOKEN.lastIndex = 0
-    while ((match = TOKEN.exec(template))) {
-      if (match.index > last) out.push(this.text(template.slice(last, match.index)))
-      out.push(...this.tokenNodes(match[0], tokens[match[1]]))
-      last = TOKEN.lastIndex
+    const tokens = this.tokens(game)
+    for (const node of nodes(template, TOKEN, (match) => this.tokenNodes(match[0], tokens[match[1]]))) {
+      output.append(node)
     }
-    if (last < template.length) out.push(this.text(template.slice(last)))
-
-    return out
   }
 
   tokenNodes(literal, value) {
-    if (value === undefined) return [this.text(literal)]
-    if (typeof value === "string") return [this.text(value)]
+    if (value === undefined) return [text(literal)]
+    if (typeof value === "string") return [text(value)]
 
-    return [this.text(`${value.text} (`), this.pill(`@${value.handle}`), this.text(")")]
-  }
-
-  text(value) {
-    return document.createTextNode(value)
-  }
-
-  pill(value) {
-    const span = document.createElement("span")
-    span.className = "discord-mention"
-    span.textContent = value
-    return span
-  }
-
-  hint(value) {
-    const span = document.createElement("span")
-    span.className = "discord-empty-hint"
-    span.textContent = value
-    return span
+    return [text(`${value.text} (`), pill(`@${value.handle}`), text(")")]
   }
 
   tokens(game) {
@@ -148,11 +118,11 @@ export default class extends Controller {
   }
 
   tagged(person, parts) {
-    const text = parts.filter(Boolean).join(" ")
-    if (!text) return ""
-    if (!this.tags || !person.handle) return text
+    const label = parts.filter(Boolean).join(" ")
+    if (!label) return ""
+    if (!this.tags || !person.handle) return label
 
-    return { text, handle: person.handle }
+    return { text: label, handle: person.handle }
   }
 
   get tags() {
