@@ -44,6 +44,19 @@ RSpec.describe "Servers::TwilightStruggle tournament authorization", type: :requ
     end
   end
 
+  context "when another tournament is subscribed on the same server" do
+    let!(:other_tournament) { create(:twilight_struggle_tournament, name: "RATS Cup 2026") }
+
+    before do
+      create(:twilight_struggle_destination, tournament: other_tournament, server_configuration: config, active: true)
+    end
+
+    it "keeps it out of the organiser's tournament switcher" do
+      get edit_server_twilight_struggle_destination_path(guild.id, tournament)
+      expect(response.body).not_to include(other_tournament.name)
+    end
+  end
+
   context "when the organiser subscribes to a tournament they do not administer" do
     let!(:other_tournament) { create(:twilight_struggle_tournament, name: "RATS Cup 2026") }
 

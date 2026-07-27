@@ -106,9 +106,6 @@ record with us, and the server's own admins configure the tournament for
 them. We never infer an organiser's Discord ID from anywhere else — in
 particular never from the player `discord_id`s in a game payload.
 
-Which tournaments an organiser may touch still walks the tournament chain —
-an organiser named on a parent tournament also administers its children.
-
 If that person deletes their shrkbot dashboard account, we delete the ID; a
 later `PUT` that still includes it will store it again.
 
