@@ -589,8 +589,7 @@ en:
     twilight_struggle:
       saved: Twilight Struggle settings saved.
       subscribed: Subscribed. Set where and how its results post below.
-      unsubscribed: Unsubscribed. Its channel and wording are kept, and results already
-        posted stay up.
+      unsubscribed: Unsubscribed. New results in this tournament won't be posted.
     unknown_plugin: That plugin doesn't exist.
     welcomes:
       saved: Welcomes settings saved.
