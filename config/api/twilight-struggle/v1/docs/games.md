@@ -66,12 +66,17 @@ bare links so Discord builds its own embed.
 Templates are written with `{token}` placeholders. Unknown tokens are left alone,
 so a stray brace renders literally rather than breaking the message.
 
+A token whose field you did not send renders empty. It does not fail. The
+punctuation around the token stays, so the default templates, which end in
+`in {turn} ({winning_method})`, read `in  ()` for a game sent with neither
+field. Send both fields, or write a template that matches what you send.
+
 | Token | Renders |
 | --- | --- |
 | `{tournament_name}` | the tournament's name |
 | `{game_id}` | the `game_code` you sent |
-| `{turn}` | `Turn 7`, or `Final Scoring` at turn 11 |
-| `{winning_method}` | the `winning_method` you sent |
+| `{turn}` | `Turn 7`, or `Final Scoring` at turn 11; empty without a `winning_turn` |
+| `{winning_method}` | the `winning_method` you sent; empty without one |
 | `{winning_player}` / `{losing_player}` | name and flag; empty on a tie |
 | `{winning_side}` / `{losing_side}` | `USA` or `USSR`; empty on a tie |
 | `{usa_player}` / `{ussr_player}` | name and flag for that side |

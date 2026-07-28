@@ -157,6 +157,37 @@ RSpec.describe TwilightStruggle::Message do
       end
     end
 
+    context "winning method token" do
+      let(:template) { "{winning_method}" }
+
+      context "when sent" do
+        let(:report) { TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "usa", winning_method: "Wargames") }
+
+        it "renders it as sent" do
+          expect(content).to eq("Wargames")
+        end
+      end
+
+      context "when nil" do
+        let(:report) { TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "usa", winning_method: nil) }
+
+        it "renders empty" do
+          expect(content).to eq("")
+        end
+      end
+
+      context "when nil in the default win template" do
+        let(:template) { "{tournament_name}: {game_id} - {winning_player} ({winning_side}) has defeated {losing_player} in {turn} ({winning_method})" }
+        let(:report) do
+          TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "usa", winning_turn: 7, game_code: "G372")
+        end
+
+        it "leaves the parentheses the template author wrote" do
+          expect(content).to eq("OTSL 2026 - Season 8: G372 - M B 🇵🇱 (USA) has defeated L S 🇦🇷 in Turn 7 ()")
+        end
+      end
+    end
+
     context "on a tie" do
       let(:template) { "[{winning_player}][{losing_player}][{winning_side}][{losing_side}]" }
       let(:report) { TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "tie") }

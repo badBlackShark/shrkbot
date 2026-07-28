@@ -164,6 +164,18 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
       end
     end
 
+    context "without a winning_method" do
+      let(:params) do
+        {game: valid_result_attributes.except(:winning_method).merge(tournament_external_id: tournament.external_id)}
+      end
+
+      it "returns 201" do
+        put_game
+
+        expect(response).to have_http_status(:created)
+      end
+    end
+
     context "with an invalid winning_side" do
       let(:params) { {game: valid_result_attributes.merge(tournament_external_id: tournament.external_id, winning_side: "nope")} }
 

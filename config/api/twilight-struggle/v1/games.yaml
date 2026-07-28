@@ -61,7 +61,7 @@ components:
   schemas:
     GameInput:
       type: object
-      required: [usa, ussr, winning_side, winning_method, reported_at]
+      required: [usa, ussr, winning_side, reported_at]
       properties:
         tournament_external_id:
           type: string
@@ -96,7 +96,11 @@ components:
         winning_method:
           type: string
           maxLength: 60
-          description: Free text, rendered as sent.
+          description: >-
+            Free text, rendered as sent. Omit it if you do not record one. Then
+            `{winning_method}` renders empty, as `{turn}` does without a
+            `winning_turn`. Check the punctuation around the token in your
+            templates.
           example: "defcon"
         usa:
           $ref: "#/components/schemas/PlayerInput"

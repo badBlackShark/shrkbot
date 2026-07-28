@@ -5,6 +5,11 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [Unreleased]
+
+### Changed
+- The Twilight Struggle results API no longer requires `winning_method` on a game. A site that does not record how a game ended can leave it out, and `{winning_method}` then renders empty, as `{turn}` already did without a `winning_turn`. Templates keep the punctuation around the token, so `in {turn} ({winning_method})` reads `in Turn 7 ()` for a game sent without one.
+
 ## [3.7.0] - 2026-07-27
 
 ### Added
