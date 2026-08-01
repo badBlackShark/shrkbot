@@ -22,13 +22,6 @@
 !/tmp/pids/
 !/tmp/pids/.keep
 
-# Ignore storage (uploaded files in development and any SQLite databases).
-/storage/*
-!/storage/.keep
-/tmp/storage/*
-!/tmp/storage/
-!/tmp/storage/.keep
-
 # Ignore compiled assets.
 /app/assets/builds/*
 !/app/assets/builds/.keep

@@ -59,9 +59,6 @@ gem "bootsnap", require: false
 # Add HTTP asset caching/compression and X-Sendfile acceleration to Puma [https://github.com/basecamp/thruster/]
 gem "thruster", require: false
 
-# Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
-gem "image_processing", "~> 2.0"
-
 # Load env vars from .env in dev/test (12-factor; prod uses real env). Lives in
 # the default group so the runtime image keeps it when dev/test gems are pruned;
 # dotenv-rails only auto-loads .env in dev/test, so it stays inert in production.
