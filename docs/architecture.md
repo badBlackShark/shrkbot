@@ -247,7 +247,7 @@ events subclass `Bot::BaseCommand` / `Bot::BaseEvent` and auto-register via `.de
 The whole bot layer lives under the `Bot::` namespace (`app/bot/`, pushed with
 `namespace: Bot` in `config/application.rb`, mirroring `Ops`). Files are grouped into
 `events/`, `config/`, and `registration/` subdirs that are Zeitwerk-**collapsed**, so a
-handler at `app/bot/events/role_sync.rb` is still `Bot::RoleSync`, not `Bot::Events::RoleSync`
+handler at `app/bot/events/role_upsert.rb` is still `Bot::RoleUpsert`, not `Bot::Events::RoleUpsert`
 — the directories organize the tree without deepening constants. `commands/` and `discord/`
 stay real nested namespaces (`Bot::Commands::`, `Bot::Discord::`).
 
