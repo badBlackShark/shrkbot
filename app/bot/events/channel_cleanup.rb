@@ -2,16 +2,15 @@
 
 module Bot
   class ChannelCleanup < BaseEvent
+    include FindsServerConfiguration
+
     on :channel_delete
 
     def handle
-      return unless event.server
-
-      config = ServerConfiguration.find_by(discord_id: event.server.id)
-      return unless config
+      return unless server_configuration
 
       Ops::ServerConfiguration::Channels::HandleDeletion.call(
-        server_configuration: config,
+        server_configuration:,
         channel_id: event.id,
         bot: event.bot
       )

@@ -6,8 +6,8 @@ module Bot
 
     private
 
-    def apply(config)
-      role = config.server_roles.find_by(discord_id: event.id)
+    def apply
+      role = server_configuration.server_roles.find_by(discord_id: event.id)
       return unless role
 
       Ops::ServerConfiguration::ServerRoles::Destroy.call(server_role: role)
