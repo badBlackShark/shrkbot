@@ -66,6 +66,7 @@ services:
       RAILS_ENV: development
       DATABASE_URL: postgres://root:password@db:5432/shrkbot_db
       REDIS_URL: redis://redis:6379/0
+      RAILS_MAX_THREADS: 15
     volumes:
       - ./:/app
     depends_on:

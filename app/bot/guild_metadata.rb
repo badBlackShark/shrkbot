@@ -37,9 +37,11 @@ module Bot
     end
 
     def roles(server)
-      server.roles.map do |role|
-        {discord_id: role.id, name: role.name, position: role.position, managed: role.managed?, color: role.color.combined, permissions: role.permissions.bits}
-      end
+      server.roles.map { |role| role_data(role) }
+    end
+
+    def role_data(role)
+      {discord_id: role.id, name: role.name, position: role.position, managed: role.managed?, color: role.color.combined, permissions: role.permissions.bits}
     end
 
     def bot_role_position(server, bot)
