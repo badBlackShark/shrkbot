@@ -14,6 +14,9 @@ servers:
       - <%= ENV["DEPLOY_HOST"] %>
     cmd: bin/bot
     proxy: false
+    env:
+      clear:
+        RAILS_MAX_THREADS: "15"
   jobs:
     hosts:
       - <%= ENV["DEPLOY_HOST"] %>
