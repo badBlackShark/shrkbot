@@ -4,7 +4,6 @@
 README.md
 tmp/*
 log/*
-storage/*
 # Local secrets / sandbox state — never bake into the image
 .env
 .env.*
