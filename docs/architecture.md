@@ -19,6 +19,15 @@ discordrb dispatches each handler on its own thread, so any DB work in the bot
 process must check out and return its own connection from the AR pool — see
 `Bot::WithConnection`, mixed into `Bot::BaseCommand` and `Bot::BaseEvent`.
 
+That dispatch is unbounded — discordrb spawns a bare thread per handler with no
+queue or cap — so a single gateway burst (a role reorder fans out one
+`GUILD_ROLE_UPDATE` per moved role) can put far more threads in flight than the
+web process ever sees. The bot therefore runs a larger AR pool than Puma needs:
+`RAILS_MAX_THREADS` is set per-role in `config/deploy.yml`, not globally. A pool
+too small for a burst surfaces as `ActiveRecord::ConnectionTimeoutError` storms
+rather than slow requests, because handlers hold their connection across
+Discord REST calls that block on discordrb's rate limiter.
+
 ## Primary keys
 
 Internal records use prefixed-UUID string PKs (`srv_<uuid>`, `plg_<uuid>`, …),

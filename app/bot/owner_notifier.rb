@@ -7,7 +7,12 @@ module Bot
     module_function
 
     def report(bot:, error:, source:)
-      deliver(bot, format_message(error, source)) if BotSetting.owner_error_dms?
+      return unless BotSetting.owner_error_dms?
+
+      suppressed = ErrorThrottle.instance.admit([error.class.name, source])
+      return if suppressed.nil?
+
+      deliver(bot, format_message(error, source, suppressed))
     end
 
     def notify(bot:, message:)
@@ -23,16 +28,22 @@ module Bot
       Rails.logger.error("[OwnerNotifier] could not DM owner: #{e.class}: #{e.message}")
     end
 
-    def format_message(error, source)
+    def format_message(error, source, suppressed = 0)
       backtrace = Array(error.backtrace).first(8).join("\n")
       msg = <<~MSG
-        ⚠️ **shrkbot error** (#{source})
+        ⚠️ **shrkbot error** (#{source})#{suppressed_note(suppressed)}
         **#{error.class}**: #{error.message}
         ```
         #{backtrace}
         ```
       MSG
       Discord::Truncate.call(msg, MAX_LENGTH)
+    end
+
+    def suppressed_note(count)
+      return "" if count.zero?
+
+      " — plus #{count} more in the previous #{ErrorThrottle::WINDOW.inspect}"
     end
   end
 end
