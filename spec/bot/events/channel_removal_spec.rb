@@ -2,23 +2,30 @@
 
 require "rails_helper"
 
-RSpec.describe Bot::ChannelSync do
+RSpec.describe Bot::ChannelRemoval do
   subject(:handle) { described_class.new(event).handle }
 
   let(:server) { double("server", id: 1) }
-  let(:event) { double("event", server:) }
-  let(:op) { Ops::ServerConfiguration::ServerChannels::Sync }
-
-  before do
-    allow(Bot::GuildMetadata).to receive(:channels).with(server).and_return([:channel_data])
-  end
+  let(:event) { double("event", server:, id: 111) }
+  let(:op) { Ops::ServerConfiguration::ServerChannels::Destroy }
 
   context "for a configured server" do
     let!(:config) { create(:server_configuration, discord_id: 1) }
 
-    it "re-syncs the server's channels" do
-      expect(op).to receive(:call).with(server_configuration: config, channels: [:channel_data])
-      handle
+    context "with a matching local row" do
+      let!(:channel) { create(:server_channel, server_configuration: config, discord_id: 111) }
+
+      it "destroys just the matching row" do
+        expect(op).to receive(:call).with(server_channel: channel)
+        handle
+      end
+    end
+
+    context "with no matching local row" do
+      it "does nothing" do
+        expect(op).not_to receive(:call)
+        handle
+      end
     end
   end
 

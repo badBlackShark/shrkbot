@@ -6,11 +6,11 @@ module Bot
 
     private
 
-    def apply(config)
+    def apply
       return unless event.role
 
       Ops::ServerConfiguration::ServerRoles::Upsert.call(
-        server_configuration: config,
+        server_configuration:,
         role: GuildMetadata.role_data(event.role)
       )
     end

@@ -1,17 +1,13 @@
 # frozen_string_literal: true
 
 module Bot
-  class RoleEvent < BaseEvent
+  class ChannelEvent < BaseEvent
     include FindsServerConfiguration
 
     def handle
       return unless server_configuration
 
       apply
-      Ops::ServerConfiguration::BotRolePosition::Sync.call(
-        server_configuration:,
-        position: GuildMetadata.bot_role_position(event.server, event.bot)
-      )
     end
 
     private

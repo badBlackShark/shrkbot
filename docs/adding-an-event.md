@@ -38,6 +38,33 @@ end
 - For plugins gated by an enable flag, check it at the top of `#handle` (a DB read) —
   event handlers aren't hidden the way guild commands are. See `Settings.active_for`.
 
+## Mirroring guild state (roles, channels, …)
+
+When an event exists to keep a local table in step with Discord, handle **the one
+entity the event names** — never re-read the whole guild. Discord fires one event per
+entity that changed, so a reorder of N roles or channels arrives as N events; answering
+each with a full-guild resync makes it N² writes, which exhausts the bot's AR pool and
+turns one drag into a storm of `ActiveRecord::ConnectionTimeoutError`.
+
+The shape, established by roles and channels:
+
+- An abstract base (`Bot::RoleEvent`, `Bot::ChannelEvent`) resolves the guild's
+  `ServerConfiguration` via `Bot::FindsServerConfiguration`, returns when there is none,
+  and delegates to an abstract `#apply(config)`. It calls no `on`, so `EventRegistrar`
+  (which filters on `registrable`) never registers it.
+- One subclass per direction: `…Upsert` for create/update, `…Removal` for delete. They
+  are separate classes because discordrb's create/update events carry the full object
+  while the delete event carries only a snowflake — a single handler would have to
+  branch on event shape.
+- Single-entity operations (`Ops::…::{Upsert,Destroy}`) alongside the bulk `Sync`, with
+  the attribute mapping shared through an `Attributes` module so the two paths can't drift.
+
+Keep the bulk `Sync` op. `Bot::GuildMetadata.sync` still calls it on `ready` and
+`server_create`, and that reconciliation is the backstop that heals anything a dropped
+event missed — including deletions, via its prune of rows Discord no longer reports.
+Do **not** implement `Sync` by looping the single-entity op: its preloaded `index_by`
+is what keeps it off an N+1, and Prosopite (`raise = true` in every spec) will catch you.
+
 ## Component interactions (buttons, selects)
 
 `on` forwards keyword attributes to the discordrb handler, so component events filter
