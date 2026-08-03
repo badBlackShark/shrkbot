@@ -1,6 +1,6 @@
 # Design system
 
-The web UI is built from the design system delivered in `docs/design/` (the
+The web UI is built from the design system delivered in `docs/design-kit/` (the
 `tokens/*.css` + `tailwind/theme.css` are the production spec; the HTML mockups
 under `ui_kits/` are throwaway CDN-wired prototypes). This doc records how that
 system is wired into the app. Views are Phlex; styling is Tailwind v4; behaviour
@@ -95,7 +95,7 @@ That split is the save model: standalone settings save instantly; **the plugin
 config pages do not auto-save** — they batch all edits behind an explicit save
 (the global `SaveBar`, below) so a configuration can be staged before going live
 (toggles there are `Components::Toggle` fields). Both paths render through a Turbo Stream view
-template (`action.turbo_stream.erb`, see architecture.md "Web"): the template's
+template (`action.turbo_stream.erb`, see [Web (controllers and views)](../web/controllers-and-views.md)): the template's
 `turbo_stream.replace`/`append` lines render our Phlex components as the content, so
 the stream markup stays in the view layer. Success re-renders the control plus a
 toast; a config-form failure re-renders the form region with inline errors — just

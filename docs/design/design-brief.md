@@ -1,15 +1,17 @@
-# Web config UI — design brief (Phase 7)
+# Web config UI — design intent
 
-For a design pass on the shrkbot web app (Claude Design has repo access — read
-`CLAUDE.md`, `docs/architecture.md`, and the `Gemfile` for the stack; this brief covers
-*intent*, information architecture, and the patterns we want designed).
+Who the web UI is for, what they come to do, and the patterns that follow from
+that. Written as the brief for the original design pass and kept because the
+intent is still the standard a new screen is judged against — the *how* lives in
+[design-system.md](design-system.md).
+
+Every screen described here has since been built; read this for the reasoning, not
+for current state.
 
 ## What this is
 A configuration website for **shrkbot**, a Discord bot. Server owners/admins log in with
 Discord and configure the bot per server: which plugins are on, and their settings. The bot
-itself runs separately; this site is the control panel. Auth (Discord OAuth) and the Phlex
-view layer already exist — the landing page is the only built screen and is intentionally
-bare.
+itself runs separately; this site is the control panel.
 
 ## Users & context
 - **Who:** Discord server owners and admins. Not necessarily technical.

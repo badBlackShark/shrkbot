@@ -52,7 +52,7 @@ end
 
 Wire the association on `ServerConfiguration` with explicit `class_name` (and
 `dependent:` to cascade on server removal). The migration uses a prefixed-UUID PK
-default — see [architecture.md](architecture.md#primary-keys). Mirror model
+default — see [Primary keys](../architecture/persistence.md). Mirror model
 validations with DB constraints (CI enforces this via `active_record_doctor`).
 
 Keep every column nullable or defaulted, then add a line to
@@ -64,7 +64,7 @@ config.welcome_settings || config.create_welcome_settings!
 ```
 
 This upholds the invariant that a server's settings rows always exist (see
-[architecture.md](architecture.md#server-onboarding)), so operations update the row
+[Guild sync and onboarding](../bot/guild-sync.md#server-onboarding)), so operations update the row
 directly instead of build-or-update. Forgetting this line means the plugin's
 settings operations hit `nil` for servers onboarded before the line was added.
 
@@ -83,7 +83,7 @@ Definition.new(
 ```
 
 A `channel_setting` makes the plugin **channel-backed**: it can't be enabled until that
-channel is set. `TogglePlugin` enforces this and a `PluginActivation` validation
+channel is set. `Ops::ServerConfiguration::Plugins::Toggle` enforces this and a `PluginActivation` validation
 backstops it. `key` is read back as a symbol; branch on `:welcomes` in code.
 
 `requires_plugin:` names another plugin that must be enabled first (a hard dependency).
@@ -116,7 +116,7 @@ on top of the grant; check it wherever the plugin acts on a server
 All settings writes and runtime mutations are operations under
 `Ops::<Plugin>::<Resource>::<Verb>` (server-level concerns under
 `Ops::ServerConfiguration::`). Operations take full objects, never record ids, and
-return a `Result`. See [architecture.md](architecture.md#operations-app-operations-ops-namespace).
+return a `Result`. See [Operations](../architecture/operations-layer.md).
 
 ## 5. Commands and events
 
