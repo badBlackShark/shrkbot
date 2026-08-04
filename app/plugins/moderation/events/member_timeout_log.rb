@@ -2,45 +2,24 @@
 
 module Moderation
   class MemberTimeoutLog < MemberActionLog
-    on :member_update
+    on :audit_log_entry, action: :member_update
     event_key :member_timed_out
 
     private
 
     def loggable?
-      member&.communication_disabled? && attribution.present? && !performed_by_shrkbot?(attribution.moderator) && first_sighting?
+      timeout_until.present?
     end
 
-    def entry
-      MemberLog::ActivityEntry.build(
-        event_key: :member_timed_out,
-        target: member,
-        moderator: attribution.moderator,
-        reason: attribution.reason,
-        timeout_until: member.communication_disabled_until
-      )
+    def entry_options
+      {timeout_until:}
     end
 
-    def first_sighting?
-      MemberLog::TimeoutLogLedger.instance.first_sighting?(
-        guild_id: event.server.id,
-        user_id: member.id,
-        expires_at: member.communication_disabled_until
-      )
-    end
+    def timeout_until
+      return @timeout_until if defined?(@timeout_until)
 
-    def member
-      return @member if defined?(@member)
-
-      @member = event.user
-    end
-
-    def attribution
-      return @attribution if defined?(@attribution)
-
-      @attribution = MemberLog::AuditLogLookup.attribution(event.server, action: :member_update, target_id: member.id) do |candidate|
-        candidate.changes.is_a?(Hash) && candidate.changes["communication_disabled_until"]&.new.present?
-      end
+      expiry = audit_entry.changes["communication_disabled_until"]&.new
+      @timeout_until = expiry && Time.zone.parse(expiry)
     end
   end
 end

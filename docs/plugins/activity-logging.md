@@ -39,3 +39,23 @@ any side whose toggle is off via `enabled?`, and posts one entry built by
 The enumerable catalog of each plugin's loggable events (so the web tab can render the toggle
 list) is a Phase 7 concern — a per-plugin declaration added when that UI is built. The bot
 side doesn't need it: the i18n lookup raising on an unknown key covers typos.
+
+## Moderation member log
+
+The three moderation events (`member_banned`, `member_kicked`, `member_timed_out`) are
+driven by Discord's `GUILD_AUDIT_LOG_ENTRY_CREATE` gateway event, not by `user_ban`,
+`member_leave`, or `member_update`. The moderator and reason exist only in the audit log,
+and polling the audit-log REST endpoint on the gateway event loses a race: Discord writes
+audit entries asynchronously, so a ban lookup routinely came back empty and logged "an
+unknown moderator" with no reason. The pushed audit entry carries the performer, the
+reason and the target, so there is nothing to poll and nothing to race.
+
+`Moderation::MemberActionLog` holds the shared pipeline (toggle gate, skip shrkbot's own
+actions by comparing `event.user_id` to the bot's profile ID, build, post); the three
+subclasses are just an audit action plus an event key. `MemberTimeoutLog` additionally
+filters `member_update` entries down to those that set a non-nil
+`communication_disabled_until`, which excludes nickname/role edits and timeout removals.
+
+The cost of this design: Discord only delivers audit-log entries to bots holding **View
+Audit Log**, so without that permission moderation logging is silent rather than
+degraded. That is accepted — the default invite grants Administrator.

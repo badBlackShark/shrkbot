@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rails_helper"
+require "discordrb"
 
 RSpec.describe Bot::BaseEvent do
   let(:event) { double("event", bot: double("bot")) }
@@ -72,6 +73,19 @@ RSpec.describe Bot::BaseEvent do
         expect(klass.discord_events).to eq([:button])
         expect(klass.event_attributes).to eq(custom_id: /x/)
       end
+    end
+  end
+
+  describe "the registrable event classes" do
+    subject(:unknown_events) { declared_events - Discordrb::EventContainer.instance_methods }
+
+    let(:declared_events) do
+      Rails.application.eager_load!
+      described_class.descendants.select(&:registrable).flat_map(&:discord_events).uniq
+    end
+
+    it "only declare handlers discordrb defines" do
+      expect(unknown_events).to be_empty
     end
   end
 end

@@ -5,12 +5,14 @@ module Moderation
     def handle
       return unless server_configuration
       return unless Bot::ActivityLog.enabled?(server_configuration, "moderation.#{self.class.event_key}")
+      return if performed_by_shrkbot?
+      return unless target
       return unless loggable?
 
       Bot::ActivityLog.post(
         server_configuration,
         bot: event.bot,
-        **entry
+        **activity_entry
       )
     end
 
@@ -23,16 +25,36 @@ module Moderation
 
     private
 
-    def performed_by_shrkbot?(moderator)
-      moderator&.id == event.bot.profile.id
+    def activity_entry
+      MemberLog::ActivityEntry.build(
+        event_key: self.class.event_key,
+        target:,
+        moderator: audit_entry.user,
+        reason: audit_entry.reason,
+        **entry_options
+      )
+    end
+
+    def entry_options
+      {}
     end
 
     def loggable?
-      raise AbstractMethodError, "#{self.class} must implement #loggable?"
+      true
     end
 
-    def entry
-      raise AbstractMethodError, "#{self.class} must implement #entry"
+    def target
+      return @target if defined?(@target)
+
+      @target = audit_entry.target
+    end
+
+    def audit_entry
+      event.entry
+    end
+
+    def performed_by_shrkbot?
+      event.user_id == event.bot.profile.id
     end
 
     def server_configuration
