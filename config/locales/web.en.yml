@@ -558,6 +558,10 @@ en:
           empty: This message is off.
           label: Live preview
           timestamp: Today
+        suppress_removal_messages:
+          help: Members who were kicked or banned get no leave message. Delays every
+            leave message by a few seconds while shrkbot works out which it was.
+          label: Skip leave messages for kicks and bans
   meta:
     default_description: A mechanical assistant for your Discord server. With teeth
       when needed.

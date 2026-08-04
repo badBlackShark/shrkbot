@@ -5,11 +5,23 @@ module Ops
     class Configure < ApplicationOperation
       include Ops::PluginConfiguration
 
-      receives :server_configuration, :channel_id, :join_message, :leave_message, :ping_on_join, :enabled
+      receives :server_configuration,
+        :channel_id,
+        :join_message,
+        :leave_message,
+        :ping_on_join,
+        :suppress_removal_messages,
+        :enabled
 
       def call
         settings = server_configuration.welcome_settings
-        settings.assign_attributes(channel_id:, join_message:, leave_message:, ping_on_join:)
+        settings.assign_attributes(
+          channel_id:,
+          join_message:,
+          leave_message:,
+          ping_on_join:,
+          suppress_removal_messages:
+        )
         activation = staged_activation
 
         return failure(messages(settings, activation), value: activation) unless settings.valid? && activation.valid?

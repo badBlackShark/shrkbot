@@ -11,10 +11,23 @@ module Welcomes
       return unless setting&.channel_id.present?
       return if setting.leave_message.blank?
 
-      event.bot.send_message(setting.channel_id, content(setting.leave_message), false, nil, nil, {parse: []})
+      message = content(setting.leave_message)
+      return post(setting.channel_id, message) unless setting.suppress_removal_messages
+
+      GracePeriod.after do
+        post(setting.channel_id, message) unless removed_by_staff?
+      end
     end
 
     private
+
+    def post(channel_id, message)
+      event.bot.send_message(channel_id, message, false, nil, nil, {parse: []})
+    end
+
+    def removed_by_staff?
+      PendingRemovals.instance.forget(guild_id: event.server.id, user_id: event.user.id)
+    end
 
     def content(template)
       Message.render(

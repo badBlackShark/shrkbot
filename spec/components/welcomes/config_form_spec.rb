@@ -25,4 +25,8 @@ RSpec.describe Components::Welcomes::ConfigForm do
   it "renders the ping-on-join toggle" do
     expect(html).to include('name="welcomes[ping_on_join]"')
   end
+
+  it "renders the suppress-removal-messages toggle" do
+    expect(html).to include('name="welcomes[suppress_removal_messages]"')
+  end
 end

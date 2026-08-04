@@ -38,10 +38,12 @@ a permission and you lose the feature that needs it, and shrkbot does not work
 around that.
 
 - **View Audit Log** — required for moderation action logging (timeout, kick,
-  ban). shrkbot receives these actions as audit-log entries pushed over the
+  ban) and for the Welcomes toggle that skips leave messages for kicks and bans.
+  shrkbot receives these actions as audit-log entries pushed over the
   gateway, and Discord only sends those to bots that hold this permission.
   Without it, moderation logging goes silent rather than degrading to an
-  entry with an unknown moderator.
+  entry with an unknown moderator, and every removal is announced as if it
+  were voluntary.
 - **Mention @everyone, @here and All Roles** — staff-role pings on flag/notify posts
 - **Manage Messages** — spam purge and scam image removal
 - **Moderate Members** — the timeout punishment

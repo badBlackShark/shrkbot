@@ -18,6 +18,7 @@ class Components::Welcomes::ConfigForm < Components::Base
       channel_card
       message_cards
       ping_toggle
+      suppress_removal_toggle
       placeholder_help
       preview
     end
@@ -81,6 +82,15 @@ class Components::Welcomes::ConfigForm < Components::Base
       checked: @settings.ping_on_join,
       label: t(".ping_on_join.label"),
       help: t(".ping_on_join.help")
+    )
+  end
+
+  def suppress_removal_toggle
+    render Components::ToggleCard.new(
+      name: "welcomes[suppress_removal_messages]",
+      checked: @settings.suppress_removal_messages,
+      label: t(".suppress_removal_messages.label"),
+      help: t(".suppress_removal_messages.help")
     )
   end
 

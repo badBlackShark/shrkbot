@@ -30,7 +30,7 @@ RSpec.describe Welcomes::PendingJoins do
     end
 
     context "just before the retention window closes" do
-      let(:at) { now + described_class::RETENTION - 1.second }
+      let(:at) { now + described_class.retention - 1.second }
 
       it "still reports the pending join" do
         expect(forget).to be(true)
@@ -38,7 +38,7 @@ RSpec.describe Welcomes::PendingJoins do
     end
 
     context "once the retention window has closed" do
-      let(:at) { now + described_class::RETENTION }
+      let(:at) { now + described_class.retention }
 
       it "has dropped the join" do
         expect(forget).to be(false)
