@@ -5,6 +5,7 @@ class Components::Welcomes::ConfigForm < Components::Base
     "text-sm text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
     "focus:ring-3 focus:ring-[var(--focus-ring)]"
   PLACEHOLDERS = %w[user username displayname membercount].freeze
+  COLUMNS = "grid gap-5 sm:grid-cols-2"
 
   def initialize(server_configuration:, enable_error: nil)
     @config = server_configuration
@@ -17,8 +18,7 @@ class Components::Welcomes::ConfigForm < Components::Base
       enable_error_callout
       channel_card
       message_cards
-      ping_toggle
-      suppress_removal_toggle
+      toggles
       placeholder_help
       preview
     end
@@ -44,9 +44,16 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def message_cards
-    div(class: "grid gap-5 sm:grid-cols-2") do
+    div(class: COLUMNS) do
       message_card(:join_message, @settings.join_message)
       message_card(:leave_message, @settings.leave_message)
+    end
+  end
+
+  def toggles
+    div(class: COLUMNS) do
+      ping_toggle
+      suppress_removal_toggle
     end
   end
 
@@ -89,8 +96,7 @@ class Components::Welcomes::ConfigForm < Components::Base
     render Components::ToggleCard.new(
       name: "welcomes[suppress_removal_messages]",
       checked: @settings.suppress_removal_messages,
-      label: t(".suppress_removal_messages.label"),
-      help: t(".suppress_removal_messages.help")
+      label: t(".suppress_removal_messages.label")
     )
   end
 

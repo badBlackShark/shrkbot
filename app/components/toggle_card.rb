@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Components::ToggleCard < Components::Base
-  def initialize(name:, checked:, label:, help:)
+  def initialize(name:, checked:, label:, help: nil)
     @name = name
     @checked = checked
     @label = label
@@ -12,7 +12,7 @@ class Components::ToggleCard < Components::Base
     render Components::Card.new(class: "flex items-center gap-4") do
       div(class: "flex-1") do
         p(class: "text-sm font-semibold") { @label }
-        p(class: "mt-0.5 text-sm text-text-secondary") { @help }
+        p(class: "mt-0.5 text-sm text-text-secondary") { @help } if @help
       end
       render Components::Toggle.new(name: @name, checked: @checked, label: @label)
     end
