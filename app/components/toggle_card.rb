@@ -9,12 +9,8 @@ class Components::ToggleCard < Components::Base
   end
 
   def view_template
-    render Components::Card.new(class: "flex items-center gap-4") do
-      div(class: "flex-1") do
-        p(class: "text-sm font-semibold") { @label }
-        p(class: "mt-0.5 text-sm text-text-secondary") { @help } if @help
-      end
-      render Components::Toggle.new(name: @name, checked: @checked, label: @label)
+    render Components::Card.new do
+      render Components::ToggleRow.new(name: @name, checked: @checked, label: @label, help: @help)
     end
   end
 end

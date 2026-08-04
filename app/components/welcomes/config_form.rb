@@ -5,7 +5,6 @@ class Components::Welcomes::ConfigForm < Components::Base
     "text-sm text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
     "focus:ring-3 focus:ring-[var(--focus-ring)]"
   PLACEHOLDERS = %w[user username displayname membercount].freeze
-  COLUMNS = "grid gap-5 sm:grid-cols-2"
 
   def initialize(server_configuration:, enable_error: nil)
     @config = server_configuration
@@ -18,7 +17,6 @@ class Components::Welcomes::ConfigForm < Components::Base
       enable_error_callout
       channel_card
       message_cards
-      toggles
       placeholder_help
       preview
     end
@@ -44,20 +42,17 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def message_cards
-    div(class: COLUMNS) do
-      message_card(:join_message, @settings.join_message)
-      message_card(:leave_message, @settings.leave_message)
+    div(class: "grid gap-5 sm:grid-cols-2") do
+      message_card(:join_message, @settings.join_message) do
+        ping_toggle
+      end
+      message_card(:leave_message, @settings.leave_message) do
+        suppress_removal_toggle
+      end
     end
   end
 
-  def toggles
-    div(class: COLUMNS) do
-      ping_toggle
-      suppress_removal_toggle
-    end
-  end
-
-  def message_card(name, value)
+  def message_card(name, value, &toggle)
     render Components::Card.new do
       label(class: "block text-sm font-semibold") { t(".#{name}.label") }
       p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".#{name}.help") }
@@ -69,7 +64,12 @@ class Components::Welcomes::ConfigForm < Components::Base
         data: {welcome_preview_target: camel(name), action: "input->welcome-preview#render"}
       ) { value }
       info_line(name)
+      toggle_section(&toggle)
     end
+  end
+
+  def toggle_section(&toggle)
+    div(class: "mt-4 border-t border-border-subtle pt-4", &toggle)
   end
 
   def info_line(name)
@@ -84,7 +84,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def ping_toggle
-    render Components::ToggleCard.new(
+    render Components::ToggleRow.new(
       name: "welcomes[ping_on_join]",
       checked: @settings.ping_on_join,
       label: t(".ping_on_join.label"),
@@ -93,7 +93,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def suppress_removal_toggle
-    render Components::ToggleCard.new(
+    render Components::ToggleRow.new(
       name: "welcomes[suppress_removal_messages]",
       checked: @settings.suppress_removal_messages,
       label: t(".suppress_removal_messages.label")
