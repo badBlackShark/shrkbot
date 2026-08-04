@@ -11,13 +11,13 @@ A design system for **shrkbot** — *a modular Discord bot* by [badBlackShark](h
 Everything here was derived from the product's own code and brief — explore them to go deeper:
 
 - **GitHub:** [`badBlackShark/shrkbot`](https://github.com/badBlackShark/shrkbot) — the bot + web app (Ruby on Rails 8.1, mid-rewrite from Crystal).
-  - `docs/design-brief.md` — the Phase-7 web-config-UI design brief (intent, IA, patterns). The dashboard UI kit follows it.
+  - `docs/design/design-brief.md` — the Phase-7 web-config-UI design brief (intent, IA, patterns). The dashboard UI kit follows it.
   - `BUILD_PLAN.md` — phased build plan; the plugin/domain model.
   - `app/bot/commands/*.rb`, `app/bot/discord/components.rb` — real bot copy + the accent-container message format.
   - `app/bot/bot_config.rb` — `ACCENT_COLOR = 0x37a79e`.
 - **Uploaded asset:** `uploads/shrkbot_square_bg.png` → `assets/shrkbot-mascot.png` (the mascot/logo).
 
-*The reader is assumed not to have access; links are recorded in case they do. Reading the repo — especially `docs/design-brief.md` — will let you design shrkbot surfaces far more accurately.*
+*The reader is assumed not to have access; links are recorded in case they do. Reading the repo — especially `docs/design/design-brief.md` — will let you design shrkbot surfaces far more accurately.*
 
 ### Stack constraints (these shaped every decision)
 

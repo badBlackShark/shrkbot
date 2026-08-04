@@ -68,7 +68,7 @@ Found a bug, or missing a feature? Open an issue, or send an email to [info@shrk
 
 ## Deployment
 
-Deploys to a single box via [Kamal 2](https://kamal-deploy.org) — see [docs/deployment.md](docs/deployment.md).
+Deploys to a single box via [Kamal 2](https://kamal-deploy.org) — see [docs/running/deployment.md](docs/running/deployment.md).
 
 ## License
 
