@@ -32,9 +32,16 @@ not fire.
 
 #### Invite permissions
 
-The invite link's permission set must include everything Server Shield acts with:
+shrkbot's default invite link grants **Administrator**, which covers everything
+below. The list exists for a server that deliberately narrows the grant: strip
+a permission and you lose the feature that needs it, and shrkbot does not work
+around that.
 
-- **View Audit Log** — moderation action logging (timeout, kick, ban attribution)
+- **View Audit Log** — required for moderation action logging (timeout, kick,
+  ban). shrkbot receives these actions as audit-log entries pushed over the
+  gateway, and Discord only sends those to bots that hold this permission.
+  Without it, moderation logging goes silent rather than degrading to an
+  entry with an unknown moderator.
 - **Mention @everyone, @here and All Roles** — staff-role pings on flag/notify posts
 - **Manage Messages** — spam purge and scam image removal
 - **Moderate Members** — the timeout punishment
