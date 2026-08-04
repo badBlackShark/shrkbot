@@ -62,6 +62,7 @@ ActiveRecordDoctor.configure do
       "Reminders::Reminder.deliver_via_dm",
       "ServerConfiguration.force_dm_reminders",
       "ServerRole.managed",
-      "Moderation::Phash.global_scam"
+      "Moderation::Phash.global_scam",
+      "Welcomes::Settings.suppress_removal_messages"
     ]
 end

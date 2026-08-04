@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_27_144813) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_04_225206) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -500,6 +500,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_144813) do
     t.text "leave_message"
     t.boolean "ping_on_join", default: true, null: false
     t.string "server_configuration_id", null: false
+    t.boolean "suppress_removal_messages", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["server_configuration_id"], name: "index_welcome_settings_on_server_configuration_id", unique: true
   end

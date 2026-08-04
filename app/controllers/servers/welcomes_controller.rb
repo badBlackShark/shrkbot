@@ -22,6 +22,7 @@ class Servers::WelcomesController < ApplicationController
       join_message: welcomes_params[:join_message],
       leave_message: welcomes_params[:leave_message],
       ping_on_join: welcomes_params.fetch(:ping_on_join, "1"),
+      suppress_removal_messages: welcomes_params.fetch(:suppress_removal_messages, "0"),
       enabled: welcomes_params[:enabled]
     )
     respond_with_configuration(result)
@@ -30,6 +31,6 @@ class Servers::WelcomesController < ApplicationController
   private
 
   def welcomes_params
-    params.expect(welcomes: [:channel_id, :join_message, :leave_message, :ping_on_join, :enabled])
+    params.expect(welcomes: [:channel_id, :join_message, :leave_message, :ping_on_join, :suppress_removal_messages, :enabled])
   end
 end

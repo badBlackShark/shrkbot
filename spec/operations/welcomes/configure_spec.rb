@@ -10,6 +10,7 @@ RSpec.describe Ops::Welcomes::Configure do
       join_message: "hi {user}",
       leave_message: "bye",
       ping_on_join: false,
+      suppress_removal_messages: true,
       enabled:
     )
   end
@@ -27,6 +28,7 @@ RSpec.describe Ops::Welcomes::Configure do
       expect(config.welcome_settings.join_message).to eq("hi {user}")
       expect(config.plugin_activations.find_by(plugin:).enabled).to be(true)
       expect(config.welcome_settings.ping_on_join).to be(false)
+      expect(config.welcome_settings.suppress_removal_messages).to be(true)
     end
   end
 

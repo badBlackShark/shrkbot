@@ -22,7 +22,18 @@ RSpec.describe Components::Welcomes::ConfigForm do
     expect(html).to include("No channels have synced yet")
   end
 
-  it "renders the ping-on-join toggle" do
-    expect(html).to include('name="welcomes[ping_on_join]"')
+  it "nests the ping-on-join toggle in the join message card" do
+    expect(card_containing("welcomes[join_message]")).to include('name="welcomes[ping_on_join]"')
+  end
+
+  it "nests the suppress-removal-messages toggle in the leave message card" do
+    expect(card_containing("welcomes[leave_message]")).to include('name="welcomes[suppress_removal_messages]"')
+  end
+
+  def card_containing(field)
+    Nokogiri::HTML.fragment(html)
+      .css("div.rounded-card")
+      .find { |card| card.css("[name]").any? { |node| node["name"] == field } }
+      .to_html
   end
 end

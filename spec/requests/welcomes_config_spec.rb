@@ -92,7 +92,7 @@ RSpec.describe "Welcomes config", type: :request do
 
         it "saves the settings and enables the plugin in one request" do
           patch server_welcomes_path(guild.id),
-            params: {welcomes: {channel_id: 111, join_message: "hi {user}", leave_message: "", ping_on_join: "0", enabled: "1"}},
+            params: {welcomes: {channel_id: 111, join_message: "hi {user}", leave_message: "", ping_on_join: "0", suppress_removal_messages: "1", enabled: "1"}},
             **turbo
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
           expect(config.welcome_settings.reload.channel_id).to eq(111)
@@ -100,6 +100,7 @@ RSpec.describe "Welcomes config", type: :request do
           expect(response.body).to include("saved")
           expect(response.body).to include('target="plugin-sidebar"')
           expect(config.welcome_settings.reload.ping_on_join).to be(false)
+          expect(config.welcome_settings.reload.suppress_removal_messages).to be(true)
         end
 
         it "re-renders the form with an inline error when enabling without a channel" do

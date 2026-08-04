@@ -543,8 +543,7 @@ en:
           placeholder: "{user} has left the server."
         ping_on_join:
           help: Off delivers silently - the mention badge still shows, but no sound
-            or push. The mention itself stays real, because stripping it risks rendering
-            as "@unknown-user".
+            or push.
           label: Ping on join
         placeholders:
           displayname: Expands to the member's nickname on this server, or their display
@@ -558,6 +557,8 @@ en:
           empty: This message is off.
           label: Live preview
           timestamp: Today
+        suppress_removal_messages:
+          label: Skip leave messages for kicks and bans
   meta:
     default_description: A mechanical assistant for your Discord server. With teeth
       when needed.
