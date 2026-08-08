@@ -7,12 +7,13 @@ tournament, so it cannot identify a game on its own.
 grouped under shrkbot's internal "Friendly games" tournament instead of being
 rejected.
 
-**Everything except the identifiers is render-only.** Player names, flags, the
-winning side/method/turn, and the video URLs are used once to build the Discord
-message and are then discarded — shrkbot does not store them. Only the game's own
-id, its tournament link, and (once posted) the Discord channel/message id of each
-subscribing server's posted result are kept — one pair per server. See the
-[privacy policy](https://shrkbot.com/privacy) for the full data inventory.
+**Everything except the identifiers is render-only.** Player names, flags and
+ratings, the winning side/method/turn, and the video URLs are used once to build
+the Discord message and are then discarded — shrkbot does not store them. Only
+the game's own id, its tournament link, and (once posted) the Discord
+channel/message id of each subscribing server's posted result are kept — one pair
+per server. See the [privacy policy](https://shrkbot.com/privacy) for the full
+data inventory.
 
 ## Posting results to Discord
 
@@ -83,6 +84,9 @@ field. Send both fields, or write a template that matches what you send.
 | `{usa_name}` / `{ussr_name}` / `{winning_name}` / `{losing_name}` | name, no flag |
 | `{usa_flag}` / `{ussr_flag}` / `{winning_flag}` / `{losing_flag}` | flag only |
 | `{videos}` | the video URLs, space separated |
+| `{usa_rating_before}` / `{ussr_rating_before}` / `{winning_rating_before}` / `{losing_rating_before}` | the player's rating before the game; empty without one. The `winning_`/`losing_` tokens are also empty on a tie |
+| `{usa_rating_after}` / `{ussr_rating_after}` / `{winning_rating_after}` / `{losing_rating_after}` | the player's rating after the game; empty without one. The `winning_`/`losing_` tokens are also empty on a tie |
+| `{usa_rating_change}` / `{ussr_rating_change}` / `{winning_rating_change}` / `{losing_rating_change}` | the rating change, signed, such as `+12` or `-8`; empty unless both ratings were sent. The `winning_`/`losing_` tokens are also empty on a tie |
 
 A tournament can be set to show Discord tags. Then every token that carries a
 player's name also carries their tag in brackets after it — `Alice 🇺🇸 (@alice)` —

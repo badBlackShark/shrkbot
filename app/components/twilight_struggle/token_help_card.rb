@@ -6,6 +6,10 @@ class Components::TwilightStruggle::TokenHelpCard < Components::Base
     winning_player losing_player winning_side losing_side
     usa_player ussr_player usa_name ussr_name winning_name losing_name
     usa_flag ussr_flag winning_flag losing_flag videos
+    usa_rating_before usa_rating_after usa_rating_change
+    ussr_rating_before ussr_rating_after ussr_rating_change
+    winning_rating_before winning_rating_after winning_rating_change
+    losing_rating_before losing_rating_after losing_rating_change
   ].freeze
 
   def view_template

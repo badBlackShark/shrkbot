@@ -5,8 +5,8 @@ const GAMES = {
   win: {
     tournament: "OTSL 2026 - Season 8",
     code: "G372",
-    usa: { name: "Michał Bąk", flag: "🇵🇱", handle: "michal" },
-    ussr: { name: "Lucas Sosa", flag: "🇦🇷" },
+    usa: { name: "Michał Bąk", flag: "🇵🇱", handle: "michal", rating: { before: 1502, after: 1522 } },
+    ussr: { name: "Lucas Sosa", flag: "🇦🇷", rating: { before: 1498, after: 1478 } },
     winner: "usa",
     turn: "Turn 7",
     method: "VP Track (+20)",
@@ -15,8 +15,8 @@ const GAMES = {
   tie: {
     tournament: "RATS Cup 2026",
     code: "C204",
-    usa: { name: "Marc Naudi", flag: "🇦🇩", handle: "marc" },
-    ussr: { name: "Ji-woo Han", flag: "🇰🇷" },
+    usa: { name: "Marc Naudi", flag: "🇦🇩", handle: "marc", rating: { before: 1503.5, after: 1505.75 } },
+    ussr: { name: "Ji-woo Han", flag: "🇰🇷", rating: { before: 1496.5, after: 1494.25 } },
     winner: null,
     turn: "Turn 10",
     method: "Wargames",
@@ -25,8 +25,8 @@ const GAMES = {
   video: {
     tournament: "OTSL 2026 - Season 8",
     code: "S378",
-    usa: { name: "Tomasz Borowski", flag: "🇵🇱", handle: "tomasz" },
-    ussr: { name: "Astrid Lindqvist", flag: "🇸🇪" },
+    usa: { name: "Tomasz Borowski", flag: "🇵🇱", handle: "tomasz", rating: { before: 1450, after: 1465 } },
+    ussr: { name: "Astrid Lindqvist", flag: "🇸🇪", rating: { before: 1550, after: 1535 } },
     winner: null,
     turn: "Turn 4",
     method: "DEFCON",
@@ -106,6 +106,18 @@ export default class extends Controller {
       usa_flag: game.usa.flag,
       ussr_flag: game.ussr.flag,
       videos: game.videos,
+      usa_rating_before: this.ratingText(game.usa, "before"),
+      usa_rating_after: this.ratingText(game.usa, "after"),
+      usa_rating_change: this.ratingChange(game.usa),
+      ussr_rating_before: this.ratingText(game.ussr, "before"),
+      ussr_rating_after: this.ratingText(game.ussr, "after"),
+      ussr_rating_change: this.ratingChange(game.ussr),
+      winning_rating_before: this.ratingText(winner, "before"),
+      winning_rating_after: this.ratingText(winner, "after"),
+      winning_rating_change: this.ratingChange(winner),
+      losing_rating_before: this.ratingText(loser, "before"),
+      losing_rating_after: this.ratingText(loser, "after"),
+      losing_rating_change: this.ratingChange(loser),
     }
   }
 
@@ -115,6 +127,21 @@ export default class extends Controller {
 
   name(person) {
     return this.tagged(person, [person?.name])
+  }
+
+  ratingText(person, field) {
+    const value = person?.rating?.[field]
+    return value == null ? "" : String(value)
+  }
+
+  ratingChange(person) {
+    const before = person?.rating?.before
+    const after = person?.rating?.after
+    if (before == null || after == null) return ""
+
+    const diff = Math.round((after - before) * 100) / 100
+
+    return `${diff >= 0 ? "+" : ""}${diff}`
   }
 
   tagged(person, parts) {

@@ -499,21 +499,39 @@ en:
           losing_flag: The losing player's flag. Empty on a tie.
           losing_name: The losing player's name, without their flag. Empty on a tie.
           losing_player: The losing player's name and flag. Empty on a tie.
+          losing_rating_after: The losing player's rating after the game. Empty on
+            a tie.
+          losing_rating_before: The losing player's rating before the game. Empty
+            on a tie.
+          losing_rating_change: The losing player's rating change, signed, such as
+            -12. Empty on a tie.
           losing_side: USA or USSR, whichever lost. Empty on a tie.
           tournament_name: The tournament's name.
           turn: The turn the game ended on, such as Turn 7. Turn 11 reads Final Scoring.
           usa_flag: The USA player's flag.
           usa_name: The USA player's name, without their flag.
           usa_player: The USA player's name and flag.
+          usa_rating_after: The USA player's rating after the game.
+          usa_rating_before: The USA player's rating before the game.
+          usa_rating_change: The USA player's rating change, signed, such as +12.
           ussr_flag: The USSR player's flag.
           ussr_name: The USSR player's name, without their flag.
           ussr_player: The USSR player's name and flag.
+          ussr_rating_after: The USSR player's rating after the game.
+          ussr_rating_before: The USSR player's rating before the game.
+          ussr_rating_change: The USSR player's rating change, signed, such as +12.
           videos: The video links, separated by spaces. Discord builds the embed.
           winning_flag: The winning player's flag. Empty on a tie.
           winning_method: How the game ended, such as VP Track (+20).
           winning_name: The winning player's name, without their flag. Empty on a
             tie.
           winning_player: The winning player's name and flag. Empty on a tie.
+          winning_rating_after: The winning player's rating after the game. Empty
+            on a tie.
+          winning_rating_before: The winning player's rating before the game. Empty
+            on a tie.
+          winning_rating_change: The winning player's rating change, signed, such
+            as +12. Empty on a tie.
           winning_side: USA or USSR, whichever won. Empty on a tie.
       tournament_row:
         archived: Archived

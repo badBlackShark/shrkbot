@@ -48,6 +48,24 @@ RSpec.describe TwilightStruggle::GameReport do
         expect(report.video_urls).to eq([])
       end
     end
+
+    context "with ratings on the players" do
+      let(:payload) do
+        {
+          usa: {name: "Alice", rating_before: 1500, rating_after: 1512},
+          ussr: {name: "Bob", rating_before: 1500, rating_after: 1488},
+          winning_side: "usa"
+        }
+      end
+
+      it "carries the ratings through onto usa" do
+        expect(report.usa).to have_attributes(rating_before: 1500, rating_after: 1512)
+      end
+
+      it "carries the ratings through onto ussr" do
+        expect(report.ussr).to have_attributes(rating_before: 1500, rating_after: 1488)
+      end
+    end
   end
 
   describe "#tie?" do
