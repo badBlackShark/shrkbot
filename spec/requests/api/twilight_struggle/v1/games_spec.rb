@@ -230,6 +230,92 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
       end
     end
 
+    context "with ratings on the players" do
+      let(:params) do
+        {
+          game: valid_result_attributes.merge(
+            tournament_external_id: tournament.external_id,
+            usa: {name: "Alice", flag: "🇺🇸", rating_before: 1500, rating_after: 1512},
+            ussr: {name: "Bob", flag: "🇷🇺", rating_before: 1600, rating_after: 1588}
+          )
+        }
+      end
+
+      it "returns 201" do
+        put_game
+
+        expect(response).to have_http_status(:created)
+      end
+    end
+
+    context "with a fractional rating" do
+      let(:params) do
+        {
+          game: valid_result_attributes.merge(
+            tournament_external_id: tournament.external_id,
+            usa: {name: "Alice", flag: "🇺🇸", rating_before: 1500.5, rating_after: 1512.5}
+          )
+        }
+      end
+
+      it "returns 201" do
+        put_game
+
+        expect(response).to have_http_status(:created)
+      end
+    end
+
+    context "with a negative rating" do
+      let(:params) do
+        {
+          game: valid_result_attributes.merge(
+            tournament_external_id: tournament.external_id,
+            usa: {name: "Alice", flag: "🇺🇸", rating_before: -50, rating_after: -20}
+          )
+        }
+      end
+
+      it "returns 201" do
+        put_game
+
+        expect(response).to have_http_status(:created)
+      end
+    end
+
+    context "with a rating above the maximum" do
+      let(:params) do
+        {
+          game: valid_result_attributes.merge(
+            tournament_external_id: tournament.external_id,
+            usa: {name: "Alice", flag: "🇺🇸", rating_before: 1000000}
+          )
+        }
+      end
+
+      it "returns 422" do
+        put_game
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context "with a rating sent as a string" do
+      let(:params) do
+        {
+          game: valid_result_attributes.merge(
+            tournament_external_id: tournament.external_id,
+            usa: {name: "Alice", flag: "🇺🇸", rating_before: "1512"}
+          )
+        }
+      end
+
+      it "returns 422" do
+        put_game
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
     context "with a successful upsert and a server subscribed to the tournament" do
       let(:server_configuration) { create(:server_configuration) }
       let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:) }

@@ -138,6 +138,24 @@ components:
             safe integer range. Tournaments set to show Discord tags render it
             alongside the player's name. We never store it.
           example: "123456789012345678"
+        rating_before:
+          type: number
+          minimum: -100000
+          maximum: 100000
+          description: >-
+            The player's rating before this game. Optional. Fractional and
+            negative values are accepted, so send the rating your system holds
+            without rounding it. We never store it.
+          example: 1512
+        rating_after:
+          type: number
+          minimum: -100000
+          maximum: 100000
+          description: >-
+            The player's rating after this game. Optional. `{usa_rating_change}`
+            and its siblings need both ratings; a player sent with only one of
+            them renders an empty change. We never store it.
+          example: 1524
     GameUpsertResponse:
       type: object
       properties:

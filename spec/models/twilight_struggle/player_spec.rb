@@ -7,18 +7,18 @@ RSpec.describe TwilightStruggle::Player do
     subject(:player) { described_class.from_payload(payload) }
 
     context "with string keys" do
-      let(:payload) { {"name" => "Alice", "flag" => "🇺🇸", "discord_id" => "123"} }
+      let(:payload) { {"name" => "Alice", "flag" => "🇺🇸", "discord_id" => "123", "rating_before" => 1500, "rating_after" => 1512} }
 
       it "builds a Player" do
-        expect(player).to eq(described_class.new(name: "Alice", flag: "🇺🇸", discord_id: "123"))
+        expect(player).to eq(described_class.new(name: "Alice", flag: "🇺🇸", discord_id: "123", rating_before: 1500, rating_after: 1512))
       end
     end
 
     context "with symbol keys" do
-      let(:payload) { {name: "Bob", flag: "🇷🇺", discord_id: "456"} }
+      let(:payload) { {name: "Bob", flag: "🇷🇺", discord_id: "456", rating_before: 1500, rating_after: 1488} }
 
       it "builds a Player" do
-        expect(player).to eq(described_class.new(name: "Bob", flag: "🇷🇺", discord_id: "456"))
+        expect(player).to eq(described_class.new(name: "Bob", flag: "🇷🇺", discord_id: "456", rating_before: 1500, rating_after: 1488))
       end
     end
 
@@ -27,6 +27,11 @@ RSpec.describe TwilightStruggle::Player do
 
       it "defaults flag and discord_id to nil" do
         expect(player).to eq(described_class.new(name: "Carol"))
+      end
+
+      it "defaults rating_before and rating_after to nil" do
+        expect(player.rating_before).to be_nil
+        expect(player.rating_after).to be_nil
       end
     end
   end

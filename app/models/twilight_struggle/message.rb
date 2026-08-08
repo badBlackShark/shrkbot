@@ -39,7 +39,28 @@ module TwilightStruggle
         winning_flag: flag_of(@report.winner),
         losing_flag: flag_of(@report.loser),
         videos: @report.video_urls.join(" ")
+      }.merge(rating_tokens)
+    end
+
+    def rating_tokens
+      rated_sides.flat_map { |side, player| rating_pairs(side, PlayerRating.new(player)) }.to_h
+    end
+
+    def rated_sides
+      {
+        usa: @report.usa,
+        ussr: @report.ussr,
+        winning: @report.winner,
+        losing: @report.loser
       }
+    end
+
+    def rating_pairs(side, rating)
+      [
+        [:"#{side}_rating_before", rating.before],
+        [:"#{side}_rating_after", rating.after],
+        [:"#{side}_rating_change", rating.change]
+      ]
     end
 
     def render_player(player)
