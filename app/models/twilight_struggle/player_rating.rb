@@ -15,7 +15,8 @@ module TwilightStruggle
     end
 
     def change
-      return "" if @player&.rating_before.nil? || @player&.rating_after.nil?
+      return "" if @player.nil?
+      return "" if @player.rating_before.nil? || @player.rating_after.nil?
 
       signed(@player.rating_after - @player.rating_before)
     end
