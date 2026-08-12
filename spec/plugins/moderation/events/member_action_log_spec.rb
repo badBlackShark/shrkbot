@@ -27,6 +27,7 @@ RSpec.describe Moderation::MemberActionLog do
     expect(Bot::ActivityLog).to have_received(:post).with(
       server_configuration,
       bot:,
+      allowed_mentions: {parse: [], users: [target.id]},
       **built_entry
     )
   end

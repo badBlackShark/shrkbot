@@ -15,7 +15,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
   let(:image_url) { "https://cdn/x.png" }
 
   let(:server) { double("server", id: server_id) }
-  let(:member) { double("member", id: member_id) }
+  let(:member) { double("member", id: member_id, mention: "<@#{member_id}>", username: "offender") }
   let(:message_channel) { double("message_channel", delete_message: nil) }
   let(:bot) { double("bot", channel: message_channel) }
 
@@ -116,7 +116,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
         hash_including(
           title: I18n.t("moderation.image_scanning.flag.title.flagged"),
           subject: "<@&#{staff_role_id}>: #{I18n.t("moderation.image_scanning.flag.title.flagged")}",
-          allowed_mentions: {parse: [], roles: [staff_role_id]}
+          allowed_mentions: {parse: [], users: [member_id], roles: [staff_role_id]}
         )
       ) do |_config, kwargs|
         io = kwargs[:image]
@@ -159,6 +159,14 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
 
       expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
         expect(kwargs[:body]).to include("<@&#{staff_role_id}>: ")
+      end
+    end
+
+    it "includes the offender's mention and username in the body" do
+      execute
+
+      expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
+        expect(kwargs[:body]).to include("<@#{member_id}> (offender)")
       end
     end
 
@@ -541,7 +549,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
 
       expect(Bot::ActivityLog).to have_received(:post).with(
         server_configuration,
-        hash_including(allowed_mentions: {parse: [], roles: []})
+        hash_including(allowed_mentions: {parse: [], users: [member_id], roles: []})
       )
     end
   end
@@ -554,7 +562,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
 
       expect(Bot::ActivityLog).to have_received(:post).with(
         server_configuration,
-        hash_including(allowed_mentions: {parse: [], roles: []})
+        hash_including(allowed_mentions: {parse: [], users: [member_id], roles: []})
       )
     end
 

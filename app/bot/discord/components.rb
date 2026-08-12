@@ -81,17 +81,21 @@ module Bot
         end
 
         message = channel.send_message(subject, false, nil, attachments, allowed_mentions, nil, nil, 0)
-        convert_to_v2(channel.id, message.id, rendered)
+        convert_to_v2(channel.id, message.id, rendered, mention_users(allowed_mentions))
         message
       end
 
-      def convert_to_v2(channel_id, message_id, rendered)
+      def mention_users(allowed_mentions)
+        {parse: [], users: Array(allowed_mentions && allowed_mentions[:users])}
+      end
+
+      def convert_to_v2(channel_id, message_id, rendered, allowed_mentions = {parse: []})
         Discordrb::API::Channel.edit_message(
           Bot::Config.rest_token,
           channel_id,
           message_id,
           nil,
-          {parse: []},
+          allowed_mentions,
           nil,
           rendered[:components],
           rendered[:flags]

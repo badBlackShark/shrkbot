@@ -175,7 +175,7 @@ RSpec.describe Bot::Discord::Components do
           20,
           30,
           nil,
-          {parse: []},
+          {parse: [], users: []},
           nil,
           rendered[:components],
           rendered[:flags]
@@ -185,6 +185,31 @@ RSpec.describe Bot::Discord::Components do
 
       it "returns the sent message" do
         expect(send_to).to eq(message)
+      end
+
+      context "with allowed user mentions" do
+        subject(:send_to) do
+          described_class.send_to(
+            channel,
+            rendered,
+            subject: "reminder: hello",
+            allowed_mentions: {parse: [], users: [77], roles: [88]}
+          )
+        end
+
+        it "carries the users into the conversion so the mention resolves, without re-pinging roles" do
+          expect(Discordrb::API::Channel).to receive(:edit_message).with(
+            "Bot tok",
+            20,
+            30,
+            nil,
+            {parse: [], users: [77]},
+            nil,
+            rendered[:components],
+            rendered[:flags]
+          )
+          send_to
+        end
       end
 
       context "when the conversion fails" do

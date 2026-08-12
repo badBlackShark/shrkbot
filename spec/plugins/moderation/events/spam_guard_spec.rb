@@ -12,7 +12,7 @@ RSpec.describe Moderation::SpamGuard do
 
   let(:owner) { double("owner", id: 999) }
   let(:server) { double("server", id: guild_id, owner:) }
-  let(:author) { double("author", id: author_id, roles: []) }
+  let(:author) { double("author", id: author_id, roles: [], mention: "<@#{author_id}>", username: "spammer") }
   let(:message) { double("message", id: 1, webhook?: false, content: "hello world foo bar", attachments: []) }
   let(:channel) { double("channel", id: 1, pm?: false) }
   let(:log_channel) { double("log_channel") }
@@ -142,7 +142,7 @@ RSpec.describe Moderation::SpamGuard do
       expect(Bot::Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
-        allowed_mentions: hash_including(roles: array_including(staff_role_id)),
+        allowed_mentions: hash_including(users: [author_id], roles: array_including(staff_role_id)),
         attachments: nil,
         subject: "<@&#{staff_role_id}>: #{I18n.t("moderation.spam_protection.notification.title.purge")}"
       )
@@ -211,10 +211,11 @@ RSpec.describe Moderation::SpamGuard do
         simulate_message(channel_id: 3, message_id: 30)
 
         expect(ch4).to receive(:delete_message).with(40)
-        expect(Bot::Discord::Components).to receive(:send_to) do |_channel, rendered, **|
+        expect(Bot::Discord::Components).to receive(:send_to) do |_channel, rendered, **kwargs|
           body = rendered[:components].first[:components].first[:content]
           expect(body).to include("Cross-channel spam follow-up removed")
           expect(body).to include("<#4>")
+          expect(kwargs[:allowed_mentions]).to eq(parse: [], users: [author_id])
         end
 
         simulate_message(channel_id: 4, message_id: 40)
@@ -464,7 +465,7 @@ RSpec.describe Moderation::SpamGuard do
       expect(Bot::Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
-        allowed_mentions: {parse: [], roles: []},
+        allowed_mentions: {parse: [], users: [author_id], roles: []},
         attachments: nil,
         subject: I18n.t("moderation.spam_protection.notification.title.notify_only")
       )
@@ -500,7 +501,7 @@ RSpec.describe Moderation::SpamGuard do
       expect(Bot::Discord::Components).to receive(:send_to).with(
         log_channel,
         anything,
-        hash_including(allowed_mentions: {parse: [], roles: []}, attachments: nil)
+        hash_including(allowed_mentions: {parse: [], users: [author_id], roles: []}, attachments: nil)
       )
 
       simulate_message(channel_id: 1, message_id: 1)

@@ -15,7 +15,7 @@ work actually touches.
 
 - [bot/commands-and-events.md](bot/commands-and-events.md) — `Bot::BaseCommand`/`BaseEvent` and their class macros, native Discord permission bits via `default_member_permissions` (and why the bot doesn't re-check them), guild vs global registration, and the 3-second interaction ack window.
 - [bot/guild-sync.md](bot/guild-sync.md) — syncing a guild's channels, roles and overwrites into Postgres so the web app never needs the bot token; live and startup channel-delete handling; and the two triggers that onboard a server exactly once.
-- [bot/message-rendering.md](bot/message-rendering.md) — `Bot::Discord::Components`, the shared Components V2 primitives every sender goes through, and the subject-first plain-to-V2 conversion that keeps push-notification previews readable.
+- [bot/message-rendering.md](bot/message-rendering.md) — `Bot::Discord::Components`, the shared Components V2 primitives every sender goes through, the subject-first plain-to-V2 conversion that keeps push-notification previews readable, and the mention rules that come with it (why a suppressed mention renders `@unknown-user`, and how the allow-list is split across the two calls so nobody gets pinged twice).
 - [bot/sharding-and-leadership.md](bot/sharding-and-leadership.md) — static sharding inside one process, the Redis leader lock that keeps exactly one bot connected across a Kamal deploy (and the two load-bearing orderings), and the `Bot <token>` REST header.
 - [bot/notifications.md](bot/notifications.md) — notification records written by bot-side ops when a Discord event invalidates plugin config, and how the web side reads them scoped to the servers you administer.
 
