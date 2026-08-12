@@ -351,6 +351,7 @@ en:
       recommended_default: 'Recommended default: %{value}'
     plugin_row:
       admin_only: Only a server admin can switch this plugin on or off.
+      bespoke: Bespoke
       configure: Configure
       needs_setup_hint: Complete setup before enabling this plugin.
       not_manageable: You can't configure this plugin on this server.

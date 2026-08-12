@@ -22,6 +22,14 @@ RSpec.describe PluginStatus do
       it "includes it" do
         expect(rows.map(&:key)).to include(:bespoke_thing)
       end
+
+      it "flags it as bespoke" do
+        expect(rows.select(&:bespoke).map(&:key)).to eq([:bespoke_thing])
+      end
+
+      it "lists it before every plugin any server can have" do
+        expect(rows.first.key).to eq(:bespoke_thing)
+      end
     end
 
     context "when the policy denies the user management of the server" do
