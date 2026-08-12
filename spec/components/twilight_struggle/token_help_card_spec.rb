@@ -23,7 +23,7 @@ RSpec.describe Components::TwilightStruggle::TokenHelpCard do
   end
 
   it "hands the copy confirmation labels to the controller" do
-    expect(html).to include('data-clipboard-copied-label-value="Copied"')
+    expect(html).to include('data-clipboard-copied-label-value="Copied!"')
   end
 
   it "carries a live region so the copy is announced to screen readers" do

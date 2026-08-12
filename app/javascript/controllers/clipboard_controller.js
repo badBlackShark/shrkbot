@@ -22,14 +22,26 @@ export default class extends Controller {
     this.restore?.()
     const original = bubble.textContent
     bubble.textContent = label
+    this.pin(bubble)
     this.announce(label)
     this.restore = () => {
       clearTimeout(this.timer)
       bubble.textContent = original
+      this.unpin(bubble)
       this.announce("")
       this.restore = null
     }
     this.timer = setTimeout(() => this.restore?.(), FLASH_MS)
+  }
+
+  pin(bubble) {
+    bubble.style.visibility = "visible"
+    bubble.style.opacity = "1"
+  }
+
+  unpin(bubble) {
+    bubble.style.visibility = ""
+    bubble.style.opacity = ""
   }
 
   announce(label) {

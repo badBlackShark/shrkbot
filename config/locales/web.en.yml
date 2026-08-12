@@ -491,7 +491,7 @@ en:
           help: Used when one player won.
           label: Decided game
       token_help_card:
-        copied: Copied
+        copied: Copied!
         copy_failed: Copy failed
         groups:
           game: Game
