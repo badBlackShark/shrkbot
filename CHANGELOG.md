@@ -14,6 +14,9 @@ This project follows [Semantic Versioning](https://semver.org).
 - The Twilight Struggle template tokens are grouped by what each one describes: the game, the USA player, the USSR player, the winner and the loser. Click a token to copy it.
 - The Twilight Struggle results API no longer requires `winning_method` on a game. A site that does not record how a game ended can leave it out, and `{winning_method}` then renders empty, as `{turn}` already did without a `winning_turn`. Templates keep the punctuation around the token, so `in {turn} ({winning_method})` reads `in Turn 7 ()` for a game sent without one.
 
+### Fixed
+- A tooltip no longer stays on screen after you click what it belongs to. Clicking a template token, a welcome placeholder or a reset button left its tooltip up until you clicked elsewhere, where it could sit on top of the next tooltip you hovered.
+
 ## [3.7.0] - 2026-07-27
 
 ### Added

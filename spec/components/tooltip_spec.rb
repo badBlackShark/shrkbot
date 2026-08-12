@@ -49,6 +49,14 @@ RSpec.describe Components::Tooltip do
     end
   end
 
+  context "with the default trigger" do
+    it "reveals the bubble on hover and on keyboard focus, but leaves it hidden after a mouse click" do
+      expect(html).to include("group-hover:visible")
+      expect(html).to include("group-has-[:focus-visible]:visible")
+      expect(html).not_to include("group-focus-within")
+    end
+  end
+
   context "with an unknown alignment" do
     let(:align) { :center }
 
