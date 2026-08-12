@@ -58,7 +58,6 @@ class Components::Moderation::SpamProtectionForm < Components::Base
           unit: t(".detection.trigger_threshold.seconds_unit")
         )
       end
-      p(class: "text-xs text-text-muted mt-1.5") { t(".detection.trigger_threshold.help") }
     end
   end
 

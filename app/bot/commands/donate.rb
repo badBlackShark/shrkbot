@@ -4,7 +4,7 @@ module Bot
   module Commands
     class Donate < BaseCommand
       command_name :donate
-      description "Find out what it costs to run shrkbot and how you can support the project."
+      description "Show what it costs to run shrkbot and how to support it."
       register_in :global
 
       COSTS = <<~COSTS.strip
