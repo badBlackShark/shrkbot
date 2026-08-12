@@ -15,8 +15,8 @@ const GAMES = {
   tie: {
     tournament: "RATS Cup 2026",
     code: "C204",
-    usa: { name: "Marc Naudi", flag: "🇦🇩", handle: "marc", rating: { before: 1503.5, after: 1505.75 } },
-    ussr: { name: "Ji-woo Han", flag: "🇰🇷", rating: { before: 1496.5, after: 1494.25 } },
+    usa: { name: "Marc Naudi", flag: "🇦🇩", handle: "marc", rating: { before: 1503, after: 1506 } },
+    ussr: { name: "Ji-woo Han", flag: "🇰🇷", rating: { before: 1497, after: 1494 } },
     winner: null,
     turn: "Turn 10",
     method: "Wargames",
