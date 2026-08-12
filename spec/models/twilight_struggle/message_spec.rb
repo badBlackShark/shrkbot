@@ -197,6 +197,43 @@ RSpec.describe TwilightStruggle::Message do
       end
     end
 
+    context "rating tokens" do
+      let(:template) { "{usa_rating_before}/{usa_rating_after}/{usa_rating_change}" }
+      let(:usa) { TwilightStruggle::Player.new(name: "M B", flag: "🇵🇱", discord_id: "111", rating_before: 1500, rating_after: 1512) }
+
+      it "renders all three usa rating tokens" do
+        expect(content).to eq("1500/1512/+12")
+      end
+
+      context "winning/losing rating tokens on a decided game" do
+        let(:template) { "{winning_rating_before}/{winning_rating_after}/{winning_rating_change}|{losing_rating_before}/{losing_rating_after}/{losing_rating_change}" }
+        let(:ussr) { TwilightStruggle::Player.new(name: "L S", flag: "🇦🇷", discord_id: "222", rating_before: 1600, rating_after: 1588) }
+
+        it "picks the winning player's ratings for winning_ and the loser's for losing_" do
+          expect(content).to eq("1500/1512/+12|1600/1588/-12")
+        end
+      end
+
+      context "on a tie" do
+        let(:template) { "[{winning_rating_before}][{losing_rating_before}]|{usa_rating_before}/{ussr_rating_before}" }
+        let(:ussr) { TwilightStruggle::Player.new(name: "L S", flag: "🇦🇷", discord_id: "222", rating_before: 1600, rating_after: 1588) }
+        let(:report) { TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "tie") }
+
+        it "renders the winning_/losing_ rating tokens empty while usa_/ussr_ still render" do
+          expect(content).to eq("[][]|1500/1600")
+        end
+      end
+
+      context "when a player is sent without ratings" do
+        let(:template) { "({usa_rating_before}/{usa_rating_after}/{usa_rating_change})" }
+        let(:usa) { TwilightStruggle::Player.new(name: "M B", flag: "🇵🇱", discord_id: "111") }
+
+        it "renders all three tokens empty and leaves the parentheses the template author wrote" do
+          expect(content).to eq("(//)")
+        end
+      end
+    end
+
     context "videos token" do
       let(:template) { "{videos}" }
 
