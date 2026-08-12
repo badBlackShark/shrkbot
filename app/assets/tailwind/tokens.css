@@ -42,6 +42,9 @@
   --warning-soft: #f8efdc;
   --danger: #e0533d;
   --danger-soft: #f8e7e2;
+  --success-soft-bd: color-mix(in srgb, var(--success) 34%, transparent);
+  --warning-soft-bd: color-mix(in srgb, var(--warning) 34%, transparent);
+  --danger-soft-bd: color-mix(in srgb, var(--danger) 34%, transparent);
 
   --text-primary: var(--ink-900);
   --text-secondary: var(--ink-600);

@@ -38,10 +38,13 @@
 
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
+  --color-success-soft-bd: var(--success-soft-bd);
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
+  --color-warning-soft-bd: var(--warning-soft-bd);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+  --color-danger-soft-bd: var(--danger-soft-bd);
 
   --color-surface-page: var(--surface-page);
   --color-surface-card: var(--surface-card);
