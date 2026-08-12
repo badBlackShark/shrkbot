@@ -17,13 +17,15 @@ class Components::Moderation::MatchingExplainer < Components::Base
           span(class: "flex-1 text-sm font-semibold") { t(".title") }
         end
         div(
-          class: "dropdown-menu grid gap-3 px-5 py-4",
+          class: "dropdown-menu px-5 py-4",
           data: {dropdown_target: "menu"}
         ) do
-          explainer_row(t(".row_normalize"))
-          explainer_row(t(".row_lookalike"))
-          explainer_row(t(".row_spam"))
-          explainer_row(t(".row_keywords"))
+          ul(class: "list-['-'] list-outside space-y-2.5 pl-4 marker:text-text-muted") do
+            explainer_row(t(".row_normalize"))
+            explainer_row(t(".row_lookalike"))
+            explainer_row(t(".row_spam"))
+            explainer_row(t(".row_keywords"))
+          end
         end
       end
     end
@@ -32,6 +34,6 @@ class Components::Moderation::MatchingExplainer < Components::Base
   private
 
   def explainer_row(text)
-    p(class: "text-sm text-text-secondary") { text }
+    li(class: "pl-1 text-sm text-text-secondary") { text }
   end
 end

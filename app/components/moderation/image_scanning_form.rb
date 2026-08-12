@@ -179,18 +179,20 @@ class Components::Moderation::ImageScanningForm < Components::Base
         span(class: "text-sm font-semibold flex-1") { t(".explainer.title") }
       end
       div(
-        class: "dropdown-menu grid gap-3 px-5 py-4",
+        class: "dropdown-menu px-5 py-4",
         data: {dropdown_target: "menu"}
       ) do
-        explainer_line(t(".explainer.line_memory"))
-        explainer_line(t(".explainer.line_staff"))
-        explainer_line(t(".explainer.line_fingerprint"))
+        ol(class: "list-decimal list-outside space-y-2.5 pl-5 marker:text-text-muted") do
+          explainer_line(t(".explainer.line_memory"))
+          explainer_line(t(".explainer.line_staff"))
+          explainer_line(t(".explainer.line_fingerprint"))
+        end
       end
     end
   end
 
   def explainer_line(text)
-    p(class: "text-sm text-text-secondary") { text }
+    li(class: "text-sm text-text-secondary") { text }
   end
 
   def keyword_options
