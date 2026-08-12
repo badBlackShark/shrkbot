@@ -30,6 +30,20 @@ RSpec.describe Components::Welcomes::ConfigForm do
     expect(card_containing("welcomes[leave_message]")).to include('name="welcomes[suppress_removal_messages]"')
   end
 
+  it "renders every placeholder as a copy button" do
+    described_class::PLACEHOLDERS.each do |name|
+      expect(html).to include(%(data-clipboard-text-param="{#{name}}"))
+    end
+  end
+
+  it "mounts the placeholder run on the clipboard controller with an announcer" do
+    expect(html).to include('data-controller="clipboard"').and include('data-clipboard-target="announcer"')
+  end
+
+  it "reads the intro with the copy hint" do
+    expect(html).to include("Placeholders (click one to copy):")
+  end
+
   def card_containing(field)
     Nokogiri::HTML.fragment(html)
       .css("div.rounded-card")

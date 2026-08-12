@@ -60,6 +60,9 @@ en:
       message: We only set technical cookies to make the site work. No tracking, analytics,
         or anything else from a third party. We will remember that you've seen this,
         though - with a cookie, of course. :)
+    copyable_tokens:
+      copied: Copied!
+      copy_failed: Copy failed
     legal_links:
       imprint: Imprint
       privacy: Privacy policy
@@ -491,8 +494,6 @@ en:
           help: Used when one player won.
           label: Decided game
       token_help_card:
-        copied: Copied!
-        copy_failed: Copy failed
         groups:
           game: Game
           loser: Loser
@@ -574,7 +575,7 @@ en:
         placeholders:
           displayname: Expands to the member's nickname on this server, or their display
             name if they have none.
-          intro: 'Placeholders:'
+          intro: 'Placeholders (click one to copy):'
           membercount: Expands to the server's current member count.
           user: Expands to a mention of the member on join, and to their plain @handle
             on leave.
