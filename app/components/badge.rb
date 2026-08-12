@@ -2,12 +2,12 @@
 
 class Components::Badge < Components::Base
   VARIANTS = {
-    success: {tone: "bg-success-soft text-success", dot: "bg-success"},
-    warning: {tone: "bg-warning-soft text-warning", dot: "bg-warning"},
-    danger: {tone: "bg-danger-soft text-danger", dot: "bg-danger"},
-    neutral: {tone: "bg-surface-sunken text-text-secondary", dot: "bg-text-muted"},
-    brand: {tone: "bg-accent-soft text-accent-soft-fg", dot: "bg-accent"},
-    copper: {tone: "border border-accent-2-soft-bd bg-accent-2-soft text-accent-2-text", dot: "bg-accent-2"}
+    success: {tone: "border-success-soft-bd bg-success-soft text-success", dot: "bg-success"},
+    warning: {tone: "border-warning-soft-bd bg-warning-soft text-warning", dot: "bg-warning"},
+    danger: {tone: "border-danger-soft-bd bg-danger-soft text-danger", dot: "bg-danger"},
+    neutral: {tone: "border-border-default bg-surface-sunken text-text-secondary", dot: "bg-text-muted"},
+    brand: {tone: "border-accent-soft-bd bg-accent-soft text-accent-soft-fg", dot: "bg-accent"},
+    copper: {tone: "border-accent-2-soft-bd bg-accent-2-soft text-accent-2-text", dot: "bg-accent-2"}
   }.freeze
 
   SHAPES = {pill: "rounded-full", chip: "rounded-chip"}.freeze
@@ -31,7 +31,7 @@ class Components::Badge < Components::Base
 
   def css
     [
-      "inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-semibold",
+      "inline-flex items-center gap-1.5 border px-2 py-0.5 text-xs font-semibold",
       SHAPES.fetch(@shape),
       @variant[:tone],
       @extra

@@ -42,6 +42,9 @@
   --warning-soft: #f8efdc;
   --danger: #e0533d;
   --danger-soft: #f8e7e2;
+  --success-soft-bd: color-mix(in srgb, var(--success) 34%, transparent);
+  --warning-soft-bd: color-mix(in srgb, var(--warning) 34%, transparent);
+  --danger-soft-bd: color-mix(in srgb, var(--danger) 34%, transparent);
 
   --text-primary: var(--ink-900);
   --text-secondary: var(--ink-600);
@@ -138,6 +141,9 @@
   --success-soft: rgba(47, 175, 107, 0.14);
   --warning-soft: rgba(232, 161, 58, 0.14);
   --danger-soft: rgba(224, 83, 61, 0.14);
+  --success-soft-bd: color-mix(in srgb, var(--success) 22%, transparent);
+  --warning-soft-bd: color-mix(in srgb, var(--warning) 22%, transparent);
+  --danger-soft-bd: color-mix(in srgb, var(--danger) 22%, transparent);
 
   --focus-ring: color-mix(in srgb, #46817a 42%, transparent);
 

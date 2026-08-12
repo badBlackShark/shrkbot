@@ -36,9 +36,14 @@ RSpec.describe Components::Badge do
   context "copper variant" do
     let(:options) { {variant: :copper} }
 
-    it "uses the copper wayfinding tone with a border for contrast on cream surfaces" do
+    it "uses the copper wayfinding tone" do
       expect(html).to include("bg-accent-2-soft").and include("text-accent-2-text")
-      expect(html).to include("border-accent-2-soft-bd")
     end
+  end
+
+  it "outlines every variant so the faint fills keep their edge on cream surfaces" do
+    outlines = described_class::VARIANTS.each_key.map { |variant| described_class.new(variant:).call { "Enabled" } }
+
+    expect(outlines).to all(match(/class="[^"]*\bborder\b[^"]*\sborder-[a-z0-9-]+/))
   end
 end

@@ -195,7 +195,9 @@ duplicated class strings:
   `lift:` adds the hover-raise, `dashed:` is the placeholder/add affordance.
 - **`Components::Badge`** — status pill or tag. `variant:` (`:success`/`:warning`/
   `:danger`/`:neutral`/`:brand`/`:copper`), `dot:`, `shape:` (`:pill`/`:chip`).
-  Copper is for wayfinding/personality, never status.
+  Copper is for wayfinding/personality, never status. Every variant is a soft fill
+  inside a 1px border of the same hue (`*-soft-bd`), so badges of different tones
+  sit next to each other as one family; a new variant supplies a border colour too.
 - **`Components::PluginTile`** — the chamfered identity tile (icon on teal when
   `enabled:`, muted sand otherwise). `size:` (`:sm`/`:md`/`:lg`).
 - **`Components::Callout`** — tinted bordered notice. `variant:` (`:info`/
