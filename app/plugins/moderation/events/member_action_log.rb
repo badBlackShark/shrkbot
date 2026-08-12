@@ -12,6 +12,7 @@ module Moderation
       Bot::ActivityLog.post(
         server_configuration,
         bot: event.bot,
+        allowed_mentions: {parse: [], users: [target.id]},
         **activity_entry
       )
     end

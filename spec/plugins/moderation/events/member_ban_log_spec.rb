@@ -26,6 +26,14 @@ RSpec.describe Moderation::MemberBanLog do
     expect(Bot::ActivityLog).to have_received(:post)
   end
 
+  it "allows the banned member's mention so clients can resolve it" do
+    handle
+    expect(Bot::ActivityLog).to have_received(:post).with(
+      server_configuration,
+      hash_including(allowed_mentions: {parse: [], users: [target.id]})
+    )
+  end
+
   context "when shrkbot performed the ban" do
     let(:moderator_id) { bot_user_id }
 
