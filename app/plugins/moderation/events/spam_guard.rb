@@ -107,7 +107,7 @@ module Moderation
       channels = entries.map(&:channel_id).uniq
       body = StaffPing.prefix(staff_role_id, ping:) + I18n.t(
         "moderation.spam_protection.notification.body",
-        author: "<@#{event.author.id}>",
+        author: UserLabel.for(event.author),
         count: channels.size,
         window: settings.window_seconds,
         channels: channels.map { |id| "<##{id}>" }.join(", ")
@@ -127,7 +127,7 @@ module Moderation
         body:,
         meta: I18n.t("moderation.spam_protection.notification.meta.#{settings.action}"),
         subject: StaffPing.prefix(staff_role_id, ping:) + title,
-        allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
+        allowed_mentions: {parse: [], users: [event.author.id], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
       )
     end
 
@@ -143,10 +143,11 @@ module Moderation
         title: I18n.t("moderation.spam_protection.notification.followup.title"),
         body: I18n.t(
           "moderation.spam_protection.notification.followup.body",
-          author: "<@#{event.author.id}>",
+          author: UserLabel.for(event.author),
           channel: "<##{entry.channel_id}>"
         ),
-        meta: I18n.t("moderation.spam_protection.notification.followup.meta")
+        meta: I18n.t("moderation.spam_protection.notification.followup.meta"),
+        allowed_mentions: {parse: [], users: [event.author.id]}
       )
     end
 

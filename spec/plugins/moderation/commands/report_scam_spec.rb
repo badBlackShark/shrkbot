@@ -14,10 +14,10 @@ RSpec.describe Moderation::ReportScam do
   let(:attachments) { [image_attachment] }
   let(:content) { nil }
   let(:embeds) { [] }
-  let(:message_author) { double("author", id: author_id) }
+  let(:message_author) { double("author", id: author_id, mention: "<@#{author_id}>", username: "offender") }
   let(:target) { double("message", attachments:, content:, embeds:, author: message_author, delete: nil) }
   let(:server) { double("server", id: guild_id) }
-  let(:user) { double("user", id: 555) }
+  let(:user) { double("user", id: 555, mention: "<@555>", username: "reporter") }
   let(:channel) { double("channel", id: channel_id) }
   let(:bot) { double("bot") }
   let(:event) do
@@ -135,10 +135,11 @@ RSpec.describe Moderation::ReportScam do
         expect(kwargs[:title]).to eq(I18n.t("moderation.image_scanning.report.log.title"))
         expect(kwargs[:meta]).to eq(I18n.t("moderation.image_scanning.report.log.meta.removed"))
         body = kwargs[:body]
-        expect(body).to include("<@#{user.id}>")
-        expect(body).to include("<@#{author_id}>")
+        expect(body).to include("<@#{user.id}> (reporter)")
+        expect(body).to include("<@#{author_id}> (offender)")
         expect(body).to include("<##{channel_id}>")
         expect(kwargs[:image]).to be_a(Bot::Discord::FileUpload)
+        expect(kwargs[:allowed_mentions]).to eq(parse: [], users: [author_id])
       end
     end
   end

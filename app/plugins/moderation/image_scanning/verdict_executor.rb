@@ -78,7 +78,7 @@ module Moderation
           title:,
           body: StaffPing.prefix(staff_role_id, ping:) + I18n.t(
             "moderation.image_scanning.flag.body",
-            author: "<@#{context.member.id}>",
+            author: UserLabel.for(context.member),
             channel: "<##{context.channel_id}>",
             jump_url:
           ) + "\n" + risk_line(state) + "\n" + reason_lines + "\n" + PunishmentNote.line(punishment.action, timeout_until: punishment.timeout_until),
@@ -86,7 +86,7 @@ module Moderation
           image:,
           components: message_components(punishment.action),
           subject: StaffPing.prefix(staff_role_id, ping:) + title,
-          allowed_mentions: {parse: [], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
+          allowed_mentions: {parse: [], users: [context.member.id], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
         )
       end
 

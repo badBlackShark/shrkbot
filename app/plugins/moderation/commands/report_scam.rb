@@ -52,12 +52,13 @@ module Moderation
         title: I18n.t("moderation.image_scanning.report.log.title"),
         body: I18n.t(
           "moderation.image_scanning.report.log.body",
-          reporter: "<@#{event.user.id}>",
-          author: "<@#{message.author.id}>",
+          reporter: UserLabel.for(event.user),
+          author: UserLabel.for(message.author),
           channel: "<##{event.channel.id}>"
         ),
         meta: I18n.t("moderation.image_scanning.report.log.meta.#{meta_key}"),
-        image: log_image
+        image: log_image,
+        allowed_mentions: {parse: [], users: [message.author.id]}
       )
     end
 

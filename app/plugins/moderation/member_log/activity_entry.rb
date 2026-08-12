@@ -32,7 +32,7 @@ module Moderation
       end
 
       def action_line
-        interpolations = {target: user_label(target), moderator: moderator_label, locale: :en, raise: true}
+        interpolations = {target: UserLabel.for(target), moderator: moderator_label, locale: :en, raise: true}
         interpolations[:until] = "<t:#{timeout_until.to_i}:f>" if timeout_until
         I18n.t("activity_log.moderation.#{event_key}", **interpolations)
       end
@@ -40,11 +40,7 @@ module Moderation
       def moderator_label
         return I18n.t("activity_log.moderation.unknown_moderator", locale: :en, raise: true) unless moderator
 
-        user_label(moderator)
-      end
-
-      def user_label(user)
-        "#{user.mention} (#{user.username})"
+        UserLabel.for(moderator)
       end
 
       def reason_line
