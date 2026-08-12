@@ -491,8 +491,16 @@ en:
           help: Used when one player won.
           label: Decided game
       token_help_card:
+        copied: Copied
+        copy_failed: Copy failed
+        groups:
+          game: Game
+          loser: Loser
+          usa: USA
+          ussr: USSR
+          winner: Winner
         help: Anything in braces is replaced when the message is built. A token we
-          do not know is left exactly as you typed it.
+          do not know is left exactly as you typed it. Click a token to copy it.
         label: Tokens
         tokens:
           game_id: The game's code on twilight-struggle.com, such as G372.
