@@ -20,10 +20,10 @@ class Components::Moderation::MatchingExplainer < Components::Base
           class: "dropdown-menu grid gap-3 px-5 py-4",
           data: {dropdown_target: "menu"}
         ) do
-          explainer_row("text-aa", t(".row_normalize"))
-          explainer_row("mask-happy", t(".row_lookalike"))
-          explainer_row("megaphone-slash", t(".row_spam"))
-          explainer_row("scan", t(".row_keywords"))
+          explainer_row(t(".row_normalize"))
+          explainer_row(t(".row_lookalike"))
+          explainer_row(t(".row_spam"))
+          explainer_row(t(".row_keywords"))
         end
       end
     end
@@ -31,10 +31,7 @@ class Components::Moderation::MatchingExplainer < Components::Base
 
   private
 
-  def explainer_row(icon, text)
-    p(class: "flex items-start gap-2.5 text-sm text-text-secondary") do
-      render Components::Icon.new(icon, class: "mt-0.5 size-4 flex-none text-text-muted")
-      span { text }
-    end
+  def explainer_row(text)
+    p(class: "text-sm text-text-secondary") { text }
   end
 end
