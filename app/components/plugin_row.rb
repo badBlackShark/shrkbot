@@ -9,18 +9,13 @@ class Components::PluginRow < Components::Base
     disabled: :neutral
   }.freeze
 
-  def initialize(server_id:, key:, enabled:, configured:, locked: false, manageable: true, toggleable: true)
+  def initialize(server_id:, row:)
     @server_id = server_id
-    @key = key
-    @enabled = enabled
-    @configured = configured
-    @locked = locked
-    @manageable = manageable
-    @toggleable = toggleable
+    @row = row
   end
 
   def view_template
-    render Components::Card.new(enabled: @enabled, id: "plugin-#{@key}", class: "flex min-h-[108px] flex-wrap items-center gap-x-4 gap-y-3") do
+    render Components::Card.new(enabled: @row.enabled, id: "plugin-#{@row.key}", class: "flex min-h-[108px] flex-wrap items-center gap-x-4 gap-y-3") do
       identity
       div(class: "ml-auto flex flex-none items-center gap-3") do
         configure_link
@@ -33,32 +28,33 @@ class Components::PluginRow < Components::Base
 
   def identity
     div(class: "flex min-w-0 flex-[1_1_320px] items-center gap-4") do
-      render Components::PluginTile.new(icon: plugin_icon(@key), enabled: @enabled)
+      render Components::PluginTile.new(icon: plugin_icon(@row.key), enabled: @row.enabled)
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { name }
           status_badge
+          bespoke_badge if @row.bespoke
         end
-        p(class: "mt-0.5 text-sm leading-[1.5] text-pretty text-text-secondary") { t(".plugin.#{@key}.description") }
+        p(class: "mt-0.5 text-sm leading-[1.5] text-pretty text-text-secondary") { t(".plugin.#{@row.key}.description") }
       end
     end
   end
 
   def toggle
-    if !@manageable
-      locked_toggle(checked: @enabled, tooltip: t(".not_manageable"))
-    elsif @locked
-      locked_toggle(checked: true, tooltip: t(".plugin.#{@key}.locked"))
-    elsif !@toggleable
-      locked_toggle(checked: @enabled, tooltip: t(".admin_only"))
+    if !@row.manageable
+      locked_toggle(checked: @row.enabled, tooltip: t(".not_manageable"))
+    elsif @row.locked
+      locked_toggle(checked: true, tooltip: t(".plugin.#{@row.key}.locked"))
+    elsif !@row.toggleable
+      locked_toggle(checked: @row.enabled, tooltip: t(".admin_only"))
     elsif blocked_until_setup?
       locked_toggle(checked: false, tooltip: t(".needs_setup_hint"))
     else
       render Components::Toggle.new(
         name: :enabled,
-        checked: @enabled,
+        checked: @row.enabled,
         label: t(".toggle", plugin: name),
-        url: server_plugin_path(@server_id, @key),
+        url: server_plugin_path(@server_id, @row.key),
         submit_on_change: true
       )
     end
@@ -71,28 +67,35 @@ class Components::PluginRow < Components::Base
   end
 
   def blocked_until_setup?
-    !@configured && !@enabled
+    !@row.configured && !@row.enabled
   end
 
   def name
-    t(".plugin.#{@key}.name")
+    t(".plugin.#{@row.key}.name")
   end
 
   def status_badge
-    if @locked
+    if @row.locked
       render Components::Badge.new(variant: :copper) { t(".status.global") }
     else
       render Components::Badge.new(variant: STATUS_VARIANTS.fetch(status), dot: true) { t(".status.#{status}") }
     end
   end
 
+  def bespoke_badge
+    render Components::Badge.new(variant: :copper) do
+      render Components::Icon.new("puzzle-piece", weight: :fill, class: "size-3.5")
+      plain t(".bespoke")
+    end
+  end
+
   def status
-    return :needs_setup unless @configured
-    @enabled ? :enabled : :disabled
+    return :needs_setup unless @row.configured
+    @row.enabled ? :enabled : :disabled
   end
 
   def configure_link
-    return configure_button if @manageable
+    return configure_button if @row.manageable
 
     render Components::Tooltip.new(text: t(".not_manageable")) do
       configure_button
@@ -102,15 +105,15 @@ class Components::PluginRow < Components::Base
   def configure_button
     render Components::Button.new(
       variant: :secondary,
-      href: @manageable ? configure_href : nil,
+      href: @row.manageable ? configure_href : nil,
       label: t(".configure"),
       trailing_icon: "arrow-right",
-      disabled: !@manageable,
+      disabled: !@row.manageable,
       class: "flex-none"
     )
   end
 
   def configure_href
-    plugin_config_path(@server_id, @key) || "#"
+    plugin_config_path(@server_id, @row.key) || "#"
   end
 end

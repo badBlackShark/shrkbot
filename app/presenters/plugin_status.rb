@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class PluginStatus
-  Row = Data.define(:key, :enabled, :configured, :locked, :manageable, :toggleable) do
-    def initialize(key:, enabled:, configured:, locked: false, manageable: true, toggleable: true)
+  Row = Data.define(:key, :enabled, :configured, :locked, :manageable, :toggleable, :bespoke) do
+    def initialize(key:, enabled:, configured:, locked: false, manageable: true, toggleable: true, bespoke: false)
       super
     end
   end
@@ -16,7 +16,8 @@ class PluginStatus
         enabled: activations[definition.key]&.enabled? || false,
         configured: definition.prerequisites_met?(server_configuration, enabled_keys:),
         manageable: access.manage?(definition.key),
-        toggleable: access.toggle?(definition.key)
+        toggleable: access.toggle?(definition.key),
+        bespoke: definition.bespoke
       )
     end
     display_order(catalog_rows + global_rows(access))
@@ -24,12 +25,14 @@ class PluginStatus
 
   def self.row(server_configuration, plugin, access:)
     activation = server_configuration.plugin_activations.find_by(plugin:)
+    definition = PluginCatalog.find(plugin.key)
     Row.new(
       key: plugin.key,
       enabled: activation&.enabled? || false,
-      configured: PluginCatalog.find(plugin.key).prerequisites_met?(server_configuration, enabled_keys: server_configuration.enabled_plugin_keys),
+      configured: definition.prerequisites_met?(server_configuration, enabled_keys: server_configuration.enabled_plugin_keys),
       manageable: access.manage?(plugin.key),
-      toggleable: access.toggle?(plugin.key)
+      toggleable: access.toggle?(plugin.key),
+      bespoke: definition.bespoke
     )
   end
 
@@ -41,7 +44,7 @@ class PluginStatus
   private_class_method :global_rows
 
   def self.display_order(rows)
-    rows.sort_by { |row| [row.manageable ? 0 : 1, plugin_name(row.key)] }
+    rows.sort_by { |row| [row.bespoke ? 0 : 1, row.manageable ? 0 : 1, plugin_name(row.key)] }
   end
   private_class_method :display_order
 

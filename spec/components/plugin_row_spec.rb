@@ -6,11 +6,13 @@ RSpec.describe Components::PluginRow do
   include_context "component view context"
 
   subject(:html) do
-    described_class.new(server_id: 900_000_001, key: :roles, enabled: true, configured: true, manageable:, toggleable:).render_in(view_context)
+    described_class.new(server_id: 900_000_001, row:).render_in(view_context)
   end
 
+  let(:row) { PluginStatus::Row.new(key: :roles, enabled: true, configured: true, manageable:, toggleable:, bespoke:) }
   let(:manageable) { true }
   let(:toggleable) { true }
+  let(:bespoke) { false }
 
   context "when the user may configure the plugin" do
     it "links to the configuration page" do
@@ -47,5 +49,17 @@ RSpec.describe Components::PluginRow do
       expect(html).to include("disabled")
       expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_row.admin_only")))
     end
+  end
+
+  context "when the plugin is bespoke" do
+    let(:bespoke) { true }
+
+    it "marks it with a badge" do
+      expect(html).to include(I18n.t("components.plugin_row.bespoke"))
+    end
+  end
+
+  it "leaves the badge off a plugin every server can have" do
+    expect(html).not_to include(I18n.t("components.plugin_row.bespoke"))
   end
 end

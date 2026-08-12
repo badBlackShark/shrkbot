@@ -43,6 +43,11 @@ RSpec.describe "Server dashboard", type: :request do
         expect(response.body).to include("Roles").and include("Welcomes").and include("Logging")
       end
 
+      it "skips the separator when the server has no bespoke plugin" do
+        get_dashboard
+        expect(response.body).not_to include("<hr")
+      end
+
       it "lists moderation but not its sub-plugins on the dashboard" do
         create(:plugin, key: "moderation", name: "Server Shield")
         create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard")
@@ -128,6 +133,15 @@ RSpec.describe "Server dashboard", type: :request do
           expect(manageable_index).not_to be_nil
           expect(unmanageable_index).not_to be_nil
           expect(unmanageable_index).to be > manageable_index
+        end
+
+        it "separates the bespoke plugin from the rest and badges it" do
+          get_dashboard
+          expect(response.body).to include(I18n.t("components.plugin_row.bespoke"))
+          expect(response.body.index("<hr")).to be_between(
+            response.body.index("plugin-twilight_struggle"),
+            response.body.index("plugin-roles")
+          )
         end
       end
 
