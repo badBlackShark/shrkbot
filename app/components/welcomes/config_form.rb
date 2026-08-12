@@ -102,21 +102,13 @@ class Components::Welcomes::ConfigForm < Components::Base
 
   def placeholder_help
     render Components::Callout.new(variant: :neutral) do
-      span(class: "font-semibold") { t(".placeholders.intro") }
-      PLACEHOLDERS.each do |name|
-        whitespace
-        placeholder_chip("{#{name}}", t(".placeholders.#{name}"))
+      render Components::CopyableTokens.new do
+        span(class: "font-semibold") { t(".placeholders.intro") }
+        PLACEHOLDERS.each do |name|
+          whitespace
+          render Components::TokenChip.new(token: name, description: t(".placeholders.#{name}"))
+        end
       end
-    end
-  end
-
-  def placeholder_chip(token, description)
-    render Components::Tooltip.new(text: description) do
-      code(
-        tabindex: "0",
-        class: "cursor-help rounded bg-surface-sunken px-1.5 py-0.5 font-mono text-xs text-accent-soft-fg " \
-          "focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-      ) { token }
     end
   end
 

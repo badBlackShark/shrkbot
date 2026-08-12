@@ -11,6 +11,7 @@ This project follows [Semantic Versioning](https://semver.org).
 - The Twilight Struggle results API takes an optional rating before and after the game for each player. Twelve new template tokens render them: `{usa_rating_before}`, `{usa_rating_after}` and `{usa_rating_change}`, plus the same three for `ussr`, `winning` and `losing`. The change token is the difference between the two ratings, always signed, such as `+12`. A rating we did not receive renders empty, as `{winning_method}` does. No shipped template uses the new tokens, so put them in your own template to see them. shrkbot never stores a rating, exactly as it never stores a player's name or flag.
 
 ### Changed
+- The welcome message placeholders copy on click, the same as the Twilight Struggle template tokens. Click `{user}`, `{username}`, `{displayname}` or `{membercount}` under the message boxes to copy it.
 - The Twilight Struggle template tokens are grouped by what each one describes: the game, the USA player, the USSR player, the winner and the loser. Click a token to copy it.
 - The Twilight Struggle results API no longer requires `winning_method` on a game. A site that does not record how a game ended can leave it out, and `{winning_method}` then renders empty, as `{turn}` already did without a `winning_turn`. Templates keep the punctuation around the token, so `in {turn} ({winning_method})` reads `in Turn 7 ()` for a game sent without one.
 
