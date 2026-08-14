@@ -30,6 +30,38 @@ a preview `ServerChannel`'s `.server_configuration` would return `nil` and break
 every child-to-parent traversal in the views — `ServerChannel#everyone_visible?`
 does exactly that — and it stamps its own condition onto `create`.
 
+## Read-only, permanently
+
+Preview was originally planned to accept writes against its own row, scoped so
+a visitor's edits never touched a real guild. That plan was cancelled - the
+value of preview is letting a prospective admin see the real config pages
+against real-looking data, not giving anonymous visitors a scratch database.
+Preview is read-only by design now, not as a stepping stone to writable.
+
+The guard lives server-side: `block_preview_writes` in
+`app/controllers/concerns/requires_manageable_server.rb` redirects any
+non-`GET` request against a preview `ServerConfiguration` back to `/preview`
+with an alert, before the action runs. That is the actual enforcement - it
+holds even if a request reaches the server some other way.
+
+The UI never gives a visitor a control that would hit that guard:
+
+- `Components::SaveBar` (rendered by `Components::ConfigPage`) renders its
+  submit button disabled on a preview page, and swaps its message for the
+  preview explanation. Discard still works - it reloads the page client-side
+  and touches no route.
+- `Components::PluginRow`'s dashboard toggle POSTs on change, so on a preview
+  row it renders in the same disabled-with-tooltip state used elsewhere for a
+  toggle the visitor isn't allowed to flip.
+- Every other control - text fields, dropdowns, switches inside a form -
+  stays interactive, because only saving is blocked.
+
+`Components::PreviewBanner`, rendered once in `Components::AppShell` whenever
+it is handed a preview `ServerConfiguration`, names the read-only state on
+every preview page and offers the way out: an invite link to add the real bot,
+and a `Leave preview` button hitting `DELETE /preview`
+(`PreviewsController#destroy`).
+
 ## The single source of mock data
 
 `config/preview_data.yml` is the only place preview content is written. It holds

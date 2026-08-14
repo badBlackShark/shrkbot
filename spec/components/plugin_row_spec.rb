@@ -52,6 +52,18 @@ RSpec.describe Components::PluginRow do
     end
   end
 
+  context "when the server configuration is a preview" do
+    let(:server_configuration) { create(:server_configuration, :preview) }
+
+    it "disables the toggle instead of letting it submit" do
+      expect(html).to include("disabled")
+    end
+
+    it "says why in the tooltip" do
+      expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_row.preview_locked")))
+    end
+  end
+
   context "when the plugin is bespoke" do
     let(:bespoke) { true }
 

@@ -79,6 +79,50 @@ RSpec.describe "Preview", type: :request do
     end
   end
 
+  describe "the read-only surface on a preview config page" do
+    subject(:get_preview_roles) { get preview_roles_path }
+
+    before { get preview_path }
+
+    it "renders the preview banner" do
+      get_preview_roles
+
+      expect(response.body).to include(CGI.escapeHTML(I18n.t("components.preview_banner.message")))
+      expect(response.body).to include(I18n.t("components.preview_banner.leave"))
+    end
+
+    it "renders the save button disabled" do
+      get_preview_roles
+
+      expect(response.body).to match(/<button[^>]*type="submit"[^>]*disabled[^>]*>/)
+    end
+  end
+
+  describe "a real server's config page" do
+    subject(:get_server_roles) { get server_roles_path(guild.id) }
+
+    let(:guild) { Bot::Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil, member_count: 5) }
+    let(:config) { ServerConfiguration.find_by(discord_id: guild.id) }
+    let!(:roles) { create(:plugin, key: "roles", name: "Roles") }
+
+    before do
+      post "/auth/discord/callback"
+      create(:server_configuration, discord_id: guild.id, bot_role_position: 100)
+      config.create_role_setting!
+      create(:server_channel, server_configuration: config, name: "get-roles", discord_id: 111)
+      create(:server_role, server_configuration: config, discord_id: 222, name: "Member", position: 1)
+      allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
+      get server_path(guild.id)
+    end
+
+    it "renders neither the preview banner nor a disabled submit button" do
+      get_server_roles
+
+      expect(response.body).not_to include(CGI.escapeHTML(I18n.t("components.preview_banner.message")))
+      expect(response.body).not_to match(/<button[^>]*type="submit"[^>]*disabled[^>]*>/)
+    end
+  end
+
   describe "GET /preview/welcomes" do
     before { get preview_path }
 

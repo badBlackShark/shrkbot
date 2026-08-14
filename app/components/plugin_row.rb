@@ -41,7 +41,9 @@ class Components::PluginRow < Components::Base
   end
 
   def toggle
-    if !@row.manageable
+    if @config.preview?
+      locked_toggle(checked: @row.enabled, tooltip: t(".preview_locked"))
+    elsif !@row.manageable
       locked_toggle(checked: @row.enabled, tooltip: t(".not_manageable"))
     elsif @row.locked
       locked_toggle(checked: true, tooltip: t(".plugin.#{@row.key}.locked"))

@@ -24,7 +24,7 @@ class Components::ConfigPage < Components::Base
       ) do
         page_header
         body(&block)
-        render Components::SaveBar.new
+        render Components::SaveBar.new(preview: @server_configuration.preview?)
       end
     end
   end

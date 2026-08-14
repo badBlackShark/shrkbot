@@ -11,7 +11,7 @@ class Views::Servers::Show < Views::Base
   end
 
   def view_template
-    render Components::AppShell.new(user: @user, current_server: @server, servers: @servers, plugin_counts: @plugin_counts) do
+    render Components::AppShell.new(user: @user, current_server: @server, servers: @servers, plugin_counts: @plugin_counts, server_configuration: @server_configuration) do
       div(class: "mx-auto max-w-3xl px-6 py-8") do
         render Components::Breadcrumb.new(
           [
