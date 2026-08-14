@@ -16,7 +16,7 @@ class Views::Servers::Lfg::Show < Views::Base
           description: t(".description")
         ),
         server_configuration: @config,
-        url: server_lfg_path(@config.discord_id),
+        url: PluginPaths.for(@config, :lfg),
         toggle: {field: "lfg[enabled]", enabled: @enabled},
         gate: {type: :enable, message: t(".gate_message")}
       ) do

@@ -16,7 +16,7 @@ class Views::Servers::Reminders::Show < Views::Base
           badge: t(".badge")
         ),
         server_configuration: @config,
-        url: server_reminders_path(@config.discord_id)
+        url: PluginPaths.for(@config, :reminders)
       ) do
         render Components::Reminders::ConfigForm.new(server_configuration: @config)
       end

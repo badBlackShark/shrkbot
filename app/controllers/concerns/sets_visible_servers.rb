@@ -9,12 +9,19 @@ module SetsVisibleServers
   private
 
   def visible_servers
-    @visible_servers ||= begin
-      servers = VisibleServers.for(session[:discord_token], current_user.discord_id)
-      remember_server_access(servers)
-      session.delete(:reauth_attempted)
-      servers
-    end
+    @visible_servers ||=
+      if preview_request?
+        [PreviewData.demo_guild]
+      else
+        servers = VisibleServers.for(session[:discord_token], current_user.discord_id)
+        remember_server_access(servers)
+        session.delete(:reauth_attempted)
+        servers
+      end
+  end
+
+  def preview_request?
+    params[:preview].present?
   end
 
   def remember_server_access(servers)

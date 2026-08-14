@@ -6,6 +6,11 @@ guild:
   bot_role_position: 50
   force_dm_reminders: false
 
+user:
+  discord_id: -1
+  username: reef-guest
+  display_name: Reef Guest
+
 channels:
   - discord_id: 100
     name: COMMUNITY

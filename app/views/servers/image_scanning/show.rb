@@ -11,10 +11,6 @@ class Views::Servers::ImageScanning::Show < Views::Servers::Moderation::SubPlugi
     "scan"
   end
 
-  def url
-    server_image_scanning_path(@config.discord_id)
-  end
-
   def enable_field
     "image_scanning[enabled]"
   end

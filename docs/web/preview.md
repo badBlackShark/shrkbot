@@ -33,12 +33,15 @@ does exactly that — and it stamps its own condition onto `create`.
 ## The single source of mock data
 
 `config/preview_data.yml` is the only place preview content is written. It holds
-a `guild:` section, `channels:`, `roles:`, and a `plugins:` list — one entry per
+a `guild:` section, a `user:` section for the demo identity a logged-out visitor
+gets signed in as, `channels:`, `roles:`, and a `plugins:` list — one entry per
 toggleable plugin, each carrying that plugin's settings and, where relevant,
 records like role sets or LFG pingable roles. `PreviewData` (`app/models/preview_data.rb`)
 is the read-only accessor: it parses the file once, memoizes it, and shapes the
 channel hashes the way `Ops::ServerConfiguration::ServerChannels::Sync` expects
-(`channel_type`, `overwrites: []`).
+(`channel_type`, `overwrites: []`). `PreviewData.demo_guild` builds the
+`Bot::Discord::Guild` the web layer treats as the preview server everywhere it
+would otherwise call Discord.
 
 `Ops::ServerConfiguration::Previews::Create` seeds the file into real rows:
 

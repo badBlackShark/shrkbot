@@ -28,6 +28,10 @@ class Views::Servers::PluginConfigShow < Views::Base
 
   private
 
+  def url
+    PluginPaths.for(@config, plugin_key)
+  end
+
   def channel_setting
     @config.public_send(PluginCatalog.find(plugin_key).channel_setting)
   end

@@ -8,6 +8,21 @@ class PreviewData
       data[:guild]
     end
 
+    def user
+      data[:user]
+    end
+
+    def demo_guild
+      @demo_guild ||= Bot::Discord::Guild.new(
+        id: guild[:discord_id],
+        name: guild[:name],
+        owner: true,
+        permissions: 0,
+        icon: guild[:icon_hash],
+        member_count: guild[:member_count]
+      )
+    end
+
     def channels
       @channels ||= data[:channels].map { |channel| channel_attributes(channel) }
     end

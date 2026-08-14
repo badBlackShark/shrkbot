@@ -50,4 +50,18 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  get "/preview", to: "previews#show", as: :preview, defaults: {preview: true}
+  delete "/preview", to: "previews#destroy"
+
+  scope "/preview", as: :preview, module: :servers, defaults: {preview: true} do
+    resource :welcomes, only: [:show, :update]
+    resource :logging, only: [:show, :update], controller: "logging"
+    resource :roles, only: [:show, :update]
+    resource :reminders, only: [:show, :update]
+    resource :moderation, only: [:show, :update], controller: "moderation"
+    resource :lfg, only: [:show, :update], controller: "lfg"
+    resource :spam_protection, only: [:show, :update], controller: "spam_protection"
+    resource :image_scanning, only: [:show, :update], controller: "image_scanning"
+  end
 end

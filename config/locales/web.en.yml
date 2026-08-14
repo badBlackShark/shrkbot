@@ -605,6 +605,8 @@ en:
     plugin_disabled: "%{plugin} disabled."
     plugin_enabled: "%{plugin} enabled."
     plugin_locked: You can't configure that plugin on this server.
+    preview_read_only: Preview can't be edited - add shrkbot to a server to configure
+      it for real.
     reminders:
       saved: Reminder settings saved.
     role_sets:

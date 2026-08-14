@@ -23,7 +23,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Base
         url:,
         gate: shell_gate,
         toggle: shell_toggle,
-        parent_crumb: {label: PluginCatalog.find(:moderation).name, href: server_moderation_path(@config.discord_id)}
+        parent_crumb: {label: PluginCatalog.find(:moderation).name, href: moderation_path}
       ) do
         group_subline
         no_role_callout
@@ -34,6 +34,14 @@ class Views::Servers::Moderation::SubPluginShow < Views::Base
 
   private
 
+  def url
+    PluginPaths.for(@config, active_key)
+  end
+
+  def moderation_path
+    PluginPaths.for(@config, :moderation)
+  end
+
   def shell_gate
     return if @context.group_enabled?
 
@@ -43,7 +51,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Base
       title: t(".prereq_gate_title"),
       message: t(".prereq_gate_message"),
       cta_label: t(".prereq_gate_cta"),
-      cta_href: server_moderation_path(@config.discord_id)
+      cta_href: moderation_path
     }
   end
 
@@ -71,7 +79,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Base
       render Components::Icon.new("shield", class: "size-4")
       span do
         plain t(".subline_prefix")
-        a(href: server_moderation_path(@config.discord_id), class: "underline hover:text-text-secondary") do
+        a(href: moderation_path, class: "underline hover:text-text-secondary") do
           plain t(".subline_link")
         end
         plain t(".subline_suffix")
@@ -88,7 +96,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Base
         plain " "
         plain t(".no_role_callout_body")
         plain " "
-        a(href: server_moderation_path(@config.discord_id), class: "underline") { t(".no_role_callout_link") }
+        a(href: moderation_path, class: "underline") { t(".no_role_callout_link") }
         plain t(".no_role_callout_suffix")
       end
     end

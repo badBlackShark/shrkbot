@@ -8,6 +8,7 @@ module RequiresManageableServer
 
   included do
     before_action :require_manageable_server
+    before_action :block_preview_writes
     before_action :require_plugin_access
     helper_method :server_switcher, :plugin_access
   end
@@ -15,10 +16,24 @@ module RequiresManageableServer
   private
 
   def require_manageable_server
-    @server_configuration = ServerConfiguration.find_by(discord_id: params[:server_id])
-    return if @server_configuration && visible_now?(params[:server_id])
+    @server_configuration = resolve_server_configuration
+    return if @server_configuration && (preview_request? || visible_now?(params[:server_id]))
 
     redirect_to servers_path, alert: t("servers.not_found")
+  end
+
+  def resolve_server_configuration
+    if preview_request?
+      ServerConfiguration.previews.find_by(discord_id: PreviewData.guild[:discord_id])
+    else
+      ServerConfiguration.real.find_by(discord_id: params[:server_id])
+    end
+  end
+
+  def block_preview_writes
+    return if request.get? || !@server_configuration.preview?
+
+    redirect_back fallback_location: preview_path, alert: t("servers.preview_read_only")
   end
 
   def require_plugin_access
@@ -37,8 +52,16 @@ module RequiresManageableServer
 
   def server_switcher
     @server_switcher ||= CachedDashboard.for(
-      discord_id: params[:server_id].to_i,
-      manageable_ids: visible_server_ids
+      discord_id: switcher_discord_id,
+      manageable_ids: switcher_manageable_ids
     )
+  end
+
+  def switcher_discord_id
+    preview_request? ? @server_configuration.discord_id : params[:server_id].to_i
+  end
+
+  def switcher_manageable_ids
+    preview_request? ? [@server_configuration.discord_id] : visible_server_ids
   end
 end
