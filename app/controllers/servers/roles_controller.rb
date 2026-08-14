@@ -6,6 +6,8 @@ class Servers::RolesController < ApplicationController
   include VerifiesGuildChannels
 
   def show
+    preload_role_sets
+
     render Views::Servers::Roles::Show.new(
       server_configuration: @server_configuration,
       user: current_user,
@@ -37,6 +39,13 @@ class Servers::RolesController < ApplicationController
   end
 
   private
+
+  def preload_role_sets
+    ActiveRecord::Associations::Preloader.new(
+      records: [@server_configuration.role_setting],
+      associations: {role_sets: :assignable_roles}
+    ).call
+  end
 
   def submitted_sets
     raw = roles_params[:role_sets]
