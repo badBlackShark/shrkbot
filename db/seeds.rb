@@ -5,6 +5,8 @@ PluginCatalog.all.each do |definition|
   plugin.update!(name: definition.name, description: definition.description)
 end
 
+Ops::ServerConfiguration::Previews::Create.call
+
 TwilightStruggle::Tournament.find_or_create_by!(friendly: true) do |tournament|
   tournament.name = I18n.t("twilight_struggle.friendly_tournament_name")
 end

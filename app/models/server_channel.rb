@@ -10,7 +10,11 @@ class ServerChannel < ApplicationRecord
 
   VIEW_CHANNEL = 1 << 10
 
-  TEXT_TYPES = [0, 5].freeze
+  TEXT_TYPE = 0
+
+  ANNOUNCEMENT_TYPE = 5
+
+  TEXT_TYPES = [TEXT_TYPE, ANNOUNCEMENT_TYPE].freeze
 
   CATEGORY_TYPE = 4
 

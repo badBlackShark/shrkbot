@@ -16,4 +16,9 @@ Prosopite.raise = true
 Prosopite.rails_logger = false
 
 # Rejected finding: the tournament-tree walk queries once per chain level, not once per row.
-Prosopite.allow_stack_paths = ["app/models/twilight_struggle/administered_tournaments.rb"]
+# Rejected finding: preview seeding activates a handful of interdependent plugins and rebuilds
+# a handful of nested record trees once, at seed time — once per plugin/association, not per row.
+Prosopite.allow_stack_paths = [
+  "app/models/twilight_struggle/administered_tournaments.rb",
+  "app/operations/server_configuration/previews/apply_plugin.rb"
+]

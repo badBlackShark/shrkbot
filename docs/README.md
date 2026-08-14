@@ -23,6 +23,7 @@ work actually touches.
 
 - [web/controllers-and-views.md](web/controllers-and-views.md) — CRUD-controller and small-Phlex-component conventions, the two concerns that re-verify server access against live Discord on every request, `PluginAccess` and the tournament-organiser exception, guild-scoping of submitted snowflakes, and Turbo Stream response templates.
 - [web/csp-and-oauth.md](web/csp-and-oauth.md) — why `form-action` must name `https://discord.com`, and the Chrome/Safari-vs-Firefox divergence on redirects that makes getting it wrong look like a device-specific bug.
+- [web/preview.md](web/preview.md) — how a preview guild demos the web UI without the bot being in a real Discord server, the reserved `discord_id` range, `config/preview_data.yml` as the single source of mock data, and how to add a new plugin's demo data.
 
 ## Plugins
 
