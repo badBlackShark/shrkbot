@@ -126,6 +126,12 @@ RSpec.describe "Server picker", type: :request do
           get_servers
           expect(response.body).to include("in any of your servers yet")
         end
+
+        it "offers a way to preview a server without the bot" do
+          get_servers
+          expect(response.body).to include("Preview a server")
+          expect(response.body).to include(%(href="/preview"))
+        end
       end
 
       context "when Discord cannot be reached" do

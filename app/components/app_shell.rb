@@ -5,18 +5,20 @@ class Components::AppShell < Components::Base
   include Phlex::Rails::Helpers::ButtonTo
   include Phlex::Rails::Helpers::TurboFrameTag
 
-  def initialize(user:, current_server: nil, current_server_id: nil, servers: [], plugin_counts: {}, sidebar: nil)
+  def initialize(user:, current_server: nil, current_server_id: nil, servers: [], plugin_counts: {}, sidebar: nil, server_configuration: nil)
     @user = user
     @current_server = current_server
     @current_server_id = current_server_id
     @servers = servers
     @plugin_counts = plugin_counts
     @sidebar = sidebar
+    @server_configuration = server_configuration
   end
 
   def view_template(&block)
     div(class: "flex min-h-screen flex-col") do
       top_bar
+      render Components::PreviewBanner.new if @server_configuration&.preview?
       if @sidebar
         div(class: "flex flex-1") do
           render @sidebar

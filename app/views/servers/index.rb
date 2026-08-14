@@ -93,6 +93,7 @@ class Views::Servers::Index < Views::Base
   def empty_state
     render Components::EmptyState.new(title: t(".empty_title"), body: t(".empty_body")) do
       render Components::Button.new(variant: :primary, size: :lg, href: generic_invite_url, icon: "plus", label: t(".invite"))
+      render Components::Button.new(variant: :secondary, size: :lg, href: preview_path, icon: "eye", label: t(".preview"))
       render Components::Button.new(variant: :secondary, size: :lg, href: servers_path, icon: "arrows-clockwise", label: t(".refresh"))
     end
   end
