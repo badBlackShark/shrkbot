@@ -38,6 +38,18 @@ Playwright is not a project dependency — install it in a scratch directory:
 mkdir -p /tmp/pw && cd /tmp/pw
 npm install playwright
 npx playwright install chromium
+sudo npx playwright install-deps chromium
+```
+
+The last line is not optional on a bare container: without it Chromium dies at
+launch with `error while loading shared libraries: libnspr4.so`.
+
+**Rebuild CSS after changing any Tailwind class.** `bin/web-debug` runs the server
+only, not `tailwindcss:watch`, so a class that is new to the codebase is missing from
+the compiled stylesheet and the change appears to do nothing:
+
+```sh
+bin/rails tailwindcss:build
 ```
 
 Minimal script (`node drive.mjs`):

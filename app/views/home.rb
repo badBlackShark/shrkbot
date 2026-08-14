@@ -15,40 +15,59 @@ class Views::Home < Views::Base
   private
 
   def hero
-    section(class: "mx-auto flex max-w-4xl flex-col items-center gap-12 px-6 py-20 sm:flex-row") do
-      div(class: "flex-1") do
-        h1(class: "mb-4 font-display text-4xl font-bold leading-tight tracking-tight") do
-          span(class: "[font-size:larger]") { render Components::Wordmark.new }
-          br
-          plain t(".tagline")
-          br
-          span(class: "text-accent-2-text") { t(".tagline_accent") }
-        end
-        p(class: "mb-8 max-w-md text-lg leading-relaxed text-text-secondary") { t(".lede") }
-        div(class: "flex flex-wrap gap-3") do
-          button_to(
-            "/auth/discord",
-            method: :post,
-            data: {turbo: false},
-            class: Components::Button.css(variant: :primary, size: :xl)
-          ) do
-            render Components::Icon.new("sign-in", class: "size-[18px]")
-            span { t(".add_to_server") }
-          end
-          a(
-            href: ReleaseInfo::REPO_URL,
-            target: "_blank",
-            rel: "noopener",
-            class: Components::Button.css(variant: :secondary, size: :xl, extra: "text-sm")
-          ) do
-            render Components::Icon.new("github-logo", class: "size-4")
-            plain t(".view_source")
-          end
+    section(class: "mx-auto flex max-w-4xl flex-col gap-10 px-6 py-20") do
+      div(class: "flex flex-col items-center gap-12 sm:flex-row sm:items-start") do
+        pitch
+        div(class: "flex-none") do
+          image_tag("shrkbot-mascot.png", alt: "", class: "size-48 rounded-xl shadow-lg")
         end
       end
-      div(class: "flex-none") do
-        image_tag("shrkbot-mascot.png", alt: "", class: "size-48 rounded-xl shadow-lg")
+      hero_actions
+    end
+  end
+
+  def pitch
+    div(class: "flex-1") do
+      h1(class: "mb-4 font-display text-4xl font-bold leading-tight tracking-tight") do
+        span(class: "[font-size:larger]") { render Components::Wordmark.new }
+        br
+        plain t(".tagline")
+        br
+        span(class: "text-accent-2-text") { t(".tagline_accent") }
       end
+      p(class: "max-w-md text-lg leading-relaxed text-text-secondary") { t(".lede") }
+    end
+  end
+
+  def hero_actions
+    div(class: "flex flex-wrap gap-3") do
+      sign_in_button
+      preview_button
+      source_button
+    end
+  end
+
+  def sign_in_button
+    button_to(
+      "/auth/discord",
+      method: :post,
+      data: {turbo: false},
+      class: Components::Button.css(variant: :primary, size: :xl)
+    ) do
+      render Components::Icon.new("sign-in", class: "size-[18px]")
+      span { t(".add_to_server") }
+    end
+  end
+
+  def source_button
+    a(
+      href: ReleaseInfo::REPO_URL,
+      target: "_blank",
+      rel: "noopener",
+      class: Components::Button.css(variant: :secondary, size: :xl, extra: "text-sm")
+    ) do
+      render Components::Icon.new("github-logo", class: "size-4")
+      plain t(".view_source")
     end
   end
 
@@ -61,19 +80,18 @@ class Views::Home < Views::Base
           plugin_cards(decorative: true)
         end
       end
-      div(class: "mt-6 flex flex-wrap items-center justify-between gap-3") do
-        p(class: "text-xs text-text-muted") { t(".more_plugins") }
-        preview_button
-      end
+      p(class: "mt-6 text-xs text-text-muted") { t(".more_plugins") }
     end
   end
 
   def preview_button
     render Components::Button.new(
       variant: :secondary,
+      size: :xl,
       href: preview_path,
       icon: "eye",
-      label: t(".preview")
+      label: t(".preview"),
+      class: "text-sm"
     )
   end
 
