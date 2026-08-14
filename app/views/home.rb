@@ -61,8 +61,20 @@ class Views::Home < Views::Base
           plugin_cards(decorative: true)
         end
       end
-      p(class: "mt-6 text-xs text-text-muted") { t(".more_plugins") }
+      div(class: "mt-6 flex flex-wrap items-center justify-between gap-3") do
+        p(class: "text-xs text-text-muted") { t(".more_plugins") }
+        preview_button
+      end
     end
+  end
+
+  def preview_button
+    render Components::Button.new(
+      variant: :secondary,
+      href: preview_path,
+      icon: "eye",
+      label: t(".preview")
+    )
   end
 
   def plugin_cards(decorative: false)

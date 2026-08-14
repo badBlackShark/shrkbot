@@ -59,6 +59,13 @@ RSpec.describe "Home", type: :request do
     expect(response.body).to include(I18n.t("views.home.more_plugins"))
   end
 
+  it "offers the preview as the one way in that needs no Discord account" do
+    home
+
+    expect(response.body).to include('href="/preview"')
+    expect(response.body).to include(I18n.t("views.home.preview"))
+  end
+
   it "renders the marquee wrapper" do
     home
 

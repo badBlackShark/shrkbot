@@ -390,7 +390,7 @@ en:
     preview_banner:
       invite: Invite shrkbot
       leave: Leave preview
-      message: You're looking at a preview server - nothing you change here is saved.
+      message: You're looking at a preview - nothing you change here is saved.
     public_shell:
       dashboard: Dashboard
       sign_in: Sign in with Discord
@@ -719,6 +719,7 @@ en:
         welcomes: Greet new members with a custom message, and say goodbye when they
           leave.
       plugins_eyebrow: Example plugins
+      preview: Preview features
       tagline: A mechanical assistant for your Discord server.
       tagline_accent: With teeth when needed.
       view_source: View on GitHub
@@ -765,7 +766,7 @@ en:
         plugins_enabled:
           one: "%{count} plugin enabled"
           other: "%{count} plugins enabled"
-        preview: Preview a server
+        preview: Preview features
         refresh: Refresh
         subtitle: Pick a server to configure shrkbot.
         title: Your servers

@@ -86,14 +86,27 @@ class Views::Servers::Index < Views::Base
     render Components::Card.new(dashed: true, padding: :lg, class: "mt-8 text-center") do
       p(class: "text-sm font-semibold") { t(".missing_title") }
       p(class: "mx-auto mt-1 max-w-md text-sm text-text-secondary") { t(".missing_body") }
-      div(class: "mt-4 flex justify-center") { invite_button(generic_invite_url) }
+      div(class: "mt-4 flex flex-wrap justify-center gap-3") do
+        invite_button(generic_invite_url)
+        preview_button
+      end
     end
+  end
+
+  def preview_button(size: :md)
+    render Components::Button.new(
+      variant: :secondary,
+      size:,
+      href: preview_path,
+      icon: "eye",
+      label: t(".preview")
+    )
   end
 
   def empty_state
     render Components::EmptyState.new(title: t(".empty_title"), body: t(".empty_body")) do
       render Components::Button.new(variant: :primary, size: :lg, href: generic_invite_url, icon: "plus", label: t(".invite"))
-      render Components::Button.new(variant: :secondary, size: :lg, href: preview_path, icon: "eye", label: t(".preview"))
+      preview_button(size: :lg)
       render Components::Button.new(variant: :secondary, size: :lg, href: servers_path, icon: "arrows-clockwise", label: t(".refresh"))
     end
   end
