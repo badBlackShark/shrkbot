@@ -6,6 +6,10 @@ module Ops
       receives :server_configuration
 
       def call
+        if server_configuration.preview?
+          return failure(I18n.t("operations.server_configuration.destroy.preview_protected"))
+        end
+
         purge_reminders
         server_configuration.destroy!
         ok(server_configuration)

@@ -79,6 +79,43 @@ RSpec.describe ServerConfiguration do
     end
   end
 
+  describe "scopes" do
+    let!(:real_config) { create(:server_configuration, discord_id: 900_000_002) }
+    let!(:preview_config) { create(:server_configuration, :preview) }
+
+    describe ".real" do
+      subject(:real_configs) { described_class.real }
+
+      it "returns only configs with a positive discord_id" do
+        expect(real_configs).to contain_exactly(real_config)
+      end
+    end
+
+    describe ".previews" do
+      subject(:preview_configs) { described_class.previews }
+
+      it "returns only configs with a negative discord_id" do
+        expect(preview_configs).to contain_exactly(preview_config)
+      end
+    end
+  end
+
+  describe "#preview?" do
+    subject(:preview?) { server.preview? }
+
+    context "when the discord_id is negative" do
+      let(:server) { build(:server_configuration, :preview) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context "when the discord_id is positive" do
+      let(:server) { build(:server_configuration, discord_id: 900_000_003) }
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe "#icon_url" do
     subject(:icon_url) { server.icon_url }
 

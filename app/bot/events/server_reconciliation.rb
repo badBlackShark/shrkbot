@@ -15,7 +15,7 @@ module Bot
     private
 
     def stale_configurations
-      ::ServerConfiguration.where.not(discord_id: event.bot.servers.keys).select do |config|
+      ::ServerConfiguration.real.where.not(discord_id: event.bot.servers.keys).select do |config|
         on_this_shard?(config.discord_id)
       end
     end

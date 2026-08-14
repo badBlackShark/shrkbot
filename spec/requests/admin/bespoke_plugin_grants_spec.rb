@@ -92,6 +92,15 @@ RSpec.describe "Admin bespoke plugin grants", type: :request do
         end
       end
 
+      context "when a preview server exists" do
+        let!(:preview_server) { create(:server_configuration, :preview, name: "Preview Guild") }
+
+        it "does not list the preview server" do
+          index_page
+          expect(response.body).not_to include("Preview Guild")
+        end
+      end
+
       context "when no bespoke plugins exist" do
         let(:catalog_definitions) { PluginCatalog::DEFINITIONS.reject(&:bespoke) }
 

@@ -21,6 +21,9 @@ en:
       messages:
         post_failed: Could not post the role message - check the channel.
     server_configuration:
+      destroy:
+        preview_protected: Could not delete this server - it is a preview, not a real
+          Discord guild.
       plugins:
         requires_settings: "%{plugin} can't be enabled until its required settings
           are configured."
