@@ -11,10 +11,6 @@ class Views::Servers::Roles::Show < Views::Servers::PluginConfigShow
     "users-three"
   end
 
-  def url
-    server_roles_path(@config.discord_id)
-  end
-
   def form
     render Components::Roles::ConfigForm.new(server_configuration: @config)
   end

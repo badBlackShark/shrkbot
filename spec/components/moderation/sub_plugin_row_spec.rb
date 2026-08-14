@@ -10,7 +10,7 @@ RSpec.describe Components::Moderation::SubPluginRow do
 
   let(:base_attrs) do
     {
-      server_id: config.discord_id,
+      server_configuration: config,
       key: :spam_protection,
       name: "Cross-Channel Spam Guard",
       description: "Purges the same message posted across several channels within seconds.",
@@ -82,7 +82,7 @@ RSpec.describe Components::Moderation::SubPluginRow do
 
     subject(:html) do
       described_class.new(
-        server_id: config.discord_id,
+        server_configuration: config,
         key: :image_scanning,
         name: "Scam Image Detection",
         description: "Reads the text in images and fingerprints known scam images.",
@@ -128,7 +128,7 @@ RSpec.describe Components::Moderation::SubPluginRow do
 
     subject(:html) do
       described_class.new(
-        server_id: config.discord_id,
+        server_configuration: config,
         key: :image_scanning,
         name: "Scam Image Detection",
         description: "Reads the text in images and fingerprints known scam images.",
@@ -151,7 +151,7 @@ RSpec.describe Components::Moderation::SubPluginRow do
 
     subject(:html) do
       described_class.new(
-        server_id: config.discord_id,
+        server_configuration: config,
         key: :image_scanning,
         name: "Scam Image Detection",
         description: "Reads the text in images and fingerprints known scam images.",

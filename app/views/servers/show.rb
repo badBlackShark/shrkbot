@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Views::Servers::Show < Views::Base
-  include Components::PluginNav
-
   def initialize(server:, server_configuration:, plugins:, user:, servers: [], plugin_counts: {})
     @server = server
     @server_configuration = server_configuration
@@ -76,13 +74,13 @@ class Views::Servers::Show < Views::Base
   end
 
   def visible_plugins
-    @plugins.select { |row| plugin_config_path(@server.id, row.key) && !PluginCatalog.sub_plugin?(row.key) }
+    @plugins.select { |row| PluginPaths.for(@server_configuration, row.key) && !PluginCatalog.sub_plugin?(row.key) }
   end
 
   def plugin_group(rows)
     div(class: "flex flex-col gap-3") do
       rows.each do |row|
-        render Components::PluginRow.new(server_id: @server.id, row:)
+        render Components::PluginRow.new(server_configuration: @server_configuration, row:)
       end
     end
   end

@@ -34,7 +34,7 @@ class Components::ConfigPage < Components::Base
   def breadcrumb_crumbs
     crumbs = [
       {label: t(".servers"), href: servers_path},
-      {label: @server_configuration.name || t(".dashboard"), href: server_path(@server_configuration.discord_id)}
+      {label: @server_configuration.name || t(".dashboard"), href: PluginPaths.dashboard_for(@server_configuration.discord_id)}
     ]
     crumbs << @parent_crumb if @parent_crumb
     crumbs << {label: @header.title}

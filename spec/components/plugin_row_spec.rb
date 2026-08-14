@@ -6,9 +6,10 @@ RSpec.describe Components::PluginRow do
   include_context "component view context"
 
   subject(:html) do
-    described_class.new(server_id: 900_000_001, row:).render_in(view_context)
+    described_class.new(server_configuration:, row:).render_in(view_context)
   end
 
+  let(:server_configuration) { create(:server_configuration, discord_id: 900_000_001) }
   let(:row) { PluginStatus::Row.new(key: :roles, enabled: true, configured: true, manageable:, toggleable:, bespoke:) }
   let(:manageable) { true }
   let(:toggleable) { true }

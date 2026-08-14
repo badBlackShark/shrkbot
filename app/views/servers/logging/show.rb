@@ -11,10 +11,6 @@ class Views::Servers::Logging::Show < Views::Servers::PluginConfigShow
     "scroll"
   end
 
-  def url
-    server_logging_path(@config.discord_id)
-  end
-
   def form
     render Components::Logging::ConfigForm.new(server_configuration: @config)
   end

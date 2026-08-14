@@ -84,7 +84,7 @@ class Components::AppShell < Components::Base
   def switcher_row(server)
     current = server.id == @current_server.id
     tone = current ? "bg-accent-soft hover:bg-accent-soft" : "hover:bg-surface-sunken"
-    a(href: server_path(server.id), class: "flex items-center gap-3 px-3 py-2 text-left transition-colors #{tone}") do
+    a(href: dashboard_path_for(server), class: "flex items-center gap-3 px-3 py-2 text-left transition-colors #{tone}") do
       render Components::ServerAvatar.new(server:, size: :md)
       div(class: "min-w-0 flex-1") do
         p(class: "truncate text-sm font-semibold") { server.name }
@@ -92,6 +92,10 @@ class Components::AppShell < Components::Base
       end
       render Components::Icon.new("check", class: "size-4 flex-none text-accent") if current
     end
+  end
+
+  def dashboard_path_for(server)
+    PluginPaths.dashboard_for(server.id)
   end
 
   def wordmark

@@ -2,7 +2,6 @@
 
 class Views::Servers::Moderation::Show < Views::Base
   include Phlex::Rails::Helpers::FormWith
-  include Components::PluginNav
 
   def initialize(server_configuration:, user:, context:)
     @config = server_configuration
@@ -23,7 +22,7 @@ class Views::Servers::Moderation::Show < Views::Base
           description: t(".description")
         ),
         server_configuration: @config,
-        url: server_moderation_path(@config.discord_id),
+        url: PluginPaths.for(@config, :moderation),
         gate: shell_gate,
         toggle: shell_toggle
       ) do
@@ -42,7 +41,7 @@ class Views::Servers::Moderation::Show < Views::Base
   def sub_plugin_toggle_forms
     PluginCatalog.sub_plugin_keys(:moderation).each do |key|
       form_with(
-        url: plugin_config_path(@config.discord_id, key),
+        url: PluginPaths.for(@config, key),
         method: :patch,
         id: Components::Moderation::SubPluginRow.toggle_form_id(key),
         class: "hidden"
@@ -59,7 +58,7 @@ class Views::Servers::Moderation::Show < Views::Base
         title: t(".prereq_gate_title"),
         message: t(".prereq_gate_message"),
         cta_label: t(".prereq_gate_cta"),
-        cta_href: server_logging_path(@config.discord_id)
+        cta_href: PluginPaths.for(@config, :logging)
       }
     elsif !@context.group_enabled?
       {

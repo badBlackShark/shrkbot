@@ -1,2 +1,2 @@
-<%= turbo_stream.replace "plugin-#{@plugin.key}", html: render(Components::PluginRow.new(server_id: params[:server_id], row: @row)) %>
+<%= turbo_stream.replace "plugin-#{@plugin.key}", html: render(Components::PluginRow.new(server_configuration: @server_configuration, row: @row)) %>
 <%= turbo_stream.append "toasts", html: render(Components::Toast.new(**@toast)) %>

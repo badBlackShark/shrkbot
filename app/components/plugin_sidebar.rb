@@ -40,7 +40,7 @@ class Components::PluginSidebar < Components::Base
   end
 
   def items
-    all_rows.select { |row| plugin_config_path(@config.discord_id, row.key) }
+    all_rows.select { |row| PluginPaths.for(@config, row.key) }
   end
 
   def sub_plugin?(key)
@@ -65,7 +65,7 @@ class Components::PluginSidebar < Components::Base
   def group_items
     overview = {
       label: t(".overview"),
-      href: server_moderation_path(@config.discord_id),
+      href: PluginPaths.for(@config, :moderation),
       active: @active_key == :moderation,
       status: nil
     }
@@ -76,7 +76,7 @@ class Components::PluginSidebar < Components::Base
     row = all_rows.find { |candidate| candidate.key == key }
     {
       label: PluginCatalog.find(key).name,
-      href: plugin_config_path(@config.discord_id, key),
+      href: PluginPaths.for(@config, key),
       active: @active_key == key,
       status: sub_status(row)
     }
@@ -90,7 +90,7 @@ class Components::PluginSidebar < Components::Base
 
   def back_link
     a(
-      href: server_path(@config.discord_id),
+      href: PluginPaths.dashboard_for(@config.discord_id),
       class: "group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-surface-card"
     ) do
       render Components::Icon.new("arrow-left", class: "size-4 flex-none text-text-muted")
@@ -102,7 +102,7 @@ class Components::PluginSidebar < Components::Base
     active = row.key == @active_key
     tone = active ? "bg-accent-soft font-semibold text-accent-soft-fg" : "text-text-secondary hover:bg-surface-card"
     a(
-      href: plugin_config_path(@config.discord_id, row.key),
+      href: PluginPaths.for(@config, row.key),
       aria_current: ("page" if active),
       class: "flex items-center gap-2.5 rounded-md px-2.5 py-2 transition-colors #{tone}"
     ) do

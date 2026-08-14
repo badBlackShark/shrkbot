@@ -9,8 +9,8 @@ class Components::PluginRow < Components::Base
     disabled: :neutral
   }.freeze
 
-  def initialize(server_id:, row:)
-    @server_id = server_id
+  def initialize(server_configuration:, row:)
+    @config = server_configuration
     @row = row
   end
 
@@ -54,7 +54,7 @@ class Components::PluginRow < Components::Base
         name: :enabled,
         checked: @row.enabled,
         label: t(".toggle", plugin: name),
-        url: server_plugin_path(@server_id, @row.key),
+        url: server_plugin_path(@config.discord_id, @row.key),
         submit_on_change: true
       )
     end
@@ -114,6 +114,6 @@ class Components::PluginRow < Components::Base
   end
 
   def configure_href
-    plugin_config_path(@server_id, @row.key) || "#"
+    PluginPaths.for(@config, @row.key)
   end
 end

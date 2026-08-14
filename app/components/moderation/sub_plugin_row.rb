@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Components::Moderation::SubPluginRow < Components::Base
-  include Components::PluginNav
-
   STATUS_VARIANTS = {
     enabled: :success,
     needs_setup: :warning,
@@ -18,8 +16,8 @@ class Components::Moderation::SubPluginRow < Components::Base
     "#{key}-overview-toggle-form"
   end
 
-  def initialize(server_id:, key:, name:, description:, enabled:, configured:, settings:, group_enabled:)
-    @server_id = server_id
+  def initialize(server_configuration:, key:, name:, description:, enabled:, configured:, settings:, group_enabled:)
+    @config = server_configuration
     @key = key
     @name = name
     @description = description
@@ -80,7 +78,7 @@ class Components::Moderation::SubPluginRow < Components::Base
   end
 
   def sub_path
-    plugin_config_path(@server_id, @key)
+    PluginPaths.for(@config, @key)
   end
 
   def toggle_control

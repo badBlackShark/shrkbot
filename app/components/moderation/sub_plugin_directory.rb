@@ -14,7 +14,7 @@ class Components::Moderation::SubPluginDirectory < Components::Base
       div(class: "flex flex-col gap-3") do
         @context.sub_plugin_rows.each do |row|
           render Components::Moderation::SubPluginRow.new(
-            server_id: @config.discord_id,
+            server_configuration: @config,
             key: row.key,
             name: row.name,
             description: row.description,
