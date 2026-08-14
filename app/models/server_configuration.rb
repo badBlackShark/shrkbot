@@ -25,6 +25,9 @@ class ServerConfiguration < ApplicationRecord
 
   validates :discord_id, presence: true, uniqueness: true
 
+  scope :real, -> { where(discord_id: 0..) }
+  scope :previews, -> { where(discord_id: ...0) }
+
   def self.configured_ids_among(discord_ids)
     where(discord_id: discord_ids).pluck(:discord_id)
   end
@@ -35,5 +38,9 @@ class ServerConfiguration < ApplicationRecord
 
   def enabled_plugin_keys
     plugins.enabled.pluck(:key).map(&:to_sym).to_set
+  end
+
+  def preview?
+    discord_id.negative?
   end
 end

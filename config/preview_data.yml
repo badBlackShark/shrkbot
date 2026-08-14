@@ -1,0 +1,179 @@
+guild:
+  discord_id: -1
+  name: The Reef
+  member_count: 1284
+  icon_hash:
+  bot_role_position: 50
+  force_dm_reminders: false
+
+channels:
+  - discord_id: 100
+    name: COMMUNITY
+    category: true
+    position: 0
+    parent_id:
+  - discord_id: 101
+    name: general
+    position: 1
+    parent_id: 100
+  - discord_id: 102
+    name: introductions
+    position: 2
+    parent_id: 100
+  - discord_id: 103
+    name: welcome
+    position: 3
+    parent_id: 100
+  - discord_id: 104
+    name: roles
+    position: 4
+    parent_id: 100
+  - discord_id: 107
+    name: looking-for-game
+    position: 5
+    parent_id: 100
+  - discord_id: 106
+    name: STAFF
+    category: true
+    position: 6
+    parent_id:
+  - discord_id: 105
+    name: mod-log
+    position: 7
+    parent_id: 106
+
+roles:
+  - discord_id: -1
+    name: "@everyone"
+    position: 0
+    color: 0
+  - discord_id: 208
+    name: Server Booster
+    position: 40
+    color: 15277667
+    managed: true
+  - discord_id: 201
+    name: Moderator
+    position: 30
+    color: 5793266
+  - discord_id: 206
+    name: Board Games
+    position: 20
+    color: 3066993
+  - discord_id: 207
+    name: Video Games
+    position: 19
+    color: 15844367
+  - discord_id: 202
+    name: Member
+    position: 10
+    color: 0
+  - discord_id: 203
+    name: she/her
+    position: 7
+    color: 0
+  - discord_id: 204
+    name: he/him
+    position: 6
+    color: 0
+  - discord_id: 205
+    name: they/them
+    position: 5
+    color: 0
+
+plugins:
+  - plugin: logging
+    settings_association: logging_setting
+    enabled: true
+    settings:
+      channel_id: 105
+      enabled_actions:
+        moderation.member_timed_out: true
+        moderation.member_kicked: true
+        moderation.member_banned: true
+        roles.role_gained: true
+        roles.role_lost: true
+        lfg.denied: false
+
+  - plugin: roles
+    settings_association: role_setting
+    enabled: true
+    settings:
+      channel_id: 104
+    records:
+      role_sets:
+        - name: Pronouns
+          selection_mode: multi
+          position: 0
+          assignable_roles:
+            - role_id: 203
+              position: 0
+            - role_id: 204
+              position: 1
+            - role_id: 205
+              position: 2
+        - name: Game Pings
+          selection_mode: multi
+          position: 1
+          assignable_roles:
+            - role_id: 206
+              position: 0
+            - role_id: 207
+              position: 1
+
+  - plugin: welcomes
+    settings_association: welcome_settings
+    enabled: true
+    settings:
+      channel_id: 103
+      ping_on_join: true
+      suppress_removal_messages: false
+      join_message: "Welcome to The Reef, {user} - grab your roles in #roles and introduce yourself whenever you like."
+      leave_message: "{user} left The Reef."
+
+  - plugin: moderation
+    settings_association: moderation_settings
+    enabled: true
+    settings:
+      staff_role_id: 201
+      ping_staff: true
+      new_account_age_days: 30
+
+  - plugin: spam_protection
+    settings_association: spam_protection_settings
+    enabled: true
+    settings:
+      action: purge
+      channel_threshold: 4
+      window_seconds: 15
+      similarity: 1.0
+      punishment: none
+      timeout_seconds: 3600
+      match_symbol_only_messages: false
+
+  - plugin: image_scanning
+    settings_association: image_scanning_settings
+    enabled: true
+    settings:
+      action: delete
+      sensitivity: standard
+      punishment: none
+      timeout_seconds: 3600
+      confirmed_punishment: timeout
+      confirmed_timeout_seconds: 3600
+      custom_keywords: ["free nitro", "steam gift"]
+      custom_keyword_min_hits: 2
+
+  - plugin: lfg
+    settings_association: lfg_settings
+    enabled: true
+    settings:
+      allowed_channel_ids: [107]
+      cooldown_seconds: 300
+      post_lifetime_minutes: 360
+      default_required_role_ids: []
+      default_excluded_role_ids: []
+    records:
+      pingable_roles:
+        - role_id: 206
+        - role_id: 207

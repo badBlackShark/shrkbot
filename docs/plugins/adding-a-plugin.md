@@ -131,6 +131,9 @@ Every non-trivial unit ships with a spec (RSpec + FactoryBot). Test our logic, n
 discordrb. Factories never set `id`. Run `bundle exec rspec`, `bundle exec standardrb`,
 and `bundle exec rake active_record_doctor` before pushing.
 
+Add an entry to `config/preview_data.yml` too, so the plugin has working demo data —
+see [Preview mode](../web/preview.md).
+
 ## 7. Privacy & data
 
 Any new stored data must be reflected **in the same chunk** in three places:

@@ -52,6 +52,20 @@ RSpec.describe Bot::ServerReconciliation do
     end
   end
 
+  context "when a preview config is absent from bot.servers" do
+    let!(:preview_config) { create(:server_configuration, :preview) }
+
+    it "does not check membership" do
+      expect(Bot::Discord::GuildMembership).not_to receive(:member?).with(preview_config.discord_id)
+      handle
+    end
+
+    it "does not destroy the config" do
+      expect(op).not_to receive(:call).with(server_configuration: preview_config)
+      handle
+    end
+  end
+
   context "when sharded" do
     let(:shard_0_id) { 2 << 22 }
     let(:shard_1_id) { 1 << 22 }

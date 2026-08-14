@@ -17,6 +17,20 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
     expect(result).to be_success
   end
 
+  context "when the server configuration is a preview" do
+    let!(:config) { create(:server_configuration, :preview) }
+
+    it "does not destroy the server configuration" do
+      result
+
+      expect(ServerConfiguration.find_by(id: config.id)).to be_present
+    end
+
+    it "returns failure" do
+      expect(result).to be_failure
+    end
+  end
+
   context "cascade to associated rows" do
     let!(:plugin) { create(:plugin, key: "test", name: "Test") }
     let!(:plugin_activation) { create(:plugin_activation, server_configuration: config, plugin:) }

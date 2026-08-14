@@ -8,7 +8,7 @@ class Admin::BespokePluginGrantsController < ApplicationController
       user: current_user,
       definitions: PluginCatalog.bespoke,
       grants: BespokePluginGrant.grouped_by_plugin_key,
-      servers: ServerConfiguration.order(:name)
+      servers: ServerConfiguration.real.order(:name)
     )
   end
 
