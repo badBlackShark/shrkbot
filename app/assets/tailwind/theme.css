@@ -45,6 +45,8 @@
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-danger-soft-bd: var(--danger-soft-bd);
+  --color-success-solid: var(--success-solid);
+  --color-danger-solid: var(--danger-solid);
 
   --color-surface-page: var(--surface-page);
   --color-surface-card: var(--surface-card);
