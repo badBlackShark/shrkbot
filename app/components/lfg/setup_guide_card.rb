@@ -27,12 +27,9 @@ class Components::Lfg::SetupGuideCard < Components::Base
   end
 
   def body
-    div(class: "border-t border-border-subtle p-5") do
-      p(class: "text-sm text-text-secondary") { t(".intro") }
-      div(class: "mt-4 flex flex-col gap-4") do
-        item("at", t(".non_mentionable.title"), t(".non_mentionable.body"))
-        item("sliders", t(".visibility.title"), t(".visibility.body"))
-      end
+    div(class: "flex flex-col gap-4 border-t border-border-subtle p-5") do
+      item("at", t(".non_mentionable.title"), t(".non_mentionable.body"))
+      item("sliders", t(".visibility.title"), t(".visibility.body"))
     end
   end
 

@@ -59,6 +59,7 @@ not documentation — nothing in it is maintained.
 
 ## Cross-cutting
 
+- [voice.md](voice.md) — how shrkbot's copy sounds: the three surfaces and their registers, the rules derived from the Discord strings, and the weak-to-better ledger every rewrite adds to.
 - [privacy.md](privacy.md) — what personal data is stored, the two erasure paths (`Ops::Users::Destroy` and `Ops::ServerConfiguration::Destroy`), and the same-chunk obligations for any change that stores new data.
 
 ## Public API docs

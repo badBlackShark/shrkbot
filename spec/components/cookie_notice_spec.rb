@@ -16,6 +16,6 @@ RSpec.describe Components::CookieNotice do
   end
 
   it "shows the no-tracking message and dismiss label" do
-    expect(html).to include("only set technical cookies").and include("Oh, nice!")
+    expect(html).to include("only sets technical cookies").and include("Oh, nice!")
   end
 end

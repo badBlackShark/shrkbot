@@ -4,7 +4,7 @@ module Bot
   module Commands
     class Info < BaseCommand
       command_name :info
-      description "Show information about shrkbot - its code, stack, and how to add it to your server."
+      description "Show shrkbot's tech stack, where its code lives, and how you can add it to your server."
       register_in :global
 
       MASCOT_PATH = Rails.root.join("app/assets/images/shrkbot-mascot.png")

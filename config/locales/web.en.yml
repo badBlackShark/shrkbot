@@ -57,9 +57,9 @@ en:
       servers: Servers
     cookie_notice:
       dismiss: Oh, nice!
-      message: We only set technical cookies to make the site work. No tracking, analytics,
-        or anything else from a third party. We will remember that you've seen this,
-        though - with a cookie, of course. :)
+      message: shrkbot only sets technical cookies to make the site work. No tracking,
+        analytics, or anything else from a third party. It will remember that you've
+        seen this, though - with a cookie, of course. :)
     copyable_tokens:
       copied: Copied!
       copy_failed: Copy failed
@@ -77,7 +77,7 @@ en:
         placeholder: Choose channels
       defaults_card:
         cooldown:
-          default: 300 seconds, which is 5 minutes
+          default: 300 seconds (5 minutes)
           help: How long a member must wait between posts. Set to 0 to disable the
             cooldown.
           label: Cooldown
@@ -90,10 +90,9 @@ en:
         help: Server-wide Looking for Game settings. The per-role cards below add
           extra gates on top of these.
         lifetime:
-          default: 360 minutes, which is 6 hours
-          help: The duration the "Looking for Game" post remains visible after it
-            starts. For scheduled posts, this time only starts with the actual session,
-            not during the "gathering interest" period.
+          default: 360 minutes (6 hours)
+          help: How long the "Looking for Game" post stays visible. For scheduled
+            posts, the clock starts with the session, not while it gathers interest.
           label: Post lifetime
           unit: minutes
         min_days:
@@ -145,17 +144,15 @@ en:
           Only configured roles appear in the command.
         label: Pingable roles
       setup_guide_card:
-        intro: 'Neither is required, but we recommend both for the smoothest Looking
-          for Game experience:'
         non_mentionable:
           body: In Server Settings, turn off "Allow anyone to @mention this role"
             for every role you list below. shrkbot pings them for members, so you
             can switch off general-purpose role pings entirely.
           title: Make your LFG roles non-mentionable
-        subtitle: Two optional Discord settings we recommend
+        subtitle: Two optional but recommended Discord settings
         title: Recommended setup
         visibility:
-          body: In Server Settings - Integrations - shrkbot, limit the /lfg command
+          body: In Server Settings -> Integrations -> shrkbot, limit the /lfg command
             to the channels and roles that should use it. That's your first line of
             control over who posts.
           title: Restrict who can run /lfg
@@ -256,7 +253,7 @@ en:
         row_keywords: Custom scam keywords keep digits, so entries like 50 giveaway
           match.
         row_lookalike: Stylized and lookalike characters are folded to their plain
-          form (ⓕⓡⓔⓔ, ｆｒｅｅ → free), so disguises don't help.
+          form (ⓕⓡⓔⓔ, ｆｒｅｅ -> free), so disguises don't help.
         row_normalize: 'Before comparing any text, shrkbot normalizes it: case, punctuation,
           extra spacing and invisible characters are ignored - FREE N-I-T-R-O!! and
           free nitro are the same text.'
@@ -292,9 +289,7 @@ en:
             label: Also match symbol-only messages
             recommended: 'Recommended default: Off'
           trigger_threshold:
-            channels_unit: channels
-            help: Triggers when the same message appears in 4 different channels within
-              15 seconds.
+            channels_unit: different channels
             label: Trigger threshold
             seconds_unit: seconds
             within: within
@@ -308,7 +303,7 @@ en:
             label: Also punish the sender
       staff_ping_card:
         help: Mention the staff role at the top of every moderation log entry. Turn
-          it off for a quieter log staff check on their own.
+          it off for a quieter log that staff can check on their own.
         label: Ping staff on alerts
       staff_role_card:
         help: Shared by every Moderation sub-plugin, and exempt from spam detection.
@@ -323,8 +318,8 @@ en:
         placeholder: Pick a role…
         staff_permission_warning_body: It doesn't have the Manage Messages permission,
           so its members won't see staff-only commands like Report as scam. Give the
-          role Manage Messages, or grant it access under Server Settings → Integrations
-          → shrkbot.
+          role Manage Messages, or grant it access under Server Settings -> Integrations
+          -> shrkbot.
         staff_permission_warning_bold: This role can't see staff commands.
       sub_plugin_directory:
         eyebrow: Sub-plugins
@@ -404,9 +399,9 @@ en:
           label: Force reminder delivery via DM
     roles:
       config_form:
-        bot_at_bottom: shrkbot can only assign roles below its own, and it looks like
-          its role is at the very bottom. Please move shrkbot's role up if you want
-          it to be able to assign roles.
+        bot_at_bottom: shrkbot can only assign roles below its own, and its role sits
+          at the very bottom. Move it up in Server Settings so shrkbot can assign
+          roles.
         channel:
           help: Each role set posts here unless it has its own channel override.
           label: Default channel for role menus
@@ -501,8 +496,8 @@ en:
           usa: USA
           ussr: USSR
           winner: Winner
-        help: Anything in braces is replaced when the message is built. A token we
-          do not know is left exactly as you typed it. Click a token to copy it.
+        help: Anything in braces is replaced when the message is built. A token shrkbot
+          doesn't know is left exactly as you typed it. Click a token to copy it.
         label: Tokens
         tokens:
           game_id: The game's code on twilight-struggle.com, such as G372.
@@ -630,7 +625,7 @@ en:
       saved: Welcomes settings saved.
   sessions:
     failed: Sign-in failed or was canceled.
-    reauth_failed: We couldn't refresh your Discord sign-in. Please sign in again.
+    reauth_failed: Your Discord sign-in couldn't be refreshed. Please sign in again.
     signed_in: Signed in as %{name}.
     signed_out: Signed out.
   views:
@@ -697,8 +692,8 @@ en:
     home:
       add_to_server: Sign in to add shrkbot to your servers
       lede: 'shrkbot provides tools where Discord doesn''t, and gets out of your way
-        otherwise. Your members'' privacy is a priority and a guarantee: moderation
-        happens in memory, your messages are never stored. Manage everything from
+        otherwise. Your members'' privacy is guaranteed, and it stays that way: moderation
+        happens in memory, and your messages are never stored. Manage everything from
         one dashboard, and let shrkbot handle the rest.'
       more_plugins: More plugins are on the way.
       plugins:
@@ -718,8 +713,7 @@ en:
       tagline_accent: With teeth when needed.
       view_source: View on GitHub
     reauth:
-      body: Your Discord sign-in expired. Please stand by - we're refreshing it for
-        you.
+      body: Your Discord sign-in expired. Please stand by - this only takes a moment.
       continue: Continue
       title: Signing you back in
     servers:
@@ -749,7 +743,8 @@ en:
         empty_body: You need Manage Server permissions and shrkbot must be present.
           Invite it to get started.
         empty_title: shrkbot isn't in any of your servers yet
-        error: We couldn't reach Discord to load your servers. Try again in a moment.
+        error: shrkbot couldn't reach Discord to load your servers. Try again in a
+          moment.
         invite: Invite shrkbot
         members:
           one: "%{formatted} member"
@@ -852,7 +847,7 @@ en:
           description: Tournaments pushed to shrkbot by twilight-struggle.com. Subscribe
             to the ones you want posted in this server.
           empty_archived: Nothing has been archived.
-          empty_body: twilight-struggle.com has not sent us any tournaments yet. They
+          empty_body: twilight-struggle.com has not sent any tournaments yet. They
             appear here as soon as it does.
           empty_title: No tournaments yet
           gate_message: Enable Twilight Struggle to subscribe this server to tournaments.

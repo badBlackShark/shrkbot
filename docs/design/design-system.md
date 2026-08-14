@@ -214,6 +214,16 @@ duplicated class strings:
 `Components::Icon` wraps Phosphor; names not in Phosphor (the `megaphone-slash`
 sub-plugin glyph) are served from its `CUSTOM_GLYPHS` map of inline SVGs.
 
+An icon has to encode something the text does not already carry: state
+(`caret-down` on a dropdown summary), identity (a plugin tile), or a symbol the
+copy names outright (`at` beside "Allow anyone to @mention this role"). An icon
+that pictures a noun the sentence already said is decoration, and a column of
+them down a list of one-line facts reads as a generated feature list. The
+explainer dropdowns on the Server Shield pages use real lists instead, and the
+list type carries the meaning: `ol` on the image-scanning explainer, whose rows
+are the pipeline in order, and dash-marked `ul` on the matching explainer, whose
+rows are parallel facts. Number a list only where the order is real.
+
 ## Where it lives
 
 - `app/assets/tailwind/` — the stylesheet, split into focused partials that

@@ -179,21 +179,20 @@ class Components::Moderation::ImageScanningForm < Components::Base
         span(class: "text-sm font-semibold flex-1") { t(".explainer.title") }
       end
       div(
-        class: "dropdown-menu grid gap-3 px-5 py-4",
+        class: "dropdown-menu px-5 py-4",
         data: {dropdown_target: "menu"}
       ) do
-        explainer_line("cpu", t(".explainer.line_memory"))
-        explainer_line("check-square", t(".explainer.line_staff"))
-        explainer_line("fingerprint", t(".explainer.line_fingerprint"))
+        ol(class: "list-decimal list-outside space-y-2.5 pl-5 marker:text-text-muted") do
+          explainer_line(t(".explainer.line_memory"))
+          explainer_line(t(".explainer.line_staff"))
+          explainer_line(t(".explainer.line_fingerprint"))
+        end
       end
     end
   end
 
-  def explainer_line(icon, text)
-    p(class: "flex items-start gap-2.5 text-sm text-text-secondary") do
-      render Components::Icon.new(icon, class: "size-4 mt-0.5 text-text-muted flex-none")
-      span { text }
-    end
+  def explainer_line(text)
+    li(class: "text-sm text-text-secondary") { text }
   end
 
   def keyword_options
