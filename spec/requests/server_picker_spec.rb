@@ -93,6 +93,11 @@ RSpec.describe "Server picker", type: :request do
         expect(response.body).to include("1 member")
       end
 
+      it "offers the preview once, below the list, rather than per server" do
+        get_servers
+        expect(response.body.scan(%(href="/preview")).size).to eq(1)
+      end
+
       it "hides servers the user cannot manage" do
         get_servers
         expect(response.body).not_to include("Lurker Lounge")
@@ -127,9 +132,9 @@ RSpec.describe "Server picker", type: :request do
           expect(response.body).to include("in any of your servers yet")
         end
 
-        it "offers a way to preview a server without the bot" do
+        it "offers a way to preview the features without the bot" do
           get_servers
-          expect(response.body).to include("Preview a server")
+          expect(response.body).to include("Preview features")
           expect(response.body).to include(%(href="/preview"))
         end
       end
