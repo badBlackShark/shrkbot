@@ -1,22 +1,15 @@
 # frozen_string_literal: true
+
 ActiveRecordDoctor.configure do
   global :ignore_tables, [
     "schema_migrations",
     "ar_internal_metadata",
     /^solid_queue_/,
-    /^solid_cache_/,
-    /^solid_cable_/,
-    /^active_storage_/,
-    /^action_text_/,
-    /^action_mailbox_/
+    /^solid_cache_/
   ]
   global :ignore_models, [
     /^SolidQueue::/,
-    /^SolidCache::/,
-    /^SolidCable::/,
-    /^ActiveStorage::/,
-    /^ActionText::/,
-    /^ActionMailbox::/
+    /^SolidCache::/
   ]
 
   # Discord snowflakes look like foreign keys but reference Discord, not our tables,
