@@ -7,7 +7,7 @@ class Components::ConfigSections < Components::Base
     @data = data
   end
 
-  def view_template(&block)
+  def view_template
     div(id: "#{@key}-config", class: "flex flex-col gap-5", data: @data) do
       enable_error_callout
       yield
