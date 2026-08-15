@@ -7,7 +7,7 @@ class Components::Roles::ConfigForm < Components::Base
   end
 
   def view_template
-    div(id: "roles-config", class: "flex flex-col gap-5", data: {controller: "role-sets"}) do
+    render Components::ConfigSections.new(key: "roles", data: {controller: "role-sets"}) do
       bot_at_bottom_callout
       default_channel_card
       role_sets_section

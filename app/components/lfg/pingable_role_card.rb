@@ -62,7 +62,7 @@ class Components::Lfg::PingableRoleCard < Components::Base
 
   def role_field
     div do
-      label(class: "mb-1.5 block text-sm font-semibold") { t(".role.label") }
+      render Components::FieldLabel.new { t(".role.label") }
       render Components::TomSelect.new(
         name: field(:role_id),
         options: @context.role_options,
@@ -98,7 +98,7 @@ class Components::Lfg::PingableRoleCard < Components::Base
 
   def channel_field
     div do
-      label(class: "mb-1.5 block text-sm font-semibold") { t(".channel.label") }
+      render Components::FieldLabel.new { t(".channel.label") }
       render Components::ChannelSelect.new(
         name: "#{field(:allowed_channel_ids)}[]",
         options: @context.channels,
@@ -106,7 +106,7 @@ class Components::Lfg::PingableRoleCard < Components::Base
         placeholder: t(".channel.placeholder"),
         multiple: true
       )
-      p(class: "mt-1.5 text-xs text-text-muted") { t(".channel.help") }
+      render Components::FieldHelp.new { t(".channel.help") }
     end
   end
 

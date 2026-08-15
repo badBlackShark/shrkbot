@@ -210,6 +210,12 @@ duplicated class strings:
 - **`Components::RadioCardGroup`** — stacked radio options as bordered cards with a
   title + one-line description; native radios, so selection is reactive with no JS.
 - **`Components::PrereqGate`** / **`Components::SidebarGroup`** — see *Plugin groups*.
+- **`Components::FieldLabel`** / **`Components::FieldHelp`** — the shared label
+  and help-text styling for a form field (`<label>` and `<p>` respectively); no
+  parameters, block content only.
+- **`Components::ConfigSections`** — the config-page section stack: renders the
+  `<key>-config` div Turbo targets, the vertical `gap-5` rhythm, and the
+  danger callout every plugin form was repeating (`enable_error:`).
 
 `Components::Icon` wraps Phosphor; names not in Phosphor (the `megaphone-slash`
 sub-plugin glyph) are served from its `CUSTOM_GLYPHS` map of inline SVGs.

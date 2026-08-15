@@ -8,8 +8,7 @@ class Components::Lfg::ConfigForm < Components::Base
   end
 
   def view_template
-    div(id: "lfg-config", class: "flex flex-col gap-5", data: {controller: "pingable-roles"}) do
-      enable_error_callout
+    render Components::ConfigSections.new(key: "lfg", enable_error: @enable_error, data: {controller: "pingable-roles"}) do
       render Components::Lfg::SetupGuideCard.new
       render Components::Lfg::DefaultsCard.new(settings: @settings, role_options:, channels:)
       render Components::Lfg::PingableRolesCard.new(settings: @settings, context: card_context)
@@ -17,12 +16,6 @@ class Components::Lfg::ConfigForm < Components::Base
   end
 
   private
-
-  def enable_error_callout
-    return unless @enable_error
-
-    render Components::Callout.new(variant: :danger) { @enable_error }
-  end
 
   def card_context
     @card_context ||= Components::Lfg::PingableRoleFormContext.new(role_options:, channels:)

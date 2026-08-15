@@ -13,7 +13,7 @@ class Components::Moderation::StaffRoleCard < Components::Base
 
   def view_template
     render Components::Card.new do
-      label(class: "block text-sm font-semibold mb-1.5") do
+      render Components::FieldLabel.new do
         plain t(".label")
         span(class: "ml-1 text-xs font-semibold text-danger") { "*" }
       end
@@ -29,7 +29,7 @@ class Components::Moderation::StaffRoleCard < Components::Base
         }
       )
       missing_warning if @missing
-      p(class: "mt-1.5 text-xs text-text-muted") { t(".help") } unless @missing
+      render Components::FieldHelp.new { t(".help") } unless @missing
       warning_callout(t(".permission_warning_bold"), t(".permission_warning_body")) if @permission_warning
       warning_callout(t(".staff_permission_warning_bold"), t(".staff_permission_warning_body")) if @staff_permission_warning
     end

@@ -6,7 +6,7 @@ class Components::Reminders::ConfigForm < Components::Base
   end
 
   def view_template
-    div(id: "reminders-config", class: "flex flex-col gap-5") do
+    render Components::ConfigSections.new(key: "reminders") do
       force_dm_card
       command_callout
     end

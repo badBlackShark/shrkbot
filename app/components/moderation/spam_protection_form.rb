@@ -7,20 +7,13 @@ class Components::Moderation::SpamProtectionForm < Components::Base
   end
 
   def view_template
-    div(id: "spam_protection-config", class: "flex flex-col gap-5") do
-      enable_error_callout
+    render Components::ConfigSections.new(key: "spam_protection", enable_error: @enable_error) do
       detection_card
       response_card
     end
   end
 
   private
-
-  def enable_error_callout
-    return unless @enable_error
-
-    render Components::Callout.new(variant: :danger) { @enable_error }
-  end
 
   def detection_card
     render Components::Card.new do
@@ -34,7 +27,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
 
   def trigger_threshold_field
     div do
-      label(class: "block text-sm font-semibold mb-1.5") do
+      render Components::FieldLabel.new do
         t(".detection.trigger_threshold.label")
       end
       div(class: "flex items-start gap-2.5 flex-wrap") do
@@ -63,7 +56,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
 
   def match_strictness_field
     div do
-      label(class: "block text-sm font-semibold mb-1.5") { t(".detection.match_strictness.label") }
+      render Components::FieldLabel.new { t(".detection.match_strictness.label") }
       render Components::RangeSlider.new(
         name: "spam_protection[similarity]",
         value: @settings.similarity,
@@ -73,7 +66,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
         min: 75,
         max: 100
       )
-      p(class: "text-xs text-text-muted mt-1.5") { t(".detection.match_strictness.help") }
+      render Components::FieldHelp.new { t(".detection.match_strictness.help") }
       p(class: "text-xs text-text-muted mt-1") { t(".detection.match_strictness.recommended") }
     end
   end
@@ -105,7 +98,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
 
   def action_field
     div do
-      label(class: "block text-sm font-semibold mb-1.5") { t(".response.action.label") }
+      render Components::FieldLabel.new { t(".response.action.label") }
       render Components::SegmentedControl.new(
         name: "spam_protection[action]",
         value: @settings.action,
@@ -114,13 +107,13 @@ class Components::Moderation::SpamProtectionForm < Components::Base
           {value: "notify_only", label: t(".response.action.notify_only")}
         ]
       )
-      p(class: "text-xs text-text-muted mt-1.5") { t(".response.action.help") }
+      render Components::FieldHelp.new { t(".response.action.help") }
     end
   end
 
   def punishment_field
     div do
-      label(class: "block text-sm font-semibold mb-1.5") { t(".response.punishment.label") }
+      render Components::FieldLabel.new { t(".response.punishment.label") }
       render Components::Moderation::PunishmentControl.new(
         name: "spam_protection[punishment]",
         value: @settings.punishment,

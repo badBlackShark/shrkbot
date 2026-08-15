@@ -8,20 +8,13 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def view_template
-    div(id: "logging-config", class: "flex flex-col gap-5") do
-      enable_error_callout
+    render Components::ConfigSections.new(key: "logging", enable_error: @enable_error) do
       channel_card
       events_card
     end
   end
 
   private
-
-  def enable_error_callout
-    return unless @enable_error
-
-    render Components::Callout.new(variant: :danger) { @enable_error }
-  end
 
   def channel_card
     render Components::ChannelCard.new(

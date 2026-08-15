@@ -13,8 +13,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def view_template
-    div(id: "welcomes-config", class: "flex flex-col gap-5", data: {controller: "welcome-preview"}) do
-      enable_error_callout
+    render Components::ConfigSections.new(key: "welcomes", enable_error: @enable_error, data: {controller: "welcome-preview"}) do
       channel_card
       message_cards
       placeholder_help
@@ -23,12 +22,6 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   private
-
-  def enable_error_callout
-    return unless @enable_error
-
-    render Components::Callout.new(variant: :danger) { @enable_error }
-  end
 
   def channel_card
     render Components::ChannelCard.new(

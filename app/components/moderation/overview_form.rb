@@ -8,8 +8,7 @@ class Components::Moderation::OverviewForm < Components::Base
   end
 
   def view_template
-    div(id: "moderation-config", class: "flex flex-col gap-5") do
-      enable_error_callout
+    render Components::ConfigSections.new(key: "moderation", enable_error: @enable_error) do
       render Components::Moderation::StaffRoleCard.new(
         server_configuration: @config,
         staff_role_id: @context.staff_role_id,
@@ -27,13 +26,5 @@ class Components::Moderation::OverviewForm < Components::Base
       )
       render Components::Moderation::MatchingExplainer.new
     end
-  end
-
-  private
-
-  def enable_error_callout
-    return unless @enable_error
-
-    render Components::Callout.new(variant: :danger) { @enable_error }
   end
 end
