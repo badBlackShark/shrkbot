@@ -49,10 +49,6 @@ work actually touches.
 - [design/design-system.md](design/design-system.md) — how the design system is wired into the web UI: tokens and the Tailwind theme bridge, dark mode, the config-page/save-bar/sidebar layout, core components, fonts, motion, icons.
 - [design/design-brief.md](design/design-brief.md) — who the web UI is for and what they come to do: users, information architecture, and the patterns that follow. The reasoning a new screen is judged against; not a description of current state.
 
-`docs/design-kit/` is the vendored design-system export (tokens, fonts, and
-throwaway HTML mockups) that the system above was built from. Reference snapshot,
-not documentation — nothing in it is maintained.
-
 ## Running it
 
 - [running/deployment.md](running/deployment.md) — deploying to a single box with Kamal 2: prerequisites, secrets and env vars, the OCR sidecar image, first deploy, redeploys, and an ops cheatsheet.
