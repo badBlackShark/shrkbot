@@ -31,14 +31,6 @@ pytest ocr/tests
 
 No paddleocr needed for the test suite — `service.py` is never imported by tests.
 
-## Benchmarking
-
-```sh
-python paddle_bakeoff.py --images ./images --truth ground_truth.json
-```
-
-`make_variants.py` regenerates degraded image variants used for bakeoff scoring.
-
 ## Privacy
 
 Images are processed in memory only. They are never written to disk. This is a binding constraint: do not add file-path handling to `service.py`.
