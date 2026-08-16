@@ -12,7 +12,7 @@ class Components::Lfg::MinDaysField < Components::Base
 
   def view_template
     div do
-      label(class: "mb-1.5 block text-sm font-semibold") { @label }
+      render Components::FieldLabel.new { @label }
       render Components::NumberStepper.new(
         name: @name,
         value: @value,
@@ -22,7 +22,7 @@ class Components::Lfg::MinDaysField < Components::Base
         placeholder: @placeholder,
         input_class: "w-28"
       )
-      p(class: "mt-1.5 text-xs text-text-muted") { @help }
+      render Components::FieldHelp.new { @help }
     end
   end
 end

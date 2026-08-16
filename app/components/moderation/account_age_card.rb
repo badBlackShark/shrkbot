@@ -10,7 +10,7 @@ class Components::Moderation::AccountAgeCard < Components::Base
       div(class: "flex items-center justify-between gap-4") do
         div(class: "max-w-md") do
           label(class: "text-sm font-semibold") { t(".label") }
-          p(class: "mt-1.5 text-xs text-text-muted") { t(".help") }
+          render Components::FieldHelp.new { t(".help") }
         end
         render Components::NumberStepper.new(
           name: "moderation[new_account_age_days]",

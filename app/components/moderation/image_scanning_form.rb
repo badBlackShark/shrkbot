@@ -7,8 +7,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
   end
 
   def view_template
-    div(id: "image_scanning-config", class: "flex flex-col gap-5") do
-      enable_error_callout
+    render Components::ConfigSections.new(key: "image_scanning", enable_error: @enable_error) do
       consent_callout
       report_scam_callout
       sensitivity_card
@@ -19,12 +18,6 @@ class Components::Moderation::ImageScanningForm < Components::Base
   end
 
   private
-
-  def enable_error_callout
-    return unless @enable_error
-
-    render Components::Callout.new(variant: :danger) { @enable_error }
-  end
 
   def consent_callout
     render Components::Callout.new(variant: :warning) do
@@ -46,7 +39,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
 
   def sensitivity_card
     render Components::Card.new do
-      label(class: "block text-sm font-semibold mb-1.5") { t(".detection.sensitivity.label") }
+      render Components::FieldLabel.new { t(".detection.sensitivity.label") }
       render Components::RadioCardGroup.new(
         name: "image_scanning[sensitivity]",
         value: @settings.sensitivity,
@@ -83,7 +76,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
 
   def keywords_field
     div do
-      label(class: "block text-sm font-semibold mb-1.5") { t(".custom_keywords.keywords_label") }
+      render Components::FieldLabel.new { t(".custom_keywords.keywords_label") }
       render Components::TomSelect.new(
         name: "image_scanning[custom_keywords][]",
         options: keyword_options,
@@ -91,7 +84,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
         multiple: true,
         controller_data: {tom_select_create_value: true}
       )
-      p(class: "text-xs text-text-muted mt-1.5") { t(".custom_keywords.keywords_help") }
+      render Components::FieldHelp.new { t(".custom_keywords.keywords_help") }
     end
   end
 
@@ -100,7 +93,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
     max = keyword_count.positive? ? keyword_count : nil
 
     div do
-      label(class: "block text-sm font-semibold mb-1.5") { t(".custom_keywords.min_hits_label") }
+      render Components::FieldLabel.new { t(".custom_keywords.min_hits_label") }
       div(class: "flex items-start gap-2.5") do
         render Components::NumberStepper.new(
           name: "image_scanning[custom_keyword_min_hits]",
@@ -113,7 +106,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
           t(".custom_keywords.min_hits_suffix")
         end
       end
-      p(class: "text-xs text-text-muted mt-1.5") { t(".custom_keywords.min_hits_help") }
+      render Components::FieldHelp.new { t(".custom_keywords.min_hits_help") }
     end
   end
 
@@ -129,7 +122,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
 
   def action_field
     div do
-      label(class: "block text-sm font-semibold mb-1.5") { t(".response.action.label") }
+      render Components::FieldLabel.new { t(".response.action.label") }
       render Components::SegmentedControl.new(
         name: "image_scanning[action]",
         value: @settings.action,
@@ -138,13 +131,13 @@ class Components::Moderation::ImageScanningForm < Components::Base
           {value: "none", label: t(".response.action.flag_only")}
         ]
       )
-      p(class: "text-xs text-text-muted mt-1.5") { t(".response.action.help") }
+      render Components::FieldHelp.new { t(".response.action.help") }
     end
   end
 
   def punishment_field
     div do
-      label(class: "block text-sm font-semibold mb-1.5") { t(".response.punishment.label") }
+      render Components::FieldLabel.new { t(".response.punishment.label") }
       render Components::Moderation::PunishmentControl.new(
         name: "image_scanning[punishment]",
         value: @settings.punishment,
@@ -155,14 +148,14 @@ class Components::Moderation::ImageScanningForm < Components::Base
 
   def confirmed_punishment_field
     div do
-      label(class: "block text-sm font-semibold mb-1.5") { t(".response.confirmed_punishment.label") }
+      render Components::FieldLabel.new { t(".response.confirmed_punishment.label") }
       render Components::Moderation::PunishmentControl.new(
         name: "image_scanning[confirmed_punishment]",
         value: @settings.confirmed_punishment,
         timeout_seconds: @settings.confirmed_timeout_seconds,
         none_label: t(".response.confirmed_punishment.inherit")
       )
-      p(class: "text-xs text-text-muted mt-1.5") { t(".response.confirmed_punishment.help") }
+      render Components::FieldHelp.new { t(".response.confirmed_punishment.help") }
     end
   end
 

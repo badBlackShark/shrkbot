@@ -87,7 +87,7 @@ class Components::Roles::RoleSetCard < Components::Base
   def top_fields
     div(class: "grid gap-5 sm:grid-cols-2") do
       div do
-        label(class: "mb-1.5 block text-sm font-semibold") { t(".name.label") }
+        render Components::FieldLabel.new { t(".name.label") }
         input(
           type: "text",
           name: field(:name),
@@ -99,7 +99,7 @@ class Components::Roles::RoleSetCard < Components::Base
         )
       end
       div do
-        label(class: "mb-1.5 block text-sm font-semibold") { t(".selection.label") }
+        render Components::FieldLabel.new { t(".selection.label") }
         render Components::SegmentedControl.new(
           name: field(:selection_mode),
           value: @data.selection_mode,
@@ -114,7 +114,7 @@ class Components::Roles::RoleSetCard < Components::Base
 
   def channel_override_field
     div do
-      label(class: "mb-1.5 block text-sm font-semibold") do
+      render Components::FieldLabel.new do
         plain t(".channel.label")
         span(class: "font-normal text-text-muted") { " #{t(".channel.optional")}" }
       end
@@ -130,7 +130,7 @@ class Components::Roles::RoleSetCard < Components::Base
 
   def roles_field
     div do
-      label(class: "mb-1.5 block text-sm font-semibold") { t(".roles.label") }
+      render Components::FieldLabel.new { t(".roles.label") }
       render Components::RoleSelect.new(
         name: "#{field(:role_ids)}[]",
         options: @context.role_options,

@@ -54,7 +54,7 @@ class Components::Moderation::PunishmentControl < Components::Base
         options: duration_options,
         selected: @timeout_seconds
       )
-      p(class: "text-xs text-text-muted mt-1.5") do
+      render Components::FieldHelp.new do
         t("components.moderation.punishment_control.duration_help")
       end
     end

@@ -8,7 +8,7 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
   end
 
   def view_template
-    div(id: "twilight_struggle-config", class: "flex flex-col gap-5", data: {controller: "twilight-struggle-preview", action: "input->twilight-struggle-preview#render"}) do
+    render Components::ConfigSections.new(key: "twilight_struggle", data: {controller: "twilight-struggle-preview", action: "input->twilight-struggle-preview#render"}) do
       channel_card
       render Components::TwilightStruggle::PingCard.new(destination: @destination, inherited:)
       render Components::TwilightStruggle::TokenHelpCard.new
