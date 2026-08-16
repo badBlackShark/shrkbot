@@ -3,18 +3,11 @@
 require "rails_helper"
 
 RSpec.describe "Welcomes config", type: :request do
-  include_context "discord auth"
+  include_context "plugin config request"
 
-  let(:guild) { Bot::Discord::Guild.new(id: 900_000_001, name: "Dev Refuge", owner: true, permissions: 0, icon: nil, member_count: 5) }
-  let(:config) { ServerConfiguration.find_by(discord_id: guild.id) }
-  let(:turbo) { {headers: {"Accept" => "text/vnd.turbo-stream.html"}} }
+  let(:plugin_path) { server_welcomes_path(guild.id) }
 
-  context "when signed out" do
-    it "redirects to the sign-in page" do
-      get server_welcomes_path(900_000_001)
-      expect(response).to redirect_to(root_path)
-    end
-  end
+  it_behaves_like "a config page that requires sign-in"
 
   context "when signed in" do
     let!(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
@@ -26,13 +19,7 @@ RSpec.describe "Welcomes config", type: :request do
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     end
 
-    context "when the user no longer manages the server" do
-      it "redirects to the picker" do
-        allow(Bot::Discord::UserGuilds).to receive(:call).and_return([])
-        get server_welcomes_path(guild.id)
-        expect(response).to redirect_to(servers_path)
-      end
-    end
+    it_behaves_like "a config page that requires a manageable server"
 
     context "after loading the dashboard authorizes the server" do
       before do
