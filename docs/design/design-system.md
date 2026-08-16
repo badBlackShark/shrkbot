@@ -1,10 +1,9 @@
 # Design system
 
-The web UI is built from the design system delivered in `docs/design-kit/` (the
-`tokens/*.css` + `tailwind/theme.css` are the production spec; the HTML mockups
-under `ui_kits/` are throwaway CDN-wired prototypes). This doc records how that
-system is wired into the app. Views are Phlex; styling is Tailwind v4; behaviour
-is Stimulus.
+This doc records how shrkbot's design system is wired into the app. The
+production spec is `app/assets/tailwind/` — `tokens.css` holds the tokens and
+`theme.css` bridges them onto Tailwind. Views are Phlex; styling is Tailwind v4;
+behaviour is Stimulus.
 
 ## Accessibility (standing rule)
 

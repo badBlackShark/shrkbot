@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe "docs/README.md" do
   let(:docs_root) { Rails.root.join("docs") }
   let(:toc) { docs_root.join("README.md") }
-  let(:excluded) { %r{\Adocs/(design-kit|site)/} }
+  let(:excluded) { %r{\Adocs/site/} }
   let(:pages) do
     Pathname.glob(docs_root.join("**/*.md"))
       .reject { |path| path == toc || path.relative_path_from(Rails.root).to_s.match?(excluded) }
