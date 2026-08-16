@@ -18,8 +18,6 @@ gem "stimulus-rails"
 gem "tailwindcss-rails"
 # Render views as Ruby objects [https://www.phlex.fun]
 gem "phlex-rails"
-# Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem "jbuilder"
 
 # --- shrkbot ---
 # Discord bot library (the gateway bot lives in app/bot, run via bin/bot).
@@ -48,10 +46,9 @@ gem "committee"
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[windows jruby]
 
-# Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
+# Use the database-backed adapters for Rails.cache and Active Job
 gem "solid_cache"
 gem "solid_queue"
-gem "solid_cable"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
