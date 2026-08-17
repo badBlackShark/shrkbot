@@ -11,7 +11,7 @@ class Views::Servers::Logging::Show < Views::Servers::PluginConfigShow
     "scroll"
   end
 
-  def form
+  def body
     render Components::Logging::ConfigForm.new(server_configuration: @config)
   end
 end

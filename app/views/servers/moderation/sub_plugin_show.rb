@@ -1,48 +1,26 @@
 # frozen_string_literal: true
 
-class Views::Servers::Moderation::SubPluginShow < Views::Base
+class Views::Servers::Moderation::SubPluginShow < Views::Servers::PluginConfigShow
   def initialize(server_configuration:, user:, context:)
-    @config = server_configuration
-    @user = user
+    super(server_configuration:, user:)
     @context = context
-  end
-
-  def view_template
-    render Components::PluginShell.new(
-      user: @user,
-      server_configuration: @config,
-      active_key:
-    ) do
-      render Components::ConfigPage.new(
-        header: Components::ConfigPageHeader.new(
-          icon:,
-          title: t(".title"),
-          description: t(".description")
-        ),
-        server_configuration: @config,
-        url:,
-        gate: shell_gate,
-        toggle: shell_toggle,
-        parent_crumb: {label: PluginCatalog.find(:moderation).name, href: moderation_path}
-      ) do
-        group_subline
-        no_role_callout
-        render form
-      end
-    end
   end
 
   private
 
-  def url
-    PluginPaths.for(@config, active_key)
+  def enabled?
+    @context.plugin_enabled?
+  end
+
+  def parent_crumb
+    {label: PluginCatalog.find(:moderation).name, href: moderation_path}
   end
 
   def moderation_path
     PluginPaths.for(@config, :moderation)
   end
 
-  def shell_gate
+  def gate
     return if @context.group_enabled?
 
     {
@@ -55,13 +33,8 @@ class Views::Servers::Moderation::SubPluginShow < Views::Base
     }
   end
 
-  def shell_toggle
-    {
-      field: enable_field,
-      enabled: @context.plugin_enabled?,
-      locked: toggle_locked?,
-      reason: toggle_reason
-    }
+  def toggle
+    super.merge(locked: toggle_locked?, reason: toggle_reason)
   end
 
   def toggle_locked?
@@ -72,6 +45,12 @@ class Views::Servers::Moderation::SubPluginShow < Views::Base
     return t(".group_locked_reason") unless @context.group_enabled?
 
     t(".role_locked_reason") unless @context.staff_role_present?
+  end
+
+  def body
+    group_subline
+    no_role_callout
+    render form
   end
 
   def group_subline

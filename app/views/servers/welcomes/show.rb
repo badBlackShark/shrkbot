@@ -11,7 +11,7 @@ class Views::Servers::Welcomes::Show < Views::Servers::PluginConfigShow
     "hand-waving"
   end
 
-  def form
+  def body
     render Components::Welcomes::ConfigForm.new(server_configuration: @config)
   end
 end

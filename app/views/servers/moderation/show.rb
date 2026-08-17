@@ -1,42 +1,38 @@
 # frozen_string_literal: true
 
-class Views::Servers::Moderation::Show < Views::Base
+class Views::Servers::Moderation::Show < Views::Servers::PluginConfigShow
   include Phlex::Rails::Helpers::FormWith
 
   def initialize(server_configuration:, user:, context:)
-    @config = server_configuration
-    @user = user
+    super(server_configuration:, user:)
     @context = context
   end
 
-  def view_template
-    render Components::PluginShell.new(
-      user: @user,
-      server_configuration: @config,
-      active_key: :moderation
-    ) do
-      render Components::ConfigPage.new(
-        header: Components::ConfigPageHeader.new(
-          icon: "shield",
-          title: t(".title"),
-          description: t(".description")
-        ),
-        server_configuration: @config,
-        url: PluginPaths.for(@config, :moderation),
-        gate: shell_gate,
-        toggle: shell_toggle
-      ) do
-        logging_subline
-        render Components::Moderation::OverviewForm.new(
-          server_configuration: @config,
-          context: @context
-        )
-      end
-      sub_plugin_toggle_forms
-    end
+  private
+
+  def plugin_key
+    :moderation
   end
 
-  private
+  def icon
+    "shield"
+  end
+
+  def enabled?
+    @context.group_enabled?
+  end
+
+  def body
+    logging_subline
+    render Components::Moderation::OverviewForm.new(
+      server_configuration: @config,
+      context: @context
+    )
+  end
+
+  def after_config_page
+    sub_plugin_toggle_forms
+  end
 
   def sub_plugin_toggle_forms
     PluginCatalog.sub_plugin_keys(:moderation).each do |key|
@@ -50,7 +46,7 @@ class Views::Servers::Moderation::Show < Views::Base
     end
   end
 
-  def shell_gate
+  def gate
     if !@context.logging_ready?
       {
         type: :prereq,
@@ -68,21 +64,10 @@ class Views::Servers::Moderation::Show < Views::Base
     end
   end
 
-  def shell_toggle
-    if !@context.logging_ready?
-      {
-        field: "moderation[enabled]",
-        enabled: @context.group_enabled?,
-        locked: true,
-        reason: t(".toggle_locked_reason")
-      }
-    else
-      {
-        field: "moderation[enabled]",
-        enabled: @context.group_enabled?,
-        locked: false
-      }
-    end
+  def toggle
+    return super if @context.logging_ready?
+
+    super.merge(locked: true, reason: t(".toggle_locked_reason"))
   end
 
   def logging_subline

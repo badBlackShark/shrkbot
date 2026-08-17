@@ -37,6 +37,18 @@ ignore_unused:
   - views.servers.logging.show.*
   - views.servers.roles.show.*
   - views.servers.welcomes.show.*
+  - views.servers.lfg.show.title
+  - views.servers.lfg.show.description
+  - views.servers.lfg.show.gate_message
+  - views.servers.reminders.show.title
+  - views.servers.reminders.show.description
+  - views.servers.reminders.show.badge
+  - views.servers.moderation.show.title
+  - views.servers.moderation.show.description
+  - views.servers.moderation.show.gate_message
+  - views.servers.twilight_struggle.show.title
+  - views.servers.twilight_struggle.show.description
+  - views.servers.twilight_struggle.show.gate_message
   # 2. Admin::SettingsController#update
   - admin.settings.dms_enabled
   - admin.settings.dms_disabled
