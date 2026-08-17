@@ -31,21 +31,28 @@ channel-level overwrite only and ignores category inheritance, so it's advisory.
 
 ## Channel-delete handling
 
-Two paths, kept as separate handlers:
+Two paths reach the same operation:
 
-- Live: `Bot::ChannelCleanup` (on `:channel_delete`) handles channel-backed plugins whose
-  channel was deleted.
-- Startup: `Ops::ServerConfiguration::Channels::Reconcile` catches channels deleted
+- Live: `Bot::ChannelDeletion` (on `:channel_delete`).
+- Startup: `Ops::ServerConfiguration::ServerChannel::Reconcile` catches channels deleted
   while the bot was offline (no live event fired). It runs after a metadata sync, so
   `server_channels` reflects what still exists, and delegates each stale channel to
-  the same handler.
+  the same operation.
 
-Both paths call `Ops::ServerConfiguration::Channels::HandleDeletion`, which: clears
+Both call `Ops::ServerConfiguration::ServerChannel::ReleaseFromPlugins`, which: clears
 the setting's `channel_id` (nulls it), keeps the plugin **enabled**, creates a
 `channel_deleted` notification, and DMs the guild owner. The plugin stays enabled so
 the config page stays accessible; `enabled && channel_id.nil?` is the "channel lost"
 signal. The config page shows an inline warning banner until the owner picks a new
 channel.
+
+`ReleaseFromPlugins` never deletes the `server_channels` row — that is
+`ServerChannel::Destroy`'s job, and only the live path needs it. **The order is
+load-bearing:** `ReleaseFromPlugins` reads the deleted channel's name off the local row
+to put in its notification, so it has to run before `Destroy` removes that row.
+`Bot::ChannelDeletion` sequences the two explicitly. It used to be two separate
+handlers on the same event, where the order held only because Zeitwerk loaded them
+alphabetically.
 
 ## Server onboarding
 

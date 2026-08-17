@@ -12,7 +12,7 @@ module Ops
           existing = server_configuration.server_channels.pluck(:discord_id)
           stale = stale_channel_ids(existing)
           stale.each do |channel_id|
-            HandleDeletion.call(server_configuration:, channel_id:, bot:)
+            ReleaseFromPlugins.call(server_configuration:, channel_id:, bot:)
           end
           ok(stale)
         end
