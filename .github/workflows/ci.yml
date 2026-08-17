@@ -121,9 +121,14 @@ jobs:
         with:
           bundler-cache: true
 
-      # `unused` is intentionally omitted: it can't see dynamic `t("#{...}")` calls.
       - name: Check for missing locale keys
         run: bundle exec i18n-tasks missing
+
+      # Every key the scanner can't trace is listed in i18n-tasks.yml's
+      # ignore_unused with the indirection that hides it. A new failure here is
+      # either a genuinely dead key or a new indirection to add to that list.
+      - name: Check for unused locale keys
+        run: bundle exec i18n-tasks unused
 
       - name: Check locale files are normalized
         run: bundle exec i18n-tasks check-normalized
