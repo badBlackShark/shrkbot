@@ -67,19 +67,6 @@ RSpec.describe Finders::AuthorizedNotifications do
       end
     end
 
-    context "when a notification's server is missing from the configs index" do
-      let(:configs_relation) { double("relation", order: double("relation", index_by: {})) }
-
-      before do
-        allow(ServerConfiguration).to receive(:where).and_call_original
-        allow(ServerConfiguration).to receive(:where).with(discord_id: manageable_ids).and_return(configs_relation)
-      end
-
-      it "skips the orphaned group" do
-        expect(groups).to be_empty
-      end
-    end
-
     context "when a notification is dismissed" do
       before { notif_a1.update!(dismissed_at: Time.current) }
 

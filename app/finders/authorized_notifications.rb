@@ -8,30 +8,9 @@ module Finders
     end
 
     def groups
-      if @server_id
-        return [] unless @manageable_ids.include?(@server_id.to_i)
+      return single_server_group if @server_id
 
-        config = ServerConfiguration.find_by(discord_id: @server_id)
-        return [] unless config
-
-        [[config, scoped.where(server_configuration: config).includes(:server_configuration).to_a]]
-      else
-        configs = ServerConfiguration
-          .where(discord_id: @manageable_ids)
-          .order(:name)
-          .index_by(&:id)
-
-        scoped
-          .includes(:server_configuration)
-          .group_by(&:server_configuration_id)
-          .filter_map do |config_id, notifications|
-            config = configs[config_id]
-            next unless config
-
-            [config, notifications]
-          end
-          .sort_by { |config, _| config.name.to_s }
-      end
+      grouped_by_server
     end
 
     def unread_count
@@ -43,6 +22,22 @@ module Finders
     end
 
     private
+
+    def single_server_group
+      return [] unless @manageable_ids.include?(@server_id.to_i)
+
+      config = ServerConfiguration.find_by(discord_id: @server_id)
+      return [] unless config
+
+      [[config, scoped.where(server_configuration: config).includes(:server_configuration).to_a]]
+    end
+
+    def grouped_by_server
+      scoped
+        .includes(:server_configuration)
+        .group_by(&:server_configuration)
+        .sort_by { |config, _| config.name.to_s }
+    end
 
     def base_relation
       Notification
