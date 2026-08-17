@@ -18,10 +18,6 @@ class Views::Servers::TwilightStruggle::Show < Views::Servers::PluginConfigShow
     "trophy"
   end
 
-  def url
-    server_twilight_struggle_path(@config.discord_id)
-  end
-
   def toggle
     {field: "twilight_struggle[enabled]", enabled: @enabled, locked: !@toggleable, reason: t(".toggle_admin_only")}
   end
