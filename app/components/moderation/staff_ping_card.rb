@@ -7,11 +7,7 @@ class Components::Moderation::StaffPingCard < Components::Base
 
   def view_template
     render Components::Card.new do
-      div(class: "flex items-center justify-between gap-4") do
-        div(class: "max-w-md") do
-          label(class: "text-sm font-semibold") { t(".label") }
-          render Components::FieldHelp.new { t(".help") }
-        end
+      render Components::SettingRow.new(label: t(".label"), help: t(".help")) do
         render Components::Toggle.new(
           name: "moderation[ping_staff]",
           checked: @ping_staff,
