@@ -2,7 +2,7 @@
 
 module Ops
   module ServerConfiguration
-    module Channels
+    module ServerChannels
       class Reconcile < ApplicationOperation
         self.transactional = false
 
