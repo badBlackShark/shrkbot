@@ -16,7 +16,7 @@ class Servers::WelcomesController < ApplicationController
   def update
     return head :not_found unless guild_channels?(welcomes_params[:channel_id])
 
-    result = Ops::Welcomes::Configure.call(
+    result = Ops::Welcomes::Settings::Update.call(
       server_configuration: @server_configuration,
       channel_id: welcomes_params[:channel_id],
       join_message: welcomes_params[:join_message],

@@ -3,61 +3,85 @@
 require "rails_helper"
 
 RSpec.describe Ops::Logging::Settings::Update do
-  subject(:result) { described_class.call(server_configuration: server, channel_id:) }
+  subject(:result) do
+    described_class.call(
+      server_configuration: config,
+      channel_id:,
+      enabled_actions:,
+      enabled:
+    )
+  end
 
-  let(:server) { create(:server_configuration, discord_id: 1) }
-  let!(:setting) { server.create_logging_settings! }
-  let(:channel_id) { 555 }
+  let(:config) { create(:server_configuration) }
+  let!(:plugin) { create(:plugin, key: "logging", name: "Logging") }
+  let!(:settings) { config.create_logging_settings! }
+  let(:channel_id) { 200 }
+  let(:enabled_actions) { {"roles.role_gained" => true, "roles.role_lost" => false} }
+  let(:enabled) { "1" }
 
-  context "with a channel" do
-    it "sets the channel" do
-      expect(result.success?).to be(true)
-      expect(setting.reload.channel_id).to eq(555)
+  context "with a channel, enabling the plugin" do
+    it "saves the channel, event toggles, and enables the plugin" do
+      expect(result).to be_success
+      expect(config.logging_settings.reload.channel_id).to eq(200)
+      expect(config.logging_settings.action_enabled?("roles.role_gained")).to be(true)
+      expect(config.logging_settings.action_enabled?("roles.role_lost")).to be(false)
+      expect(config.plugin_activations.find_by(plugin:).enabled).to be(true)
     end
   end
 
-  context "without a channel" do
-    let(:channel_id) { nil }
+  context "when enabling without a channel" do
+    let(:channel_id) { "" }
 
-    it "fails and leaves the channel unset" do
-      expect(result.failure?).to be(true)
-      expect(setting.reload.channel_id).to be_nil
+    it "fails with an error on the enabled field and persists nothing" do
+      expect(result).to be_failure
+      expect(result.value.errors[:enabled]).to be_present
+      expect(config.plugin_activations.reload).to be_empty
     end
   end
 
-  context "updating an already-set channel" do
+  context "when saving event toggles without enabling" do
+    let(:enabled) { "0" }
+    let(:channel_id) { "" }
+
+    it "stores the toggles and leaves the plugin disabled" do
+      expect(result).to be_success
+      expect(config.logging_settings.reload.action_enabled?("roles.role_gained")).to be(true)
+      expect(config.plugin_activations.find_by(plugin:)&.enabled).to be_falsey
+    end
+  end
+
+  context "when moderation is enabled and logging would become unavailable" do
+    let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
+
     before do
-      setting.update!(channel_id: 111)
+      config.logging_settings.update!(channel_id: 200)
+      create(:plugin_activation, server_configuration: config, plugin:, enabled: true)
+      create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: true)
     end
 
-    let(:channel_id) { 222 }
+    context "when disabling logging" do
+      let(:enabled) { "0" }
+      let(:channel_id) { 200 }
 
-    it "updates it" do
-      result
-      expect(setting.reload.channel_id).to eq(222)
-    end
-  end
+      it "fails with an error on enabled" do
+        expect(result).to be_failure
+        expect(result.value.errors[:enabled]).to be_present
+      end
 
-  context "when the chosen channel is visible to @everyone" do
-    before do
-      create(:server_channel, server_configuration: server, discord_id: 555)
-    end
-
-    it "saves but returns a visibility warning" do
-      expect(result.success?).to be(true)
-      expect(result.warnings).to include(/@everyone/)
-    end
-  end
-
-  context "when the chosen channel is hidden from @everyone" do
-    let(:channel) { create(:server_channel, server_configuration: server, discord_id: 555) }
-
-    before do
-      create(:channel_overwrite, server_channel: channel, target_id: 1, deny: ServerChannel::VIEW_CHANNEL)
+      it "leaves logging enabled" do
+        result
+        expect(config.plugin_activations.find_by(plugin:).enabled).to be(true)
+      end
     end
 
-    it "saves with no warning" do
-      expect(result.warnings).to be_empty
+    context "when clearing the logging channel while keeping enabled" do
+      let(:enabled) { "1" }
+      let(:channel_id) { "" }
+
+      it "fails with an error on enabled" do
+        expect(result).to be_failure
+        expect(result.value.errors[:enabled]).to be_present
+      end
     end
   end
 end

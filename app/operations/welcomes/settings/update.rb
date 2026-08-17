@@ -4,12 +4,38 @@ module Ops
   module Welcomes
     module Settings
       class Update < ApplicationOperation
-        receives :server_configuration, :channel_id, :join_message, :leave_message
+        include Ops::PluginConfiguration
+
+        receives :server_configuration,
+          :channel_id,
+          :join_message,
+          :leave_message,
+          :ping_on_join,
+          :suppress_removal_messages,
+          :enabled
 
         def call
-          setting = server_configuration.welcome_settings
-          setting.update!(channel_id:, join_message:, leave_message:)
-          ok(setting)
+          settings = server_configuration.welcome_settings
+          settings.assign_attributes(
+            channel_id:,
+            join_message:,
+            leave_message:,
+            ping_on_join:,
+            suppress_removal_messages:
+          )
+          activation = staged_activation
+
+          return failure(messages(settings, activation), value: activation) unless settings.valid? && activation.valid?
+
+          settings.save!
+          save_activation!(activation)
+          ok(activation)
+        end
+
+        private
+
+        def plugin_key
+          :welcomes
         end
       end
     end
