@@ -19,13 +19,13 @@ RSpec.describe Moderation::SpamGuard do
   let(:bot) { double("bot") }
   let(:event) { double("event", from_bot?: false, server:, author:, message:, channel:, bot:) }
 
-  let(:logging_setting) { double("logging_setting", channel_id: log_channel_id) }
+  let(:logging_settings) { double("logging_settings", channel_id: log_channel_id) }
   let(:ping_staff) { true }
   let(:moderation_settings) { double("moderation_settings", staff_role_id:, ping_staff:) }
   let(:config) do
     double(
       "server_configuration",
-      logging_setting:,
+      logging_settings:,
       moderation_settings:
     )
   end
@@ -409,7 +409,7 @@ RSpec.describe Moderation::SpamGuard do
 
   context "when the log channel is unset" do
     let(:action) { "notify_only" }
-    let(:logging_setting) { double("logging_setting", channel_id: nil) }
+    let(:logging_settings) { double("logging_settings", channel_id: nil) }
 
     it "does not attempt to notify" do
       expect(Bot::Discord::Components).not_to receive(:send_to)

@@ -133,16 +133,16 @@ RSpec.describe PluginCatalog do
     end
 
     context "when channel-backed" do
-      subject(:check) { definition(channel_setting: :logging_setting).prerequisites_met?(config) }
+      subject(:check) { definition(channel_setting: :logging_settings).prerequisites_met?(config) }
 
       context "without a channel" do
-        let(:config) { double(logging_setting: nil) }
+        let(:config) { double(logging_settings: nil) }
 
         it { is_expected.to be(false) }
       end
 
       context "with a channel" do
-        let(:config) { double(logging_setting: double(channel_id: 5)) }
+        let(:config) { double(logging_settings: double(channel_id: 5)) }
 
         it { is_expected.to be(true) }
       end
@@ -217,7 +217,7 @@ RSpec.describe PluginCatalog do
     let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
 
     before do
-      config.create_logging_setting!
+      config.create_logging_settings!
       config.create_moderation_settings!
       config.create_spam_protection_settings!
       config.create_image_scanning_settings!
@@ -228,7 +228,7 @@ RSpec.describe PluginCatalog do
 
       context "when logging is enabled and channel is set" do
         before do
-          config.logging_setting.update!(channel_id: 111)
+          config.logging_settings.update!(channel_id: 111)
           create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
             .update_column(:enabled, true)
         end
@@ -245,9 +245,9 @@ RSpec.describe PluginCatalog do
         it { is_expected.to be(false) }
       end
 
-      context "when logging is enabled but logging_setting is absent" do
+      context "when logging is enabled but logging_settings is absent" do
         before do
-          config.logging_setting.destroy!
+          config.logging_settings.destroy!
           create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
             .update_column(:enabled, true)
         end
@@ -339,7 +339,7 @@ RSpec.describe PluginCatalog do
         let(:config) do
           double(
             enabled_plugin_keys: enabled_keys,
-            logging_setting: double(channel_id: nil)
+            logging_settings: double(channel_id: nil)
           )
         end
 
@@ -350,7 +350,7 @@ RSpec.describe PluginCatalog do
         let(:config) do
           double(
             enabled_plugin_keys: enabled_keys,
-            logging_setting: double(channel_id: 999)
+            logging_settings: double(channel_id: 999)
           )
         end
 

@@ -9,7 +9,7 @@ RSpec.describe Bot::ActivityLog do
 
   before do
     create(
-      :logging_setting,
+      :logging_settings,
       server_configuration: server_config,
       channel_id: 555,
       enabled_actions: {"roles.role_gained" => true}
@@ -134,7 +134,7 @@ RSpec.describe Bot::ActivityLog do
 
     context "when no logging channel is set" do
       before do
-        server_config.logging_setting.update!(channel_id: nil)
+        server_config.logging_settings.update!(channel_id: nil)
       end
 
       it "writes nothing" do

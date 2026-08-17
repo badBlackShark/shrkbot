@@ -2,8 +2,8 @@
 
 require "rails_helper"
 
-RSpec.describe LoggingSetting do
-  subject(:setting) { build(:logging_setting, enabled_actions: actions) }
+RSpec.describe Logging::Settings do
+  subject(:setting) { build(:logging_settings, enabled_actions: actions) }
 
   describe "#action_enabled?" do
     context "when the action is toggled on" do

@@ -8,7 +8,7 @@ RSpec.describe Moderation::OverviewContext do
   let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
 
   before do
-    config.create_logging_setting!
+    config.create_logging_settings!
     config.create_moderation_settings!
     config.create_spam_protection_settings!
     config.create_image_scanning_settings!
@@ -19,7 +19,7 @@ RSpec.describe Moderation::OverviewContext do
   describe "#logging_ready?" do
     context "when logging plugin is enabled and channel is set" do
       before do
-        config.logging_setting.update!(channel_id: 111)
+        config.logging_settings.update!(channel_id: 111)
         create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
           .update_column(:enabled, true)
       end
@@ -40,9 +40,9 @@ RSpec.describe Moderation::OverviewContext do
       it { expect(context.logging_ready?).to be(false) }
     end
 
-    context "when logging plugin is enabled but logging_setting has no channel_id" do
+    context "when logging plugin is enabled but logging_settings has no channel_id" do
       before do
-        config.logging_setting.update!(channel_id: nil)
+        config.logging_settings.update!(channel_id: nil)
         create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
           .update_column(:enabled, true)
       end
@@ -50,9 +50,9 @@ RSpec.describe Moderation::OverviewContext do
       it { expect(context.logging_ready?).to be(false) }
     end
 
-    context "when logging plugin is enabled but logging_setting is absent" do
+    context "when logging plugin is enabled but logging_settings is absent" do
       before do
-        config.logging_setting.destroy!
+        config.logging_settings.destroy!
         create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
           .update_column(:enabled, true)
       end
@@ -155,31 +155,31 @@ RSpec.describe Moderation::OverviewContext do
   end
 
   describe "#logging_channel_name" do
-    context "when logging_setting is absent" do
-      before { config.logging_setting.destroy! }
+    context "when logging_settings is absent" do
+      before { config.logging_settings.destroy! }
 
       it "returns nil" do
         expect(described_class.new(config.reload).logging_channel_name).to be_nil
       end
     end
 
-    context "when logging_setting has no channel_id" do
+    context "when logging_settings has no channel_id" do
       it "returns nil" do
         expect(context.logging_channel_name).to be_nil
       end
     end
 
-    context "when logging_setting has a channel_id but no matching server_channel" do
-      before { config.logging_setting.update!(channel_id: 777) }
+    context "when logging_settings has a channel_id but no matching server_channel" do
+      before { config.logging_settings.update!(channel_id: 777) }
 
       it "returns nil" do
         expect(context.logging_channel_name).to be_nil
       end
     end
 
-    context "when logging_setting has a channel_id with a matching server_channel" do
+    context "when logging_settings has a channel_id with a matching server_channel" do
       before do
-        config.logging_setting.update!(channel_id: 888)
+        config.logging_settings.update!(channel_id: 888)
         create(:server_channel, server_configuration: config, discord_id: 888, name: "mod-log")
       end
 

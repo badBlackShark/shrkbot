@@ -32,7 +32,7 @@ if ENV["WEB_DEBUG"] && Rails.env.development?
       end
       PluginActivation.find_or_create_by!(server_configuration: config, plugin:)
     end
-    config.create_logging_setting!(channel_id: 111) unless config.logging_setting
+    config.create_logging_settings!(channel_id: 111) unless config.logging_settings
     config.create_moderation_settings! unless config.moderation_settings
     config.create_spam_protection_settings! unless config.spam_protection_settings
     config.create_image_scanning_settings! unless config.image_scanning_settings

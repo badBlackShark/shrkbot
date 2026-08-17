@@ -34,7 +34,7 @@ RSpec.describe Ops::Moderation::ImageScanning::Configure do
   def setup_moderation_group_enabled
     logging_plugin = create(:plugin, key: "logging", name: "Logging")
     moderation_plugin = create(:plugin, key: "moderation", name: "Server Shield")
-    config.create_logging_setting!(channel_id: 999)
+    config.create_logging_settings!(channel_id: 999)
     config.create_moderation_settings!.tap { |s| s.update!(staff_role_id: 777_888_999) }
     create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: true)
     create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: true)
@@ -67,7 +67,7 @@ RSpec.describe Ops::Moderation::ImageScanning::Configure do
     before do
       logging_plugin = create(:plugin, key: "logging", name: "Logging")
       moderation_plugin = create(:plugin, key: "moderation", name: "Server Shield")
-      config.create_logging_setting!(channel_id: 999)
+      config.create_logging_settings!(channel_id: 999)
       config.create_moderation_settings!
       create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: true)
       create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: true)

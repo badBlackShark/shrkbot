@@ -11,7 +11,7 @@ RSpec.describe Components::Logging::ConfigForm do
   let(:config) { create(:server_configuration) }
 
   before do
-    create(:logging_setting, server_configuration: config)
+    create(:logging_settings, server_configuration: config)
   end
 
   it "renders the channel card with the required marker" do

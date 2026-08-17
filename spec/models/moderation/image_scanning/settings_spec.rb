@@ -173,7 +173,7 @@ RSpec.describe Moderation::ImageScanning::Settings do
       let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
 
       before do
-        server.create_logging_setting!(channel_id: 999)
+        server.create_logging_settings!(channel_id: 999)
         create(:plugin_activation, server_configuration: server, plugin: logging_plugin, enabled: true)
         create(:plugin_activation, server_configuration: server, plugin: moderation_plugin, enabled: true)
       end
@@ -203,7 +203,7 @@ RSpec.describe Moderation::ImageScanning::Settings do
       let!(:scan_plugin) { create(:plugin, key: "image_scanning", name: "Scam Image Detection") }
 
       before do
-        server.create_logging_setting!(channel_id: 999)
+        server.create_logging_settings!(channel_id: 999)
         create(:plugin_activation, server_configuration: server, plugin: logging_plugin, enabled: true)
         create(:plugin_activation, server_configuration: server, plugin: moderation_plugin, enabled: true)
         create(:plugin_activation, server_configuration: server, plugin: scan_plugin, enabled: false).update_column(:enabled, true)

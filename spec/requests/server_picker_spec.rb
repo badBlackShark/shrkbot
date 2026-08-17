@@ -52,7 +52,7 @@ RSpec.describe "Server picker", type: :request do
       context "with enabled plugins" do
         before do
           config = ServerConfiguration.find_by(discord_id: present_guild.id)
-          config.create_logging_setting!(channel_id: 999)
+          config.create_logging_settings!(channel_id: 999)
           logging = create(:plugin, key: "logging", name: "Logging")
           create(:plugin_activation, server_configuration: config, plugin: logging, enabled: true)
         end

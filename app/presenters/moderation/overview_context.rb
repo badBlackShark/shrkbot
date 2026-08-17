@@ -19,7 +19,7 @@ module Moderation
 
     def logging_ready?
       enabled_keys.include?(:logging) &&
-        @config.logging_setting&.channel_id.present?
+        @config.logging_settings&.channel_id.present?
     end
 
     def staff_role_id
@@ -67,9 +67,9 @@ module Moderation
     end
 
     def logging_channel_name
-      return unless @config.logging_setting&.channel_id
+      return unless @config.logging_settings&.channel_id
 
-      @config.server_channels.find_by(discord_id: @config.logging_setting.channel_id)&.name
+      @config.server_channels.find_by(discord_id: @config.logging_settings.channel_id)&.name
     end
 
     private

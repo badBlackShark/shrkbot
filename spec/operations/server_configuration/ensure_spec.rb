@@ -23,7 +23,7 @@ RSpec.describe Ops::ServerConfiguration::Ensure do
   it "creates the plugin settings rows so they always exist" do
     config = result.value
 
-    expect(config.logging_setting).to be_present
+    expect(config.logging_settings).to be_present
     expect(config.role_setting).to be_present
     expect(config.welcome_settings).to be_present
     expect(config.moderation_settings).to be_present
