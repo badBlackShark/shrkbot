@@ -16,3 +16,19 @@ and the web app, so a given mutation is written once and called from both.
   (`success?`/`failure?`/`value`/`errors`/`warnings`).
 - Operations run inside the caller's connection context (web request, or the bot's
   `with_connection` wrapper) and wrap their writes in a transaction.
+
+## The shadowing trap
+
+Namespacing an operation under a module named after a model **shadows that model
+inside the operation**. `Ops::ServerConfiguration` shadows `::ServerConfiguration`;
+`Ops::Roles::Settings` shadows `::Roles::Settings`. Reference the real one with a
+leading `::`:
+
+```ruby
+::ServerConfiguration.find_or_create_by!(discord_id:)
+::Roles::AssignableServerRoles.new(server_configuration)
+```
+
+It bites one level deeper every time the namespace deepens, and it fails as a
+confusing `NoMethodError` on a module rather than a `NameError`. `Finders::` has the
+same problem — see [finders.md](finders.md).

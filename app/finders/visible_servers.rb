@@ -7,7 +7,7 @@ module Finders
     CACHE_TTL = 30.seconds
 
     def self.for(discord_token, discord_id)
-      organiser_servers = TwilightStruggle::OrganiserServers.discord_ids_for(discord_id)
+      organiser_servers = Finders::TwilightStruggle::OrganiserServers.discord_ids_for(discord_id)
       member_servers(discord_token).select { |server| server.manageable? || organiser_servers.include?(server.id) }
     end
 

@@ -14,63 +14,68 @@ RSpec.describe Finders::AuthorizedNotifications do
 
   let(:manageable_ids) { [config_a.discord_id, config_b.discord_id] }
 
-  subject(:authorized) { described_class.new(manageable_ids:) }
+  let(:authorized) { described_class.new(manageable_ids:) }
 
   describe "#groups" do
+    subject(:groups) { authorized.groups }
+
+    let(:notifications) { groups.flat_map { |_config, group| group } }
+
     it "excludes notifications from non-authorized servers" do
-      all_notifications = authorized.groups.flat_map { |_c, ns| ns }
-      expect(all_notifications).not_to include(notif_other)
+      expect(notifications).not_to include(notif_other)
     end
 
     it "includes notifications from authorized servers" do
-      all_notifications = authorized.groups.flat_map { |_c, ns| ns }
-      expect(all_notifications).to include(notif_a1, notif_a2, notif_b1)
+      expect(notifications).to include(notif_a1, notif_a2, notif_b1)
     end
 
     it "groups by server configuration" do
-      groups = authorized.groups
-      expect(groups.map { |c, _| c }).to contain_exactly(config_a, config_b)
+      expect(groups.map { |config, _| config }).to contain_exactly(config_a, config_b)
     end
 
     it "orders groups by server name alphabetically" do
-      groups = authorized.groups
-      expect(groups.map { |c, _| c.name }).to eq(["Alpha Server", "Bravo Server"])
+      expect(groups.map { |config, _| config.name }).to eq(["Alpha Server", "Bravo Server"])
     end
 
     context "when scoped to a server_id" do
-      subject(:scoped) { described_class.new(manageable_ids:, server_id: config_a.discord_id) }
+      let(:authorized) { described_class.new(manageable_ids:, server_id:) }
+      let(:server_id) { config_a.discord_id }
 
       it "returns one group for that server" do
-        expect(scoped.groups.length).to eq(1)
+        expect(groups.length).to eq(1)
       end
 
       it "returns only notifications for that server" do
-        notifications = scoped.groups.flat_map { |_c, ns| ns }
         expect(notifications).to all(have_attributes(server_configuration: config_a))
       end
 
-      it "returns empty when the server_id is not manageable" do
-        other_scoped = described_class.new(manageable_ids:, server_id: config_other.discord_id)
-        expect(other_scoped.groups).to be_empty
+      context "when the server_id is not manageable" do
+        let(:server_id) { config_other.discord_id }
+
+        it "returns empty" do
+          expect(groups).to be_empty
+        end
       end
 
-      it "returns empty when server_id is manageable but no ServerConfiguration row exists" do
-        phantom_id = 999_888_777
-        phantom_scoped = described_class.new(manageable_ids: [phantom_id], server_id: phantom_id)
-        expect(phantom_scoped.groups).to be_empty
+      context "when the server_id is manageable but has no ServerConfiguration row" do
+        let(:manageable_ids) { [999_888_777] }
+        let(:server_id) { 999_888_777 }
+
+        it "returns empty" do
+          expect(groups).to be_empty
+        end
       end
     end
 
-    context "when a notification's server_configuration_id is not in the configs index" do
-      it "skips the orphaned group via the next-unless-config guard" do
-        # Force configs to return an empty hash while scoped still returns notifications.
-        # This exercises the `next unless config` branch (a defensive guard).
-        ordered_double = double("relation", index_by: {})
-        relation_double = double("relation", order: ordered_double)
-        allow(ServerConfiguration).to receive(:where).and_call_original
-        allow(ServerConfiguration).to receive(:where).with(discord_id: manageable_ids).and_return(relation_double)
+    context "when a notification's server is missing from the configs index" do
+      let(:configs_relation) { double("relation", order: double("relation", index_by: {})) }
 
-        groups = authorized.groups
+      before do
+        allow(ServerConfiguration).to receive(:where).and_call_original
+        allow(ServerConfiguration).to receive(:where).with(discord_id: manageable_ids).and_return(configs_relation)
+      end
+
+      it "skips the orphaned group" do
         expect(groups).to be_empty
       end
     end
@@ -79,29 +84,31 @@ RSpec.describe Finders::AuthorizedNotifications do
       before { notif_a1.update!(dismissed_at: Time.current) }
 
       it "excludes dismissed notifications" do
-        all_notifications = authorized.groups.flat_map { |_c, ns| ns }
-        expect(all_notifications).not_to include(notif_a1)
+        expect(notifications).not_to include(notif_a1)
       end
     end
   end
 
   describe "#unread_count" do
+    subject(:unread_count) { authorized.unread_count }
+
     it "counts unread notifications across authorized servers" do
-      expect(authorized.unread_count).to eq(3)
+      expect(unread_count).to eq(3)
     end
 
-    it "excludes notifications from non-authorized servers" do
-      all_authorized = described_class.new(manageable_ids: [config_a.discord_id, config_b.discord_id, config_other.discord_id])
-      expect(all_authorized.unread_count).to eq(4)
+    context "when every server is manageable" do
+      let(:manageable_ids) { [config_a.discord_id, config_b.discord_id, config_other.discord_id] }
 
-      expect(authorized.unread_count).to eq(3)
+      it "also counts the server the narrower scope excluded" do
+        expect(unread_count).to eq(4)
+      end
     end
 
     context "when some notifications are already read" do
       before { notif_a1.update!(read_at: Time.current) }
 
       it "does not count read notifications" do
-        expect(authorized.unread_count).to eq(2)
+        expect(unread_count).to eq(2)
       end
     end
 
@@ -109,7 +116,7 @@ RSpec.describe Finders::AuthorizedNotifications do
       before { notif_b1.update!(dismissed_at: Time.current) }
 
       it "does not count dismissed notifications" do
-        expect(authorized.unread_count).to eq(2)
+        expect(unread_count).to eq(2)
       end
     end
   end
