@@ -32,7 +32,7 @@ class PluginAccess
   end
 
   def organiser?
-    ::TwilightStruggle::OrganiserServers
+    Finders::TwilightStruggle::OrganiserServers
       .discord_ids_for(@user.discord_id)
       .include?(@server_configuration.discord_id)
   end

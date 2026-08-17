@@ -6,7 +6,7 @@ RSpec.describe Components::NotificationPanel do
   include_context "component view context"
 
   let(:manageable_ids) { [] }
-  let(:authorized) { AuthorizedNotifications.new(manageable_ids:) }
+  let(:authorized) { Finders::AuthorizedNotifications.new(manageable_ids:) }
 
   subject(:html) { described_class.new(authorized:).render_in(view_context) }
 

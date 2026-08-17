@@ -5,7 +5,7 @@ class NotificationsController < ApplicationController
 
   def index
     scope = notification_scope
-    authorized = AuthorizedNotifications.new(
+    authorized = Finders::AuthorizedNotifications.new(
       manageable_ids: managed_server_ids,
       server_id: (scope == "server") ? params[:server_id] : nil
     )

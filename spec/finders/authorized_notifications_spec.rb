@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe AuthorizedNotifications do
+RSpec.describe Finders::AuthorizedNotifications do
   let(:config_a) { create(:server_configuration, name: "Bravo Server") }
   let(:config_b) { create(:server_configuration, name: "Alpha Server") }
   let(:config_other) { create(:server_configuration) }
