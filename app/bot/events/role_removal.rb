@@ -10,7 +10,7 @@ module Bot
       role = server_configuration.server_roles.find_by(discord_id: event.id)
       return unless role
 
-      Ops::ServerConfiguration::ServerRoles::Destroy.call(server_role: role)
+      Ops::ServerConfiguration::ServerRole::Destroy.call(server_role: role)
     end
   end
 end

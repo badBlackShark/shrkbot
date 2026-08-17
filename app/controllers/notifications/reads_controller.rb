@@ -5,7 +5,7 @@ class Notifications::ReadsController < ApplicationController
 
   def create
     configs = authorized_server_configurations
-    Ops::Notifications::MarkRead.call(server_configurations: configs)
+    Ops::Notification::MarkRead.call(server_configurations: configs)
     redirect_to notifications_path(server_id: params[:server_id], scope: params[:scope], open: true)
   end
 

@@ -9,7 +9,7 @@ module Bot
     def apply
       return unless event.role
 
-      Ops::ServerConfiguration::ServerRoles::Upsert.call(
+      Ops::ServerConfiguration::ServerRole::Upsert.call(
         server_configuration:,
         role: GuildMetadata.role_data(event.role)
       )

@@ -13,7 +13,7 @@ module EstablishesPreviewIdentity
     return unless params[:preview].present?
     return if current_user
 
-    session[:user_id] = Ops::Users::Previews::Ensure.call.value.id
+    session[:user_id] = Ops::User::Previews::Ensure.call.value.id
     session[:preview_identity] = true
   end
 end

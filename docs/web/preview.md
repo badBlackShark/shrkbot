@@ -70,7 +70,7 @@ gets signed in as, `channels:`, `roles:`, and a `plugins:` list — one entry pe
 toggleable plugin, each carrying that plugin's settings and, where relevant,
 records like role sets or LFG pingable roles. `PreviewData` (`app/models/preview_data.rb`)
 is the read-only accessor: it parses the file once, memoizes it, and shapes the
-channel hashes the way `Ops::ServerConfiguration::ServerChannels::Sync` expects
+channel hashes the way `Ops::ServerConfiguration::ServerChannel::Sync` expects
 (`channel_type`, `overwrites: []`). `PreviewData.demo_guild` builds the
 `Bot::Discord::Guild` the web layer treats as the preview server everywhere it
 would otherwise call Discord.
@@ -82,7 +82,7 @@ would otherwise call Discord.
 2. The configuration is updated with the rest of the `guild:` attributes. Nothing
    has to flag it as a preview — `Ensure` already created it at the negative
    `discord_id` the file names.
-3. `ServerChannels::Sync` and `ServerRoles::Sync` upsert the channels and roles
+3. `ServerChannel::Sync` and `ServerRole::Sync` upsert the channels and roles
    verbatim — the same ops guild sync uses for a real Discord guild.
 4. `Ops::ServerConfiguration::Previews::ApplyPlugin` runs once per `plugins:`
    entry: writes the settings row, rebuilds any `records:`, and flips the

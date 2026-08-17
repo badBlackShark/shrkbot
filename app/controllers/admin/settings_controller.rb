@@ -8,7 +8,7 @@ class Admin::SettingsController < ApplicationController
   end
 
   def update
-    result = Ops::BotSettings::Update.call(owner_error_dms: params[:owner_error_dms])
+    result = Ops::BotSetting::Update.call(owner_error_dms: params[:owner_error_dms])
     @toast = {level: "notice", message: t(result.value ? "admin.settings.dms_enabled" : "admin.settings.dms_disabled")}
 
     respond_to do |format|

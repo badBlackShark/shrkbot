@@ -9,7 +9,7 @@ module Bot
     def apply
       return unless event.channel
 
-      Ops::ServerConfiguration::ServerChannels::Upsert.call(
+      Ops::ServerConfiguration::ServerChannel::Upsert.call(
         server_configuration:,
         channel: GuildMetadata.channel_data(event.channel)
       )

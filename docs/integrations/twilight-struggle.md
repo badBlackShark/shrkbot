@@ -197,7 +197,7 @@ Guild purge is the cascade: destinations and posted messages hang off
 `ServerConfiguration` with `dependent:`, so `Ops::ServerConfiguration::Destroy`
 carries no Twilight Struggle special case. Tournaments and games stay — they are
 the site's data, not the guild's. Organiser rows are per-user and are deleted by
-`Ops::Users::Destroy`. See [Privacy](../privacy.md).
+`Ops::User::Destroy`. See [Privacy](../privacy.md).
 
 ## Gotchas
 

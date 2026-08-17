@@ -10,7 +10,7 @@ module Bot
       channel = server_configuration.server_channels.find_by(discord_id: event.id)
       return unless channel
 
-      Ops::ServerConfiguration::ServerChannels::Destroy.call(server_channel: channel)
+      Ops::ServerConfiguration::ServerChannel::Destroy.call(server_channel: channel)
     end
   end
 end

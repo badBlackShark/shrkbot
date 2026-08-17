@@ -9,7 +9,7 @@ RSpec.describe Bot::RoleUpsert do
   let(:bot) { double("bot") }
   let(:role) { double("role") }
   let(:event) { double("event", server:, bot:, role:) }
-  let(:op) { Ops::ServerConfiguration::ServerRoles::Upsert }
+  let(:op) { Ops::ServerConfiguration::ServerRole::Upsert }
 
   before do
     allow(Bot::GuildMetadata).to receive(:bot_role_position).with(server, bot).and_return(6)
@@ -29,7 +29,7 @@ RSpec.describe Bot::RoleUpsert do
     end
 
     it "writes only the role the event names, never the whole guild" do
-      expect(Ops::ServerConfiguration::ServerRoles::Sync).not_to receive(:call)
+      expect(Ops::ServerConfiguration::ServerRole::Sync).not_to receive(:call)
       handle
     end
 

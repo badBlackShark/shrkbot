@@ -15,7 +15,7 @@ same chunk:
 
 - update the **privacy policy** (`config/locales/legal.en.yml`) — what is stored,
   why, and for how long;
-- extend **`Ops::Users::Destroy`** if the data is per-user (keyed by a user's
+- extend **`Ops::User::Destroy`** if the data is per-user (keyed by a user's
   Discord ID);
 - cover the data in the **guild purge** — guild-scoped tables hang off
   `ServerConfiguration` with `dependent:` so the cascade *is* the purge;
@@ -27,7 +27,7 @@ same chunk:
 There are exactly two, and both live in an operation. No deletion logic goes in an
 event handler.
 
-**Account deletion** — `Ops::Users::Destroy`. Website-only; there is deliberately
+**Account deletion** — `Ops::User::Destroy`. Website-only; there is deliberately
 no bot-side delete command (`/unremind` already covers bot-only users). It deletes
 the user's reminders, their `TwilightStruggle::TournamentAdmin` rows, and the
 `User` record.

@@ -8,7 +8,7 @@ RSpec.describe Bot::ChannelUpsert do
   let(:server) { double("server", id: 1) }
   let(:channel) { double("channel") }
   let(:event) { double("event", server:, channel:) }
-  let(:op) { Ops::ServerConfiguration::ServerChannels::Upsert }
+  let(:op) { Ops::ServerConfiguration::ServerChannel::Upsert }
 
   context "for a configured server" do
     let!(:config) { create(:server_configuration, discord_id: 1) }
@@ -24,7 +24,7 @@ RSpec.describe Bot::ChannelUpsert do
     end
 
     it "writes only the channel the event names, never the whole guild" do
-      expect(Ops::ServerConfiguration::ServerChannels::Sync).not_to receive(:call)
+      expect(Ops::ServerConfiguration::ServerChannel::Sync).not_to receive(:call)
       handle
     end
 

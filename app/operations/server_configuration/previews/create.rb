@@ -7,8 +7,8 @@ module Ops
         def call
           server_configuration = Ensure.call(discord_id: PreviewData.guild[:discord_id]).value
           server_configuration.update!(**guild_attributes)
-          ServerChannels::Sync.call(server_configuration:, channels: PreviewData.channels)
-          ServerRoles::Sync.call(
+          ServerChannel::Sync.call(server_configuration:, channels: PreviewData.channels)
+          ServerRole::Sync.call(
             server_configuration:,
             roles: PreviewData.roles,
             bot_role_position: PreviewData.guild[:bot_role_position]
