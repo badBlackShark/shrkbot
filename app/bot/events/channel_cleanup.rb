@@ -9,7 +9,7 @@ module Bot
     def handle
       return unless server_configuration
 
-      Ops::ServerConfiguration::ServerChannels::HandleDeletion.call(
+      Ops::ServerConfiguration::ServerChannel::HandleDeletion.call(
         server_configuration:,
         channel_id: event.id,
         bot: event.bot

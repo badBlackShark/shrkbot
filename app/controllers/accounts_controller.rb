@@ -9,7 +9,7 @@ class AccountsController < ApplicationController
   end
 
   def destroy
-    Ops::Users::Destroy.call(user: current_user)
+    Ops::User::Destroy.call(user: current_user)
     reset_session
     redirect_to root_path, notice: t("accounts.deleted")
   end

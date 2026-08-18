@@ -8,7 +8,7 @@ RSpec.describe Bot::RoleRemoval do
   let(:server) { double("server", id: 1) }
   let(:bot) { double("bot") }
   let(:event) { double("event", server:, bot:, id: 111) }
-  let(:op) { Ops::ServerConfiguration::ServerRoles::Destroy }
+  let(:op) { Ops::ServerConfiguration::ServerRole::Destroy }
 
   before do
     allow(Bot::GuildMetadata).to receive(:bot_role_position).with(server, bot).and_return(6)

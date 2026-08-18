@@ -12,13 +12,13 @@ module Bot
         icon_hash: server.icon_id,
         member_count: server.member_count
       )
-      Ops::ServerConfiguration::ServerChannels::Sync.call(server_configuration: config, channels: channels(server))
-      Ops::ServerConfiguration::ServerRoles::Sync.call(
+      Ops::ServerConfiguration::ServerChannel::Sync.call(server_configuration: config, channels: channels(server))
+      Ops::ServerConfiguration::ServerRole::Sync.call(
         server_configuration: config,
         roles: roles(server),
         bot_role_position: bot_role_position(server, bot)
       )
-      Ops::ServerConfiguration::ServerChannels::Reconcile.call(server_configuration: config, bot:)
+      Ops::ServerConfiguration::ServerChannel::Reconcile.call(server_configuration: config, bot:)
       ServerOnboarder.notify(bot, server, config)
       config
     end

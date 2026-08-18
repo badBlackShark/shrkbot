@@ -13,7 +13,7 @@ bot token.
 Models (`belongs_to :server_configuration`; snowflakes as bigint): `ServerChannel`
 (discord_id, name, channel_type — not `type`, which AR reserves), `ServerRole`,
 `ChannelOverwrite` (full raw `allow`/`deny` bits + target_id/target_type). Sync ops
-(`Ops::ServerConfiguration::ServerChannels::Sync`/`ServerRoles::Sync`) take plain data (arrays of
+(`Ops::ServerConfiguration::ServerChannel::Sync`/`ServerRole::Sync`) take plain data (arrays of
 hashes), not discordrb objects, so they stay unit-testable; the discordrb→hash
 extraction lives in `Bot::GuildMetadata` (the bot-layer boundary). Each sync is a full
 upsert + prune of stale rows.

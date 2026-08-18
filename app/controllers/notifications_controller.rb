@@ -21,7 +21,7 @@ class NotificationsController < ApplicationController
     notification = authorized_notification
     return head(:not_found) unless notification
 
-    Ops::Notifications::Read.call(notification:)
+    Ops::Notification::Read.call(notification:)
     redirect_to plugin_config_path_for(notification)
   end
 
@@ -29,7 +29,7 @@ class NotificationsController < ApplicationController
     notification = authorized_notification
     return head(:not_found) unless notification
 
-    Ops::Notifications::Dismiss.call(notification:)
+    Ops::Notification::Dismiss.call(notification:)
     redirect_to notifications_path(server_id: params[:server_id], scope: params[:scope], open: true)
   end
 

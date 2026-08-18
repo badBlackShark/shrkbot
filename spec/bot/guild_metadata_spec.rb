@@ -77,16 +77,16 @@ RSpec.describe Bot::GuildMetadata do
     end
 
     it "ensures the config, then syncs channels and roles, then reconciles deletions" do
-      expect(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call).with(server_configuration: config, channels: [])
-      expect(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call).with(server_configuration: config, roles: [], bot_role_position: 7)
-      expect(Ops::ServerConfiguration::ServerChannels::Reconcile).to receive(:call).with(server_configuration: config, bot:)
+      expect(Ops::ServerConfiguration::ServerChannel::Sync).to receive(:call).with(server_configuration: config, channels: [])
+      expect(Ops::ServerConfiguration::ServerRole::Sync).to receive(:call).with(server_configuration: config, roles: [], bot_role_position: 7)
+      expect(Ops::ServerConfiguration::ServerChannel::Reconcile).to receive(:call).with(server_configuration: config, bot:)
       sync
     end
 
     it "syncs the server's display metadata" do
-      allow(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call)
-      allow(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call)
-      allow(Ops::ServerConfiguration::ServerChannels::Reconcile).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerChannel::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerRole::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerChannel::Reconcile).to receive(:call)
       expect(Ops::ServerConfiguration::Metadata::Sync).to receive(:call).with(
         server_configuration: config,
         name: "Dev Refuge",
@@ -97,17 +97,17 @@ RSpec.describe Bot::GuildMetadata do
     end
 
     it "onboards the server" do
-      allow(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call)
-      allow(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call)
-      allow(Ops::ServerConfiguration::ServerChannels::Reconcile).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerChannel::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerRole::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerChannel::Reconcile).to receive(:call)
       expect(Bot::ServerOnboarder).to receive(:notify).with(bot, server, config)
       sync
     end
 
     it "returns the config" do
-      allow(Ops::ServerConfiguration::ServerChannels::Sync).to receive(:call)
-      allow(Ops::ServerConfiguration::ServerRoles::Sync).to receive(:call)
-      allow(Ops::ServerConfiguration::ServerChannels::Reconcile).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerChannel::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerRole::Sync).to receive(:call)
+      allow(Ops::ServerConfiguration::ServerChannel::Reconcile).to receive(:call)
       expect(sync).to eq(config)
     end
   end

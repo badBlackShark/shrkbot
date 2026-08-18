@@ -140,7 +140,7 @@ Any new stored data must be reflected **in the same chunk** in three places:
 
 1. **Privacy policy** (`config/locales/legal.en.yml`): describe what is stored, why,
    and how long it is retained.
-2. **`Ops::Users::Destroy`**: if the data is per-user (keyed by a Discord user ID),
+2. **`Ops::User::Destroy`**: if the data is per-user (keyed by a Discord user ID),
    add deletion there so a user's data is purged on request.
 3. **Guild purge**: if the data is guild-scoped, it must cascade when the guild
    configuration is destroyed.

@@ -7,7 +7,7 @@ RSpec.describe Bot::ChannelRemoval do
 
   let(:server) { double("server", id: 1) }
   let(:event) { double("event", server:, id: 111) }
-  let(:op) { Ops::ServerConfiguration::ServerChannels::Destroy }
+  let(:op) { Ops::ServerConfiguration::ServerChannel::Destroy }
 
   context "for a configured server" do
     let!(:config) { create(:server_configuration, discord_id: 1) }

@@ -16,7 +16,7 @@ class Admin::BespokePluginGrantsController < ApplicationController
     server_configuration = ServerConfiguration.find_by(id: params[:server_configuration_id])
     return head :not_found unless server_configuration && bespoke_key?
 
-    Ops::ServerConfiguration::BespokePluginGrants::Create.call(
+    Ops::ServerConfiguration::BespokePluginGrant::Create.call(
       server_configuration:,
       plugin_key: params[:plugin_key]
     )
@@ -27,7 +27,7 @@ class Admin::BespokePluginGrantsController < ApplicationController
     grant = BespokePluginGrant.find_by(id: params[:id])
     return head :not_found unless grant
 
-    Ops::ServerConfiguration::BespokePluginGrants::Destroy.call(bespoke_plugin_grant: grant)
+    Ops::ServerConfiguration::BespokePluginGrant::Destroy.call(bespoke_plugin_grant: grant)
     redirect_to admin_bespoke_plugin_grants_path, notice: t("admin.bespoke_plugin_grants.revoked")
   end
 
