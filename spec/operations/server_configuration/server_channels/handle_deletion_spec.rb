@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Ops::ServerConfiguration::Channels::HandleDeletion do
+RSpec.describe Ops::ServerConfiguration::ServerChannels::HandleDeletion do
   subject(:result) { described_class.call(server_configuration: server, channel_id:, bot:) }
 
   let(:server) { create(:server_configuration, discord_id: 1) }
