@@ -20,9 +20,32 @@ ignore_missing:
   - views.servers.moderation.sub_plugin_show.*
   - views.servers.plugin_config_show.*
 
+# Every entry here is a key that IS used, by an indirection the static scanner
+# cannot follow. Keep this list exact — a wildcard wide enough to cover a real
+# dead key makes the whole report worthless. Four mechanisms, in order:
+#
+# 1. The abstract show views resolve `t(".key")` against the subclass scope, so
+#    the scanner attributes the lookup to the base class instead.
+# 2. A ternary inside the `t()` call.
+# 3. Key strings held in a constant and looked up by symbol.
+# 4. The key chosen by a ternary before the `t()` call.
 ignore_unused:
+  # 1. Views::Servers::Moderation::SubPluginShow subclasses
   - views.servers.spam_protection.show.*
   - views.servers.image_scanning.show.*
+  # 1. Views::Servers::PluginConfigShow subclasses
+  - views.servers.logging.show.*
+  - views.servers.roles.show.*
+  - views.servers.welcomes.show.*
+  # 2. Admin::SettingsController#update
+  - admin.settings.dms_enabled
+  - admin.settings.dms_disabled
+  # 3. AssignableRoleOptions::REASON_KEYS
+  - assignable_roles.managed
+  - assignable_roles.above_bot
+  # 4. Servers::PluginsController#feedback
+  - servers.plugin_enabled
+  - servers.plugin_disabled
 
 search:
   paths:
