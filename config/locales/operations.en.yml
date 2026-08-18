@@ -2,9 +2,6 @@
 en:
   operations:
     logging:
-      channel_public_warning: This channel is visible to @everyone; mod-action logs
-        would be public.
-      channel_required: A channel is required.
       moderation_dependency: can't be turned off or lose its channel while Server
         Shield is enabled
     moderation:
