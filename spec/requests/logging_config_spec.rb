@@ -15,7 +15,7 @@ RSpec.describe "Logging config", type: :request do
     before do
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
-      config.create_logging_setting!
+      config.create_logging_settings!
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     end
 
@@ -65,7 +65,7 @@ RSpec.describe "Logging config", type: :request do
 
         context "when the plugin is already enabled" do
           before do
-            config.logging_setting.update!(channel_id: 200)
+            config.logging_settings.update!(channel_id: 200)
             create(:plugin_activation, server_configuration: config, plugin: logging, enabled: true)
             get server_path(guild.id)
           end
@@ -88,8 +88,8 @@ RSpec.describe "Logging config", type: :request do
             params: {logging: {channel_id: 200, enabled: "1", actions: {"roles.role_gained" => "1", "roles.role_lost" => "0"}}},
             **turbo
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
-          expect(config.logging_setting.reload.channel_id).to eq(200)
-          expect(config.logging_setting.action_enabled?("roles.role_gained")).to be(true)
+          expect(config.logging_settings.reload.channel_id).to eq(200)
+          expect(config.logging_settings.action_enabled?("roles.role_gained")).to be(true)
           expect(config.plugins.enabled.exists?(key: :logging)).to be(true)
           expect(response.body).to include("saved")
           expect(response.body).to include('target="plugin-sidebar"')

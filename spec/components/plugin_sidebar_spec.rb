@@ -74,7 +74,7 @@ RSpec.describe Components::PluginSidebar do
       let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
 
       before do
-        config.create_logging_setting!(channel_id: 111)
+        config.create_logging_settings!(channel_id: 111)
         config.create_moderation_settings!(staff_role_id: 555)
         config.create_spam_protection_settings!
         config.create_image_scanning_settings!
@@ -102,7 +102,7 @@ RSpec.describe Components::PluginSidebar do
       let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
 
       before do
-        config.create_logging_setting!(channel_id: 111)
+        config.create_logging_settings!(channel_id: 111)
         config.create_moderation_settings!(staff_role_id: 555)
         config.create_spam_protection_settings!
         config.create_image_scanning_settings!

@@ -79,7 +79,7 @@ RSpec.describe "Server dashboard", type: :request do
 
           welcomes
 
-          config.create_logging_setting!(channel_id: 9)
+          config.create_logging_settings!(channel_id: 9)
           logging
         end
 

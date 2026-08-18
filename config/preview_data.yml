@@ -88,7 +88,7 @@ roles:
 
 plugins:
   - plugin: logging
-    settings_association: logging_setting
+    settings_association: logging_settings
     enabled: true
     settings:
       channel_id: 105

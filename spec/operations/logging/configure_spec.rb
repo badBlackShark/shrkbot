@@ -14,7 +14,7 @@ RSpec.describe Ops::Logging::Configure do
 
   let(:config) { create(:server_configuration) }
   let!(:plugin) { create(:plugin, key: "logging", name: "Logging") }
-  let!(:settings) { config.create_logging_setting! }
+  let!(:settings) { config.create_logging_settings! }
   let(:channel_id) { 200 }
   let(:enabled_actions) { {"roles.role_gained" => true, "roles.role_lost" => false} }
   let(:enabled) { "1" }
@@ -22,9 +22,9 @@ RSpec.describe Ops::Logging::Configure do
   context "with a channel, enabling the plugin" do
     it "saves the channel, event toggles, and enables the plugin" do
       expect(result).to be_success
-      expect(config.logging_setting.reload.channel_id).to eq(200)
-      expect(config.logging_setting.action_enabled?("roles.role_gained")).to be(true)
-      expect(config.logging_setting.action_enabled?("roles.role_lost")).to be(false)
+      expect(config.logging_settings.reload.channel_id).to eq(200)
+      expect(config.logging_settings.action_enabled?("roles.role_gained")).to be(true)
+      expect(config.logging_settings.action_enabled?("roles.role_lost")).to be(false)
       expect(config.plugin_activations.find_by(plugin:).enabled).to be(true)
     end
   end
@@ -45,7 +45,7 @@ RSpec.describe Ops::Logging::Configure do
 
     it "stores the toggles and leaves the plugin disabled" do
       expect(result).to be_success
-      expect(config.logging_setting.reload.action_enabled?("roles.role_gained")).to be(true)
+      expect(config.logging_settings.reload.action_enabled?("roles.role_gained")).to be(true)
       expect(config.plugin_activations.find_by(plugin:)&.enabled).to be_falsey
     end
   end
@@ -54,7 +54,7 @@ RSpec.describe Ops::Logging::Configure do
     let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
 
     before do
-      config.logging_setting.update!(channel_id: 200)
+      config.logging_settings.update!(channel_id: 200)
       create(:plugin_activation, server_configuration: config, plugin:, enabled: true)
       create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: true)
     end

@@ -7,7 +7,7 @@ module Bot
     module_function
 
     def post(server_configuration, bot:, title:, body:, meta:, image: nil, components: [], allowed_mentions: SUPPRESS_MENTIONS, subject: nil)
-      channel_id = server_configuration.logging_setting.channel_id
+      channel_id = server_configuration.logging_settings.channel_id
       return unless channel_id
 
       deliver(bot, channel_id, entry(title, body, meta, image:, components:), allowed_mentions:, attachments: image && [image], subject:)
@@ -16,7 +16,7 @@ module Bot
     def enabled?(server_configuration, action)
       return false unless server_configuration.plugins.enabled.exists?(key: :logging)
 
-      server_configuration.logging_setting.action_enabled?(action)
+      server_configuration.logging_settings.action_enabled?(action)
     end
 
     def entry(title, body, meta, image: nil, components: [])

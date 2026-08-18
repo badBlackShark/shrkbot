@@ -37,7 +37,7 @@ RSpec.describe Ops::Moderation::Configure do
     let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
 
     before do
-      config.create_logging_setting!(channel_id: nil)
+      config.create_logging_settings!(channel_id: nil)
       create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false).update_column(:enabled, true)
     end
 
@@ -64,7 +64,7 @@ RSpec.describe Ops::Moderation::Configure do
     let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
 
     before do
-      config.create_logging_setting!(channel_id: 999)
+      config.create_logging_settings!(channel_id: 999)
       create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: true)
     end
 

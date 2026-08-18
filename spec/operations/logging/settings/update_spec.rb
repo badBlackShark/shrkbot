@@ -6,7 +6,7 @@ RSpec.describe Ops::Logging::Settings::Update do
   subject(:result) { described_class.call(server_configuration: server, channel_id:) }
 
   let(:server) { create(:server_configuration, discord_id: 1) }
-  let!(:setting) { server.create_logging_setting! }
+  let!(:setting) { server.create_logging_settings! }
   let(:channel_id) { 555 }
 
   context "with a channel" do

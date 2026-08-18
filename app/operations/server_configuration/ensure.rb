@@ -29,7 +29,7 @@ module Ops
       end
 
       def ensure_settings(config)
-        config.logging_setting || config.create_logging_setting!
+        config.logging_settings || config.create_logging_settings!
         config.role_setting || config.create_role_setting!
         config.welcome_settings || config.create_welcome_settings!
         config.moderation_settings || config.create_moderation_settings!

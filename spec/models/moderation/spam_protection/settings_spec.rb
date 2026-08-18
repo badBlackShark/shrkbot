@@ -153,7 +153,7 @@ RSpec.describe Moderation::SpamProtection::Settings do
       let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
 
       before do
-        server.create_logging_setting!(channel_id: 999)
+        server.create_logging_settings!(channel_id: 999)
         create(:plugin_activation, server_configuration: server, plugin: logging_plugin, enabled: true)
         create(:plugin_activation, server_configuration: server, plugin: moderation_plugin, enabled: true)
       end
@@ -183,7 +183,7 @@ RSpec.describe Moderation::SpamProtection::Settings do
       let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
 
       before do
-        server.create_logging_setting!(channel_id: 999)
+        server.create_logging_settings!(channel_id: 999)
         create(:plugin_activation, server_configuration: server, plugin: logging_plugin, enabled: true)
         create(:plugin_activation, server_configuration: server, plugin: moderation_plugin, enabled: true)
         create(:plugin_activation, server_configuration: server, plugin: spam_plugin, enabled: false).update_column(:enabled, true)

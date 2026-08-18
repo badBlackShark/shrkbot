@@ -18,7 +18,7 @@ RSpec.describe "Moderation config", type: :request do
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
       config.create_moderation_settings!
-      config.create_logging_setting!
+      config.create_logging_settings!
       config.create_spam_protection_settings!
       config.create_image_scanning_settings!
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
@@ -34,7 +34,7 @@ RSpec.describe "Moderation config", type: :request do
       describe "GET /servers/:server_id/moderation" do
         context "when logging is ready and group is enabled" do
           before do
-            config.logging_setting.update!(channel_id: 111)
+            config.logging_settings.update!(channel_id: 111)
             create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
               .update_column(:enabled, true)
             create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
@@ -84,7 +84,7 @@ RSpec.describe "Moderation config", type: :request do
 
         context "when group is disabled but logging is ready" do
           before do
-            config.logging_setting.update!(channel_id: 111)
+            config.logging_settings.update!(channel_id: 111)
             create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
               .update_column(:enabled, true)
           end
@@ -108,7 +108,7 @@ RSpec.describe "Moderation config", type: :request do
 
       describe "PATCH /servers/:server_id/moderation" do
         before do
-          config.logging_setting.update!(channel_id: 111)
+          config.logging_settings.update!(channel_id: 111)
           create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
             .update_column(:enabled, true)
           create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)

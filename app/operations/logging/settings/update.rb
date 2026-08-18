@@ -9,7 +9,7 @@ module Ops
         def call
           return failure(I18n.t("operations.logging.channel_required")) if channel_id.blank?
 
-          setting = server_configuration.logging_setting
+          setting = server_configuration.logging_settings
           setting.update!(channel_id:)
           ok(setting, warnings: visibility_warnings)
         end

@@ -63,7 +63,7 @@ RSpec.describe Bot::GuildCommandSet do
       end
 
       before do
-        create(:logging_setting, server_configuration: server)
+        create(:logging_settings, server_configuration: server)
         create(:plugin_activation, server_configuration: server, plugin: logging_plugin, enabled: true)
         create(:moderation_settings, server_configuration: server, staff_role_id: 888)
         create(:plugin_activation, server_configuration: server, plugin: moderation_plugin, enabled: true)

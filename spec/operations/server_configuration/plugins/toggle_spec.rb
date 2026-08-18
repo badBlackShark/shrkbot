@@ -54,7 +54,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     let(:enabled) { true }
 
     before do
-      server.create_logging_setting!(channel_id: 999)
+      server.create_logging_settings!(channel_id: 999)
     end
 
     it "succeeds" do
@@ -114,7 +114,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     let(:enabled) { false }
 
     before do
-      server.create_logging_setting!(channel_id: 999)
+      server.create_logging_settings!(channel_id: 999)
       create(:plugin_activation, server_configuration: server, plugin: logging, enabled: true)
     end
 
@@ -135,7 +135,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
       let(:plugin) { logging }
       let(:enabled) { true }
 
-      before { server.create_logging_setting!(channel_id: 999) }
+      before { server.create_logging_settings!(channel_id: 999) }
 
       it "publishes sync_commands" do
         result
@@ -148,7 +148,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
       let(:enabled) { false }
 
       before do
-        server.create_logging_setting!(channel_id: 999)
+        server.create_logging_settings!(channel_id: 999)
         create(:plugin_activation, server_configuration: server, plugin: logging, enabled: true)
       end
 
@@ -206,7 +206,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     before do
       allow(Bot::ConfigBus).to receive(:post_roles)
       allow(Bot::ConfigBus).to receive(:remove_roles_menu)
-      server.create_logging_setting!(channel_id: 999)
+      server.create_logging_settings!(channel_id: 999)
     end
 
     it "publishes neither post_roles nor remove_roles_menu" do

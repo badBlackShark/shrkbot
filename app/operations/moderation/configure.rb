@@ -27,7 +27,7 @@ module Ops
 
       def logging_ready?
         server_configuration.plugins.enabled.exists?(key: :logging) &&
-          server_configuration.logging_setting&.channel_id.present?
+          server_configuration.logging_settings&.channel_id.present?
       end
 
       def sub_plugin_enabled?

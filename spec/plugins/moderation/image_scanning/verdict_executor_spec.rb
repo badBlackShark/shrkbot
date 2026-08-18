@@ -19,13 +19,13 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
   let(:message_channel) { double("message_channel", delete_message: nil) }
   let(:bot) { double("bot", channel: message_channel) }
 
-  let(:logging_setting) { double("logging_setting", channel_id: channel_id) }
+  let(:logging_settings) { double("logging_settings", channel_id: channel_id) }
   let(:ping_staff) { true }
   let(:moderation_settings) { double("moderation_settings", staff_role_id:, ping_staff:) }
   let(:server_configuration) do
     double(
       "server_configuration",
-      logging_setting:,
+      logging_settings:,
       moderation_settings:
     )
   end

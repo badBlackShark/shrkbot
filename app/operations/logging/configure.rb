@@ -8,7 +8,7 @@ module Ops
       receives :server_configuration, :channel_id, :enabled_actions, :enabled
 
       def call
-        settings = server_configuration.logging_setting
+        settings = server_configuration.logging_settings
         settings.assign_attributes(channel_id:, enabled_actions:)
         activation = staged_activation
 

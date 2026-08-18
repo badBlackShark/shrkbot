@@ -3,7 +3,7 @@
 class Components::Logging::ConfigForm < Components::Base
   def initialize(server_configuration:, enable_error: nil)
     @config = server_configuration
-    @settings = server_configuration.logging_setting
+    @settings = server_configuration.logging_settings
     @enable_error = enable_error
   end
 
