@@ -4,23 +4,40 @@ module Ops
   module Logging
     module Settings
       class Update < ApplicationOperation
-        receives :server_configuration, :channel_id
+        include Ops::PluginConfiguration
+
+        receives :server_configuration, :channel_id, :enabled_actions, :enabled
 
         def call
-          return failure(I18n.t("operations.logging.channel_required")) if channel_id.blank?
+          settings = server_configuration.logging_settings
+          settings.assign_attributes(channel_id:, enabled_actions:)
+          activation = staged_activation
 
-          setting = server_configuration.logging_settings
-          setting.update!(channel_id:)
-          ok(setting, warnings: visibility_warnings)
+          return moderation_dependency_failure(activation) if moderation_enabled? && !logging_stays_available?
+          return failure(messages(settings, activation), value: activation) unless settings.valid? && activation.valid?
+
+          settings.save!
+          save_activation!(activation)
+          ok(activation)
         end
 
         private
 
-        def visibility_warnings
-          channel = server_configuration.server_channels.find_by(discord_id: channel_id)
-          return [] unless channel&.everyone_visible?
+        def moderation_enabled?
+          server_configuration.plugins.enabled.exists?(key: :moderation)
+        end
 
-          [I18n.t("operations.logging.channel_public_warning")]
+        def logging_stays_available?
+          enabling? && channel_id.present?
+        end
+
+        def moderation_dependency_failure(activation)
+          activation.errors.add(:enabled, I18n.t("operations.logging.moderation_dependency"))
+          failure(activation.errors[:enabled], value: activation)
+        end
+
+        def plugin_key
+          :logging
         end
       end
     end

@@ -18,7 +18,7 @@ class Servers::RolesController < ApplicationController
   def update
     return head :not_found unless guild_channels?(roles_params[:channel_id], submitted_channel_overrides)
 
-    result = Ops::Roles::Configure.call(
+    result = Ops::Roles::Settings::Update.call(
       server_configuration: @server_configuration,
       channel_id: roles_params[:channel_id],
       enabled: roles_params[:enabled],

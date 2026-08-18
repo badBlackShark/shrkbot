@@ -16,7 +16,7 @@ class Servers::LoggingController < ApplicationController
   def update
     return head :not_found unless guild_channels?(logging_params[:channel_id])
 
-    result = Ops::Logging::Configure.call(
+    result = Ops::Logging::Settings::Update.call(
       server_configuration: @server_configuration,
       channel_id: logging_params[:channel_id],
       enabled_actions: submitted_actions,
