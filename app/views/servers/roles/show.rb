@@ -11,7 +11,7 @@ class Views::Servers::Roles::Show < Views::Servers::PluginConfigShow
     "users-three"
   end
 
-  def form
+  def body
     render Components::Roles::ConfigForm.new(server_configuration: @config)
   end
 end

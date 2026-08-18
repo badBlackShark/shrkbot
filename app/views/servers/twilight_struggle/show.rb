@@ -1,31 +1,31 @@
 # frozen_string_literal: true
 
-class Views::Servers::TwilightStruggle::Show < Views::Base
+class Views::Servers::TwilightStruggle::Show < Views::Servers::PluginConfigShow
   def initialize(server_configuration:, user:, enabled:, subscriptions:, archived:, toggleable:)
-    @config = server_configuration
-    @user = user
-    @enabled = enabled
+    super(server_configuration:, user:, enabled:)
     @subscriptions = subscriptions
     @archived = archived
     @toggleable = toggleable
   end
 
-  def view_template
-    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :twilight_struggle) do
-      render Components::ConfigPage.new(
-        header: Components::ConfigPageHeader.new(icon: "trophy", title: t(".title"), description: t(".description")),
-        server_configuration: @config,
-        url: server_twilight_struggle_path(@config.discord_id),
-        toggle: {field: "twilight_struggle[enabled]", enabled: @enabled, locked: !@toggleable, reason: t(".toggle_admin_only")},
-        gate: {type: :enable, message: t(".gate_message")}
-      ) do
-        render Components::TwilightStruggle::ArchiveFilter.new(server_configuration: @config, archived: @archived)
-        @subscriptions.empty? ? empty : list
-      end
-    end
+  private
+
+  def plugin_key
+    :twilight_struggle
   end
 
-  private
+  def icon
+    "trophy"
+  end
+
+  def toggle
+    {field: "twilight_struggle[enabled]", enabled: @enabled, locked: !@toggleable, reason: t(".toggle_admin_only")}
+  end
+
+  def body
+    render Components::TwilightStruggle::ArchiveFilter.new(server_configuration: @config, archived: @archived)
+    @subscriptions.empty? ? empty : list
+  end
 
   def empty
     render Components::EmptyState.new(title: t(".empty_title"), body: empty_body) { nil }

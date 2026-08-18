@@ -3,16 +3,12 @@
 class Views::Servers::ImageScanning::Show < Views::Servers::Moderation::SubPluginShow
   private
 
-  def active_key
+  def plugin_key
     :image_scanning
   end
 
   def icon
     "scan"
-  end
-
-  def enable_field
-    "image_scanning[enabled]"
   end
 
   def form

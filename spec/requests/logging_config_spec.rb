@@ -76,6 +76,20 @@ RSpec.describe "Logging config", type: :request do
             expect(response.body).to include("Member gained a role")
           end
         end
+
+        context "when the plugin is enabled but its channel is gone" do
+          before do
+            config.logging_setting.update!(channel_id: 200)
+            create(:plugin_activation, server_configuration: config, plugin: logging, enabled: true)
+            config.logging_setting.update_column(:channel_id, nil)
+            get server_path(guild.id)
+          end
+
+          it "warns that the configured channel was deleted" do
+            get server_logging_path(guild.id)
+            expect(response.body).to include("was deleted").and include("Choose a new channel")
+          end
+        end
       end
 
       describe "PATCH /servers/:server_id/logging" do
