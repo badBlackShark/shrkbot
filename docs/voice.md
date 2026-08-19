@@ -33,6 +33,8 @@ bounds, the numbers that made the bug bite. The prose is held to website
 standard, because the release page is public and read by people who never see
 the repository. So: full sentences, no shorthand, no internal class or constant
 names, and one bullet that reads on its own without the diff beside it.
+The GitHub release title takes the same ` - ` joiner as every other surface.
+Releases up to 3.8.1 used an em dash and are left as a record.
 
 ## Rules for every surface
 

@@ -1,0 +1,27 @@
+name: Release image
+
+on:
+  pull_request:
+    # Only release candidates and changes to the image itself. A full image
+    # build on every PR costs more CI time than it catches; a break only has
+    # to be caught before it ships.
+    paths:
+      - CHANGELOG.md
+      - Dockerfile.prod
+      - .dockerignore
+
+permissions:
+  contents: read
+
+jobs:
+  build_production_image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build the production image
+        run: docker build --file Dockerfile.prod --tag shrkbot:${{ github.sha }} .
