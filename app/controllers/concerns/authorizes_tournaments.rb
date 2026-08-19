@@ -10,7 +10,7 @@ module AuthorizesTournaments
   end
 
   def administered_tournaments
-    @administered_tournaments ||= ::TwilightStruggle::AdministeredTournaments.new(current_user.discord_id)
+    @administered_tournaments ||= Finders::TwilightStruggle::AdministeredTournaments.new(current_user.discord_id)
   end
 
   def may_administer?(tournament)

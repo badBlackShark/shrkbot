@@ -12,8 +12,8 @@ The web side reads them cross-server, scoped to the session's authorized server 
 — notifications span all manageable servers.
 
 **Auth scope:** `NotificationsController` and `Notifications::ReadsController`
-include `SetsVisibleServers`. The query object `AuthorizedNotifications`
-(app/presenters/) joins `server_configurations` and filters by
+include `SetsVisibleServers`. The query object `Finders::AuthorizedNotifications`
+(app/finders/) joins `server_configurations` and filters by
 `managed_server_ids` from the session — the narrower of the two sets, so a
 tournament organiser who can open a server's dashboard still doesn't read its
 activity — preventing cross-server data leaks.

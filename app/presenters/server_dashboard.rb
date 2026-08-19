@@ -25,7 +25,7 @@ class ServerDashboard
   private
 
   def live
-    visible = VisibleServers.for(@discord_token, @admin_discord_id)
+    visible = Finders::VisibleServers.for(@discord_token, @admin_discord_id)
     server = visible.find { |candidate| candidate.id == @target_id }
     config = ServerConfiguration.find_by(discord_id: @target_id) if server
     return unless server && config

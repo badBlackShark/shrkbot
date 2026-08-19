@@ -13,7 +13,7 @@ module SetsVisibleServers
       if preview_request?
         [PreviewData.demo_guild]
       else
-        servers = VisibleServers.for(session[:discord_token], current_user.discord_id)
+        servers = Finders::VisibleServers.for(session[:discord_token], current_user.discord_id)
         remember_server_access(servers)
         session.delete(:reauth_attempted)
         servers

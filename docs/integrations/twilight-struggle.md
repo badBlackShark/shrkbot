@@ -111,7 +111,7 @@ Admin IDs come from that field and **nowhere else** — never from the player
 `discord_id`s in a game payload, where an organiser who declined to be listed
 usually appears anyway. Opt-in by omission is the point. Authority walks the
 tournament chain *downward*: an admin of a league runs its brackets
-(`TwilightStruggle::AdministeredTournaments`).
+(`Finders::TwilightStruggle::AdministeredTournaments`).
 
 Erasure is deliberately unsticky — a later PUT may recreate a deleted admin row.
 There is no suppression list, because honouring a deletion request by storing
@@ -210,7 +210,7 @@ the site's data, not the guild's. Organiser rows are per-user and are deleted by
   which is the tell that the N+1 is harness-side. Production `perform_later`
   queries nothing. Count via `ActiveJob::Base.queue_adapter.enqueued_jobs` when
   asserting a fan-out.
-- `TwilightStruggle::AdministeredTournaments` walks the tournament chain breadth-first,
+- `Finders::TwilightStruggle::AdministeredTournaments` walks the tournament chain breadth-first,
   which trips Prosopite on the same-shaped `parent_id = $1` query per level.
   Adjudicated false positive, encoded as `Prosopite.allow_stack_paths` in
   `spec/support/prosopite.rb`.

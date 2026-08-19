@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe TwilightStruggle::AdministeredTournaments do
+RSpec.describe Finders::TwilightStruggle::AdministeredTournaments do
   subject(:administered_tournaments) { described_class.new(discord_id) }
 
   let(:discord_id) { 700_000_000_000_000_001 }

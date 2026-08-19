@@ -23,7 +23,7 @@ re-verifies against live Discord on every server-scoped request.
   fetched per the metadata-sync design, not a DB relationship), so authorization is
   re-verified against live Discord on every server-scoped request.
   `SetsVisibleServers` (included by the picker, dashboard, notifications, and
-  `RequiresManageableServer`) owns that lookup: `VisibleServers.for` returns every
+  `RequiresManageableServer`) owns that lookup: `Finders::VisibleServers.for` returns every
   guild the user may reach, and `#live_access` maps each to whether the user also
   *manages* it, exposed as `visible_now?` / `manages_now?`. `RequiresManageableServer`
   (included by every server-scoped controller) **applies `before_action
@@ -62,14 +62,14 @@ re-verifies against live Discord on every server-scoped request.
   tournament the server subscribes to, so `PluginAccess` falls back to
   `administered_keys` when the user doesn't manage the server. Page access is
   deliberately tournament-independent: it only asks whether the user
-  administers *some* tournament at all (`TwilightStruggle::OrganiserServers`),
+  administers *some* tournament at all (`Finders::TwilightStruggle::OrganiserServers`),
   which is what lets an organiser create the server's first subscription
   themselves. Which specific tournaments they may act on is enforced one layer
-  in, on the actions rather than the page — `TwilightStruggle::AdministeredTournaments`
+  in, on the actions rather than the page — `Finders::TwilightStruggle::AdministeredTournaments`
   (admin rows + descendants) backs the `AuthorizesTournaments` controller
   concern, which 404s an organiser out of a tournament they aren't named on.
   The membership half of the page-access rule is free: Discord already tells us
-  every guild the user is in, and `VisibleServers.for` admits a guild when the
+  every guild the user is in, and `Finders::VisibleServers.for` admits a guild when the
   user manages it *or* administers a tournament. Someone who leaves the guild
   drops out of the candidate set, so there is no revocation path to build.
   The plugin's enabled/disabled switch stays admin-only regardless

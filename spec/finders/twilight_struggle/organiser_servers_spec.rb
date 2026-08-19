@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe TwilightStruggle::OrganiserServers do
+RSpec.describe Finders::TwilightStruggle::OrganiserServers do
   subject(:discord_ids) { described_class.discord_ids_for(discord_id) }
 
   let(:discord_id) { 700_000_000_000_000_001 }

@@ -7,7 +7,7 @@ RSpec.describe Components::NotificationBell do
 
   let(:config) { create(:server_configuration) }
   let(:manageable_ids) { [config.discord_id] }
-  let(:authorized) { AuthorizedNotifications.new(manageable_ids:) }
+  let(:authorized) { Finders::AuthorizedNotifications.new(manageable_ids:) }
 
   subject(:html) { described_class.new(authorized:).render_in(view_context) }
 
