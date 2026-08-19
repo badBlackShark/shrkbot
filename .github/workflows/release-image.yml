@@ -9,6 +9,7 @@ on:
       - CHANGELOG.md
       - Dockerfile.prod
       - .dockerignore
+      - .github/workflows/release-image.yml
 
 permissions:
   contents: read
