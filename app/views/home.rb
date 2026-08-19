@@ -74,7 +74,13 @@ class Views::Home < Views::Base
   def plugin_showcase
     section(class: "mx-auto max-w-4xl px-6 pb-20") do
       p(class: "mb-5 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins_eyebrow") }
-      div(class: "plugin-marquee") do
+      div(
+        class: "plugin-marquee",
+        data: {
+          controller: "marquee",
+          action: "wheel->marquee#scroll:!passive"
+        }
+      ) do
         div(class: "plugin-marquee-track") do
           plugin_cards
           plugin_cards(decorative: true)
