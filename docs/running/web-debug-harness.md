@@ -18,9 +18,9 @@ production. On boot it:
 - puts OmniAuth in test mode with a mock Discord identity (uid `12345`),
 - stubs `Bot::Discord::UserGuilds.call` to return one fixture guild
   (`Dev Refuge`, id `900000001`, owner),
-- idempotently seeds that guild: server configuration, the four plugin rows +
-  activations (all disabled), settings rows, a `Moderator` role (id 500) and a
-  `#mod-log` channel (id 111).
+- idempotently seeds that guild via `Ops::ServerConfiguration::Ensure` — a plugin
+  row per `PluginCatalog` definition, activations (all disabled) and every settings
+  row — plus a `Moderator` role (id 500) and a `#mod-log` channel (id 111).
 
 The seed never toggles state back — flip things in the UI or via `bin/rails runner`.
 

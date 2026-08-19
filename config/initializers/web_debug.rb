@@ -25,17 +25,14 @@ if ENV["WEB_DEBUG"] && Rails.env.development?
   end
 
   Rails.application.config.after_initialize do
-    config = ServerConfiguration.find_or_create_by!(discord_id: 900_000_001)
-    %w[logging moderation spam_protection image_scanning].each do |key|
-      plugin = Plugin.find_or_create_by!(key:) do |record|
-        record.name = key.humanize
+    PluginCatalog.all.each do |definition|
+      Plugin.find_or_create_by!(key: definition.key) do |record|
+        record.name = definition.name
+        record.description = definition.description
       end
-      PluginActivation.find_or_create_by!(server_configuration: config, plugin:)
     end
-    config.create_logging_settings!(channel_id: 111) unless config.logging_settings
-    config.create_moderation_settings! unless config.moderation_settings
-    config.create_spam_protection_settings! unless config.spam_protection_settings
-    config.create_image_scanning_settings! unless config.image_scanning_settings
+    config = Ops::ServerConfiguration::Ensure.call(discord_id: 900_000_001).value
+    config.logging_settings.update!(channel_id: 111) unless config.logging_settings.channel_id
     unless config.server_roles.exists?(discord_id: 500)
       config.server_roles.create!(discord_id: 500, name: "Moderator", color: 0xE67E22, position: 1)
     end
