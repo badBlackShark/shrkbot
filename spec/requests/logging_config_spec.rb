@@ -79,9 +79,9 @@ RSpec.describe "Logging config", type: :request do
 
         context "when the plugin is enabled but its channel is gone" do
           before do
-            config.logging_setting.update!(channel_id: 200)
+            config.logging_settings.update!(channel_id: 200)
             create(:plugin_activation, server_configuration: config, plugin: logging, enabled: true)
-            config.logging_setting.update_column(:channel_id, nil)
+            config.logging_settings.update_column(:channel_id, nil)
             get server_path(guild.id)
           end
 
