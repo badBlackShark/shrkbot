@@ -71,7 +71,13 @@ components:
           example: "otsl"
         status:
           type: string
-          description: Free text. We store it; nothing in shrkbot interprets it.
+          description: >-
+            Free text, stored and shown back to you exactly as you send it. One
+            value changes what we do. When the status is `closed`, in any
+            capitalisation and ignoring surrounding spaces, the tournament moves
+            to the archived part of a server's subscription list and carries a
+            closed badge there. Every other value is inert, `Registration Closed`
+            included.
           example: "closed"
         admins:
           type: array
