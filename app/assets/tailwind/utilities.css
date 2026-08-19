@@ -117,8 +117,14 @@ details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0de
 [data-theme="dark"] .theme-morph .theme-moon { opacity: 0; transform: rotate(90deg) scale(0.4); }
 
 .plugin-marquee {
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
   mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.plugin-marquee::-webkit-scrollbar {
+  display: none;
 }
 
 .plugin-marquee-track {
@@ -139,8 +145,12 @@ details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0de
 
 @media (prefers-reduced-motion: reduce) {
   .plugin-marquee {
-    overflow-x: auto;
+    scrollbar-width: auto;
     mask-image: none;
+  }
+
+  .plugin-marquee::-webkit-scrollbar {
+    display: block;
   }
 
   .plugin-marquee-track {
