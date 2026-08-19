@@ -187,6 +187,17 @@ warning or a limitation before the thing it applies to.
 pretending to explain, fake-strong verbs, binary contrasts, colon reveals,
 summary-recap endings, decorative em dashes.
 
+**A refactor body owes two things, and they come first in the budget.** One: the
+invariant and the check that proves it - example counts with the delta accounted
+for, or the constant that no longer resolves. Two: a "deliberately not done"
+line naming what you found, left, and recorded, so the omissions read as
+decisions. When one PR is based on another, name the base branch in line one.
+
+Everything else is what gets cut to fit. Before/after tables, a tour of the old
+code, and a recap of the reasoning are the first to go: the diff carries them.
+The budget is not waived for a large refactor. A long body means the change
+should have been more than one PR.
+
 **Show, do not claim.** Paste the failing command, the error line, the test
 counts, the measured numbers. A reviewer should be able to check every claim
 without trusting the author.
