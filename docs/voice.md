@@ -8,7 +8,7 @@ Rules are derived from the Discord copy already in the repo, which is the
 surface that has had the most correction passes. Examples are real strings, not
 invented ones.
 
-## The three surfaces
+## The four surfaces
 
 Each has a different reader, so each has a different register. Copy that fits one
 surface is usually wrong on another.
@@ -25,6 +25,14 @@ would have to look up.
 **PR descriptions** - written for software engineers, usually exactly one
 reader. The most technical surface, and the one where an awkward sentence costs
 least. Optimise for a reviewer making a decision.
+
+**Release notes** - `CHANGELOG.md` and the GitHub release body built from it.
+Sits between the website and a PR description. Every technical detail a PR body
+would carry is allowed: the Discord event that fires, the API field and its
+bounds, the numbers that made the bug bite. The prose is held to website
+standard, because the release page is public and read by people who never see
+the repository. So: full sentences, no shorthand, no internal class or constant
+names, and one bullet that reads on its own without the diff beside it.
 
 ## Rules for every surface
 
@@ -223,6 +231,7 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Could not delete the server configuration - it's a preview configuration.` | `Could not delete this server - it is a preview, not a real Discord guild.` | The cause repeated the noun instead of explaining it, so the reader learns nothing after the dash. "Server configuration" is also the internal name for what every other string calls a server. |
 | `Preview a server` | `Preview features` | The verb has to match what the reader gets. Nothing about the preview is server-specific - the fake guild is only the vehicle for showing what shrkbot does, and offering to preview "a server" promises something the reader already has. |
 | `You're looking at a preview server - nothing you change here is saved.` | `You're looking at a preview - nothing you change here is saved.` | Same fault as the button above: "preview server" reads as a kind of server rather than as a demonstration of the product. |
+| `the leave message waits a few seconds while shrkbot reads the audit log` | `the leave message waits 3 seconds while shrkbot reads the audit log` | The real number was in the code (`Welcomes::GracePeriod::DURATION`). "A few seconds" is the same fault as "a while": the reader cannot plan around it, and a changelog is no more exempt from the rule than a settings page. |
 
 ## Kept on purpose
 
