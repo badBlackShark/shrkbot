@@ -20,7 +20,7 @@ module TwilightStruggle
     validate :parent_chain_must_not_cycle
 
     def closed_upstream?
-      status == CLOSED_STATUS
+      status.present? && status.strip.casecmp?(CLOSED_STATUS)
     end
 
     def chain

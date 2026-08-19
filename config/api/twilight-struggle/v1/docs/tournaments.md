@@ -7,6 +7,18 @@ tournament. A server that subscribes to a parent receives the results of every
 tournament below it, and configuration (channel, message templates) is inherited
 down the chain unless a level overrides it.
 
+### Status
+
+`status` is free text. We store it and give it back unchanged. One value changes
+what shrkbot does. When you send `closed`, in any capitalisation and with or
+without surrounding spaces, the tournament moves into the archived part of a
+server's subscription list on the dashboard and carries a closed badge there.
+
+That is the whole effect. A closed tournament still accepts games and still posts
+their results to any subscribed channel, and a server's configuration for it is
+untouched. Every other value is inert, so `Registration Closed` is not a closed
+tournament.
+
 ### Organisers
 
 An organiser whose Discord ID we hold can reach the Twilight Struggle plugin on

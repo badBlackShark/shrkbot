@@ -72,6 +72,28 @@ RSpec.describe TwilightStruggle::Tournament do
     end
   end
 
+  describe "#closed_upstream?" do
+    subject(:closed_upstream) { tournament.closed_upstream? }
+
+    let(:tournament) { build(:twilight_struggle_tournament, status:) }
+
+    ["closed", "Closed", "CLOSED", "  Closed  "].each do |value|
+      context "when the status is #{value.inspect}" do
+        let(:status) { value }
+
+        it { is_expected.to be true }
+      end
+    end
+
+    ["Registration Closed", "Ongoing", "", nil].each do |value|
+      context "when the status is #{value.inspect}" do
+        let(:status) { value }
+
+        it { is_expected.to be false }
+      end
+    end
+  end
+
   describe "#chain" do
     let(:grandparent) { create(:twilight_struggle_tournament) }
     let(:parent) { create(:twilight_struggle_tournament, parent: grandparent) }

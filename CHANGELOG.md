@@ -7,6 +7,9 @@ This project follows [Semantic Versioning](https://semver.org).
 
 ## [Unreleased]
 
+### Fixed
+- A Twilight Struggle tournament sent to us with the status `Closed` is treated as closed. The check compared against the exact lowercase text `closed`, so a site that capitalises its status names left every finished tournament in the active part of the subscription list, with no closed badge and no way to tidy it away. The comparison now ignores capitalisation and surrounding spaces. `Registration Closed` still counts as open, and the API reference says so. ([#275](https://github.com/badBlackShark/shrkbot/pull/275))
+
 ## [3.8.1] - 2026-08-19
 
 ### Fixed
