@@ -9,11 +9,7 @@ class Components::ToggleRow < Components::Base
   end
 
   def view_template
-    div(class: "flex items-center gap-4") do
-      div(class: "flex-1") do
-        p(class: "text-sm font-semibold") { @label }
-        p(class: "mt-0.5 text-sm text-text-secondary") { @help } if @help
-      end
+    render Components::SettingRow.new(label: @label, help: @help) do
       render Components::Toggle.new(name: @name, checked: @checked, label: @label)
     end
   end

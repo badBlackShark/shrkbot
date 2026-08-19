@@ -215,6 +215,13 @@ duplicated class strings:
 - **`Components::ConfigSections`** — the config-page section stack: renders the
   `<key>-config` div Turbo targets, the vertical `gap-5` rhythm, and the
   danger callout every plugin form was repeating (`enable_error:`).
+- **`Components::SettingRow`** — one labelled setting: `label:` + optional
+  `help:` on the left, the control yielded as a block on the right. The *only*
+  row treatment — `ToggleRow` is this plus a `Toggle`, and the Server Shield
+  cards are this plus a stepper or a toggle. The visible label is a `<p>`, not a
+  `<label>`: the accessible name belongs on the control (`Components::Toggle`
+  carries its own `aria-label`), and a second `<label>` with no `for` only
+  duplicates it.
 
 `Components::Icon` wraps Phosphor; names not in Phosphor (the `megaphone-slash`
 sub-plugin glyph) are served from its `CUSTOM_GLYPHS` map of inline SVGs.
