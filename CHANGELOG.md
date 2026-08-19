@@ -7,6 +7,11 @@ This project follows [Semantic Versioning](https://semver.org).
 
 ## [Unreleased]
 
+## [3.8.1] - 2026-08-19
+
+### Fixed
+- The production image does not build in 3.8.0. That release dropped Active Storage, which removed the `storage` directory from the repository, but the Dockerfile still changed that directory's owner, so the build stopped with `chown: cannot access 'storage': No such file or directory`. This affects self-hosting only; the hosted bot is unaffected. ([#273](https://github.com/badBlackShark/shrkbot/pull/273))
+
 ## [3.8.0] - 2026-08-19
 
 ### Added
