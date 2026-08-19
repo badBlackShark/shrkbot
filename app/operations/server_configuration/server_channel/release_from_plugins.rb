@@ -3,7 +3,7 @@
 module Ops
   module ServerConfiguration
     module ServerChannel
-      class HandleDeletion < ApplicationOperation
+      class ReleaseFromPlugins < ApplicationOperation
         self.transactional = false
 
         receives :server_configuration, :channel_id, :bot
