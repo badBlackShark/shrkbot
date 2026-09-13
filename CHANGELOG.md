@@ -5,13 +5,13 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
-## [Unreleased]
-
-### Changed
-- The Twilight Struggle results API takes a player's `country_code` instead of a `flag`. Send the country the way your own data spells it, such as `US` or `SCOT`, and shrkbot picks the flag. Case does not matter, and a code shrkbot does not know renders no flag rather than rejecting the game. This replaces `flag`, which is no longer accepted. Every `{usa_flag}` style token renders the same as before, so no template needs a change. ([#280](https://github.com/badBlackShark/shrkbot/pull/280))
+## [3.9.0] - 2026-09-13
 
 ### Added
-- Real flags for the seven regions Unicode has no emoji for. Catalonia, the Basque Country, Brittany, Galicia, Friesland, Kurdistan and Quebec now render their own flags, uploaded to shrkbot's Discord application. Unicode has flag sequences for England, Scotland and Wales and for no other region, so these seven previously rendered either a plain black flag or a stand-in: Catalonia showed Andorra's flag and the Basque Country showed Saint Pierre and Miquelon's. Self-hosting needs no action: the container entrypoint uploads them on boot, and re-running costs one request. Until the upload succeeds those seven render no flag, and nothing else is affected. ([#280](https://github.com/badBlackShark/shrkbot/pull/280))
+- Real flags for the seven regions Unicode has no flag emoji for. Catalonia, the Basque Country, Brittany, Galicia, Friesland, Kurdistan and Quebec render their own flags, uploaded to shrkbot's Discord application as custom emoji. Unicode has flag sequences for England, Scotland and Wales and for no other region. So these seven previously rendered a plain black flag or a stand-in: Catalonia showed Andorra's flag, and the Basque Country showed Saint Pierre and Miquelon's. The shipped deploy configuration uploads them when the jobs process boots, so a self-hosted instance using it needs no action. A custom deploy sets `RUN_COUNTRY_FLAG_UPLOAD=1` on the process that posts results, or runs `rails twilight_struggle:upload_country_flags` once. The upload is idempotent, and a later boot only lists what is already there. A boot that cannot reach Discord logs the failure and carries on, and those seven render no flag until an upload succeeds. ([#280](https://github.com/badBlackShark/shrkbot/pull/280))
+
+### Changed
+- The Twilight Struggle results API takes a player's `country_code` in place of `flag`. Send the country the way your own data spells it, such as `US` or `SCOT`, and shrkbot picks the flag. Case does not matter, and a code shrkbot does not know renders no flag rather than rejecting the game. A request that still sends `flag` is accepted, the field is ignored, and that player renders without a flag. Every `{usa_flag}` style token renders as before, so no template needs a change. ([#280](https://github.com/badBlackShark/shrkbot/pull/280))
 
 ## [3.8.2] - 2026-08-20
 
