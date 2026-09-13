@@ -5,6 +5,14 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [Unreleased]
+
+### Changed
+- The Twilight Struggle results API takes a player's `country_code` instead of a `flag`. Send the country the way your own data spells it, such as `US` or `SCOT`, and shrkbot picks the flag. Case does not matter, and a code shrkbot does not know renders no flag rather than rejecting the game. This replaces `flag`, which is no longer accepted. Every `{usa_flag}` style token renders the same as before, so no template needs a change. ([#280](https://github.com/badBlackShark/shrkbot/pull/280))
+
+### Added
+- Real flags for the seven regions Unicode has no emoji for. Catalonia, the Basque Country, Brittany, Galicia, Friesland, Kurdistan and Quebec now render their own flags, uploaded to shrkbot's Discord application. Unicode has flag sequences for England, Scotland and Wales and for no other region, so these seven previously rendered either a plain black flag or a stand-in: Catalonia showed Andorra's flag and the Basque Country showed Saint Pierre and Miquelon's. Self-hosting needs no action: the container entrypoint uploads them on boot, and re-running costs one request. Until the upload succeeds those seven render no flag, and nothing else is affected. ([#280](https://github.com/badBlackShark/shrkbot/pull/280))
+
 ## [3.8.2] - 2026-08-20
 
 ### Fixed

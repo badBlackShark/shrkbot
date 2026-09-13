@@ -7,13 +7,19 @@ tournament, so it cannot identify a game on its own.
 grouped under shrkbot's internal "Friendly games" tournament instead of being
 rejected.
 
-**Everything except the identifiers is render-only.** Player names, flags and
+**Everything except the identifiers is render-only.** Player names, countries and
 ratings, the winning side/method/turn, and the video URLs are used once to build
 the Discord message and are then discarded — shrkbot does not store them. Only
 the game's own id, its tournament link, and (once posted) the Discord
 channel/message id of each subscribing server's posted result are kept — one pair
 per server. See the [privacy policy](https://shrkbot.com/privacy) for the full
 data inventory.
+
+**Send the country, not the flag.** Each player carries a `country_code`, spelled
+the way your own data spells it, and shrkbot holds the table that turns it into a
+flag emoji. Case does not matter. A code shrkbot does not know renders no flag,
+so a new country on your side costs you a missing flag, never a rejected game -
+tell us and we will add it.
 
 ## Posting results to Discord
 
@@ -82,7 +88,7 @@ field. Send both fields, or write a template that matches what you send.
 | `{winning_side}` / `{losing_side}` | `USA` or `USSR`; empty on a tie |
 | `{usa_player}` / `{ussr_player}` | name and flag for that side |
 | `{usa_name}` / `{ussr_name}` / `{winning_name}` / `{losing_name}` | name, no flag |
-| `{usa_flag}` / `{ussr_flag}` / `{winning_flag}` / `{losing_flag}` | flag only |
+| `{usa_flag}` / `{ussr_flag}` / `{winning_flag}` / `{losing_flag}` | flag only; empty without a `country_code` we know |
 | `{videos}` | the video URLs, space separated |
 | `{usa_rating_before}` / `{ussr_rating_before}` / `{winning_rating_before}` / `{losing_rating_before}` | the player's rating before the game; empty without one. The `winning_`/`losing_` tokens are also empty on a tie |
 | `{usa_rating_after}` / `{ussr_rating_after}` / `{winning_rating_after}` / `{losing_rating_after}` | the player's rating after the game; empty without one. The `winning_`/`losing_` tokens are also empty on a tie |

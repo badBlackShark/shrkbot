@@ -15,8 +15,8 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
       winning_side: "usa",
       winning_turn: 6,
       winning_method: "Objectives",
-      usa: {name: "Alice", flag: "🇺🇸"},
-      ussr: {name: "Bob", flag: "🇷🇺"},
+      usa: {name: "Alice", country_code: "US"},
+      ussr: {name: "Bob", country_code: "RU"},
       video_urls: ["https://example.com/video"]
     }
   end
@@ -155,7 +155,7 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
     end
 
     context "with a player object missing its name" do
-      let(:params) { {game: valid_result_attributes.merge(tournament_external_id: tournament.external_id, usa: {flag: "🇺🇸"})} }
+      let(:params) { {game: valid_result_attributes.merge(tournament_external_id: tournament.external_id, usa: {country_code: "US"})} }
 
       it "returns 422" do
         put_game
@@ -235,8 +235,8 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
         {
           game: valid_result_attributes.merge(
             tournament_external_id: tournament.external_id,
-            usa: {name: "Alice", flag: "🇺🇸", rating_before: 1500, rating_after: 1512},
-            ussr: {name: "Bob", flag: "🇷🇺", rating_before: 1600, rating_after: 1588}
+            usa: {name: "Alice", country_code: "US", rating_before: 1500, rating_after: 1512},
+            ussr: {name: "Bob", country_code: "RU", rating_before: 1600, rating_after: 1588}
           )
         }
       end
@@ -253,7 +253,7 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
         {
           game: valid_result_attributes.merge(
             tournament_external_id: tournament.external_id,
-            usa: {name: "Alice", flag: "🇺🇸", rating_before: 1500.5, rating_after: 1512.5}
+            usa: {name: "Alice", country_code: "US", rating_before: 1500.5, rating_after: 1512.5}
           )
         }
       end
@@ -270,7 +270,7 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
         {
           game: valid_result_attributes.merge(
             tournament_external_id: tournament.external_id,
-            usa: {name: "Alice", flag: "🇺🇸", rating_before: -50, rating_after: -20}
+            usa: {name: "Alice", country_code: "US", rating_before: -50, rating_after: -20}
           )
         }
       end
@@ -287,7 +287,7 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
         {
           game: valid_result_attributes.merge(
             tournament_external_id: tournament.external_id,
-            usa: {name: "Alice", flag: "🇺🇸", rating_before: 1000000}
+            usa: {name: "Alice", country_code: "US", rating_before: 1000000}
           )
         }
       end
@@ -304,7 +304,7 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
         {
           game: valid_result_attributes.merge(
             tournament_external_id: tournament.external_id,
-            usa: {name: "Alice", flag: "🇺🇸", rating_before: "1512"}
+            usa: {name: "Alice", country_code: "US", rating_before: "1512"}
           )
         }
       end

@@ -39,8 +39,8 @@ RSpec.describe "Twilight Struggle integration", type: :request, skip_prosopite: 
       winning_side: "usa",
       winning_turn: 6,
       winning_method: "Objectives",
-      usa: {name: "Alice", flag: "🇺🇸"},
-      ussr: {name: "Bob", flag: "🇷🇺"}
+      usa: {name: "Alice", country_code: "US"},
+      ussr: {name: "Bob", country_code: "RU"}
     }
   end
 
@@ -194,7 +194,7 @@ RSpec.describe "Twilight Struggle integration", type: :request, skip_prosopite: 
 
       subject(:post_with_ping) do
         perform_enqueued_jobs do
-          put_game(external_id, game_attributes(usa: {name: "Alice", flag: "🇺🇸", discord_id: "111"}, ussr: {name: "Bob", flag: "🇷🇺"}))
+          put_game(external_id, game_attributes(usa: {name: "Alice", country_code: "US", discord_id: "111"}, ussr: {name: "Bob", country_code: "RU"}))
         end
       end
 

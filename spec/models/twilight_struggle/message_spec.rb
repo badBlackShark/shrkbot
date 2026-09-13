@@ -3,8 +3,8 @@
 require "rails_helper"
 
 RSpec.describe TwilightStruggle::Message do
-  let(:usa) { TwilightStruggle::Player.new(name: "M B", flag: "🇵🇱", discord_id: "111") }
-  let(:ussr) { TwilightStruggle::Player.new(name: "L S", flag: "🇦🇷", discord_id: "222") }
+  let(:usa) { TwilightStruggle::Player.new(name: "M B", country_code: "PL", discord_id: "111") }
+  let(:ussr) { TwilightStruggle::Player.new(name: "L S", country_code: "AR", discord_id: "222") }
   let(:report) do
     TwilightStruggle::GameReport.new(
       usa:,
@@ -43,8 +43,8 @@ RSpec.describe TwilightStruggle::Message do
       let(:template) { "{tournament_name}: {game_id} - {usa_player} (USA) tied with {ussr_player} in {turn} ({winning_method})" }
       let(:report) do
         TwilightStruggle::GameReport.new(
-          usa: TwilightStruggle::Player.new(name: "M N", flag: "🇦🇩", discord_id: "111"),
-          ussr: TwilightStruggle::Player.new(name: "D C", flag: "🇰🇷", discord_id: "222"),
+          usa: TwilightStruggle::Player.new(name: "M N", country_code: "AD", discord_id: "111"),
+          ussr: TwilightStruggle::Player.new(name: "D C", country_code: "KR", discord_id: "222"),
           winning_side: "tie",
           winning_turn: 10,
           winning_method: "Wargames",
@@ -71,8 +71,8 @@ RSpec.describe TwilightStruggle::Message do
       let(:template) { "{tournament_name}: {game_id} - {usa_player} vs {ussr_player} {videos}" }
       let(:report) do
         TwilightStruggle::GameReport.new(
-          usa: TwilightStruggle::Player.new(name: "T B", flag: "🇵🇱", discord_id: "111"),
-          ussr: TwilightStruggle::Player.new(name: "A S", flag: "🇸🇪", discord_id: "222"),
+          usa: TwilightStruggle::Player.new(name: "T B", country_code: "PL", discord_id: "111"),
+          ussr: TwilightStruggle::Player.new(name: "A S", country_code: "SE", discord_id: "222"),
           winning_side: "usa",
           winning_turn: 5,
           winning_method: "defcon",
@@ -98,7 +98,7 @@ RSpec.describe TwilightStruggle::Message do
     context "player token" do
       let(:template) { "{usa_player}" }
 
-      context "when the player has no flag" do
+      context "when the player states no country" do
         let(:usa) { TwilightStruggle::Player.new(name: "M B", discord_id: "111") }
 
         it "has no trailing or doubled space" do
@@ -114,7 +114,7 @@ RSpec.describe TwilightStruggle::Message do
         end
 
         context "when the player has no discord_id" do
-          let(:usa) { TwilightStruggle::Player.new(name: "M B", flag: "🇵🇱") }
+          let(:usa) { TwilightStruggle::Player.new(name: "M B", country_code: "PL") }
 
           it "renders the name alone, with no empty brackets" do
             expect(content).to eq("M B 🇵🇱")
@@ -199,7 +199,7 @@ RSpec.describe TwilightStruggle::Message do
 
     context "rating tokens" do
       let(:template) { "{usa_rating_before}/{usa_rating_after}/{usa_rating_change}" }
-      let(:usa) { TwilightStruggle::Player.new(name: "M B", flag: "🇵🇱", discord_id: "111", rating_before: 1500, rating_after: 1512) }
+      let(:usa) { TwilightStruggle::Player.new(name: "M B", country_code: "PL", discord_id: "111", rating_before: 1500, rating_after: 1512) }
 
       it "renders all three usa rating tokens" do
         expect(content).to eq("1500/1512/+12")
@@ -207,7 +207,7 @@ RSpec.describe TwilightStruggle::Message do
 
       context "winning/losing rating tokens on a decided game" do
         let(:template) { "{winning_rating_before}/{winning_rating_after}/{winning_rating_change}|{losing_rating_before}/{losing_rating_after}/{losing_rating_change}" }
-        let(:ussr) { TwilightStruggle::Player.new(name: "L S", flag: "🇦🇷", discord_id: "222", rating_before: 1600, rating_after: 1588) }
+        let(:ussr) { TwilightStruggle::Player.new(name: "L S", country_code: "AR", discord_id: "222", rating_before: 1600, rating_after: 1588) }
 
         it "picks the winning player's ratings for winning_ and the loser's for losing_" do
           expect(content).to eq("1500/1512/+12|1600/1588/-12")
@@ -216,7 +216,7 @@ RSpec.describe TwilightStruggle::Message do
 
       context "on a tie" do
         let(:template) { "[{winning_rating_before}][{losing_rating_before}]|{usa_rating_before}/{ussr_rating_before}" }
-        let(:ussr) { TwilightStruggle::Player.new(name: "L S", flag: "🇦🇷", discord_id: "222", rating_before: 1600, rating_after: 1588) }
+        let(:ussr) { TwilightStruggle::Player.new(name: "L S", country_code: "AR", discord_id: "222", rating_before: 1600, rating_after: 1588) }
         let(:report) { TwilightStruggle::GameReport.new(usa:, ussr:, winning_side: "tie") }
 
         it "renders the winning_/losing_ rating tokens empty while usa_/ussr_ still render" do
@@ -226,7 +226,7 @@ RSpec.describe TwilightStruggle::Message do
 
       context "when a player is sent without ratings" do
         let(:template) { "({usa_rating_before}/{usa_rating_after}/{usa_rating_change})" }
-        let(:usa) { TwilightStruggle::Player.new(name: "M B", flag: "🇵🇱", discord_id: "111") }
+        let(:usa) { TwilightStruggle::Player.new(name: "M B", country_code: "PL", discord_id: "111") }
 
         it "renders all three tokens empty and leaves the parentheses the template author wrote" do
           expect(content).to eq("(//)")

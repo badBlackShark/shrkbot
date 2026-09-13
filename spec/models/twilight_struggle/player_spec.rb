@@ -7,25 +7,25 @@ RSpec.describe TwilightStruggle::Player do
     subject(:player) { described_class.from_payload(payload) }
 
     context "with string keys" do
-      let(:payload) { {"name" => "Alice", "flag" => "🇺🇸", "discord_id" => "123", "rating_before" => 1500, "rating_after" => 1512} }
+      let(:payload) { {"name" => "Alice", "country_code" => "US", "discord_id" => "123", "rating_before" => 1500, "rating_after" => 1512} }
 
       it "builds a Player" do
-        expect(player).to eq(described_class.new(name: "Alice", flag: "🇺🇸", discord_id: "123", rating_before: 1500, rating_after: 1512))
+        expect(player).to eq(described_class.new(name: "Alice", country_code: "US", discord_id: "123", rating_before: 1500, rating_after: 1512))
       end
     end
 
     context "with symbol keys" do
-      let(:payload) { {name: "Bob", flag: "🇷🇺", discord_id: "456", rating_before: 1500, rating_after: 1488} }
+      let(:payload) { {name: "Bob", country_code: "RU", discord_id: "456", rating_before: 1500, rating_after: 1488} }
 
       it "builds a Player" do
-        expect(player).to eq(described_class.new(name: "Bob", flag: "🇷🇺", discord_id: "456", rating_before: 1500, rating_after: 1488))
+        expect(player).to eq(described_class.new(name: "Bob", country_code: "RU", discord_id: "456", rating_before: 1500, rating_after: 1488))
       end
     end
 
     context "without optional fields" do
       let(:payload) { {name: "Carol"} }
 
-      it "defaults flag and discord_id to nil" do
+      it "defaults country_code and discord_id to nil" do
         expect(player).to eq(described_class.new(name: "Carol"))
       end
 
@@ -33,6 +33,22 @@ RSpec.describe TwilightStruggle::Player do
         expect(player.rating_before).to be_nil
         expect(player.rating_after).to be_nil
       end
+    end
+  end
+
+  describe "#flag" do
+    subject { described_class.new(name: "Alice", country_code:).flag }
+
+    context "with a country the table knows" do
+      let(:country_code) { "US" }
+
+      it { is_expected.to eq("🇺🇸") }
+    end
+
+    context "without a country" do
+      let(:country_code) { nil }
+
+      it { is_expected.to be_nil }
     end
   end
 
