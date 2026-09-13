@@ -6,8 +6,8 @@ require "discordrb"
 RSpec.describe Ops::TwilightStruggle::Games::Post do
   subject(:result) { described_class.call(game:, server_configuration:, report:) }
 
-  let(:usa) { TwilightStruggle::Player.new(name: "Alice", flag: "🇺🇸", discord_id: "111") }
-  let(:ussr) { TwilightStruggle::Player.new(name: "Bob", flag: "🇷🇺", discord_id: "222") }
+  let(:usa) { TwilightStruggle::Player.new(name: "Alice", country_code: "US", discord_id: "111") }
+  let(:ussr) { TwilightStruggle::Player.new(name: "Bob", country_code: "RU", discord_id: "222") }
   let(:video_urls) { [] }
   let(:report) do
     TwilightStruggle::GameReport.new(

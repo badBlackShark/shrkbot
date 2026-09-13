@@ -191,6 +191,41 @@ send passes `allowed_mentions: {parse: []}`, so no message ever notifies anyone:
 the tags are there to identify a player, not to ping them, and a player named
 `@everyone` cannot ping the server.
 
+## Flags
+
+**The site sends a country code and shrkbot owns the table.** `config/country_flags.yml`
+holds all 252 codes the site can send, built from its own `countries.icon` column,
+which is the only exhaustive list: `public/country_flags.json` in their frontend is
+missing six countries (Namibia among them) and disagrees on Friesland.
+`TwilightStruggle::CountryFlag.for` downcases the code and looks it up. An unknown
+code renders no flag rather than failing the game, so a country added on their side
+costs a missing flag and nothing else.
+
+**Seven regions need a custom emoji, because Unicode has no flag for them.** Unicode
+defines tag sequences for England, Scotland and Wales and for no other subdivision, so
+Brittany, Friesland, Galicia and Kurdistan rendered a bare black flag, and Catalonia,
+the Basque Country and Quebec were given stand-ins by the site (Andorra, Saint Pierre
+and Miquelon, Martinique). These seven live under `custom:` in the same file, keyed to
+an emoji name, with the image in `config/country_flag_images/`.
+`Bot::Discord::ApplicationEmoji` turns the name into `<:name:id>`.
+
+**Application emoji, not guild emoji.** A bot may use an emoji owned by its own
+application in any channel it can post to, with no storage guild and no external-emoji
+permission. discordrb wraps no application-emoji endpoint, so the module goes through
+`Discordrb::API.request` directly, which still counts against discordrb's rate
+limiter. The listing is fetched once per process and memoised, so a freshly uploaded
+emoji needs a restart to be seen.
+
+**Each bot needs its own upload**, because the ids belong to the application and a
+development bot is a different application from the production one:
+
+```
+rails twilight_struggle:upload_country_flags
+```
+
+It is idempotent and skips what is already there. Until it runs, those seven countries
+render no flag; every other country and every post is unaffected.
+
 ## Data lifecycle
 
 Guild purge is the cascade: destinations and posted messages hang off

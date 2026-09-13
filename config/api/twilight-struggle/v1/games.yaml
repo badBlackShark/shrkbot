@@ -126,11 +126,15 @@ components:
           type: string
           maxLength: 100
           example: "Alice"
-        flag:
+        country_code:
           type: string
-          maxLength: 8
-          description: Meant for a flag emoji.
-          example: "🇺🇸"
+          maxLength: 10
+          description: >-
+            The player's country, spelled the way your own data spells it, such
+            as `US` or `SCOT`. Case does not matter. We map it to a flag emoji
+            for the message. A code we do not know renders no flag rather than
+            rejecting the game.
+          example: "UK"
         discord_id:
           type: string
           description: >-
