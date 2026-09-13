@@ -88,7 +88,7 @@ en:
           label: Excluded roles
           placeholder: Choose roles
         help: Server-wide Looking for Game settings. The per-role cards below add
-          extra gates on top of these.
+          extra restrictions on top of these.
         lifetime:
           default: 360 minutes (6 hours)
           help: How long the "Looking for Game" post stays visible. For scheduled
@@ -106,7 +106,7 @@ en:
             to allow everyone.
           label: Required roles
           placeholder: Choose roles
-        subtitle: Server-wide gates, allowed channels, cooldown and post lifetime
+        subtitle: Server-wide restrictions, allowed channels, cooldown and post lifetime
         title: Defaults
       pingable_role_card:
         channel:
@@ -135,12 +135,12 @@ en:
           label: Role to ping
           placeholder: Choose a role
         summary:
-          one: "%{count} extra gate"
-          other: "%{count} extra gates"
+          one: "%{count} extra restriction"
+          other: "%{count} extra restrictions"
         unpicked: Choose a role
       pingable_roles_card:
         add: Add role
-        help: The roles members can ping with /lfg, each with its own extra gates.
+        help: The roles members can ping with /lfg, each with its own extra restrictions.
           Only configured roles appear in the command.
         label: Pingable roles
       setup_guide_card:
@@ -774,7 +774,7 @@ en:
         show:
           description: Let members find people to play with, on the fly or scheduled.
             Only shrkbot pings - so you can turn off general-purpose role pings.
-          gate_message: Enable the plugin to configure pingable roles and gates.
+          gate_message: Enable the plugin to configure pingable roles and restrictions.
           title: Looking for Game
       logging:
         show:
