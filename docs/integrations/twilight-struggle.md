@@ -217,14 +217,18 @@ limiter. The listing is fetched once per process and memoised, so a freshly uplo
 emoji needs a restart to be seen.
 
 **Each bot needs its own upload**, because the ids belong to the application and a
-development bot is a different application from the production one:
+development bot is a different application from the production one. The container
+entrypoint does it on every boot of the jobs role (`RUN_COUNTRY_FLAG_UPLOAD=1`, see
+[Deployment](../running/deployment.md)), so there is no step to remember. Run it by
+hand only outside that entrypoint, such as against a local bot:
 
 ```
 rails twilight_struggle:upload_country_flags
 ```
 
-It is idempotent and skips what is already there. Until it runs, those seven countries
-render no flag; every other country and every post is unaffected.
+It is idempotent and skips what is already there. By hand it fails loudly, because you
+want to know; from the entrypoint it logs and lets the boot continue. Until it succeeds
+those seven countries render no flag; every other country and every post is unaffected.
 
 ## Data lifecycle
 

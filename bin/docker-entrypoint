@@ -4,4 +4,9 @@ if [ -n "${RUN_DB_PREPARE}" ]; then
   ./bin/rails db:prepare db:seed
 fi
 
+if [ -n "${RUN_COUNTRY_FLAG_UPLOAD}" ]; then
+  ./bin/rails twilight_struggle:upload_country_flags ||
+    echo "Country flag upload failed. The regional flags render empty until a boot that reaches Discord."
+fi
+
 exec "${@}"

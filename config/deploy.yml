@@ -22,6 +22,9 @@ servers:
       - <%= ENV["DEPLOY_HOST"] %>
     cmd: bin/jobs
     proxy: false
+    env:
+      clear:
+        RUN_COUNTRY_FLAG_UPLOAD: "1"
 
 proxy:
   ssl: true

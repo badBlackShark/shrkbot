@@ -126,6 +126,15 @@ from `PluginCatalog`, and `db:prepare` alone only seeds a database it just
 created — so a plugin added to the catalog after launch would never get its row,
 and every config-page save for it would 404 on `Plugin.find_by!`.
 
+The same entrypoint uploads the Twilight Struggle regional flags when
+`RUN_COUNTRY_FLAG_UPLOAD=1`, which is set on the **jobs** role only. Jobs is the
+process that renders a flag into a posted result, so uploading there means the
+upload finishes before the process that needs it starts. The task is idempotent,
+so every later boot costs one listing call. Unlike `db:prepare`, a failure here
+does not stop the boot: it logs and carries on, because a Discord outage must not
+keep the queue down. Those seven flags then render empty until a boot that reaches
+Discord.
+
 ## Redeploys
 
 ```sh
