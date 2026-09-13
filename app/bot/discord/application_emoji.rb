@@ -15,8 +15,12 @@ module Bot
         end
 
         def upload(emoji_name, image_path)
-          request(:applications_aid_emojis, :post, "applications/#{application_id}/emojis",
-            {name: emoji_name, image: data_uri(image_path)})
+          request(
+            :applications_aid_emojis,
+            :post,
+            "applications/#{application_id}/emojis",
+            {name: emoji_name, image: data_uri(image_path)}
+          )
         end
 
         def ids
@@ -39,8 +43,6 @@ module Bot
           @application_id ||= request(:applications_me, :get, "applications/@me").fetch("id")
         end
 
-        # discordrb wraps no application-emoji endpoint, so these go through its
-        # generic request method, which still counts against its rate limiter.
         def request(rate_limit_key, verb, path, body = nil)
           arguments = ["#{Discordrb::API.api_base}/#{path}"]
           arguments << body.to_json if body
