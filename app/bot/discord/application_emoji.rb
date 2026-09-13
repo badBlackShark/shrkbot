@@ -9,6 +9,9 @@ module Bot
           return if id.blank?
 
           "<:#{emoji_name}:#{id}>"
+        rescue => error
+          Rails.logger.error { "#{self} could not resolve the emoji #{emoji_name}: #{error.message}" }
+          nil
         end
 
         def upload(emoji_name, image_path)
@@ -30,9 +33,6 @@ module Bot
         def listed_ids
           listed = request(:applications_aid_emojis, :get, "applications/#{application_id}/emojis")
           listed.fetch("items").to_h { |emoji| [emoji["name"], emoji["id"]] }
-        rescue => error
-          Rails.logger.error { "#{self} could not list the application's emoji: #{error.message}" }
-          {}
         end
 
         def application_id

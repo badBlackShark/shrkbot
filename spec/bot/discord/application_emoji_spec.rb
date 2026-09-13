@@ -32,9 +32,7 @@ RSpec.describe Bot::Discord::ApplicationEmoji do
 
       expect(Discordrb::API).to have_received(:request).twice
     end
-  end
 
-  describe ".ids" do
     it "renders nothing rather than raising when Discord cannot be reached" do
       allow(Discordrb::API).to receive(:request).and_raise(StandardError, "connection reset")
       allow(Rails.logger).to receive(:error)
