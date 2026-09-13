@@ -65,6 +65,20 @@ Could not post the role message - check the channel.
 **No internals.** No error codes, class names, "validation failed", "invalid
 input", "an error occurred". The reader cannot act on any of it.
 
+**Internal vocabulary stays internal, even when it reads like English.** The code
+calls a precondition a gate, a plugin group a group, a server a server
+configuration. Only the last one is obviously a leak; the first two look like
+plain words and slip through. Name the thing the reader is actually setting -
+roles, requirements, restrictions - not the mechanism that enforces it.
+
+```
+The per-role cards below add extra restrictions on top of these.
+```
+
+"Gate" in particular is a word almost nobody uses for a rule they configured
+themselves. Its plain-English senses are a fence and a boarding point, and
+neither is what the setting does.
+
 **Second person for what the reader must do, and for the one thing you want them
 to do.** Use it sparingly. If every clause is "you", none of them stand out.
 
@@ -233,6 +247,8 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Could not delete the server configuration - it's a preview configuration.` | `Could not delete this server - it is a preview, not a real Discord guild.` | The cause repeated the noun instead of explaining it, so the reader learns nothing after the dash. "Server configuration" is also the internal name for what every other string calls a server. |
 | `Preview a server` | `Preview features` | The verb has to match what the reader gets. Nothing about the preview is server-specific - the fake guild is only the vehicle for showing what shrkbot does, and offering to preview "a server" promises something the reader already has. |
 | `You're looking at a preview server - nothing you change here is saved.` | `You're looking at a preview - nothing you change here is saved.` | Same fault as the button above: "preview server" reads as a kind of server rather than as a demonstration of the product. |
+| `The per-role cards below add extra gates on top of these.` | `The per-role cards below add extra restrictions on top of these.` | "Gate" is the internal name for the check, not a word a server admin would use for the rule they set. "Restrictions" covers both halves of what the cards hold - required roles and excluded roles - where "requirements" would only cover the first. |
+| `%{count} extra gate` / `Server-wide gates, allowed channels, cooldown and post lifetime` / `each with its own extra gates` / `Enable the plugin to configure pingable roles and gates.` | Same swap, `gates` -> `restrictions`. | Five sites, one word. `gate` stays in the code and in `docs/`, where it names the mechanism for people who maintain it. |
 | `the leave message waits a few seconds while shrkbot reads the audit log` | `the leave message waits 3 seconds while shrkbot reads the audit log` | The real number was in the code (`Welcomes::GracePeriod::DURATION`). "A few seconds" is the same fault as "a while": the reader cannot plan around it, and a changelog is no more exempt from the rule than a settings page. |
 
 ## Kept on purpose
