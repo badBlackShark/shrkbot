@@ -84,6 +84,22 @@ jobs:
       - name: Lint code for consistent style
         run: bundle exec standardrb
 
+  javascript:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Run the JavaScript unit tests
+        run: node --import ./spec/javascript/support/register_hooks.mjs --test spec/javascript/
+
   i18n:
     runs-on: ubuntu-latest
     steps:

@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { text, pill, hint, nodes } from "lib/token_preview"
+import { render as renderMarkdown } from "lib/discord_markdown_dom"
 
 const SAMPLE = { username: "newmember", displayname: "New Member", membercount: "1,234" }
 const TOKEN = /\{(user|username|displayname|membercount)\}/g
@@ -24,9 +25,7 @@ export default class extends Controller {
       return
     }
 
-    for (const node of nodes(input.value, TOKEN, (match) => [this.token(match[1], kind)])) {
-      output.append(node)
-    }
+    output.append(...renderMarkdown(input.value, (leaf) => nodes(leaf, TOKEN, (match) => [this.token(match[1], kind)])))
   }
 
   token(name, kind) {
