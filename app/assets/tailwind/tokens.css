@@ -93,6 +93,12 @@
   --discord-divider: #e3e5e8;
   --discord-mention-bg: #e7e9fd;
   --discord-mention-fg: #444fcd;
+  --discord-code-bg: #f2f3f5;
+  --discord-code-bd: #e3e5e8;
+  --discord-quote-bd: #c4c9ce;
+  --discord-link: #0064c1;
+  --discord-spoiler-bg: #b9bec4;
+  --discord-spoiler-revealed-bg: rgba(0, 0, 0, 0.06);
 
   --chamfer: 12px;
   --chamfer-sm: 6px;
@@ -159,4 +165,10 @@
   --discord-divider: #3f4147;
   --discord-mention-bg: rgba(88, 101, 242, 0.3);
   --discord-mention-fg: #c9cdfb;
+  --discord-code-bg: #2b2d31;
+  --discord-code-bd: #1e1f22;
+  --discord-quote-bd: #4e5058;
+  --discord-link: #00a8fc;
+  --discord-spoiler-bg: #202225;
+  --discord-spoiler-revealed-bg: rgba(255, 255, 255, 0.08);
 }

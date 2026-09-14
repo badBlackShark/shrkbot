@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import { text, pill, hint, nodes } from "lib/token_preview"
+import { render as renderMarkdown } from "lib/discord_markdown_dom"
 
 const GAMES = {
   win: {
@@ -70,9 +71,7 @@ export default class extends Controller {
     }
 
     const tokens = this.tokens(game)
-    for (const node of nodes(template, TOKEN, (match) => this.tokenNodes(match[0], tokens[match[1]]))) {
-      output.append(node)
-    }
+    output.append(...renderMarkdown(template, (leaf) => nodes(leaf, TOKEN, (match) => this.tokenNodes(match[0], tokens[match[1]]))))
   }
 
   tokenNodes(literal, value) {

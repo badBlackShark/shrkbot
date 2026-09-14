@@ -30,7 +30,7 @@ RSpec.describe Components::DiscordMessagePreview do
     expect(html.scan("shrkbot-mascot").size).to eq(2)
   end
 
-  it "passes each message's body data through to its output paragraph" do
+  it "passes each message's body data through to its output element" do
     expect(html).to include('data-welcome-preview-target="joinOutput"')
     expect(html).to include('data-welcome-preview-target="leaveOutput"')
     expect(html).to include('data-empty-hint="off"')
