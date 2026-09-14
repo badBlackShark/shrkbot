@@ -39,7 +39,7 @@ directly against the tree it returns. The renderer needs a `document`, so
 `support/fake_dom.mjs` supplies a minimal stand-in and serializes the result
 back to a string the tests can compare; `support/register_hooks.mjs` teaches
 Node to resolve the `lib/…` specifiers importmap serves in the browser, which
-is why the suite runs as `node --import ./spec/javascript/support/register_hooks.mjs --test spec/javascript/`.
+is why the suite runs as `node --import ./spec/javascript/support/register_hooks.mjs --test spec/javascript/*_test.mjs`.
 
 The Stimulus controllers (`welcome_preview_controller.js`,
 `twilight_struggle_preview_controller.js`) own neither parsing nor DOM

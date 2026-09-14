@@ -98,7 +98,7 @@ jobs:
           node-version: 24
 
       - name: Run the JavaScript unit tests
-        run: node --import ./spec/javascript/support/register_hooks.mjs --test spec/javascript/
+        run: node --import ./spec/javascript/support/register_hooks.mjs --test spec/javascript/*_test.mjs
 
   i18n:
     runs-on: ubuntu-latest
