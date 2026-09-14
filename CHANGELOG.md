@@ -5,6 +5,11 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.10.0] - 2026-09-14
+
+### Added
+- The welcome and Twilight Struggle message previews render Discord markdown. Bold, italics, underline, strikethrough, spoilers, headings, subtext, quotes, lists, inline code and code blocks appear as Discord shows them rather than as raw syntax. Checking a template's formatting no longer means sending a real message. User, role and channel mentions, custom emoji and timestamp tags stay as written, because those names only exist on Discord's side. Code blocks carry no syntax highlighting, and a link whose address is not http or https renders as plain text. ([#285](https://github.com/badBlackShark/shrkbot/pull/285))
+
 ## [3.9.0] - 2026-09-13
 
 ### Added
