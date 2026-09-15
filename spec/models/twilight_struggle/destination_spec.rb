@@ -35,6 +35,20 @@ RSpec.describe TwilightStruggle::Destination do
     end
   end
 
+  describe "#player_display" do
+    it "is valid when nil, meaning inherit" do
+      destination.player_display = nil
+
+      expect(destination).to be_valid
+    end
+
+    it "rejects a value outside the three known modes" do
+      destination.player_display = "carrier_pigeon"
+
+      expect(destination).not_to be_valid
+    end
+  end
+
   describe "#manually_archived?" do
     it "is true when archived_at is set" do
       destination.archived_at = Time.current

@@ -18,13 +18,13 @@ RSpec.describe TwilightStruggle::Message do
   end
   let(:template) { "{winning_player} beat {losing_player} on {turn} via {winning_method}" }
   let(:tournament_name) { "OTSL 2026 - Season 8" }
-  let(:ping_players) { false }
+  let(:player_display) { "name" }
   let(:message) do
     described_class.new(
       report:,
       template:,
       tournament_name:,
-      ping_players:
+      player_display:
     )
   end
 
@@ -59,7 +59,7 @@ RSpec.describe TwilightStruggle::Message do
 
       context "when tags are on and the template asks for a winner there is not" do
         let(:template) { "{winning_player}|{winning_name}" }
-        let(:ping_players) { true }
+        let(:player_display) { "name_and_tag" }
 
         it "renders empty rather than a stray tag" do
           expect(content).to eq("|")
@@ -106,8 +106,8 @@ RSpec.describe TwilightStruggle::Message do
         end
       end
 
-      context "when ping_players is true" do
-        let(:ping_players) { true }
+      context "when player_display is name_and_tag" do
+        let(:player_display) { "name_and_tag" }
 
         it "keeps the real name and appends the tag after the flag" do
           expect(content).to eq("M B 🇵🇱 (<@111>)")
@@ -122,10 +122,35 @@ RSpec.describe TwilightStruggle::Message do
         end
       end
 
-      context "when ping_players is false" do
+      context "when player_display is name" do
         it "renders the plain name followed by the flag" do
           expect(content).to eq("M B 🇵🇱")
         end
+      end
+
+      context "when player_display is tag" do
+        let(:player_display) { "tag" }
+
+        it "replaces the name with the tag, keeping the flag" do
+          expect(content).to eq("<@111> 🇵🇱")
+        end
+
+        context "when the player has no discord_id" do
+          let(:usa) { TwilightStruggle::Player.new(name: "M B", country_code: "PL") }
+
+          it "falls back to the plain name" do
+            expect(content).to eq("M B 🇵🇱")
+          end
+        end
+      end
+    end
+
+    context "name token" do
+      let(:template) { "{usa_name}" }
+      let(:player_display) { "tag" }
+
+      it "replaces the name with the tag in tag mode" do
+        expect(content).to eq("<@111>")
       end
     end
 

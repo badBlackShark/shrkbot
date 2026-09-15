@@ -23,8 +23,8 @@ module TwilightStruggle
       first_present(:template_video) || I18n.t("twilight_struggle.default_template.video")
     end
 
-    def ping_players?
-      chain.find { |destination| !destination.ping_players.nil? }&.ping_players || false
+    def player_display
+      chain.find { |destination| destination.player_display.present? }&.player_display || Destination::DEFAULT_PLAYER_DISPLAY
     end
 
     def inherited_from
