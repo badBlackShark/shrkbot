@@ -17,6 +17,12 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
     expect(result.value.tournament).to eq(tournament)
   end
 
+  it "enqueues a sequence gap check for the arrived external_id, delayed so a race or a late arrival can't false-alarm" do
+    expect { result }.to have_enqueued_job(TwilightStruggle::SequenceGapJob)
+      .with(external_id)
+      .at(a_value_within(1.second).of(described_class::GAP_CHECK_DELAY.from_now))
+  end
+
   context "with a blank external_id" do
     let(:external_id) { "" }
 
@@ -78,11 +84,10 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
       end
 
       it "logs why nothing was posted" do
-        allow(Rails.logger).to receive(:info)
+        messages = []
+        allow(Rails.logger).to receive(:info) { |&block| messages << block&.call }
         result
-        expect(Rails.logger).to have_received(:info) do |&block|
-          expect(block.call).to include("no server subscribes")
-        end
+        expect(messages).to include(a_string_including("no server subscribes"))
       end
     end
 
