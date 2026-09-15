@@ -75,6 +75,10 @@ module Bot
         JSON.parse(response)["id"]
       end
 
+      def dm_channel_id(user_id)
+        JSON.parse(Discordrb::API::User.create_pm(Bot::Config.rest_token, user_id))["id"]
+      end
+
       def send_to(channel, rendered, allowed_mentions: nil, attachments: nil, subject: nil)
         unless subject
           return channel.send_message(nil, false, nil, attachments, allowed_mentions, nil, rendered[:components], rendered[:flags])

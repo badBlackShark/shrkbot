@@ -4,6 +4,8 @@ module Ops
   module TwilightStruggle
     module Games
       class Upsert < ApplicationOperation
+        GAP_CHECK_DELAY = 1.minute
+
         receives :external_id, :payload
         receives :tournament, optional: true
 
@@ -14,10 +16,17 @@ module Ops
           return failure(record.errors.full_messages) unless record.save
 
           enqueue_post(record)
+          enqueue_gap_check(record)
           ok(record)
         end
 
         private
+
+        def enqueue_gap_check(record)
+          return unless record.previously_new_record?
+
+          ::TwilightStruggle::SequenceGapJob.set(wait: GAP_CHECK_DELAY).perform_later(record.external_id)
+        end
 
         def enqueue_post(record)
           servers = record.tournament.subscribed_servers.to_a

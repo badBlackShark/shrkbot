@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
   include_context "twilight struggle api auth"
 
-  let(:external_id) { "tsg-ext-new" }
+  let(:external_id) { "48310" }
   let(:tournament) { create(:twilight_struggle_tournament) }
   let(:valid_result_attributes) do
     {
