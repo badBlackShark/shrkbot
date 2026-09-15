@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe Ops::TwilightStruggle::Games::Upsert do
   subject(:result) { described_class.call(external_id:, tournament:, payload:) }
 
-  let(:external_id) { "60001" }
+  let(:external_id) { "1000" }
   let(:tournament) { create(:twilight_struggle_tournament) }
   let(:payload) { {"winning_side" => "usa"} }
 
@@ -17,16 +17,36 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
     expect(result.value.tournament).to eq(tournament)
   end
 
-  it "enqueues a sequence gap check for the arrived external_id, delayed so a race or a late arrival can't false-alarm" do
-    expect { result }.to have_enqueued_job(TwilightStruggle::SequenceGapJob)
-      .with(external_id)
-      .at(a_value_within(1.second).of(described_class::GAP_CHECK_DELAY.from_now))
+  context "when the watermark already sits below the arrival" do
+    before { BotSetting.set(TwilightStruggle::GameSequence::SETTING_KEY, "997") }
+
+    it "enqueues a sequence gap check for the candidate ids, delayed so a race or a late arrival can't false-alarm" do
+      expect { result }.to have_enqueued_job(TwilightStruggle::SequenceGapJob)
+        .with([998, 999])
+        .at(a_value_within(1.second).of(described_class::GAP_CHECK_DELAY.from_now))
+    end
   end
 
   context "when the game is already stored" do
     let!(:existing) { create(:twilight_struggle_game, external_id:, tournament:) }
 
+    before { BotSetting.set(TwilightStruggle::GameSequence::SETTING_KEY, external_id) }
+
     it "enqueues no sequence gap check, so an edit or a re-post cannot re-report a gap below it" do
+      expect { result }.not_to have_enqueued_job(TwilightStruggle::SequenceGapJob)
+    end
+  end
+
+  context "when a game is deleted after arriving and the next game arrives" do
+    let(:external_id) { "1011" }
+
+    before do
+      described_class.call(external_id: "1009", tournament:, payload:)
+      described_class.call(external_id: "1010", tournament:, payload:)
+      ::TwilightStruggle::Game.find_by!(external_id: "1010").destroy!
+    end
+
+    it "does not report the deleted game as missing" do
       expect { result }.not_to have_enqueued_job(TwilightStruggle::SequenceGapJob)
     end
   end
@@ -62,7 +82,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
     end
 
     context "when a friendly game already exists" do
-      before { described_class.call(external_id: "60000", tournament: nil, payload:) }
+      before { described_class.call(external_id: "999", tournament: nil, payload:) }
 
       it "reuses the same friendly tournament" do
         result

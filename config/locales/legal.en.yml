@@ -190,7 +190,10 @@ en:
         the tournaments and games themselves are twilight-struggle.com''s data and
         are unaffected. Organiser Discord IDs are kept for as long as twilight-struggle.com
         keeps sending them - each tournament update replaces the set we hold for that
-        tournament - and are deleted with the tournament.'
+        tournament - and are deleted with the tournament. The highest result number
+        twilight-struggle.com has ever sent is kept for as long as the integration
+        is set up, so a result withdrawn on purpose is never later reported as one
+        that never arrived.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down. Kick and ban notes are

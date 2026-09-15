@@ -11,8 +11,8 @@ module TwilightStruggle
     discard_on "Discordrb::Errors::UnknownChannel"
     discard_on "Discordrb::Errors::NoPermission"
 
-    def perform(external_id)
-      ids = Finders::TwilightStruggle::MissingGameIds.new(external_id).ids
+    def perform(candidate_ids)
+      ids = Finders::TwilightStruggle::MissingGameIds.new(candidate_ids).ids
       return if ids.empty?
 
       deliver(message(ids))

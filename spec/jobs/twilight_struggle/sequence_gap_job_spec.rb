@@ -4,9 +4,9 @@ require "rails_helper"
 require "discordrb"
 
 RSpec.describe TwilightStruggle::SequenceGapJob do
-  subject(:perform) { described_class.perform_now(external_id) }
+  subject(:perform) { described_class.perform_now(candidate_ids) }
 
-  let(:external_id) { "48310" }
+  let(:candidate_ids) { [48306, 48307, 48308, 48309] }
 
   let(:rest_token) { "Bot test-token" }
 
@@ -17,8 +17,6 @@ RSpec.describe TwilightStruggle::SequenceGapJob do
   end
 
   context "when the sequence still has a gap" do
-    let!(:previous) { create(:twilight_struggle_game, external_id: "48305") }
-
     it "DMs the owner naming every missing id" do
       perform
 
@@ -30,7 +28,7 @@ RSpec.describe TwilightStruggle::SequenceGapJob do
     end
 
     context "when only one id is missing" do
-      let(:external_id) { "48307" }
+      let(:candidate_ids) { [48306] }
 
       it "uses the singular form" do
         perform
@@ -45,7 +43,8 @@ RSpec.describe TwilightStruggle::SequenceGapJob do
   end
 
   context "when the gap closed between enqueue and run" do
-    let!(:previous) { create(:twilight_struggle_game, external_id: "48309") }
+    let(:candidate_ids) { [48309] }
+    let!(:recovered) { create(:twilight_struggle_game, external_id: "48309") }
 
     it "sends no message" do
       perform
@@ -55,8 +54,7 @@ RSpec.describe TwilightStruggle::SequenceGapJob do
   end
 
   context "when more than 20 ids are missing" do
-    let!(:previous) { create(:twilight_struggle_game, external_id: "1") }
-    let(:external_id) { "30" }
+    let(:candidate_ids) { (2..29).to_a }
 
     it "summarizes with the count and the outer ids instead of listing all of them" do
       perform
