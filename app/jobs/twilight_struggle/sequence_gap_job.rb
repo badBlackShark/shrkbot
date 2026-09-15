@@ -24,15 +24,11 @@ module TwilightStruggle
     private
 
     def deliver(owner_id, content)
-      Bot::Discord::Components.create_message(channel_id: dm_channel_id(owner_id), content:, allowed_mentions: {parse: []})
-    end
-
-    def dm_channel_id(owner_id)
-      response_id(Discordrb::API::User.create_pm(Bot::Config.rest_token, owner_id))
-    end
-
-    def response_id(response)
-      JSON.parse(response)["id"]
+      Bot::Discord::Components.create_message(
+        channel_id: Bot::Discord::Components.dm_channel_id(owner_id),
+        content:,
+        allowed_mentions: {parse: []}
+      )
     end
 
     def message(ids)

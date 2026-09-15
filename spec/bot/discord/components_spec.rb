@@ -60,6 +60,20 @@ RSpec.describe Bot::Discord::Components do
     end
   end
 
+  describe ".dm_channel_id" do
+    subject(:dm_channel_id) { described_class.dm_channel_id(10) }
+
+    before do
+      allow(Bot::Config).to receive(:rest_token).and_return("Bot tok")
+      allow(Discordrb::API::User).to receive(:create_pm).and_return({id: 77}.to_json)
+    end
+
+    it "opens the DM channel with the user and returns its id" do
+      expect(dm_channel_id).to eq(77)
+      expect(Discordrb::API::User).to have_received(:create_pm).with("Bot tok", 10)
+    end
+  end
+
   describe ".edit_content" do
     subject(:edit_content) { described_class.edit_content(20, 30, "hello") }
 

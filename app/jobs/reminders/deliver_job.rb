@@ -17,7 +17,7 @@ module Reminders
     private
 
     def deliver(reminder)
-      channel_id = deliver_via_dm?(reminder) ? dm_channel_id(reminder.user_id) : reminder.channel_id
+      channel_id = deliver_via_dm?(reminder) ? Bot::Discord::Components.dm_channel_id(reminder.user_id) : reminder.channel_id
       message_id = Bot::Discord::Components.create_message(channel_id:, content: subject(reminder), allowed_mentions: {parse: [], users: [reminder.user_id]})
       Bot::Discord::Components.convert_to_v2(channel_id, message_id, message(reminder))
     end
@@ -35,14 +35,6 @@ module Reminders
       return false unless reminder.server_id
 
       ServerConfiguration.find_by(discord_id: reminder.server_id)&.force_dm_reminders || false
-    end
-
-    def dm_channel_id(user_id)
-      response_id(Discordrb::API::User.create_pm(Bot::Config.rest_token, user_id))
-    end
-
-    def response_id(response)
-      JSON.parse(response)["id"]
     end
 
     def content(reminder)
