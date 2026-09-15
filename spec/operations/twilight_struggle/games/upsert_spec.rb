@@ -23,6 +23,14 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
       .at(a_value_within(1.second).of(described_class::GAP_CHECK_DELAY.from_now))
   end
 
+  context "when the game is already stored" do
+    let!(:existing) { create(:twilight_struggle_game, external_id:, tournament:) }
+
+    it "enqueues no sequence gap check, so an edit or a re-post cannot re-report a gap below it" do
+      expect { result }.not_to have_enqueued_job(TwilightStruggle::SequenceGapJob)
+    end
+  end
+
   context "with a blank external_id" do
     let(:external_id) { "" }
 

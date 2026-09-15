@@ -23,6 +23,8 @@ module Ops
         private
 
         def enqueue_gap_check(record)
+          return unless record.previously_new_record?
+
           ::TwilightStruggle::SequenceGapJob.set(wait: GAP_CHECK_DELAY).perform_later(record.external_id)
         end
 
