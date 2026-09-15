@@ -472,16 +472,17 @@ en:
         configure: Configure
         subscribe: Subscribe
         unsubscribe: Unsubscribe
-      ping_card:
-        help: Adds a player's Discord tag in brackets after their name, for players
-          whose Discord ID twilight-struggle.com sends with the result. Everyone else
-          just gets their name. Tags never notify anyone - they are there so you can
-          see who a result belongs to, and they survive a player leaving the server.
-        hide: Name only
+      player_display_card:
+        help: How players appear in posted results. Tag only keeps a player's real
+          name out of the channel, but falls back to it for anyone whose Discord ID
+          twilight-struggle.com doesn't send. Tags never notify anyone, and they survive
+          a player leaving the server.
         inherit: Inherit
         inherits_from: "%{parent} is set to %{setting}."
-        label: Discord tags
-        show: Name and tag
+        label: Player names
+        name: Name only
+        name_and_tag: Name and tag
+        tag: Tag only
       template_card:
         empty: Nothing would be posted.
         preview: Live preview

@@ -283,7 +283,7 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
             template_win: "{winning_name} took it",
             template_tie: "",
             template_video: "",
-            ping_players: "1",
+            player_display: "name_and_tag",
             archived: "0"
           }
         end
@@ -293,7 +293,7 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           destination.reload
           expect(destination.discord_channel_id).to eq(4242)
           expect(destination.template_win).to eq("{winning_name} took it")
-          expect(destination.ping_players).to be(true)
+          expect(destination.player_display).to eq("name_and_tag")
         end
 
         it "redirects back to the destination's edit page" do

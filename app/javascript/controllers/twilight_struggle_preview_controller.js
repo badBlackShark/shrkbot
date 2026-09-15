@@ -42,7 +42,7 @@ export default class extends Controller {
   static targets = [
     "winTemplate", "tieTemplate", "videoTemplate",
     "winOutput", "tieOutput", "videoOutput",
-    "ping",
+    "display",
   ]
 
   connect() {
@@ -78,7 +78,7 @@ export default class extends Controller {
     if (value === undefined) return [text(literal)]
     if (typeof value === "string") return [text(value)]
 
-    return [text(`${value.text} (`), pill(`@${value.handle}`), text(")")]
+    return value.flatMap((part) => (typeof part === "string" ? [text(part)] : [pill(`@${part.handle}`)]))
   }
 
   tokens(game) {
@@ -121,11 +121,23 @@ export default class extends Controller {
   }
 
   player(person) {
-    return this.tagged(person, [person?.name, person?.flag])
+    return this.label(person, person?.flag)
   }
 
   name(person) {
-    return this.tagged(person, [person?.name])
+    return this.label(person, null)
+  }
+
+  label(person, flag) {
+    if (!person?.name) return ""
+
+    const handle = person.handle
+    if (this.display === "tag" && handle) return flag ? [{ handle }, ` ${flag}`] : [{ handle }]
+
+    const plain = [person.name, flag].filter(Boolean).join(" ")
+    if (this.display === "name_and_tag" && handle) return [`${plain} (`, { handle }, ")"]
+
+    return plain
   }
 
   ratingText(person, field) {
@@ -143,15 +155,7 @@ export default class extends Controller {
     return `${diff >= 0 ? "+" : ""}${diff}`
   }
 
-  tagged(person, parts) {
-    const label = parts.filter(Boolean).join(" ")
-    if (!label) return ""
-    if (!this.tags || !person.handle) return label
-
-    return { text: label, handle: person.handle }
-  }
-
-  get tags() {
-    return this.hasPingTarget && this.pingTarget.value === "1"
+  get display() {
+    return (this.hasDisplayTarget && this.displayTarget.value) || "name"
   }
 }

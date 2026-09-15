@@ -156,32 +156,39 @@ RSpec.describe TwilightStruggle::EffectiveConfig do
     end
   end
 
-  describe "#ping_players?" do
+  describe "#player_display" do
     let(:parent) { create(:twilight_struggle_tournament) }
     let(:tournament) { create(:twilight_struggle_tournament, parent:) }
 
-    it "is true when this server's destination sets true" do
-      create(:twilight_struggle_destination, tournament:, server_configuration:, ping_players: true)
+    it "is this server's own setting when this server's destination sets one" do
+      create(:twilight_struggle_destination, tournament:, server_configuration:, player_display: "name_and_tag")
 
-      expect(config.ping_players?).to be(true)
+      expect(config.player_display).to eq("name_and_tag")
     end
 
-    it "is false when this server's destination explicitly sets false and the parent sets true" do
-      create(:twilight_struggle_destination, tournament: parent, server_configuration:, ping_players: true)
-      create(:twilight_struggle_destination, tournament:, server_configuration:, ping_players: false)
+    it "prefers this server's own override over the parent's setting" do
+      create(:twilight_struggle_destination, tournament: parent, server_configuration:, player_display: "name_and_tag")
+      create(:twilight_struggle_destination, tournament:, server_configuration:, player_display: "name")
 
-      expect(config.ping_players?).to be(false)
+      expect(config.player_display).to eq("name")
     end
 
-    it "inherits true from the parent when this server's destination leaves it nil" do
-      create(:twilight_struggle_destination, tournament: parent, server_configuration:, ping_players: true)
+    it "inherits from the parent when this server's destination leaves it nil" do
+      create(:twilight_struggle_destination, tournament: parent, server_configuration:, player_display: "name_and_tag")
       create(:twilight_struggle_destination, tournament:, server_configuration:)
 
-      expect(config.ping_players?).to be(true)
+      expect(config.player_display).to eq("name_and_tag")
     end
 
-    it "is false when nothing in the chain sets it" do
-      expect(config.ping_players?).to be(false)
+    it "resolves a tag-only setting from the parent" do
+      create(:twilight_struggle_destination, tournament: parent, server_configuration:, player_display: "tag")
+      create(:twilight_struggle_destination, tournament:, server_configuration:)
+
+      expect(config.player_display).to eq("tag")
+    end
+
+    it "is name when nothing in the chain sets it" do
+      expect(config.player_display).to eq("name")
     end
   end
 
@@ -214,7 +221,7 @@ RSpec.describe TwilightStruggle::EffectiveConfig do
     it "is safe and returns the defaults" do
       expect(config.channel_id).to be_nil
       expect(config.template_win).to eq(I18n.t("twilight_struggle.default_template.win"))
-      expect(config.ping_players?).to be(false)
+      expect(config.player_display).to eq("name")
       expect(config.inherited_from).to be_nil
     end
   end

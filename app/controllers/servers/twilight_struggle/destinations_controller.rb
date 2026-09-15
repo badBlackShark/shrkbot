@@ -22,7 +22,7 @@ class Servers::TwilightStruggle::DestinationsController < Servers::TwilightStrug
       template_win: destination_params[:template_win],
       template_tie: destination_params[:template_tie],
       template_video: destination_params[:template_video],
-      ping_players: destination_params[:ping_players],
+      player_display: destination_params[:player_display],
       archived: destination_params[:archived]
     )
     respond_with_save(result)
@@ -43,7 +43,7 @@ class Servers::TwilightStruggle::DestinationsController < Servers::TwilightStrug
 
   def destination_params
     params.expect(
-      destination: [:subscribed, :discord_channel_id, :template_win, :template_tie, :template_video, :ping_players, :archived]
+      destination: [:subscribed, :discord_channel_id, :template_win, :template_tie, :template_video, :player_display, :archived]
     )
   end
 end

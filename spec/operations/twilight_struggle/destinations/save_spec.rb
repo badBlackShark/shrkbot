@@ -15,7 +15,7 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Save do
       template_win: "{winning_player} won",
       template_tie: "",
       template_video: "",
-      ping_players: "1",
+      player_display: "name_and_tag",
       archived: "0"
     }
   end
@@ -134,30 +134,30 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Save do
     end
   end
 
-  describe "the ping preference" do
-    context "when set to mention" do
-      it "stores true" do
+  describe "the player display preference" do
+    context "when set to name and tag" do
+      it "stores name_and_tag" do
         result
-        expect(destination.reload.ping_players).to be(true)
+        expect(destination.reload.player_display).to eq("name_and_tag")
       end
     end
 
-    context "when set to names" do
-      let(:attributes) { super().merge(ping_players: "0") }
+    context "when set to name only" do
+      let(:attributes) { super().merge(player_display: "name") }
 
-      it "stores false" do
+      it "stores name" do
         result
-        expect(destination.reload.ping_players).to be(false)
+        expect(destination.reload.player_display).to eq("name")
       end
     end
 
     context "when left on inherit" do
-      let(:attributes) { super().merge(ping_players: "") }
-      let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, ping_players: true) }
+      let(:attributes) { super().merge(player_display: "") }
+      let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, player_display: "name_and_tag") }
 
       it "clears the override back to nil" do
         result
-        expect(destination.reload.ping_players).to be_nil
+        expect(destination.reload.player_display).to be_nil
       end
     end
   end
