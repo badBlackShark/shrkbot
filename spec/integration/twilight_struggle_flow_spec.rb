@@ -6,7 +6,7 @@ RSpec.describe "Twilight Struggle integration", type: :request, skip_prosopite: 
   include_context "twilight struggle api auth"
   include ActiveJob::TestHelper
 
-  let(:external_id) { "tsg-flow-1" }
+  let(:external_id) { "70001" }
   let(:tournament) { create(:twilight_struggle_tournament) }
   let(:server_configuration) { create(:server_configuration, name: "Test Server") }
   let(:twilight_struggle_plugin) { create(:plugin, key: "twilight_struggle", name: "Twilight Struggle") }
@@ -290,7 +290,7 @@ RSpec.describe "Twilight Struggle integration", type: :request, skip_prosopite: 
 
   context "when a game is put with no tournament_external_id" do
     subject(:put_first_friendly) do
-      perform_enqueued_jobs { put_game("tsg-friendly-1", friendly_game_attributes) }
+      perform_enqueued_jobs { put_game("70101", friendly_game_attributes) }
     end
 
     it "creates the singleton friendly tournament" do
@@ -300,14 +300,14 @@ RSpec.describe "Twilight Struggle integration", type: :request, skip_prosopite: 
     it "attaches the game to a friendly tournament" do
       put_first_friendly
 
-      expect(TwilightStruggle::Game.find_by(external_id: "tsg-friendly-1").tournament).to be_friendly
+      expect(TwilightStruggle::Game.find_by(external_id: "70101").tournament).to be_friendly
     end
 
     context "when a second such game is put" do
       before { put_first_friendly }
 
       subject(:put_second_friendly) do
-        perform_enqueued_jobs { put_game("tsg-friendly-2", friendly_game_attributes) }
+        perform_enqueued_jobs { put_game("70102", friendly_game_attributes) }
       end
 
       it "reuses the same friendly tournament row rather than creating another" do
@@ -317,8 +317,8 @@ RSpec.describe "Twilight Struggle integration", type: :request, skip_prosopite: 
       it "attaches both games to the same tournament" do
         put_second_friendly
 
-        first_tournament = TwilightStruggle::Game.find_by(external_id: "tsg-friendly-1").tournament
-        second_tournament = TwilightStruggle::Game.find_by(external_id: "tsg-friendly-2").tournament
+        first_tournament = TwilightStruggle::Game.find_by(external_id: "70101").tournament
+        second_tournament = TwilightStruggle::Game.find_by(external_id: "70102").tournament
         expect(second_tournament).to eq(first_tournament)
       end
     end

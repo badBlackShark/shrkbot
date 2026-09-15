@@ -15,36 +15,27 @@ module TwilightStruggle
       ids = Finders::TwilightStruggle::MissingGameIds.new(external_id).ids
       return if ids.empty?
 
-      owner_id = Bot::Config.owner_id
-      return if owner_id.to_s.strip.empty?
-
-      deliver(owner_id, message(ids))
+      deliver(message(ids))
     end
 
     private
 
-    def deliver(owner_id, content)
+    def deliver(content)
       Bot::Discord::Components.create_message(
-        channel_id: Bot::Discord::Components.dm_channel_id(owner_id),
+        channel_id: Bot::Discord::Components.dm_channel_id(Bot::Config.owner_id),
         content:,
         allowed_mentions: {parse: []}
       )
     end
 
     def message(ids)
-      "shrkbot never received #{missing(ids)}. #{instruction(ids)}"
+      return summary(ids) if ids.size > MAX_REPORTED
+
+      "shrkbot never received Twilight Struggle #{"game".pluralize(ids.size)} #{ids.join(", ")}."
     end
 
-    def missing(ids)
-      return "#{ids.size} Twilight Struggle games, #{ids.first} to #{ids.last}" if ids.size > MAX_REPORTED
-
-      "Twilight Struggle #{"game".pluralize(ids.size)} #{ids.join(", ")}"
-    end
-
-    def instruction(ids)
-      return "Re-post it from the site." if ids.one?
-
-      "Re-post them from the site."
+    def summary(ids)
+      "shrkbot never received #{ids.size} Twilight Struggle games, #{ids.first} to #{ids.last}."
     end
   end
 end

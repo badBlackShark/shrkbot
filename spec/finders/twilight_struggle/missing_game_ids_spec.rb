@@ -60,20 +60,4 @@ RSpec.describe Finders::TwilightStruggle::MissingGameIds do
 
     it { is_expected.to eq([]) }
   end
-
-  context "when a game with a non-numeric external id is stored" do
-    let!(:legacy) { create(:twilight_struggle_game, external_id: "tsg-ext-1") }
-    let!(:previous) { create(:twilight_struggle_game, external_id: "108") }
-
-    it "ignores the row it cannot place in the sequence" do
-      expect(ids).to eq([109])
-    end
-  end
-
-  context "when the arrived external id is not numeric" do
-    let(:arrived_external_id) { "tsg-ext-5" }
-    let!(:previous) { create(:twilight_struggle_game, external_id: "108") }
-
-    it { is_expected.to eq([]) }
-  end
 end

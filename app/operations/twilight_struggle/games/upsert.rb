@@ -4,7 +4,7 @@ module Ops
   module TwilightStruggle
     module Games
       class Upsert < ApplicationOperation
-        GAP_CHECK_DELAY = 5.minutes
+        GAP_CHECK_DELAY = 1.minute
 
         receives :external_id, :payload
         receives :tournament, optional: true

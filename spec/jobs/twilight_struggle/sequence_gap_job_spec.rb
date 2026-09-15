@@ -24,7 +24,7 @@ RSpec.describe TwilightStruggle::SequenceGapJob do
 
       expect(Bot::Discord::Components).to have_received(:create_message).with(
         channel_id: 77,
-        content: "shrkbot never received Twilight Struggle games 48306, 48307, 48308, 48309. Re-post them from the site.",
+        content: "shrkbot never received Twilight Struggle games 48306, 48307, 48308, 48309.",
         allowed_mentions: {parse: []}
       )
     end
@@ -37,7 +37,7 @@ RSpec.describe TwilightStruggle::SequenceGapJob do
 
         expect(Bot::Discord::Components).to have_received(:create_message).with(
           channel_id: 77,
-          content: "shrkbot never received Twilight Struggle game 48306. Re-post it from the site.",
+          content: "shrkbot never received Twilight Struggle game 48306.",
           allowed_mentions: {parse: []}
         )
       end
@@ -54,19 +54,6 @@ RSpec.describe TwilightStruggle::SequenceGapJob do
     end
   end
 
-  context "when the owner id is blank" do
-    let!(:previous) { create(:twilight_struggle_game, external_id: "48305") }
-
-    before { allow(Bot::Config).to receive(:owner_id).and_return("") }
-
-    it "sends no message" do
-      perform
-
-      expect(Discordrb::API::User).not_to have_received(:create_pm)
-      expect(Bot::Discord::Components).not_to have_received(:create_message)
-    end
-  end
-
   context "when more than 20 ids are missing" do
     let!(:previous) { create(:twilight_struggle_game, external_id: "1") }
     let(:external_id) { "30" }
@@ -76,7 +63,7 @@ RSpec.describe TwilightStruggle::SequenceGapJob do
 
       expect(Bot::Discord::Components).to have_received(:create_message).with(
         channel_id: 77,
-        content: "shrkbot never received 28 Twilight Struggle games, 2 to 29. Re-post them from the site.",
+        content: "shrkbot never received 28 Twilight Struggle games, 2 to 29.",
         allowed_mentions: {parse: []}
       )
     end
