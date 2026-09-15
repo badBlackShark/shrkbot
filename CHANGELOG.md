@@ -5,6 +5,14 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.11.0] - 2026-09-15
+
+### Added
+- shrkbot warns its owner when a reported Twilight Struggle game never arrives. Site game ids ascend without gaps, so a gap in the stored ids is a game that went missing. The check runs a minute after a game arrives, which leaves a game sent at the same moment time to close its own gap, and the bot owner gets a DM naming what is still missing. Each gap is reported once. ([#288](https://github.com/badBlackShark/shrkbot/pull/288))
+
+### Changed
+- The Twilight Struggle results API rejects an `external_id` that is not a number. `PUT /api/twilight-struggle/v1/games/abc` answers 422, and tournaments follow the same rule. ([#289](https://github.com/badBlackShark/shrkbot/pull/289))
+
 ## [3.10.0] - 2026-09-14
 
 ### Added
