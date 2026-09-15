@@ -13,7 +13,7 @@ RSpec.describe Ops::TwilightStruggle::Tournaments::Upsert do
     )
   end
 
-  let(:external_id) { "ext-1" }
+  let(:external_id) { "61001" }
   let(:name) { "Online Twilight Struggle League" }
   let(:parent) { nil }
   let(:status) { nil }

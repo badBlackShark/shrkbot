@@ -15,6 +15,7 @@ module TwilightStruggle
     validates :name, presence: true
     validates :friendly, inclusion: {in: [true, false]}
     validates :external_id, uniqueness: true, allow_nil: true
+    validates :external_id, format: {with: /\A\d+\z/, message: "id must be the number the site uses"}, allow_blank: true
     validates :external_id, presence: true, unless: :friendly?
     validates :external_id, absence: true, if: :friendly?
     validate :parent_chain_must_not_cycle

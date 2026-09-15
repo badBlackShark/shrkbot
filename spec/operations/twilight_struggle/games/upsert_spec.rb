@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe Ops::TwilightStruggle::Games::Upsert do
   subject(:result) { described_class.call(external_id:, tournament:, payload:) }
 
-  let(:external_id) { "ext-game-1" }
+  let(:external_id) { "60001" }
   let(:tournament) { create(:twilight_struggle_tournament) }
   let(:payload) { {"winning_side" => "usa"} }
 
@@ -62,7 +62,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
     end
 
     context "when a friendly game already exists" do
-      before { described_class.call(external_id: "ext-game-0", tournament: nil, payload:) }
+      before { described_class.call(external_id: "60000", tournament: nil, payload:) }
 
       it "reuses the same friendly tournament" do
         result
