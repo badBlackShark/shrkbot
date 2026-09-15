@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_04_225206) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_15_122646) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -447,6 +447,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_04_225206) do
     t.datetime "updated_at", null: false
     t.index ["external_id"], name: "index_twilight_struggle_games_on_external_id", unique: true
     t.index ["tournament_id"], name: "index_twilight_struggle_games_on_tournament_id"
+    t.check_constraint "external_id::text ~ '^[0-9]+$'::text", name: "twilight_struggle_games_external_id_numeric"
   end
 
   create_table "twilight_struggle_posted_messages", id: :string, default: -> { "('tsm_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -480,6 +481,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_04_225206) do
     t.index ["external_id"], name: "index_twilight_struggle_tournaments_on_external_id", unique: true, where: "(external_id IS NOT NULL)"
     t.index ["friendly"], name: "index_twilight_struggle_tournaments_on_friendly", unique: true, where: "friendly"
     t.index ["parent_id"], name: "index_twilight_struggle_tournaments_on_parent_id"
+    t.check_constraint "external_id IS NULL OR external_id::text ~ '^[0-9]+$'::text", name: "twilight_struggle_tournaments_external_id_numeric"
     t.check_constraint "friendly AND external_id IS NULL OR NOT friendly AND external_id IS NOT NULL", name: "twilight_struggle_tournaments_friendly_external_id_check"
   end
 

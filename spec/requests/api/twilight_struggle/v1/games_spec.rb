@@ -123,6 +123,26 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
       end
     end
 
+    context "with an external_id that is not a number" do
+      let(:external_id) { "abc" }
+
+      it "returns 422" do
+        put_game
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "names the offending field" do
+        put_game
+
+        expect(response.parsed_body["errors"]).to include(a_string_including("number the site uses"))
+      end
+
+      it "does not create a game row" do
+        expect { put_game }.not_to change(TwilightStruggle::Game, :count)
+      end
+    end
+
     context "with an unknown tournament_external_id" do
       let(:params) { {game: valid_result_attributes.merge(tournament_external_id: "does-not-exist")} }
 

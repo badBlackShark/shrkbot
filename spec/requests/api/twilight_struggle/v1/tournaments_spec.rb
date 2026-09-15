@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe "Api::TwilightStruggle::V1::Tournaments", type: :request do
   include_context "twilight struggle api auth"
 
-  let(:external_id) { "tst-ext-new" }
+  let(:external_id) { "52001" }
   let(:params) { {tournament: {name: "Online Twilight Struggle League"}} }
 
   describe "PUT /api/twilight-struggle/v1/tournaments/:external_id" do
@@ -93,6 +93,20 @@ RSpec.describe "Api::TwilightStruggle::V1::Tournaments", type: :request do
         body = response.parsed_body
         expect(body["external_id"]).to eq(external_id)
         expect(body["id"]).to be_present
+      end
+    end
+
+    context "with an external_id that is not a number" do
+      let(:external_id) { "abc" }
+
+      it "returns 422" do
+        put_tournament
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "does not create a tournament row" do
+        expect { put_tournament }.not_to change(TwilightStruggle::Tournament, :count)
       end
     end
 
