@@ -23,9 +23,10 @@ module Ops
         private
 
         def enqueue_gap_check(record)
-          return unless record.previously_new_record?
+          candidates = ::TwilightStruggle::GameSequence.new(record.external_id).advance
+          return if candidates.empty?
 
-          ::TwilightStruggle::SequenceGapJob.set(wait: GAP_CHECK_DELAY).perform_later(record.external_id)
+          ::TwilightStruggle::SequenceGapJob.set(wait: GAP_CHECK_DELAY).perform_later(candidates)
         end
 
         def enqueue_post(record)
