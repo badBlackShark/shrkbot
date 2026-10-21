@@ -49,6 +49,32 @@ RSpec.describe TwilightStruggle::Destination do
     end
   end
 
+  describe "#post_delay_seconds" do
+    it "is valid when nil, meaning inherit" do
+      destination.post_delay_seconds = nil
+
+      expect(destination).to be_valid
+    end
+
+    it "rejects a negative delay" do
+      destination.post_delay_seconds = -1
+
+      expect(destination).not_to be_valid
+    end
+
+    it "accepts exactly one week" do
+      destination.post_delay_seconds = 604_800
+
+      expect(destination).to be_valid
+    end
+
+    it "rejects more than one week" do
+      destination.post_delay_seconds = 604_801
+
+      expect(destination).not_to be_valid
+    end
+  end
+
   describe "#manually_archived?" do
     it "is true when archived_at is set" do
       destination.archived_at = Time.current

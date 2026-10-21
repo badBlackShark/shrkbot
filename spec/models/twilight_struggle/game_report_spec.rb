@@ -18,8 +18,13 @@ RSpec.describe TwilightStruggle::GameReport do
         winning_method: "defcon",
         game_code: "R1",
         game_date: "2026-07-20",
-        video_urls: ["https://youtu.be/dQw4w9WgXcQ"]
+        video_urls: ["https://youtu.be/dQw4w9WgXcQ"],
+        reported_at: "2026-07-24T10:00:00Z"
       }
+    end
+
+    it "parses reported_at into a Time" do
+      expect(report.reported_at).to eq(Time.utc(2026, 7, 24, 10))
     end
 
     it "builds usa as a Player" do
@@ -42,7 +47,7 @@ RSpec.describe TwilightStruggle::GameReport do
     end
 
     context "without video_urls" do
-      let(:payload) { {usa: {name: "Alice"}, ussr: {name: "Bob"}, winning_side: "usa"} }
+      let(:payload) { {usa: {name: "Alice"}, ussr: {name: "Bob"}, winning_side: "usa", reported_at: "2026-07-24T10:00:00Z"} }
 
       it "defaults video_urls to an empty array" do
         expect(report.video_urls).to eq([])
@@ -54,7 +59,8 @@ RSpec.describe TwilightStruggle::GameReport do
         {
           usa: {name: "Alice", rating_before: 1500, rating_after: 1512},
           ussr: {name: "Bob", rating_before: 1500, rating_after: 1488},
-          winning_side: "usa"
+          winning_side: "usa",
+          reported_at: "2026-07-24T10:00:00Z"
         }
       end
 

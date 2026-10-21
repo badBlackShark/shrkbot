@@ -192,6 +192,29 @@ RSpec.describe TwilightStruggle::EffectiveConfig do
     end
   end
 
+  describe "#post_delay" do
+    let(:parent) { create(:twilight_struggle_tournament) }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+    it "is no delay when nothing in the chain sets one" do
+      expect(config.post_delay).to eq(0.seconds)
+    end
+
+    it "inherits the parent's delay when this server's destination leaves it nil" do
+      create(:twilight_struggle_destination, tournament: parent, server_configuration:, post_delay_seconds: 900)
+      create(:twilight_struggle_destination, tournament:, server_configuration:)
+
+      expect(config.post_delay).to eq(15.minutes)
+    end
+
+    it "lets an explicit zero override the parent's delay" do
+      create(:twilight_struggle_destination, tournament: parent, server_configuration:, post_delay_seconds: 900)
+      create(:twilight_struggle_destination, tournament:, server_configuration:, post_delay_seconds: 0)
+
+      expect(config.post_delay).to eq(0.seconds)
+    end
+  end
+
   describe "#inherited_from" do
     let(:grandparent) { create(:twilight_struggle_tournament) }
     let(:parent) { create(:twilight_struggle_tournament, parent: grandparent) }

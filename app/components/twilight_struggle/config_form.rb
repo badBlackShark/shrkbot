@@ -11,6 +11,7 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
     render Components::ConfigSections.new(key: "twilight_struggle", data: {controller: "twilight-struggle-preview", action: "input->twilight-struggle-preview#render"}) do
       channel_card
       render Components::TwilightStruggle::PlayerDisplayCard.new(destination: @destination, inherited:)
+      render Components::TwilightStruggle::PostDelayCard.new(destination: @destination, inherited:)
       render Components::TwilightStruggle::TokenHelpCard.new
       TEMPLATES.each { |kind| template_card(kind) }
       archive_card

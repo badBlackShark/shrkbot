@@ -483,6 +483,17 @@ en:
         name: Name only
         name_and_tag: Name and tag
         tag: Tag only
+      post_delay_card:
+        help: Each result is posted this long after it was reported, so it can't spoil
+          a stream that runs behind. Everyone sees results that much later. Changes
+          to a result that is already posted appear immediately.
+        inherits_from:
+          one: "%{parent} is set to %{count} minute. Leave the field empty to use
+            it."
+          other: "%{parent} is set to %{count} minutes. Leave the field empty to use
+            it."
+        label: Posting delay
+        unit: minutes
       template_card:
         empty: Nothing would be posted.
         preview: Live preview

@@ -10,11 +10,16 @@ module TwilightStruggle
     discard_on "Discordrb::Errors::UnknownChannel"
     discard_on "Discordrb::Errors::NoPermission"
 
-    def perform(game, server_configuration, payload)
+    def perform(game, server_configuration, payload, revision)
+      report = GameReport.from_payload(payload)
+      wait = PostSchedule.new(game:, server_configuration:, reported_at: report.reported_at).wait
+      return self.class.set(wait:).perform_later(game, server_configuration, payload, revision) if wait.positive?
+
       Ops::TwilightStruggle::Games::Post.call(
         game:,
         server_configuration:,
-        report: GameReport.from_payload(payload)
+        report:,
+        revision:
       )
     end
   end

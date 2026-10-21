@@ -23,6 +23,7 @@ class Servers::TwilightStruggle::DestinationsController < Servers::TwilightStrug
       template_tie: destination_params[:template_tie],
       template_video: destination_params[:template_video],
       player_display: destination_params[:player_display],
+      post_delay_minutes: destination_params[:post_delay_minutes],
       archived: destination_params[:archived]
     )
     respond_with_save(result)
@@ -43,7 +44,7 @@ class Servers::TwilightStruggle::DestinationsController < Servers::TwilightStrug
 
   def destination_params
     params.expect(
-      destination: [:subscribed, :discord_channel_id, :template_win, :template_tie, :template_video, :player_display, :archived]
+      destination: [:subscribed, :discord_channel_id, :template_win, :template_tie, :template_video, :player_display, :post_delay_minutes, :archived]
     )
   end
 end

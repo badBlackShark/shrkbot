@@ -6,9 +6,10 @@ module Ops
       class Post < ApplicationOperation
         self.transactional = false
 
-        receives :game, :server_configuration, :report
+        receives :game, :server_configuration, :report, :revision
 
         def call
+          return skipped("a newer version of it arrived") if game.revision > revision
           return skipped("no channel is configured for it or any tournament above it") if config.channel_id.blank?
           return skipped("the Twilight Struggle plugin is disabled") unless plugin_enabled?
 

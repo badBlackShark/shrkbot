@@ -27,6 +27,10 @@ module TwilightStruggle
       chain.find { |destination| destination.player_display.present? }&.player_display || Destination::DEFAULT_PLAYER_DISPLAY
     end
 
+    def post_delay
+      (first_present(:post_delay_seconds) || 0).seconds
+    end
+
     def inherited_from
       chain.first&.tournament
     end

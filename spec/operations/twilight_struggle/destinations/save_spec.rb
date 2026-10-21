@@ -162,6 +162,44 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Save do
     end
   end
 
+  describe "the posting delay" do
+    context "when set to 15 minutes" do
+      let(:attributes) { super().merge(post_delay_minutes: "15") }
+
+      it "stores it in seconds" do
+        result
+        expect(destination.reload.post_delay_seconds).to eq(900)
+      end
+    end
+
+    context "when left blank on a destination that had one" do
+      let(:attributes) { super().merge(post_delay_minutes: "") }
+      let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, post_delay_seconds: 900) }
+
+      it "clears it back to nil so it inherits" do
+        result
+        expect(destination.reload.post_delay_seconds).to be_nil
+      end
+    end
+
+    context "when set to zero" do
+      let(:attributes) { super().merge(post_delay_minutes: "0") }
+
+      it "stores an explicit zero" do
+        result
+        expect(destination.reload.post_delay_seconds).to eq(0)
+      end
+    end
+
+    context "when set beyond one week" do
+      let(:attributes) { super().merge(post_delay_minutes: "20000") }
+
+      it "fails" do
+        expect(result).to be_failure
+      end
+    end
+  end
+
   describe "archiving" do
     context "when archived is checked" do
       let(:attributes) { super().merge(archived: "1") }

@@ -6,6 +6,7 @@ module TwilightStruggle
 
     DEFAULT_PLAYER_DISPLAY = "name"
     PLAYER_DISPLAYS = [DEFAULT_PLAYER_DISPLAY, "name_and_tag", "tag"].freeze
+    MAX_POST_DELAY = 1.week
 
     string_enum :player_display, PLAYER_DISPLAYS, validate: {allow_nil: true}, prefix: true
 
@@ -15,6 +16,7 @@ module TwilightStruggle
     scope :active, -> { where(active: true) }
 
     validates :tournament_id, uniqueness: {scope: :server_configuration_id}
+    validates :post_delay_seconds, numericality: {only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: MAX_POST_DELAY.to_i}, allow_nil: true
 
     def manually_archived?
       archived_at.present?

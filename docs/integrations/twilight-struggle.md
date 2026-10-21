@@ -139,6 +139,15 @@ Discord errors — they propagate so the job's `retry_on` sees them. Permanent
 failures (`UnknownChannel`, `NoPermission`, a deleted game) are `discard_on`ed
 instead, so they leave no failed-execution row.
 
+**Posting can be delayed per destination.** `post_delay_seconds` is inherited down
+the tournament chain like the templates (empty = inherit, explicit 0 = none),
+stored in seconds and set in minutes in the form. The delay counts from the
+payload's `reported_at`, capped at the current time, so a timestamp from a
+fast clock never holds a result back longer than the delay. `PostJob` asks `TwilightStruggle::PostSchedule` how long
+is left and re-enqueues itself with that wait, recomputing it on every run, so
+settings changes apply when the job next runs. A message that is already posted
+is edited immediately.
+
 **Fan-out is one `PostJob` per subscribing server**, never one job that loops. A
 `discard_on NoPermission` triggered by a single misconfigured server would
 otherwise kill the whole fan-out.
@@ -253,3 +262,10 @@ the site's data, not the guild's. Organiser rows are per-user and are deleted by
   which trips Prosopite on the same-shaped `parent_id = $1` query per level.
   Adjudicated false positive, encoded as `Prosopite.allow_stack_paths` in
   `spec/support/prosopite.rb`.
+- Every upsert bumps `games.revision`. A `PostJob` carrying an older revision skips
+  in `Games::Post`, which is what stops a pre-edit payload from posting after a
+  delay has elapsed.
+- `PostJob` jobs can sit queued for up to a week, so any change to its argument
+  list needs a compatibility default for jobs already queued.
+- `reported_at` must stay the first-report time on resends; otherwise every edit
+  pushes the post further out.

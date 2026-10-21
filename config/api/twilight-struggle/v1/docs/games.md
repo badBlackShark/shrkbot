@@ -50,6 +50,9 @@ if the destination channel is gone or the bot was kicked for that server it give
 up, because retrying cannot fix either — other servers' jobs are unaffected.
 Nothing is reported back to you in that case.
 
+A subscribing server can delay posting each new result by up to a week, counted
+from `reported_at`. Changes to a result that is already posted are never delayed.
+
 The result payload lives only for as long as each job does. It is never written
 to the game record, so the only way to change a posted message is to send the
 game again.

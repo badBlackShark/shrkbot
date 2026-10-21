@@ -100,7 +100,7 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
 
         game = TwilightStruggle::Game.find_by(external_id:)
         expect(game.attributes.keys).to match_array(
-          %w[id external_id tournament_id created_at updated_at]
+          %w[id external_id tournament_id revision created_at updated_at]
         )
       end
     end
@@ -198,6 +198,16 @@ RSpec.describe "Api::TwilightStruggle::V1::Games", type: :request do
 
     context "with an invalid winning_side" do
       let(:params) { {game: valid_result_attributes.merge(tournament_external_id: tournament.external_id, winning_side: "nope")} }
+
+      it "returns 422" do
+        put_game
+
+        expect(response).to have_http_status(:unprocessable_content)
+      end
+    end
+
+    context "with a reported_at that is not a time" do
+      let(:params) { {game: valid_result_attributes.merge(tournament_external_id: tournament.external_id, reported_at: "not a time")} }
 
       it "returns 422" do
         put_game

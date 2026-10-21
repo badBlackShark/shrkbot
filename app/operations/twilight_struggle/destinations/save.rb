@@ -10,6 +10,7 @@ module Ops
         receives :template_tie, optional: true
         receives :template_video, optional: true
         receives :player_display, optional: true
+        receives :post_delay_minutes, optional: true
         receives :archived, optional: true
 
         def call
@@ -30,6 +31,7 @@ module Ops
             template_tie: override(:tie, template_tie),
             template_video: override(:video, template_video),
             player_display: player_display.presence,
+            post_delay_seconds:,
             archived_at: archived_at
           }
         end
@@ -49,6 +51,12 @@ module Ops
             destination.tournament.parent,
             destination.server_configuration
           )
+        end
+
+        def post_delay_seconds
+          return nil if post_delay_minutes.blank?
+
+          post_delay_minutes.to_i.minutes.to_i
         end
 
         def archived_at

@@ -284,6 +284,7 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
             template_tie: "",
             template_video: "",
             player_display: "name_and_tag",
+            post_delay_minutes: "15",
             archived: "0"
           }
         end
@@ -294,6 +295,7 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           expect(destination.discord_channel_id).to eq(4242)
           expect(destination.template_win).to eq("{winning_name} took it")
           expect(destination.player_display).to eq("name_and_tag")
+          expect(destination.post_delay_seconds).to eq(900)
         end
 
         it "redirects back to the destination's edit page" do

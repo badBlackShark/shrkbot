@@ -13,6 +13,18 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
     expect { result }.to change(TwilightStruggle::Game, :count).by(1)
   end
 
+  describe "the revision" do
+    it "is 1 after the game is created" do
+      expect(result.value.revision).to eq(1)
+    end
+
+    it "is 2 after the same external_id is upserted again" do
+      described_class.call(external_id:, tournament:, payload:)
+
+      expect(result.value.revision).to eq(2)
+    end
+  end
+
   it "attaches the game to the given tournament" do
     expect(result.value.tournament).to eq(tournament)
   end
@@ -123,11 +135,23 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
       let(:server) { create(:server_configuration) }
       let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration: server) }
 
+      it "carries the revision of the version it was queued for" do
+        described_class.call(external_id:, tournament:, payload:)
+
+        expect { result }.to have_enqueued_job(TwilightStruggle::PostJob).with(
+          an_object_having_attributes(external_id:),
+          server,
+          payload,
+          2
+        )
+      end
+
       it "enqueues a post job for that server" do
         expect { result }.to have_enqueued_job(TwilightStruggle::PostJob).with(
           an_object_having_attributes(external_id:),
           server,
-          payload
+          payload,
+          1
         )
       end
     end
@@ -142,7 +166,8 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
         expect { result }.to have_enqueued_job(TwilightStruggle::PostJob).with(
           an_object_having_attributes(external_id:),
           server,
-          payload
+          payload,
+          1
         )
       end
     end
