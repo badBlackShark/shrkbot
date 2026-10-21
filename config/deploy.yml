@@ -32,12 +32,19 @@ proxy:
     - shrkbot.com
     - www.shrkbot.com
   app_port: 80
+  run:
+    log_max_size: ""
+    options:
+      log-driver: journald
 
 registry:
   server: ghcr.io
   username: badBlackShark
   password:
     - KAMAL_REGISTRY_PASSWORD
+
+logging:
+  driver: journald
 
 builder:
   arch: amd64

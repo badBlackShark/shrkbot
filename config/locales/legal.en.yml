@@ -74,8 +74,12 @@ en:
         changes.'
       data_operational: 'Operational data: background jobs briefly process the data
         above while running; a failed job may keep a short error record for up to
-        30 days. The web server keeps standard technical logs (IP address, timestamp,
-        browser type) for security and troubleshooting.'
+        30 days. The Service keeps technical logs for security and troubleshooting:
+        IP address, timestamp, browser type and the details of each request it receives.
+        For the Twilight Struggle integration, those details are the results and tournaments
+        twilight-struggle.com sends, including player names and the Discord IDs of
+        players and organisers, so that an incorrect result can be traced back to
+        exactly what arrived.'
       data_reminders: 'Reminders: the reminder text you write, your Discord ID, the
         target channel and server, whether to deliver by DM, and the due time - kept
         until delivered or deleted by you with /unremind.'
@@ -86,8 +90,9 @@ en:
         whether players are mentioned, whether it is archived, and whether it is currently
         switched on - plus references (channel and message IDs) to the messages we
         post there, one per subscribing server. The result details themselves - player
-        names, flags, Discord IDs and dates - live only in the queued job that posts
-        the message, never on the tournament or game record. We also store the Discord
+        names, flags, Discord IDs and dates - are never stored on the tournament or
+        game record. They exist only in the queued job that posts the message and
+        in our technical logs (see operational data above). We also store the Discord
         IDs of a tournament''s organisers, when twilight-struggle.com sends them,
         so that an organiser can configure this integration on the servers subscribed
         to their tournament without being a Discord admin there. Setting a Discord
@@ -168,7 +173,7 @@ en:
         moment the bot is removed from the server.'
       retention_h: How long we keep it
       retention_infra: Caches, background-job records and logs are cleared automatically
-        (at most 60 days, 30 days and briefly, respectively). Deleted data also drops
+        (at most 60 days, 30 days and 7 days, respectively). Deleted data also drops
         out of database backups as they rotate.
       retention_lfg: 'Looking for Game configuration: deleted automatically with the
         rest of the server''s configuration the moment the bot is removed. A post''s
@@ -184,16 +189,16 @@ en:
       retention_twilight_struggle: 'Twilight Struggle integration: tournament and
         game data is kept until deleted through the integration. The result details
         held in a queued posting job are cleared within an hour of the message going
-        out; if posting keeps failing, the job is discarded within 48 hours. A server''s
-        subscriptions and the message references belonging to it are deleted the moment
-        the bot is removed from that server, whether or not they are switched on;
-        the tournaments and games themselves are twilight-struggle.com''s data and
-        are unaffected. Organiser Discord IDs are kept for as long as twilight-struggle.com
-        keeps sending them - each tournament update replaces the set we hold for that
-        tournament - and are deleted with the tournament. The highest result number
-        twilight-struggle.com has ever sent is kept for as long as the integration
-        is set up, so a result withdrawn on purpose is never later reported as one
-        that never arrived.'
+        out; if posting keeps failing, the job is discarded within 48 hours. The copy
+        in our technical logs is deleted after at most 7 days. A server''s subscriptions
+        and the message references belonging to it are deleted the moment the bot
+        is removed from that server, whether or not they are switched on; the tournaments
+        and games themselves are twilight-struggle.com''s data and are unaffected.
+        Organiser Discord IDs are kept for as long as twilight-struggle.com keeps
+        sending them - each tournament update replaces the set we hold for that tournament
+        - and are deleted with the tournament. The highest result number twilight-struggle.com
+        has ever sent is kept for as long as the integration is set up, so a result
+        withdrawn on purpose is never later reported as one that never arrived.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down. Kick and ban notes are
@@ -216,7 +221,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: August 12th, 2026'
+      updated: 'Last updated: October 21st, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible
