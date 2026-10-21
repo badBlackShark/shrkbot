@@ -189,8 +189,8 @@ RSpec.describe "Twilight Struggle integration", type: :request, skip_prosopite: 
       end
     end
 
-    context "when the destination has ping_players enabled" do
-      let!(:destination) { subscribe(server: server_configuration, tournament:, discord_channel_id: 555, ping_players: true) }
+    context "when the destination has name_and_tag enabled" do
+      let!(:destination) { subscribe(server: server_configuration, tournament:, discord_channel_id: 555, player_display: "name_and_tag") }
 
       subject(:post_with_ping) do
         perform_enqueued_jobs do

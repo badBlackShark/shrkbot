@@ -36,7 +36,7 @@ module Ops
             report:,
             template:,
             tournament_name: game.tournament.name,
-            ping_players: config.ping_players?
+            player_display: config.player_display
           )
         end
 
