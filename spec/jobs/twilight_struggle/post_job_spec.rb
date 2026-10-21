@@ -41,10 +41,43 @@ RSpec.describe TwilightStruggle::PostJob do
     expect(TwilightStruggle::GameReport).to have_received(:from_payload).with(payload)
   end
 
-  it "calls the post operation with the game, server, built report and revision" do
+  it "calls the post operation with the game, server, and built report" do
     perform
 
-    expect(Ops::TwilightStruggle::Games::Post).to have_received(:call).with(game:, server_configuration:, report:, revision:)
+    expect(Ops::TwilightStruggle::Games::Post).to have_received(:call).with(game:, server_configuration:, report:)
+  end
+
+  context "when a newer version of the game arrived after this job was queued" do
+    let(:game) { create(:twilight_struggle_game, revision: revision + 1) }
+
+    it "does not post" do
+      perform
+
+      expect(Ops::TwilightStruggle::Games::Post).not_to have_received(:call)
+    end
+
+    context "when the server delays posting" do
+      before do
+        create(:twilight_struggle_destination, tournament: game.tournament, server_configuration:, post_delay_seconds: 900)
+      end
+
+      it "drops the job instead of waiting out the delay with the old details" do
+        expect { perform }.not_to have_enqueued_job(described_class)
+      end
+    end
+  end
+
+  context "when the result is already posted to this server" do
+    before do
+      create(:twilight_struggle_destination, tournament: game.tournament, server_configuration:, post_delay_seconds: 900)
+      create(:twilight_struggle_posted_message, game:, server_configuration:)
+    end
+
+    it "edits it without waiting for the delay" do
+      perform
+
+      expect(Ops::TwilightStruggle::Games::Post).to have_received(:call).with(game:, server_configuration:, report:)
+    end
   end
 
   context "when the server delays posting and the result was just reported" do

@@ -262,10 +262,11 @@ the site's data, not the guild's. Organiser rows are per-user and are deleted by
   which trips Prosopite on the same-shaped `parent_id = $1` query per level.
   Adjudicated false positive, encoded as `Prosopite.allow_stack_paths` in
   `spec/support/prosopite.rb`.
-- Every upsert bumps `games.revision`. A `PostJob` carrying an older revision skips
-  in `Games::Post`, which is what stops a pre-edit payload from posting after a
-  delay has elapsed.
+- Every upsert bumps `games.revision`. A `PostJob` carrying an older revision drops
+  itself on its next run, which is what stops a pre-edit payload from posting after
+  a delay has elapsed, and frees the old details instead of holding them until then.
 - `PostJob` jobs can sit queued for up to a week, so any change to its argument
-  list needs a compatibility default for jobs already queued.
+  list needs either a drained queue at deploy or a compatibility default for jobs
+  already queued.
 - `reported_at` must stay the first-report time on resends; otherwise every edit
   pushes the post further out.

@@ -11,6 +11,8 @@ module TwilightStruggle
     discard_on "Discordrb::Errors::NoPermission"
 
     def perform(game, server_configuration, payload, revision)
+      return log_stale(game) if game.revision > revision
+
       report = GameReport.from_payload(payload)
       wait = PostSchedule.new(game:, server_configuration:, reported_at: report.reported_at).wait
       return self.class.set(wait:).perform_later(game, server_configuration, payload, revision) if wait.positive?
@@ -18,9 +20,14 @@ module TwilightStruggle
       Ops::TwilightStruggle::Games::Post.call(
         game:,
         server_configuration:,
-        report:,
-        revision:
+        report:
       )
+    end
+
+    private
+
+    def log_stale(game)
+      Rails.logger.info { "#{self.class} dropped game #{game.external_id}: a newer version of it arrived." }
     end
   end
 end

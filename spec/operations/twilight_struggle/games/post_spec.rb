@@ -4,12 +4,11 @@ require "rails_helper"
 require "discordrb"
 
 RSpec.describe Ops::TwilightStruggle::Games::Post do
-  subject(:result) { described_class.call(game:, server_configuration:, report:, revision:) }
+  subject(:result) { described_class.call(game:, server_configuration:, report:) }
 
   let(:usa) { TwilightStruggle::Player.new(name: "Alice", country_code: "US", discord_id: "111") }
   let(:ussr) { TwilightStruggle::Player.new(name: "Bob", country_code: "RU", discord_id: "222") }
   let(:video_urls) { [] }
-  let(:revision) { 1 }
   let(:report) do
     TwilightStruggle::GameReport.new(
       usa:,
@@ -42,32 +41,6 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
     allow(Bot::Discord::Components).to receive(:edit_content) do |channel_id, message_id, content|
       edited_messages << {channel_id:, message_id:, content:}
       nil
-    end
-  end
-
-  context "when a newer version of the game has arrived since this job was queued" do
-    let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, discord_channel_id: 555) }
-    let(:game) { create(:twilight_struggle_game, tournament:, revision: 2) }
-
-    it "does not touch the Discord API" do
-      result
-
-      expect(Bot::Discord::Components).not_to have_received(:create_message)
-      expect(Bot::Discord::Components).not_to have_received(:edit_content)
-    end
-
-    it "returns success" do
-      expect(result).to be_success
-    end
-
-    context "when the game is still at the job's revision" do
-      let(:game) { create(:twilight_struggle_game, tournament:, revision: 1) }
-
-      it "posts" do
-        result
-
-        expect(Bot::Discord::Components).to have_received(:create_message)
-      end
     end
   end
 
