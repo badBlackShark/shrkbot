@@ -3,6 +3,7 @@
 module TwilightStruggle
   class PostJob < ApplicationJob
     queue_as :default
+    self.log_arguments = false
 
     retry_on StandardError, wait: :polynomially_longer, attempts: 5
     discard_on ActiveJob::DeserializationError

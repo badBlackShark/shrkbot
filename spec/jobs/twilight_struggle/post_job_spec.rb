@@ -41,6 +41,21 @@ RSpec.describe TwilightStruggle::PostJob do
     expect(Ops::TwilightStruggle::Games::Post).to have_received(:call).with(game:, server_configuration:, report:)
   end
 
+  context "when the run is logged" do
+    let(:log) { StringIO.new }
+
+    before do
+      allow(ActiveJob::Base).to receive(:logger).and_return(ActiveSupport::Logger.new(log))
+    end
+
+    it "logs the job without the result details" do
+      perform
+
+      expect(log.string).to include("Performing TwilightStruggle::PostJob")
+      expect(log.string).not_to include("Alice")
+    end
+  end
+
   context "when the destination channel is gone" do
     before do
       allow(Ops::TwilightStruggle::Games::Post).to receive(:call).and_raise(Discordrb::Errors::UnknownChannel.new("gone"))
