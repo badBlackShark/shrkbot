@@ -270,10 +270,10 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
   end
 
   context "discord tags" do
-    let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, discord_channel_id: 555, ping_players:) }
+    let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, discord_channel_id: 555, player_display:) }
 
     context "when tags are off" do
-      let(:ping_players) { false }
+      let(:player_display) { "name" }
 
       it "creates a single message" do
         result
@@ -292,7 +292,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
     end
 
     context "when tags are on" do
-      let(:ping_players) { true }
+      let(:player_display) { "name_and_tag" }
 
       it "renders each tag next to the name it belongs to" do
         result

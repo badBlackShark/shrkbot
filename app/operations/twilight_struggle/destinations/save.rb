@@ -9,7 +9,7 @@ module Ops
         receives :template_win, optional: true
         receives :template_tie, optional: true
         receives :template_video, optional: true
-        receives :ping_players, optional: true
+        receives :player_display, optional: true
         receives :archived, optional: true
 
         def call
@@ -29,7 +29,7 @@ module Ops
             template_win: override(:win, template_win),
             template_tie: override(:tie, template_tie),
             template_video: override(:video, template_video),
-            ping_players: ping_preference,
+            player_display: player_display.presence,
             archived_at: archived_at
           }
         end
@@ -49,12 +49,6 @@ module Ops
             destination.tournament.parent,
             destination.server_configuration
           )
-        end
-
-        def ping_preference
-          return nil if ping_players.blank?
-
-          truthy?(ping_players)
         end
 
         def archived_at

@@ -5,11 +5,11 @@ module TwilightStruggle
     SIDE_LABELS = {usa: "USA", ussr: "USSR"}.freeze
     FINAL_SCORING_TURN = 11
 
-    def initialize(report:, template:, tournament_name:, ping_players: false)
+    def initialize(report:, template:, tournament_name:, player_display:)
       @report = report
       @template = template
       @tournament_name = tournament_name
-      @ping_players = ping_players
+      @player_display = player_display
     end
 
     def content
@@ -66,19 +66,32 @@ module TwilightStruggle
     def render_player(player)
       return "" if player.nil?
 
-      [player.name, flag_of(player), mention_of(player)].compact_blank.join(" ")
+      [name_part(player), flag_of(player), tag_part(player)].compact_blank.join(" ")
     end
 
     def render_name(player)
       return "" if player.nil?
 
-      [player.name, mention_of(player)].compact_blank.join(" ")
+      [name_part(player), tag_part(player)].compact_blank.join(" ")
+    end
+
+    def name_part(player)
+      return mention_of(player) if @player_display == "tag" && mention_of(player).present?
+
+      player.name
+    end
+
+    def tag_part(player)
+      return "" unless @player_display == "name_and_tag"
+      return "" if mention_of(player).blank?
+
+      "(#{mention_of(player)})"
     end
 
     def mention_of(player)
-      return "" unless @ping_players && player.discord_id.present?
+      return "" if player.discord_id.blank?
 
-      "(<@#{player.discord_id}>)"
+      "<@#{player.discord_id}>"
     end
 
     def flag_of(player)
