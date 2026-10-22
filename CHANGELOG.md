@@ -5,6 +5,21 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.12.0] - 2026-10-22
+
+### Added
+- `/editreminder` changes the text of one of your pending reminders. Pick the reminder from the autocomplete list and give the new message. The due time and where the reminder is delivered stay the same. ([#303](https://github.com/badBlackShark/shrkbot/pull/303))
+- Twilight Struggle results can show a player's Discord tag in place of their real name. The "Player names" setting gains "Tag only" beside "Name only" and "Name and tag". With it, a posted result does not tie a player's Discord account to their real name in public. A player who is not on the server, or whose Discord ID twilight-struggle.com did not send, is shown by name instead. Tags never notify anyone. ([#292](https://github.com/badBlackShark/shrkbot/pull/292), [#304](https://github.com/badBlackShark/shrkbot/pull/304))
+- Twilight Struggle results can wait up to 7 days before they post, so a result cannot spoil a stream that runs behind. The delay is set in minutes per tournament, and a tournament without its own delay uses its parent tournament's. The delay counts from when the result was reported. An edit during the delay keeps the original posting time, and the post shows the edited result. A result that is already posted is edited immediately. Lowering the delay does not release results that are already waiting. ([#301](https://github.com/badBlackShark/shrkbot/pull/301))
+
+### Changed
+- The Twilight Struggle results API requires a time zone in `reported_at`. A value such as `2026-10-22T14:00:00` answers 422, and `2026-10-22T14:00:00Z` is accepted. ([#301](https://github.com/badBlackShark/shrkbot/pull/301))
+- shrkbot's logs are deleted after at most 7 days. They previously kept every Twilight Struggle result payload with no time limit. The privacy policy now lists the player and organiser data the logs hold. A self-hosted instance using the shipped deploy configuration logs to journald and needs `MaxRetentionSec=5day` and `MaxFileSec=1day` in `/etc/systemd/journald.conf` for the same limit. ([#300](https://github.com/badBlackShark/shrkbot/pull/300))
+
+### Fixed
+- The missing-game warning from 3.11.0 no longer reports a game that was deleted on twilight-struggle.com. It also stays quiet when an old game, edited on the site for the first time, arrives with a low id. shrkbot now remembers the highest game id the site has sent and checks only the ids skipped above it. The first result after updating sets that mark, so a game lost before it arrives is not reported. ([#291](https://github.com/badBlackShark/shrkbot/pull/291))
+- With "Name and tag", a player who is not on the server is shown by name instead of as `@unknown-user`. Edits check the server's members again. ([#304](https://github.com/badBlackShark/shrkbot/pull/304))
+
 ## [3.11.0] - 2026-09-15
 
 ### Added
