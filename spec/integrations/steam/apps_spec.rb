@@ -20,7 +20,19 @@ RSpec.describe Integrations::Steam::Apps do
     expect(client).to have_received(:get_json).with(
       :store,
       "/api/appdetails",
-      params: {appids: 1145360, filters: "basic"}
+      params: {appids: 1145360, filters: "basic"},
+      status_errors: anything
+    )
+  end
+
+  it "treats a 403 from the keyless store as Unavailable, not a credentials failure" do
+    app
+
+    expect(client).to have_received(:get_json).with(
+      anything,
+      anything,
+      params: anything,
+      status_errors: {403 => Integrations::Unavailable}
     )
   end
 

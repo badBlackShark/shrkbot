@@ -8,7 +8,12 @@ module Integrations
       end
 
       def find(app_id)
-        @client.get_json(:store, "/api/appdetails", params: {appids: app_id, filters: "basic"}) do |body|
+        @client.get_json(
+          :store,
+          "/api/appdetails",
+          params: {appids: app_id, filters: "basic"},
+          status_errors: {403 => Unavailable}
+        ) do |body|
           entry = body.fetch(app_id.to_s)
           raise NotFound, "Steam has no app #{app_id}" unless entry.fetch("success")
 

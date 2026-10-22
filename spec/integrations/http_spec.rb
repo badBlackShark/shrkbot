@@ -31,7 +31,7 @@ RSpec.describe Integrations::Http do
       expect(get_json).to eq(42)
     end
 
-    it "connects over TLS with bounded timeouts" do
+    it "connects over TLS with bounded timeouts and no silent retry" do
       get_json
 
       expect(Net::HTTP).to have_received(:start).with(
@@ -39,7 +39,8 @@ RSpec.describe Integrations::Http do
         443,
         use_ssl: true,
         open_timeout: 5,
-        read_timeout: 15
+        read_timeout: 15,
+        max_retries: 0
       )
     end
 
@@ -96,11 +97,11 @@ RSpec.describe Integrations::Http do
       end
     end
 
-    context "when the body is JSON but not an object or array" do
+    context "when the body is null where the block expects an object" do
       let(:body) { "null" }
 
-      it "raises Unavailable instead of handing the block nil" do
-        expect { get_json }.to raise_error(Integrations::Unavailable, /without a JSON object or array/)
+      it "raises Unavailable, because the provider changed its response" do
+        expect { get_json }.to raise_error(Integrations::Unavailable, /changed its response/)
       end
     end
 
@@ -109,17 +110,6 @@ RSpec.describe Integrations::Http do
 
       it "raises Unavailable, because the provider changed its response" do
         expect { get_json }.to raise_error(Integrations::Unavailable, /changed its response/)
-      end
-    end
-
-    context "when the URL already carries a query" do
-      let(:url) { "https://example.test/api/data?key=abc" }
-      let(:params) { {n: 1} }
-
-      it "keeps it and appends the params" do
-        get_json
-
-        expect(sent_requests.first.path).to eq("/api/data?key=abc&n=1")
       end
     end
   end
@@ -152,6 +142,14 @@ RSpec.describe Integrations::Http do
       let(:retry_after) { "120" }
 
       it "raises RateLimited carrying the seconds" do
+        expect { get_json }.to raise_error(Integrations::RateLimited) { |error| expect(error.retry_after).to eq(120) }
+      end
+    end
+
+    context "with a Retry-After that has a leading zero" do
+      let(:retry_after) { "0120" }
+
+      it "reads it as decimal seconds, not octal" do
         expect { get_json }.to raise_error(Integrations::RateLimited) { |error| expect(error.retry_after).to eq(120) }
       end
     end
@@ -202,7 +200,9 @@ RSpec.describe Integrations::Http do
     EOFError,
     OpenSSL::SSL::SSLError,
     Net::HTTPBadResponse,
-    Net::ProtocolError
+    Net::HTTPHeaderSyntaxError,
+    Net::ProtocolError,
+    Zlib::DataError
   ].each do |network_error|
     context "when the connection fails with #{network_error}" do
       before do

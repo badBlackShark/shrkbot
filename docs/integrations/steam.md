@@ -16,8 +16,13 @@ key would go. Two resources use it:
 ## News
 
 Parameters sent: `appid`, `count`, and `maxlength=0`. **`maxlength=0` means the full
-body**; any other value truncates `contents`. The body is **BBCode** (`[list]`,
-`[*]`, ...), not Markdown or HTML.
+body**; any other value truncates `contents`.
+
+The body format follows `feed_type`: **BBCode** (`[p]`, `[list]`, `[*]`, `[url]`,
+`[img]`, `[table]`, ...) for `feed_type 1`, **HTML** (`<p>`, `<ul>`, `<li>`,
+`<br>`, ...) for every `feed_type 0` feed. Neither is Markdown. Checked live on
+2026-10-22 over 120 items from 1086940, 413150 and 730 plus the TF2 fixture, with
+no exception.
 
 Mapping notes:
 
@@ -33,6 +38,10 @@ Steam answers an unknown app id with **403 and `{}`**, not 404. `Http` maps 403 
 `Unauthorized`, which would look like our credentials failing, so `News` passes
 `status_errors: {403 => NotFound}`. It lives in `News`, not `Client`, because on
 Steam's keyed endpoints a 403 does mean a bad key: the meaning is per endpoint.
+
+Checked live on 2026-10-22: an unknown id, `0` and a non-numeric `abc` all get 403
+`{}`, and this endpoint ignores a `key` parameter (a bogus one still gets 200). On
+this endpoint a 403 has only ever meant an unknown app.
 
 ### What the feeds contain
 
@@ -69,6 +78,10 @@ Sampled live on 2026-10-22 across ten games (440, 570, 730, 105600, 413150, 5538
 
 An unknown id is **HTTP 200 with `success: false`**, which `Apps#find` raises as
 `NotFound`.
+
+`Apps` passes `status_errors: {403 => Unavailable}`. The endpoint takes no key, so a
+403 there can't be about our credentials; the likely cause is the store refusing a
+busy IP for a while, which is transient.
 
 These store endpoints are **unofficial and rate-limited**: Steam does not document
 them, and a 429 surfaces as `RateLimited`. Call them when a person gives you a game,

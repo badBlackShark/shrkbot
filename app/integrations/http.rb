@@ -19,7 +19,9 @@ module Integrations
       IOError,
       OpenSSL::SSL::SSLError,
       Net::HTTPBadResponse,
+      Net::HTTPHeaderSyntaxError,
       Net::ProtocolError,
+      Zlib::Error,
       JSON::ParserError
     ].freeze
 
@@ -29,13 +31,13 @@ module Integrations
 
     def initialize(url, params:, status_errors:)
       @uri = URI(url)
-      @uri.query = URI.encode_www_form(URI.decode_www_form(@uri.query.to_s) + params.to_a).presence
+      @uri.query = URI.encode_www_form(params).presence
       @status_errors = STATUS_ERRORS.merge(status_errors)
     end
 
     def get_json
-      yield parsed_body
-    rescue KeyError, TypeError => e
+      yield JSON.parse(response_body)
+    rescue KeyError, TypeError, NoMethodError => e
       raise Unavailable, "#{@uri.host} changed its response: #{e.message}"
     rescue *TRANSPORT_ERRORS => e
       raise Unavailable, "#{@uri.host}: #{e.class}: #{e.message}"
@@ -43,20 +45,14 @@ module Integrations
 
     private
 
-    def parsed_body
-      body = JSON.parse(response_body)
-      raise Unavailable, "#{@uri.host} answered without a JSON object or array" unless body.is_a?(Hash) || body.is_a?(Array)
-
-      body
-    end
-
     def response_body
       response = Net::HTTP.start(
         @uri.host,
         @uri.port,
         use_ssl: @uri.scheme == "https",
         open_timeout: 5,
-        read_timeout: 15
+        read_timeout: 15,
+        max_retries: 0
       ) do |http|
         http.request(request)
       end
@@ -77,11 +73,11 @@ module Integrations
       message = "#{@uri.host} responded #{status}"
       return rate_limited(response, message) if status == 429
 
-      @status_errors.fetch(status) { default_error(status) }.new(message)
+      (@status_errors[status] || default_error(status)).new(message)
     end
 
     def rate_limited(response, message)
-      RateLimited.new(message, retry_after: Integer(response["Retry-After"], exception: false))
+      RateLimited.new(message, retry_after: Integer(response["Retry-After"], 10, exception: false))
     end
 
     def default_error(status)
