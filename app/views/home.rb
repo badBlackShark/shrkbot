@@ -29,13 +29,17 @@ class Views::Home < Views::Base
   def pitch
     div(class: "flex-1") do
       h1(class: "mb-4 font-display text-4xl font-bold leading-tight tracking-tight") do
-        span(class: "[font-size:larger]") { render Components::Wordmark.new }
+        span(class: "[font-size:larger] text-accent") { t(".botname") }
         br
-        plain t(".tagline")
-        br
-        span(class: "text-accent-2-text") { t(".tagline_accent") }
+        span(class: "text-accent-2-text") { t(".tagline") }
       end
       p(class: "max-w-md text-lg leading-relaxed text-text-secondary") { t(".lede") }
+      p(class: "max-w-md text-lg leading-relaxed text-text-secondary mt-6") do
+        plain t(".bespoke_plugins")
+        plain t(".bespoke_plugins_pre")
+        a(href: bespoke_plugins_path, class: "underline transition-colors hover:text-text-primary") { t(".bespoke_plugins_link") }
+        plain t(".bespoke_plugins_post")
+      end
     end
   end
 
