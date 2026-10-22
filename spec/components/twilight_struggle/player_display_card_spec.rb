@@ -22,7 +22,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
     end
 
     it "does not claim anything is inherited" do
-      expect(html).not_to include("is set to")
+      expect(html).not_to include("uses")
     end
 
     context "when name and tag is selected" do
@@ -56,7 +56,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
     end
 
     it "names the parent and what it resolves to" do
-      expect(html).to include("OTSL 2026 is set to Name and tag.")
+      expect(html).to include("OTSL 2026 uses &quot;Name and tag&quot;.")
     end
 
     context "when the destination overrides the parent" do
@@ -67,7 +67,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
       end
 
       it "still names what inherit would give" do
-        expect(html).to include("OTSL 2026 is set to Name and tag.")
+        expect(html).to include("OTSL 2026 uses &quot;Name and tag&quot;.")
       end
     end
   end
@@ -78,6 +78,32 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
 
     it "offers only the three real choices, since this server has nothing to inherit from" do
       expect(html).not_to include("Inherit")
+    end
+  end
+
+  context "when the parent subscribes but sets nothing and the grandparent sets it" do
+    let(:grandparent) { create(:twilight_struggle_tournament, name: "OTSL") }
+    let(:parent) { create(:twilight_struggle_tournament, name: "OTSL 2026", parent: grandparent) }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+    before do
+      create(:twilight_struggle_destination, tournament: parent, server_configuration:)
+      create(:twilight_struggle_destination, tournament: grandparent, server_configuration:, player_display: "tag")
+    end
+
+    it "names the grandparent that sets it" do
+      expect(html).to include("OTSL uses &quot;Tag only&quot;.")
+    end
+  end
+
+  context "when no parent tournament sets it" do
+    let(:parent) { create(:twilight_struggle_tournament, name: "OTSL 2026") }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+    before { create(:twilight_struggle_destination, tournament: parent, server_configuration:) }
+
+    it "says where the value comes from instead" do
+      expect(html).to include("No parent tournament sets this, so it defaults to &quot;Name only&quot;.")
     end
   end
 end

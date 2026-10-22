@@ -10,8 +10,9 @@ module Ops
         receives :tournament, optional: true
 
         def call
-          record = ::TwilightStruggle::Game.find_or_initialize_by(external_id:)
+          record = ::TwilightStruggle::Game.lock.find_or_initialize_by(external_id:)
           record.tournament = tournament || friendly_tournament
+          record.revision += 1
 
           return failure(record.errors.full_messages) unless record.save
 
@@ -34,7 +35,7 @@ module Ops
 
           return log_no_subscribers(record) if servers.empty?
 
-          servers.each { |server| ::TwilightStruggle::PostJob.perform_later(record, server, payload) }
+          servers.each { |server| ::TwilightStruggle::PostJob.perform_later(record, server, payload, record.revision) }
         end
 
         def log_no_subscribers(record)

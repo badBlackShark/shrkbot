@@ -162,6 +162,60 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Save do
     end
   end
 
+  describe "the posting delay" do
+    context "when set to 15 minutes" do
+      let(:attributes) { super().merge(post_delay_minutes: "15") }
+
+      it "stores it in seconds" do
+        result
+        expect(destination.reload.post_delay_seconds).to eq(900)
+      end
+    end
+
+    context "when left blank on a destination that had one" do
+      let(:attributes) { super().merge(post_delay_minutes: "") }
+      let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, post_delay_seconds: 900) }
+
+      it "clears it back to nil so it inherits" do
+        result
+        expect(destination.reload.post_delay_seconds).to be_nil
+      end
+    end
+
+    context "when set to zero" do
+      let(:attributes) { super().merge(post_delay_minutes: "0") }
+
+      it "stores an explicit zero" do
+        result
+        expect(destination.reload.post_delay_seconds).to eq(0)
+      end
+    end
+
+    context "when set to the one-week maximum" do
+      let(:attributes) { super().merge(post_delay_minutes: "10080") }
+
+      it "succeeds" do
+        expect(result).to be_success
+      end
+    end
+
+    %w[abc 1e3 -5 10081 20000].each do |input|
+      context "when submitted as #{input.inspect}" do
+        let(:attributes) { super().merge(post_delay_minutes: input) }
+        let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, post_delay_seconds: 900) }
+
+        it "fails with the whole-number message" do
+          expect(result.errors).to eq(["Posting delay must be a whole number of minutes between 0 and 10080."])
+        end
+
+        it "leaves the stored delay unchanged" do
+          result
+          expect(destination.reload.post_delay_seconds).to eq(900)
+        end
+      end
+    end
+  end
+
   describe "archiving" do
     context "when archived is checked" do
       let(:attributes) { super().merge(archived: "1") }

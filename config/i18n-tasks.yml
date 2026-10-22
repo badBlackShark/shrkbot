@@ -14,11 +14,16 @@ data:
     - "config/locales/web.%{locale}.yml"
 
 # Relative keys in the abstract show views (SubPluginShow, PluginConfigShow)
-# resolve at runtime against the SUBCLASS scope (e.g. logging/welcomes show),
+# and in Components::TwilightStruggle::SettingCardBase resolve at runtime
+# against the SUBCLASS scope (e.g. logging/welcomes show),
 # which the static file-path scoping above cannot see.
 ignore_missing:
   - views.servers.moderation.sub_plugin_show.*
   - views.servers.plugin_config_show.*
+  - components.twilight_struggle.setting_card_base.label
+  - components.twilight_struggle.setting_card_base.help
+  - components.twilight_struggle.setting_card_base.inherits_from
+  - components.twilight_struggle.setting_card_base.inherits_default
 
 # Every entry here is a key that IS used, by an indirection the static scanner
 # cannot follow. Keep this list exact — a wildcard wide enough to cover a real
@@ -49,6 +54,16 @@ ignore_unused:
   - views.servers.twilight_struggle.show.title
   - views.servers.twilight_struggle.show.description
   - views.servers.twilight_struggle.show.gate_message
+  # 1. Components::TwilightStruggle::SettingCardBase subclasses
+  - components.twilight_struggle.player_display_card.label
+  - components.twilight_struggle.player_display_card.help
+  - components.twilight_struggle.player_display_card.inherits_from
+  - components.twilight_struggle.player_display_card.inherits_default
+  - components.twilight_struggle.post_delay_card.label
+  - components.twilight_struggle.post_delay_card.help
+  - components.twilight_struggle.post_delay_card.inherits_from.one
+  - components.twilight_struggle.post_delay_card.inherits_from.other
+  - components.twilight_struggle.post_delay_card.inherits_default
   # 2. Admin::SettingsController#update
   - admin.settings.dms_enabled
   - admin.settings.dms_disabled

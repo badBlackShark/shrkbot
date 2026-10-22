@@ -24,3 +24,7 @@ en:
       plugins:
         requires_settings: "%{plugin} can't be enabled until its required settings
           are configured."
+    twilight_struggle:
+      destinations:
+        post_delay_invalid: Posting delay must be a whole number of minutes between
+          0 and %{max}.

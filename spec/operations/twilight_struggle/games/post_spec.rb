@@ -4,7 +4,10 @@ require "rails_helper"
 require "discordrb"
 
 RSpec.describe Ops::TwilightStruggle::Games::Post do
-  subject(:result) { described_class.call(game:, server_configuration:, report:) }
+  subject(:result) { described_class.call(game:, server_configuration:, report:, config:, posted_message:) }
+
+  let(:config) { TwilightStruggle::EffectiveConfig.new(tournament, server_configuration) }
+  let(:posted_message) { game.posted_messages.find_by(server_configuration:) }
 
   let(:usa) { TwilightStruggle::Player.new(name: "Alice", country_code: "US", discord_id: "111") }
   let(:ussr) { TwilightStruggle::Player.new(name: "Bob", country_code: "RU", discord_id: "222") }
@@ -55,6 +58,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
 
     it "does not touch the Discord API" do
       result
+
       expect(Bot::Discord::Components).not_to have_received(:create_message)
       expect(Bot::Discord::Components).not_to have_received(:edit_content)
     end
@@ -83,6 +87,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
 
     it "does not touch the Discord API" do
       result
+
       expect(Bot::Discord::Components).not_to have_received(:create_message)
     end
 
@@ -140,6 +145,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
 
     it "does not call create" do
       result
+
       expect(Bot::Discord::Components).not_to have_received(:create_message)
     end
 
@@ -287,6 +293,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
 
       it "does not call edit" do
         result
+
         expect(Bot::Discord::Components).not_to have_received(:edit_content)
       end
     end

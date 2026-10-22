@@ -10,9 +10,12 @@ module Ops
         receives :template_tie, optional: true
         receives :template_video, optional: true
         receives :player_display, optional: true
+        receives :post_delay_minutes, optional: true
         receives :archived, optional: true
 
         def call
+          return invalid_post_delay unless post_delay_valid?
+
           destination.assign_attributes(settings)
 
           return failure(destination.errors.full_messages, value: destination) unless destination.save
@@ -30,6 +33,7 @@ module Ops
             template_tie: override(:tie, template_tie),
             template_video: override(:video, template_video),
             player_display: player_display.presence,
+            post_delay_seconds:,
             archived_at: archived_at
           }
         end
@@ -49,6 +53,29 @@ module Ops
             destination.tournament.parent,
             destination.server_configuration
           )
+        end
+
+        def post_delay_valid?
+          return true if post_delay_minutes.blank?
+
+          post_delay_minutes.to_s.match?(/\A\d+\z/) && post_delay_minutes.to_i <= max_post_delay_minutes
+        end
+
+        def invalid_post_delay
+          failure(
+            I18n.t("operations.twilight_struggle.destinations.post_delay_invalid", max: max_post_delay_minutes),
+            value: destination
+          )
+        end
+
+        def max_post_delay_minutes
+          ::TwilightStruggle::Destination::MAX_POST_DELAY.in_minutes.to_i
+        end
+
+        def post_delay_seconds
+          return nil if post_delay_minutes.blank?
+
+          post_delay_minutes.to_i.minutes.to_i
         end
 
         def archived_at

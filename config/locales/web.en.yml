@@ -478,11 +478,25 @@ en:
           twilight-struggle.com doesn't send. Tags never notify anyone, and they survive
           a player leaving the server.
         inherit: Inherit
-        inherits_from: "%{parent} is set to %{setting}."
+        inherits_default: No parent tournament sets this, so it defaults to "%{setting}".
+        inherits_from: '%{parent} uses "%{setting}".'
         label: Player names
         name: Name only
         name_and_tag: Name and tag
         tag: Tag only
+      post_delay_card:
+        help: How long shrkbot waits after a result is reported before posting it,
+          so it can't spoil a stream that's still running. Edits to a result that
+          is already posted show up immediately. Changing the delay doesn't affect
+          results that are already waiting.
+        inherits_default: No parent tournament sets a delay, so results post immediately.
+        inherits_from:
+          one: "%{parent} uses a %{count}-minute delay. Leave the field empty to use
+            the same here."
+          other: "%{parent} uses a %{count}-minute delay. Leave the field empty to
+            use the same here."
+        label: Posting delay
+        unit: minutes
       template_card:
         empty: Nothing would be posted.
         preview: Live preview

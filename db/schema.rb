@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_15_205131) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_21_221638) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -430,6 +430,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_15_205131) do
     t.datetime "created_at", null: false
     t.bigint "discord_channel_id"
     t.string "player_display"
+    t.integer "post_delay_seconds"
     t.string "server_configuration_id", null: false
     t.text "template_tie"
     t.text "template_video"
@@ -439,11 +440,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_15_205131) do
     t.index ["server_configuration_id"], name: "idx_on_server_configuration_id_49f7b0ea7d"
     t.index ["tournament_id", "server_configuration_id"], name: "index_twilight_struggle_destinations_on_tournament_and_server", unique: true
     t.check_constraint "player_display::text = ANY (ARRAY['name'::character varying, 'name_and_tag'::character varying, 'tag'::character varying]::text[])", name: "twilight_struggle_destinations_player_display_check"
+    t.check_constraint "post_delay_seconds IS NULL OR post_delay_seconds >= 0 AND post_delay_seconds <= 604800", name: "twilight_struggle_destinations_post_delay_seconds_check"
   end
 
   create_table "twilight_struggle_games", id: :string, default: -> { "('tsg_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "external_id", null: false
+    t.integer "revision", default: 0, null: false
     t.string "tournament_id", null: false
     t.datetime "updated_at", null: false
     t.index ["external_id"], name: "index_twilight_struggle_games_on_external_id", unique: true

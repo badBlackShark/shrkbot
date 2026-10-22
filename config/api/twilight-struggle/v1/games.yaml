@@ -80,7 +80,10 @@ components:
           example: "2026-07-20"
         reported_at:
           type: string
-          description: When the result was reported.
+          format: date-time
+          description: >-
+            When the result was first reported. Keep the original time when you
+            resend a game: a server's posting delay counts from it.
           example: "2026-07-24T10:00:00Z"
         winning_side:
           type: string

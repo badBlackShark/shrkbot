@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module TwilightStruggle
-  GameReport = Data.define(:usa, :ussr, :winning_side, :winning_turn, :winning_method, :game_code, :game_date, :video_urls) do
-    def initialize(usa:, ussr:, winning_side:, winning_turn: nil, winning_method: nil, game_code: nil, game_date: nil, video_urls: [])
+  GameReport = Data.define(:usa, :ussr, :winning_side, :winning_turn, :winning_method, :game_code, :game_date, :video_urls, :reported_at) do
+    def initialize(usa:, ussr:, winning_side:, winning_turn: nil, winning_method: nil, game_code: nil, game_date: nil, video_urls: [], reported_at: nil)
       super
     end
 
@@ -16,7 +16,8 @@ module TwilightStruggle
         winning_method: payload[:winning_method],
         game_code: payload[:game_code],
         game_date: payload[:game_date],
-        video_urls: payload[:video_urls] || []
+        video_urls: payload[:video_urls] || [],
+        reported_at: Time.iso8601(payload[:reported_at])
       )
     end
 

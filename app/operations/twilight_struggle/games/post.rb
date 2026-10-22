@@ -6,7 +6,8 @@ module Ops
       class Post < ApplicationOperation
         self.transactional = false
 
-        receives :game, :server_configuration, :report
+        receives :game, :server_configuration, :report, :config
+        receives :posted_message, optional: true
 
         def call
           return skipped("no channel is configured for it or any tournament above it") if config.channel_id.blank?
@@ -27,10 +28,6 @@ module Ops
           server_configuration.enabled_plugin_keys.include?(::TwilightStruggle::PLUGIN_KEY)
         end
 
-        def config
-          @config ||= ::TwilightStruggle::EffectiveConfig.new(game.tournament, server_configuration)
-        end
-
         def message
           @message ||= ::TwilightStruggle::Message.new(
             report:,
@@ -47,17 +44,11 @@ module Ops
         end
 
         def deliver
-          posted ? edit_posted : create_new(config.channel_id)
-        end
-
-        def posted
-          return @posted if defined?(@posted)
-
-          @posted = game.posted_messages.find_by(server_configuration:)
+          posted_message ? edit_posted : create_new(config.channel_id)
         end
 
         def edit_posted
-          ::Bot::Discord::Components.edit_content(posted.discord_channel_id, posted.discord_message_id, message.content)
+          ::Bot::Discord::Components.edit_content(posted_message.discord_channel_id, posted_message.discord_message_id, message.content)
         rescue Discordrb::Errors::UnknownMessage
           create_new(config.channel_id)
         end
@@ -73,7 +64,7 @@ module Ops
         end
 
         def persist_location(channel_id, message_id)
-          record = posted || game.posted_messages.build(server_configuration:)
+          record = posted_message || game.posted_messages.build(server_configuration:)
           record.update!(discord_channel_id: channel_id, discord_message_id: message_id)
         end
       end
