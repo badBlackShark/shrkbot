@@ -96,14 +96,14 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
     end
   end
 
-  context "when no tournament above sets it" do
+  context "when no parent tournament sets it" do
     let(:parent) { create(:twilight_struggle_tournament, name: "OTSL 2026") }
     let(:tournament) { create(:twilight_struggle_tournament, parent:) }
 
     before { create(:twilight_struggle_destination, tournament: parent, server_configuration:) }
 
     it "says where the value comes from instead" do
-      expect(html).to include("No tournament above sets this, so it defaults to Name only.")
+      expect(html).to include("No parent tournament sets this, so it defaults to Name only.")
     end
   end
 end

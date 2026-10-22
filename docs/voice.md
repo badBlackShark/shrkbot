@@ -176,11 +176,15 @@ Broadcast a message to the owner of every server shrkbot is in. Bot owner only.
 
 ## Rules for the website
 
-Everything under "every surface" applies. Two more, both from settings pages:
+Everything under "every surface" applies. Three more, all from settings pages:
 
 **Sibling help texts share a shape.** If the fields around yours all open "How
 long a member must...", yours does too. A single field that switches to a
 noun-phrase register reads as though someone else wrote it.
+
+**Say what a setting does, not how it is stored.** A tournament "uses a
+30-minute delay", not "is set to 30 minutes". A tournament higher up the chain
+is a "parent tournament", not one "above".
 
 **Warn before the setting, and say what it costs.** Put the limitation ahead of
 the control it applies to, and name the trade-off rather than grading it.
@@ -252,8 +256,8 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `the leave message waits a few seconds while shrkbot reads the audit log` | `the leave message waits 3 seconds while shrkbot reads the audit log` | The real number was in the code (`Welcomes::GracePeriod::DURATION`). "A few seconds" is the same fault as "a while": the reader cannot plan around it, and a changelog is no more exempt from the rule than a settings page. |
 | `Caches, background-job records and logs are cleared automatically (at most 60 days, 30 days and briefly, respectively).` | `... (at most 60 days, 30 days and 7 days, respectively).` | "Briefly" sat beside two real numbers, and nothing enforced it: the logs had no time limit at all. A retention promise needs the number the host is configured to, because the policy binds the implementation. |
 | `Adds a player's Discord tag in brackets after their name, for players whose Discord ID twilight-struggle.com sends with the result. Everyone else just gets their name. Tags never notify anyone - they are there so you can see who a result belongs to, and they survive a player leaving the server.` | `How players appear in posted results. Tag only keeps a player's real name out of the channel, but falls back to it for anyone whose Discord ID twilight-struggle.com doesn't send. Tags never notify anyone, and they survive a player leaving the server.` | The old text narrated one toggle's two states, so it had no room for a third mode, and "everyone else just gets their name" was a per-mode aside rather than the rule it actually is. |
-| `Each result is posted this long after it was reported, so it can't spoil a stream that runs behind. Everyone sees results that much later. Changes to a result that is already posted appear immediately.` | `... Changes to a result that is already posted appear immediately. Lowering the delay doesn't release results already waiting - they still post on the old delay.` | An admin who set a week by mistake and then lowered it would expect the held results to come out. A waiting job keeps the delay it was scheduled with, so the help has to say so before the admin finds out the hard way. |
-| `OTSL 2026 is set to 0 minutes.` (when nothing above sets a delay) | `No tournament above sets a delay, so results post immediately.` | The note named the nearest subscribed tournament whether or not it set the value, so it pinned a default on a tournament that never chose it. The same fix went into the player-names card. |
+| `Each result is posted this long after it was reported, so it can't spoil a stream that runs behind. Everyone sees results that much later. Changes to a result that is already posted appear immediately.` | `How long shrkbot waits after a result is reported before posting it, so it can't spoil a stream that's still running. Edits to a result that is already posted show up immediately. Changing the delay doesn't affect results that are already waiting.` | Its sibling opens "How players appear...", so the passive "is posted this long after" was the odd one out. "Runs behind" is broadcast jargon for what "still running" says plainly. The old text also never warned that results already waiting keep their delay. An admin who set a week by mistake and then lowered it would expect them to come out. |
+| `OTSL 2026 is set to 30 minutes.` / `No tournament above sets a delay, ...` | `OTSL 2026 uses a 30-minute delay.` / `No parent tournament sets a delay, so results post immediately.` | "Is set to" and "above" describe how the settings are stored and resolved. "Uses" and "parent tournament" describe what the reader sees. The note also used to name the nearest subscribed tournament whether or not it set the value, so it pinned a default on a tournament that never chose it. The same fixes went into the player-names card. |
 
 ## Kept on purpose
 

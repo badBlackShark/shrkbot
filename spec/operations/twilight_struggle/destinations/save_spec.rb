@@ -205,7 +205,7 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Save do
         let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, post_delay_seconds: 900) }
 
         it "fails with the whole-number message" do
-          expect(result.errors).to eq(["Posting delay must be a whole number of minutes from 0 to 10080."])
+          expect(result.errors).to eq(["Posting delay must be a whole number of minutes between 0 and 10080."])
         end
 
         it "leaves the stored delay unchanged" do

@@ -31,7 +31,7 @@ RSpec.describe Components::TwilightStruggle::PostDelayCard do
 
   context "when the tournament has no parent" do
     it "does not claim anything is inherited" do
-      expect(html).not_to include("is set to")
+      expect(html).not_to include("uses a")
     end
   end
 
@@ -41,7 +41,7 @@ RSpec.describe Components::TwilightStruggle::PostDelayCard do
     let!(:parent_destination) { create(:twilight_struggle_destination, tournament: parent, server_configuration:, post_delay_seconds: 1800) }
 
     it "names the parent and its delay in minutes" do
-      expect(html).to include("OTSL 2026 is set to 30 minutes.")
+      expect(html).to include("OTSL 2026 uses a 30-minute delay.")
     end
 
     it "uses the inherited minutes as the placeholder" do
@@ -52,7 +52,7 @@ RSpec.describe Components::TwilightStruggle::PostDelayCard do
       let!(:parent_destination) { create(:twilight_struggle_destination, tournament: parent, server_configuration:, post_delay_seconds: 60) }
 
       it "uses the singular" do
-        expect(html).to include("OTSL 2026 is set to 1 minute.")
+        expect(html).to include("OTSL 2026 uses a 1-minute delay.")
       end
     end
   end
@@ -68,18 +68,18 @@ RSpec.describe Components::TwilightStruggle::PostDelayCard do
     end
 
     it "names the grandparent that sets it" do
-      expect(html).to include("OTSL is set to 30 minutes.")
+      expect(html).to include("OTSL uses a 30-minute delay.")
     end
   end
 
-  context "when no tournament above sets it" do
+  context "when no parent tournament sets it" do
     let(:parent) { create(:twilight_struggle_tournament, name: "OTSL 2026") }
     let(:tournament) { create(:twilight_struggle_tournament, parent:) }
 
     before { create(:twilight_struggle_destination, tournament: parent, server_configuration:) }
 
     it "says where the value comes from instead" do
-      expect(html).to include("No tournament above sets a delay, so results post immediately.")
+      expect(html).to include("No parent tournament sets a delay, so results post immediately.")
     end
   end
 end
