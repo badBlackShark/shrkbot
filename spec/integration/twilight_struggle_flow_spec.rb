@@ -15,6 +15,7 @@ RSpec.describe "Twilight Struggle integration", type: :request, skip_prosopite: 
   let(:edited_messages) { [] }
 
   before do
+    allow(Bot::Discord::GuildMembership).to receive(:user_member?).and_return(true)
     allow(Bot::Discord::Components).to receive(:create_message) do |channel_id:, content:, allowed_mentions:|
       created_messages << {channel_id:, content:, allowed_mentions:}
       "999"

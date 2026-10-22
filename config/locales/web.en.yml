@@ -474,9 +474,9 @@ en:
         unsubscribe: Unsubscribe
       player_display_card:
         help: How players appear in posted results. Tag only keeps a player's real
-          name out of the channel, but falls back to it for anyone whose Discord ID
-          twilight-struggle.com doesn't send. Tags never notify anyone, and they survive
-          a player leaving the server.
+          name out of the channel, but falls back to it for anyone who isn't on this
+          server or whose Discord ID twilight-struggle.com doesn't send. Tags never
+          notify anyone.
         inherit: Inherit
         inherits_default: No parent tournament sets this, so it defaults to "%{setting}".
         inherits_from: '%{parent} uses "%{setting}".'
