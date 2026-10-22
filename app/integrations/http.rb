@@ -13,12 +13,13 @@ module Integrations
       410 => NotFound
     }.freeze
     TRANSPORT_ERRORS = [
-      Net::OpenTimeout,
-      Net::ReadTimeout,
+      Timeout::Error,
       SocketError,
-      Errno::ECONNREFUSED,
-      Errno::ECONNRESET,
+      SystemCallError,
+      IOError,
       OpenSSL::SSL::SSLError,
+      Net::HTTPBadResponse,
+      Net::ProtocolError,
       JSON::ParserError
     ].freeze
 
@@ -28,19 +29,26 @@ module Integrations
 
     def initialize(url, params:, status_errors:)
       @uri = URI(url)
-      @uri.query = URI.encode_www_form(params).presence
+      @uri.query = URI.encode_www_form(URI.decode_www_form(@uri.query.to_s) + params.to_a).presence
       @status_errors = STATUS_ERRORS.merge(status_errors)
     end
 
     def get_json
-      yield JSON.parse(response_body)
-    rescue KeyError => e
+      yield parsed_body
+    rescue KeyError, TypeError => e
       raise Unavailable, "#{@uri.host} changed its response: #{e.message}"
     rescue *TRANSPORT_ERRORS => e
       raise Unavailable, "#{@uri.host}: #{e.class}: #{e.message}"
     end
 
     private
+
+    def parsed_body
+      body = JSON.parse(response_body)
+      raise Unavailable, "#{@uri.host} answered without a JSON object or array" unless body.is_a?(Hash) || body.is_a?(Array)
+
+      body
+    end
 
     def response_body
       response = Net::HTTP.start(

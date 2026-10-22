@@ -51,8 +51,9 @@ RSpec.describe Integrations::Steam::Client do
   context "with a host Steam does not have" do
     let(:host) { :community }
 
-    it "raises KeyError instead of requesting anything" do
+    it "raises KeyError without requesting anything" do
       expect { get_json }.to raise_error(KeyError)
+      expect(Integrations::Http).not_to have_received(:get_json)
     end
   end
 end

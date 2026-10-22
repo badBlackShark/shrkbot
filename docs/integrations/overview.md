@@ -44,10 +44,12 @@ Integrations::Http.get_json(url, params: {}, status_errors: {}) do |body|
 end
 ```
 
+`params:` is appended to any query string already in `url`, so a provider can bake a fixed parameter into a URL and still pass the rest per call.
+
 **The block is mandatory.** `get_json` parses the JSON, yields it, and returns the
 block's value. The block is where the provider's JSON becomes our value objects, and
-a `KeyError` raised inside it means the provider changed its response shape. Http
-turns that into `Unavailable`, so the failure surfaces at the transport boundary as
+a `KeyError` or `TypeError` raised inside it means the provider changed its response
+shape. Http turns that into `Unavailable`, so the failure surfaces at the transport boundary as
 one error type instead of a `KeyError` or `NoMethodError` deep in a caller. Map with
 `fetch`, never `[]`, so a missing key fails loudly.
 
@@ -61,7 +63,7 @@ without knowing which provider produced it.
 | `Unauthorized` | 401, 403. Our credentials, not the source's fault. |
 | `NotFound` | 404, 410. |
 | `RateLimited` | 429. `retry_after` is the `Retry-After` header in seconds, or `nil` when the header is absent or an HTTP date. |
-| `Unavailable` | 5xx, timeouts, refused or reset connections, TLS errors, a body that is not JSON, a response missing a key the mapping needs. Transient. |
+| `Unavailable` | 5xx, timeouts, socket and system-call errors, dropped connections, TLS errors, a malformed HTTP response, a body that is not a JSON object or array, a response missing a key or shaped differently from what the mapping expects. Transient. |
 | `Error` | Anything else (other 4xx, 3xx; redirects are not followed). |
 
 A status error reads `"<host> responded <status>"`; a transport failure reads `"<host>: <exception class>: <message>"`. Both name the host, because the message is what ends up in logs and wherever a failure is shown.

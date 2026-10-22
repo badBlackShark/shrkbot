@@ -13,8 +13,8 @@ RSpec.describe Integrations::Http do
   let(:status) { "200" }
   let(:body) { {"value" => 42}.to_json }
   let(:retry_after) { nil }
-  let(:response) { double(code: status, body:) }
-  let(:http) { double }
+  let(:response) { instance_double(Net::HTTPResponse, code: status, body:) }
+  let(:http) { instance_double(Net::HTTP) }
   let(:sent_requests) { [] }
 
   before do
@@ -95,6 +95,33 @@ RSpec.describe Integrations::Http do
         expect { get_json }.to raise_error(Integrations::Unavailable)
       end
     end
+
+    context "when the body is JSON but not an object or array" do
+      let(:body) { "null" }
+
+      it "raises Unavailable instead of handing the block nil" do
+        expect { get_json }.to raise_error(Integrations::Unavailable, /without a JSON object or array/)
+      end
+    end
+
+    context "when the body is an array where the block expects an object" do
+      let(:body) { [1, 2].to_json }
+
+      it "raises Unavailable, because the provider changed its response" do
+        expect { get_json }.to raise_error(Integrations::Unavailable, /changed its response/)
+      end
+    end
+
+    context "when the URL already carries a query" do
+      let(:url) { "https://example.test/api/data?key=abc" }
+      let(:params) { {n: 1} }
+
+      it "keeps it and appends the params" do
+        get_json
+
+        expect(sent_requests.first.path).to eq("/api/data?key=abc&n=1")
+      end
+    end
   end
 
   {
@@ -170,7 +197,12 @@ RSpec.describe Integrations::Http do
     SocketError,
     Errno::ECONNREFUSED,
     Errno::ECONNRESET,
-    OpenSSL::SSL::SSLError
+    Errno::ETIMEDOUT,
+    Errno::EHOSTUNREACH,
+    EOFError,
+    OpenSSL::SSL::SSLError,
+    Net::HTTPBadResponse,
+    Net::ProtocolError
   ].each do |network_error|
     context "when the connection fails with #{network_error}" do
       before do
