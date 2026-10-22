@@ -37,6 +37,7 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
   let(:edited_messages) { [] }
 
   before do
+    allow(Bot::Discord::GuildMembership).to receive(:user_member?).and_return(true)
     allow(Bot::Discord::Components).to receive(:create_message) do |channel_id:, content:, allowed_mentions:|
       created_messages << {channel_id:, content:, allowed_mentions:}
       "999"
@@ -296,6 +297,12 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
 
         expect(Bot::Discord::Components).not_to have_received(:edit_content)
       end
+
+      it "does not ask Discord who is on the server" do
+        result
+
+        expect(Bot::Discord::GuildMembership).not_to have_received(:user_member?)
+      end
     end
 
     context "when tags are on" do
@@ -309,6 +316,32 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
       it "still notifies nobody" do
         result
         expect(created_messages.first[:allowed_mentions]).to eq({parse: []})
+      end
+
+      context "when a player is not on the server" do
+        before do
+          allow(Bot::Discord::GuildMembership).to receive(:user_member?).with(server_configuration.discord_id, "222").and_return(false)
+        end
+
+        it "falls back to the name alone for that player" do
+          result
+          expect(created_messages.first[:content]).to include("Bob 🇷🇺").and include("Alice 🇺🇸 (<@111>)")
+          expect(created_messages.first[:content]).not_to include("<@222>")
+        end
+      end
+    end
+
+    context "when tags replace names" do
+      let(:player_display) { "tag" }
+
+      before do
+        allow(Bot::Discord::GuildMembership).to receive(:user_member?).with(server_configuration.discord_id, "222").and_return(false)
+      end
+
+      it "shows that player's name instead of a tag" do
+        result
+        expect(created_messages.first[:content]).to include("Bob").and include("<@111>")
+        expect(created_messages.first[:content]).not_to include("<@222>")
       end
     end
   end

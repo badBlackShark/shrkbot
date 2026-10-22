@@ -30,11 +30,17 @@ module Ops
 
         def message
           @message ||= ::TwilightStruggle::Message.new(
-            report:,
+            report: taggable_report,
             template:,
             tournament_name: game.tournament.name,
             player_display: config.player_display
           )
+        end
+
+        def taggable_report
+          return report if config.player_display == ::TwilightStruggle::Destination::DEFAULT_PLAYER_DISPLAY
+
+          ::TwilightStruggle::TaggableReport.new(report, server_configuration.discord_id).report
         end
 
         def template

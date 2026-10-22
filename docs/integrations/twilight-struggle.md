@@ -197,7 +197,13 @@ winner, turn or method. `TwilightStruggle::Message` renders the chosen template
 through `TemplateText` and exposes `content`; the token list lives in
 `config/api/twilight-struggle/v1/docs/games.md`. A tournament can opt into Discord tags, which
 append `(<@id>)` after a player's name and flag rather than replacing the name —
-a stale snowflake or a departed player still leaves something readable. Every
+a stale snowflake or a departed player still leaves something readable. Discord
+renders a tag for someone who isn't on the server as `@unknown-user`, so before
+rendering, `TwilightStruggle::TaggableReport` asks Discord (one member lookup per
+player, skipped when the server shows names only) and drops the Discord ID of
+anyone who isn't there; they get the same name-only fallback as a player
+twilight-struggle.com sent no ID for. Edits re-check, so a re-posted result
+follows the current membership. Every
 send passes `allowed_mentions: {parse: []}`, so no message ever notifies anyone:
 the tags are there to identify a player, not to ping them, and a player named
 `@everyone` cannot ping the server.
