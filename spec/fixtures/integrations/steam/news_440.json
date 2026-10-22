@@ -1,0 +1,50 @@
+{
+  "appnews": {
+    "appid": 440,
+    "newsitems": [
+      {
+        "gid": "1846651706682902",
+        "title": "Team Fortress 2 Update Released",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/steam_community_announcements/1846651706682902",
+        "is_external_url": true,
+        "author": "erics",
+        "contents": "An update to Team Fortress 2 has been released. The update will be applied automatically when you restart Team Fortress 2. The major changes include:\n\n[list]\n[*]Fixed some maps not tracking play time correctly\n[*]Fixed alpha channel for the updated Cozy Camper backpack image\n[*]Updated cp_holyhell[list]\n[*]Fixed BLU side skybox not rendering for users with HDR enabled\n[*]Improved RED side art pass\n[*]Improved middle point art pass\n[*]Spells get enabled and respawn permanently on the side of the team that loses middle. This can go both ways.\n[*]Lowered round timer to 5 minutes\n[*]After 5 minutes of any team capturing middle, instead of a stalemate, every spell gets turned into a rare variant and respawn extremely quickly. After a point gets captured in the stalemate state, the spells return back to normal.\n[*]Lowered respawn wave times\n[*]Gargoyles now only spawn near middle\n[*]Better optimization[/list]\n[*]Updated Updated zi_atoll, zi_blazehattan, zi_devastation_final1, zi_murky, zi_sanitarium, and zi_woods[list]\n[*]Fixed player models being invisible in dx8\n[*]Fixed tiling HUD icon for Heal ability\n[*]Fixed bad number display in the \"Auto-spawn\" text in the spawn picker\n[*]Updated Zombie Engineer's Beacon[list]\n[*]Instead of instantly breaking, beacons inside of tight spaces will now place themselves in the closest valid location\n[*]Fixed thrown toolboxes appearing offcenter\n[*]Thrown toolboxes now break upon touching all clip brushes if they can't find a nearby valid location[/list]\n[*]Zombie Sniper Spit cooldown changed from 9 seconds to 6 seconds\n[*]Updated Zombie Pyro[list]\n[*]Increased Zombie Pyro's melee damage from 45 to 65\n[*]Sticky Spew now applies a 20% movement slow \n[*]Standing on puddles of sticky spew applies an additional 20% movement slow\n[*]Sticky spew puddles are now larger\n[*]Spewed Demoman shield movement slow changed from -60% to -70%\n[*]Humans covered in sticky spew are now tinted purple instead of black\n[*]Zombie Pyro's death explosion now deals 50 damage, applies afterburn, and turns themself and victims to ash[/list]\n[*]Fixed Zombie Heavy exploding into rock gibs when not holding a rock\n[*]Fixed the Homewrecker not being able to destroy EMP grenades\n[*]Updated Zombie Demoman charge kill icon\n[*]Changed Zombie melee impact sounds into fists instead of the sloppy wet Unarmed Combat\n[*]Fixed Zombie Spy dealing more damage than intended\n[*]Fixed queue events with some zombie abilities\n[*]Fixed Zombies sometimes moving slowly after casting an ability[/list]\n[/list]",
+        "feedlabel": "Community Announcements",
+        "date": 1792179520,
+        "feedname": "steam_community_announcements",
+        "feed_type": 1,
+        "appid": 440,
+        "tags": [
+          "patchnotes"
+        ]
+      },
+      {
+        "gid": "1846651706682901",
+        "title": "Team Fortress 2 Update Released",
+        "url": "https://store.steampowered.com/news/286827/",
+        "is_external_url": false,
+        "author": "Valve",
+        "contents": "An update to Team Fortress 2 has been released. The update will be applied automatically when you restart Team Fortress 2. The major changes include:<br/><br><ul style=\"padding-bottom: 0px; margin-bottom: 0px;\" ><li>Fixed some maps not tracking play time correctly<br><li>Fixed alpha channel for the updated Cozy Camper backpack image<br><li>Updated cp_holyhell<ul style=\"padding-bottom: 0px; margin-bottom: 0px;\" ><li>Fixed BLU side skybox not rendering for users with HDR enabled<br><li>Improved RED side art pass<br><li>Improved middle point art pass<br><li>Spells get enabled and respawn permanently on the side of the team that loses middle. This can go both ways.<br><li>Lowered round timer to 5 minutes<br><li>After 5 minutes of any team capturing middle, instead of a stalemate, every spell gets turned into a rare variant and respawn extremely quickly. After a point gets captured in the stalemate state, the spells return back to normal.<br><li>Lowered respawn wave times<br><li>Gargoyles now only spawn near middle<br><li>Better optimization</ul><li>Updated Updated zi_atoll, zi_blazehattan, zi_devastation_final1, zi_murky, zi_sanitarium, and zi_woods<ul style=\"padding-bottom: 0px; margin-bottom: 0px;\" ><li>Fixed player models being invisible in dx8<br><li>Fixed tiling HUD icon for Heal ability<br><li>Fixed bad number display in the \"Auto-spawn\" text in the spawn picker<br><li>Updated Zombie Engineer's Beacon<ul style=\"padding-bottom: 0px; margin-bottom: 0px;\" ><li>Instead of instantly breaking, beacons inside of tight spaces will now place themselves in the closest valid location<br><li>Fixed thrown toolboxes appearing offcenter<br><li>Thrown toolboxes now break upon touching all clip brushes if they can't find a nearby valid location</ul><li>Zombie Sniper Spit cooldown changed from 9 seconds to 6 seconds<br><li>Updated Zombie Pyro<ul style=\"padding-bottom: 0px; margin-bottom: 0px;\" ><li>Increased Zombie Pyro's melee damage from 45 to 65<br><li>Sticky Spew now applies a 20% movement slow <br><li>Standing on puddles of sticky spew applies an additional 20% movement slow<br><li>Sticky spew puddles are now larger<br><li>Spewed Demoman shield movement slow changed from -60% to -70%<br><li>Humans covered in sticky spew are now tinted purple instead of black<br><li>Zombie Pyro's death explosion now deals 50 damage, applies afterburn, and turns themself and victims to ash</ul><li>Fixed Zombie Heavy exploding into rock gibs when not holding a rock<br><li>Fixed the Homewrecker not being able to destroy EMP grenades<br><li>Updated Zombie Demoman charge kill icon<br><li>Changed Zombie melee impact sounds into fists instead of the sloppy wet Unarmed Combat<br><li>Fixed Zombie Spy dealing more damage than intended<br><li>Fixed queue events with some zombie abilities<br><li>Fixed Zombies sometimes moving slowly after casting an ability</ul></ul>",
+        "feedlabel": "Product Update",
+        "date": 1792179480,
+        "feedname": "steam_updates",
+        "feed_type": 0,
+        "appid": 440
+      },
+      {
+        "gid": "1846651706682916",
+        "title": "Team Fortress 2 Update Released",
+        "url": "https://steamstore-a.akamaihd.net/news/externalpost/tf2_blog/1846651706682916",
+        "is_external_url": true,
+        "author": "",
+        "contents": "An update to Team Fortress 2 has been released. The update will be applied automatically when you restart Team Fortress 2. The major changes include:<br/>\n<ul>\n<li>Fixed some maps not tracking play time correctly\n<li>Fixed alpha channel for the updated Cozy Camper backpack image\n<li>Updated cp_holyhell<ul>\n<li>Fixed BLU side skybox not rendering for users with HDR enabled\n<li>Improved RED side art pass\n<li>Improved middle point art pass\n<li>Spells get enabled and respawn permanently on the side of the team that loses middle. This can go both ways.\n<li>Lowered round timer to 5 minutes\n<li>After 5 minutes of any team capturing middle, instead of a stalemate, every spell gets turned into a rare variant and respawn extremely quickly. After a point gets captured in the stalemate state, the spells return back to normal.\n<li>Lowered respawn wave times\n<li>Gargoyles now only spawn near middle\n<li>Better optimization</ul>\n<li>Updated Updated zi_atoll, zi_blazehattan, zi_devastation_final1, zi_murky, zi_sanitarium, and zi_woods<ul>\n<li>Fixed player models being invisible in dx8\n<li>Fixed tiling HUD icon for Heal ability\n<li>Fixed bad number display in the \"Auto-spawn\" text in the spawn picker\n<li>Updated Zombie Engineer's Beacon<ul>\n<li>Instead of instantly breaking, beacons inside of tight spaces will now place themselves in the closest valid location\n<li>Fixed thrown toolboxes appearing offcenter\n<li>Thrown toolboxes now break upon touching all clip brushes if they can't find a nearby valid location</ul>\n<li>Zombie Sniper Spit cooldown changed from 9 seconds to 6 seconds\n<li>Updated Zombie Pyro<ul>\n<li>Increased Zombie Pyro's melee damage from 45 to 65\n<li>Sticky Spew now applies a 20% movement slow \n<li>Standing on puddles of sticky spew applies an additional 20% movement slow\n<li>Sticky spew puddles are now larger\n<li>Spewed Demoman shield movement slow changed from -60% to -70%\n<li>Humans covered in sticky spew are now tinted purple instead of black\n<li>Zombie Pyro's death explosion now deals 50 damage, applies afterburn, and turns themself and victims to ash</ul>\n<li>Fixed Zombie Heavy exploding into rock gibs when not holding a rock\n<li>Fixed the Homewrecker not being able to destroy EMP grenades\n<li>Updated Zombie Demoman charge kill icon\n<li>Changed Zombie melee impact sounds into fists instead of the sloppy wet Unarmed Combat\n<li>Fixed Zombie Spy dealing more damage than intended\n<li>Fixed queue events with some zombie abilities\n<li>Fixed Zombies sometimes moving slowly after casting an ability</ul>\n</ul>",
+        "feedlabel": "TF2 Blog",
+        "date": 1792179480,
+        "feedname": "tf2_blog",
+        "feed_type": 0,
+        "appid": 440
+      }
+    ],
+    "count": 3958
+  }
+}
