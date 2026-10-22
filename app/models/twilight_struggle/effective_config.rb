@@ -35,6 +35,10 @@ module TwilightStruggle
       chain.first&.tournament
     end
 
+    def source_of(attribute)
+      chain.find { |destination| destination.public_send(attribute).present? }&.tournament
+    end
+
     private
 
     def first_present(attribute)

@@ -56,4 +56,30 @@ RSpec.describe Components::TwilightStruggle::PostDelayCard do
       end
     end
   end
+
+  context "when the parent subscribes but sets nothing and the grandparent sets it" do
+    let(:grandparent) { create(:twilight_struggle_tournament, name: "OTSL") }
+    let(:parent) { create(:twilight_struggle_tournament, name: "OTSL 2026", parent: grandparent) }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+    before do
+      create(:twilight_struggle_destination, tournament: parent, server_configuration:)
+      create(:twilight_struggle_destination, tournament: grandparent, server_configuration:, post_delay_seconds: 1800)
+    end
+
+    it "names the grandparent that sets it" do
+      expect(html).to include("OTSL is set to 30 minutes.")
+    end
+  end
+
+  context "when no tournament above sets it" do
+    let(:parent) { create(:twilight_struggle_tournament, name: "OTSL 2026") }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+    before { create(:twilight_struggle_destination, tournament: parent, server_configuration:) }
+
+    it "says where the value comes from instead" do
+      expect(html).to include("No tournament above sets a delay, so results post immediately.")
+    end
+  end
 end

@@ -57,6 +57,16 @@ RSpec.describe TwilightStruggle::PostSchedule do
     it "waits no longer than the delay" do
       expect(wait).to eq(900)
     end
+
+    context "when the job runs again once the delay is up" do
+      let!(:game) { create(:twilight_struggle_game, tournament:) }
+
+      before { travel 900.seconds }
+
+      it "no longer waits" do
+        expect(wait).to eq(0)
+      end
+    end
   end
 
   context "when the result is already posted to this server" do

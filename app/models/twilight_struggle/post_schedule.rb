@@ -9,19 +9,25 @@ module TwilightStruggle
     end
 
     def wait
-      return 0 if posted?
+      return 0 if posted_message
 
       [due_at - Time.current, 0].max
+    end
+
+    def config
+      @config ||= EffectiveConfig.new(@game.tournament, @server_configuration)
+    end
+
+    def posted_message
+      return @posted_message if defined?(@posted_message)
+
+      @posted_message = @game.posted_messages.find_by(server_configuration: @server_configuration)
     end
 
     private
 
     def due_at
-      [@reported_at, Time.current].min + EffectiveConfig.new(@game.tournament, @server_configuration).post_delay
-    end
-
-    def posted?
-      @game.posted_messages.exists?(server_configuration: @server_configuration)
+      [@reported_at, @game.created_at].min + config.post_delay
     end
   end
 end

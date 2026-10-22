@@ -14,6 +14,8 @@ module Ops
         receives :archived, optional: true
 
         def call
+          return invalid_post_delay unless post_delay_valid?
+
           destination.assign_attributes(settings)
 
           return failure(destination.errors.full_messages, value: destination) unless destination.save
@@ -51,6 +53,23 @@ module Ops
             destination.tournament.parent,
             destination.server_configuration
           )
+        end
+
+        def post_delay_valid?
+          return true if post_delay_minutes.blank?
+
+          post_delay_minutes.to_s.match?(/\A\d+\z/) && post_delay_minutes.to_i <= max_post_delay_minutes
+        end
+
+        def invalid_post_delay
+          failure(
+            I18n.t("operations.twilight_struggle.destinations.post_delay_invalid", max: max_post_delay_minutes),
+            value: destination
+          )
+        end
+
+        def max_post_delay_minutes
+          ::TwilightStruggle::Destination::MAX_POST_DELAY.in_minutes.to_i
         end
 
         def post_delay_seconds

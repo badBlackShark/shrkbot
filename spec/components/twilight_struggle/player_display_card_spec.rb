@@ -80,4 +80,30 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
       expect(html).not_to include("Inherit")
     end
   end
+
+  context "when the parent subscribes but sets nothing and the grandparent sets it" do
+    let(:grandparent) { create(:twilight_struggle_tournament, name: "OTSL") }
+    let(:parent) { create(:twilight_struggle_tournament, name: "OTSL 2026", parent: grandparent) }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+    before do
+      create(:twilight_struggle_destination, tournament: parent, server_configuration:)
+      create(:twilight_struggle_destination, tournament: grandparent, server_configuration:, player_display: "tag")
+    end
+
+    it "names the grandparent that sets it" do
+      expect(html).to include("OTSL is set to Tag only.")
+    end
+  end
+
+  context "when no tournament above sets it" do
+    let(:parent) { create(:twilight_struggle_tournament, name: "OTSL 2026") }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+    before { create(:twilight_struggle_destination, tournament: parent, server_configuration:) }
+
+    it "says where the value comes from instead" do
+      expect(html).to include("No tournament above sets this, so it defaults to Name only.")
+    end
+  end
 end

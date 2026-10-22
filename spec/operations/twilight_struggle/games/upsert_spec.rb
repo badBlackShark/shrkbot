@@ -47,6 +47,25 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
     it "enqueues no sequence gap check, so an edit or a re-post cannot re-report a gap below it" do
       expect { result }.not_to have_enqueued_job(TwilightStruggle::SequenceGapJob)
     end
+
+    context "when it is upserted again" do
+      let(:statements) { [] }
+      let(:collector) do
+        lambda do |*, payload|
+          statements << payload[:sql]
+        end
+      end
+
+      before do
+        ActiveSupport::Notifications.subscribed(collector, "sql.active_record") do
+          result
+        end
+      end
+
+      it "locks the game row before bumping its revision" do
+        expect(statements).to include(a_string_matching(/FROM "twilight_struggle_games".*FOR UPDATE/m))
+      end
+    end
   end
 
   context "when a game is deleted after arriving and the next game arrives" do

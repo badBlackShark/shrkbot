@@ -478,6 +478,7 @@ en:
           twilight-struggle.com doesn't send. Tags never notify anyone, and they survive
           a player leaving the server.
         inherit: Inherit
+        inherits_default: No tournament above sets this, so it defaults to %{setting}.
         inherits_from: "%{parent} is set to %{setting}."
         label: Player names
         name: Name only
@@ -486,7 +487,9 @@ en:
       post_delay_card:
         help: Each result is posted this long after it was reported, so it can't spoil
           a stream that runs behind. Everyone sees results that much later. Changes
-          to a result that is already posted appear immediately.
+          to a result that is already posted appear immediately. Lowering the delay
+          doesn't release results already waiting - they still post on the old delay.
+        inherits_default: No tournament above sets a delay, so results post immediately.
         inherits_from:
           one: "%{parent} is set to %{count} minute. Leave the field empty to use
             it."

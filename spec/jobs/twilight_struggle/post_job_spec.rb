@@ -44,7 +44,55 @@ RSpec.describe TwilightStruggle::PostJob do
   it "calls the post operation with the game, server, and built report" do
     perform
 
-    expect(Ops::TwilightStruggle::Games::Post).to have_received(:call).with(game:, server_configuration:, report:)
+    expect(Ops::TwilightStruggle::Games::Post).to have_received(:call).with(
+      game:,
+      server_configuration:,
+      report:,
+      config: an_instance_of(TwilightStruggle::EffectiveConfig),
+      posted_message: nil
+    )
+  end
+
+  context "when the job was queued before revisions existed" do
+    subject(:perform) { described_class.perform_now(game, server_configuration, payload) }
+
+    let(:game) { create(:twilight_struggle_game, revision: 0) }
+
+    it "still posts" do
+      perform
+
+      expect(Ops::TwilightStruggle::Games::Post).to have_received(:call)
+    end
+  end
+
+  describe "concurrency limit" do
+    it "lets one job per key run at a time" do
+      expect(described_class.concurrency_limit).to eq(1)
+    end
+  end
+
+  describe "concurrency key" do
+    subject(:key) { described_class.new(game, server_configuration, payload, 1).concurrency_key }
+
+    it "is shared by every revision for the same game and server" do
+      expect(key).to eq(described_class.new(game, server_configuration, payload, 2).concurrency_key)
+    end
+
+    context "when the job is for another server" do
+      let(:other) { described_class.new(game, create(:server_configuration), payload, 1) }
+
+      it "differs" do
+        expect(key).not_to eq(other.concurrency_key)
+      end
+    end
+
+    context "when the job is for another game" do
+      let(:other) { described_class.new(create(:twilight_struggle_game), server_configuration, payload, 1) }
+
+      it "differs" do
+        expect(key).not_to eq(other.concurrency_key)
+      end
+    end
   end
 
   context "when a newer version of the game arrived after this job was queued" do
@@ -70,13 +118,20 @@ RSpec.describe TwilightStruggle::PostJob do
   context "when the result is already posted to this server" do
     before do
       create(:twilight_struggle_destination, tournament: game.tournament, server_configuration:, post_delay_seconds: 900)
-      create(:twilight_struggle_posted_message, game:, server_configuration:)
     end
+
+    let!(:posted_message) { create(:twilight_struggle_posted_message, game:, server_configuration:) }
 
     it "edits it without waiting for the delay" do
       perform
 
-      expect(Ops::TwilightStruggle::Games::Post).to have_received(:call).with(game:, server_configuration:, report:)
+      expect(Ops::TwilightStruggle::Games::Post).to have_received(:call).with(
+        game:,
+        server_configuration:,
+        report:,
+        config: an_instance_of(TwilightStruggle::EffectiveConfig),
+        posted_message:
+      )
     end
   end
 

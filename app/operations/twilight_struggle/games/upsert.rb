@@ -10,7 +10,7 @@ module Ops
         receives :tournament, optional: true
 
         def call
-          record = ::TwilightStruggle::Game.find_or_initialize_by(external_id:)
+          record = ::TwilightStruggle::Game.lock.find_or_initialize_by(external_id:)
           record.tournament = tournament || friendly_tournament
           record.revision += 1
 

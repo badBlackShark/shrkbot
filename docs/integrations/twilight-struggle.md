@@ -142,8 +142,10 @@ instead, so they leave no failed-execution row.
 **Posting can be delayed per destination.** `post_delay_seconds` is inherited down
 the tournament chain like the templates (empty = inherit, explicit 0 = none),
 stored in seconds and set in minutes in the form. The delay counts from the
-payload's `reported_at`, capped at the current time, so a timestamp from a
-fast clock never holds a result back longer than the delay. `PostJob` asks `TwilightStruggle::PostSchedule` how long
+payload's `reported_at`, capped at the time shrkbot first received the game, so a
+timestamp from a fast clock never holds a result back longer than the delay. The cap
+is the game's `created_at`, not the current time, because the current time moves on
+every rerun and the cap would never be reached. `PostJob` asks `TwilightStruggle::PostSchedule` how long
 is left and re-enqueues itself with that wait, recomputing it on every run, so
 settings changes apply when the job next runs. A message that is already posted
 is edited immediately.
@@ -265,8 +267,12 @@ the site's data, not the guild's. Organiser rows are per-user and are deleted by
 - Every upsert bumps `games.revision`. A `PostJob` carrying an older revision drops
   itself on its next run, which is what stops a pre-edit payload from posting after
   a delay has elapsed, and frees the old details instead of holding them until then.
-- `PostJob` jobs can sit queued for up to a week, so any change to its argument
-  list needs either a drained queue at deploy or a compatibility default for jobs
-  already queued.
+- `PostJob` jobs can sit queued for up to a week, so every argument added to it takes
+  a default that keeps already-queued jobs running (`revision = 0`: games that
+  predate revisions are all at 0).
+- `PostJob` runs one at a time per game and server (`limits_concurrency`), so an edit
+  arriving while the first post is still in its Discord call waits and then edits
+  that message instead of posting a second one. A job waiting out its delay doesn't
+  hold the slot.
 - `reported_at` must stay the first-report time on resends; otherwise every edit
   pushes the post further out.

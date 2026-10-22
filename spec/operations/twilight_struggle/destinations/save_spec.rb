@@ -191,11 +191,27 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Save do
       end
     end
 
-    context "when set beyond one week" do
-      let(:attributes) { super().merge(post_delay_minutes: "20000") }
+    context "when set to the one-week maximum" do
+      let(:attributes) { super().merge(post_delay_minutes: "10080") }
 
-      it "fails" do
-        expect(result).to be_failure
+      it "succeeds" do
+        expect(result).to be_success
+      end
+    end
+
+    %w[abc 1e3 -5 10081 20000].each do |input|
+      context "when submitted as #{input.inspect}" do
+        let(:attributes) { super().merge(post_delay_minutes: input) }
+        let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, post_delay_seconds: 900) }
+
+        it "fails with the whole-number message" do
+          expect(result.errors).to eq(["Posting delay must be a whole number of minutes from 0 to 10080."])
+        end
+
+        it "leaves the stored delay unchanged" do
+          result
+          expect(destination.reload.post_delay_seconds).to eq(900)
+        end
       end
     end
   end
