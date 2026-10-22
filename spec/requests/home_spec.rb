@@ -14,8 +14,13 @@ RSpec.describe "Home", type: :request do
   it "shows the hero tagline" do
     home
 
-    expect(response.body).to include("A mechanical assistant for your Discord server.")
-    expect(response.body).to include("With teeth when needed.")
+    expect(response.body).to include(I18n.t("views.home.tagline"))
+  end
+
+  it "links the bespoke plugins pitch to the bespoke plugins page" do
+    home
+
+    expect(response.body).to match(%r{<a href="/bespoke-plugins"[^>]*>#{I18n.t("views.home.bespoke_plugins_link")}</a>})
   end
 
   it "uses the brand display type for the wordmark" do

@@ -606,8 +606,7 @@ en:
         suppress_removal_messages:
           label: Skip leave messages for kicks and bans
   meta:
-    default_description: A mechanical assistant for your Discord server. With teeth
-      when needed.
+    default_description: A mechanical helper.
     default_title: shrkbot
   notifications:
     kinds:
@@ -716,10 +715,16 @@ en:
       write: Email me
     home:
       add_to_server: Sign in to add shrkbot to your servers
-      lede: 'shrkbot provides tools where Discord doesn''t, and gets out of your way
-        otherwise. Your members'' privacy is guaranteed, and it stays that way: moderation
-        happens in memory, and your messages are never stored. Manage everything from
-        one dashboard, and let shrkbot handle the rest.'
+      bespoke_plugins: shrkbot also supports bespoke plugins that do exactly what
+        you need, but only for your server.
+      bespoke_plugins_link: here
+      bespoke_plugins_post: " to find out more."
+      bespoke_plugins_pre: " Click "
+      botname: shrkbot
+      lede: shrkbot is designed to help you where Discord doesn't. It respects your
+        members' privacy, and it gets out of your way when you don't need it. It is
+        highly configurable and geared towards technical users that feel like Discord
+        doesn't give them enough power.
       more_plugins: More plugins are on the way.
       plugins:
         lfg: Let members rally a group with a role ping, instantly or scheduled. Others
@@ -735,8 +740,7 @@ en:
           leave.
       plugins_eyebrow: Example plugins
       preview: Preview features
-      tagline: A mechanical assistant for your Discord server.
-      tagline_accent: With teeth when needed.
+      tagline: A mechanical helper.
       view_source: View on GitHub
     reauth:
       body: Your Discord sign-in expired. Please stand by - this only takes a moment.
