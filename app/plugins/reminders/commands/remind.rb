@@ -23,8 +23,7 @@ module Reminders
       )
 
       if result.success?
-        reminder = result.value
-        event.respond(content: "I'll remind you <t:#{reminder.remind_at.to_i}:R>:\n>>> #{reminder.message}", ephemeral: true)
+        event.respond(content: Reminders::Confirmation.call(result.value), ephemeral: true)
       else
         event.respond(content: "⚠️ #{result.errors.first}", ephemeral: true)
       end

@@ -147,6 +147,7 @@ example, or a consequence.
 
 ```
 Cancel one of your reminders.
+Change the text of one of your reminders.
 Set a reminder to be sent to you after a delay (e.g. 1d2h30m).
 ```
 
