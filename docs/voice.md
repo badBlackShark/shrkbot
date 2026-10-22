@@ -184,7 +184,8 @@ noun-phrase register reads as though someone else wrote it.
 
 **Say what a setting does, not how it is stored.** A tournament "uses a
 30-minute delay", not "is set to 30 minutes". A tournament higher up the chain
-is a "parent tournament", not one "above".
+is a "parent tournament", not one "above". When the value is an option label,
+quote it so it reads as the label: `OTSL 2026 uses "Name and tag".`
 
 **Warn before the setting, and say what it costs.** Put the limitation ahead of
 the control it applies to, and name the trade-off rather than grading it.
@@ -258,6 +259,7 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Adds a player's Discord tag in brackets after their name, for players whose Discord ID twilight-struggle.com sends with the result. Everyone else just gets their name. Tags never notify anyone - they are there so you can see who a result belongs to, and they survive a player leaving the server.` | `How players appear in posted results. Tag only keeps a player's real name out of the channel, but falls back to it for anyone whose Discord ID twilight-struggle.com doesn't send. Tags never notify anyone, and they survive a player leaving the server.` | The old text narrated one toggle's two states, so it had no room for a third mode, and "everyone else just gets their name" was a per-mode aside rather than the rule it actually is. |
 | `Each result is posted this long after it was reported, so it can't spoil a stream that runs behind. Everyone sees results that much later. Changes to a result that is already posted appear immediately.` | `How long shrkbot waits after a result is reported before posting it, so it can't spoil a stream that's still running. Edits to a result that is already posted show up immediately. Changing the delay doesn't affect results that are already waiting.` | Its sibling opens "How players appear...", so the passive "is posted this long after" was the odd one out. "Runs behind" is broadcast jargon for what "still running" says plainly. The old text also never warned that results already waiting keep their delay. An admin who set a week by mistake and then lowered it would expect them to come out. |
 | `OTSL 2026 is set to 30 minutes.` / `No tournament above sets a delay, ...` | `OTSL 2026 uses a 30-minute delay.` / `No parent tournament sets a delay, so results post immediately.` | "Is set to" and "above" describe how the settings are stored and resolved. "Uses" and "parent tournament" describe what the reader sees. The note also used to name the nearest subscribed tournament whether or not it set the value, so it pinned a default on a tournament that never chose it. The same fixes went into the player-names card. |
+| `OTSL 2026 is set to Name and tag.` | `OTSL 2026 uses "Name and tag".` | Same swap as the delay note. Without the quotes, "uses Name and tag" reads as two things the tournament uses. The quotes mark the option label the reader picks in the control above. |
 
 ## Kept on purpose
 

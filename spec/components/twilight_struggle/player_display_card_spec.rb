@@ -22,7 +22,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
     end
 
     it "does not claim anything is inherited" do
-      expect(html).not_to include("is set to")
+      expect(html).not_to include("uses")
     end
 
     context "when name and tag is selected" do
@@ -56,7 +56,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
     end
 
     it "names the parent and what it resolves to" do
-      expect(html).to include("OTSL 2026 is set to Name and tag.")
+      expect(html).to include("OTSL 2026 uses &quot;Name and tag&quot;.")
     end
 
     context "when the destination overrides the parent" do
@@ -67,7 +67,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
       end
 
       it "still names what inherit would give" do
-        expect(html).to include("OTSL 2026 is set to Name and tag.")
+        expect(html).to include("OTSL 2026 uses &quot;Name and tag&quot;.")
       end
     end
   end
@@ -92,7 +92,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
     end
 
     it "names the grandparent that sets it" do
-      expect(html).to include("OTSL is set to Tag only.")
+      expect(html).to include("OTSL uses &quot;Tag only&quot;.")
     end
   end
 
@@ -103,7 +103,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
     before { create(:twilight_struggle_destination, tournament: parent, server_configuration:) }
 
     it "says where the value comes from instead" do
-      expect(html).to include("No parent tournament sets this, so it defaults to Name only.")
+      expect(html).to include("No parent tournament sets this, so it defaults to &quot;Name only&quot;.")
     end
   end
 end
