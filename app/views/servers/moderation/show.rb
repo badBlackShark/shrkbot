@@ -39,7 +39,7 @@ class Views::Servers::Moderation::Show < Views::Servers::PluginConfigShow
       form_with(
         url: PluginPaths.for(@config, key),
         method: :patch,
-        id: Components::Moderation::SubPluginRow.toggle_form_id(key),
+        id: Components::SubPluginRow.toggle_form_id(key),
         class: "hidden"
       ) do
       end

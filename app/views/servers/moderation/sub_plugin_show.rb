@@ -12,10 +12,6 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::PluginConfigSh
     @context.plugin_enabled?
   end
 
-  def parent_crumb
-    {label: PluginCatalog.find(:moderation).name, href: moderation_path}
-  end
-
   def moderation_path
     PluginPaths.for(@config, :moderation)
   end

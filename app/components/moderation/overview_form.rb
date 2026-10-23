@@ -20,9 +20,10 @@ class Components::Moderation::OverviewForm < Components::Base
       render Components::Moderation::AccountAgeCard.new(
         new_account_age_days: @context.new_account_age_days
       )
-      render Components::Moderation::SubPluginDirectory.new(
+      render Components::SubPluginDirectory.new(
         server_configuration: @config,
-        context: @context
+        rows: @context.sub_plugin_rows,
+        group_enabled: @context.group_enabled?
       )
       render Components::Moderation::MatchingExplainer.new
     end

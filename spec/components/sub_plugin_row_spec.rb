@@ -2,11 +2,17 @@
 
 require "rails_helper"
 
-RSpec.describe Components::Moderation::SubPluginRow do
+RSpec.describe Components::SubPluginRow do
   include_context "component view context"
 
   let(:config) { create(:server_configuration, discord_id: 900_000_001) }
-  let(:spam_settings) { create(:spam_protection_settings, server_configuration: config) }
+
+  let(:toggle_fields) do
+    {
+      "spam_protection[channel_threshold]" => 3,
+      "image_scanning[custom_keywords][]" => ["free nitro", "gift"]
+    }
+  end
 
   let(:base_attrs) do
     {
@@ -16,7 +22,7 @@ RSpec.describe Components::Moderation::SubPluginRow do
       description: "Purges the same message posted across several channels within seconds.",
       enabled: true,
       configured: true,
-      settings: spam_settings,
+      toggle_fields:,
       group_enabled: true
     }
   end
@@ -45,13 +51,10 @@ RSpec.describe Components::Moderation::SubPluginRow do
       expect(html).to include('name="from_overview"')
     end
 
-    it "includes hidden settings fields to preserve current values" do
-      expect(html).to include('name="spam_protection[channel_threshold]"')
-      expect(html).to include('name="spam_protection[window_seconds]"')
-      expect(html).to include('name="spam_protection[similarity]"')
-      expect(html).to include('name="spam_protection[action]"')
-      expect(html).to include('name="spam_protection[punishment]"')
-      expect(html).to include('name="spam_protection[timeout_seconds]"')
+    it "renders each toggle field as a hidden input on the stub form" do
+      expect(html).to include('name="spam_protection[channel_threshold]" value="3" form="spam_protection-overview-toggle-form"')
+      expect(html).to include('name="image_scanning[custom_keywords][]" value="free nitro" form="spam_protection-overview-toggle-form"')
+      expect(html).to include('name="image_scanning[custom_keywords][]" value="gift" form="spam_protection-overview-toggle-form"')
     end
   end
 
@@ -78,8 +81,6 @@ RSpec.describe Components::Moderation::SubPluginRow do
   end
 
   context "for image_scanning when enabled and configured" do
-    let(:image_settings) { create(:image_scanning_settings, server_configuration: config) }
-
     subject(:html) do
       described_class.new(
         server_configuration: config,
@@ -88,19 +89,9 @@ RSpec.describe Components::Moderation::SubPluginRow do
         description: "Reads the text in images and fingerprints known scam images.",
         enabled: true,
         configured: true,
-        settings: image_settings,
+        toggle_fields: {},
         group_enabled: true
       ).render_in(view_context)
-    end
-
-    it "includes hidden fields for image scanning settings" do
-      expect(html).to include('name="image_scanning[sensitivity]"')
-      expect(html).to include('name="image_scanning[action]"')
-      expect(html).to include('name="image_scanning[punishment]"')
-      expect(html).to include('name="image_scanning[timeout_seconds]"')
-      expect(html).to include('name="image_scanning[confirmed_punishment]"')
-      expect(html).to include('name="image_scanning[confirmed_timeout_seconds]"')
-      expect(html).to include('name="image_scanning[custom_keyword_min_hits]"')
     end
 
     it "links the Configure button to the image_scanning path" do
@@ -121,34 +112,7 @@ RSpec.describe Components::Moderation::SubPluginRow do
     end
   end
 
-  context "for image_scanning with custom keywords" do
-    let(:image_settings) do
-      create(:image_scanning_settings, server_configuration: config, custom_keywords: ["free nitro", "click here"])
-    end
-
-    subject(:html) do
-      described_class.new(
-        server_configuration: config,
-        key: :image_scanning,
-        name: "Scam Image Detection",
-        description: "Reads the text in images and fingerprints known scam images.",
-        enabled: true,
-        configured: true,
-        settings: image_settings,
-        group_enabled: true
-      ).render_in(view_context)
-    end
-
-    it "renders each keyword as a hidden field" do
-      expect(html).to include('name="image_scanning[custom_keywords][]"')
-      expect(html).to include('value="free nitro"')
-      expect(html).to include('value="click here"')
-    end
-  end
-
   context "for image_scanning when needs setup (not configured, group enabled)" do
-    let(:image_settings) { create(:image_scanning_settings, server_configuration: config) }
-
     subject(:html) do
       described_class.new(
         server_configuration: config,
@@ -157,7 +121,7 @@ RSpec.describe Components::Moderation::SubPluginRow do
         description: "Reads the text in images and fingerprints known scam images.",
         enabled: false,
         configured: false,
-        settings: image_settings,
+        toggle_fields: {},
         group_enabled: true
       ).render_in(view_context)
     end
@@ -193,24 +157,13 @@ RSpec.describe Components::Moderation::SubPluginRow do
     end
   end
 
-  context "when settings is nil (no settings record yet)" do
+  context "when toggle_fields is empty (no settings record yet)" do
     subject(:html) do
-      described_class.new(**base_attrs.merge(enabled: false, configured: true, settings: nil)).render_in(view_context)
+      described_class.new(**base_attrs.merge(enabled: false, configured: true, toggle_fields: {})).render_in(view_context)
     end
 
     it "renders without hidden fields" do
       expect(html).not_to include('name="spam_protection[channel_threshold]"')
-    end
-  end
-
-  context "when spam_protection settings have match_symbol_only_messages true" do
-    before { spam_settings.update!(match_symbol_only_messages: true) }
-
-    subject(:html) { described_class.new(**base_attrs).render_in(view_context) }
-
-    it "renders the match_symbol_only_messages field with value 1" do
-      expect(html).to include('name="spam_protection[match_symbol_only_messages]"')
-      expect(html).to include('value="1"')
     end
   end
 end

@@ -17,7 +17,7 @@ class Components::PluginSidebar < Components::Base
         p(class: "mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins") }
         nav(class: "flex flex-col gap-0.5") do
           items.each do |row|
-            next if sub_plugin?(row.key)
+            next if PluginCatalog.sub_plugin?(row.key)
 
             item(row)
           end
@@ -34,7 +34,7 @@ class Components::PluginSidebar < Components::Base
 
   def item(row)
     return locked_item(row) unless row.manageable
-    return moderation_group if row.key == :moderation
+    return group(row) if PluginCatalog.sub_plugin_keys(row.key).any?
 
     nav_item(row)
   end
@@ -43,33 +43,29 @@ class Components::PluginSidebar < Components::Base
     all_rows.select { |row| PluginPaths.for(@config, row.key) }
   end
 
-  def sub_plugin?(key)
-    PluginCatalog.sub_plugin?(key)
-  end
-
-  def moderation_group
+  def group(row)
     render Components::SidebarGroup.new(
-      label: PluginCatalog.find(:moderation).name,
-      icon: plugin_icon(:moderation),
-      open: group_active?,
-      items: group_items,
-      storage_key: "sidebar-group-moderation",
-      enabled: all_rows.find { |row| row.key == :moderation }.enabled
+      label: PluginCatalog.find(row.key).name,
+      icon: plugin_icon(row.key),
+      open: group_active?(row.key),
+      items: group_items(row.key),
+      storage_key: "sidebar-group-#{row.key}",
+      enabled: row.enabled
     )
   end
 
-  def group_active?
-    @active_key == :moderation || sub_plugin?(@active_key)
+  def group_active?(parent)
+    @active_key == parent || PluginCatalog.find(@active_key)&.parent == parent
   end
 
-  def group_items
+  def group_items(parent)
     overview = {
       label: t(".overview"),
-      href: PluginPaths.for(@config, :moderation),
-      active: @active_key == :moderation,
+      href: PluginPaths.for(@config, parent),
+      active: @active_key == parent,
       status: nil
     }
-    [overview] + PluginCatalog.sub_plugin_keys(:moderation).map { |key| sub_item(key) }
+    [overview] + PluginCatalog.sub_plugin_keys(parent).map { |key| sub_item(key) }
   end
 
   def sub_item(key)

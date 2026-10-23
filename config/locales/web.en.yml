@@ -321,17 +321,6 @@ en:
           role Manage Messages, or grant it access under Server Settings -> Integrations
           -> shrkbot.
         staff_permission_warning_bold: This role can't see staff commands.
-      sub_plugin_directory:
-        eyebrow: Sub-plugins
-      sub_plugin_row:
-        configure: Configure
-        locked_reason: Pick a staff role first.
-        needs_setup_hint: Pick a staff role first.
-        status:
-          disabled: Disabled
-          enabled: Enabled
-          needs_setup: Needs setup
-        toggle_label: Enable %{name}
     notification_bell:
       label: Notifications
       unread: Notifications, %{count} unread
@@ -451,6 +440,19 @@ en:
       post: " by badBlackShark in Germany 🇩🇪, hosted in Finland
         🇫🇮."
       pre: 'shrkbot is '
+    sub_plugin_directory:
+      eyebrow: Sub-plugins
+    sub_plugin_row:
+      configure: Configure
+      locked_reason:
+        moderation: Pick a staff role first.
+      needs_setup_hint:
+        moderation: Pick a staff role first.
+      status:
+        disabled: Disabled
+        enabled: Enabled
+        needs_setup: Needs setup
+      toggle_label: Enable %{name}
     theme_toggle:
       toggle_theme: Toggle dark mode
     twilight_struggle:
