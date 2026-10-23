@@ -22,6 +22,10 @@ calls it.
     app/integrations/http.rb              -> Integrations::Http
     app/integrations/steam/news.rb        -> Integrations::Steam::News
 
+Models are the exception, because models stay in `app/models`: `Integrations::Watch`,
+`Integrations::Event` and every provider's event subclasses live under
+`app/models/integrations/`. The `Integrations` namespace spans both roots.
+
 **Not collapsed to top-level `Twitch::` / `Steam::`.** Provider gems own those
 constants (`twitch-api` defines `Twitch::Client`), and a collapsed directory would
 collide with them or shadow them. Inside `Integrations::Twitch`, reach a gem with a
@@ -117,6 +121,127 @@ for it.
 Resources hold no state beyond the client, so they are plain objects built where
 they're used.
 
+## Watchers
+
+A watcher turns one provider's answers into events for one followed thing (a Steam
+app, later a channel). The contract is duck-typed, three members:
+
+- `.resolve(input)` returns an `Integrations::Target` (`external_id`, `name`,
+  `image_url`) from what a person typed, for the add-form.
+- `#initialize(watch)` takes the `Integrations::Watch` row.
+- `#observe` returns unsaved `Integrations::Event`s for everything the provider shows
+  right now. It reads the provider and the watch's stored events and writes nothing.
+
+There is **no base class**. One watcher exists, so a base would be a guess at what a
+second one shares. The shared machinery already sits in layers every watcher goes
+through: writes in `Ops::Integrations::Watches::*`, scheduling in
+`Integrations::*Job`. Extract a base when the second watcher shares code.
+
+`Integrations::Watch` stores the watcher's class name, so `PollJob` reaches it with
+`watch.watcher_class`.
+
+## Polling
+
+    recurring.yml -> PollJob(watcher) -> for each Watch.due: observe -> RecordObservation
+
+Each tick runs one `PollJob` per watcher class, which polls that watcher's due watches
+one at a time. A provider is never hit in parallel, and a slow provider slows its own
+batch instead of queueing more work behind it.
+
+`limits_concurrency` is keyed by the watcher class with `on_conflict: :discard`, so a
+tick that finds the previous batch still running is dropped. During a provider outage
+every request can take its full timeout (about 20 s), batches run long, and ticks are
+dropped. Nothing is lost: the next good poll sees the same list, and the ledger sorts
+out what is new. The concurrency `duration` (1 hour) must outlast the slowest batch or
+two batches overlap; at 20 s per request that is 180 watches per watcher.
+
+A failure stays with its watch: the batch records it and moves on. `RateLimited` also
+stops the batch, so the rest of the list does not keep hitting a provider that asked
+us to back off; the next tick starts over. Every error is recorded, ours included: a
+bug in a mapping or converter is a failure like an outage, so it reaches the owner DM
+(see Failures) instead of only the logs.
+
+## The list strategy
+
+`RecordObservation` is the strategy for sources that answer with a list of recent
+items.
+
+- **Ledger.** Every item's `subject_key` goes into `integration_seen_items`. An item
+  already there is skipped.
+- **Priming.** A watch with no `primed_at` has its first list recorded as seen and
+  publishes nothing, so following a game does not replay its backlog.
+- **Freshness.** An item older than 48 hours is ignored before the ledger: not
+  recorded, not saved. A watch that was down, or an item that surfaces late, does not
+  announce old news, and the old items every list repeats cost no writes.
+- **Invariant.** `FRESHNESS_WINDOW` (48 h) must stay below `Prune::RETENTION` (14 d).
+  The ledger has to outlive the window, or a pruned item could look unseen and fresh.
+
+Events and ledger rows are written in one transaction; `unique [:watch_id, :type,
+:subject_key]` on events is the backstop against a double write.
+
+## Failures
+
+A watch is **broken** after 24 hours of failures (`failing_since` older than
+`Watch::BROKEN_AFTER`), not after a count: ten failures at ten-minute intervals is a
+100-minute outage, not a dead source. `BROKEN_AFTER` stays below the 48-hour freshness
+window, so the owner hears of a broken watch while the posts from the start of the
+outage can still be delivered. A failing watch is polled normally until it
+breaks. A broken one is retried on the first tick of every clock hour (its last poll
+was in an earlier hour), so retries stay on :00 instead of drifting by however long the
+batch ran. The first success clears `failing_since` and `last_error`, so it heals by
+itself. `last_error` holds the error's class and message; it is what the DM shows.
+
+`ReportBrokenWatchesJob` runs hourly and sends the bot owner **one DM** listing every
+newly broken watch (ten at most, then "and N more"), then stamps them
+`broken_reported_at`. A watch counts as reported while that stamp is newer than its
+`failing_since`, so a watch that stays broken is not reported again, one that heals and
+breaks again is, and nothing has to clear the stamp. Clearing it on success raced the
+report job and could leave a stamp on a healthy watch, which then hid its next outage.
+
+## Events
+
+`Integrations::Event` is a single table with STI. The envelope is `watch_id`,
+`subject_key` (the provider's id for the item), `occurred_at` and `type`; everything
+else is `payload` jsonb, exposed per subclass with `store_accessor`. The base class is
+never instantiated. A provider's subclasses are models too and live with the base
+under `app/models/integrations/<provider>/` (`Integrations::Steam::NewsEvent`).
+
+Nothing consumes events yet: they are saved and pruned. The feed that posts them to
+Discord comes later and reads from here.
+
+## Markup
+
+Provider text arrives as HTML (or BBCode converted to HTML) and leaves as Discord
+Markdown through `Integrations::HtmlToMarkdown.call(html)`, which returns `markdown`
+and the lifted `image_urls`.
+
+| HTML | Markdown |
+| --- | --- |
+| text | whitespace runs become one space |
+| `br` | newline |
+| `p div section article header footer figure ul ol blockquote pre table hr` | block, blank lines around |
+| `h1`-`h3` | `#`, `##`, `###` |
+| `h4`-`h6` | bold |
+| `b strong` / `i em` / `u` / `s strike del` / `spoiler` | `**` / `*` / `__` / `~~` / `\|\|` around the stripped text, whitespace kept outside |
+| `a` with an http(s) href | a Markdown link (text, then href), or the bare URL when the text is the URL; empty text drops it |
+| `img` with an http(s) src | removed from the text, appended to `image_urls` (deduped) |
+| `ul` / `ol` | `- ` / `1. `, nested items indented by the marker width |
+| `blockquote` | every line prefixed `> `; blank lines inside are dropped, because Discord shows a bare `>` literally |
+| `pre` / `code` | fenced block of the raw text / inline backticks; `br` inside is a line break (a space inline) |
+| `table` | fenced block, columns padded, no header separator; `br` in a cell is a space, a link keeps its text only |
+| `script style template head` | dropped |
+| anything else | its children |
+
+**Not escaped.** Text is not Markdown-escaped, so a literal `*` or `_` in a post can
+format. Escaping `_` would break bare URLs, so the converter leaves it. That is the
+known ceiling.
+
+## Retention
+
+`Ops::Integrations::Prune` runs daily and deletes events and seen items created more
+than 14 days ago: one policy across the integrations log tables. Nothing deletes a
+watch yet; the orphan prune arrives with the first table that references one.
+
 ## Testing
 
 Each layer stubs the one beneath it, and only `Http`'s own spec touches `Net::HTTP`:
@@ -132,3 +257,9 @@ Each layer stubs the one beneath it, and only `Http`'s own spec touches `Net::HT
 Fixtures live in `spec/fixtures/integrations/<provider>/`. Record them from the live
 API (trimmed to the fields the mapping reads, never hand-written), so the specs
 describe what the provider really sends. Re-record when a provider's shape changes.
+
+Watcher and operation specs stub the layer beneath: a watcher spec injects a resource
+double (or a client double, as above) and runs the real mapping; a job spec stubs
+`<Watcher>.new` to return an `instance_double` whose `observe` returns events and runs
+the real operations against the database. Discord-touching jobs stub
+`Bot::Discord::Components`.
