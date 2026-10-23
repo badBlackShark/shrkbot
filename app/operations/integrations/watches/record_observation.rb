@@ -41,9 +41,16 @@ module Ops
         def publish(unseen)
           return prime(unseen) unless primed?
 
-          published = unseen.select { |event| event.occurred_at >= FRESHNESS_WINDOW.ago }
-          log_skipped(unseen.size - published.size)
-          published.each(&:save!)
+          fresh = unseen.select { |event| event.occurred_at >= FRESHNESS_WINDOW.ago }
+          log_skipped(unseen.size - fresh.size)
+          fresh.select { |event| persist(event) }
+        end
+
+        def persist(event)
+          return true if event.save
+
+          Rails.logger.warn("Integrations: dropped invalid #{event.class} #{event.subject_key} for #{watch.watcher} #{watch.external_id}: #{event.errors.full_messages.to_sentence}")
+          false
         end
 
         def prime(unseen)

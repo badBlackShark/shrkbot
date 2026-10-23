@@ -55,6 +55,16 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     end
   end
 
+  context "when a fresh event is invalid" do
+    let(:events) { [fresh, invalid] }
+    let(:invalid) { build(:steam_news_event, watch:, subject_key: "blank", occurred_at: 1.hour.ago, title: "") }
+
+    it "drops it, publishes the rest and still marks it seen" do
+      expect(result.value).to eq([fresh])
+      expect(watch.seen_items.pluck(:external_id)).to contain_exactly("fresh", "blank")
+    end
+  end
+
   context "when every item was seen before" do
     before do
       create(:integration_seen_item, watch:, external_id: "fresh")

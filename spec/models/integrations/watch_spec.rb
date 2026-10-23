@@ -33,8 +33,16 @@ RSpec.describe Integrations::Watch do
   describe "uniqueness" do
     subject(:duplicate) { build(:integration_watch, watcher: healthy.watcher, external_id: healthy.external_id) }
 
-    it "is scoped to the watcher" do
+    it "rejects the same external id for the same watcher" do
       expect(duplicate).not_to be_valid
+    end
+
+    context "with another watcher" do
+      subject(:duplicate) { build(:integration_watch, watcher: "Integrations::Twitch::StreamWatcher", external_id: healthy.external_id) }
+
+      it "accepts the same external id" do
+        expect(duplicate).to be_valid
+      end
     end
   end
 end

@@ -2,31 +2,22 @@
 
 module TwilightStruggle
   class SequenceGapJob < ApplicationJob
+    include NotifiesOwner
+
     MAX_REPORTED = 20
 
     queue_as :default
 
-    retry_on StandardError, wait: :polynomially_longer, attempts: 5
     discard_on ActiveJob::DeserializationError
-    discard_on "Discordrb::Errors::UnknownChannel"
-    discard_on "Discordrb::Errors::NoPermission"
 
     def perform(candidate_ids)
       ids = Finders::TwilightStruggle::MissingGameIds.new(candidate_ids).ids
       return if ids.empty?
 
-      deliver(message(ids))
+      notify_owner(message(ids))
     end
 
     private
-
-    def deliver(content)
-      Bot::Discord::Components.create_message(
-        channel_id: Bot::Discord::Components.dm_channel_id(Bot::Config.owner_id),
-        content:,
-        allowed_mentions: {parse: []}
-      )
-    end
 
     def message(ids)
       return summary(ids) if ids.size > MAX_REPORTED
