@@ -75,6 +75,21 @@ module Bot
         JSON.parse(response)["id"]
       end
 
+      def create_with_subject(channel_id:, subject:, rendered:, allowed_mentions:, reply_to_id: nil, fallback: nil)
+        message_id = create_message(channel_id:, content: subject, allowed_mentions:, reply_to_id:)
+        apply_fallback(channel_id, message_id, fallback) unless convert_to_v2(channel_id, message_id, rendered)
+        message_id
+      end
+
+      def apply_fallback(channel_id, message_id, fallback)
+        return unless fallback
+
+        edit_content(channel_id, message_id, fallback)
+      rescue => e
+        Rails.logger.warn("[Components] message #{message_id} kept its subject, the fallback edit failed: #{e.class}: #{e.message}")
+      end
+      private_class_method :apply_fallback
+
       def dm_channel_id(user_id)
         JSON.parse(Discordrb::API::User.create_pm(Bot::Config.rest_token, user_id))["id"]
       end
@@ -92,6 +107,7 @@ module Bot
       def mention_users(allowed_mentions)
         {parse: [], users: Array(allowed_mentions && allowed_mentions[:users])}
       end
+      private_class_method :mention_users
 
       def convert_to_v2(channel_id, message_id, rendered, allowed_mentions = {parse: []})
         Discordrb::API::Channel.edit_message(
@@ -104,6 +120,7 @@ module Bot
           rendered[:components],
           rendered[:flags]
         )
+        true
       rescue => e
         Rails.logger.warn("[Components] message #{message_id} left as plain text: #{e.class}: #{e.message}")
         false

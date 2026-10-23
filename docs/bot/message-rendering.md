@@ -13,16 +13,19 @@ markdown: `container(blocks, buttons: [Components.link_button(url:, label:), …
 an action row as a sibling after the container (see `/info` and `/donate`).
 `Components.send_to(channel, rendered, allowed_mentions:, subject:)` owns the positional
 `channel.send_message` shape (nil content + components + flags), so call sites never
-enumerate the discordrb signature; only `Reminders::DeliverJob` sends over raw REST
-(no gateway in the jobs process) and keeps its own `create_message` call.
+enumerate the discordrb signature. Senders that hold only a channel ID go over raw REST
+through `Components.create_with_subject(channel_id:, subject:, rendered:,
+allowed_mentions:, reply_to_id:, fallback:)`: reminders and feed posts (the jobs process
+has no gateway) and the LFG ping replies (which need `reply_to_id`).
 Components V2 messages carry no `content`, so their push notifications have an empty
 preview — proactive sends (reminders, the owner broadcast, the onboarding DM) therefore
 pass a `subject:`: the wrapper sends it as plain content (the notification fires on
 create with that preview), then `convert_to_v2` edits the message into the container
 (explicit null content + the `COMPONENTS_V2` flag — Discord only allows this conversion
 plain→V2, never back). A failed conversion is logged and leaves the readable plain
-message standing; `convert_to_v2` returns `false` so a caller can fall back (the feed
-posts re-edit the plain message to carry the link); `DeliverJob` shares `convert_to_v2` after its REST `create_message`.
+message standing, or edits it to `fallback:` when one is given (feed posts pass the subject
+plus the link). `create_with_subject` raises only when the create fails, never once the
+message exists, so a caller can release a claim on a raise without risking a second ping.
 
 ## Mentioning a user
 
@@ -50,6 +53,6 @@ edit is the first call that can put them in the `mentions` array. When adding a
 mention to any message, work out which of the two calls carries it and allow it on
 that call alone. Senders that skip the subject (an activity-log entry with no staff
 ping, a role message) take the plain `send_message` branch, where the allow-list
-applies once, and the three direct `convert_to_v2` callers (`Lfg::PingReply`, the LFG
-join refresh, `DeliverJob`) ping from their own create and keep the suppressed default
-on the edit.
+applies once, and the callers of `create_with_subject` (LFG ping replies, reminders, feed
+posts) and the one direct `convert_to_v2` caller (the LFG join refresh) ping from their
+own create and keep the suppressed default on the edit.

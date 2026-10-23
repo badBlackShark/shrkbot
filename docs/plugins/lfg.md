@@ -25,5 +25,5 @@ is destroyed.
 - rolling notify reply (a join after start): creator only — `{parse: [], users: [creator_id]}`.
 - start re-ping (`StartJob`): joiners only — `{parse: [], users: joiner_ids}`, never the role.
 
-Every ping-bearing message uses the subject-first create (`Lfg::PingReply` for the replies)
+Every ping-bearing message uses the subject-first create (`Bot::Discord::Components.create_with_subject` for the replies)
 because V2 edits never ping and have empty push previews.

@@ -43,7 +43,7 @@ RSpec.describe Lfg::Join do
     allow(Discordrb::API::Channel).to receive(:message)
       .and_return(message_json(start_ts:, joiner_ids:, note:))
     allow(Bot::Discord::Components).to receive(:convert_to_v2)
-    allow(Lfg::PingReply).to receive(:deliver).and_return(700)
+    allow(Bot::Discord::Components).to receive(:create_with_subject).and_return(700)
     allow(Discordrb::API::Channel).to receive(:delete_message)
   end
 
@@ -61,7 +61,7 @@ RSpec.describe Lfg::Join do
     end
 
     it "does not send a ping reply while still gathering" do
-      expect(Lfg::PingReply).not_to receive(:deliver)
+      expect(Bot::Discord::Components).not_to receive(:create_with_subject)
       handle
     end
 
@@ -89,7 +89,7 @@ RSpec.describe Lfg::Join do
     end
 
     it "does not send a ping reply while leaving" do
-      expect(Lfg::PingReply).not_to receive(:deliver)
+      expect(Bot::Discord::Components).not_to receive(:create_with_subject)
       handle
     end
   end
@@ -108,7 +108,7 @@ RSpec.describe Lfg::Join do
     end
 
     it "does not deliver a ping reply" do
-      expect(Lfg::PingReply).not_to receive(:deliver)
+      expect(Bot::Discord::Components).not_to receive(:create_with_subject)
       handle
     end
   end
@@ -117,7 +117,7 @@ RSpec.describe Lfg::Join do
     let(:start_ts) { 1.hour.ago.to_i }
 
     it "delivers a ping reply naming the creator only" do
-      expect(Lfg::PingReply).to receive(:deliver).with(
+      expect(Bot::Discord::Components).to receive(:create_with_subject).with(
         hash_including(
           channel_id: 20,
           reply_to_id: 500,
@@ -129,14 +129,14 @@ RSpec.describe Lfg::Join do
 
     it "names the creator and the newest joiner in the notify container so the pinged creator is mentioned" do
       handle
-      expect(Lfg::PingReply).to have_received(:deliver) do |**kwargs|
-        content = kwargs[:container][:components].first[:components].first[:content]
+      expect(Bot::Discord::Components).to have_received(:create_with_subject) do |**kwargs|
+        content = kwargs[:rendered][:components].first[:components].first[:content]
         expect(content).to eq("<@#{creator_id}> - <@42> is joining!")
       end
     end
 
     it "records the returned reply id on the message row" do
-      allow(Lfg::PingReply).to receive(:deliver).and_return(701)
+      allow(Bot::Discord::Components).to receive(:create_with_subject).and_return(701)
       expect(Ops::Lfg::Message::Update).to receive(:call).with(message: lfg_message, notify_reply_id: 701)
       handle
     end
@@ -150,7 +150,7 @@ RSpec.describe Lfg::Join do
       before { lfg_message.destroy }
 
       it "still delivers the notify but records nothing" do
-        expect(Lfg::PingReply).to receive(:deliver).and_return(701)
+        expect(Bot::Discord::Components).to receive(:create_with_subject).and_return(701)
         expect(Ops::Lfg::Message::Update).not_to receive(:call)
         handle
       end
@@ -162,7 +162,7 @@ RSpec.describe Lfg::Join do
       it "deletes the previous notify reply before posting a new one" do
         handle
         expect(Discordrb::API::Channel).to have_received(:delete_message).with("Bot tok", 20, 600)
-        expect(Lfg::PingReply).to have_received(:deliver)
+        expect(Bot::Discord::Components).to have_received(:create_with_subject)
       end
     end
   end

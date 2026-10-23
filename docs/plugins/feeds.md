@@ -65,10 +65,12 @@ removed by the orphan prune once nothing references it.
 - `Ops::Feeds::Posts::Create` is subject-first (see
   [../bot/message-rendering.md](../bot/message-rendering.md)): it sends the subject as
   plain content, allowing only the subscription's own role to ping, then converts the
-  message into the card with the default suppressed mentions. The card carries untrusted
-  post text, so nothing in it can ping. The `Post` is written first, as the claim, and
-  released again if the send fails. When the conversion fails, the plain message is edited
-  to `Announcement#fallback`: the subject cut so that the whole link still fits in 2000
+  message into the card with the default suppressed mentions, all through
+  `Components.create_with_subject` with `fallback: announcement.fallback`. The card
+  carries untrusted post text, so nothing in it can ping. The `Post` is written first, as
+  the claim, and released again only if the create raises; once the message exists the
+  claim is kept. When the conversion fails, the plain message is edited to
+  `Announcement#fallback`: the subject cut so that the whole link still fits in 2000
   characters.
 
 ## Stories
