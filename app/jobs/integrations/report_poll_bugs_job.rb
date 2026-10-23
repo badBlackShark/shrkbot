@@ -7,7 +7,7 @@ module Integrations
     queue_as :default
 
     def perform(lines)
-      notify_owner(["Polling hit a bug in shrkbot:", *OwnerList.call(lines)].join("\n"))
+      notify_owner(["Polling hit a bug in shrkbot:", *owner_list(lines)].join("\n"))
     end
   end
 end

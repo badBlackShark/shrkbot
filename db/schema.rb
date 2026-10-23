@@ -72,6 +72,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_174801) do
     t.string "watch_id", null: false
     t.index ["server_configuration_id", "watch_id"], name: "idx_on_server_configuration_id_watch_id_6baa6b1d76", unique: true
     t.index ["watch_id"], name: "index_feed_subscriptions_on_watch_id"
+    t.check_constraint "body_length::text = ANY (ARRAY['preview'::character varying::text, 'full'::character varying::text])", name: "feed_subscriptions_body_length_check"
   end
 
   create_table "image_scanning_settings", id: :string, default: -> { "('iss_'::text || gen_random_uuid())" }, force: :cascade do |t|

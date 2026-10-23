@@ -63,6 +63,7 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
       expect(Lfg::Message.find_by(id: lfg_message.id)).to be_nil
     end
   end
+
   context "feed subscription handling" do
     let!(:subscription) { create(:feed_subscription, server_configuration: config) }
     let!(:subscribed_event) { create(:feed_subscribed_event, subscription:) }

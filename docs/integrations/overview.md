@@ -189,7 +189,9 @@ re-registers it after every code reload, and `demand_sources` resets with the re
   keep side of the orphan prune.
 
 `Ops::Integrations::Watches::PruneOrphans` runs daily at 5:35 and destroys each watch
-that is not `referenced`, taking its seen items and events with it. A server that
+that is not `referenced`, taking its seen items and events with it. With no registered
+source it deletes nothing: an empty registry means the wiring failed, not that nothing
+is followed. A server that
 switches a plugin off keeps its rows, so its watch stays and is simply not polled.
 
 **Ceiling.** A subscription created for a watch the prune deletes in the same instant

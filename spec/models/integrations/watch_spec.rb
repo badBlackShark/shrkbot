@@ -129,8 +129,12 @@ RSpec.describe Integrations::Watch do
     end
 
     context "without a registered source" do
-      before do
-        allow(described_class).to receive(:demand_sources).and_return([])
+      around do |example|
+        sources = described_class.demand_sources
+        described_class.demand_sources = []
+        example.run
+      ensure
+        described_class.demand_sources = sources
       end
 
       it "demands and references nothing" do

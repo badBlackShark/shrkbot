@@ -42,6 +42,10 @@ module Integrations
     end
     private_class_method :demand_matching
 
+    def label
+      "#{name} (#{external_id})"
+    end
+
     def watcher_class
       watcher.constantize
     end

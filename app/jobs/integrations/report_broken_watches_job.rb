@@ -17,8 +17,8 @@ module Integrations
     private
 
     def message(watches)
-      lines = watches.map { |watch| "#{watch.name} (#{watch.external_id}): #{watch.last_error}" }
-      ["Polling has failed for 24 hours - shrkbot keeps retrying every hour:", *OwnerList.call(lines)].join("\n")
+      lines = watches.map { |watch| "#{watch.label}: #{watch.last_error}" }
+      ["Polling has failed for 24 hours - shrkbot keeps retrying every hour:", *owner_list(lines)].join("\n")
     end
   end
 end

@@ -36,7 +36,7 @@ module Integrations
     end
 
     def bug_line(watch, error)
-      "#{watch.name} (#{watch.external_id}): #{error.class}: #{error.message}"
+      "#{watch.label}: #{error.class}: #{error.message}"
     end
 
     def record_failure(watch, error)

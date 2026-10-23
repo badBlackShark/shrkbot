@@ -12,6 +12,7 @@ class CreateFeedTables < ActiveRecord::Migration[8.1]
       t.timestamps
     end
     add_index :feed_subscriptions, [:server_configuration_id, :watch_id], unique: true
+    add_check_constraint :feed_subscriptions, "body_length IN ('preview', 'full')", name: "feed_subscriptions_body_length_check"
 
     create_table :feed_subscribed_events, id: false do |t|
       t.string :id, null: false, primary_key: true
