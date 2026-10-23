@@ -43,15 +43,20 @@ RSpec.describe Integrations::Bus do
     end
   end
 
-  describe "the initializer" do
-    it "wires Feeds::AnnounceJob to every Steam news event class" do
-      events = [
-        Integrations::Steam::PatchNotesPublished,
-        Integrations::Steam::AnnouncementPublished,
-        Integrations::Steam::ArticlePublished
-      ].map(&:new)
+  describe "the real registry" do
+    subject(:unhandled) { concrete_event_classes.select { |klass| described_class.handlers_for(klass.new).empty? } }
 
-      expect(events.map { |event| described_class.handlers_for(event) }).to all(eq([Feeds::AnnounceJob]))
+    let(:concrete_event_classes) do
+      Rails.autoloaders.main.eager_load_dir(Rails.root.join("app/models/integrations").to_s)
+      Integrations::Event.descendants.select { |klass| klass.subclasses.empty? }
+    end
+
+    it "covers the Steam article events, so the list cannot be empty" do
+      expect(concrete_event_classes).to include(Integrations::Steam::ArticlePublished)
+    end
+
+    it "gives every concrete event class at least one handler" do
+      expect(unhandled).to be_empty
     end
   end
 end

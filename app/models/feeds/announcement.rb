@@ -17,7 +17,11 @@ module Feeds
     end
 
     def subject
-      Bot::Discord::Truncate.call(TemplateText.render(template, tokens).strip, SUBJECT_LIMIT)
+      @subject ||= Bot::Discord::Truncate.call(TemplateText.render(template, tokens).strip, SUBJECT_LIMIT)
+    end
+
+    def fallback
+      "#{Bot::Discord::Truncate.call(subject, SUBJECT_LIMIT - event.url.to_s.length - 1)}\n#{event.url}"
     end
 
     def card
@@ -55,7 +59,7 @@ module Feeds
     end
 
     def excerpt
-      body = Excerpt.new(event.body, Excerpt::LIMITS.fetch(subscription.body_length)).to_s
+      body = Excerpt.new(event.body, subscription.body_length).to_s
       Bot::Discord::Components.text(body) if body.present?
     end
 

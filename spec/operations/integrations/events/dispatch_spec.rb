@@ -8,72 +8,64 @@ RSpec.describe Ops::Integrations::Events::Dispatch do
   subject(:result) { described_class.call(events:) }
 
   let(:now) { Time.utc(2026, 10, 23, 12, 0, 0) }
-  let(:handler) { Class.new(ApplicationJob) }
-  let(:events) { [event] }
-  let!(:event) { create(:steam_news_event) }
-  let!(:untouched) { create(:steam_news_event) }
+  let(:handlers) { [Feeds::AnnounceJob] }
+  let(:events) { [newest, oldest, middle] }
+  let!(:newest) { create(:steam_news_event, occurred_at: now - 1.hour) }
+  let!(:oldest) { create(:steam_news_event, occurred_at: now - 3.hours) }
+  let!(:middle) { create(:steam_news_event, occurred_at: now - 2.hours) }
+  let!(:untouched) { create(:steam_news_event, occurred_at: now - 4.hours) }
 
   before do
     travel_to(now)
+    ActiveJob::Base.queue_adapter.enqueued_jobs.clear
     allow(Integrations::Bus).to receive(:handlers_for).and_return(handlers)
-    allow(handler).to receive(:perform_later)
   end
 
-  context "when a handler is subscribed" do
-    let(:handlers) { [handler] }
+  it "enqueues the handlers in occurred_at order, whatever order the events arrive in" do
+    result
 
-    it "enqueues the handler with the event" do
-      result
+    enqueued = ActiveJob::Base.queue_adapter.enqueued_jobs.map { |job| job["arguments"].first["_aj_globalid"] }
+    expect(enqueued).to eq([oldest, middle, newest].map { |event| event.to_global_id.to_s })
+  end
 
-      expect(handler).to have_received(:perform_later).once.with(event)
-    end
+  it "stamps dispatched_at on the dispatched events only" do
+    result
 
-    it "stamps dispatched_at on the dispatched events only" do
-      result
-
-      expect(event.reload.dispatched_at).to eq(now)
-      expect(untouched.reload.dispatched_at).to be_nil
-    end
+    expect(Integrations::Event.where(dispatched_at: now)).to contain_exactly(newest, oldest, middle)
+    expect(untouched.reload.dispatched_at).to be_nil
   end
 
   context "when no handler is subscribed" do
     let(:handlers) { [] }
 
-    it "leaves the event unstamped so the sweeper still finds it" do
+    it "leaves the events unstamped so the sweeper still finds them" do
       result
 
-      expect(event.reload.dispatched_at).to be_nil
+      expect(Integrations::Event.undispatched).to contain_exactly(newest, oldest, middle, untouched)
     end
   end
 
   context "when only some events have a handler" do
-    let(:events) { [event, untouched] }
-    let(:handlers) { [] }
-
     before do
-      allow(Integrations::Bus).to receive(:handlers_for).with(event).and_return([handler])
+      allow(Integrations::Bus).to receive(:handlers_for).with(oldest).and_return([])
     end
 
-    it "stamps just the handled one" do
+    it "stamps just the handled ones" do
       result
 
-      expect(event.reload.dispatched_at).to eq(now)
-      expect(untouched.reload.dispatched_at).to be_nil
+      expect(oldest.reload.dispatched_at).to be_nil
+      expect(Integrations::Event.where(dispatched_at: now)).to contain_exactly(newest, middle)
     end
   end
 
-  context "when a later event fails to enqueue" do
-    let(:events) { [event, untouched] }
-    let(:handlers) { [handler] }
-
+  context "when enqueueing fails" do
     before do
-      allow(handler).to receive(:perform_later).with(untouched).and_raise("redis down")
+      allow(ActiveJob).to receive(:perform_all_later).and_raise("redis down")
     end
 
-    it "propagates and stamps neither event, so the sweeper redelivers both" do
+    it "propagates and stamps nothing, so the sweeper redelivers the batch" do
       expect { result }.to raise_error("redis down")
-      expect(event.reload.dispatched_at).to be_nil
-      expect(untouched.reload.dispatched_at).to be_nil
+      expect(Integrations::Event.undispatched.count).to eq(4)
     end
   end
 end

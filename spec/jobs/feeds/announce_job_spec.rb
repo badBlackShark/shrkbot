@@ -60,6 +60,21 @@ RSpec.describe Feeds::AnnounceJob do
     end
   end
 
+  describe "concurrency" do
+    subject(:key) { described_class.new(event).concurrency_key }
+
+    let(:same_watch_event) { create(:steam_news_event, watch:) }
+    let(:other_watch_event) { create(:steam_news_event) }
+
+    it "shares a key across the events of one watch" do
+      expect(described_class.new(same_watch_event).concurrency_key).to eq(key)
+    end
+
+    it "differs between watches" do
+      expect(described_class.new(other_watch_event).concurrency_key).not_to eq(key)
+    end
+  end
+
   context "when the event was pruned before the job ran" do
     subject(:perform) { ActiveJob::Base.execute(serialized) }
 

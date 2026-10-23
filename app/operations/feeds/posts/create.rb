@@ -32,7 +32,7 @@ module Ops
         def convert(message_id)
           return if ::Bot::Discord::Components.convert_to_v2(subscription.channel_id, message_id, announcement.card)
 
-          ::Bot::Discord::Components.edit_content(subscription.channel_id, message_id, "#{announcement.subject}\n#{event.url}")
+          ::Bot::Discord::Components.edit_content(subscription.channel_id, message_id, announcement.fallback)
         end
 
         def announcement

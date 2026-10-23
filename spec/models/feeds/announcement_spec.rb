@@ -68,6 +68,23 @@ RSpec.describe Feeds::Announcement do
     end
   end
 
+  describe "#fallback" do
+    subject(:fallback) { announcement.fallback }
+
+    it "is the subject followed by the link" do
+      expect(fallback).to eq("<@&4242> New Team Fortress 2 patch notes: Smissmas 2026\nhttps://store.steampowered.com/news/286827/")
+    end
+
+    context "when the subject already fills Discord's limit" do
+      let(:event) { create(:steam_news_event, watch:, title: "word " * 600) }
+
+      it "stays within 2000 characters and keeps the whole link" do
+        expect(fallback.length).to be <= 2000
+        expect(fallback).to end_with("\nhttps://store.steampowered.com/news/286827/")
+      end
+    end
+  end
+
   describe "#card" do
     subject(:card) { announcement.card }
 

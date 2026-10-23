@@ -9,17 +9,22 @@ module Ops
         receives :events
 
         def call
-          handled = events.select { |event| enqueue(event) }
-          ::Integrations::Event.where(id: handled.map(&:id)).update_all(dispatched_at: Time.current) if handled.any?
-          ok(handled)
+          jobs_by_event = events.sort_by { |event| [event.occurred_at, event.id] }
+            .to_h { |event| [event, jobs_for(event)] }
+            .reject { |_event, jobs| jobs.empty? }
+          ActiveJob.perform_all_later(jobs_by_event.values.flatten)
+          stamp(jobs_by_event.keys)
+          ok(jobs_by_event.keys)
         end
 
         private
 
-        def enqueue(event)
-          handlers = ::Integrations::Bus.handlers_for(event)
-          handlers.each { |handler| handler.perform_later(event) }
-          handlers.any?
+        def jobs_for(event)
+          ::Integrations::Bus.handlers_for(event).map { |handler| handler.new(event) }
+        end
+
+        def stamp(handled)
+          ::Integrations::Event.where(id: handled.map(&:id)).update_all(dispatched_at: Time.current) if handled.any?
         end
       end
     end

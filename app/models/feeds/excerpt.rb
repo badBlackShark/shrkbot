@@ -6,9 +6,9 @@ module Feeds
     FENCE = "```"
     ELLIPSIS = "…"
 
-    def initialize(text, limit)
+    def initialize(text, body_length)
       @text = text.to_s
-      @limit = limit
+      @limit = LIMITS.fetch(body_length)
     end
 
     def to_s

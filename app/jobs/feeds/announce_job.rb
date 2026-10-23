@@ -2,9 +2,14 @@
 
 module Feeds
   class AnnounceJob < ApplicationJob
-    queue_as :default
+    include ReportsExhaustion
 
-    retry_on StandardError, wait: :polynomially_longer, attempts: 5
+    queue_as :default
+    limits_concurrency(
+      to: 1,
+      key: ->(event) { event.watch_id }
+    )
+
     discard_on ActiveJob::DeserializationError
 
     def perform(event)

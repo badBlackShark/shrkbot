@@ -89,7 +89,7 @@ RSpec.describe Ops::Feeds::Posts::Create do
     it "puts the link on the plain message" do
       result
 
-      expect(Bot::Discord::Components).to have_received(:edit_content).with(555_000, 777_000, "#{announcement.subject}\n#{event.url}")
+      expect(Bot::Discord::Components).to have_received(:edit_content).with(555_000, 777_000, announcement.fallback)
     end
 
     it "keeps the claim" do
