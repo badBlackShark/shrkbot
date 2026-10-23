@@ -23,6 +23,8 @@ class ServerConfiguration < ApplicationRecord
   has_many :twilight_struggle_destinations, class_name: "TwilightStruggle::Destination", dependent: :delete_all
   has_many :twilight_struggle_posted_messages, class_name: "TwilightStruggle::PostedMessage", dependent: :delete_all
 
+  has_many :feed_subscriptions, class_name: "Feeds::Subscription", dependent: :destroy
+
   validates :discord_id, presence: true, uniqueness: true
 
   scope :real, -> { where(discord_id: 0..) }

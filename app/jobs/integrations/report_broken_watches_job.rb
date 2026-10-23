@@ -4,12 +4,10 @@ module Integrations
   class ReportBrokenWatchesJob < ApplicationJob
     include NotifiesOwner
 
-    MAX_REPORTED = 10
-
     queue_as :default
 
     def perform
-      watches = Watch.broken.unreported.order(:failing_since).to_a
+      watches = Watch.broken.unreported.demanded.order(:failing_since).to_a
       return if watches.empty?
 
       notify_owner(message(watches))
@@ -19,9 +17,8 @@ module Integrations
     private
 
     def message(watches)
-      lines = watches.first(MAX_REPORTED).map { |watch| "- #{watch.name} (#{watch.external_id}): #{watch.last_error}" }
-      lines << "- and #{watches.size - MAX_REPORTED} more" if watches.size > MAX_REPORTED
-      ["Polling has failed for 24 hours - shrkbot keeps retrying every hour:", *lines].join("\n")
+      lines = watches.map { |watch| "#{watch.name} (#{watch.external_id}): #{watch.last_error}" }
+      ["Polling has failed for 24 hours - shrkbot keeps retrying every hour:", *OwnerList.call(lines)].join("\n")
     end
   end
 end

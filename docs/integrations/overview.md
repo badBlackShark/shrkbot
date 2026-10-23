@@ -155,11 +155,45 @@ dropped. Nothing is lost: the next good poll sees the same list, and the ledger 
 out what is new. The concurrency `duration` (1 hour) must outlast the slowest batch or
 two batches overlap; at 20 s per request that is 180 watches per watcher.
 
+A watch deleted by the orphan prune while the batch runs is skipped: its failure is
+logged and not recorded, and the batch moves on.
+
 A failure stays with its watch: the batch records it and moves on. `RateLimited` also
 stops the batch, so the rest of the list does not keep hitting a provider that asked
 us to back off; the next tick starts over. Every error is recorded, ours included: a
 bug in a mapping or converter is a failure like an outage, so it reaches the owner DM
 (see Failures) instead of only the logs.
+
+## Demand
+
+A watch is polled only while something wants it. The wanting side registers itself in
+one place, `config/initializers/integrations.rb`:
+
+```ruby
+Rails.application.config.to_prepare do
+  Integrations::Watch.demanded_by(Feeds::Subscription)
+end
+```
+
+That is the only file that names a capability next to `Integrations::`; the dependency
+rule holds because `Watch` knows a list of sources, not what they are. A source is
+duck-typed: a model with a `watch_id` column and an `active` scope. `to_prepare`
+re-registers it after every code reload, and `demand_sources` resets with the reloaded
+`Watch`.
+
+- `Watch.demanded` is every watch that some source's `active` rows point at. `PollJob`
+  polls `Watch.due.demanded`, and `ReportBrokenWatchesJob` reports
+  `Watch.broken.unreported.demanded`: a watch nobody polls is not worth a DM. With no
+  registered source it is `none`.
+- `Watch.referenced` is every watch any source row points at, active or not. It is the
+  keep side of the orphan prune.
+
+`Ops::Integrations::Watches::PruneOrphans` runs daily at 5:35 and destroys each watch
+that is not `referenced`, taking its seen items and events with it. A server that
+switches a plugin off keeps its rows, so its watch stays and is simply not polled.
+
+**Ceiling.** A subscription created for a watch the prune deletes in the same instant
+fails its foreign key. The user retries; the window is a few milliseconds a day.
 
 ## The list strategy
 
@@ -197,6 +231,15 @@ newly broken watch (ten at most, then "and N more"), then stamps them
 `failing_since`, so a watch that stays broken is not reported again, one that heals and
 breaks again is, and nothing has to clear the stamp. Clearing it on success raced the
 report job and could leave a stamp on a healthy watch, which then hid its next outage.
+
+### Bugs
+
+A failure that is not an `Integrations::Error` is a bug in our own mapping or watcher,
+not a provider outage, and 24 hours is too long to wait for it. When such an error hits
+a watch that was not already failing, the batch collects one line for it and, after the
+loop, enqueues `ReportPollBugsJob`, which DMs the owner once per batch (ten lines at
+most, then "and N more"). A watch that keeps failing the same way does not repeat the
+DM: it was already failing. The 24-hour report still covers it if it never heals.
 
 ## Events
 
@@ -239,8 +282,8 @@ known ceiling.
 ## Retention
 
 `Ops::Integrations::Prune` runs daily and deletes events and seen items created more
-than 14 days ago: one policy across the integrations log tables. Nothing deletes a
-watch yet; the orphan prune arrives with the first table that references one.
+than 14 days ago: one policy across the integrations log tables. Watches themselves
+are deleted by the orphan prune (see Demand).
 
 ## Testing
 

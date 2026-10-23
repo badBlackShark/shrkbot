@@ -62,7 +62,9 @@ en:
       data_h: What we store and why
       data_integrations: 'Steam news: so that each post is announced once, shrkbot
         keeps the posts it fetches from Steam (title, link, author name as published,
-        and text) and the IDs of posts it has already seen.'
+        and text) and the IDs of posts it has already seen. For each Steam game a
+        server follows, it also keeps the game''s public Steam app ID and name, and
+        the channel, role, kinds of post and post length the server chose.'
       data_lead: 'We store only what the enabled features need:'
       data_lfg: 'Looking for Game: the roles you make pingable and the policy limits
         you set for each of them (which roles or channels may use them, minimum membership
@@ -180,7 +182,9 @@ en:
         (at most 60 days, 30 days and 7 days, respectively). Deleted data also drops
         out of database backups as they rotate.
       retention_integrations: 'Steam news: fetched posts and the record of which posts
-        were already seen are deleted 14 days after they are fetched.'
+        were already seen are deleted 14 days after they are fetched. A followed game''s
+        app ID and name are kept while at least one server follows it; a server''s
+        choices are deleted with the rest of its configuration.'
       retention_lfg: 'Looking for Game configuration: deleted automatically with the
         rest of the server''s configuration the moment the bot is removed. A post''s
         message references are deleted when the post is closed or expires, and otherwise

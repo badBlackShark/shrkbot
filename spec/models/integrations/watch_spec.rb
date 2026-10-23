@@ -101,4 +101,59 @@ RSpec.describe Integrations::Watch do
       end
     end
   end
+
+  describe "demand" do
+    let!(:active_watch) { create(:integration_watch) }
+    let!(:inactive_watch) { create(:integration_watch) }
+    let!(:orphan_watch) { create(:integration_watch) }
+
+    before do
+      create(:feed_subscription, :active, watch: active_watch)
+      create(:feed_subscription, watch: inactive_watch)
+    end
+
+    describe ".demanded" do
+      it "includes only watches an active subscription points at" do
+        expect(described_class.demanded).to contain_exactly(active_watch)
+      end
+
+      it "chains with other scopes" do
+        expect(described_class.where(id: [inactive_watch.id, orphan_watch.id]).demanded).to be_empty
+      end
+    end
+
+    describe ".referenced" do
+      it "includes every watch any subscription points at, active or not" do
+        expect(described_class.referenced).to contain_exactly(active_watch, inactive_watch)
+      end
+    end
+
+    context "without a registered source" do
+      before do
+        allow(described_class).to receive(:demand_sources).and_return([])
+      end
+
+      it "demands and references nothing" do
+        expect([described_class.demanded, described_class.referenced]).to all(be_empty)
+      end
+    end
+  end
+
+  describe ".demanded_by" do
+    let(:source) { Class.new }
+
+    after do
+      described_class.demand_sources -= [source]
+    end
+
+    it "registers a source once" do
+      2.times { described_class.demanded_by(source) }
+
+      expect(described_class.demand_sources.count(source)).to eq(1)
+    end
+
+    it "is wired to feed subscriptions by the initializer" do
+      expect(described_class.demand_sources).to include(Feeds::Subscription)
+    end
+  end
 end

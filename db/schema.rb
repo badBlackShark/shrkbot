@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_135450) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_174801) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -51,6 +51,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_135450) do
     t.datetime "updated_at", null: false
     t.index ["server_channel_id", "target_id"], name: "index_channel_overwrites_on_server_channel_id_and_target_id", unique: true
     t.check_constraint "target_type::text = ANY (ARRAY['role'::character varying::text, 'member'::character varying::text])", name: "channel_overwrites_target_type_check"
+  end
+
+  create_table "feed_subscribed_events", id: :string, default: -> { "('fse_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "event_type", null: false
+    t.string "subscription_id", null: false
+    t.text "template"
+    t.datetime "updated_at", null: false
+    t.index ["subscription_id", "event_type"], name: "index_feed_subscribed_events_on_subscription_id_and_event_type", unique: true
+  end
+
+  create_table "feed_subscriptions", id: :string, default: -> { "('fds_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.string "body_length", default: "preview", null: false
+    t.bigint "channel_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "role_id"
+    t.string "server_configuration_id", null: false
+    t.datetime "updated_at", null: false
+    t.string "watch_id", null: false
+    t.index ["server_configuration_id", "watch_id"], name: "idx_on_server_configuration_id_watch_id_6baa6b1d76", unique: true
+    t.index ["watch_id"], name: "index_feed_subscriptions_on_watch_id"
   end
 
   create_table "image_scanning_settings", id: :string, default: -> { "('iss_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -547,6 +568,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_135450) do
   add_foreign_key "assignable_roles", "role_sets"
   add_foreign_key "bespoke_plugin_grants", "server_configurations"
   add_foreign_key "channel_overwrites", "server_channels"
+  add_foreign_key "feed_subscribed_events", "feed_subscriptions", column: "subscription_id"
+  add_foreign_key "feed_subscriptions", "integration_watches", column: "watch_id"
+  add_foreign_key "feed_subscriptions", "server_configurations"
   add_foreign_key "image_scanning_settings", "server_configurations"
   add_foreign_key "integration_events", "integration_watches", column: "watch_id"
   add_foreign_key "integration_seen_items", "integration_watches", column: "watch_id"
