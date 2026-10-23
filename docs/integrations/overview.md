@@ -155,8 +155,9 @@ dropped. Nothing is lost: the next good poll sees the same list, and the ledger 
 out what is new. The concurrency `duration` (1 hour) must outlast the slowest batch or
 two batches overlap; at 20 s per request that is 180 watches per watcher.
 
-A watch deleted by the orphan prune while the batch runs is skipped: its failure is
-logged and not recorded, and the batch moves on.
+A watch deleted by the orphan prune while the batch runs is skipped, whether its poll
+failed or its write hit the missing row: it is logged, not recorded, and never reported
+as a bug. The batch moves on.
 
 A failure stays with its watch: the batch records it and moves on. `RateLimited` also
 stops the batch, so the rest of the list does not keep hitting a provider that asked
@@ -194,8 +195,9 @@ source it deletes nothing: an empty registry means the wiring failed, not that n
 is followed. A server that
 switches a plugin off keeps its rows, so its watch stays and is simply not polled.
 
-**Ceiling.** A subscription created for a watch the prune deletes in the same instant
-fails its foreign key. The user retries; the window is a few milliseconds a day.
+**Ceiling.** The prune deletes each watch in its own transaction. A subscription or poll
+writing to a watch at the instant it is deleted fails its foreign key. That stops the
+run, watches already deleted stay deleted, and the next day's run continues.
 
 ## The list strategy
 
@@ -225,7 +227,10 @@ outage can still be delivered. A failing watch is polled normally until it
 breaks. A broken one is retried on the first tick of every clock hour (its last poll
 was in an earlier hour), so retries stay on :00 instead of drifting by however long the
 batch ran. The first success clears `failing_since` and `last_error`, so it heals by
-itself. `last_error` holds the error's class and message; it is what the DM shows.
+itself. `last_error` holds the error's class and message; it is what the DM shows. A
+failure after a gap of more than `Watch::DORMANT_AFTER` (2 hours) starts a new
+`failing_since`: a followed watch is polled at least hourly, so only a watch nobody
+followed has such a gap, and its old outage must not count toward the 24 hours.
 
 `ReportBrokenWatchesJob` runs hourly and sends the bot owner **one DM** listing every
 newly broken watch (ten at most, then "and N more"), then stamps them
@@ -237,11 +242,13 @@ report job and could leave a stamp on a healthy watch, which then hid its next o
 ### Bugs
 
 A failure that is not an `Integrations::Error` is a bug in our own mapping or watcher,
-not a provider outage, and 24 hours is too long to wait for it. When such an error hits
-a watch that was not already failing, the batch collects one line for it and, after the
-loop, enqueues `ReportPollBugsJob`, which DMs the owner once per batch (ten lines at
-most, then "and N more"). A watch that keeps failing the same way does not repeat the
-DM: it was already failing. The 24-hour report still covers it if it never heals.
+not a provider outage, and 24 hours is too long to wait for it. The batch
+collects one line for such an error and, after the loop, enqueues `ReportPollBugsJob`,
+which DMs the owner once per batch (ten lines at most, then "and N more"). It is
+reported when its class differs from the watch's last error, so a bug that follows an
+outage is reported at once, and one that repeats is not. The DM header says "unexpected
+error" because a deadlock or timeout lands here too. The 24-hour report still covers a
+watch that never heals.
 
 ## Events
 

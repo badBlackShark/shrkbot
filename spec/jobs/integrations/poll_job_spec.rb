@@ -81,11 +81,36 @@ RSpec.describe Integrations::PollJob do
         .once
     end
 
-    context "when the watch was already failing" do
-      let!(:first) { create(:integration_watch, failing_since: 2.hours.ago) }
+    context "when the watch was already failing with the same error class" do
+      let!(:first) { create(:integration_watch, failing_since: 2.hours.ago, polled_at: 1.hour.ago, last_error: "NoMethodError: older") }
 
       it "does not report it again" do
         expect { perform }.not_to have_enqueued_job(Integrations::ReportPollBugsJob)
+      end
+    end
+
+    context "when the watch was already failing with an outage" do
+      let!(:first) { create(:integration_watch, failing_since: 2.hours.ago, polled_at: 1.hour.ago, last_error: "Integrations::Unavailable: 503") }
+
+      it "reports the bug at once" do
+        expect { perform }.to have_enqueued_job(Integrations::ReportPollBugsJob)
+          .with(["Team Fortress 2 (#{first.external_id}): NoMethodError: our bug"])
+          .once
+      end
+    end
+
+    context "when the watch is deleted while its poll raises" do
+      before do
+        allow(watchers.fetch(first)).to receive(:observe) do
+          Feeds::Subscription.where(watch_id: first.id).delete_all
+          Integrations::Watch.find(first.id).destroy!
+          raise NoMethodError, "gone"
+        end
+      end
+
+      it "reports nothing and still polls the other" do
+        expect { perform }.not_to have_enqueued_job(Integrations::ReportPollBugsJob)
+        expect(second.reload.primed_at).to be_present
       end
     end
   end

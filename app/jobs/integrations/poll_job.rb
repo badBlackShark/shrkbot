@@ -18,8 +18,8 @@ module Integrations
         record_failure(watch, error)
         break
       rescue => error
-        bugs << bug_line(watch, error) if first_bug?(watch, error)
-        record_failure(watch, error)
+        failed = record_failure(watch, error)
+        bugs << "#{failed.label}: #{failed.last_error}" if failed && new_bug?(watch, error)
       end
       ReportPollBugsJob.perform_later(bugs) if bugs.any?
     end
@@ -31,12 +31,8 @@ module Integrations
       Ops::Integrations::Watches::RecordObservation.call(watch:, events:)
     end
 
-    def first_bug?(watch, error)
-      !error.is_a?(Error) && watch.failing_since.nil?
-    end
-
-    def bug_line(watch, error)
-      "#{watch.label}: #{error.class}: #{error.message}"
+    def new_bug?(watch, error)
+      !error.is_a?(Error) && !watch.last_error.to_s.start_with?("#{error.class}:")
     end
 
     def record_failure(watch, error)
@@ -46,6 +42,7 @@ module Integrations
       return if current.nil?
 
       Ops::Integrations::Watches::RecordFailure.call(watch: current, error:)
+      current
     end
   end
 end

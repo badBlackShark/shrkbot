@@ -4,6 +4,8 @@ module Ops
   module Integrations
     module Watches
       class PruneOrphans < ApplicationOperation
+        self.transactional = false
+
         def call
           return ok if ::Integrations::Watch.demand_sources.empty?
 

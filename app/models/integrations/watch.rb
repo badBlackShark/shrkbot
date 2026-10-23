@@ -3,6 +3,7 @@
 module Integrations
   class Watch < ApplicationRecord
     BROKEN_AFTER = 24.hours
+    DORMANT_AFTER = 2.hours
 
     self.table_name = "integration_watches"
 

@@ -20,7 +20,7 @@ RSpec.describe Integrations::ReportPollBugsJob do
 
     expect(Bot::Discord::Components).to have_received(:create_message).with(
       channel_id: 77,
-      content: "Polling hit a bug in shrkbot:\n- Team Fortress 2 (440): NoMethodError: our bug",
+      content: "Polling hit an unexpected error:\n- Team Fortress 2 (440): NoMethodError: our bug",
       allowed_mentions: {parse: []}
     )
   end
