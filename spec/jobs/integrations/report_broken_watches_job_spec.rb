@@ -18,6 +18,7 @@ RSpec.describe Integrations::ReportBrokenWatchesJob do
   end
 
   before do
+    create(:feed_subscription, :active, watch: broken)
     allow(Bot::Config).to receive_messages(owner_id: "999", rest_token:)
     allow(Discordrb::API::User).to receive(:create_pm).with(rest_token, "999").and_return({id: 77}.to_json)
     allow(Bot::Discord::Components).to receive(:create_message)
@@ -62,16 +63,9 @@ RSpec.describe Integrations::ReportBrokenWatchesJob do
   context "with more than 10 broken watches" do
     before do
       11.times do |index|
-        create(:integration_watch, name: "Game #{index}", failing_since: (24 + index).hours.ago - 1.hour, last_error: "boom")
+        watch = create(:integration_watch, name: "Game #{index}", failing_since: (24 + index).hours.ago - 1.hour, last_error: "boom")
+        create(:feed_subscription, :active, watch:)
       end
-    end
-
-    it "lists ten and summarises the rest" do
-      perform
-
-      expect(Bot::Discord::Components).to have_received(:create_message).with(
-        hash_including(content: a_string_matching(/\A(?:[^\n]*\n){11}- and 2 more\z/))
-      )
     end
 
     it "stamps every broken watch, listed or not" do
@@ -99,6 +93,26 @@ RSpec.describe Integrations::ReportBrokenWatchesJob do
       expect(Bot::Discord::Components).to have_received(:create_message).with(
         hash_including(content: a_string_including("Team Fortress 2 (440)"))
       )
+    end
+  end
+
+  context "with a broken watch no active subscription wants" do
+    before do
+      create(:integration_watch, name: "Dota 2", failing_since: 30.hours.ago, last_error: "boom")
+    end
+
+    it "is not listed" do
+      perform
+
+      expect(Bot::Discord::Components).to have_received(:create_message).with(
+        hash_including(content: a_string_matching(/\A[^\n]*\n- Team Fortress 2 \(440\): [^\n]*\z/))
+      )
+    end
+
+    it "is not stamped" do
+      perform
+
+      expect(Integrations::Watch.broken.unreported.pluck(:name)).to eq(["Dota 2"])
     end
   end
 

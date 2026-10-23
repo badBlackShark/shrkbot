@@ -101,4 +101,71 @@ RSpec.describe Integrations::Watch do
       end
     end
   end
+
+  describe "demand" do
+    let!(:active_watch) { create(:integration_watch) }
+    let!(:inactive_watch) { create(:integration_watch) }
+    let!(:orphan_watch) { create(:integration_watch) }
+
+    before do
+      create(:feed_subscription, :active, watch: active_watch)
+      create(:feed_subscription, watch: inactive_watch)
+    end
+
+    describe ".demanded" do
+      subject(:demanded) { described_class.demanded }
+
+      it "includes only watches an active subscription points at" do
+        expect(demanded).to contain_exactly(active_watch)
+      end
+
+      context "when chained onto other scopes" do
+        subject(:demanded) { described_class.where(id: [inactive_watch.id, orphan_watch.id]).demanded }
+
+        it { is_expected.to be_empty }
+      end
+    end
+
+    describe ".referenced" do
+      subject(:referenced) { described_class.referenced }
+
+      it "includes every watch any subscription points at, active or not" do
+        expect(referenced).to contain_exactly(active_watch, inactive_watch)
+      end
+    end
+
+    context "without a registered source" do
+      subject(:scopes) { [described_class.demanded, described_class.referenced] }
+
+      include_context "without demand sources"
+
+      it "demands and references nothing" do
+        expect(scopes).to all(be_empty)
+      end
+    end
+  end
+
+  describe ".demanded_by" do
+    let(:source) { Class.new }
+
+    after do
+      described_class.demand_sources -= [source]
+    end
+
+    context "when the same source registers twice" do
+      subject(:registrations) { described_class.demand_sources.count(source) }
+
+      before do
+        2.times { described_class.demanded_by(source) }
+      end
+
+      it "registers it once" do
+        expect(registrations).to eq(1)
+      end
+    end
+
+    it "is wired to feed subscriptions by the initializer" do
+      expect(described_class.demand_sources).to include(Feeds::Subscription)
+    end
+  end
 end

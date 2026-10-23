@@ -3,8 +3,11 @@
 module Integrations
   class Watch < ApplicationRecord
     BROKEN_AFTER = 24.hours
+    DORMANT_AFTER = 2.hours
 
     self.table_name = "integration_watches"
+
+    class_attribute :demand_sources, default: []
 
     has_many :seen_items, dependent: :delete_all
     has_many :events, dependent: :delete_all
@@ -22,6 +25,27 @@ module Integrations
         .or(where(failing_since: BROKEN_AFTER.ago..))
         .or(where(polled_at: ...Time.current.beginning_of_hour))
     }
+
+    def self.demanded_by(source)
+      self.demand_sources |= [source]
+    end
+
+    def self.demanded
+      demand_matching(:active)
+    end
+
+    def self.referenced
+      demand_matching(:all)
+    end
+
+    def self.demand_matching(kind)
+      demand_sources.map { |source| where(id: source.public_send(kind).select(:watch_id)) }.reduce(:or) || none
+    end
+    private_class_method :demand_matching
+
+    def label
+      "#{name} (#{external_id})"
+    end
 
     def watcher_class
       watcher.constantize

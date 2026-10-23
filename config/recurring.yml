@@ -35,6 +35,9 @@ production:
   integrations_prune:
     command: "Ops::Integrations::Prune.call"
     schedule: every day at 5:30am
+  integrations_orphan_watch_prune:
+    command: "Ops::Integrations::Watches::PruneOrphans.call"
+    schedule: every day at 5:35am
 
 development:
   integrations_steam_news_poll:
@@ -47,3 +50,6 @@ development:
   integrations_prune:
     command: "Ops::Integrations::Prune.call"
     schedule: every day at 5:30am
+  integrations_orphan_watch_prune:
+    command: "Ops::Integrations::Watches::PruneOrphans.call"
+    schedule: every day at 5:35am

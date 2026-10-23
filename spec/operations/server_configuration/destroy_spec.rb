@@ -64,6 +64,28 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
     end
   end
 
+  context "feed subscription handling" do
+    let!(:subscription) { create(:feed_subscription, server_configuration: config) }
+    let!(:subscribed_event) { create(:feed_subscribed_event, subscription:) }
+    let!(:other_subscription) { create(:feed_subscription, watch: subscription.watch) }
+    let!(:other_subscribed_event) { create(:feed_subscribed_event, subscription: other_subscription) }
+
+    it "removes the server's subscriptions and their subscribed events" do
+      result
+
+      expect(Feeds::Subscription.find_by(id: subscription.id)).to be_nil
+      expect(Feeds::SubscribedEvent.find_by(id: subscribed_event.id)).to be_nil
+    end
+
+    it "leaves other servers' subscriptions and the shared watch untouched" do
+      result
+
+      expect(Feeds::Subscription.find_by(id: other_subscription.id)).to be_present
+      expect(Feeds::SubscribedEvent.find_by(id: other_subscribed_event.id)).to be_present
+      expect(Integrations::Watch.find_by(id: subscription.watch_id)).to be_present
+    end
+  end
+
   context "twilight struggle destination handling" do
     let!(:tournament) { create(:twilight_struggle_tournament) }
     let!(:destination) do

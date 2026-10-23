@@ -26,11 +26,7 @@ module Finders
       def eligible_servers
         ::ServerConfiguration
           .where(id: ::BespokePluginGrant.where(plugin_key:).select(:server_configuration_id))
-          .where(id: enabled_activations.select(:server_configuration_id))
-      end
-
-      def enabled_activations
-        ::PluginActivation.joins(:plugin).where(enabled: true, plugins: {key: plugin_key.to_s})
+          .where(id: ::PluginActivation.enabled_for(plugin_key).select(:server_configuration_id))
       end
 
       def plugin_key
