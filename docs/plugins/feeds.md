@@ -1,7 +1,7 @@
 # Feeds
 
 A server follows a source (today a Steam game) and gets its new posts in a channel.
-This page covers the data and polling side; nothing posts yet.
+This page covers the data, polling and posting sides.
 
 ## Tables
 
@@ -11,6 +11,10 @@ This page covers the data and polling side; nothing posts yet.
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
   wants, each with an optional `template` override. Unique on
   `[subscription_id, event_type]`.
+- `feed_posts` (`Feeds::Post`): one row per story a subscription posted, with the
+  `story_key`, the source `event_id` (a plain string, no foreign key: events are
+  pruned) and the Discord channel and message IDs. Unique on
+  `[subscription_id, story_key]`.
 
 `watch_id` points at `integration_watches`; see
 [../integrations/overview.md](../integrations/overview.md) for what a watch is.
@@ -31,6 +35,70 @@ subscription is left.
 ## Purge
 
 `ServerConfiguration has_many :feed_subscriptions, dependent: :destroy`. Destroy rather
-than delete so each subscription's `subscribed_events` go with it. That is the guild
+than delete so each subscription's `subscribed_events` and `posts` go with it. That is the guild
 purge; there is no separate path. The watch itself is shared between servers and is
 removed by the orphan prune once nothing references it.
+
+## Posting
+
+    RecordObservation -> Bus -> AnnounceJob(event) -> PostJob(subscription, event) -> Posts::Create
+
+- `Feeds::AnnounceJob` is the bus handler for the three Steam news event classes. It
+  enqueues one `Feeds::PostJob` per `active` subscription on the event's watch that has
+  a `feed_subscribed_events` row for the event's type.
+- `Feeds::PostJob` skips the event when the subscription already has a `Post` for its
+  story, or when `Feeds::StoryPick` says another subscribed copy of the story is better.
+  Otherwise it calls `Ops::Feeds::Posts::Create`. Retries and discards mirror
+  `TwilightStruggle::PostJob`, and `limits_concurrency` is keyed by subscription and
+  story so two copies of one story never post at once.
+- `Ops::Feeds::Posts::Create` is subject-first (see
+  [../bot/message-rendering.md](../bot/message-rendering.md)): it sends the subject as
+  plain content, allowing only the subscription's own role to ping, then converts the
+  message into the card with the default suppressed mentions. The card carries untrusted
+  post text, so nothing in it can ping. It then records the `Post`.
+
+## Stories
+
+One story can arrive as several events: the same title in two Steam feeds within
+15 minutes gets different `subject_key`s but one `story_key`
+(`Integrations::Steam::Stories`). A subscription that follows both types must post it
+once, by two guards:
+
+- `Feeds::StoryPick` ranks the subscribed copies of a story: a copy that is not
+  `ArticlePublished` beats one that is, then the earliest `occurred_at`, then the lowest
+  `id`. A job posts only when its event is the best copy. A subscription that follows
+  articles only gets the article.
+- The unique `[subscription_id, story_key]` on `feed_posts` and the `exists?` check in
+  `PostJob` are the backstop for a retry or a second delivery.
+
+## What a post looks like
+
+`Feeds::Announcement` renders both messages.
+
+The **subject** is the subscribed event's `template`, or the default for its class,
+filled by `TemplateText`, stripped and cut to 2000 characters:
+
+| Event | Default template |
+| --- | --- |
+| `PatchNotesPublished` | `{role} New {game} patch notes: {title}` |
+| `AnnouncementPublished` | `{role} New {game} announcement: {title}` |
+| `ArticlePublished` | `{role} {feed}: {title}` |
+
+Tokens: `role` (the role mention, or empty), `game`, `title`, `url`, `author`, `feed`.
+
+The **card** is a container with the title as a heading (cut to 256 characters), the
+body excerpt, the post's first image when it has one, and a link button to the original.
+
+**Body length** is a per-subscription setting. `preview` (the default) keeps about 500
+characters and `full` about 3500, under Discord's 4000 for the whole message.
+`Feeds::Excerpt` takes the limit as a number. Past it, it cuts at the last paragraph
+break (when that keeps at least half the limit), else the last line break (same rule),
+else the last space, and appends "…". A cut that leaves a code fence open closes it
+first, with the "…" on the line after.
+
+## Retention
+
+`Ops::Feeds::Posts::Prune` runs daily at 5:40 and deletes posts older than 14 days
+(`Ops::Integrations::Prune::RETENTION`), the same age the events they came from are
+pruned at. A server's posts are deleted with its subscriptions (`dependent:
+:delete_all`).

@@ -13,5 +13,8 @@ FactoryBot.define do
     body { "An update has been released." }
     image_urls { [] }
     story_key { subject_key }
+
+    factory :steam_announcement_event, class: "Integrations::Steam::AnnouncementPublished"
+    factory :steam_article_event, class: "Integrations::Steam::ArticlePublished"
   end
 end

@@ -13,6 +13,7 @@ module Ops
           unseen = fresh_events.reject { |event| seen_ids.include?(event.subject_key) }
           remember(unseen)
           published = publish(unseen)
+          dispatch_after_commit(published)
           watch.update!(
             primed_at: watch.primed_at || now,
             polled_at: now,
@@ -52,6 +53,14 @@ module Ops
 
           Rails.logger.warn("Integrations: dropped invalid #{event.class} #{event.subject_key} for #{watch.watcher} #{watch.external_id}: #{event.errors.full_messages.to_sentence}")
           false
+        end
+
+        def dispatch_after_commit(published)
+          return if published.empty?
+
+          ActiveRecord.after_all_transactions_commit do
+            Ops::Integrations::Events::Dispatch.call(events: published)
+          end
         end
 
         def prime(unseen)

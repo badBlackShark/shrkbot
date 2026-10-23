@@ -7,5 +7,10 @@ module Integrations
     belongs_to :watch
 
     validates :type, :subject_key, :occurred_at, presence: true
+
+    scope :undispatched, -> { where(dispatched_at: nil) }
+    scope :stranded, -> {
+      undispatched.where(created_at: Ops::Integrations::Watches::RecordObservation::FRESHNESS_WINDOW.ago...1.minute.ago)
+    }
   end
 end

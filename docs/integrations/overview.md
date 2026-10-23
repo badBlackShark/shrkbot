@@ -259,8 +259,39 @@ else is `payload` jsonb, exposed per subclass with `store_accessor`. The base cl
 never instantiated. A provider's subclasses are models too and live with the base
 under `app/models/integrations/<provider>/` (`Integrations::Steam::NewsEvent`).
 
-Nothing consumes events yet: they are saved and pruned. The feed that posts them to
-Discord comes later and reads from here.
+## The bus
+
+Events leave the provider layer through `Integrations::Bus`. A capability subscribes a
+handler job to event classes in the same initializer that registers demand:
+
+```ruby
+Integrations::Bus.subscribe(Feeds::AnnounceJob, to: [Integrations::Steam::PatchNotesPublished, ...])
+```
+
+`Bus.handlers_for(event)` returns every handler subscribed to the event's class or a
+superclass of it (`is_a?`). `app/integrations/` never names the handlers; only the
+initializer does. The registry is module state on a reloadable module, so it resets on a
+code reload and `to_prepare` fills it again.
+
+`RecordObservation` hands the events it saved to `Ops::Integrations::Events::Dispatch`
+in `ActiveRecord.after_all_transactions_commit`, so a handler never runs before the
+event row is visible. Dispatch enqueues `handler.perform_later(event)` for each handler
+and then stamps `dispatched_at`. A failed dispatch leaves the stamp unset.
+
+**An event with no handler is not stamped.** An empty handler list means the wiring
+failed (the initializer did not run), not that nobody cares. Stamping it would hide the
+event from the sweeper for good.
+
+**The sweeper.** `Ops::Integrations::Events::Dispatch` also runs every 5 minutes over
+`Event.stranded`: undispatched events created inside `RecordObservation::FRESHNESS_WINDOW`
+(48 hours) and more than a minute ago. It catches a crash between the commit and the
+enqueue, and a wiring fix that lands late. The window keeps a late fix from posting old
+news: an undispatched event older than 48 hours is never sent. A partial index on
+`created_at WHERE dispatched_at IS NULL` keeps the sweep cheap.
+
+Delivery is at least once: a handler can see an event twice (the sweeper racing the
+commit hook), so handlers must be idempotent. `Feeds::PostJob` is, through its
+`feed_posts` ledger.
 
 ## Markup
 
@@ -292,7 +323,8 @@ known ceiling.
 ## Retention
 
 `Ops::Integrations::Prune` runs daily and deletes events and seen items created more
-than 14 days ago: one policy across the integrations log tables. Watches themselves
+than 14 days ago: one policy across the integrations log tables (`Ops::Feeds::Posts::Prune`
+reuses its `RETENTION` for the post ledger). Watches themselves
 are deleted by the orphan prune (see Demand).
 
 ## Testing

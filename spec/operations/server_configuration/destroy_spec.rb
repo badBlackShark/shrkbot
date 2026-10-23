@@ -69,12 +69,14 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
     let!(:subscribed_event) { create(:feed_subscribed_event, subscription:) }
     let!(:other_subscription) { create(:feed_subscription, watch: subscription.watch) }
     let!(:other_subscribed_event) { create(:feed_subscribed_event, subscription: other_subscription) }
+    let!(:post) { create(:feed_post, subscription:) }
 
-    it "removes the server's subscriptions and their subscribed events" do
+    it "removes the server's subscriptions, their subscribed events and their posts" do
       result
 
       expect(Feeds::Subscription.find_by(id: subscription.id)).to be_nil
       expect(Feeds::SubscribedEvent.find_by(id: subscribed_event.id)).to be_nil
+      expect(Feeds::Post.find_by(id: post.id)).to be_nil
     end
 
     it "leaves other servers' subscriptions and the shared watch untouched" do

@@ -15,6 +15,16 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     expect(result.value).to eq([fresh])
   end
 
+  it "dispatches the published events to their handlers" do
+    expect { result }.to have_enqueued_job(Feeds::AnnounceJob).once.with(fresh)
+  end
+
+  it "stamps the dispatched events" do
+    result
+
+    expect(fresh.reload.dispatched_at).to be_present
+  end
+
   it "saves fresh unseen events" do
     result
 
@@ -35,6 +45,10 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
 
       expect(Integrations::Event.count).to eq(0)
       expect(watch.seen_items.pluck(:external_id)).to eq(["fresh"])
+    end
+
+    it "dispatches nothing" do
+      expect { result }.not_to have_enqueued_job(Feeds::AnnounceJob)
     end
 
     it "stamps primed_at" do
