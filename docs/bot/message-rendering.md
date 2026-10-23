@@ -21,7 +21,8 @@ pass a `subject:`: the wrapper sends it as plain content (the notification fires
 create with that preview), then `convert_to_v2` edits the message into the container
 (explicit null content + the `COMPONENTS_V2` flag — Discord only allows this conversion
 plain→V2, never back). A failed conversion is logged and leaves the readable plain
-message standing; `DeliverJob` shares `convert_to_v2` after its REST `create_message`.
+message standing; `convert_to_v2` returns `false` so a caller can fall back (the feed
+posts re-edit the plain message to carry the link); `DeliverJob` shares `convert_to_v2` after its REST `create_message`.
 
 ## Mentioning a user
 

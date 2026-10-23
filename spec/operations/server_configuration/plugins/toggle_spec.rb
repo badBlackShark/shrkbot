@@ -232,4 +232,40 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
       expect(Bot::ConfigBus).not_to have_received(:remove_roles_menu)
     end
   end
+
+  context "feeds follow times" do
+    let(:plugin) { feeds }
+    let(:enabled) { true }
+    let(:feeds) { create(:plugin, key: "feeds", name: "Feeds") }
+    let(:subscription) { create(:feed_subscription, server_configuration: server) }
+    let!(:subscribed_event) { create(:feed_subscribed_event, subscription:, subscribed_since: 1.day.ago) }
+
+    context "when enabling feeds" do
+      it "resets the follow time" do
+        expect { result }.to change { subscribed_event.reload.subscribed_since }
+      end
+    end
+
+    context "when disabling feeds" do
+      let(:enabled) { false }
+
+      before do
+        create(:plugin_activation, server_configuration: server, plugin: feeds, enabled: true)
+      end
+
+      it "leaves the follow time alone" do
+        expect { result }.not_to change { subscribed_event.reload.subscribed_since }
+      end
+    end
+
+    context "when feeds is already enabled and saved as enabled again" do
+      before do
+        create(:plugin_activation, server_configuration: server, plugin: feeds, enabled: true)
+      end
+
+      it "leaves the follow time alone" do
+        expect { result }.not_to change { subscribed_event.reload.subscribed_since }
+      end
+    end
+  end
 end

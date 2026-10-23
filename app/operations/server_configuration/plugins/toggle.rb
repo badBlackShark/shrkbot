@@ -28,8 +28,15 @@ module Ops
 
         def publish_side_effects(activation)
           Bot::ConfigBus.sync_commands(server_configuration)
-          return unless plugin.key == :roles
+          resume_feeds if activation.saved_change_to_enabled?(to: true)
+          publish_roles_menu(activation) if plugin.key == :roles
+        end
 
+        def resume_feeds
+          ::Ops::Feeds::SubscribedEvents::Resume.call(server_configuration:, plugin_key: plugin.key)
+        end
+
+        def publish_roles_menu(activation)
           ::Roles::MenuToggle.publish(server_configuration, enabled: activation.enabled?)
         end
       end

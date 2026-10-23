@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_174801) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_205105) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -53,9 +53,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_174801) do
     t.check_constraint "target_type::text = ANY (ARRAY['role'::character varying::text, 'member'::character varying::text])", name: "channel_overwrites_target_type_check"
   end
 
+  create_table "feed_posts", id: :string, default: -> { "('fdp_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "story_key", null: false
+    t.string "subscription_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subscription_id", "story_key"], name: "index_feed_posts_on_subscription_id_and_story_key", unique: true
+  end
+
   create_table "feed_subscribed_events", id: :string, default: -> { "('fse_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "event_type", null: false
+    t.datetime "subscribed_since", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.string "subscription_id", null: false
     t.text "template"
     t.datetime "updated_at", null: false
@@ -100,12 +109,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_174801) do
 
   create_table "integration_events", id: :string, default: -> { "('ite_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.datetime "dispatched_at"
     t.datetime "occurred_at", null: false
     t.jsonb "payload", default: {}, null: false
     t.string "subject_key", null: false
     t.string "type", null: false
     t.datetime "updated_at", null: false
     t.string "watch_id", null: false
+    t.index ["created_at"], name: "index_integration_events_undispatched", where: "(dispatched_at IS NULL)"
     t.index ["watch_id", "type", "subject_key"], name: "index_integration_events_on_watch_id_and_type_and_subject_key", unique: true
   end
 
@@ -125,7 +136,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_174801) do
     t.string "last_error"
     t.string "name", null: false
     t.datetime "polled_at"
-    t.datetime "primed_at"
     t.datetime "updated_at", null: false
     t.string "watcher", null: false
     t.index ["watcher", "external_id"], name: "index_integration_watches_on_watcher_and_external_id", unique: true
@@ -569,6 +579,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_174801) do
   add_foreign_key "assignable_roles", "role_sets"
   add_foreign_key "bespoke_plugin_grants", "server_configurations"
   add_foreign_key "channel_overwrites", "server_channels"
+  add_foreign_key "feed_posts", "feed_subscriptions", column: "subscription_id"
   add_foreign_key "feed_subscribed_events", "feed_subscriptions", column: "subscription_id"
   add_foreign_key "feed_subscriptions", "integration_watches", column: "watch_id"
   add_foreign_key "feed_subscriptions", "server_configurations"

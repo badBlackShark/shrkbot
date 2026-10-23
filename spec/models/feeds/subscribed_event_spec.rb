@@ -16,6 +16,18 @@ RSpec.describe Feeds::SubscribedEvent do
     it { is_expected.not_to be_valid }
   end
 
+  it "starts following from now" do
+    expect(subscribed_event.subscribed_since).to be_within(1.minute).of(Time.current)
+  end
+
+  context "without a follow time" do
+    before do
+      subscribed_event.subscribed_since = nil
+    end
+
+    it { is_expected.not_to be_valid }
+  end
+
   context "when the subscription already has that event type" do
     before do
       create(:feed_subscribed_event, subscription:, event_type:)

@@ -38,6 +38,12 @@ production:
   integrations_orphan_watch_prune:
     command: "Ops::Integrations::Watches::PruneOrphans.call"
     schedule: every day at 5:35am
+  integrations_stranded_event_dispatch:
+    command: "Ops::Integrations::Events::Dispatch.call(events: Integrations::Event.stranded.to_a)"
+    schedule: every 5 minutes
+  feeds_post_prune:
+    command: "Ops::Feeds::Posts::Prune.call"
+    schedule: every day at 5:40am
 
 development:
   integrations_steam_news_poll:
@@ -53,3 +59,9 @@ development:
   integrations_orphan_watch_prune:
     command: "Ops::Integrations::Watches::PruneOrphans.call"
     schedule: every day at 5:35am
+  integrations_stranded_event_dispatch:
+    command: "Ops::Integrations::Events::Dispatch.call(events: Integrations::Event.stranded.to_a)"
+    schedule: every 5 minutes
+  feeds_post_prune:
+    command: "Ops::Feeds::Posts::Prune.call"
+    schedule: every day at 5:40am

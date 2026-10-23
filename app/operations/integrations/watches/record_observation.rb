@@ -4,17 +4,15 @@ module Ops
   module Integrations
     module Watches
       class RecordObservation < ApplicationOperation
-        FRESHNESS_WINDOW = 48.hours
-
         receives :watch, :events
 
         def call
           now = Time.current
           unseen = fresh_events.reject { |event| seen_ids.include?(event.subject_key) }
           remember(unseen)
-          published = publish(unseen)
+          published = unseen.select { |event| persist(event) }
+          dispatch_after_commit(published)
           watch.update!(
-            primed_at: watch.primed_at || now,
             polled_at: now,
             failing_since: nil,
             last_error: nil
@@ -24,12 +22,8 @@ module Ops
 
         private
 
-        def primed?
-          watch.primed_at.present?
-        end
-
         def fresh_events
-          @fresh_events ||= events.select { |event| event.occurred_at >= FRESHNESS_WINDOW.ago }
+          @fresh_events ||= events.select { |event| event.occurred_at >= ::Integrations::Event::FRESHNESS_WINDOW.ago }
         end
 
         def seen_ids
@@ -41,12 +35,6 @@ module Ops
           ::Integrations::SeenItem.insert_all(rows, unique_by: [:watch_id, :external_id])
         end
 
-        def publish(unseen)
-          return prime(unseen) unless primed?
-
-          unseen.select { |event| persist(event) }
-        end
-
         def persist(event)
           return true if event.save
 
@@ -54,9 +42,14 @@ module Ops
           false
         end
 
-        def prime(unseen)
-          Rails.logger.info("Integrations: primed #{watch.watcher} #{watch.external_id} with #{unseen.size} items")
-          []
+        def dispatch_after_commit(published)
+          return if published.empty?
+
+          ActiveRecord.after_all_transactions_commit do
+            Ops::Integrations::Events::Dispatch.call(events: published)
+          rescue => error
+            Rails.logger.warn("Integrations: dispatch failed for #{published.size} events of #{watch.watcher} #{watch.external_id}, the sweeper will retry: #{error.class}: #{error.message}")
+          end
         end
       end
     end

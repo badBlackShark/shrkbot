@@ -21,7 +21,8 @@ RSpec.describe Integrations::PollJob do
 
   context "with watches of another watcher and a broken watch already polled this hour" do
     let!(:other) { create(:integration_watch, watcher: "Integrations::Other::Watcher") }
-    let!(:not_due) { create(:integration_watch, failing_since: 30.hours.ago, polled_at: Time.current) }
+    let!(:not_due) { create(:integration_watch, failing_since: 30.hours.ago, polled_at: polled_this_hour) }
+    let(:polled_this_hour) { Time.current.beginning_of_hour + 1.second }
 
     before do
       [other, not_due].each { |watch| create(:feed_subscription, :active, watch:) }
@@ -30,8 +31,9 @@ RSpec.describe Integrations::PollJob do
     it "polls every due watch of that watcher and nothing else" do
       perform
 
-      expect(Integrations::Watch.where.not(primed_at: nil)).to contain_exactly(first, second)
-      expect(Integrations::Watch.where(primed_at: nil)).to contain_exactly(other, not_due)
+      expect(Integrations::Watch.where.not(polled_at: nil).where.not(id: not_due.id)).to contain_exactly(first, second)
+      expect(Integrations::Watch.where(polled_at: nil)).to contain_exactly(other)
+      expect(not_due.reload.polled_at).to eq(polled_this_hour)
     end
   end
 
@@ -46,7 +48,7 @@ RSpec.describe Integrations::PollJob do
     it "does not poll it" do
       perform
 
-      expect(undemanded.reload.primed_at).to be_nil
+      expect(undemanded.reload.polled_at).to be_nil
       expect(watchers.fetch(undemanded)).not_to have_received(:observe)
     end
   end
@@ -60,7 +62,7 @@ RSpec.describe Integrations::PollJob do
       perform
 
       expect(first.reload).to have_attributes(failing_since: be_present, last_error: "Integrations::Unavailable: api.steampowered.com responded 503")
-      expect(second.reload.primed_at).to be_present
+      expect(second.reload.polled_at).to be_present
     end
   end
 
@@ -72,7 +74,7 @@ RSpec.describe Integrations::PollJob do
     it "records it as a failure without raising and still polls the other" do
       expect { perform }.not_to raise_error
       expect(first.reload.last_error).to start_with("NoMethodError: our bug")
-      expect(second.reload.primed_at).to be_present
+      expect(second.reload.polled_at).to be_present
     end
 
     it "reports the bug to the owner once, naming the watch" do
@@ -110,7 +112,7 @@ RSpec.describe Integrations::PollJob do
 
       it "reports nothing and still polls the other" do
         expect { perform }.not_to have_enqueued_job(Integrations::ReportPollBugsJob)
-        expect(second.reload.primed_at).to be_present
+        expect(second.reload.polled_at).to be_present
       end
     end
   end

@@ -9,6 +9,7 @@ module Feeds
     belongs_to :server_configuration
     belongs_to :watch, class_name: "Integrations::Watch"
     has_many :subscribed_events, dependent: :delete_all
+    has_many :posts, dependent: :delete_all
 
     validates :body_length, inclusion: {in: BODY_LENGTHS}
     validates :channel_id, presence: true

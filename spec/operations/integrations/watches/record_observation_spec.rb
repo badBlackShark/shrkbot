@@ -5,14 +5,23 @@ require "rails_helper"
 RSpec.describe Ops::Integrations::Watches::RecordObservation do
   subject(:result) { described_class.call(watch:, events:) }
 
-  let(:watch) { create(:integration_watch, primed_at:) }
-  let(:primed_at) { 1.day.ago }
+  let(:watch) { create(:integration_watch) }
   let(:events) { [fresh, stale] }
   let(:fresh) { build(:steam_news_event, watch:, subject_key: "fresh", occurred_at: 1.hour.ago) }
   let(:stale) { build(:steam_news_event, watch:, subject_key: "stale", occurred_at: 49.hours.ago) }
 
   it "returns the published events" do
     expect(result.value).to eq([fresh])
+  end
+
+  it "dispatches the published events to their handlers" do
+    expect { result }.to have_enqueued_job(Feeds::AnnounceJob).once.with(fresh)
+  end
+
+  it "stamps the dispatched events" do
+    result
+
+    expect(fresh.reload.dispatched_at).to be_present
   end
 
   it "saves fresh unseen events" do
@@ -27,18 +36,12 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     expect(watch.seen_items.pluck(:external_id)).to eq(["fresh"])
   end
 
-  context "when the watch has never been polled" do
-    let(:primed_at) { nil }
+  context "on the first poll of a fresh watch" do
+    let(:watch) { create(:integration_watch, polled_at: nil) }
 
-    it "saves nothing but marks every fresh item seen" do
-      result
-
-      expect(Integrations::Event.count).to eq(0)
-      expect(watch.seen_items.pluck(:external_id)).to eq(["fresh"])
-    end
-
-    it "stamps primed_at" do
-      expect { result }.to change { watch.reload.primed_at }.from(nil)
+    it "saves and dispatches its fresh items instead of withholding the backlog" do
+      expect { result }.to have_enqueued_job(Feeds::AnnounceJob).once.with(fresh)
+      expect(Integrations::Event.where(watch:).pluck(:subject_key)).to eq(["fresh"])
     end
   end
 
@@ -79,7 +82,7 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
 
   context "when the watch was failing" do
     let(:watch) do
-      create(:integration_watch, primed_at:, failing_since: 30.hours.ago, last_error: "boom")
+      create(:integration_watch, failing_since: 30.hours.ago, last_error: "boom")
     end
 
     it "clears the failure fields" do
@@ -93,7 +96,17 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     expect { result }.to change { watch.reload.polled_at }.from(nil)
   end
 
-  it "keeps the freshness window shorter than ledger retention, so an item whose seen row was pruned comes back stale" do
-    expect(described_class::FRESHNESS_WINDOW).to be < Ops::Integrations::Prune::RETENTION
+  context "when dispatching fails" do
+    let(:watch) { create(:integration_watch, failing_since: nil) }
+
+    before do
+      allow(Ops::Integrations::Events::Dispatch).to receive(:call).and_raise("redis down")
+    end
+
+    it "still completes the poll, leaving the events to the sweeper" do
+      expect(result).to be_success
+      expect(watch.reload.polled_at).to be_present
+      expect(watch.failing_since).to be_nil
+    end
   end
 end
