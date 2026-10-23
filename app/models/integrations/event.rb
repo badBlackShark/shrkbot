@@ -2,6 +2,8 @@
 
 module Integrations
   class Event < ApplicationRecord
+    FRESHNESS_WINDOW = 48.hours
+
     self.table_name = "integration_events"
 
     belongs_to :watch
@@ -10,7 +12,7 @@ module Integrations
 
     scope :undispatched, -> { where(dispatched_at: nil) }
     scope :stranded, -> {
-      undispatched.where(created_at: Ops::Integrations::Watches::RecordObservation::FRESHNESS_WINDOW.ago...1.minute.ago)
+      undispatched.where(created_at: FRESHNESS_WINDOW.ago...1.minute.ago)
     }
   end
 end

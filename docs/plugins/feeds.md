@@ -11,10 +11,9 @@ This page covers the data, polling and posting sides.
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
   wants, each with an optional `template` override. Unique on
   `[subscription_id, event_type]`.
-- `feed_posts` (`Feeds::Post`): one row per story a subscription posted, with the
-  `story_key`, the source `event_id` (a plain string, no foreign key: events are
-  pruned) and the Discord channel and message IDs. Unique on
-  `[subscription_id, story_key]`.
+- `feed_posts` (`Feeds::Post`): one row per story a subscription posted, holding
+  the `story_key`. It is written before the message is sent, so it is the claim that
+  keeps a story from posting twice. Unique on `[subscription_id, story_key]`.
 
 `watch_id` points at `integration_watches`; see
 [../integrations/overview.md](../integrations/overview.md) for what a watch is.
@@ -67,7 +66,9 @@ once, by two guards:
 - `Feeds::StoryPick` ranks the subscribed copies of a story: a copy that is not
   `ArticlePublished` beats one that is, then the earliest `occurred_at`, then the lowest
   `id`. A job posts only when its event is the best copy. A subscription that follows
-  articles only gets the article.
+  articles only gets the article. Ranking applies to the copies already stored when
+  the job runs: a better copy that arrives in a later poll is skipped, because the
+  story was already posted.
 - The unique `[subscription_id, story_key]` on `feed_posts` and the `exists?` check in
   `PostJob` are the backstop for a retry or a second delivery.
 

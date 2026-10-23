@@ -8,9 +8,6 @@ class AddDispatchTrackingAndFeedPosts < ActiveRecord::Migration[8.1]
       t.string :id, null: false, primary_key: true
       t.references :subscription, null: false, type: :string, index: false, foreign_key: {to_table: :feed_subscriptions}
       t.string :story_key, null: false
-      t.string :event_id
-      t.bigint :discord_channel_id
-      t.bigint :discord_message_id
       t.timestamps
     end
     add_index :feed_posts, [:subscription_id, :story_key], unique: true

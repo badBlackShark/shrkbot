@@ -38,9 +38,7 @@ ActiveRecordDoctor.configure do
       "twilight_struggle_posted_messages.discord_channel_id",
       "twilight_struggle_posted_messages.discord_message_id",
       "feed_subscriptions.channel_id",
-      "feed_subscriptions.role_id",
-      "feed_posts.discord_channel_id",
-      "feed_posts.discord_message_id"
+      "feed_subscriptions.role_id"
     ]
 
   # The unique index on external_id is partial (WHERE external_id IS NOT NULL) because

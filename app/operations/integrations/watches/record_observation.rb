@@ -4,8 +4,6 @@ module Ops
   module Integrations
     module Watches
       class RecordObservation < ApplicationOperation
-        FRESHNESS_WINDOW = 48.hours
-
         receives :watch, :events
 
         def call
@@ -30,7 +28,7 @@ module Ops
         end
 
         def fresh_events
-          @fresh_events ||= events.select { |event| event.occurred_at >= FRESHNESS_WINDOW.ago }
+          @fresh_events ||= events.select { |event| event.occurred_at >= ::Integrations::Event::FRESHNESS_WINDOW.ago }
         end
 
         def seen_ids
@@ -60,6 +58,8 @@ module Ops
 
           ActiveRecord.after_all_transactions_commit do
             Ops::Integrations::Events::Dispatch.call(events: published)
+          rescue => error
+            Rails.logger.warn("Integrations: dispatch failed for #{published.size} events of #{watch.watcher} #{watch.external_id}, the sweeper will retry: #{error.class}: #{error.message}")
           end
         end
 

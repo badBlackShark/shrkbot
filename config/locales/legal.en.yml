@@ -65,8 +65,8 @@ en:
         and text) and the IDs of posts it has already seen. For each Steam game a
         server follows, it also keeps the game''s public Steam app ID and name, and
         the channel, role, kinds of post, any custom message text for each kind, and
-        post length the server chose. It records which Discord message each post became
-        (channel and message IDs) so a post is not sent twice.'
+        post length the server chose. It records which posts it has sent to each server,
+        so a post is not sent twice.'
       data_lead: 'We store only what the enabled features need:'
       data_lfg: 'Looking for Game: the roles you make pingable and the policy limits
         you set for each of them (which roles or channels may use them, minimum membership
@@ -184,12 +184,11 @@ en:
         (at most 60 days, 30 days and 7 days, respectively). Deleted data also drops
         out of database backups as they rotate.
       retention_integrations: 'Steam news: fetched posts and the record of which posts
-        were already seen, and the records of which Discord message each post became,
-        are deleted 14 days after they are fetched or sent. A followed game''s app
-        ID and name are kept while at least one server''s configuration includes it,
-        even with the feature turned off, and are deleted within a day after the last
-        one is removed. A server''s choices are deleted with the rest of its
-        configuration.'
+        were already seen, and the record of which posts were sent, are deleted 14
+        days after they are fetched or sent. A followed game''s app ID and name are
+        kept while at least one server''s configuration includes it, even with the
+        feature turned off, and are deleted within a day after the last one is removed.
+        A server''s choices are deleted with the rest of its configuration.'
       retention_lfg: 'Looking for Game configuration: deleted automatically with the
         rest of the server''s configuration the moment the bot is removed. A post''s
         message references are deleted when the post is closed or expires, and otherwise

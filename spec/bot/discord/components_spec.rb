@@ -104,6 +104,21 @@ RSpec.describe Bot::Discord::Components do
     end
   end
 
+  describe ".convert_to_v2" do
+    subject(:convert_to_v2) { described_class.convert_to_v2(20, 30, rendered) }
+
+    let(:rendered) { described_class.container([described_class.text("hello")]) }
+
+    before do
+      allow(Bot::Config).to receive(:rest_token).and_return("Bot tok")
+      allow(Discordrb::API::Channel).to receive(:edit_message).and_raise("500 oops")
+    end
+
+    it "returns false when the conversion fails, so a caller can fall back" do
+      expect(convert_to_v2).to be(false)
+    end
+  end
+
   describe ".delete_message" do
     subject(:delete_message) { described_class.delete_message(20, 30) }
 

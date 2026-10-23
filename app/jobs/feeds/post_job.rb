@@ -15,6 +15,7 @@ module Feeds
     discard_on "Discordrb::Errors::NoPermission"
 
     def perform(subscription, event)
+      return log_skipped(event, "the subscription is no longer active") unless Subscription.active.exists?(subscription.id)
       return log_skipped(event, "the story was already posted") if subscription.posts.exists?(story_key: event.story_key)
       return log_skipped(event, "a better copy of the story is subscribed") unless StoryPick.new(subscription:, event:).best?
 

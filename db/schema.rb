@@ -55,9 +55,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_184526) do
 
   create_table "feed_posts", id: :string, default: -> { "('fdp_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.bigint "discord_channel_id"
-    t.bigint "discord_message_id"
-    t.string "event_id"
     t.string "story_key", null: false
     t.string "subscription_id", null: false
     t.datetime "updated_at", null: false

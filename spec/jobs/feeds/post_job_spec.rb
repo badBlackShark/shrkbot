@@ -27,6 +27,16 @@ RSpec.describe Feeds::PostJob do
     expect(subscription.posts.pluck(:story_key)).to eq(["story-1"])
   end
 
+  context "when the subscription is no longer active" do
+    let(:subscription) { create(:feed_subscription, watch:) }
+
+    it "sends nothing" do
+      perform
+
+      expect(Bot::Discord::Components).not_to have_received(:create_message)
+    end
+  end
+
   context "when the story was already posted" do
     before do
       create(:feed_post, subscription:, story_key: "story-1")
@@ -75,9 +85,12 @@ RSpec.describe Feeds::PostJob do
     end
   end
 
-  it "keys concurrency by subscription and story, so two copies of one story never post together" do
-    key = described_class.concurrency_key.call(subscription, event)
+  describe "concurrency" do
+    let(:other_story) { create(:steam_news_event, watch:, story_key: "story-2") }
 
-    expect(key).to eq("#{subscription.id}-story-1")
+    it "runs copies of one story for one subscription one at a time, and other stories alongside" do
+      expect(described_class.new(subscription, patch_notes).concurrency_key).to eq(described_class.new(subscription, article).concurrency_key)
+      expect(described_class.new(subscription, other_story).concurrency_key).not_to eq(described_class.new(subscription, patch_notes).concurrency_key)
+    end
   end
 end

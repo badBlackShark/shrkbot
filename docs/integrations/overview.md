@@ -211,7 +211,7 @@ items.
 - **Freshness.** An item older than 48 hours is ignored before the ledger: not
   recorded, not saved. A watch that was down, or an item that surfaces late, does not
   announce old news, and the old items every list repeats cost no writes.
-- **Invariant.** `FRESHNESS_WINDOW` (48 h) must stay below `Prune::RETENTION` (14 d).
+- **Invariant.** `Event::FRESHNESS_WINDOW` (48 h) must stay below `Prune::RETENTION` (14 d).
   The ledger has to outlive the window, or a pruned item could look unseen and fresh.
 
 Events and ledger rows are written in one transaction; `unique [:watch_id, :type,
@@ -283,7 +283,7 @@ failed (the initializer did not run), not that nobody cares. Stamping it would h
 event from the sweeper for good.
 
 **The sweeper.** `Ops::Integrations::Events::Dispatch` also runs every 5 minutes over
-`Event.stranded`: undispatched events created inside `RecordObservation::FRESHNESS_WINDOW`
+`Event.stranded`: undispatched events created inside `Event::FRESHNESS_WINDOW`
 (48 hours) and more than a minute ago. It catches a crash between the commit and the
 enqueue, and a wiring fix that lands late. The window keeps a late fix from posting old
 news: an undispatched event older than 48 hours is never sent. A partial index on

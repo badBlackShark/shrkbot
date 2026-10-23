@@ -61,4 +61,19 @@ RSpec.describe Ops::Integrations::Events::Dispatch do
       expect(untouched.reload.dispatched_at).to be_nil
     end
   end
+
+  context "when a later event fails to enqueue" do
+    let(:events) { [event, untouched] }
+    let(:handlers) { [handler] }
+
+    before do
+      allow(handler).to receive(:perform_later).with(untouched).and_raise("redis down")
+    end
+
+    it "propagates and stamps neither event, so the sweeper redelivers both" do
+      expect { result }.to raise_error("redis down")
+      expect(event.reload.dispatched_at).to be_nil
+      expect(untouched.reload.dispatched_at).to be_nil
+    end
+  end
 end

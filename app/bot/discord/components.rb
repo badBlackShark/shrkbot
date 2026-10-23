@@ -106,6 +106,7 @@ module Bot
         )
       rescue => e
         Rails.logger.warn("[Components] message #{message_id} left as plain text: #{e.class}: #{e.message}")
+        false
       end
 
       def edit_content(channel_id, message_id, content)

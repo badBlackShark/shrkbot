@@ -107,7 +107,17 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     expect { result }.to change { watch.reload.polled_at }.from(nil)
   end
 
-  it "keeps the freshness window shorter than ledger retention, so an item whose seen row was pruned comes back stale" do
-    expect(described_class::FRESHNESS_WINDOW).to be < Ops::Integrations::Prune::RETENTION
+  context "when dispatching fails" do
+    let(:watch) { create(:integration_watch, primed_at:, failing_since: nil) }
+
+    before do
+      allow(Ops::Integrations::Events::Dispatch).to receive(:call).and_raise("redis down")
+    end
+
+    it "still completes the poll, leaving the events to the sweeper" do
+      expect(result).to be_success
+      expect(watch.reload.polled_at).to be_present
+      expect(watch.failing_since).to be_nil
+    end
   end
 end
