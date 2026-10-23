@@ -12,10 +12,10 @@ RSpec.describe Ops::Integrations::Watches::RecordFailure do
     expect { result }.to change { watch.reload.failing_since }.from(nil)
   end
 
-  it "stores the error message" do
+  it "stores the error class and message" do
     result
 
-    expect(watch.reload.last_error).to eq("api.steampowered.com responded 503")
+    expect(watch.reload.last_error).to eq("Integrations::Unavailable: api.steampowered.com responded 503")
   end
 
   it "stamps polled_at" do

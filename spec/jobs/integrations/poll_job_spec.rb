@@ -3,43 +3,77 @@
 require "rails_helper"
 
 RSpec.describe Integrations::PollJob do
-  subject(:perform) { described_class.perform_now(watch) }
+  subject(:perform) { described_class.perform_now("Integrations::Steam::NewsWatcher") }
 
-  let(:watch) { create(:integration_watch) }
-  let(:watcher) { instance_double(Integrations::Steam::NewsWatcher, observe: events) }
-  let(:events) { [build(:steam_news_event, watch:, subject_key: "g1")] }
+  let!(:first) { create(:integration_watch) }
+  let!(:second) { create(:integration_watch) }
+  let(:watchers) do
+    {
+      first => instance_double(Integrations::Steam::NewsWatcher, observe: []),
+      second => instance_double(Integrations::Steam::NewsWatcher, observe: [])
+    }
+  end
 
   before do
-    allow(Integrations::Steam::NewsWatcher).to receive(:new).with(watch).and_return(watcher)
+    allow(Integrations::Steam::NewsWatcher).to receive(:new) { |watch| watchers.fetch(watch) }
   end
 
-  it "primes a never-polled watch from what the watcher observed" do
-    perform
+  context "with watches of another watcher and a broken watch already polled this hour" do
+    let!(:other) { create(:integration_watch, watcher: "Integrations::Other::Watcher") }
+    let!(:not_due) { create(:integration_watch, failing_since: 30.hours.ago, polled_at: Time.current) }
 
-    expect(watch.reload.primed_at).to be_present
-    expect(watch.seen_items.pluck(:external_id)).to eq(["g1"])
-  end
-
-  context "when the provider is unavailable" do
-    before do
-      allow(watcher).to receive(:observe).and_raise(Integrations::Unavailable, "api.steampowered.com responded 503")
-    end
-
-    it "records the failure on the watch instead of raising" do
+    it "polls every due watch of that watcher and nothing else" do
       perform
 
-      expect(watch.reload).to have_attributes(failing_since: be_present, last_error: "api.steampowered.com responded 503")
+      expect(Integrations::Watch.where.not(primed_at: nil)).to contain_exactly(first, second)
+      expect(Integrations::Watch.where(primed_at: nil)).to contain_exactly(other, not_due)
     end
   end
 
-  context "when the watcher raises something that is not an integration error" do
+  context "when one watch's provider is unavailable" do
     before do
-      allow(watcher).to receive(:observe).and_raise(NoMethodError, "our bug")
+      allow(watchers.fetch(first)).to receive(:observe).and_raise(Integrations::Unavailable, "api.steampowered.com responded 503")
     end
 
-    it "lets it raise and records no failure" do
-      expect { perform }.to raise_error(NoMethodError)
-      expect(watch.reload.failing_since).to be_nil
+    it "records the failure on that watch and still polls the other" do
+      perform
+
+      expect(first.reload).to have_attributes(failing_since: be_present, last_error: "Integrations::Unavailable: api.steampowered.com responded 503")
+      expect(second.reload.primed_at).to be_present
+    end
+  end
+
+  context "when a watcher raises something that is not an integration error" do
+    before do
+      allow(watchers.fetch(first)).to receive(:observe).and_raise(NoMethodError, "our bug")
+    end
+
+    it "records it as a failure without raising and still polls the other" do
+      expect { perform }.not_to raise_error
+      expect(first.reload.last_error).to start_with("NoMethodError: our bug")
+      expect(second.reload.primed_at).to be_present
+    end
+  end
+
+  context "when the provider rate limits every request" do
+    before do
+      watchers.each_value do |watcher|
+        allow(watcher).to receive(:observe).and_raise(Integrations::RateLimited, "slow down")
+      end
+    end
+
+    it "records the failure and stops the batch" do
+      perform
+
+      expect(Integrations::Watch.where.not(failing_since: nil).count).to eq(1)
+      expect(Integrations::Steam::NewsWatcher).to have_received(:new).once
+    end
+  end
+
+  describe "concurrency" do
+    it "runs one job per watcher class and discards the rest" do
+      expect(described_class).to have_attributes(concurrency_on_conflict: :discard, concurrency_duration: 1.hour)
+      expect(described_class.new("A::Watcher").concurrency_key).not_to eq(described_class.new("B::Watcher").concurrency_key)
     end
   end
 end

@@ -17,8 +17,7 @@ module Ops
             primed_at: watch.primed_at || now,
             polled_at: now,
             failing_since: nil,
-            last_error: nil,
-            broken_reported_at: nil
+            last_error: nil
           )
           ok(published)
         end

@@ -8,7 +8,11 @@ module Ops
 
         def call
           now = Time.current
-          watch.update!(failing_since: watch.failing_since || now, last_error: error.message, polled_at: now)
+          watch.update!(
+            failing_since: watch.failing_since || now,
+            last_error: "#{error.class}: #{error.message}",
+            polled_at: now
+          )
           ok
         end
       end

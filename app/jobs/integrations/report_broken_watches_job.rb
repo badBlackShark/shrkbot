@@ -9,7 +9,7 @@ module Integrations
     queue_as :default
 
     def perform
-      watches = Watch.broken.where(broken_reported_at: nil).order(:failing_since).to_a
+      watches = Watch.broken.unreported.order(:failing_since).to_a
       return if watches.empty?
 
       notify_owner(message(watches))

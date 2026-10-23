@@ -152,7 +152,9 @@ Tags are matched in lowercase only, so `[PC]`, `[Corrupted]` and unknown tags st
 literal text.
 
 **Interval.** The poll runs every 10 minutes for every due watch; one request per
-watch, serial.
+watch, serial. Steam's weekly Tuesday maintenance (up to an hour) shows up as a batch of
+failures and dropped ticks, then heals on the next good poll. Posts published in the
+meantime still arrive, as long as the outage stays inside the 24-hour freshness window.
 
 ## Fixtures
 

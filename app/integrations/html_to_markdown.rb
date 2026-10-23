@@ -60,13 +60,20 @@ module Integrations
       when "br" then "\n"
       when "a" then link(node)
       when "img" then lift_image(node)
-      when "code" then wrap(node.text.squish, "`")
+      when "code" then wrap(plain_text(node).squish, "`")
       when "blockquote" then block(quote(node))
-      when "pre" then block(fence(node.text.chomp))
+      when "pre" then block(fence(plain_text(node).chomp))
       when "table" then block(table(node))
       when *BLOCKS then block(children(node))
       else children(node)
       end
+    end
+
+    def plain_text(node)
+      return "\n" if node.element? && node.name == "br"
+      return node.text if node.text?
+
+      node.children.map { |child| plain_text(child) }.join
     end
 
     def block(inner)
@@ -117,7 +124,7 @@ module Integrations
     end
 
     def quote(node)
-      tidy(children(node)).gsub(/^/, "> ")
+      tidy(children(node)).gsub(/\n{2,}/, "\n").gsub(/^/, "> ")
     end
 
     def fence(text)
@@ -134,7 +141,7 @@ module Integrations
     end
 
     def cell_text(cell)
-      cell.text.delete(ZERO_WIDTH).gsub(/\s+/, " ").strip
+      plain_text(cell).delete(ZERO_WIDTH).gsub(/\s+/, " ").strip
     end
 
     def column_widths(rows)

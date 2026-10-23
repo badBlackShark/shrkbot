@@ -77,7 +77,28 @@ RSpec.describe Integrations::ReportBrokenWatchesJob do
     it "stamps every broken watch, listed or not" do
       perform
 
-      expect(Integrations::Watch.broken.where(broken_reported_at: nil)).to be_empty
+      expect(Integrations::Watch.broken.unreported).to be_empty
+    end
+  end
+
+  context "with a watch that broke again after an earlier report" do
+    let!(:broken) do
+      create(
+        :integration_watch,
+        name: "Team Fortress 2",
+        external_id: "440",
+        failing_since: 25.hours.ago,
+        broken_reported_at: 10.days.ago,
+        last_error: "api.steampowered.com responded 503"
+      )
+    end
+
+    it "reports it again" do
+      perform
+
+      expect(Bot::Discord::Components).to have_received(:create_message).with(
+        hash_including(content: a_string_including("Team Fortress 2 (440)"))
+      )
     end
   end
 

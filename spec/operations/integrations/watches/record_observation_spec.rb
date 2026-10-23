@@ -77,15 +77,15 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     end
   end
 
-  context "when the watch was failing and reported broken" do
+  context "when the watch was failing" do
     let(:watch) do
-      create(:integration_watch, primed_at:, failing_since: 30.hours.ago, last_error: "boom", broken_reported_at: 1.hour.ago)
+      create(:integration_watch, primed_at:, failing_since: 30.hours.ago, last_error: "boom")
     end
 
-    it "clears the failure fields and the report stamp" do
+    it "clears the failure fields" do
       result
 
-      expect(watch.reload).to have_attributes(failing_since: nil, last_error: nil, broken_reported_at: nil)
+      expect(watch.reload).to have_attributes(failing_since: nil, last_error: nil)
     end
   end
 

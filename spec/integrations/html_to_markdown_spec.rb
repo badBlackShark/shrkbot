@@ -160,8 +160,8 @@ RSpec.describe Integrations::HtmlToMarkdown do
     context "when it holds paragraphs" do
       let(:html) { "<blockquote><p>one</p><p>two</p></blockquote>" }
 
-      it "keeps a single quoted blank line between them" do
-        expect(markdown).to eq("> one\n>\n> two")
+      it "quotes them without a blank line between" do
+        expect(markdown).to eq("> one\n> two")
       end
     end
   end
@@ -175,11 +175,27 @@ RSpec.describe Integrations::HtmlToMarkdown do
       end
     end
 
+    context "when inline with a line break" do
+      let(:html) { "<code>a<br>b</code>" }
+
+      it "keeps the words apart" do
+        expect(markdown).to eq("`a b`")
+      end
+    end
+
     context "when inside pre" do
       let(:html) { "<pre>a  b\n  c</pre>" }
 
       it "fences the raw text" do
         expect(markdown).to eq("```\na  b\n  c\n```")
+      end
+    end
+
+    context "when inside pre with line breaks" do
+      let(:html) { "<pre>a<br>b<br>  c</pre>" }
+
+      it "keeps each break as a newline" do
+        expect(markdown).to eq("```\na\nb\n  c\n```")
       end
     end
   end
@@ -199,6 +215,14 @@ RSpec.describe Integrations::HtmlToMarkdown do
 
       it "strips the characters and lifts the image" do
         expect(result).to have_attributes(markdown: "```\na  b\n```", image_urls: ["https://example.com/t.png"])
+      end
+    end
+
+    context "with a line break inside a cell" do
+      let(:html) { "<table><tr><td>first<br>second</td></tr></table>" }
+
+      it "turns the break into a space" do
+        expect(markdown).to eq("```\nfirst second\n```")
       end
     end
 
