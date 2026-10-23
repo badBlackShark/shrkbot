@@ -52,9 +52,16 @@ failed call fails once and retrying stays the calling job's decision.
 **The block is mandatory.** `get_json` parses the JSON, yields it, and returns the
 block's value. The block is where the provider's JSON becomes our value objects, and
 a `KeyError`, `TypeError` or `NoMethodError` raised inside it means the provider
-changed its response shape (`NoMethodError` covers a `null` where an object was). Http turns that into `Unavailable`, so the failure surfaces at the transport boundary as
-one error type instead of a `KeyError` or `NoMethodError` deep in a caller. Map with
-`fetch`, never `[]`, so a missing key fails loudly.
+changed its response shape (`NoMethodError` covers a `null` where an object was).
+Http turns that into `Unavailable`, so the failure surfaces at the transport boundary
+as one error type instead of a `KeyError` or `NoMethodError` deep in a caller. Map
+with `fetch`, never `[]`, so a missing key fails loudly.
+
+**Keep the block to mapping.** The rescue can't tell a provider's `null` from a typo
+of ours: a misspelt method in the block also comes out as `Unavailable`, with the
+original message kept. The resource specs run every mapping line against a recorded
+response, so a typo fails there before it ships. Anything that isn't mapping, such
+as a query or a write, belongs after `get_json` returns.
 
 ### Errors
 
