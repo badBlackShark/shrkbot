@@ -19,7 +19,7 @@ module Ops
         private
 
         def continuing?
-          watch.failing_since.present? && watch.polled_at.present? && watch.polled_at > ::Integrations::Watch::DORMANT_AFTER.ago
+          watch.failing_since.present? && watch.polled_at > ::Integrations::Watch::DORMANT_AFTER.ago
         end
       end
     end

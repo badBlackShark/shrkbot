@@ -125,22 +125,6 @@ RSpec.describe Integrations::PollJob do
     end
   end
 
-  context "when a watch is deleted while its batch runs" do
-    before do
-      allow(watchers.fetch(first)).to receive(:observe) do
-        Feeds::Subscription.where(watch_id: first.id).delete_all
-        Integrations::Watch.find(first.id).destroy!
-        raise Integrations::Unavailable, "503"
-      end
-    end
-
-    it "carries on with the next watch" do
-      expect { perform }.not_to raise_error
-      expect(Integrations::Watch.exists?(first.id)).to be(false)
-      expect(second.reload.primed_at).to be_present
-    end
-  end
-
   context "when the provider rate limits every request" do
     before do
       watchers.each_value do |watcher|

@@ -137,13 +137,7 @@ RSpec.describe Integrations::Watch do
     context "without a registered source" do
       subject(:scopes) { [described_class.demanded, described_class.referenced] }
 
-      around do |example|
-        sources = described_class.demand_sources
-        described_class.demand_sources = []
-        example.run
-      ensure
-        described_class.demand_sources = sources
-      end
+      include_context "without demand sources"
 
       it "demands and references nothing" do
         expect(scopes).to all(be_empty)

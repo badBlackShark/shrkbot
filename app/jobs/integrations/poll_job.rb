@@ -37,9 +37,10 @@ module Integrations
 
     def record_failure(watch, error)
       Rails.logger.warn("Integrations: #{watch.watcher} #{watch.external_id} failed: #{error.class}: #{error.message}")
-      Rails.logger.error(error.full_message(highlight: false)) unless error.is_a?(Error)
       current = Watch.find_by(id: watch.id)
       return if current.nil?
+
+      Rails.logger.error(error.full_message(highlight: false)) unless error.is_a?(Error)
 
       Ops::Integrations::Watches::RecordFailure.call(watch: current, error:)
       current

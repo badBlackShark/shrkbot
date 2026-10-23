@@ -31,13 +31,7 @@ RSpec.describe Ops::Integrations::Watches::PruneOrphans do
   end
 
   context "when no demand source is registered" do
-    around do |example|
-      sources = Integrations::Watch.demand_sources
-      Integrations::Watch.demand_sources = []
-      example.run
-    ensure
-      Integrations::Watch.demand_sources = sources
-    end
+    include_context "without demand sources"
 
     it "deletes nothing, because an empty registry means the wiring failed, not that nothing is followed" do
       expect { result }.not_to change(Integrations::Watch, :count)

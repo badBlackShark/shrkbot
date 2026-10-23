@@ -192,8 +192,8 @@ re-registers it after every code reload, and `demand_sources` resets with the re
 `Ops::Integrations::Watches::PruneOrphans` runs daily at 5:35 and destroys each watch
 that is not `referenced`, taking its seen items and events with it. With no registered
 source it deletes nothing: an empty registry means the wiring failed, not that nothing
-is followed. A server that
-switches a plugin off keeps its rows, so its watch stays and is simply not polled.
+is followed. A server that switches a plugin off keeps its rows, so its watch stays
+and is simply not polled.
 
 **Ceiling.** The prune deletes each watch in its own transaction. A subscription or poll
 writing to a watch at the instant it is deleted fails its foreign key. That stops the
@@ -230,7 +230,8 @@ batch ran. The first success clears `failing_since` and `last_error`, so it heal
 itself. `last_error` holds the error's class and message; it is what the DM shows. A
 failure after a gap of more than `Watch::DORMANT_AFTER` (2 hours) starts a new
 `failing_since`: a followed watch is polled at least hourly, so only a watch nobody
-followed has such a gap, and its old outage must not count toward the 24 hours.
+followed has such a gap, and its old outage must not count toward the 24 hours. A
+jobs outage longer than 2 hours restarts the clock too, which only delays the DM.
 
 `ReportBrokenWatchesJob` runs hourly and sends the bot owner **one DM** listing every
 newly broken watch (ten at most, then "and N more"), then stamps them

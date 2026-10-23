@@ -43,7 +43,9 @@ RSpec.describe Feeds::Subscription do
   end
 
   describe "defaults" do
-    subject(:body_length) { create(:feed_subscription).body_length }
+    subject(:body_length) { subscription.body_length }
+
+    let(:subscription) { create(:feed_subscription) }
 
     it "previews the body" do
       expect(body_length).to eq("preview")

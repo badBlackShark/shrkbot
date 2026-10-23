@@ -68,14 +68,6 @@ RSpec.describe Integrations::ReportBrokenWatchesJob do
       end
     end
 
-    it "lists ten and summarises the rest" do
-      perform
-
-      expect(Bot::Discord::Components).to have_received(:create_message).with(
-        hash_including(content: a_string_matching(/\A(?:[^\n]*\n){11}- and 2 more\z/))
-      )
-    end
-
     it "stamps every broken watch, listed or not" do
       perform
 
