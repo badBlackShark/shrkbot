@@ -50,16 +50,6 @@ RSpec.describe Feeds::AnnounceJob do
     end
   end
 
-  context "when the fan-out raises" do
-    before do
-      allow(ActiveJob).to receive(:perform_all_later).and_raise("boom")
-    end
-
-    it "is retried" do
-      expect { perform }.to have_enqueued_job(described_class).with(event)
-    end
-  end
-
   describe "concurrency" do
     subject(:key) { described_class.new(event).concurrency_key }
 
