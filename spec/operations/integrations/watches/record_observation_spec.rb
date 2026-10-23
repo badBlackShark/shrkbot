@@ -92,4 +92,8 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
   it "stamps polled_at" do
     expect { result }.to change { watch.reload.polled_at }.from(nil)
   end
+
+  it "keeps the freshness window shorter than ledger retention, so an item whose seen row was pruned comes back stale" do
+    expect(described_class::FRESHNESS_WINDOW).to be < Ops::Integrations::Prune::RETENTION
+  end
 end
