@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Views::Servers::Moderation::Show < Views::Servers::PluginConfigShow
-  include Phlex::Rails::Helpers::FormWith
-
   def initialize(server_configuration:, user:, context:)
     super(server_configuration:, user:)
     @context = context
@@ -31,19 +29,10 @@ class Views::Servers::Moderation::Show < Views::Servers::PluginConfigShow
   end
 
   def after_config_page
-    sub_plugin_toggle_forms
-  end
-
-  def sub_plugin_toggle_forms
-    PluginCatalog.sub_plugin_keys(:moderation).each do |key|
-      form_with(
-        url: PluginPaths.for(@config, key),
-        method: :patch,
-        id: Components::SubPluginRow.toggle_form_id(key),
-        class: "hidden"
-      ) do
-      end
-    end
+    render Components::SubPluginToggleForms.new(
+      server_configuration: @config,
+      parent: :moderation
+    )
   end
 
   def gate

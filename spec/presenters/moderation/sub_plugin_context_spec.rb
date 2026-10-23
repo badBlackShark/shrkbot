@@ -54,23 +54,6 @@ RSpec.describe Moderation::SubPluginContext do
     end
   end
 
-  describe "#group_enabled?" do
-    subject(:ctx) { described_class.new(config, :spam_protection) }
-
-    context "when moderation plugin activation is enabled" do
-      before do
-        create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-          .update_column(:enabled, true)
-      end
-
-      it { expect(ctx.group_enabled?).to be(true) }
-    end
-
-    context "when moderation plugin is not activated" do
-      it { expect(ctx.group_enabled?).to be(false) }
-    end
-  end
-
   describe "#plugin_enabled?" do
     let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
 

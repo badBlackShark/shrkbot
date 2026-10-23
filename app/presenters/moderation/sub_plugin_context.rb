@@ -7,10 +7,6 @@ module Moderation
       @plugin_key = plugin_key
     end
 
-    def group_enabled?
-      enabled_keys.include?(:moderation)
-    end
-
     def staff_role_present?
       @config.moderation_settings&.staff_role_id.present?
     end
