@@ -9,7 +9,7 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
   let(:primed_at) { 1.day.ago }
   let(:events) { [fresh, stale] }
   let(:fresh) { build(:steam_news_event, watch:, subject_key: "fresh", occurred_at: 1.hour.ago) }
-  let(:stale) { build(:steam_news_event, watch:, subject_key: "stale", occurred_at: 25.hours.ago) }
+  let(:stale) { build(:steam_news_event, watch:, subject_key: "stale", occurred_at: 49.hours.ago) }
 
   it "returns the published events" do
     expect(result.value).to eq([fresh])

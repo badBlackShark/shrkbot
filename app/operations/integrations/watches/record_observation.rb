@@ -4,7 +4,7 @@ module Ops
   module Integrations
     module Watches
       class RecordObservation < ApplicationOperation
-        FRESHNESS_WINDOW = 24.hours
+        FRESHNESS_WINDOW = 48.hours
 
         receives :watch, :events
 

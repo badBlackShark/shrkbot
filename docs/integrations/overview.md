@@ -170,10 +170,10 @@ items.
   already there is skipped.
 - **Priming.** A watch with no `primed_at` has its first list recorded as seen and
   publishes nothing, so following a game does not replay its backlog.
-- **Freshness.** An item older than 24 hours is ignored before the ledger: not
+- **Freshness.** An item older than 48 hours is ignored before the ledger: not
   recorded, not saved. A watch that was down, or an item that surfaces late, does not
   announce old news, and the old items every list repeats cost no writes.
-- **Invariant.** `FRESHNESS_WINDOW` (24 h) must stay below `Prune::RETENTION` (14 d).
+- **Invariant.** `FRESHNESS_WINDOW` (48 h) must stay below `Prune::RETENTION` (14 d).
   The ledger has to outlive the window, or a pruned item could look unseen and fresh.
 
 Events and ledger rows are written in one transaction; `unique [:watch_id, :type,
@@ -183,7 +183,9 @@ Events and ledger rows are written in one transaction; `unique [:watch_id, :type
 
 A watch is **broken** after 24 hours of failures (`failing_since` older than
 `Watch::BROKEN_AFTER`), not after a count: ten failures at ten-minute intervals is a
-100-minute outage, not a dead source. A failing watch is polled normally until it
+100-minute outage, not a dead source. `BROKEN_AFTER` stays below the 48-hour freshness
+window, so the owner hears of a broken watch while the posts from the start of the
+outage can still be delivered. A failing watch is polled normally until it
 breaks. A broken one is retried on the first tick of every clock hour (its last poll
 was in an earlier hour), so retries stay on :00 instead of drifting by however long the
 batch ran. The first success clears `failing_since` and `last_error`, so it heals by
