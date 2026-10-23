@@ -25,3 +25,25 @@ production:
   clear_stale_twilight_struggle_post_failures:
     command: "SolidQueue::FailedExecution.joins(:job).where(solid_queue_jobs: {class_name: \"TwilightStruggle::PostJob\"}).where(created_at: ...48.hours.ago).discard_all_in_batches"
     schedule: every hour at minute 42
+  integrations_steam_news_poll:
+    class: Integrations::DispatchPollsJob
+    args: ["Integrations::Steam::NewsWatcher"]
+    schedule: every 10 minutes
+  integrations_broken_watch_report:
+    class: Integrations::ReportBrokenWatchesJob
+    schedule: every hour at minute 50
+  integrations_prune:
+    command: "Ops::Integrations::Prune.call"
+    schedule: every day at 5:30am
+
+development:
+  integrations_steam_news_poll:
+    class: Integrations::DispatchPollsJob
+    args: ["Integrations::Steam::NewsWatcher"]
+    schedule: every 10 minutes
+  integrations_broken_watch_report:
+    class: Integrations::ReportBrokenWatchesJob
+    schedule: every hour at minute 50
+  integrations_prune:
+    command: "Ops::Integrations::Prune.call"
+    schedule: every day at 5:30am

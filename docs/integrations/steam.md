@@ -1,8 +1,8 @@
 # Steam
 
 Game news and store lookups. Neither endpoint needs an API key or any authentication.
-Everything here is the provider layer (see [overview.md](overview.md)); it stores
-nothing.
+The provider layer (see [overview.md](overview.md)) stores nothing; the news watcher
+below keeps what it fetched as events.
 
 `Integrations::Steam::Client` is the one home for Steam's two hosts (`:api` for
 `api.steampowered.com`, `:store` for `store.steampowered.com`) and is where a Web API
@@ -88,6 +88,71 @@ them, and a 429 surfaces as `RateLimited`. Call them when a person gives you a g
 never from a recurring poll. `store.steampowered.com/api/storesearch/?term=...`
 searches by name and returns images; it was checked live but no resource wraps it,
 and the same caveats apply.
+
+## News watcher
+
+`Integrations::Steam::NewsWatcher` follows one app's news (see Watchers in
+[overview.md](overview.md)).
+
+**Inputs.** `resolve` takes what a person pastes. `Steam::AppReference.parse` reads a
+bare id or `/app/<id>` anywhere in a store, community hub or SteamDB URL, and raises
+`NotFound` for zero or anything else (`/sub/123`, a game name). `Apps#find` then
+names the app.
+
+**Categories to event classes.**
+
+| Item | Event |
+| --- | --- |
+| `feed_type 0` | `ArticlePublished` |
+| tagged `patchnotes` | `PatchNotesPublished` |
+| anything else | `AnnouncementPublished` |
+
+All three are `NewsEvent`s.
+
+**Payload.** `title`, `url`, `author`, `feed_name`, `feed_label`, `body` (Markdown),
+`image_urls` and `story_key`. `url` is the API's `url` as-is. For community posts it
+redirects to the right steamcommunity announcement. The store's
+`/news/app/<id>/view/<gid>` form is a single-page app that answers 200 for a made-up
+gid, so it can't be verified and isn't built.
+
+**Images.** Every image is lifted out of the body into `image_urls`, in order. 94 of
+187 sampled community posts carry images (median 2, max 58); 203 of 213 press items
+carry exactly one, 172 of them at the top.
+
+**Story links.** One update arrives through several feeds (see above), so
+`Steam::Stories` gives them a shared `story_key` for the feed to collapse later.
+
+- Rule: same normalised title (downcased, non-alphanumerics to one space), within 15
+  minutes, and never two items of the same feed in one story.
+- Algorithm: events go in `[occurred_at, subject_key]` order. A re-observed item
+  copies its stored key. Otherwise the candidates are recent and already-assigned
+  events with the same title inside the window; the first of their stories without a
+  member from this event's feed is joined, else the event starts its own story keyed
+  by its `subject_key`.
+- Ceiling: a mirror that lands in a later poll than the item it mirrors still links
+  through the persisted event. One that lands more than 15 minutes later stays a
+  separate story.
+
+**BBCode.** `Steam::Bbcode.to_html` converts `feed_type 1` bodies before
+`HtmlToMarkdown`.
+
+| BBCode | HTML |
+| --- | --- |
+| `p b i u s h1`-`h5` | same name |
+| `strike` / `list` / `olist` / `*` | `s` / `ul` / `ol` / `li` |
+| `quote=author` / `code` / `expand` | `blockquote` / `pre` / `div` (attributes dropped) |
+| `spoiler table tr th td` | same name |
+| `hr` | `hr` |
+| `url`, `img` | `a href`, `img src`; `[url]U[/url]` and `[img]U[/img]` are rewritten to the attribute form first |
+
+`{STEAM_CLAN_IMAGE}` and `{STEAM_CLAN_LOC_IMAGE}` expand to
+`https://clan.akamai.steamstatic.com/images`. `previewyoutube`, `video` (mp4, else
+webm) and `dynamiclink` become a link paragraph: embeds are links, not players.
+Tags are matched in lowercase only, so `[PC]`, `[Corrupted]` and unknown tags stay as
+literal text.
+
+**Interval.** The poll runs every 10 minutes for every due watch; one request per
+watch, serial.
 
 ## Fixtures
 

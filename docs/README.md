@@ -40,8 +40,8 @@ work actually touches.
 
 ## Integrations
 
-- [integrations/overview.md](integrations/overview.md) — the provider layer: why `app/integrations/` is a pushed `Integrations::` namespace (not collapsed, not `lib/`), the one-way dependency rule, `Integrations::Http` and its error hierarchy, the mandatory mapping block, per-endpoint `status_errors`, clients vs resources, and how provider code is tested.
-- [integrations/steam.md](integrations/steam.md) — the Steam provider: the two hosts in `Steam::Client`, the 403 quirk, `maxlength=0` and BBCode bodies, what the news feeds actually contain (tags, press, cross-feed duplicates), and the unofficial rate-limited store lookup.
+- [integrations/overview.md](integrations/overview.md) — the provider layer: why `app/integrations/` is a pushed `Integrations::` namespace (not collapsed, not `lib/`), the one-way dependency rule, `Integrations::Http` and its error hierarchy, the mandatory mapping block, per-endpoint `status_errors`, clients vs resources, watchers and the poll/record/failure pipeline, the Markdown conversion rules, and how provider code is tested.
+- [integrations/steam.md](integrations/steam.md) — the Steam provider: the two hosts in `Steam::Client`, the 403 quirk, `maxlength=0` and BBCode bodies, what the news feeds actually contain (tags, press, cross-feed duplicates), the news watcher (event classes, story links, BBCode), and the unofficial rate-limited store lookup.
 - [integrations/twilight-struggle.md](integrations/twilight-struggle.md) — the twilight-struggle.com API: upsert-by-`external_id`, why result payloads are never persisted, per-server subscriptions and template inheritance, the organiser `admins` contract, and why these messages are plain text.
 
 ## API
