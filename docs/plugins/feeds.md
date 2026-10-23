@@ -55,9 +55,12 @@ removed by the orphan prune once nothing references it.
   releases blocked jobs in enqueue order, so posts come out in time order. A post that
   fails and retries can land late. One key per subscription also covers two copies of
   one story.
-- Both jobs include `ReportsExhaustion`: after 5 failed attempts it enqueues
+- Both jobs include `ReportsExhaustion`: after 9 failed attempts (about 2.5 hours of
+  backoff, so a Discord outage delays a post instead of dropping it) it enqueues
   `ReportExhaustedJob`, which DMs the bot owner the job and its error, and re-raises so
-  the failed job stays in Solid Queue and can be retried by hand. `discard_on` for a
+  the failed job stays in Solid Queue and can be retried by hand. `NotifiesOwner` retries
+  10 times (about 4 hours), so the DM still arrives after the outage that exhausted the
+  job. `discard_on` for a
   deleted event, channel or permission wins over the retry.
 - `Ops::Feeds::Posts::Create` is subject-first (see
   [../bot/message-rendering.md](../bot/message-rendering.md)): it sends the subject as

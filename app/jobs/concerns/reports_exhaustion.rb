@@ -3,7 +3,7 @@
 module ReportsExhaustion
   extend ActiveSupport::Concern
 
-  ATTEMPTS = 5
+  ATTEMPTS = 9
 
   included do
     retry_on StandardError, wait: :polynomially_longer, attempts: ATTEMPTS do |job, error|

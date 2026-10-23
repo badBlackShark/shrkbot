@@ -3,10 +3,11 @@
 module NotifiesOwner
   extend ActiveSupport::Concern
 
+  ATTEMPTS = 10
   MAX_LISTED = 10
 
   included do
-    retry_on StandardError, wait: :polynomially_longer, attempts: 5
+    retry_on StandardError, wait: :polynomially_longer, attempts: ATTEMPTS
     discard_on "Discordrb::Errors::UnknownChannel"
     discard_on "Discordrb::Errors::NoPermission"
   end

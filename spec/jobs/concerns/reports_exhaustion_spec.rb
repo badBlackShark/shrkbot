@@ -29,7 +29,7 @@ RSpec.describe ReportsExhaustion do
   end
 
   context "when attempts remain" do
-    let(:prior_attempts) { 3 }
+    let(:prior_attempts) { ReportsExhaustion::ATTEMPTS - 2 }
 
     it "retries without reporting" do
       expect { attempt }.to have_enqueued_job(job_class)
@@ -38,12 +38,16 @@ RSpec.describe ReportsExhaustion do
   end
 
   context "when the last attempt fails" do
-    let(:prior_attempts) { 4 }
+    let(:prior_attempts) { ReportsExhaustion::ATTEMPTS - 1 }
 
     it "reports the give-up to the owner and re-raises" do
       expect { attempt }.to raise_error("discord is down")
 
       expect(ReportExhaustedJob).to have_received(:perform_later).once.with(a_string_matching(/\AFlakyJob \S+: RuntimeError: discord is down\z/))
     end
+  end
+
+  it "gives up before the owner DM does, so the DM outlives the outage that exhausted the job" do
+    expect(NotifiesOwner::ATTEMPTS).to be > described_class::ATTEMPTS
   end
 end

@@ -20,7 +20,7 @@ RSpec.describe ReportExhaustedJob do
 
     expect(Bot::Discord::Components).to have_received(:create_message).with(
       channel_id: 77,
-      content: "A job gave up after 5 attempts:\n- Feeds::PostJob job-1: RuntimeError: discord is down",
+      content: "A job gave up after 9 attempts:\n- Feeds::PostJob job-1: RuntimeError: discord is down",
       allowed_mentions: {parse: []}
     )
   end
