@@ -7,6 +7,8 @@ class PluginActivation < ApplicationRecord
   validates :plugin_id, uniqueness: {scope: :server_configuration_id}
   validate :enabling_requires_prerequisites
 
+  scope :enabled_for, ->(key) { joins(:plugin).where(enabled: true, plugins: {key: key.to_s}) }
+
   def self.enabled_counts_for(discord_ids)
     joins(:server_configuration)
       .where(server_configurations: {discord_id: discord_ids}, enabled: true)

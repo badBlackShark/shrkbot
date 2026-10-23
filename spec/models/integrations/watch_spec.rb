@@ -113,22 +113,30 @@ RSpec.describe Integrations::Watch do
     end
 
     describe ".demanded" do
+      subject(:demanded) { described_class.demanded }
+
       it "includes only watches an active subscription points at" do
-        expect(described_class.demanded).to contain_exactly(active_watch)
+        expect(demanded).to contain_exactly(active_watch)
       end
 
-      it "chains with other scopes" do
-        expect(described_class.where(id: [inactive_watch.id, orphan_watch.id]).demanded).to be_empty
+      context "when chained onto other scopes" do
+        subject(:demanded) { described_class.where(id: [inactive_watch.id, orphan_watch.id]).demanded }
+
+        it { is_expected.to be_empty }
       end
     end
 
     describe ".referenced" do
+      subject(:referenced) { described_class.referenced }
+
       it "includes every watch any subscription points at, active or not" do
-        expect(described_class.referenced).to contain_exactly(active_watch, inactive_watch)
+        expect(referenced).to contain_exactly(active_watch, inactive_watch)
       end
     end
 
     context "without a registered source" do
+      subject(:scopes) { [described_class.demanded, described_class.referenced] }
+
       around do |example|
         sources = described_class.demand_sources
         described_class.demand_sources = []
@@ -138,7 +146,7 @@ RSpec.describe Integrations::Watch do
       end
 
       it "demands and references nothing" do
-        expect([described_class.demanded, described_class.referenced]).to all(be_empty)
+        expect(scopes).to all(be_empty)
       end
     end
   end
@@ -150,10 +158,16 @@ RSpec.describe Integrations::Watch do
       described_class.demand_sources -= [source]
     end
 
-    it "registers a source once" do
-      2.times { described_class.demanded_by(source) }
+    context "when the same source registers twice" do
+      subject(:registrations) { described_class.demand_sources.count(source) }
 
-      expect(described_class.demand_sources.count(source)).to eq(1)
+      before do
+        2.times { described_class.demanded_by(source) }
+      end
+
+      it "registers it once" do
+        expect(registrations).to eq(1)
+      end
     end
 
     it "is wired to feed subscriptions by the initializer" do

@@ -15,19 +15,15 @@ module Feeds
     validates :watch_id, uniqueness: {scope: :server_configuration_id}
 
     def self.active
-      sources = SOURCE_PLUGINS.map { |watcher, key|
-        unscoped.joins(:watch).where(integration_watches: {watcher:}).where(server_configuration_id: enabled(key))
+      base = where(server_configuration_id: ServerConfiguration.real.select(:id))
+        .where(server_configuration_id: PluginActivation.enabled_for(PLUGIN_KEY).select(:server_configuration_id))
+
+      SOURCE_PLUGINS.map { |watcher, key|
+        base.where(
+          watch_id: Integrations::Watch.where(watcher:).select(:id),
+          server_configuration_id: PluginActivation.enabled_for(key).select(:server_configuration_id)
+        )
       }.reduce(:or)
-
-      joins(:watch)
-        .where(server_configuration_id: ServerConfiguration.real.select(:id))
-        .where(server_configuration_id: enabled(PLUGIN_KEY))
-        .and(sources)
     end
-
-    def self.enabled(key)
-      PluginActivation.joins(:plugin).where(enabled: true, plugins: {key:}).select(:server_configuration_id)
-    end
-    private_class_method :enabled
   end
 end

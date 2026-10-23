@@ -30,6 +30,22 @@ RSpec.describe PluginActivation do
     it { is_expected.to be_valid }
   end
 
+  describe ".enabled_for" do
+    subject(:enabled_for) { described_class.enabled_for(:steam_news) }
+
+    let(:steam_news) { create(:plugin, key: "steam_news") }
+    let!(:enabled) { create(:plugin_activation, server_configuration: server, plugin: steam_news, enabled: true) }
+
+    before do
+      create(:plugin_activation, server_configuration: create(:server_configuration), plugin: steam_news, enabled: false)
+      create(:plugin_activation, server_configuration: server, plugin: create(:plugin, key: "feeds"), enabled: true)
+    end
+
+    it "includes only enabled activations of that plugin" do
+      expect(enabled_for).to contain_exactly(enabled)
+    end
+  end
+
   describe ".enabled_counts_for" do
     subject(:counts) { described_class.enabled_counts_for([server_a.discord_id, server_b.discord_id]) }
 

@@ -43,8 +43,10 @@ RSpec.describe Feeds::Subscription do
   end
 
   describe "defaults" do
+    subject(:body_length) { create(:feed_subscription).body_length }
+
     it "previews the body" do
-      expect(create(:feed_subscription).body_length).to eq("preview")
+      expect(body_length).to eq("preview")
     end
   end
 
@@ -106,8 +108,18 @@ RSpec.describe Feeds::Subscription do
     end
 
     context "when chained onto another condition" do
+      subject(:active) { described_class.where(channel_id: 1).active }
+
       it "keeps both" do
-        expect(described_class.where(channel_id: 1).active).to be_empty
+        expect(active).to be_empty
+      end
+    end
+
+    context "when chained after a join" do
+      subject(:active) { described_class.joins(:server_configuration).active }
+
+      it "includes the subscription" do
+        expect(active).to contain_exactly(subscription)
       end
     end
   end
