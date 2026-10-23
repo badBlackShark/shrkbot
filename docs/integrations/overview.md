@@ -170,9 +170,9 @@ items.
   already there is skipped.
 - **Priming.** A watch with no `primed_at` has its first list recorded as seen and
   publishes nothing, so following a game does not replay its backlog.
-- **Freshness.** An unseen item older than 24 hours is recorded as seen but not
-  saved. A watch that was down, or an item that surfaces late, does not announce old
-  news.
+- **Freshness.** An item older than 24 hours is ignored before the ledger: not
+  recorded, not saved. A watch that was down, or an item that surfaces late, does not
+  announce old news, and the old items every list repeats cost no writes.
 - **Invariant.** `FRESHNESS_WINDOW` (24 h) must stay below `Prune::RETENTION` (14 d).
   The ledger has to outlive the window, or a pruned item could look unseen and fresh.
 

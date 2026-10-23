@@ -10,7 +10,7 @@ module Ops
 
         def call
           now = Time.current
-          unseen = events.reject { |event| seen_ids.include?(event.subject_key) }
+          unseen = fresh_events.reject { |event| seen_ids.include?(event.subject_key) }
           remember(unseen)
           published = publish(unseen)
           watch.update!(
@@ -28,8 +28,12 @@ module Ops
           watch.primed_at.present?
         end
 
+        def fresh_events
+          @fresh_events ||= events.select { |event| event.occurred_at >= FRESHNESS_WINDOW.ago }
+        end
+
         def seen_ids
-          @seen_ids ||= watch.seen_items.where(external_id: events.map(&:subject_key)).pluck(:external_id).to_set
+          @seen_ids ||= watch.seen_items.where(external_id: fresh_events.map(&:subject_key)).pluck(:external_id).to_set
         end
 
         def remember(unseen)
@@ -40,9 +44,7 @@ module Ops
         def publish(unseen)
           return prime(unseen) unless primed?
 
-          fresh = unseen.select { |event| event.occurred_at >= FRESHNESS_WINDOW.ago }
-          log_skipped(unseen.size - fresh.size)
-          fresh.select { |event| persist(event) }
+          unseen.select { |event| persist(event) }
         end
 
         def persist(event)
@@ -55,12 +57,6 @@ module Ops
         def prime(unseen)
           Rails.logger.info("Integrations: primed #{watch.watcher} #{watch.external_id} with #{unseen.size} items")
           []
-        end
-
-        def log_skipped(count)
-          return if count.zero?
-
-          Rails.logger.info("Integrations: skipped #{count} stale items for #{watch.watcher} #{watch.external_id}")
         end
       end
     end

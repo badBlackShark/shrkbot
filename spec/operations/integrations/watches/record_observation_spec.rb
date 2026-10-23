@@ -21,20 +21,20 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     expect(Integrations::Event.where(watch:).pluck(:subject_key)).to eq(["fresh"])
   end
 
-  it "records every unseen item as seen, stale ones included" do
+  it "records fresh unseen items as seen and never writes stale ones" do
     result
 
-    expect(watch.seen_items.pluck(:external_id)).to contain_exactly("fresh", "stale")
+    expect(watch.seen_items.pluck(:external_id)).to eq(["fresh"])
   end
 
   context "when the watch has never been polled" do
     let(:primed_at) { nil }
 
-    it "saves nothing but marks every item seen" do
+    it "saves nothing but marks every fresh item seen" do
       result
 
       expect(Integrations::Event.count).to eq(0)
-      expect(watch.seen_items.pluck(:external_id)).to contain_exactly("fresh", "stale")
+      expect(watch.seen_items.pluck(:external_id)).to eq(["fresh"])
     end
 
     it "stamps primed_at" do
