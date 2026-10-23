@@ -7,6 +7,10 @@ module Feeds
       @event = event
     end
 
+    def eligible?
+      eligible_copy?(event)
+    end
+
     def best?
       best == event
     end
@@ -16,13 +20,25 @@ module Feeds
     attr_reader :subscription, :event
 
     def best
-      candidates.min_by { |candidate| [candidate.is_a?(Integrations::Steam::ArticlePublished) ? 1 : 0, candidate.occurred_at, candidate.id] }
+      candidates
+        .select { |candidate| eligible_copy?(candidate) }
+        .min_by { |candidate| [candidate.secondary ? 1 : 0, candidate.occurred_at, candidate.id] }
+    end
+
+    def eligible_copy?(copy)
+      since = followed_since[copy.type]
+      since.present? && copy.occurred_at >= since
+    end
+
+    def followed_since
+      @followed_since ||= subscription.subscribed_events.pluck(:event_type, :subscribed_since).to_h
     end
 
     def candidates
       Integrations::Event
-        .where(watch_id: event.watch_id, type: subscription.subscribed_events.select(:event_type))
+        .where(watch_id: event.watch_id, type: followed_since.keys)
         .where("payload ->> 'story_key' = ?", event.story_key)
+        .select(:id, :type, :occurred_at)
     end
   end
 end

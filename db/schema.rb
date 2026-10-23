@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_184526) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_23_205105) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -64,6 +64,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_184526) do
   create_table "feed_subscribed_events", id: :string, default: -> { "('fse_'::text || gen_random_uuid())" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "event_type", null: false
+    t.datetime "subscribed_since", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.string "subscription_id", null: false
     t.text "template"
     t.datetime "updated_at", null: false
@@ -135,7 +136,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_184526) do
     t.string "last_error"
     t.string "name", null: false
     t.datetime "polled_at"
-    t.datetime "primed_at"
     t.datetime "updated_at", null: false
     t.string "watcher", null: false
     t.index ["watcher", "external_id"], name: "index_integration_watches_on_watcher_and_external_id", unique: true

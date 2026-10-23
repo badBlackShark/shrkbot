@@ -12,12 +12,13 @@ RSpec.describe Feeds::PostJob do
   let!(:patch_notes) { create(:steam_news_event, watch:, story_key: "story-1") }
   let!(:article) { create(:steam_article_event, watch:, story_key: "story-1") }
   let(:event) { patch_notes }
+  let(:subscribed_since) { 1.day.ago }
 
   before do
     subscribed_types.each do |event_type|
-      create(:feed_subscribed_event, subscription:, event_type:)
+      create(:feed_subscribed_event, subscription:, event_type:, subscribed_since:)
     end
-    allow(Bot::Discord::Components).to receive_messages(create_message: 777_000, convert_to_v2: nil)
+    allow(Bot::Discord::Components).to receive_messages(create_message: 777_000, convert_to_v2: true)
   end
 
   it "posts the story" do
@@ -59,6 +60,26 @@ RSpec.describe Feeds::PostJob do
     end
   end
 
+  context "when the event's type was followed after the event occurred" do
+    let(:subscribed_since) { 1.minute.from_now }
+
+    it "sends nothing" do
+      perform
+
+      expect(Bot::Discord::Components).not_to have_received(:create_message)
+    end
+  end
+
+  context "when the event's type is not followed at all" do
+    let(:subscribed_types) { %w[Integrations::Steam::ArticlePublished] }
+
+    it "sends nothing" do
+      perform
+
+      expect(Bot::Discord::Components).not_to have_received(:create_message)
+    end
+  end
+
   context "when only the article type is subscribed" do
     let(:subscribed_types) { %w[Integrations::Steam::ArticlePublished] }
     let(:event) { article }
@@ -86,11 +107,17 @@ RSpec.describe Feeds::PostJob do
   end
 
   describe "concurrency" do
-    let(:other_story) { create(:steam_news_event, watch:, story_key: "story-2") }
+    subject(:key) { described_class.new(subscription, patch_notes).concurrency_key }
 
-    it "runs copies of one story for one subscription one at a time, and other stories alongside" do
-      expect(described_class.new(subscription, patch_notes).concurrency_key).to eq(described_class.new(subscription, article).concurrency_key)
-      expect(described_class.new(subscription, other_story).concurrency_key).not_to eq(described_class.new(subscription, patch_notes).concurrency_key)
+    let(:other_story) { create(:steam_news_event, watch:, story_key: "story-2") }
+    let(:other_subscription) { create(:feed_subscription, :active, watch:) }
+
+    it "shares a key across the stories of one subscription" do
+      expect(described_class.new(subscription, other_story).concurrency_key).to eq(key)
+    end
+
+    it "differs between subscriptions" do
+      expect(described_class.new(other_subscription, patch_notes).concurrency_key).not_to eq(key)
     end
   end
 end

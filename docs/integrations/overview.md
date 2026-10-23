@@ -206,8 +206,8 @@ items.
 
 - **Ledger.** Every item's `subject_key` goes into `integration_seen_items`. An item
   already there is skipped.
-- **Priming.** A watch with no `primed_at` has its first list recorded as seen and
-  publishes nothing, so following a game does not replay its backlog.
+- **Storing.** A watch saves whatever is fresh and unseen as events, its first poll
+  included. Capabilities decide what to announce; Feeds gates on `subscribed_since`.
 - **Freshness.** An item older than 48 hours is ignored before the ledger: not
   recorded, not saved. A watch that was down, or an item that surfaces late, does not
   announce old news, and the old items every list repeats cost no writes.
@@ -256,7 +256,10 @@ watch that never heals.
 `Integrations::Event` is a single table with STI. The envelope is `watch_id`,
 `subject_key` (the provider's id for the item), `occurred_at` and `type`; everything
 else is `payload` jsonb, exposed per subclass with `store_accessor`. The base class is
-never instantiated. A provider's subclasses are models too and live with the base
+never instantiated. The `secondary` class attribute (default `false`) marks a subclass
+as second-hand coverage of a story another subclass reports first
+(`Steam::ArticlePublished`); capabilities that pick one copy of a story rank it last.
+A provider's subclasses are models too and live with the base
 under `app/models/integrations/<provider>/` (`Integrations::Steam::NewsEvent`).
 
 ## The bus
@@ -275,19 +278,25 @@ code reload and `to_prepare` fills it again.
 
 `RecordObservation` hands the events it saved to `Ops::Integrations::Events::Dispatch`
 in `ActiveRecord.after_all_transactions_commit`, so a handler never runs before the
-event row is visible. Dispatch enqueues `handler.perform_later(event)` for each handler
-and then stamps `dispatched_at`. A failed dispatch leaves the stamp unset.
+event row is visible. Dispatch sorts the events by `occurred_at`, builds one job per
+handler, enqueues them all with `ActiveJob.perform_all_later` (one transaction, so a
+batch is enqueued whole or not at all) and then stamps `dispatched_at`. A failed
+dispatch leaves the stamp unset. Handlers that serialize per key (`limits_concurrency`)
+then process a poll's events oldest first.
 
-**An event with no handler is not stamped.** An empty handler list means the wiring
-failed (the initializer did not run), not that nobody cares. Stamping it would hide the
-event from the sweeper for good.
+**An event with no handler is not stamped.** An empty handler list means nobody is
+wired to it, not that nobody cares. Stamping it would hide the event from the sweeper
+for good. An event class with no handler is a code-only failure, so
+`spec/integrations/bus_spec.rb` fails CI for it; at runtime the event stays unstamped
+for the sweeper.
 
 **The sweeper.** `Ops::Integrations::Events::Dispatch` also runs every 5 minutes over
 `Event.stranded`: undispatched events created inside `Event::FRESHNESS_WINDOW`
-(48 hours) and more than a minute ago. It catches a crash between the commit and the
-enqueue, and a wiring fix that lands late. The window keeps a late fix from posting old
-news: an undispatched event older than 48 hours is never sent. A partial index on
-`created_at WHERE dispatched_at IS NULL` keeps the sweep cheap.
+(48 hours) and more than a minute ago, that also occurred inside the window. It catches
+a crash between the commit and the enqueue, and a wiring fix that lands late. The window
+keeps a late fix from posting old news: an undispatched event that occurred more than
+48 hours ago is never sent. A partial index on `created_at WHERE dispatched_at IS NULL`
+keeps the sweep cheap.
 
 Delivery is at least once: a handler can see an event twice (the sweeper racing the
 commit hook), so handlers must be idempotent. `Feeds::PostJob` is, through its

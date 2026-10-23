@@ -8,6 +8,7 @@ RSpec.describe Feeds::StoryPick do
   let(:subscription) { create(:feed_subscription) }
   let(:watch) { subscription.watch }
   let(:subscribed_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::ArticlePublished] }
+  let(:subscribed_since) { 1.day.ago }
   let!(:patch_notes) { create(:steam_news_event, watch:, story_key: "story-1", occurred_at: 2.hours.ago) }
   let!(:article) { create(:steam_article_event, watch:, story_key: "story-1", occurred_at: 3.hours.ago) }
   let!(:other_story) { create(:steam_news_event, watch:, story_key: "story-2", occurred_at: 5.hours.ago) }
@@ -15,7 +16,7 @@ RSpec.describe Feeds::StoryPick do
 
   before do
     subscribed_types.each do |event_type|
-      create(:feed_subscribed_event, subscription:, event_type:)
+      create(:feed_subscribed_event, subscription:, event_type:, subscribed_since:)
     end
   end
 
@@ -48,9 +49,18 @@ RSpec.describe Feeds::StoryPick do
     end
     let(:subscribed_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
 
-    it "prefers the earliest occurrence" do
-      expect(described_class.new(subscription:, event: announcement)).to be_best
-      expect(described_class.new(subscription:, event: patch_notes)).not_to be_best
+    context "when asked about the earlier one" do
+      let(:event) { announcement }
+
+      it "prefers the earliest occurrence" do
+        expect(pick).to be_best
+      end
+    end
+
+    context "when asked about the later one" do
+      it "defers to the earlier one" do
+        expect(pick).not_to be_best
+      end
     end
   end
 
@@ -58,9 +68,20 @@ RSpec.describe Feeds::StoryPick do
     let!(:twin) { create(:steam_news_event, watch:, story_key: "story-1", occurred_at: patch_notes.occurred_at) }
     let(:winner) { [patch_notes, twin].min_by(&:id) }
 
-    it "falls back to the lowest id" do
-      expect(described_class.new(subscription:, event: winner)).to be_best
-      expect(described_class.new(subscription:, event: ([patch_notes, twin] - [winner]).first)).not_to be_best
+    context "when asked about the lowest id" do
+      let(:event) { winner }
+
+      it "is the best" do
+        expect(pick).to be_best
+      end
+    end
+
+    context "when asked about the other one" do
+      let(:event) { ([patch_notes, twin] - [winner]).first }
+
+      it "defers to the lowest id" do
+        expect(pick).not_to be_best
+      end
     end
   end
 
@@ -86,6 +107,54 @@ RSpec.describe Feeds::StoryPick do
 
     it "is never the best" do
       expect(pick).not_to be_best
+    end
+
+    it "is not eligible" do
+      expect(pick).not_to be_eligible
+    end
+  end
+
+  context "when the event occurred before its type was followed" do
+    let(:subscribed_since) { 1.hour.ago }
+
+    it "is not eligible" do
+      expect(pick).not_to be_eligible
+    end
+
+    it "is not the best" do
+      expect(pick).not_to be_best
+    end
+  end
+
+  context "when the event occurred after its type was followed" do
+    it "is eligible" do
+      expect(pick).to be_eligible
+    end
+  end
+
+  context "when patch notes were followed after they were published but articles before the article was" do
+    let(:event) { article }
+
+    before do
+      subscription.subscribed_events.find_by!(event_type: "Integrations::Steam::PatchNotesPublished").update!(subscribed_since: 1.hour.ago)
+      subscription.subscribed_events.find_by!(event_type: "Integrations::Steam::ArticlePublished").update!(subscribed_since: 4.hours.ago)
+    end
+
+    it "makes the article eligible and the best copy, since the patch notes could never have been received" do
+      expect(pick).to be_eligible
+      expect(pick).to be_best
+    end
+  end
+
+  describe "ranking by the secondary class attribute" do
+    let(:event) { patch_notes }
+
+    context "when the primary copy is the newer one" do
+      let!(:patch_notes) { create(:steam_news_event, watch:, story_key: "story-1", occurred_at: 1.hour.ago) }
+
+      it "still prefers it over the older secondary copy" do
+        expect(pick).to be_best
+      end
     end
   end
 end

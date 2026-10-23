@@ -5,8 +5,7 @@ require "rails_helper"
 RSpec.describe Ops::Integrations::Watches::RecordObservation do
   subject(:result) { described_class.call(watch:, events:) }
 
-  let(:watch) { create(:integration_watch, primed_at:) }
-  let(:primed_at) { 1.day.ago }
+  let(:watch) { create(:integration_watch) }
   let(:events) { [fresh, stale] }
   let(:fresh) { build(:steam_news_event, watch:, subject_key: "fresh", occurred_at: 1.hour.ago) }
   let(:stale) { build(:steam_news_event, watch:, subject_key: "stale", occurred_at: 49.hours.ago) }
@@ -37,22 +36,12 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     expect(watch.seen_items.pluck(:external_id)).to eq(["fresh"])
   end
 
-  context "when the watch has never been polled" do
-    let(:primed_at) { nil }
+  context "on the first poll of a fresh watch" do
+    let(:watch) { create(:integration_watch, polled_at: nil) }
 
-    it "saves nothing but marks every fresh item seen" do
-      result
-
-      expect(Integrations::Event.count).to eq(0)
-      expect(watch.seen_items.pluck(:external_id)).to eq(["fresh"])
-    end
-
-    it "dispatches nothing" do
-      expect { result }.not_to have_enqueued_job(Feeds::AnnounceJob)
-    end
-
-    it "stamps primed_at" do
-      expect { result }.to change { watch.reload.primed_at }.from(nil)
+    it "saves and dispatches its fresh items instead of withholding the backlog" do
+      expect { result }.to have_enqueued_job(Feeds::AnnounceJob).once.with(fresh)
+      expect(Integrations::Event.where(watch:).pluck(:subject_key)).to eq(["fresh"])
     end
   end
 
@@ -93,7 +82,7 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
 
   context "when the watch was failing" do
     let(:watch) do
-      create(:integration_watch, primed_at:, failing_since: 30.hours.ago, last_error: "boom")
+      create(:integration_watch, failing_since: 30.hours.ago, last_error: "boom")
     end
 
     it "clears the failure fields" do
@@ -108,7 +97,7 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
   end
 
   context "when dispatching fails" do
-    let(:watch) { create(:integration_watch, primed_at:, failing_since: nil) }
+    let(:watch) { create(:integration_watch, failing_since: nil) }
 
     before do
       allow(Ops::Integrations::Events::Dispatch).to receive(:call).and_raise("redis down")

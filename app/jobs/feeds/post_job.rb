@@ -2,14 +2,15 @@
 
 module Feeds
   class PostJob < ApplicationJob
+    include ReportsExhaustion
+
     queue_as :default
     limits_concurrency(
       to: 1,
-      key: ->(subscription, event) { "#{subscription.id}-#{event.story_key}" }
+      key: ->(subscription, _event) { subscription.id }
     )
     self.log_arguments = false
 
-    retry_on StandardError, wait: :polynomially_longer, attempts: 5
     discard_on ActiveJob::DeserializationError
     discard_on "Discordrb::Errors::UnknownChannel"
     discard_on "Discordrb::Errors::NoPermission"
@@ -17,7 +18,10 @@ module Feeds
     def perform(subscription, event)
       return log_skipped(event, "the subscription is no longer active") unless Subscription.active.exists?(subscription.id)
       return log_skipped(event, "the story was already posted") if subscription.posts.exists?(story_key: event.story_key)
-      return log_skipped(event, "a better copy of the story is subscribed") unless StoryPick.new(subscription:, event:).best?
+
+      pick = StoryPick.new(subscription:, event:)
+      return log_skipped(event, "the server does not follow this kind of post, or followed it after it was published") unless pick.eligible?
+      return log_skipped(event, "a better copy of the story is followed") unless pick.best?
 
       Ops::Feeds::Posts::Create.call(subscription:, event:)
     end

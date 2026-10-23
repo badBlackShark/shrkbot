@@ -2,6 +2,8 @@
 
 module Integrations
   module Steam
-    class ArticlePublished < NewsEvent; end
+    class ArticlePublished < NewsEvent
+      self.secondary = true
+    end
   end
 end
