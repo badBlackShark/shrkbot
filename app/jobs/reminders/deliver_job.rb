@@ -18,8 +18,12 @@ module Reminders
 
     def deliver(reminder)
       channel_id = deliver_via_dm?(reminder) ? Bot::Discord::Components.dm_channel_id(reminder.user_id) : reminder.channel_id
-      message_id = Bot::Discord::Components.create_message(channel_id:, content: subject(reminder), allowed_mentions: {parse: [], users: [reminder.user_id]})
-      Bot::Discord::Components.convert_to_v2(channel_id, message_id, message(reminder))
+      Bot::Discord::Components.create_with_subject(
+        channel_id:,
+        subject: subject(reminder),
+        rendered: message(reminder),
+        allowed_mentions: {parse: [], users: [reminder.user_id]}
+      )
     end
 
     def subject(reminder)

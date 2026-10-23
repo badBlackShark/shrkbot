@@ -18,13 +18,13 @@ RSpec.describe Feeds::PostJob do
     subscribed_types.each do |event_type|
       create(:feed_subscribed_event, subscription:, event_type:, subscribed_since:)
     end
-    allow(Bot::Discord::Components).to receive_messages(create_message: 777_000, convert_to_v2: true)
+    allow(Bot::Discord::Components).to receive(:create_with_subject).and_return(777_000)
   end
 
   it "posts the story" do
     perform
 
-    expect(Bot::Discord::Components).to have_received(:create_message).once
+    expect(Bot::Discord::Components).to have_received(:create_with_subject).once
     expect(subscription.posts.pluck(:story_key)).to eq(["story-1"])
   end
 
@@ -34,7 +34,7 @@ RSpec.describe Feeds::PostJob do
     it "sends nothing" do
       perform
 
-      expect(Bot::Discord::Components).not_to have_received(:create_message)
+      expect(Bot::Discord::Components).not_to have_received(:create_with_subject)
     end
   end
 
@@ -46,7 +46,7 @@ RSpec.describe Feeds::PostJob do
     it "sends nothing" do
       perform
 
-      expect(Bot::Discord::Components).not_to have_received(:create_message)
+      expect(Bot::Discord::Components).not_to have_received(:create_with_subject)
     end
   end
 
@@ -56,7 +56,7 @@ RSpec.describe Feeds::PostJob do
     it "sends nothing" do
       perform
 
-      expect(Bot::Discord::Components).not_to have_received(:create_message)
+      expect(Bot::Discord::Components).not_to have_received(:create_with_subject)
     end
   end
 
@@ -66,7 +66,7 @@ RSpec.describe Feeds::PostJob do
     it "sends nothing" do
       perform
 
-      expect(Bot::Discord::Components).not_to have_received(:create_message)
+      expect(Bot::Discord::Components).not_to have_received(:create_with_subject)
     end
   end
 
@@ -76,7 +76,7 @@ RSpec.describe Feeds::PostJob do
     it "sends nothing" do
       perform
 
-      expect(Bot::Discord::Components).not_to have_received(:create_message)
+      expect(Bot::Discord::Components).not_to have_received(:create_with_subject)
     end
   end
 
@@ -102,7 +102,7 @@ RSpec.describe Feeds::PostJob do
 
     it "is discarded" do
       expect { perform }.not_to raise_error
-      expect(Bot::Discord::Components).not_to have_received(:create_message)
+      expect(Bot::Discord::Components).not_to have_received(:create_with_subject)
     end
   end
 

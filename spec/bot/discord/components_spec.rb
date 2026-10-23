@@ -60,6 +60,118 @@ RSpec.describe Bot::Discord::Components do
     end
   end
 
+  describe ".create_with_subject" do
+    subject(:create_with_subject) do
+      described_class.create_with_subject(
+        channel_id: 20,
+        subject: "hello there",
+        rendered:,
+        allowed_mentions:,
+        reply_to_id: 500,
+        fallback:
+      )
+    end
+
+    let(:rendered) { described_class.container([described_class.text("hi")]) }
+    let(:allowed_mentions) { {parse: [], users: [1]} }
+    let(:fallback) { nil }
+
+    before do
+      allow(Bot::Config).to receive(:token).and_return("tok")
+      allow(Discordrb::API::Channel).to receive(:create_message).and_return({id: 99}.to_json)
+      allow(Discordrb::API::Channel).to receive(:edit_message)
+      allow(described_class).to receive(:create_message).and_call_original
+    end
+
+    it "creates the plain message with the subject, allowed_mentions and reply reference" do
+      create_with_subject
+
+      expect(described_class).to have_received(:create_message).with(
+        channel_id: 20,
+        content: "hello there",
+        allowed_mentions:,
+        reply_to_id: 500
+      )
+    end
+
+    it "converts it into the rendered container with mentions suppressed" do
+      create_with_subject
+
+      expect(Discordrb::API::Channel).to have_received(:edit_message).with(
+        "Bot tok",
+        20,
+        99,
+        nil,
+        {parse: []},
+        nil,
+        rendered[:components],
+        rendered[:flags]
+      )
+    end
+
+    it "returns the new message id" do
+      expect(create_with_subject).to eq(99)
+    end
+
+    context "with a fallback and a successful conversion" do
+      let(:fallback) { "hello there https://example.test" }
+
+      it "leaves the converted message alone" do
+        create_with_subject
+
+        expect(Discordrb::API::Channel).to have_received(:edit_message).once
+      end
+    end
+
+    context "when the conversion fails" do
+      before do
+        allow(Discordrb::API::Channel).to receive(:edit_message).with("Bot tok", 20, 99, nil, any_args).and_raise("500 oops")
+      end
+
+      it "leaves the plain subject standing when there is no fallback" do
+        create_with_subject
+
+        expect(Discordrb::API::Channel).to have_received(:edit_message).once
+      end
+
+      context "with a fallback" do
+        let(:fallback) { "hello there https://example.test" }
+
+        it "edits the plain message to the fallback" do
+          create_with_subject
+
+          expect(Discordrb::API::Channel).to have_received(:edit_message).with(
+            "Bot tok",
+            20,
+            99,
+            "hello there https://example.test",
+            {parse: []}
+          )
+        end
+
+        context "when the fallback edit fails too" do
+          before do
+            allow(Discordrb::API::Channel).to receive(:edit_message).with("Bot tok", 20, 99, fallback, any_args).and_raise("500 again")
+          end
+
+          it "still returns the message id" do
+            expect(create_with_subject).to eq(99)
+          end
+        end
+      end
+    end
+
+    context "when the create fails" do
+      before do
+        allow(Discordrb::API::Channel).to receive(:create_message).and_raise(Discordrb::Errors::NoPermission)
+      end
+
+      it "raises" do
+        expect { create_with_subject }.to raise_error(Discordrb::Errors::NoPermission)
+      end
+    end
+  end
+
   describe ".dm_channel_id" do
     subject(:dm_channel_id) { described_class.dm_channel_id(10) }
 
@@ -111,11 +223,21 @@ RSpec.describe Bot::Discord::Components do
 
     before do
       allow(Bot::Config).to receive(:rest_token).and_return("Bot tok")
-      allow(Discordrb::API::Channel).to receive(:edit_message).and_raise("500 oops")
+      allow(Discordrb::API::Channel).to receive(:edit_message)
     end
 
-    it "returns false when the conversion fails, so a caller can fall back" do
-      expect(convert_to_v2).to be(false)
+    it "returns true when the conversion succeeds, whatever the API call returns" do
+      expect(convert_to_v2).to be(true)
+    end
+
+    context "when the edit raises" do
+      before do
+        allow(Discordrb::API::Channel).to receive(:edit_message).and_raise("500 oops")
+      end
+
+      it "returns false, so a caller can fall back" do
+        expect(convert_to_v2).to be(false)
+      end
     end
   end
 

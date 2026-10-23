@@ -10,29 +10,24 @@ module Ops
 
         def call
           post = subscription.posts.create!(story_key: event.story_key)
-          message_id = send_subject(post)
-          convert(message_id)
+          message_id = send_announcement(post)
           Rails.logger.info { "#{self.class} posted story #{event.story_key} to subscription #{subscription.id} as message #{message_id} in channel #{subscription.channel_id}." }
           ok(post)
         end
 
         private
 
-        def send_subject(post)
-          ::Bot::Discord::Components.create_message(
+        def send_announcement(post)
+          ::Bot::Discord::Components.create_with_subject(
             channel_id: subscription.channel_id,
-            content: announcement.subject,
-            allowed_mentions:
+            subject: announcement.subject,
+            rendered: announcement.card,
+            allowed_mentions:,
+            fallback: announcement.fallback
           )
         rescue
           post.destroy!
           raise
-        end
-
-        def convert(message_id)
-          return if ::Bot::Discord::Components.convert_to_v2(subscription.channel_id, message_id, announcement.card)
-
-          ::Bot::Discord::Components.edit_content(subscription.channel_id, message_id, announcement.fallback)
         end
 
         def announcement

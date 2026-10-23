@@ -61,12 +61,12 @@ module Lfg
       record = Lfg::Message.find_by(message_id: event.message.id)
       delete_message(record.notify_reply_id) if record&.notify_reply_id
       announcement = "<@#{identity[:creator_id]}> - <@#{newest_id}> is joining!"
-      reply_id = Lfg::PingReply.deliver(
+      reply_id = Bot::Discord::Components.create_with_subject(
         channel_id: event.channel.id,
         reply_to_id: event.message.id,
         subject: announcement,
         allowed_mentions: {parse: [], users: [identity[:creator_id]]},
-        container: Bot::Discord::Components.container([Bot::Discord::Components.text(announcement)])
+        rendered: Bot::Discord::Components.container([Bot::Discord::Components.text(announcement)])
       )
       Ops::Lfg::Message::Update.call(message: record, notify_reply_id: reply_id) if record
     end

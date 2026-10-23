@@ -24,11 +24,11 @@ RSpec.describe Lfg::StartJob do
   before do
     allow(Bot::Config).to receive(:token).and_return("tok")
     allow(Discordrb::API::Channel).to receive(:message).and_return(message_json(joiner_ids:))
-    allow(Lfg::PingReply).to receive(:deliver).and_return(700)
+    allow(Bot::Discord::Components).to receive(:create_with_subject).and_return(700)
   end
 
   it "re-pings the joiners, mentioning them only" do
-    expect(Lfg::PingReply).to receive(:deliver).with(
+    expect(Bot::Discord::Components).to receive(:create_with_subject).with(
       hash_including(channel_id: 20, reply_to_id: 500, allowed_mentions: {parse: [], users: [1, 2]})
     ).and_return(700)
     perform
@@ -40,8 +40,8 @@ RSpec.describe Lfg::StartJob do
   end
 
   it "mentions the joiners in the container so the pinged joiners are named" do
-    expect(Lfg::PingReply).to receive(:deliver) do |**kwargs|
-      content = kwargs[:container][:components].first[:components].first[:content]
+    expect(Bot::Discord::Components).to receive(:create_with_subject) do |**kwargs|
+      content = kwargs[:rendered][:components].first[:components].first[:content]
       expect(content).to include("<@1>").and include("<@2>")
       700
     end
@@ -52,7 +52,7 @@ RSpec.describe Lfg::StartJob do
     let(:joiner_ids) { [] }
 
     it "does not deliver a ping reply" do
-      expect(Lfg::PingReply).not_to receive(:deliver)
+      expect(Bot::Discord::Components).not_to receive(:create_with_subject)
       perform
     end
 
@@ -66,7 +66,7 @@ RSpec.describe Lfg::StartJob do
     before { lfg_message.destroy }
 
     it "still re-pings but records nothing" do
-      expect(Lfg::PingReply).to receive(:deliver).and_return(700)
+      expect(Bot::Discord::Components).to receive(:create_with_subject).and_return(700)
       expect(Ops::Lfg::Message::Update).not_to receive(:call)
       perform
     end
@@ -78,7 +78,7 @@ RSpec.describe Lfg::StartJob do
     end
 
     it "no-ops without raising" do
-      expect(Lfg::PingReply).not_to receive(:deliver)
+      expect(Bot::Discord::Components).not_to receive(:create_with_subject)
       expect { perform }.not_to raise_error
     end
   end
