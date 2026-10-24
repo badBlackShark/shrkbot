@@ -7,6 +7,11 @@ RSpec.describe Ops::Feeds::SubscribedEvents::Resume do
 
   subject(:result) { described_class.call(server_configuration: server, plugin_key:) }
 
+  before do
+    stub_const("Feeds::SOURCE_PLUGINS", Feeds::SOURCE_PLUGINS.merge("Integrations::Other::Watcher" => :other_source))
+    stub_const("Feeds::EVENT_TYPES_BY_SOURCE", Feeds::EVENT_TYPES_BY_SOURCE.merge(other_source: ["Integrations::Steam::PatchNotesPublished"]))
+  end
+
   let(:now) { Time.utc(2026, 10, 23, 12, 0, 0) }
   let(:long_ago) { Time.utc(2026, 10, 1, 12, 0, 0) }
   let(:server) { create(:server_configuration) }

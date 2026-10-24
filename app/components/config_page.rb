@@ -15,8 +15,7 @@ class Components::ConfigPage < Components::Base
   end
 
   def view_template(&block)
-    div(class: "mx-auto max-w-3xl px-6 pb-28 pt-8") do
-      render Components::Breadcrumb.new(breadcrumb_crumbs)
+    render Components::ServerPage.new(server_configuration: @server_configuration, crumbs: trailing_crumbs) do
       form_with(
         url: @url,
         method: :patch,
@@ -31,14 +30,8 @@ class Components::ConfigPage < Components::Base
 
   private
 
-  def breadcrumb_crumbs
-    crumbs = [
-      {label: t(".servers"), href: servers_path},
-      {label: @server_configuration.name || t(".dashboard"), href: PluginPaths.dashboard_for(@server_configuration.discord_id)}
-    ]
-    crumbs << @parent_crumb if @parent_crumb
-    crumbs << {label: @header.title}
-    crumbs
+  def trailing_crumbs
+    [@parent_crumb, {label: @header.title}].compact
   end
 
   def form_data

@@ -59,7 +59,7 @@ class Views::Servers::SteamNews::Subscriptions::Lookup < Views::Base
 
   def existing_message
     p(id: ERROR_ID, class: "text-sm text-text-secondary") do
-      plain t(".errors.already_followed", name: @existing.watch.name)
+      plain t("operations.feeds.subscriptions.already_followed", name: @existing.watch.name)
       plain " "
       a(href: edit_server_steam_news_subscription_path(@config.discord_id, @existing), class: "text-accent-soft-fg underline") { t(".edit_existing") }
     end

@@ -17,7 +17,10 @@ RSpec.describe Feeds do
     expect(described_class::EVENT_TYPES_BY_SOURCE.keys).to match_array(described_class::SOURCE_PLUGINS.values)
   end
 
-  it "leaves articles off by default" do
-    expect(described_class::DEFAULT_EVENT_TYPES).to eq(described_class::EVENT_TYPES - ["Integrations::Steam::ArticlePublished"])
+  it "defaults each source to a subset of its own event types" do
+    by_source = described_class::DEFAULT_EVENT_TYPES_BY_SOURCE
+
+    expect(by_source.keys).to match_array(described_class::EVENT_TYPES_BY_SOURCE.keys)
+    expect(by_source).to all(satisfy { |key, defaults| (defaults - described_class::EVENT_TYPES_BY_SOURCE.fetch(key)).empty? })
   end
 end

@@ -20,7 +20,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
     existing = followed_subscription(lookup.target)
     return render_lookup(input: params[:app], existing:) if existing
 
-    render_new(subscription: build_subscription({body_length: "preview"}, ::Feeds::DEFAULT_EVENT_TYPES), target: lookup.target)
+    render_new(subscription: build_subscription({body_length: "preview"}, ::Feeds::DEFAULT_EVENT_TYPES_BY_SOURCE.fetch(plugin_key)), target: lookup.target)
   end
 
   def create

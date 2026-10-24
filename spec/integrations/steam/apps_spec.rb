@@ -47,6 +47,16 @@ RSpec.describe Integrations::Steam::Apps do
     )
   end
 
+  context "when the app has no header image" do
+    let(:response) do
+      super().tap { |body| body.fetch("1145360").fetch("data").delete("header_image") }
+    end
+
+    it "has no header image url" do
+      expect(app.header_image_url).to be_nil
+    end
+  end
+
   context "when Steam answers success: false" do
     let(:app_id) { 999999999 }
     let(:response) { {"999999999" => {"success" => false}} }

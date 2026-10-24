@@ -28,7 +28,7 @@ class Views::Servers::SteamNews::Subscriptions::Edit < Views::Base
     Components::ConfigPageHeader.new(
       icon: plugin_icon(:steam_news),
       title: @subscription.watch.name,
-      description: t(".description", id: @subscription.watch.external_id)
+      description: t("components.feeds.target_card.steam_news.external_id", id: @subscription.watch.external_id)
     )
   end
 end

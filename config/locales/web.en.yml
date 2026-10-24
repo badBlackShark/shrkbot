@@ -51,12 +51,10 @@ en:
     config_page:
       channel_lost: The channel you configured for %{plugin} was deleted. Choose a
         new channel below to keep it working.
-      dashboard: Dashboard
       disabled: Disabled
       disabled_title: "%{plugin} is disabled"
       enable: Enable %{plugin}
       enabled: Enabled
-      servers: Servers
     confirm_dialog:
       cancel: Cancel
     cookie_notice:
@@ -82,8 +80,10 @@ en:
           help: Posts the developer tagged as patch notes.
           label: Patch notes
       stop_following_button:
-        confirm: Stop following %{name}? shrkbot deletes this server's settings for
-          it. Posts already in Discord stay.
+        confirm: shrkbot deletes this server's settings for this game. Posts already
+          in Discord stay.
+        confirm_button: Stop following and delete settings
+        confirm_title: Stop following %{name}?
         label: Stop following
       subscription_fields:
         channel_label: Channel (required)
@@ -507,6 +507,9 @@ en:
         these settings for real.
       save: Save
       unsaved: Unsaved changes
+    server_page:
+      dashboard: Dashboard
+      servers: Servers
     site_footer:
       link: free and open source
       mid: ". Made with "
@@ -943,12 +946,9 @@ en:
             the Steam games you follow.
           title: Steam News
         subscriptions:
-          edit:
-            description: Steam app %{id}
           lookup:
             edit_existing: Edit its settings
             errors:
-              already_followed: This server already follows %{name}.
               invalid_reference: That doesn't look like a Steam link. Paste a link
                 that contains /app/ followed by a number, or the number alone.
               not_found: Steam has no app with that ID. Check the link and try again.

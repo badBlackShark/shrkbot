@@ -38,7 +38,7 @@ are no preview routes for these pages.
   `Feeds::TargetLookup` calls the watcher's `resolve` and returns the target or one error
   (`invalid_reference`, `not_found`, `unavailable`). A game the server already follows
   links to its edit page; otherwise the follow form renders for the resolved target, with
-  Patch notes and Announcements on and Articles off (`Feeds::DEFAULT_EVENT_TYPES`).
+  Patch notes and Announcements on and Articles off (`Feeds::DEFAULT_EVENT_TYPES_BY_SOURCE`).
   `create` resolves the game again from the hidden `external_id` rather than trusting
   anything the form carries.
 - **Ops.** `Ops::Feeds::Subscriptions::Create` checks the cap, finds or builds the shared

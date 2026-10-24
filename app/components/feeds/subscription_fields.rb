@@ -82,7 +82,7 @@ class Components::Feeds::SubscriptionFields < Components::Base
   end
 
   def followed_types
-    @followed_types ||= @subscription.subscribed_events.map(&:event_type)
+    @followed_types ||= @subscription.subscribed_events.reject(&:marked_for_destruction?).map(&:event_type)
   end
 
   def server_configuration

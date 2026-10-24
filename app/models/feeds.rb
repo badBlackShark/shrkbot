@@ -11,5 +11,10 @@ module Feeds
     ]
   }.freeze
   EVENT_TYPES = EVENT_TYPES_BY_SOURCE.values.flatten.freeze
-  DEFAULT_EVENT_TYPES = (EVENT_TYPES - %w[Integrations::Steam::ArticlePublished]).freeze
+  DEFAULT_EVENT_TYPES_BY_SOURCE = {
+    steam_news: %w[
+      Integrations::Steam::PatchNotesPublished
+      Integrations::Steam::AnnouncementPublished
+    ]
+  }.freeze
 end

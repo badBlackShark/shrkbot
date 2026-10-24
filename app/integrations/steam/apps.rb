@@ -28,7 +28,7 @@ module Integrations
           id: data.fetch("steam_appid"),
           name: data.fetch("name"),
           type: data.fetch("type"),
-          header_image_url: data.fetch("header_image")
+          header_image_url: data["header_image"]
         )
       end
     end

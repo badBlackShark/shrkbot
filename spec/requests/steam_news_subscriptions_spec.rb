@@ -204,13 +204,14 @@ RSpec.describe "Steam News subscriptions", type: :request do
     subject(:update) do
       patch(
         server_steam_news_subscription_path(guild.id, subscription),
-        params: {subscription: {channel_id:, role_id: "", body_length: "full", event_types: {patch_notes => "1", announcements => "1"}}},
+        params: {subscription: {channel_id:, role_id: "", body_length: "full", event_types:}},
         **headers
       )
     end
 
     let(:headers) { turbo }
     let(:channel_id) { "777" }
+    let(:event_types) { {patch_notes => "1", announcements => "1"} }
     let(:followed_since) { 3.days.ago.change(usec: 0) }
     let!(:subscription) { create(:feed_subscription, server_configuration: config, channel_id: 555) }
 
@@ -235,6 +236,19 @@ RSpec.describe "Steam News subscriptions", type: :request do
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include("Channel can&#39;t be blank")
         expect(subscription.reload).to have_attributes(channel_id: 555, body_length: "preview")
+      end
+
+      context "when a followed post type is unchecked" do
+        let(:event_types) { {announcements => "1"} }
+
+        it "re-renders the type as unchecked and keeps it followed in the database" do
+          update
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(checkbox(patch_notes)["checked"]).to be_nil
+          expect(checkbox(announcements)["checked"]).to be_present
+          expect(subscription.subscribed_events.reload.map(&:event_type)).to eq([patch_notes])
+        end
       end
     end
 

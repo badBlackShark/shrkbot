@@ -12,7 +12,12 @@ class Components::Feeds::StopFollowingButton < Components::Base
       size: @size,
       label: t(".label"),
       href: ::Feeds::SubscriptionPaths.for(@subscription),
-      data: {turbo_method: :delete, turbo_confirm: t(".confirm", name: @subscription.watch.name)}
+      data: {
+        turbo_method: :delete,
+        turbo_confirm: t(".confirm"),
+        confirm_title: t(".confirm_title", name: @subscription.watch.name),
+        confirm_button: t(".confirm_button")
+      }
     )
   end
 end

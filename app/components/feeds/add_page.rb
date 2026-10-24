@@ -7,8 +7,7 @@ class Components::Feeds::AddPage < Components::Base
   end
 
   def view_template(&)
-    div(class: "mx-auto max-w-3xl px-6 pb-28 pt-8") do
-      render Components::Breadcrumb.new(crumbs)
+    render Components::ServerPage.new(server_configuration: @config, crumbs:) do
       yield
     end
   end
@@ -17,8 +16,6 @@ class Components::Feeds::AddPage < Components::Base
 
   def crumbs
     [
-      {label: t("components.config_page.servers"), href: servers_path},
-      {label: @config.name || t("components.config_page.dashboard"), href: PluginPaths.dashboard_for(@config.discord_id)},
       {label: PluginCatalog.find(@plugin_key).name, href: PluginPaths.for(@config, @plugin_key)},
       {label: t(".title")}
     ]

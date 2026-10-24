@@ -7,15 +7,11 @@ module Feeds
     end
 
     def self.edit_for(subscription)
-      helpers.public_send("edit_server_#{plugin_key(subscription)}_subscription_path", subscription.server_configuration.discord_id, subscription)
+      helpers.public_send("edit_server_#{subscription.plugin_key}_subscription_path", subscription.server_configuration.discord_id, subscription)
     end
 
     def self.for(subscription)
-      helpers.public_send("server_#{plugin_key(subscription)}_subscription_path", subscription.server_configuration.discord_id, subscription)
-    end
-
-    private_class_method def self.plugin_key(subscription)
-      SOURCE_PLUGINS.fetch(subscription.watch.watcher)
+      helpers.public_send("server_#{subscription.plugin_key}_subscription_path", subscription.server_configuration.discord_id, subscription)
     end
 
     private_class_method def self.helpers
