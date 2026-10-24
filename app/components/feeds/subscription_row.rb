@@ -12,14 +12,16 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def view_template
-    render Components::Card.new(enabled: true, class: "flex flex-wrap items-center gap-4") do
+    render Components::Card.new(enabled: true, class: "flex flex-wrap items-start gap-4") do
       render Components::Feeds::WatchImage.new(url: watch.image_url, size: :sm)
       div(class: "min-w-0 flex-1") do
-        span(class: "font-display font-semibold") { watch.name }
+        p(class: "font-display font-semibold") { watch.name }
         meta
+        div(class: "mt-3 flex flex-wrap items-center justify-between gap-3") do
+          event_badges
+          actions if @edit_href
+        end
       end
-      event_badges
-      actions if @edit_href
       broken_callout if watch.broken?
     end
   end
