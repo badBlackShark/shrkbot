@@ -14,7 +14,7 @@ class Views::Servers::SteamNews::Subscriptions::Edit < Views::Base
       render Components::ConfigPage.new(
         header:,
         server_configuration: @config,
-        url: server_steam_news_subscription_path(@config.discord_id, @subscription),
+        url: ::Feeds::SubscriptionPaths.for(@subscription),
         parent_crumb: {label: PluginCatalog.find(:steam_news).name, href: server_steam_news_path(@config.discord_id)}
       ) do
         render Components::Feeds::SubscriptionForm.new(subscription: @subscription, plugin_key: :steam_news)

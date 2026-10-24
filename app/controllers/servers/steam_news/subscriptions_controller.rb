@@ -137,6 +137,6 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
   end
 
   def subscription_params
-    params.expect(subscription: [:external_id, :channel_id, :role_id, :body_length, event_types: {}])
+    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, :role_id, :body_length, event_types: {}])
   end
 end

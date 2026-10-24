@@ -49,6 +49,11 @@ are no preview routes for these pages.
   event types that were switched off and adds the new ones; a kept type keeps its
   `subscribed_since` and `template`. `Destroy` removes the subscription and leaves the
   watch for the prune.
+- **All post types off is allowed.** It pauses a game without losing its channel, role and
+  length; turning a type back on starts from that moment (`subscribed_since`).
+- **Paths.** `Feeds::SubscriptionPaths` builds the add, edit and subscription paths from
+  the source's plugin key (`new_server_<key>_subscription_path`), so a new source adds a
+  nested `resources :subscriptions`, not new path code.
 - **Cap.** A server follows at most `Feeds::Subscription::MAX_PER_SERVER` (25) games,
   all sources together. The list disables Add at the cap and says why.
 - **Images.** The pages load each game's header image straight from Steam, so the CSP

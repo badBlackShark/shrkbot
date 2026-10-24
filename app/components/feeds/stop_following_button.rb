@@ -11,7 +11,7 @@ class Components::Feeds::StopFollowingButton < Components::Base
       variant: :danger_outline,
       size: @size,
       label: t(".label"),
-      href: server_steam_news_subscription_path(@subscription.server_configuration.discord_id, @subscription),
+      href: ::Feeds::SubscriptionPaths.for(@subscription),
       data: {turbo_method: :delete, turbo_confirm: t(".confirm", name: @subscription.watch.name)}
     )
   end

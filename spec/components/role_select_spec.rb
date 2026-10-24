@@ -43,7 +43,7 @@ RSpec.describe Components::RoleSelect do
     end
 
     it "renders one select that can be left empty" do
-      expect(html).not_to include("multiple")
+      expect(html).not_to match(/<select[^>]*\bmultiple\b/)
       expect(html).to include('<option value=""></option>')
       expect(html).to include('value="10" selected')
     end

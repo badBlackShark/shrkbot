@@ -36,7 +36,7 @@ class Components::Feeds::SubscriptionList < Components::Base
     if at_cap?
       render Components::Button.new(label: t(".#{@plugin_key}.add"), disabled: true, aria_describedby: CAP_REASON_ID)
     else
-      render Components::Button.new(label: t(".#{@plugin_key}.add"), href: add_path)
+      render Components::Button.new(label: t(".#{@plugin_key}.add"), href: ::Feeds::SubscriptionPaths.new_for(@config, @plugin_key))
     end
   end
 
@@ -52,16 +52,8 @@ class Components::Feeds::SubscriptionList < Components::Base
       plugin_key: @plugin_key,
       channel_label: channel_labels[subscription.channel_id],
       role_name: role_names[subscription.role_id],
-      edit_href: (edit_path(subscription) unless @config.preview?)
+      edit_href: (::Feeds::SubscriptionPaths.edit_for(subscription) unless @config.preview?)
     )
-  end
-
-  def add_path
-    new_server_steam_news_subscription_path(@config.discord_id)
-  end
-
-  def edit_path(subscription)
-    edit_server_steam_news_subscription_path(@config.discord_id, subscription)
   end
 
   def at_cap?
