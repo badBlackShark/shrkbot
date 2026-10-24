@@ -3,6 +3,8 @@
 class Components::Feeds::SubscriptionRow < Components::Base
   include Phlex::Rails::Helpers::L
 
+  TITLE = "font-display font-semibold"
+
   def initialize(subscription:, plugin_key:, channel_label:, role_name:, edit_href: nil)
     @subscription = subscription
     @plugin_key = plugin_key
@@ -12,24 +14,34 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def view_template
-    render Components::Card.new(enabled: true, class: "flex flex-wrap items-start gap-4") do
-      render Components::Feeds::WatchImage.new(url: watch.image_url, size: :sm)
+    render Components::Card.new(enabled: true, lift: linked?, class: "relative flex flex-wrap items-center gap-4") do
+      render Components::Feeds::WatchImage.new(url: watch.image_url, size: :list)
       div(class: "min-w-0 flex-1") do
-        p(class: "font-display font-semibold") { watch.name }
+        title
         meta
-        div(class: "mt-3 flex flex-wrap items-center justify-between gap-3") do
-          event_badges
-          actions if @edit_href
-        end
+        event_badges
       end
+      stop_following if linked?
       broken_callout if watch.broken?
     end
   end
 
   private
 
+  def linked?
+    !@edit_href.nil?
+  end
+
   def watch
     @subscription.watch
+  end
+
+  def title
+    if linked?
+      a(href: @edit_href, class: "#{TITLE} block after:absolute after:inset-0 after:rounded-card focus-visible:outline-none focus-visible:after:ring-3 focus-visible:after:ring-[var(--focus-ring)]") { watch.name }
+    else
+      p(class: TITLE) { watch.name }
+    end
   end
 
   def meta
@@ -56,7 +68,7 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def event_badges
-    div(class: "flex flex-wrap gap-1.5") do
+    div(class: "mt-3 flex flex-wrap gap-1.5") do
       event_types.each do |event_type|
         render Components::Badge.new(variant: :brand) { t("components.feeds.event_types.#{event_type.demodulize.underscore}.label") }
       end
@@ -67,10 +79,9 @@ class Components::Feeds::SubscriptionRow < Components::Base
     @subscription.subscribed_events.map(&:event_type).sort_by { |event_type| ::Feeds::EVENT_TYPES_BY_SOURCE.fetch(@plugin_key).index(event_type) }
   end
 
-  def actions
-    div(class: "flex flex-none items-center gap-2") do
-      render Components::Button.new(variant: :secondary, size: :sm, label: t(".edit"), href: @edit_href)
-      render Components::Feeds::StopFollowingButton.new(subscription: @subscription, size: :sm)
+  def stop_following
+    div(class: "relative z-10 self-start") do
+      render Components::Feeds::StopFollowingButton.new(subscription: @subscription, compact: true)
     end
   end
 

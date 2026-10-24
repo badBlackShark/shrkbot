@@ -116,7 +116,6 @@ en:
           heading: Followed games
       subscription_row:
         channel_missing: channel deleted
-        edit: Edit
         no_ping: no ping
         pings: pings @%{role}
         role_missing: pings a role that was deleted

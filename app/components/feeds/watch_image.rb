@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Components::Feeds::WatchImage < Components::Base
-  SIZES = {md: "w-46", sm: "w-30"}.freeze
+  SIZES = {md: "w-46", list: "w-30 sm:w-46"}.freeze
   SHAPE = "aspect-[460/215] flex-none rounded"
 
   def initialize(url:, size: :md)

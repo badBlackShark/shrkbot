@@ -17,11 +17,11 @@ RSpec.describe Components::Feeds::WatchImage do
 
   context "without an image url" do
     let(:url) { nil }
-    let(:size) { :sm }
+    let(:size) { :list }
 
     it "renders a sunken placeholder of the same size instead" do
       expect(html).not_to include("<img")
-      expect(html).to include("bg-surface-sunken", "w-30")
+      expect(html).to include("bg-surface-sunken", "w-30 sm:w-46")
     end
   end
 end
