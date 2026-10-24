@@ -8,6 +8,9 @@ export function install(turbo, doc = document) {
     rememberedLink = event.target.closest?.("a[data-turbo-confirm]") ?? null
   }, true)
 
+  // An open dialog would otherwise be cached into the page snapshot and come back on restore
+  doc.addEventListener("turbo:before-cache", () => doc.getElementById(DIALOG_ID)?.close())
+
   turbo.config.forms.confirm = (message, form, submitter) => {
     const link = rememberedLink
     rememberedLink = null
@@ -17,13 +20,10 @@ export function install(turbo, doc = document) {
 
 export function confirmWith(message, sources, doc = document) {
   const dialog = doc.getElementById(DIALOG_ID)
-  if (!dialog) return Promise.resolve(window.confirm(message))
-
-  const source = sources.find(withCopy)
-  const dataset = source?.dataset ?? {}
-  doc.getElementById("confirm-dialog-title").textContent = dataset.confirmTitle || dialog.dataset.defaultTitle
+  const dataset = sources.find(withCopy)?.dataset ?? {}
+  doc.getElementById("confirm-dialog-title").textContent = dataset.confirmTitle ?? ""
   doc.getElementById("confirm-dialog-body").textContent = message
-  doc.getElementById("confirm-dialog-button").textContent = dataset.confirmButton || dialog.dataset.defaultButton
+  doc.getElementById("confirm-dialog-button").textContent = dataset.confirmButton ?? ""
 
   return new Promise((resolve) => {
     dialog.addEventListener("close", () => resolve(dialog.returnValue === "confirm"), { once: true })

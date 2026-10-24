@@ -6,7 +6,6 @@ const { install, confirmWith } = await import("lib/confirm_dialog")
 function fakeDialog() {
   const dialog = {
     returnValue: "",
-    dataset: { defaultTitle: "Confirm", defaultButton: "Confirm" },
     closeListener: null,
     opened: false,
     addEventListener(type, handler) {
@@ -88,11 +87,11 @@ test("takes title and button from the first source that has copy", async () => {
   await result
 })
 
-test("falls back to the dialog defaults when no source has copy", async () => {
+test("leaves title and button empty when no source has copy", async () => {
   const doc = fakeDoc()
   const result = confirmWith("Sure?", [undefined, plain], doc)
-  assert.equal(doc.elements["confirm-dialog-title"].textContent, "Confirm")
-  assert.equal(doc.elements["confirm-dialog-button"].textContent, "Confirm")
+  assert.equal(doc.elements["confirm-dialog-title"].textContent, "")
+  assert.equal(doc.elements["confirm-dialog-button"].textContent, "")
   doc.dialog.close("")
   await result
 })
@@ -112,11 +111,13 @@ test("uses the clicked turbo-method link when turbo passes only the generated fo
   assert.equal(await result, true)
 })
 
-test("listens for clicks in the capture phase", () => {
+test("closes an open dialog before Turbo caches the page", async () => {
   const turbo = { config: { forms: {} } }
   const doc = fakeDoc()
   install(turbo, doc)
-  assert.equal(doc.listeners.find((listener) => listener.type === "click").capture, true)
+  const result = confirmWith("Sure?", [plain], doc)
+  doc.listeners.find((listener) => listener.type === "turbo:before-cache").handler()
+  assert.equal(await result, false)
 })
 
 test("forgets the link after one confirmation", async () => {
@@ -130,7 +131,7 @@ test("forgets the link after one confirmation", async () => {
   doc.dialog.close("")
   await first
   const second = turbo.config.forms.confirm("Sure?", plain, null)
-  assert.equal(doc.elements["confirm-dialog-title"].textContent, "Confirm")
+  assert.equal(doc.elements["confirm-dialog-title"].textContent, "")
   doc.dialog.close("")
   await second
 })
@@ -144,15 +145,7 @@ test("forgets the link when a later click lands outside any confirm link", async
   click.handler({ target: { closest: () => null } })
 
   const result = turbo.config.forms.confirm("Sure?", plain, null)
-  assert.equal(doc.elements["confirm-dialog-title"].textContent, "Confirm")
+  assert.equal(doc.elements["confirm-dialog-title"].textContent, "")
   doc.dialog.close("")
   await result
-})
-
-test("falls back to window.confirm when the dialog is not mounted", async () => {
-  const doc = { getElementById: () => null }
-  const asked = []
-  globalThis.window = { confirm: (message) => (asked.push(message), true) }
-  assert.equal(await confirmWith("Sure?", [plain], doc), true)
-  assert.deepEqual(asked, ["Sure?"])
 })

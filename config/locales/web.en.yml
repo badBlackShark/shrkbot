@@ -1,7 +1,7 @@
 ---
 en:
   accounts:
-    deleted: Your account and all associated data have been deleted.
+    deleted: shrkbot deleted your account and all data tied to it.
   admin:
     bespoke_plugin_grants:
       granted: Plugin granted.
@@ -58,9 +58,7 @@ en:
       enabled: Enabled
       servers: Servers
     confirm_dialog:
-      button: Confirm
       cancel: Cancel
-      title: Confirm
     cookie_notice:
       dismiss: Oh, nice!
       message: shrkbot only sets technical cookies to make the site work. No tracking,
@@ -699,9 +697,9 @@ en:
           be undone.
         confirm_button: Delete my account
         confirm_title: Delete your account?
-        danger_body: Permanently deletes your account and all data associated with
-          it. Role assignments and server settings belong to their servers and are
-          not affected. This cannot be undone.
+        danger_body: Permanently deletes your account and all data tied to it. Role
+          assignments and server settings belong to their servers and are not affected.
+          This cannot be undone.
         danger_title: Delete account
         reminders:
           one: 1 pending reminder

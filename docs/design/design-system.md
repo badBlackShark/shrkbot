@@ -339,8 +339,9 @@ rest) rather than the old fill-wipe, which has been removed.
 ## Confirmations
 
 Destructive actions use `data-turbo-confirm` (the body text) plus
-`data-confirm-title` and `data-confirm-button`. It works on `button_to` and on
-`turbo_method` links. Never call `window.confirm` directly. `Components::ConfirmDialog`
+`data-confirm-title` and `data-confirm-button`, all three required: the dialog has
+no default copy, so a missing title or button label shows up empty. It works on
+`button_to` and on `turbo_method` links. Never call `window.confirm` directly. `Components::ConfirmDialog`
 is mounted once in the layout, and `lib/confirm_dialog` routes Turbo's confirm
 through it.
 
