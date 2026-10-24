@@ -2,11 +2,6 @@
 
 module Feeds
   class Announcement
-    DEFAULT_TEMPLATES = {
-      "Integrations::Steam::PatchNotesPublished" => "{role} New {game} patch notes: {title}",
-      "Integrations::Steam::AnnouncementPublished" => "{role} New {game} announcement: {title}",
-      "Integrations::Steam::ArticlePublished" => "{role} {feed}: {title}"
-    }.freeze
     SUBJECT_LIMIT = 2000
     TITLE_LIMIT = 256
     LINK_LABEL = "Read the full post"
@@ -36,7 +31,7 @@ module Feeds
     attr_reader :event, :subscription
 
     def template
-      subscription.subscribed_events.where(event_type: event.type).pick(:template).presence || DEFAULT_TEMPLATES.fetch(event.type)
+      subscription.subscribed_events.where(event_type: event.type).pick(:template).presence || Templates.default(event.type)
     end
 
     def tokens

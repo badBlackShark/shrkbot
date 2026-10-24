@@ -59,7 +59,16 @@ are no preview routes for these pages.
 - **Images.** The pages load each game's header image straight from Steam, so the CSP
   `img_src` lists the two Steam image hosts and the privacy policy says Steam sees the
   viewer's IP address. A watch without an `image_url` shows a neutral placeholder.
-- Custom messages are not editable yet: `template` is left untouched everywhere.
+- **Custom messages.** Each post type has a collapsed "Custom message" disclosure
+  (`Components::Feeds::EventTypeSetting`, opens with the toggle through
+  `disclosure#sync`) holding the subject-line template, a placeholder list and a live
+  preview (`feed-preview` controller, `lib/feed_template.js`). `Feeds::Templates.custom`
+  stores `nil` when the text is blank or equals the default. `Feeds::Subscription`
+  rejects a template that renders empty (`Templates.renders_empty?`, role counted only when
+  one is set). Turning a post type off drops its event row, so its custom message goes too.
+- **Volume hints.** The add page (not edit) shows how many of the last 20 news items were
+  each post type (`Integrations::Steam::NewsWatcher.volume`, `Feeds::VolumeLookup`). When
+  Steam fails the lookup returns `nil` and the hints are left out.
 
 ## Tables
 

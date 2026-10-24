@@ -68,6 +68,44 @@ en:
     feeds:
       add_page:
         title: Add a game
+      custom_message_field:
+        empty: This message would post nothing. Add some text, or pick a role to ping.
+        label: Message (optional)
+        placeholders:
+          author: Who wrote the post. Empty when Steam doesn't say.
+          feed: Where the post comes from, such as Community Announcements or a news
+            site.
+          game: The game's name on Steam.
+          intro: 'Placeholders (click one to copy):'
+          role: Mentions the role to ping. Empty when no role is set.
+          title: The post's title.
+          url: Link to the post.
+        preview: Preview
+        reset: Reset to default
+        samples:
+          announcement_published:
+            author: ''
+            body: Here's what we're working on next.
+            feed: Community Announcements
+            title: Our plans for this year
+          article_published:
+            author: Jane Doe
+            body: A first look at the full release.
+            feed: PC Gamer
+            title: Our review of the 1.0 release
+          patch_notes_published:
+            author: ''
+            body: |-
+              Fixed controller vibration on Steam Deck.
+              Rebalanced the second boss.
+            feed: Community Announcements
+            title: 'Patch 1.4: Controller fixes'
+      event_type_setting:
+        summary: Custom message
+        volume:
+          one: 1 of the last %{total} posts.
+          other: "%{count} of the last %{total} posts."
+          zero: None of the last %{total} posts.
       event_types:
         announcement_published:
           help: The developer's other posts on Steam.

@@ -15,6 +15,7 @@ module Feeds
     validates :body_length, inclusion: {in: BODY_LENGTHS}
     validates :channel_id, presence: true
     validates :watch_id, uniqueness: {scope: :server_configuration_id}
+    validate :custom_messages_post_text
 
     def plugin_key
       SOURCE_PLUGINS.fetch(watch.watcher)
@@ -38,6 +39,18 @@ module Feeds
           server_configuration_id: PluginActivation.enabled_for(key).select(:server_configuration_id)
         )
       }.reduce(:or)
+    end
+
+    private
+
+    def custom_messages_post_text
+      return unless association(:subscribed_events).target.any? { |event| keeps_empty_message?(event) }
+
+      errors.add(:base, :custom_message_empty)
+    end
+
+    def keeps_empty_message?(event)
+      event.template && !event.marked_for_destruction? && Templates.renders_empty?(event.template, role_id:)
     end
   end
 end

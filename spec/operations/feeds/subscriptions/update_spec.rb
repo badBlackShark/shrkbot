@@ -9,7 +9,8 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
       channel_id: "999",
       role_id: "",
       body_length: "full",
-      event_types:
+      event_types:,
+      templates:
     )
   end
 
@@ -26,6 +27,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
   end
   let!(:articles) { create(:feed_subscribed_event, subscription:, event_type: "Integrations::Steam::ArticlePublished") }
   let(:event_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
+  let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "new {title}", "Integrations::Steam::AnnouncementPublished" => "fresh {game}"} }
 
   it "updates channel, role and post length" do
     result
@@ -33,10 +35,36 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
     expect(subscription.reload).to have_attributes(channel_id: 999, role_id: nil, body_length: "full")
   end
 
-  it "keeps a followed type's follow time and template" do
+  it "keeps follow time and saves the submitted template" do
     result
 
-    expect(patch_notes.reload).to have_attributes(subscribed_since: followed_since, template: "custom {title}")
+    expect(patch_notes.reload).to have_attributes(subscribed_since: followed_since, template: "new {title}")
+  end
+
+  it "saves the template of a newly checked type" do
+    result
+
+    expect(subscription.subscribed_events.find_by!(event_type: "Integrations::Steam::AnnouncementPublished").template).to eq("fresh {game}")
+  end
+
+  context "with blank or default text" do
+    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "  ", "Integrations::Steam::AnnouncementPublished" => "{role} New {game} announcement: {title}"} }
+
+    it "stores no template" do
+      result
+
+      expect(subscription.subscribed_events.reload.map(&:template)).to all(be_nil)
+    end
+  end
+
+  context "with a template that would post nothing and no role" do
+    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "{role}"} }
+
+    it "fails and writes nothing" do
+      expect(result).to be_failure
+
+      expect(patch_notes.reload.template).to eq("custom {title}")
+    end
   end
 
   it "adds a newly checked type with a fresh follow time" do
@@ -69,7 +97,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
 
   context "when the channel is blank" do
     subject(:result) do
-      described_class.call(subscription:, channel_id: "", body_length: "full", event_types:)
+      described_class.call(subscription:, channel_id: "", body_length: "full", event_types:, templates:)
     end
 
     it "fails and keeps the stored events" do

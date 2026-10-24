@@ -40,6 +40,34 @@ RSpec.describe Feeds::Subscription do
 
       it { is_expected.to be_valid }
     end
+
+    context "with a custom message that renders empty" do
+      let(:role_id) { nil }
+      let(:marked_for_destruction) { false }
+      let!(:event) { subscription.subscribed_events.build(event_type: "Integrations::Steam::PatchNotesPublished", template: "{role}") }
+
+      before do
+        subscription.role_id = role_id
+        event.mark_for_destruction if marked_for_destruction
+      end
+
+      it "is invalid with the reason" do
+        expect(subscription).not_to be_valid
+        expect(subscription.errors.full_messages).to eq(["A custom message would post nothing. Add some text, or pick a role to ping."])
+      end
+
+      context "with a role to ping" do
+        let(:role_id) { 4242 }
+
+        it { is_expected.to be_valid }
+      end
+
+      context "when that post type is being dropped" do
+        let(:marked_for_destruction) { true }
+
+        it { is_expected.to be_valid }
+      end
+    end
   end
 
   describe "defaults" do
