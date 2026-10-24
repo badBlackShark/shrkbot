@@ -17,6 +17,10 @@ module Feeds
     validates :watch_id, uniqueness: {scope: :server_configuration_id}
     validate :custom_messages_post_text
 
+    def follow(event_type, text)
+      subscribed_events.build(event_type:, template: Templates.custom(event_type, text))
+    end
+
     def plugin_key
       SOURCE_PLUGINS.fetch(watch.watcher)
     end

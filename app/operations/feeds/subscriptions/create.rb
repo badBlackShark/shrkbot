@@ -36,12 +36,7 @@ module Ops
             role_id: role_id.presence,
             body_length:
           ).tap do |built|
-            event_types.uniq.each do |event_type|
-              built.subscribed_events.build(
-                event_type:,
-                template: ::Feeds::Templates.custom(event_type, templates[event_type])
-              )
-            end
+            event_types.uniq.each { |event_type| built.follow(event_type, templates[event_type]) }
           end
         end
       end

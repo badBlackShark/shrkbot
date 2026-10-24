@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { text, pill, hint, nodes } from "lib/token_preview"
 import { render as renderMarkdown } from "lib/discord_markdown_dom"
-import { TOKEN, subjectText } from "lib/feed_template"
+import { subjectText, tokenPattern } from "lib/feed_template"
 
 export default class extends Controller {
   static targets = ["template", "output", "role"]
@@ -31,7 +31,7 @@ export default class extends Controller {
       return
     }
 
-    output.append(...renderMarkdown(template, (leaf) => nodes(leaf, TOKEN, (match) => [this.token(match[1], tokens)])))
+    output.append(...renderMarkdown(template, (leaf) => nodes(leaf, tokenPattern(tokens), (match) => [this.token(match[1], tokens)])))
   }
 
   token(name, tokens) {

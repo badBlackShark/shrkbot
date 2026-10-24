@@ -13,14 +13,14 @@ export default class extends Controller {
 
   toggle(event) {
     event.preventDefault()
-    this.set(!this.details.open)
+    this.#set(!this.details.open)
   }
 
   sync(event) {
-    this.set(event.target.checked)
+    this.#set(event.target.checked)
   }
 
-  set(open) {
+  #set(open) {
     this.details.open = open
     localStorage.setItem(this.keyValue, open ? "open" : "closed")
   }

@@ -31,12 +31,7 @@ module Ops
 
         def build_missing_events
           followed = subscription.subscribed_events.map(&:event_type)
-          (event_types.uniq - followed).each do |event_type|
-            subscription.subscribed_events.build(
-              event_type:,
-              template: ::Feeds::Templates.custom(event_type, templates[event_type])
-            )
-          end
+          (event_types.uniq - followed).each { |event_type| subscription.follow(event_type, templates[event_type]) }
         end
       end
     end

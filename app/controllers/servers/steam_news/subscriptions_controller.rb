@@ -98,12 +98,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
 
   def build_subscription(target, attributes, event_types, templates: {})
     @server_configuration.feed_subscriptions.build(attributes.merge(watch: unsaved_watch(target))).tap do |subscription|
-      event_types.each do |event_type|
-        subscription.subscribed_events.build(
-          event_type:,
-          template: ::Feeds::Templates.custom(event_type, templates[event_type])
-        )
-      end
+      event_types.each { |event_type| subscription.follow(event_type, templates[event_type]) }
     end
   end
 

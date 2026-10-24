@@ -1,7 +1,7 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
 
-const { subjectText } = await import("lib/feed_template")
+const { subjectText, tokenPattern } = await import("lib/feed_template")
 
 const tokens = { role: "", game: "Hades", title: "Patch 1.4", author: "" }
 
@@ -11,6 +11,10 @@ test("renders known tokens", () => {
 
 test("leaves unknown tokens literal", () => {
   assert.equal(subjectText("{nope} {title}", tokens), "{nope} Patch 1.4")
+})
+
+test("matches exactly the given token names", () => {
+  assert.deepEqual([..."{game} {nope} {title}".matchAll(tokenPattern(tokens))].map((match) => match[1]), ["game", "title"])
 })
 
 test("is empty when only empty tokens remain", () => {
