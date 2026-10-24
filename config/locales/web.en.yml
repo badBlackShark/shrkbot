@@ -51,12 +51,10 @@ en:
     config_page:
       channel_lost: The channel you configured for %{plugin} was deleted. Choose a
         new channel below to keep it working.
-      dashboard: Dashboard
       disabled: Disabled
       disabled_title: "%{plugin} is disabled"
       enable: Enable %{plugin}
       enabled: Enabled
-      servers: Servers
     confirm_dialog:
       cancel: Cancel
     cookie_notice:
@@ -68,22 +66,67 @@ en:
       copied: Copied!
       copy_failed: Copy failed
     feeds:
+      add_page:
+        title: Add a game
+      event_types:
+        announcement_published:
+          help: The developer's other posts on Steam.
+          label: Announcements
+        article_published:
+          help: Press coverage and blogs that Steam lists for this game. For popular
+            games this is most of the news.
+          label: Articles
+        patch_notes_published:
+          help: Posts the developer tagged as patch notes.
+          label: Patch notes
+      stop_following_button:
+        confirm: shrkbot deletes this server's settings for this game. Posts already
+          in Discord stay.
+        confirm_button: Stop following and delete settings
+        confirm_title: Stop following %{name}?
+        label: Stop following
+      subscription_fields:
+        channel_label: Channel (required)
+        channel_placeholder: Choose a channel
+        length:
+          full:
+            description: Up to about 3,500 characters. Long patch notes fill the channel.
+            title: Full post
+          preview:
+            description: About 500 characters, then a link to the full post.
+            title: Preview
+        length_title: Post length
+        role_label: Role to ping (optional)
+        role_placeholder: No ping
+        steam_news:
+          what_note: Some developers don't tag their patch notes, so their updates
+            arrive as announcements. To get every update, keep Patch notes and Announcements
+            both on.
+        what_title: What to post
+        where_title: Where to post
+      subscription_form:
+        stop_body: No more posts for this game. Posts already in Discord stay.
+        stop_title: Stop following %{name}
       subscription_list:
-        empty_body: Games this server follows show up here.
-        empty_title: No games yet
-        heading: Followed games
+        steam_news:
+          add: Add a game
+          empty_body: Paste a Steam store link and pick a channel. shrkbot posts the
+            game's news there from then on.
+          empty_title: No games yet
+          heading: Followed games
       subscription_row:
-        broken: Steam hasn't answered for this game since %{since} UTC. shrkbot keeps
-          trying every hour, and posts what it missed from the last 48 hours once
-          Steam answers.
         channel_missing: channel deleted
-        event_types:
-          announcement_published: Announcements
-          article_published: Articles
-          patch_notes_published: Patch notes
         no_ping: no ping
         pings: pings @%{role}
         role_missing: pings a role that was deleted
+        steam_news:
+          broken: Steam hasn't answered for this game since %{since} UTC. shrkbot
+            keeps trying every hour, and posts what it missed from the last 48 hours
+            once Steam answers.
+      target_card:
+        change: Not this one?
+        steam_news:
+          external_id: Steam app %{id}
     legal_links:
       imprint: Imprint
       privacy: Privacy policy
@@ -463,6 +506,9 @@ en:
         these settings for real.
       save: Save
       unsaved: Unsaved changes
+    server_page:
+      dashboard: Dashboard
+      servers: Servers
     site_footer:
       link: free and open source
       mid: ". Made with "
@@ -676,7 +722,9 @@ en:
     spam_protection:
       saved: Cross-Channel Spam Guard settings saved.
     steam_news:
+      followed: Now following %{name}.
       saved: Steam News settings saved.
+      unfollowed: Stopped following %{name}.
     twilight_struggle:
       saved: Twilight Struggle settings saved.
       subscribed: Subscribed. Set where and how its results post below.
@@ -896,6 +944,22 @@ en:
           description: Posts new patch notes, announcements and press coverage of
             the Steam games you follow.
           title: Steam News
+        subscriptions:
+          lookup:
+            edit_existing: Edit its settings
+            errors:
+              invalid_reference: That doesn't look like a Steam link. Paste a link
+                that contains /app/ followed by a number, or the number alone.
+              not_found: Steam has no app with that ID. Check the link and try again.
+              unavailable: Steam didn't answer. Try again in a minute.
+            label: Steam link or app ID
+            submit: Look up
+            subtitle: Paste the game's Steam store page, its community hub, or its
+              SteamDB page. An app ID works too.
+            title: Add a game
+          new:
+            cancel: Cancel
+            follow: Follow %{name}
       sub_plugin_show:
         group_locked_reason: Turn %{parent} on first.
         prereq_gate_cta: Go to %{parent}

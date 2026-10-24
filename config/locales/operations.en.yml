@@ -1,6 +1,11 @@
 ---
 en:
   operations:
+    feeds:
+      subscriptions:
+        already_followed: This server already follows %{name}.
+        cap: This server follows %{max} games, the most it can. Stop following one
+          to add another.
     logging:
       moderation_dependency: can't be turned off or lose its channel while Server
         Shield is enabled

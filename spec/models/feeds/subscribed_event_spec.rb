@@ -22,6 +22,22 @@ RSpec.describe Feeds::SubscribedEvent do
     it { is_expected.not_to be_valid }
   end
 
+  context "with another source's event type" do
+    let(:event_type) { "Integrations::Steam::ArticlePublished" }
+
+    before do
+      stub_const(
+        "Feeds::EVENT_TYPES_BY_SOURCE",
+        {
+          steam_news: ["Integrations::Steam::PatchNotesPublished"],
+          other: [event_type]
+        }
+      )
+    end
+
+    it { is_expected.not_to be_valid }
+  end
+
   it "starts following from now" do
     expect(subscribed_event.subscribed_since).to be_within(1.minute).of(Time.current)
   end

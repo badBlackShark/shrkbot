@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Components::Lfg::PingableRoleCard < Components::Base
-  ICON_BUTTON = "flex size-8 flex-none items-center justify-center rounded-md text-text-muted transition-colors"
-
   def initialize(data:, context:)
     @data = data
     @context = context
@@ -40,14 +38,12 @@ class Components::Lfg::PingableRoleCard < Components::Base
   end
 
   def delete_button
-    render Components::Tooltip.new(text: t(".delete")) do
-      button(
-        type: "button",
-        aria_label: t(".delete"),
-        data: {action: "pingable-roles#remove"},
-        class: "#{ICON_BUTTON} hover:bg-danger-soft hover:text-danger"
-      ) { render Components::Icon.new("trash", class: "size-4") }
-    end
+    render Components::IconButton.new(
+      icon: "trash",
+      label: t(".delete"),
+      tone: :danger,
+      data: {action: "pingable-roles#remove"}
+    )
   end
 
   def editor

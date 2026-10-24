@@ -76,6 +76,7 @@ without knowing which provider produced it.
 | --- | --- |
 | `Unauthorized` | 401, 403. Our credentials, not the source's fault. |
 | `NotFound` | 404, 410. |
+| `InvalidReference` | A `NotFound` subclass: the user's input does not name anything on the source (`Steam::AppReference.parse`), so no request was made. |
 | `RateLimited` | 429. `retry_after` is the `Retry-After` header in seconds, or `nil` when the header is absent or an HTTP date. |
 | `Unavailable` | 5xx, timeouts, socket and system-call errors, dropped connections, TLS errors, a malformed HTTP response or header, a corrupt compressed body, a body that is not JSON, a response missing a key or shaped differently from what the mapping expects. Transient. |
 | `Error` | Anything else (other 4xx, 3xx; redirects are not followed). |

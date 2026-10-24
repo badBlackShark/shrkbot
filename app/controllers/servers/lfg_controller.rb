@@ -4,6 +4,7 @@ class Servers::LfgController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
   include VerifiesGuildChannels
+  include VerifiesGuildRoles
 
   def show
     render Views::Servers::Lfg::Show.new(
@@ -53,11 +54,6 @@ class Servers::LfgController < ApplicationController
     feature = Array(lfg_params[:allowed_channel_ids])
     nested = submitted_pingable_roles.flat_map { |attrs| Array(attrs[:allowed_channel_ids]) }
     feature + nested
-  end
-
-  def guild_roles?(role_ids)
-    ids = role_ids.compact_blank.map(&:to_s).uniq
-    ids.empty? || @server_configuration.server_roles.where(discord_id: ids).count == ids.size
   end
 
   def lfg_params

@@ -3,6 +3,7 @@
 class Servers::ModerationController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
+  include VerifiesGuildRoles
 
   before_action :build_context
 
@@ -15,7 +16,7 @@ class Servers::ModerationController < ApplicationController
   end
 
   def update
-    return head :not_found unless guild_role?(moderation_params[:staff_role_id])
+    return head :not_found unless guild_roles?(moderation_params[:staff_role_id])
 
     result = Ops::Moderation::Configure.call(
       server_configuration: @server_configuration,
@@ -31,10 +32,6 @@ class Servers::ModerationController < ApplicationController
 
   def moderation_params
     params.expect(moderation: [:staff_role_id, :enabled, :ping_staff, :new_account_age_days])
-  end
-
-  def guild_role?(role_id)
-    role_id.blank? || @server_configuration.server_roles.exists?(discord_id: role_id)
   end
 
   def build_context

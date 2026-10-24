@@ -3,27 +3,45 @@
 class Components::Feeds::SubscriptionRow < Components::Base
   include Phlex::Rails::Helpers::L
 
-  def initialize(subscription:, channel_label:, role_name:)
+  TITLE = "font-display font-semibold"
+
+  def initialize(subscription:, plugin_key:, channel_label:, role_name:, edit_href: nil)
     @subscription = subscription
+    @plugin_key = plugin_key
     @channel_label = channel_label
     @role_name = role_name
+    @edit_href = edit_href
   end
 
   def view_template
-    render Components::Card.new(enabled: true, class: "flex flex-wrap items-center gap-4") do
+    render Components::Card.new(enabled: true, lift: linked?, class: "relative flex flex-wrap items-center gap-4") do
+      render Components::Feeds::WatchImage.new(url: watch.image_url, size: :list)
       div(class: "min-w-0 flex-1") do
-        span(class: "font-display font-semibold") { watch.name }
+        title
         meta
+        event_badges
       end
-      event_badges
+      stop_following if linked?
       broken_callout if watch.broken?
     end
   end
 
   private
 
+  def linked?
+    !@edit_href.nil?
+  end
+
   def watch
     @subscription.watch
+  end
+
+  def title
+    if linked?
+      a(href: @edit_href, class: "#{TITLE} block after:absolute after:inset-0 after:rounded-card focus-visible:outline-none focus-visible:after:ring-3 focus-visible:after:ring-[var(--focus-ring)]") { watch.name }
+    else
+      p(class: TITLE) { watch.name }
+    end
   end
 
   def meta
@@ -50,20 +68,26 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def event_badges
-    div(class: "flex flex-wrap gap-1.5") do
+    div(class: "mt-3 flex flex-wrap gap-1.5") do
       event_types.each do |event_type|
-        render Components::Badge.new(variant: :brand) { t(".event_types.#{event_type.demodulize.underscore}") }
+        render Components::Badge.new(variant: :brand) { t("components.feeds.event_types.#{event_type.demodulize.underscore}.label") }
       end
     end
   end
 
   def event_types
-    @subscription.subscribed_events.map(&:event_type).sort_by { |event_type| ::Feeds::EVENT_TYPES.index(event_type) }
+    @subscription.subscribed_events.map(&:event_type).sort_by { |event_type| ::Feeds::EVENT_TYPES_BY_SOURCE.fetch(@plugin_key).index(event_type) }
+  end
+
+  def stop_following
+    div(class: "relative z-10 self-start") do
+      render Components::Feeds::StopFollowingButton.new(subscription: @subscription, compact: true)
+    end
   end
 
   def broken_callout
     render Components::Callout.new(variant: :warning, class: "w-full") do
-      t(".broken", since: l(watch.failing_since, format: :long))
+      t(".#{@plugin_key}.broken", since: l(watch.failing_since, format: :long))
     end
   end
 end
