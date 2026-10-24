@@ -18,7 +18,18 @@ data:
 # against the SUBCLASS scope (e.g. logging/welcomes show),
 # which the static file-path scoping above cannot see.
 ignore_missing:
-  - views.servers.moderation.sub_plugin_show.*
+  - views.servers.moderation.sub_plugin_show.role_locked_reason
+  - views.servers.moderation.sub_plugin_show.no_role_callout_lead
+  - views.servers.moderation.sub_plugin_show.no_role_callout_body
+  - views.servers.moderation.sub_plugin_show.no_role_callout_link
+  - views.servers.moderation.sub_plugin_show.no_role_callout_suffix
+  - views.servers.sub_plugin_show.prereq_gate_title
+  - views.servers.sub_plugin_show.prereq_gate_message
+  - views.servers.sub_plugin_show.prereq_gate_cta
+  - views.servers.sub_plugin_show.group_locked_reason
+  - views.servers.sub_plugin_show.subline_prefix
+  - views.servers.sub_plugin_show.subline_link
+  - views.servers.sub_plugin_show.subline_suffix
   - views.servers.plugin_config_show.*
   - components.twilight_struggle.setting_card_base.label
   - components.twilight_struggle.setting_card_base.help
@@ -35,7 +46,7 @@ ignore_missing:
 # 3. Key strings held in a constant and looked up by symbol.
 # 4. The key chosen by a ternary before the `t()` call.
 ignore_unused:
-  # 1. Views::Servers::Moderation::SubPluginShow subclasses
+  # 1. Views::Servers::SubPluginShow subclasses (through Moderation::SubPluginShow)
   - views.servers.spam_protection.show.*
   - views.servers.image_scanning.show.*
   # 1. Views::Servers::PluginConfigShow subclasses

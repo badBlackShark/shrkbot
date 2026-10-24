@@ -7,16 +7,8 @@ module Moderation
       @plugin_key = plugin_key
     end
 
-    def group_enabled?
-      enabled_keys.include?(:moderation)
-    end
-
     def staff_role_present?
       @config.moderation_settings&.staff_role_id.present?
-    end
-
-    def plugin_enabled?
-      enabled_keys.include?(@plugin_key)
     end
 
     def settings
@@ -25,12 +17,6 @@ module Moderation
       else
         @config.image_scanning_settings
       end
-    end
-
-    private
-
-    def enabled_keys
-      @enabled_keys ||= @config.enabled_plugin_keys
     end
   end
 end

@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-class Components::Moderation::SubPluginDirectory < Components::Base
-  def initialize(server_configuration:, context:)
+class Components::SubPluginDirectory < Components::Base
+  def initialize(server_configuration:, rows:, group_enabled:)
     @config = server_configuration
-    @context = context
+    @rows = rows
+    @group_enabled = group_enabled
   end
 
   def view_template
@@ -12,16 +13,16 @@ class Components::Moderation::SubPluginDirectory < Components::Base
         t(".eyebrow")
       end
       div(class: "flex flex-col gap-3") do
-        @context.sub_plugin_rows.each do |row|
-          render Components::Moderation::SubPluginRow.new(
+        @rows.each do |row|
+          render Components::SubPluginRow.new(
             server_configuration: @config,
             key: row.key,
             name: row.name,
             description: row.description,
             enabled: row.enabled,
             configured: row.configured,
-            settings: row.settings,
-            group_enabled: @context.group_enabled?
+            toggle_fields: row.toggle_fields,
+            group_enabled: @group_enabled
           )
         end
       end

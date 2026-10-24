@@ -56,7 +56,15 @@ class Views::Servers::PluginConfigShow < Views::Base
   end
 
   def parent_crumb
-    nil
+    {label: PluginCatalog.find(parent_key).name, href: parent_path} if parent_key
+  end
+
+  def parent_path
+    PluginPaths.for(@config, parent_key)
+  end
+
+  def parent_key
+    PluginCatalog.find(plugin_key)&.parent
   end
 
   def after_config_page

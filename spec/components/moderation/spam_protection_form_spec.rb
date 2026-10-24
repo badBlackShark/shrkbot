@@ -11,8 +11,6 @@ RSpec.describe Components::Moderation::SpamProtectionForm do
     instance_double(
       Moderation::SubPluginContext,
       settings:,
-      plugin_enabled?: true,
-      group_enabled?: true,
       staff_role_present?: true
     )
   end

@@ -107,6 +107,40 @@ RSpec.describe PluginCatalog do
     end
   end
 
+  describe ".visible_sub_plugin_keys" do
+    subject(:keys) { described_class.visible_sub_plugin_keys(:moderation, config) }
+
+    let(:config) { create(:server_configuration) }
+    let(:paid_sub_plugin) { PluginCatalog::Definition.new(key: :paid_scan, name: "Paid", description: "", parent: :moderation, bespoke: true) }
+
+    before do
+      stub_const("PluginCatalog::DEFINITIONS", PluginCatalog::DEFINITIONS + [paid_sub_plugin])
+    end
+
+    it "leaves out a bespoke sub-plugin the server was not granted" do
+      expect(keys).to eq([:spam_protection, :image_scanning])
+    end
+
+    context "when the server was granted it" do
+      before { create(:bespoke_plugin_grant, server_configuration: config, plugin_key: :paid_scan) }
+
+      it "includes it" do
+        expect(keys).to eq([:spam_protection, :image_scanning, :paid_scan])
+      end
+    end
+  end
+
+  describe "sub-plugin setup copy" do
+    let(:needs_setup_possible) { described_class.all.select { |definition| definition.parent && (definition.prerequisite || definition.bespoke) } }
+
+    it "has a locked reason and a setup hint for every sub-plugin that can need setup" do
+      needs_setup_possible.each do |definition|
+        expect(I18n.exists?("components.sub_plugin_row.locked_reason.#{definition.key}")).to be(true), definition.key.to_s
+        expect(I18n.exists?("components.sub_plugin_row.needs_setup_hint.#{definition.key}")).to be(true), definition.key.to_s
+      end
+    end
+  end
+
   describe "moderation group wiring" do
     it "spam_protection has parent :moderation" do
       expect(described_class.find(:spam_protection).parent).to eq(:moderation)

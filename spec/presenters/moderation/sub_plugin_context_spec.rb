@@ -4,7 +4,6 @@ require "rails_helper"
 
 RSpec.describe Moderation::SubPluginContext do
   let(:config) { create(:server_configuration, discord_id: 900_000_001) }
-  let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
 
   before do
     config.create_moderation_settings!
@@ -51,42 +50,6 @@ RSpec.describe Moderation::SubPluginContext do
       it "returns the image_scanning_settings" do
         expect(ctx.settings).to eq(config.image_scanning_settings)
       end
-    end
-  end
-
-  describe "#group_enabled?" do
-    subject(:ctx) { described_class.new(config, :spam_protection) }
-
-    context "when moderation plugin activation is enabled" do
-      before do
-        create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-          .update_column(:enabled, true)
-      end
-
-      it { expect(ctx.group_enabled?).to be(true) }
-    end
-
-    context "when moderation plugin is not activated" do
-      it { expect(ctx.group_enabled?).to be(false) }
-    end
-  end
-
-  describe "#plugin_enabled?" do
-    let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
-
-    subject(:ctx) { described_class.new(config, :spam_protection) }
-
-    context "when the plugin activation is enabled" do
-      before do
-        create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)
-          .update_column(:enabled, true)
-      end
-
-      it { expect(ctx.plugin_enabled?).to be(true) }
-    end
-
-    context "when the plugin has no activation" do
-      it { expect(ctx.plugin_enabled?).to be(false) }
     end
   end
 end

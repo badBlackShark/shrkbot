@@ -83,4 +83,8 @@ class PluginCatalog
   def self.sub_plugin_keys(parent_key)
     all.select { |definition| definition.parent == parent_key }.map(&:key)
   end
+
+  def self.visible_sub_plugin_keys(parent_key, server_configuration)
+    visible_for(server_configuration).select { |definition| definition.parent == parent_key }.map(&:key)
+  end
 end

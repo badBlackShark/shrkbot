@@ -162,18 +162,29 @@ save — config controllers return **422** (not 200) when a save fails validatio
 which is both the correct status and the signal (`turbo:submit-end` reports
 `success: false`) that tells the bar to stay dirty.
 
-### Plugin groups (Server Shield)
+### Plugin groups
 
-A plugin *group* (a parent plus sub-plugins) needs richer chrome than `ConfigPage`
-offers, so the moderation pages use **`Components::Moderation::ConfigShell`** instead:
-same breadcrumb + form + `SaveBar` wiring, but the header enable-toggle has three
-states (interactive, or locked-with-reason inside a `Tooltip`) and the body gate is
-either the standard `EnableGate` (master switch off) or **`Components::PrereqGate`** —
-a variant whose card names the blocking dependency and deep-links to where it's fixed
-(a missing log channel, a disabled parent) instead of offering an Enable button. In
-the sidebar the group renders as **`Components::SidebarGroup`**: a native `<details>`
-disclosure (persisted per user, auto-expanded on an active child) whose parent row is
-a chevron toggle and whose sub-items are plain nav links on an indent rail. A
+A plugin *group* (a parent plus sub-plugins) is derived from `PluginCatalog`: any
+definition with `parent:` set is a sub-plugin, and its parent is the group. Server
+Shield (`:moderation`) is the current one. The pages are
+`Views::Servers::PluginConfigShow` subclasses; its `toggle`, `gate` and
+`parent_crumb` hooks carry the group chrome, and `parent_crumb` defaults to the
+catalog parent. A sub-plugin page subclasses `Views::Servers::SubPluginShow`
+(supplying `plugin_key`, `icon` and `body`, plus its copy: `prereq_gate_*`,
+`group_locked_reason`, `subline_*`). It locks the header toggle with a reason
+inside a `Tooltip` and shows **`Components::PrereqGate`** while the parent is off
+-- a variant of the gate whose card names the blocking dependency and deep-links to
+where it's fixed instead of offering an Enable button -- and no gate once the parent
+is on. A parent page that is not a sub-plugin uses the standard `EnableGate` while
+it is off. In the sidebar every parent with sub-plugins renders as
+**`Components::SidebarGroup`**: a native `<details>` disclosure (persisted per user,
+auto-expanded on an active child) whose parent row is a chevron toggle and whose
+sub-items are plain nav links on an indent rail. The parent's overview lists the
+sub-plugins with `Components::SubPluginDirectory` and `Components::SubPluginRow`;
+the row's `toggle_fields` (input name => value, arrays as one input per element)
+render as hidden inputs so its toggle submits the sub-plugin's full form, through
+the stub forms `Components::SubPluginToggleForms` renders after the page's own form
+(forms cannot nest). A
 sub-plugin can't be enabled until its group prerequisite is met — that requirement
 lives in `PluginCatalog::Definition#prerequisite`, so every enable path (the generic
 toggle, the sidebar/row UI, and the Configure ops) agrees.
