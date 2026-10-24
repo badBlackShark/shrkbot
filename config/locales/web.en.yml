@@ -24,8 +24,10 @@ en:
         none: Not granted to any server yet.
         placeholder: Choose a server
       bespoke_plugin_grant_row:
-        confirm: Revoke this plugin? The server loses the page and its commands, and
-          the plugin is switched off.
+        confirm: The server loses the page and its commands, and the plugin is switched
+          off.
+        confirm_button: Revoke
+        confirm_title: Revoke this plugin?
         revoke: Revoke
       owner_dm_card:
         description: Sends you a Discord DM when shrkbot hits an unexpected error.
@@ -55,6 +57,10 @@ en:
       enable: Enable %{plugin}
       enabled: Enabled
       servers: Servers
+    confirm_dialog:
+      button: Confirm
+      cancel: Cancel
+      title: Confirm
     cookie_notice:
       dismiss: Oh, nice!
       message: shrkbot only sets technical cookies to make the site work. No tracking,
@@ -689,7 +695,10 @@ en:
     accounts:
       show:
         button: Delete my account
-        confirm: Delete your account and all associated data? This cannot be undone.
+        confirm: shrkbot deletes your account and all data tied to it. This cannot
+          be undone.
+        confirm_button: Delete my account
+        confirm_title: Delete your account?
         danger_body: Permanently deletes your account and all data associated with
           it. Role assignments and server settings belong to their servers and are
           not affected. This cannot be undone.

@@ -265,6 +265,8 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Polling hit a bug in shrkbot:` | `Polling hit an unexpected error:` | Deadlocks and statement timeouts land in this report too, and calling them a bug is wrong. |
 | `Server Shield group is disabled` / `Open Server Shield overview` / `Enable the Server Shield group first - its master switch is off.` | `Server Shield is off` / `Go to Server Shield` / `Turn Server Shield on first.` | Every sub-plugin carried its own copy of the group-gate strings, with the parent named three ways ("group", "master switch", "Moderation"). One shared set now names the parent by its catalog name. |
 | `Part of Moderation. Shared settings - staff role and alerts - live on the Moderation overview.` | `Part of Server Shield.` plus, on Server Shield sub-plugins, `Shared settings like the staff role and alerts live on the overview.` | "Moderation" was an old name for Server Shield. The shared-settings aside belongs to Server Shield only, so it is a separate sentence instead of living in the shared subline. |
+| `Delete your account and all associated data? This cannot be undone.` | Title `Delete your account?`, body `shrkbot deletes your account and all data tied to it. This cannot be undone.` | The dialog has a title, so the question moved there and the body says what happens. "Associated" is filler for "tied to", and the body names the actor. |
+| `Revoke this plugin? The server loses the page and its commands, and the plugin is switched off.` | Title `Revoke this plugin?`, body `The server loses the page and its commands, and the plugin is switched off.` | Same split: the question is the title, the body states the consequence without repeating it. |
 
 ## Kept on purpose
 

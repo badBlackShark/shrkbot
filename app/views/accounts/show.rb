@@ -41,7 +41,11 @@ class Views::Accounts::Show < Views::Base
       button_to(
         account_path,
         method: :delete,
-        data: {turbo_confirm: t(".confirm")},
+        data: {
+          turbo_confirm: t(".confirm"),
+          confirm_title: t(".confirm_title"),
+          confirm_button: t(".confirm_button")
+        },
         class: Components::Button.css(variant: :danger_outline)
       ) { t(".button") }
     end

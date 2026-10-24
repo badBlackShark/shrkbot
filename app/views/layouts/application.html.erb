@@ -37,6 +37,7 @@
   <body class="min-h-screen bg-surface-page font-sans text-text-primary antialiased">
     <%= yield %>
     <%= render Components::Toasts.new(flash: flash) %>
+    <%= render Components::ConfirmDialog.new %>
     <%= render Components::CookieNotice.new %>
   </body>
 </html>

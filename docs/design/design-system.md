@@ -336,6 +336,14 @@ entering, `--ease-exit cubic-bezier(.4,0,1,1)` for leaving. A
 darken on hover (`hover:bg-accent-fill-hover` for primary, a sand wash for the
 rest) rather than the old fill-wipe, which has been removed.
 
+## Confirmations
+
+Destructive actions use `data-turbo-confirm` (the body text) plus
+`data-confirm-title` and `data-confirm-button`. It works on `button_to` and on
+`turbo_method` links. Never call `window.confirm` directly. `Components::ConfirmDialog`
+is mounted once in the layout, and `lib/confirm_dialog` routes Turbo's confirm
+through it.
+
 ## Layout: flex, not grid
 
 Use flexbox for layout. Reach for CSS grid only when a layout genuinely can't be
