@@ -7,10 +7,6 @@ class Views::Servers::SteamNews::Show < Views::Servers::SubPluginShow
     :steam_news
   end
 
-  def icon
-    "newspaper"
-  end
-
   def body
     group_subline
     render Components::Feeds::SubscriptionList.new(server_configuration: @config, plugin_key:)

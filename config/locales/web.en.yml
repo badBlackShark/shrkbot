@@ -791,22 +791,12 @@ en:
           description: Reads the text inside posted images and checks it against known
             scam patterns and previously confirmed scam images. Staff confirm or dismiss
             every catch, and the bot remembers.
-          group_locked_reason: Enable the Server Shield group first - its master switch
-            is off.
           no_role_callout_body: Every Moderation sub-plugin needs the shared staff
             role - it's pinged on every alert. Set it on the
           no_role_callout_lead: Pick a staff role first.
           no_role_callout_link: Moderation overview
           no_role_callout_suffix: ", then enable image scanning here."
-          prereq_gate_cta: Open Server Shield overview
-          prereq_gate_message: Image scanning is part of the Moderation group. Enable
-            the group on its overview to configure this page.
-          prereq_gate_title: Server Shield group is disabled
           role_locked_reason: Pick a staff role first.
-          subline_link: Moderation overview
-          subline_prefix: 'Part of Moderation. Shared settings - staff role and alerts
-            - live on the '
-          subline_suffix: "."
           title: Scam Image Detection
       index:
         empty_body: You need Manage Server permissions and shrkbot must be present.
@@ -854,6 +844,9 @@ en:
           title: Server Shield
           toggle_locked_reason: Enable the Logging plugin first - alerts are delivered
             through your log channel.
+        sub_plugin_show:
+          shared_settings_note: Shared settings like the staff role and alerts live
+            on the overview.
       reminders:
         show:
           badge: Global
@@ -884,36 +877,26 @@ en:
           description: Detects the same message blasted across multiple channels within
             seconds and purges it before it spreads. Matching is fingerprint-based
             - message content is never stored.
-          group_locked_reason: Enable the Server Shield group first - its master switch
-            is off.
           no_role_callout_body: Every Moderation sub-plugin needs the shared staff
             role - it's pinged on every alert. Set it on the
           no_role_callout_lead: Pick a staff role first.
           no_role_callout_link: Moderation overview
           no_role_callout_suffix: ", then enable spam protection here."
-          prereq_gate_cta: Open Server Shield overview
-          prereq_gate_message: Cross-Channel Spam Guard is part of the Server Shield
-            group. Enable the group on its overview to configure this page.
-          prereq_gate_title: Server Shield group is disabled
           role_locked_reason: Pick a staff role first.
-          subline_link: Moderation overview
-          subline_prefix: 'Part of Moderation. Shared settings - staff role and alerts
-            - live on the '
-          subline_suffix: "."
           title: Cross-Channel Spam Guard
       steam_news:
         show:
           description: Posts new patch notes, announcements and press coverage of
             the Steam games you follow.
-          group_locked_reason: Turn Feeds on first.
-          prereq_gate_cta: Go to Feeds
-          prereq_gate_message: Steam News is part of Feeds. Turn Feeds on to follow
-            Steam games.
-          prereq_gate_title: Feeds is off
-          subline_link: Feeds
-          subline_prefix: 'Part of '
-          subline_suffix: "."
           title: Steam News
+      sub_plugin_show:
+        group_locked_reason: Turn %{parent} on first.
+        prereq_gate_cta: Go to %{parent}
+        prereq_gate_message: "%{plugin} is part of %{parent}. Turn %{parent} on to
+          configure this page."
+        prereq_gate_title: "%{parent} is off"
+        subline_prefix: 'Part of '
+        subline_suffix: "."
       twilight_struggle:
         destinations:
           edit:

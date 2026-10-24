@@ -3,8 +3,6 @@
 class Components::Feeds::SubscriptionRow < Components::Base
   include Phlex::Rails::Helpers::L
 
-  EVENT_ORDER = ::Feeds::Announcement::DEFAULT_TEMPLATES.keys.freeze
-
   def initialize(subscription:, channel_label:, role_name:)
     @subscription = subscription
     @channel_label = channel_label
@@ -60,7 +58,7 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def event_types
-    @subscription.subscribed_events.map(&:event_type).sort_by { |event_type| EVENT_ORDER.index(event_type) }
+    @subscription.subscribed_events.map(&:event_type).sort_by { |event_type| ::Feeds::EVENT_TYPES.index(event_type) }
   end
 
   def broken_callout

@@ -3,9 +3,13 @@
 require "rails_helper"
 
 RSpec.describe Feeds do
-  it "maps every source to a sub-plugin of the feeds plugin" do
-    parents = described_class::SOURCE_PLUGINS.values.map { |key| PluginCatalog.find(key)&.parent }
+  subject(:sources) { described_class::SOURCE_PLUGINS.values.map { |key| PluginCatalog.find(key) } }
 
-    expect(parents).to all(eq(described_class::PLUGIN_KEY))
+  it "is a plugin in the catalog" do
+    expect(PluginCatalog.find(described_class::PLUGIN_KEY)).to be_present
+  end
+
+  it "maps every source to a sub-plugin of the feeds plugin" do
+    expect(sources).to be_present.and all(have_attributes(parent: described_class::PLUGIN_KEY))
   end
 end

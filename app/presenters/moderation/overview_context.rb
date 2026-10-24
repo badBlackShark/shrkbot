@@ -2,11 +2,6 @@
 
 module Moderation
   class OverviewContext
-    SUB_PLUGINS = {
-      spam_protection: {settings_method: :spam_protection_settings, fields_method: :spam_protection_fields},
-      image_scanning: {settings_method: :image_scanning_settings, fields_method: :image_scanning_fields}
-    }.freeze
-
     def initialize(server_configuration)
       @config = server_configuration
     end
@@ -48,8 +43,8 @@ module Moderation
       role.present? && !role.manage_messages?
     end
 
-    def sub_plugin_rows
-      SubPluginStatus.rows(@config, parent: :moderation, enabled_keys:) { |key| toggle_fields(key) }
+    def toggle_fields(key)
+      send(:"#{key}_fields", @config.public_send(:"#{key}_settings"))
     end
 
     def logging_channel_name
@@ -62,12 +57,6 @@ module Moderation
 
     def enabled_keys
       @enabled_keys ||= @config.enabled_plugin_keys
-    end
-
-    def toggle_fields(key)
-      table = SUB_PLUGINS.fetch(key)
-      settings = @config.public_send(table[:settings_method])
-      settings ? send(table[:fields_method], settings) : {}
     end
 
     def spam_protection_fields(settings)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_23_205105) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_24_143309) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -69,6 +69,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_23_205105) do
     t.text "template"
     t.datetime "updated_at", null: false
     t.index ["subscription_id", "event_type"], name: "index_feed_subscribed_events_on_subscription_id_and_event_type", unique: true
+    t.check_constraint "event_type::text = ANY (ARRAY['Integrations::Steam::PatchNotesPublished'::character varying, 'Integrations::Steam::AnnouncementPublished'::character varying, 'Integrations::Steam::ArticlePublished'::character varying]::text[])", name: "feed_subscribed_events_event_type"
   end
 
   create_table "feed_subscriptions", id: :string, default: -> { "('fds_'::text || gen_random_uuid())" }, force: :cascade do |t|

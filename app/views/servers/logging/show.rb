@@ -7,10 +7,6 @@ class Views::Servers::Logging::Show < Views::Servers::PluginConfigShow
     :logging
   end
 
-  def icon
-    "scroll"
-  end
-
   def body
     render Components::Logging::ConfigForm.new(server_configuration: @config)
   end

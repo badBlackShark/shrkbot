@@ -7,10 +7,6 @@ class Views::Servers::Feeds::Show < Views::Servers::PluginConfigShow
     :feeds
   end
 
-  def icon
-    "rss"
-  end
-
   def body
     render Components::Feeds::Overview.new(server_configuration: @config)
   end

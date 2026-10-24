@@ -86,7 +86,7 @@ class PluginCatalog
     all.select { |definition| definition.parent == parent_key }.map(&:key)
   end
 
-  def self.visible_sub_plugin_keys(parent_key, server_configuration)
-    visible_for(server_configuration).select { |definition| definition.parent == parent_key }.map(&:key)
+  def self.visible_sub_plugin_keys(parent_key, server_configuration, visible: visible_for(server_configuration))
+    visible.select { |definition| definition.parent == parent_key }.map(&:key)
   end
 end

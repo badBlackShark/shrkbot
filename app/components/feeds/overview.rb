@@ -8,17 +8,7 @@ class Components::Feeds::Overview < Components::Base
 
   def view_template
     render Components::ConfigSections.new(key: "feeds", enable_error: @enable_error) do
-      render Components::SubPluginDirectory.new(
-        server_configuration: @config,
-        rows: SubPluginStatus.rows(@config, parent: :feeds, enabled_keys:),
-        group_enabled: enabled_keys.include?(:feeds)
-      )
+      render Components::SubPluginDirectory.new(server_configuration: @config, parent: :feeds)
     end
-  end
-
-  private
-
-  def enabled_keys
-    @enabled_keys ||= @config.enabled_plugin_keys
   end
 end

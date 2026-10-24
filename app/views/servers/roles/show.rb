@@ -7,10 +7,6 @@ class Views::Servers::Roles::Show < Views::Servers::PluginConfigShow
     :roles
   end
 
-  def icon
-    "users-three"
-  end
-
   def body
     render Components::Roles::ConfigForm.new(server_configuration: @config)
   end

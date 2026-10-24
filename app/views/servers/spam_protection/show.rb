@@ -7,10 +7,6 @@ class Views::Servers::SpamProtection::Show < Views::Servers::Moderation::SubPlug
     :spam_protection
   end
 
-  def icon
-    "megaphone-slash"
-  end
-
   def form
     Components::Moderation::SpamProtectionForm.new(context: @context)
   end

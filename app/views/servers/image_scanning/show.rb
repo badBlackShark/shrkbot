@@ -7,10 +7,6 @@ class Views::Servers::ImageScanning::Show < Views::Servers::Moderation::SubPlugi
     :image_scanning
   end
 
-  def icon
-    "scan"
-  end
-
   def form
     Components::Moderation::ImageScanningForm.new(context: @context)
   end

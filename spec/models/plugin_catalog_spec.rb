@@ -130,8 +130,18 @@ RSpec.describe PluginCatalog do
     end
   end
 
+  describe ".visible_sub_plugin_keys with a precomputed visible list" do
+    subject(:keys) { described_class.visible_sub_plugin_keys(:moderation, nil, visible:) }
+
+    let(:visible) { [described_class.find(:image_scanning), described_class.find(:logging)] }
+
+    it "selects the parent's sub-plugins from it without loading grants" do
+      expect(keys).to eq([:image_scanning])
+    end
+  end
+
   describe "sub-plugin setup copy" do
-    let(:needs_setup_possible) { described_class.all.select { |definition| definition.parent && (definition.prerequisite || definition.bespoke) } }
+    let(:needs_setup_possible) { described_class.all.select { |definition| definition.parent && (definition.prerequisite || definition.bespoke || definition.channel_backed? || definition.requires_plugin) } }
 
     it "has a locked reason and a setup hint for every sub-plugin that can need setup" do
       needs_setup_possible.each do |definition|

@@ -7,10 +7,6 @@ class Views::Servers::Lfg::Show < Views::Servers::PluginConfigShow
     :lfg
   end
 
-  def icon
-    "game-controller"
-  end
-
   def body
     render Components::Lfg::ConfigForm.new(server_configuration: @config)
   end

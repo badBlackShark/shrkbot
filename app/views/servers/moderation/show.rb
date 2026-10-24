@@ -12,10 +12,6 @@ class Views::Servers::Moderation::Show < Views::Servers::PluginConfigShow
     :moderation
   end
 
-  def icon
-    "shield"
-  end
-
   def enabled?
     @context.group_enabled?
   end
