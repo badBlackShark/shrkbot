@@ -25,7 +25,11 @@ class Components::Admin::BespokePluginGrantRow < Components::Base
     button_to(
       admin_bespoke_plugin_grant_path(@grant),
       method: :delete,
-      data: {turbo_confirm: t(".confirm")},
+      data: {
+        turbo_confirm: t(".confirm"),
+        confirm_title: t(".confirm_title"),
+        confirm_button: t(".confirm_button")
+      },
       class: Components::Button.css(variant: :danger_outline, size: :sm, extra: "flex-none")
     ) { t(".revoke") }
   end
