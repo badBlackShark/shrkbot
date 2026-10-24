@@ -7,16 +7,16 @@ module Ops
         receives :server_configuration, :entry
 
         def call
-          settings.update!(**entry[:settings])
-          build_records(settings, entry[:records] || {})
+          owner.update!(**entry[:settings]) if entry[:settings]
+          build_records(owner, entry[:records] || {})
           activation.update!(enabled: entry[:enabled])
-          ok(settings)
+          ok(owner)
         end
 
         private
 
-        def settings
-          @settings ||= server_configuration.public_send(entry[:settings_association])
+        def owner
+          @owner ||= server_configuration.public_send(entry.fetch(:settings_association, :itself))
         end
 
         def activation
@@ -33,18 +33,31 @@ module Ops
         end
 
         def build_record(record, association, attributes)
-          scalar_attributes, nested_records = split_nested(attributes)
-          child = record.public_send(association).create!(scalar_attributes)
+          scalars, references, nested_records = split_attributes(attributes)
+          child_class = record.class.reflect_on_association(association).klass
+          child = record.public_send(association).create!(scalars.merge(resolve_references(child_class, references)))
           build_records(child, nested_records)
         end
 
-        def split_nested(attributes)
-          scalar, nested = attributes.partition { |_key, value| !nested_association?(value) }
-          [scalar.to_h, nested.to_h]
+        def split_attributes(attributes)
+          nested, rest = attributes.partition { |_key, value| nested_association?(value) }
+          references, scalars = rest.partition { |_key, value| reference?(value) }
+          [scalars.to_h, references.to_h, nested.to_h]
+        end
+
+        def resolve_references(child_class, references)
+          references.to_h do |attribute, reference|
+            target = child_class.reflect_on_association(attribute).klass
+            [attribute, target.create_with(reference.fetch(:create_with, {})).find_or_create_by!(reference.fetch(:find_by))]
+          end
         end
 
         def nested_association?(value)
           value.is_a?(Array) && value.any? && value.all? { |item| item.is_a?(Hash) }
+        end
+
+        def reference?(value)
+          value.is_a?(Hash) && value.key?(:find_by)
         end
       end
     end

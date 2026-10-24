@@ -26,7 +26,7 @@ class Servers::SpamProtectionController < ApplicationController
       timeout_seconds: spam_protection_params[:timeout_seconds],
       enabled: spam_protection_params[:enabled]
     )
-    return redirect_to server_moderation_path(params[:server_id]), status: :see_other, **flash_for(result) if params[:from_overview]
+    return redirect_to_overview(result) if params[:from_overview]
 
     respond_with_configuration(result)
   end

@@ -22,8 +22,8 @@ class Components::Moderation::OverviewForm < Components::Base
       )
       render Components::SubPluginDirectory.new(
         server_configuration: @config,
-        rows: @context.sub_plugin_rows,
-        group_enabled: @context.group_enabled?
+        parent: :moderation,
+        toggle_fields: @context.method(:toggle_fields)
       )
       render Components::Moderation::MatchingExplainer.new
     end

@@ -10,6 +10,8 @@ module Components::PluginNav
     spam_protection: "megaphone-slash",
     image_scanning: "scan",
     lfg: "game-controller",
+    feeds: "rss",
+    steam_news: "newspaper",
     twilight_struggle: "trophy"
   }.freeze
 

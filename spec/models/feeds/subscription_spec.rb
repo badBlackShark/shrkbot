@@ -61,8 +61,9 @@ RSpec.describe Feeds::Subscription do
     let(:steam_news_enabled) { true }
 
     before do
-      create(:plugin_activation, server_configuration:, plugin: create(:plugin, key: "feeds"), enabled: feeds_enabled)
+      feeds_activation = create(:plugin_activation, server_configuration:, plugin: create(:plugin, key: "feeds"), enabled: true)
       create(:plugin_activation, server_configuration:, plugin: create(:plugin, key: "steam_news"), enabled: steam_news_enabled)
+      feeds_activation.update_column(:enabled, feeds_enabled)
     end
 
     context "with feeds and steam_news enabled on a real server" do

@@ -104,7 +104,7 @@ A new plugin isn't done until it demos. Add an entry to the `plugins:` list in
 
 ```yaml
 - plugin: my_plugin
-  settings_association: my_plugin_settings   # the ServerConfiguration has_one name
+  settings_association: my_plugin_settings   # optional: the ServerConfiguration has_one name
   enabled: true
   settings:
     some_column: some_value
@@ -118,14 +118,32 @@ A new plugin isn't done until it demos. Add an entry to the `plugins:` list in
 - `plugin` is the `PluginCatalog` key.
 - `settings_association` is the association name on `ServerConfiguration` for
   that plugin's settings row (`Ensure` already created it — `ApplyPlugin` only
-  updates).
-- `settings` is applied straight onto that row with `update!`.
+  updates). A plugin without a settings row (Feeds) leaves it out, and its
+  `records` hang off the `ServerConfiguration` itself.
+- `settings` is applied straight onto that row with `update!`, when present.
 - `records`, if present, is a hash of association name → array of attribute
-  hashes, applied on the settings row. Any attribute value that is itself an
-  array of hashes is a nested association on the record just built — `ApplyPlugin`
-  walks this recursively, so a new plugin never needs its own loader code. Each
-  association is cleared (`destroy_all`) before rebuilding, which is what keeps
-  a second seed run idempotent.
+  hashes, applied on the settings row (or the server configuration). Any
+  attribute value that is itself an array of hashes is a nested association on
+  the record just built — `ApplyPlugin` walks this recursively, so a new plugin
+  never needs its own loader code. Each association is cleared (`destroy_all`)
+  before rebuilding, which is what keeps a second seed run idempotent.
+- An attribute whose value is a hash with a `find_by` key names a `belongs_to`
+  target that is shared rather than owned (a Feeds subscription's
+  `Integrations::Watch`). It is found by those keys, or created with `create_with`
+  merged in, and is never cleared or renamed: a real server may already follow the
+  same thing, and seeds run on every boot. Find by the natural key (`watcher` and
+  `external_id`), never by a display name.
+
+```yaml
+- plugin: steam_news
+  enabled: true
+  records:
+    feed_subscriptions:
+      - watch:
+          find_by: {watcher: Integrations::Steam::NewsWatcher, external_id: "440"}
+          create_with: {name: Team Fortress 2}
+        channel_id: 107
+```
 
 Order plugins so prerequisites land before dependents — `logging` before
 `moderation`, `moderation` before its `spam_protection`/`image_scanning`

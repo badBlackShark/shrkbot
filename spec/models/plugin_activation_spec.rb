@@ -34,11 +34,11 @@ RSpec.describe PluginActivation do
     subject(:enabled_for) { described_class.enabled_for(:steam_news) }
 
     let(:steam_news) { create(:plugin, key: "steam_news") }
+    let!(:feeds_activation) { create(:plugin_activation, server_configuration: server, plugin: create(:plugin, key: "feeds"), enabled: true) }
     let!(:enabled) { create(:plugin_activation, server_configuration: server, plugin: steam_news, enabled: true) }
 
     before do
       create(:plugin_activation, server_configuration: create(:server_configuration), plugin: steam_news, enabled: false)
-      create(:plugin_activation, server_configuration: server, plugin: create(:plugin, key: "feeds"), enabled: true)
     end
 
     it "includes only enabled activations of that plugin" do

@@ -25,4 +25,12 @@ RSpec.describe ServerRoleOptions do
   it "falls back to the default color when the role color is zero" do
     expect(options.last.color).to eq(ServerRoleOptions::DEFAULT_COLOR)
   end
+
+  describe "#names_by_id" do
+    subject(:names) { described_class.new(server).names_by_id }
+
+    it "maps each role id to its name" do
+      expect(names).to eq(111 => "First", 222 => "Second")
+    end
+  end
 end

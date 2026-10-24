@@ -2,13 +2,6 @@
 
 module Moderation
   class OverviewContext
-    SubPluginRow = Data.define(:key, :name, :description, :enabled, :configured, :toggle_fields)
-
-    SUB_PLUGINS = [
-      {key: :spam_protection, settings_method: :spam_protection_settings, fields_method: :spam_protection_fields},
-      {key: :image_scanning, settings_method: :image_scanning_settings, fields_method: :image_scanning_fields}
-    ].freeze
-
     def initialize(server_configuration)
       @config = server_configuration
     end
@@ -50,20 +43,8 @@ module Moderation
       role.present? && !role.manage_messages?
     end
 
-    def sub_plugin_rows
-      SUB_PLUGINS.map do |sub|
-        key = sub[:key]
-        definition = PluginCatalog.find(key)
-        settings = @config.public_send(sub[:settings_method])
-        SubPluginRow.new(
-          key:,
-          name: definition.name,
-          description: definition.description,
-          enabled: enabled_keys.include?(key),
-          configured: definition.prerequisites_met?(@config, enabled_keys:),
-          toggle_fields: settings ? send(sub[:fields_method], settings) : {}
-        )
-      end
+    def toggle_fields(key)
+      send(:"#{key}_fields", @config.public_send(:"#{key}_settings"))
     end
 
     def logging_channel_name

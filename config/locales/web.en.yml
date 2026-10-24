@@ -63,6 +63,23 @@ en:
     copyable_tokens:
       copied: Copied!
       copy_failed: Copy failed
+    feeds:
+      subscription_list:
+        empty_body: Games this server follows show up here.
+        empty_title: No games yet
+        heading: Followed games
+      subscription_row:
+        broken: Steam hasn't answered for this game since %{since} UTC. shrkbot keeps
+          trying every hour, and posts what it missed from the last 48 hours once
+          Steam answers.
+        channel_missing: channel deleted
+        event_types:
+          announcement_published: Announcements
+          article_published: Articles
+          patch_notes_published: Patch notes
+        no_ping: no ping
+        pings: pings @%{role}
+        role_missing: pings a role that was deleted
     legal_links:
       imprint: Imprint
       privacy: Privacy policy
@@ -340,6 +357,10 @@ en:
       needs_setup_hint: Complete setup before enabling this plugin.
       not_manageable: You can't configure this plugin on this server.
       plugin:
+        feeds:
+          description: Posts news from the platforms you follow, like Steam, in the
+            channels you pick.
+          name: Feeds
         lfg:
           description: Let members find people to play with, on the fly or scheduled.
           name: Looking for Game
@@ -357,6 +378,10 @@ en:
         roles:
           description: Let members give themselves roles from a menu.
           name: Roles
+        steam_news:
+          description: Posts new patch notes, announcements and press coverage of
+            the Steam games you follow.
+          name: Steam News
         twilight_struggle:
           description: Post results from twilight-struggle.com as they are reported.
           name: Twilight Struggle
@@ -619,6 +644,8 @@ en:
         title: "%{channel_name} was deleted"
         title_unknown: A channel was deleted
   servers:
+    feeds:
+      saved: Feeds settings saved.
     image_scanning:
       saved: Scam Image Detection settings saved.
     lfg:
@@ -644,6 +671,8 @@ en:
       saved: Role settings saved.
     spam_protection:
       saved: Cross-Channel Spam Guard settings saved.
+    steam_news:
+      saved: Steam News settings saved.
     twilight_struggle:
       saved: Twilight Struggle settings saved.
       subscribed: Subscribed. Set where and how its results post below.
@@ -751,27 +780,23 @@ en:
       continue: Continue
       title: Signing you back in
     servers:
+      feeds:
+        show:
+          description: Posts news from the platforms you follow, like Steam, in the
+            channels you pick.
+          gate_message: Enable Feeds to post news from the sources you follow.
+          title: Feeds
       image_scanning:
         show:
           description: Reads the text inside posted images and checks it against known
             scam patterns and previously confirmed scam images. Staff confirm or dismiss
             every catch, and the bot remembers.
-          group_locked_reason: Enable the Server Shield group first - its master switch
-            is off.
           no_role_callout_body: Every Moderation sub-plugin needs the shared staff
             role - it's pinged on every alert. Set it on the
           no_role_callout_lead: Pick a staff role first.
           no_role_callout_link: Moderation overview
           no_role_callout_suffix: ", then enable image scanning here."
-          prereq_gate_cta: Open Server Shield overview
-          prereq_gate_message: Image scanning is part of the Moderation group. Enable
-            the group on its overview to configure this page.
-          prereq_gate_title: Server Shield group is disabled
           role_locked_reason: Pick a staff role first.
-          subline_link: Moderation overview
-          subline_prefix: 'Part of Moderation. Shared settings - staff role and alerts
-            - live on the '
-          subline_suffix: "."
           title: Scam Image Detection
       index:
         empty_body: You need Manage Server permissions and shrkbot must be present.
@@ -819,6 +844,9 @@ en:
           title: Server Shield
           toggle_locked_reason: Enable the Logging plugin first - alerts are delivered
             through your log channel.
+        sub_plugin_show:
+          shared_settings_note: Shared settings like the staff role and alerts live
+            on the overview.
       reminders:
         show:
           badge: Global
@@ -849,23 +877,26 @@ en:
           description: Detects the same message blasted across multiple channels within
             seconds and purges it before it spreads. Matching is fingerprint-based
             - message content is never stored.
-          group_locked_reason: Enable the Server Shield group first - its master switch
-            is off.
           no_role_callout_body: Every Moderation sub-plugin needs the shared staff
             role - it's pinged on every alert. Set it on the
           no_role_callout_lead: Pick a staff role first.
           no_role_callout_link: Moderation overview
           no_role_callout_suffix: ", then enable spam protection here."
-          prereq_gate_cta: Open Server Shield overview
-          prereq_gate_message: Cross-Channel Spam Guard is part of the Server Shield
-            group. Enable the group on its overview to configure this page.
-          prereq_gate_title: Server Shield group is disabled
           role_locked_reason: Pick a staff role first.
-          subline_link: Moderation overview
-          subline_prefix: 'Part of Moderation. Shared settings - staff role and alerts
-            - live on the '
-          subline_suffix: "."
           title: Cross-Channel Spam Guard
+      steam_news:
+        show:
+          description: Posts new patch notes, announcements and press coverage of
+            the Steam games you follow.
+          title: Steam News
+      sub_plugin_show:
+        group_locked_reason: Turn %{parent} on first.
+        prereq_gate_cta: Go to %{parent}
+        prereq_gate_message: "%{plugin} is part of %{parent}. Turn %{parent} on to
+          configure this page."
+        prereq_gate_title: "%{parent} is off"
+        subline_prefix: 'Part of '
+        subline_suffix: "."
       twilight_struggle:
         destinations:
           edit:

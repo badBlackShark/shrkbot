@@ -23,13 +23,6 @@ ignore_missing:
   - views.servers.moderation.sub_plugin_show.no_role_callout_body
   - views.servers.moderation.sub_plugin_show.no_role_callout_link
   - views.servers.moderation.sub_plugin_show.no_role_callout_suffix
-  - views.servers.sub_plugin_show.prereq_gate_title
-  - views.servers.sub_plugin_show.prereq_gate_message
-  - views.servers.sub_plugin_show.prereq_gate_cta
-  - views.servers.sub_plugin_show.group_locked_reason
-  - views.servers.sub_plugin_show.subline_prefix
-  - views.servers.sub_plugin_show.subline_link
-  - views.servers.sub_plugin_show.subline_suffix
   - views.servers.plugin_config_show.*
   - components.twilight_struggle.setting_card_base.label
   - components.twilight_struggle.setting_card_base.help
@@ -49,6 +42,9 @@ ignore_unused:
   # 1. Views::Servers::SubPluginShow subclasses (through Moderation::SubPluginShow)
   - views.servers.spam_protection.show.*
   - views.servers.image_scanning.show.*
+  # 1. Views::Servers::SubPluginShow subclasses
+  - views.servers.steam_news.show.title
+  - views.servers.steam_news.show.description
   # 1. Views::Servers::PluginConfigShow subclasses
   - views.servers.logging.show.*
   - views.servers.roles.show.*
@@ -62,6 +58,9 @@ ignore_unused:
   - views.servers.moderation.show.title
   - views.servers.moderation.show.description
   - views.servers.moderation.show.gate_message
+  - views.servers.feeds.show.title
+  - views.servers.feeds.show.description
+  - views.servers.feeds.show.gate_message
   - views.servers.twilight_struggle.show.title
   - views.servers.twilight_struggle.show.description
   - views.servers.twilight_struggle.show.gate_message

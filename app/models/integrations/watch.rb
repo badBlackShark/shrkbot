@@ -43,6 +43,10 @@ module Integrations
     end
     private_class_method :demand_matching
 
+    def broken?
+      failing_since.present? && failing_since <= BROKEN_AFTER.ago
+    end
+
     def label
       "#{name} (#{external_id})"
     end

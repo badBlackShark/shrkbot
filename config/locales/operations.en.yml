@@ -22,6 +22,7 @@ en:
         preview_protected: Could not delete this server - it is a preview, not a real
           Discord guild.
       plugins:
+        requires_parent: "%{plugin} is part of %{parent}. Turn %{parent} on first."
         requires_settings: "%{plugin} can't be enabled until its required settings
           are configured."
     twilight_struggle:

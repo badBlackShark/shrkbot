@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Views::Servers::PluginConfigShow < Views::Base
+  include Components::PluginNav
+
   def initialize(server_configuration:, user:, enabled: false)
     @config = server_configuration
     @user = user
@@ -33,6 +35,10 @@ class Views::Servers::PluginConfigShow < Views::Base
       description: t(".description"),
       badge:
     )
+  end
+
+  def icon
+    plugin_icon(plugin_key)
   end
 
   def url

@@ -221,14 +221,15 @@ RSpec.describe Moderation::OverviewContext do
     end
   end
 
-  describe "#sub_plugin_rows" do
-    it "returns two rows for spam_protection and image_scanning" do
-      rows = context.sub_plugin_rows
-      expect(rows.map(&:key)).to contain_exactly(:spam_protection, :image_scanning)
+  describe "#toggle_fields" do
+    PluginCatalog.sub_plugin_keys(:moderation).each do |key|
+      it "has fields for the #{key} sub-plugin" do
+        expect(context.toggle_fields(key)).to be_present
+      end
     end
 
     context "with spam protection settings" do
-      let(:row) { context.sub_plugin_rows.find { |candidate| candidate.key == :spam_protection } }
+      subject(:fields) { context.toggle_fields(:spam_protection) }
 
       before { config.spam_protection_settings.update!(channel_threshold: 4, match_symbol_only_messages: symbol_only) }
 
@@ -237,7 +238,7 @@ RSpec.describe Moderation::OverviewContext do
 
         it "carries every setting as a toggle field" do
           settings = config.spam_protection_settings
-          expect(row.toggle_fields).to eq(
+          expect(fields).to eq(
             "spam_protection[channel_threshold]" => 4,
             "spam_protection[window_seconds]" => settings.window_seconds,
             "spam_protection[similarity]" => settings.similarity,
@@ -253,19 +254,19 @@ RSpec.describe Moderation::OverviewContext do
         let(:symbol_only) { false }
 
         it "encodes the boolean as 0" do
-          expect(row.toggle_fields).to include("spam_protection[match_symbol_only_messages]" => "0")
+          expect(fields).to include("spam_protection[match_symbol_only_messages]" => "0")
         end
       end
     end
 
     context "with image scanning keywords" do
-      let(:row) { context.sub_plugin_rows.find { |candidate| candidate.key == :image_scanning } }
+      subject(:fields) { context.toggle_fields(:image_scanning) }
 
       before { config.image_scanning_settings.update!(custom_keywords: ["free nitro", "gift"]) }
 
       it "carries every setting as a toggle field, the keywords as one array field" do
         settings = config.image_scanning_settings
-        expect(row.toggle_fields).to eq(
+        expect(fields).to eq(
           "image_scanning[sensitivity]" => settings.sensitivity,
           "image_scanning[action]" => settings.action,
           "image_scanning[punishment]" => settings.punishment,
@@ -275,16 +276,6 @@ RSpec.describe Moderation::OverviewContext do
           "image_scanning[custom_keyword_min_hits]" => settings.custom_keyword_min_hits,
           "image_scanning[custom_keywords][]" => ["free nitro", "gift"]
         )
-      end
-    end
-
-    context "when a settings row is absent" do
-      let(:row) { described_class.new(config.reload).sub_plugin_rows.find { |candidate| candidate.key == :spam_protection } }
-
-      before { config.spam_protection_settings.destroy! }
-
-      it "has no toggle fields" do
-        expect(row.toggle_fields).to eq({})
       end
     end
   end

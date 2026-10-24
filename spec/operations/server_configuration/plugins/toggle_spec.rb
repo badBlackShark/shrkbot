@@ -47,6 +47,34 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
       expect(result.errors.first).to match(/required settings/)
       expect(server.plugin_activations).to be_empty
     end
+
+    it "returns an unsaved, disabled activation" do
+      expect(result.value.enabled?).to be(false)
+      expect(result.value.persisted?).to be(false)
+    end
+  end
+
+  context "enabling a sub-plugin while its parent is off" do
+    let(:plugin) { create(:plugin, key: "steam_news", name: "Steam News") }
+    let(:enabled) { true }
+
+    before { create(:plugin, key: "feeds", name: "Feeds") }
+
+    it "names the parent to turn on" do
+      expect(result.errors.first).to eq("Steam News is part of Feeds. Turn Feeds on first.")
+    end
+  end
+
+  context "enabling logging without a channel while its activation is stored as disabled" do
+    let(:plugin) { logging }
+    let(:enabled) { true }
+    let!(:activation) { create(:plugin_activation, server_configuration: server, plugin: logging, enabled: false) }
+
+    it "returns the activation with the refused change reverted" do
+      expect(result.value).to eq(activation)
+      expect(result.value.enabled?).to be(false)
+      expect(result.value.changed?).to be(false)
+    end
   end
 
   context "enabling logging once a channel is set" do

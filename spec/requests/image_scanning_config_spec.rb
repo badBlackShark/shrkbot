@@ -60,8 +60,8 @@ RSpec.describe "Image scanning config", type: :request do
           it "returns 200 and renders the prereq gate" do
             get server_image_scanning_path(guild.id)
             expect(response).to have_http_status(:ok)
-            expect(response.body).to include("Server Shield group is disabled")
-            expect(response.body).to include("Open Server Shield overview")
+            expect(response.body).to include("Server Shield is off")
+            expect(response.body).to include("Go to Server Shield")
           end
         end
 
@@ -75,7 +75,7 @@ RSpec.describe "Image scanning config", type: :request do
             get server_image_scanning_path(guild.id)
             expect(response).to have_http_status(:ok)
             expect(response.body).to include("Pick a staff role first.")
-            expect(response.body).not_to include("Server Shield group is disabled")
+            expect(response.body).not_to include("Server Shield is off")
           end
         end
       end

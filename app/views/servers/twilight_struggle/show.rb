@@ -14,10 +14,6 @@ class Views::Servers::TwilightStruggle::Show < Views::Servers::PluginConfigShow
     :twilight_struggle
   end
 
-  def icon
-    "trophy"
-  end
-
   def toggle
     {field: "twilight_struggle[enabled]", enabled: @enabled, locked: !@toggleable, reason: t(".toggle_admin_only")}
   end

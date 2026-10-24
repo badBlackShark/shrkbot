@@ -7,10 +7,6 @@ class Views::Servers::Reminders::Show < Views::Servers::PluginConfigShow
     :reminders
   end
 
-  def icon
-    "bell-ringing"
-  end
-
   def badge
     t(".badge")
   end
