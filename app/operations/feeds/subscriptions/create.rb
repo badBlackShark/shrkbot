@@ -4,7 +4,7 @@ module Ops
   module Feeds
     module Subscriptions
       class Create < ApplicationOperation
-        receives :server_configuration, :watcher, :target, :channel_id, :body_length, :event_types
+        receives :server_configuration, :watcher, :target, :channel_id, :body_length, :event_types, :templates
         receives :role_id, optional: true
 
         def call
@@ -36,7 +36,7 @@ module Ops
             role_id: role_id.presence,
             body_length:
           ).tap do |built|
-            event_types.uniq.each { |event_type| built.subscribed_events.build(event_type:) }
+            event_types.uniq.each { |event_type| built.follow(event_type, templates[event_type]) }
           end
         end
       end

@@ -1,15 +1,18 @@
 # frozen_string_literal: true
 
 class Components::Feeds::SubscriptionFields < Components::Base
-  def initialize(subscription:, plugin_key:)
+  def initialize(subscription:, plugin_key:, volume: nil)
     @subscription = subscription
     @plugin_key = plugin_key
+    @volume = volume
   end
 
   def view_template
-    destination_card
-    event_types_card
-    body_length_card
+    div(class: "contents", data: {controller: "feed-preview"}) do
+      destination_card
+      event_types_card
+      body_length_card
+    end
   end
 
   private
@@ -43,7 +46,8 @@ class Components::Feeds::SubscriptionFields < Components::Base
       selected: @subscription.role_id,
       placeholder: t(".role_placeholder"),
       multiple: false,
-      include_blank: true
+      include_blank: true,
+      data: {feed_preview_target: "role", action: "change->feed-preview#render"}
     )
   end
 
@@ -56,12 +60,12 @@ class Components::Feeds::SubscriptionFields < Components::Base
   end
 
   def event_type_row(event_type)
-    key = event_type.demodulize.underscore
-    render Components::ToggleRow.new(
-      name: "subscription[event_types][#{event_type}]",
-      checked: followed_types.include?(event_type),
-      label: t("components.feeds.event_types.#{key}.label"),
-      help: t("components.feeds.event_types.#{key}.help")
+    render Components::Feeds::EventTypeSetting.new(
+      subscription: @subscription,
+      plugin_key: @plugin_key,
+      event_type:,
+      followed: followed_types.include?(event_type),
+      volume: @volume
     )
   end
 

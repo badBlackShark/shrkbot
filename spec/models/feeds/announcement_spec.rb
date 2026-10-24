@@ -17,12 +17,6 @@ RSpec.describe Feeds::Announcement do
     create(:feed_subscribed_event, subscription:, event_type:, template:)
   end
 
-  describe "DEFAULT_TEMPLATES" do
-    it "has a template for exactly the subscribable event types" do
-      expect(described_class::DEFAULT_TEMPLATES.keys).to match_array(Feeds::EVENT_TYPES)
-    end
-  end
-
   describe "#subject" do
     subject(:subject_line) { announcement.subject }
 

@@ -23,6 +23,7 @@ RSpec.describe "Steam News subscriptions", type: :request do
     create(:server_role, server_configuration: config, discord_id: 888, name: "Gamers")
     allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     allow(Integrations::Steam::NewsWatcher).to receive(:resolve).with("1145350").and_return(target)
+    allow(Integrations::Steam::NewsWatcher).to receive(:volume).and_return(Integrations::Volume.new(counts: {}, sample_size: 20))
     get server_path(guild.id)
   end
 
@@ -99,6 +100,36 @@ RSpec.describe "Steam News subscriptions", type: :request do
         expect(checkbox(announcements)["checked"]).to be_present
         expect(checkbox(articles)["checked"]).to be_nil
       end
+
+      it "shows how many of the last posts were each type" do
+        lookup
+
+        expect(response.body).to include("None of the last 20 posts.")
+      end
+
+      context "when the last posts included some of a type" do
+        before do
+          allow(Integrations::Steam::NewsWatcher).to receive(:volume)
+            .and_return(Integrations::Volume.new(counts: {patch_notes => 2}, sample_size: 20))
+        end
+
+        it "shows the count on that type" do
+          lookup
+
+          expect(response.body).to include("2 of the last 20 posts.")
+        end
+      end
+
+      context "when the volume lookup fails" do
+        before { allow(Feeds::VolumeLookup).to receive(:call).and_return(nil) }
+
+        it "renders the form without hints" do
+          lookup
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).not_to include("of the last")
+        end
+      end
     end
   end
 
@@ -113,9 +144,12 @@ RSpec.describe "Steam News subscriptions", type: :request do
         channel_id:,
         role_id:,
         body_length: "full",
-        event_types: {patch_notes => "1", announcements => "0", articles => "1"}
+        event_types: {patch_notes => "1", announcements => "0", articles => "1"},
+        templates: {patch_notes => " Patch day: {title} ", articles => "{role} {feed}: {title}"}
       }
     end
+
+    let(:stored_templates) { config.feed_subscriptions.sole.subscribed_events.to_h { |event| [event.event_type, event.template] } }
 
     it "follows the game and redirects to the list" do
       create_subscription
@@ -125,6 +159,24 @@ RSpec.describe "Steam News subscriptions", type: :request do
       expect(config.feed_subscriptions.sole).to have_attributes(channel_id: 777, role_id: 888, body_length: "full")
       expect(config.feed_subscriptions.sole.subscribed_events.map(&:event_type)).to match_array([patch_notes, articles])
       expect(config.feed_subscriptions.sole.watch).to have_attributes(name: "Hades II", image_url: target.image_url)
+    end
+
+    it "stores custom text and nothing for the default text" do
+      create_subscription
+
+      expect(stored_templates).to eq(patch_notes => "Patch day: {title}", articles => nil)
+    end
+
+    context "with a message that would post nothing and no role" do
+      let(:role_id) { "" }
+      let(:attributes) { super().merge(templates: {patch_notes => "{role}"}) }
+
+      it "renders the form again with the reason and writes nothing" do
+        expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("A custom message would post nothing.")
+      end
     end
 
     context "with a channel from another server" do
@@ -178,7 +230,14 @@ RSpec.describe "Steam News subscriptions", type: :request do
     let(:watch) { create(:integration_watch, name: "Hades II", external_id: "1145350") }
     let!(:subscription) { create(:feed_subscription, server_configuration: config, watch:, channel_id: 777) }
 
-    before { create(:feed_subscribed_event, subscription:, event_type: patch_notes) }
+    before { create(:feed_subscribed_event, subscription:, event_type: patch_notes, template: "{role} Hot take: {title}") }
+
+    it "shows the stored template in its textarea" do
+      edit
+
+      textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[templates][#{patch_notes}]"]))
+      expect(textarea.text).to eq("{role} Hot take: {title}")
+    end
 
     it "renders the form with the stored settings and a confirmed stop-following button" do
       edit
@@ -204,7 +263,7 @@ RSpec.describe "Steam News subscriptions", type: :request do
     subject(:update) do
       patch(
         server_steam_news_subscription_path(guild.id, subscription),
-        params: {subscription: {channel_id:, role_id: "", body_length: "full", event_types:}},
+        params: {subscription: {channel_id:, role_id: "", body_length: "full", event_types:, templates:}},
         **headers
       )
     end
@@ -212,6 +271,7 @@ RSpec.describe "Steam News subscriptions", type: :request do
     let(:headers) { turbo }
     let(:channel_id) { "777" }
     let(:event_types) { {patch_notes => "1", announcements => "1"} }
+    let(:templates) { {patch_notes => "Patch day: {title}"} }
     let(:followed_since) { 3.days.ago.change(usec: 0) }
     let!(:subscription) { create(:feed_subscription, server_configuration: config, channel_id: 555) }
 
@@ -225,6 +285,24 @@ RSpec.describe "Steam News subscriptions", type: :request do
       expect(subscription.reload).to have_attributes(channel_id: 777, body_length: "full")
       expect(subscription.subscribed_events.find_by!(event_type: patch_notes).subscribed_since).to eq(followed_since)
       expect(subscription.subscribed_events.map(&:event_type)).to match_array([patch_notes, announcements])
+    end
+
+    it "stores the submitted custom text" do
+      update
+
+      expect(subscription.subscribed_events.find_by!(event_type: patch_notes).template).to eq("Patch day: {title}")
+    end
+
+    context "with a message that would post nothing and no role" do
+      let(:templates) { {patch_notes => "{role}"} }
+
+      it "re-renders the form with the reason and changes nothing" do
+        update
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("A custom message would post nothing.")
+        expect(subscription.subscribed_events.find_by!(event_type: patch_notes).template).to be_nil
+      end
     end
 
     context "when the channel is cleared" do

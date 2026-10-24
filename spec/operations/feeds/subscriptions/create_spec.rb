@@ -11,7 +11,8 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
       channel_id:,
       role_id:,
       body_length: "full",
-      event_types:
+      event_types:,
+      templates:
     )
   end
 
@@ -20,6 +21,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   let(:channel_id) { "555" }
   let(:role_id) { "777" }
   let(:event_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
+  let(:templates) { {} }
   let(:watch) { Integrations::Watch.find_by!(external_id: "1145350") }
 
   it "stores the subscription with its settings" do
@@ -37,6 +39,35 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
 
     expect(result.value.subscribed_events.map(&:event_type)).to match_array(event_types)
     expect(result.value.subscribed_events.map(&:subscribed_since)).to all(be_within(1.minute).of(Time.current))
+  end
+
+  context "with submitted templates" do
+    let(:templates) do
+      {
+        "Integrations::Steam::PatchNotesPublished" => " Patch day: {title} ",
+        "Integrations::Steam::AnnouncementPublished" => "{role} New {game} announcement: {title}"
+      }
+    end
+
+    it "stores custom text and nothing for the default text" do
+      stored = result.value.subscribed_events.to_h { |event| [event.event_type, event.template] }
+
+      expect(stored).to eq(
+        "Integrations::Steam::PatchNotesPublished" => "Patch day: {title}",
+        "Integrations::Steam::AnnouncementPublished" => nil
+      )
+    end
+  end
+
+  context "with a template that would post nothing" do
+    let(:role_id) { "" }
+    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "{role}"} }
+
+    it "fails and writes nothing" do
+      expect { result }.not_to change { [Integrations::Watch.count, Feeds::Subscription.count] }
+
+      expect(result).to be_failure
+    end
   end
 
   it "creates the watch with the game's name and image" do

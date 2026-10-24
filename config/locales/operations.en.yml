@@ -1,5 +1,11 @@
 ---
 en:
+  activerecord:
+    errors:
+      models:
+        feeds/subscription:
+          custom_message_empty: A custom message would post nothing. Add some text,
+            or pick a role to ping.
   operations:
     feeds:
       subscriptions:
