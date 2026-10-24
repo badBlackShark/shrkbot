@@ -16,16 +16,45 @@ line and its own page.
   sub-plugin's own `PATCH` with `from_overview=1` and the controller redirects back to
   the Feeds page.
 - **Steam News** (`Servers::SteamNewsController`, a `Views::Servers::SubPluginShow`):
-  lists the games the server follows, read-only for now.
+  lists the games the server follows, with Add, Edit and Stop following (see Config UI).
   `Finders::Feeds::SourceSubscriptions` returns the server's subscriptions on that
   source, ordered by game name, and `Components::Feeds::SubscriptionList` builds the
-  channel and role lookups once for all rows. A row shows the game, the channel, the
-  pinged role, the followed event types, and a warning when the watch is broken
-  (`Integrations::Watch#broken?`).
+  channel and role lookups once for all rows. A row shows the game's header image, the
+  channel, the pinged role, the followed event types, and a warning when the watch is
+  broken (`Integrations::Watch#broken?`).
 - Turning Feeds off or on goes through `Ops::ServerConfiguration::Plugins::Toggle`
   like any plugin. A sub-plugin cannot be turned on while Feeds is off.
 - Demo data: `config/preview_data.yml` enables both and follows two games, each through a
   shared `Integrations::Watch`, see [../web/preview.md](../web/preview.md).
+
+## Config UI
+
+Routes live under `resource :steam_news` as `resources :subscriptions` (`new`, `create`,
+`edit`, `update`, `destroy`), served by `Servers::SteamNews::SubscriptionsController`. Real
+servers only: the preview list renders no Add, Edit or Stop following controls, and there
+are no preview routes for these pages.
+
+- **Lookup -> form.** `new` without `app` shows the lookup field. With `app`,
+  `Feeds::TargetLookup` calls the watcher's `resolve` and returns the target or one error
+  (`invalid_reference`, `not_found`, `unavailable`). A game the server already follows
+  links to its edit page; otherwise the follow form renders for the resolved target, with
+  Patch notes and Announcements on and Articles off (`Feeds::DEFAULT_EVENT_TYPES`).
+  `create` resolves the game again from the hidden `external_id` rather than trusting
+  anything the form carries.
+- **Ops.** `Ops::Feeds::Subscriptions::Create` checks the cap, finds or builds the shared
+  watch (refreshing its name and `image_url` from the target), refuses a game the server
+  already follows, validates the subscription with its events, then saves the watch and
+  the first subscription in one transaction, so the daily orphan prune cannot take a
+  fresh watch before its subscription exists. `Update` saves the settings, deletes
+  event types that were switched off and adds the new ones; a kept type keeps its
+  `subscribed_since` and `template`. `Destroy` removes the subscription and leaves the
+  watch for the prune.
+- **Cap.** A server follows at most `Feeds::Subscription::MAX_PER_SERVER` (25) games,
+  all sources together. The list disables Add at the cap and says why.
+- **Images.** The pages load each game's header image straight from Steam, so the CSP
+  `img_src` lists the two Steam image hosts and the privacy policy says Steam sees the
+  viewer's IP address. A watch without an `image_url` shows a neutral placeholder.
+- Custom messages are not editable yet: `template` is left untouched everywhere.
 
 ## Tables
 

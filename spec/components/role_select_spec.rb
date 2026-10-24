@@ -29,4 +29,23 @@ RSpec.describe Components::RoleSelect do
     expect(html).to include("Above shrkbot.")
     expect(html).to include('value="11"').and include("disabled")
   end
+
+  context "as a single select with a blank choice" do
+    subject(:html) do
+      described_class.new(
+        name: "subscription[role_id]",
+        options: [Components::TomSelect::Option.for(value: 10, label: "Member")],
+        selected: 10,
+        placeholder: "No ping",
+        multiple: false,
+        include_blank: true
+      ).call
+    end
+
+    it "renders one select that can be left empty" do
+      expect(html).not_to include("multiple")
+      expect(html).to include('<option value=""></option>')
+      expect(html).to include('value="10" selected')
+    end
+  end
 end

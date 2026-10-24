@@ -6,7 +6,7 @@ Rails.application.configure do
     policy.base_uri :self
     policy.font_src :self, :data
     policy.form_action :self, "https://discord.com"
-    policy.img_src :self, :data, "https://cdn.discordapp.com", "https://media.discordapp.net"
+    policy.img_src :self, :data, "https://cdn.discordapp.com", "https://media.discordapp.net", "https://shared.akamai.steamstatic.com", "https://shared.fastly.steamstatic.com"
     policy.object_src :none
     policy.script_src :self
     policy.style_src :self, :unsafe_inline

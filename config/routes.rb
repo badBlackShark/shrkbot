@@ -38,7 +38,9 @@ Rails.application.routes.draw do
       resource :moderation, only: [:show, :update], controller: "moderation"
       resource :lfg, only: [:show, :update], controller: "lfg"
       resource :feeds, only: [:show, :update], controller: "feeds"
-      resource :steam_news, only: [:show, :update], controller: "steam_news"
+      resource :steam_news, only: [:show, :update], controller: "steam_news" do
+        resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], module: :steam_news
+      end
       resource :twilight_struggle, only: [:show, :update], controller: "twilight_struggle" do
         scope module: :twilight_struggle do
           resources :destinations, only: [:edit, :update], param: :tournament_id

@@ -69,6 +69,14 @@ RSpec.describe "Steam News config", type: :request do
             expect(response.body).to include("Team Fortress 2", "no ping", "channel deleted")
           end
 
+          it "offers adding, editing and stopping on a real server" do
+            get plugin_path
+
+            expect(response.body).to include("Add a game", new_server_steam_news_subscription_path(guild.id))
+            expect(response.body).to include(edit_server_steam_news_subscription_path(guild.id, Feeds::Subscription.find_by!(watch: hades)))
+            expect(response.body).to include("Stop following")
+          end
+
           it "orders event types patch notes first" do
             get plugin_path
 
@@ -106,6 +114,17 @@ RSpec.describe "Steam News config", type: :request do
 
               expect(response.body).to include("Steam hasn&#39;t answered for this game since")
             end
+          end
+        end
+
+        context "when the server is at the follow cap" do
+          before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SERVER, server_configuration: config) }
+
+          it "disables Add and gives the reason" do
+            get plugin_path
+
+            expect(response.body).to match(/<button[^>]*disabled[^>]*aria-describedby="feed-subscriptions-cap"[^>]*>|<button[^>]*aria-describedby="feed-subscriptions-cap"[^>]*disabled[^>]*>/)
+            expect(response.body).to include("This server follows 25 games, the most it can.")
           end
         end
 

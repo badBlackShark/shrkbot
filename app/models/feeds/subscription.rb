@@ -3,6 +3,7 @@
 module Feeds
   class Subscription < ApplicationRecord
     BODY_LENGTHS = %w[preview full].freeze
+    MAX_PER_SERVER = 25
 
     self.table_name = "feed_subscriptions"
 
@@ -14,6 +15,10 @@ module Feeds
     validates :body_length, inclusion: {in: BODY_LENGTHS}
     validates :channel_id, presence: true
     validates :watch_id, uniqueness: {scope: :server_configuration_id}
+
+    def self.at_cap?(server_configuration)
+      server_configuration.feed_subscriptions.count >= MAX_PER_SERVER
+    end
 
     def self.active
       base = where(server_configuration_id: ServerConfiguration.real.select(:id))

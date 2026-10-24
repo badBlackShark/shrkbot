@@ -16,8 +16,8 @@ RSpec.describe Integrations::Steam::AppReference do
     end
 
     ["0", "hades", "https://store.steampowered.com/sub/123"].each do |input|
-      it "rejects #{input.inspect} as NotFound" do
-        expect { described_class.parse(input) }.to raise_error(Integrations::NotFound)
+      it "rejects #{input.inspect} as InvalidReference" do
+        expect { described_class.parse(input) }.to raise_error(Integrations::InvalidReference)
       end
     end
   end

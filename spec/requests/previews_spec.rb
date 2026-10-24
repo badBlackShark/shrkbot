@@ -123,6 +123,17 @@ RSpec.describe "Preview", type: :request do
     end
   end
 
+  describe "GET /preview/steam_news" do
+    before { get preview_path }
+
+    it "lists the demo games without add, edit or stop-following controls" do
+      get preview_steam_news_path
+
+      expect(response.body).to include("Hades II", "Team Fortress 2")
+      expect(response.body).not_to include("Add a game", "Stop following", "/subscriptions")
+    end
+  end
+
   describe "GET /preview/welcomes" do
     before { get preview_path }
 

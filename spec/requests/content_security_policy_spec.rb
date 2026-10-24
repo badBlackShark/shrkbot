@@ -26,6 +26,10 @@ RSpec.describe "Content Security Policy", type: :request do
     expect(header).to include("style-src 'self' 'unsafe-inline'")
   end
 
+  it "allows Steam's image hosts for game header images" do
+    expect(header).to include("https://shared.akamai.steamstatic.com https://shared.fastly.steamstatic.com")
+  end
+
   it "stamps the inline theme script and the importmap with the header's nonce" do
     nonce = header[/script-src 'self' 'nonce-([^']+)'/, 1]
 

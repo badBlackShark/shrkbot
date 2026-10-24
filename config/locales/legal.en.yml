@@ -63,10 +63,12 @@ en:
       data_integrations: 'Steam news: so that each post is announced once, shrkbot
         keeps the posts it fetches from Steam (title, link, author name as published,
         and text) and the IDs of posts it has already seen. For each Steam game a
-        server follows, it also keeps the game''s public Steam app ID and name, and
-        the channel, role, kinds of post, any custom message text for each kind, and
-        post length the server chose. It records which posts it has sent to each server,
-        so a post is not sent twice.'
+        server follows, it also keeps the game''s public Steam app ID, name and header
+        image link, and the channel, role, kinds of post, any custom message text
+        for each kind, and post length the server chose. It records which posts it
+        has sent to each server, so a post is not sent twice. The Steam News pages
+        on the website load each game''s header image straight from Steam''s servers,
+        so Steam sees the IP address of the browser that opens the page.'
       data_lead: 'We store only what the enabled features need:'
       data_lfg: 'Looking for Game: the roles you make pingable and the policy limits
         you set for each of them (which roles or channels may use them, minimum membership
@@ -237,7 +239,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: October 23rd, 2026'
+      updated: 'Last updated: October 24th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible
