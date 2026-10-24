@@ -60,7 +60,7 @@ class Components::SubPluginRow < Components::Base
   def needs_setup_inline_warning
     p(class: "mt-1 flex items-center gap-1 text-xs font-medium text-warning") do
       render Components::Icon.new("warning", class: "size-3.5")
-      span { t(".needs_setup_hint.#{parent}") }
+      span { t(".needs_setup_hint.#{@key}") }
     end
   end
 
@@ -87,7 +87,7 @@ class Components::SubPluginRow < Components::Base
   end
 
   def locked_toggle
-    render Components::Tooltip.new(text: t(".locked_reason.#{parent}")) do
+    render Components::Tooltip.new(text: t(".locked_reason.#{@key}")) do
       render Components::Toggle.new(
         name: "#{@key}[enabled]",
         checked: @enabled,
@@ -116,12 +116,8 @@ class Components::SubPluginRow < Components::Base
 
   def toggle_hidden_fields
     @toggle_fields.each do |name, value|
-      Array(value).each { |item| input(type: "hidden", name:, value: item, form: stub_form_id) }
+      (value.is_a?(Array) ? value : [value]).each { |item| input(type: "hidden", name:, value: item, form: stub_form_id) }
     end
-  end
-
-  def parent
-    PluginCatalog.find(@key).parent
   end
 
   def stub_form_id

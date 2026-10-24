@@ -8,10 +8,6 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
 
   private
 
-  def enabled?
-    @context.plugin_enabled?
-  end
-
   def toggle_locked?
     super || !@context.staff_role_present?
   end

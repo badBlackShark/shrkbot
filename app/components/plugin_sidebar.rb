@@ -65,7 +65,7 @@ class Components::PluginSidebar < Components::Base
       active: @active_key == parent,
       status: nil
     }
-    [overview] + PluginCatalog.sub_plugin_keys(parent).map { |key| sub_item(key) }
+    [overview] + PluginCatalog.visible_sub_plugin_keys(parent, @config).map { |key| sub_item(key) }
   end
 
   def sub_item(key)

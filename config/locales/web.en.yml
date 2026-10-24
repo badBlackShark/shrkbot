@@ -445,9 +445,11 @@ en:
     sub_plugin_row:
       configure: Configure
       locked_reason:
-        moderation: Pick a staff role first.
+        image_scanning: Pick a staff role first.
+        spam_protection: Pick a staff role first.
       needs_setup_hint:
-        moderation: Pick a staff role first.
+        image_scanning: Pick a staff role first.
+        spam_protection: Pick a staff role first.
       status:
         disabled: Disabled
         enabled: Enabled

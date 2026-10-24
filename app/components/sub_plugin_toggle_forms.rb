@@ -9,7 +9,7 @@ class Components::SubPluginToggleForms < Components::Base
   end
 
   def view_template
-    PluginCatalog.sub_plugin_keys(@parent).each do |key|
+    PluginCatalog.visible_sub_plugin_keys(@parent, @config).each do |key|
       form_with(
         url: PluginPaths.for(@config, key),
         method: :patch,

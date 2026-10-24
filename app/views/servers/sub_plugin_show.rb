@@ -5,8 +5,8 @@ class Views::Servers::SubPluginShow < Views::Servers::PluginConfigShow
 
   private
 
-  def parent_path
-    PluginPaths.for(@config, parent_key)
+  def enabled?
+    enabled_keys.include?(plugin_key)
   end
 
   def group_enabled?

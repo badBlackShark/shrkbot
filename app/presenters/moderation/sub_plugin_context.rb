@@ -11,22 +11,12 @@ module Moderation
       @config.moderation_settings&.staff_role_id.present?
     end
 
-    def plugin_enabled?
-      enabled_keys.include?(@plugin_key)
-    end
-
     def settings
       if @plugin_key == :spam_protection
         @config.spam_protection_settings
       else
         @config.image_scanning_settings
       end
-    end
-
-    private
-
-    def enabled_keys
-      @enabled_keys ||= @config.enabled_plugin_keys
     end
   end
 end
