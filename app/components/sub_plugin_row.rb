@@ -13,26 +13,21 @@ class Components::SubPluginRow < Components::Base
     "#{key}-overview-toggle-form"
   end
 
-  def initialize(server_configuration:, key:, name:, description:, enabled:, configured:, toggle_fields:, group_enabled:)
+  def initialize(server_configuration:, row:, group_enabled:)
     @config = server_configuration
-    @key = key
-    @name = name
-    @description = description
-    @enabled = enabled
-    @configured = configured
-    @toggle_fields = toggle_fields
+    @row = row
     @group_enabled = group_enabled
   end
 
   def view_template
-    render Components::Card.new(enabled: @enabled, class: "flex items-center gap-4") do
-      render Components::PluginTile.new(icon: plugin_icon(@key), enabled: @enabled)
+    render Components::Card.new(enabled: @row.enabled, class: "flex items-center gap-4") do
+      render Components::PluginTile.new(icon: plugin_icon(@row.key), enabled: @row.enabled)
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
-          span(class: "font-display font-semibold") { @name }
+          span(class: "font-display font-semibold") { @row.name }
           status_badge
         end
-        p(class: "mt-0.5 text-sm text-text-secondary") { @description }
+        p(class: "mt-0.5 text-sm text-text-secondary") { @row.description }
         needs_setup_inline_warning if needs_setup?
       end
       configure_link
@@ -49,18 +44,18 @@ class Components::SubPluginRow < Components::Base
   end
 
   def status
-    return :needs_setup unless @configured
-    @enabled ? :enabled : :disabled
+    return :needs_setup unless @row.configured
+    @row.enabled ? :enabled : :disabled
   end
 
   def needs_setup?
-    !@configured && @group_enabled
+    !@row.configured && @group_enabled
   end
 
   def needs_setup_inline_warning
     p(class: "mt-1 flex items-center gap-1 text-xs font-medium text-warning") do
       render Components::Icon.new("warning", class: "size-3.5")
-      span { t(".needs_setup_hint.#{@key}") }
+      span { t(".needs_setup_hint.#{@row.key}") }
     end
   end
 
@@ -75,7 +70,7 @@ class Components::SubPluginRow < Components::Base
   end
 
   def sub_path
-    PluginPaths.for(@config, @key)
+    PluginPaths.for(@config, @row.key)
   end
 
   def toggle_control
@@ -87,11 +82,11 @@ class Components::SubPluginRow < Components::Base
   end
 
   def locked_toggle
-    render Components::Tooltip.new(text: t(".locked_reason.#{@key}")) do
+    render Components::Tooltip.new(text: t(".locked_reason.#{@row.key}")) do
       render Components::Toggle.new(
-        name: "#{@key}[enabled]",
-        checked: @enabled,
-        label: t(".toggle_label", name: @name),
+        name: "#{@row.key}[enabled]",
+        checked: @row.enabled,
+        label: t(".toggle_label", name: @row.name),
         disabled: true
       )
     end
@@ -106,21 +101,21 @@ class Components::SubPluginRow < Components::Base
     )
     toggle_hidden_fields
     render Components::Toggle.new(
-      name: "#{@key}[enabled]",
-      checked: @enabled,
-      label: t(".toggle_label", name: @name),
+      name: "#{@row.key}[enabled]",
+      checked: @row.enabled,
+      label: t(".toggle_label", name: @row.name),
       submit_on_change: true,
       form: stub_form_id
     )
   end
 
   def toggle_hidden_fields
-    @toggle_fields.each do |name, value|
+    @row.toggle_fields.each do |name, value|
       (value.is_a?(Array) ? value : [value]).each { |item| input(type: "hidden", name:, value: item, form: stub_form_id) }
     end
   end
 
   def stub_form_id
-    self.class.toggle_form_id(@key)
+    self.class.toggle_form_id(@row.key)
   end
 end

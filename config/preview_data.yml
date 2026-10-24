@@ -182,3 +182,33 @@ plugins:
       pingable_roles:
         - role_id: 206
         - role_id: 207
+
+  - plugin: feeds
+    enabled: true
+
+  - plugin: steam_news
+    enabled: true
+    records:
+      feed_subscriptions:
+        - watch:
+            find_by:
+              watcher: Integrations::Steam::NewsWatcher
+              external_id: "1145350"
+            create_with:
+              name: Hades II
+          channel_id: 101
+          role_id: 207
+          body_length: preview
+          subscribed_events:
+            - event_type: Integrations::Steam::PatchNotesPublished
+            - event_type: Integrations::Steam::AnnouncementPublished
+        - watch:
+            find_by:
+              watcher: Integrations::Steam::NewsWatcher
+              external_id: "440"
+            create_with:
+              name: Team Fortress 2
+          channel_id: 107
+          body_length: full
+          subscribed_events:
+            - event_type: Integrations::Steam::PatchNotesPublished

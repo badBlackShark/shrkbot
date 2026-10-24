@@ -16,12 +16,7 @@ class Components::SubPluginDirectory < Components::Base
         @rows.each do |row|
           render Components::SubPluginRow.new(
             server_configuration: @config,
-            key: row.key,
-            name: row.name,
-            description: row.description,
-            enabled: row.enabled,
-            configured: row.configured,
-            toggle_fields: row.toggle_fields,
+            row:,
             group_enabled: @group_enabled
           )
         end

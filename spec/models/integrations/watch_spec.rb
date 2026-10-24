@@ -48,6 +48,28 @@ RSpec.describe Integrations::Watch do
     end
   end
 
+  describe "#broken?" do
+    subject(:broken) { build(:integration_watch, failing_since:).broken? }
+
+    context "when it never failed" do
+      let(:failing_since) { nil }
+
+      it { is_expected.to be(false) }
+    end
+
+    context "when it failed less than 24 hours ago" do
+      let(:failing_since) { 1.hour.ago }
+
+      it { is_expected.to be(false) }
+    end
+
+    context "when it has failed for more than 24 hours" do
+      let(:failing_since) { 25.hours.ago }
+
+      it { is_expected.to be(true) }
+    end
+  end
+
   describe ".unreported" do
     subject(:unreported) { described_class.unreported }
 

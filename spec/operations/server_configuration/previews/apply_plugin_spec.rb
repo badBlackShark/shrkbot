@@ -92,4 +92,84 @@ RSpec.describe Ops::ServerConfiguration::Previews::ApplyPlugin do
       expect(server_configuration.lfg_settings.pingable_roles.sole.excluded_role_ids).to eq([])
     end
   end
+
+  context "with a plugin that has no settings row" do
+    let!(:plugin) { create(:plugin, key: "feeds", name: "Feeds") }
+    let!(:source_plugin) { create(:plugin, key: "steam_news", name: "Steam News") }
+    let(:entry) { {plugin: "feeds", enabled: true} }
+
+    it "flips the plugin activation without a settings association" do
+      result
+
+      expect(server_configuration.plugin_activations.find_by(plugin:).enabled).to be(true)
+    end
+
+    context "with records that hang off the server configuration" do
+      let(:feeds_entry) { {plugin: "feeds", enabled: true} }
+      let(:entry) do
+        {
+          plugin: "steam_news",
+          enabled: true,
+          records: {
+            feed_subscriptions: [
+              {
+                watch: {
+                  find_by: {watcher: "Integrations::Steam::NewsWatcher", external_id: "440"},
+                  create_with: {name: "Team Fortress 2"}
+                },
+                channel_id: 101,
+                role_id: 207,
+                body_length: "full",
+                subscribed_events: [
+                  {event_type: "Integrations::Steam::PatchNotesPublished"},
+                  {event_type: "Integrations::Steam::ArticlePublished"}
+                ]
+              }
+            ]
+          }
+        }
+      end
+
+      before { described_class.call(server_configuration:, entry: feeds_entry) }
+
+      it "builds the subscription with its nested events on the server configuration" do
+        result
+
+        subscription = server_configuration.feed_subscriptions.sole
+        expect(subscription).to have_attributes(channel_id: 101, role_id: 207, body_length: "full")
+        expect(subscription.subscribed_events.pluck(:event_type)).to match_array(
+          ["Integrations::Steam::PatchNotesPublished", "Integrations::Steam::ArticlePublished"]
+        )
+      end
+
+      it "creates the referenced watch with its create_with attributes" do
+        result
+
+        expect(server_configuration.feed_subscriptions.sole.watch).to have_attributes(
+          watcher: "Integrations::Steam::NewsWatcher",
+          external_id: "440",
+          name: "Team Fortress 2"
+        )
+      end
+
+      context "when the referenced watch already exists under another name" do
+        let!(:existing_watch) { create(:integration_watch, external_id: "440", name: "TF2") }
+
+        it "reuses it without renaming it" do
+          result
+
+          expect(server_configuration.feed_subscriptions.sole.watch).to eq(existing_watch)
+          expect(existing_watch.reload.name).to eq("TF2")
+        end
+      end
+
+      it "builds no duplicates when run twice" do
+        result
+        described_class.call(server_configuration:, entry:)
+
+        expect(server_configuration.feed_subscriptions.count).to eq(1)
+        expect(Integrations::Watch.where(external_id: "440").count).to eq(1)
+      end
+    end
+  end
 end

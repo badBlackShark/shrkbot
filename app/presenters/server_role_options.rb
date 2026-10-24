@@ -17,6 +17,10 @@ class ServerRoleOptions
     end
   end
 
+  def names_by_id
+    @config.server_roles.to_h { |role| [role.discord_id, role.name] }
+  end
+
   private
 
   def color_hex(color)

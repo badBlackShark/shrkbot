@@ -12,7 +12,8 @@ module Ops
           activation = PluginActivation.find_or_initialize_by(server_configuration:, plugin:)
           activation.enabled = enabled
           if activation.enabled? && !prerequisites_met?
-            return failure(I18n.t("operations.server_configuration.plugins.requires_settings", plugin: plugin.name))
+            activation.restore_attributes
+            return failure(refusal, value: activation)
           end
           activation.save!
           publish_side_effects(activation)
@@ -22,8 +23,20 @@ module Ops
         private
 
         def prerequisites_met?
-          definition = PluginCatalog.find(plugin.key)
           definition.nil? || definition.prerequisites_met?(server_configuration)
+        end
+
+        def refusal
+          parent = definition.parent
+          if parent && !server_configuration.enabled_plugin_keys.include?(parent)
+            I18n.t("operations.server_configuration.plugins.requires_parent", plugin: plugin.name, parent: PluginCatalog.find(parent).name)
+          else
+            I18n.t("operations.server_configuration.plugins.requires_settings", plugin: plugin.name)
+          end
+        end
+
+        def definition
+          PluginCatalog.find(plugin.key)
         end
 
         def publish_side_effects(activation)

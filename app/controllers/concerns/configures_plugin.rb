@@ -15,6 +15,14 @@ module ConfiguresPlugin
     @server_configuration.enabled_plugin_keys.include?(plugin_key)
   end
 
+  def toggle_plugin(enabled)
+    Ops::ServerConfiguration::Plugins::Toggle.call(
+      server_configuration: @server_configuration,
+      plugin: Plugin.find_by!(key: plugin_key.to_s),
+      enabled:
+    )
+  end
+
   def respond_with_configuration(result, error_keys: [:enabled])
     activation = result.value
     @enabled = activation.enabled?
@@ -29,6 +37,11 @@ module ConfiguresPlugin
       format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
       format.html { redirect_to configuration_url, **flash_for(result) }
     end
+  end
+
+  def redirect_to_overview(result)
+    parent = PluginCatalog.find(plugin_key).parent
+    redirect_to PluginPaths.for(@server_configuration, parent), status: :see_other, **flash_for(result)
   end
 
   def configuration_url

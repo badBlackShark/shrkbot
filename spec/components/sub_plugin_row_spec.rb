@@ -14,17 +14,27 @@ RSpec.describe Components::SubPluginRow do
     }
   end
 
-  let(:base_attrs) do
+  let(:row_attrs) do
     {
-      server_configuration: config,
       key: :spam_protection,
       name: "Cross-Channel Spam Guard",
       description: "Purges the same message posted across several channels within seconds.",
       enabled: true,
       configured: true,
-      toggle_fields:,
+      toggle_fields:
+    }
+  end
+
+  let(:base_attrs) do
+    {
+      server_configuration: config,
+      row: SubPluginStatus::Row.new(**row_attrs),
       group_enabled: true
     }
+  end
+
+  def with_row(**overrides)
+    base_attrs.merge(row: SubPluginStatus::Row.new(**row_attrs.merge(overrides)))
   end
 
   subject(:html) { described_class.new(**base_attrs).render_in(view_context) }
@@ -60,7 +70,7 @@ RSpec.describe Components::SubPluginRow do
 
   context "when needs setup (not configured, group enabled)" do
     subject(:html) do
-      described_class.new(**base_attrs.merge(enabled: false, configured: false)).render_in(view_context)
+      described_class.new(**with_row(enabled: false, configured: false)).render_in(view_context)
     end
 
     it "renders the Needs setup badge" do
@@ -82,16 +92,7 @@ RSpec.describe Components::SubPluginRow do
 
   context "for image_scanning when enabled and configured" do
     subject(:html) do
-      described_class.new(
-        server_configuration: config,
-        key: :image_scanning,
-        name: "Scam Image Detection",
-        description: "Reads the text in images and fingerprints known scam images.",
-        enabled: true,
-        configured: true,
-        toggle_fields: {},
-        group_enabled: true
-      ).render_in(view_context)
+      described_class.new(**with_row(key: :image_scanning, name: "Scam Image Detection", enabled: true, configured: true, toggle_fields: {})).render_in(view_context)
     end
 
     it "links the Configure button to the image_scanning path" do
@@ -114,16 +115,7 @@ RSpec.describe Components::SubPluginRow do
 
   context "for image_scanning when needs setup (not configured, group enabled)" do
     subject(:html) do
-      described_class.new(
-        server_configuration: config,
-        key: :image_scanning,
-        name: "Scam Image Detection",
-        description: "Reads the text in images and fingerprints known scam images.",
-        enabled: false,
-        configured: false,
-        toggle_fields: {},
-        group_enabled: true
-      ).render_in(view_context)
+      described_class.new(**with_row(key: :image_scanning, name: "Scam Image Detection", enabled: false, configured: false, toggle_fields: {})).render_in(view_context)
     end
 
     it "renders the Needs setup badge" do
@@ -141,7 +133,7 @@ RSpec.describe Components::SubPluginRow do
 
   context "for spam_protection when disabled but configured" do
     subject(:html) do
-      described_class.new(**base_attrs.merge(enabled: false, configured: true)).render_in(view_context)
+      described_class.new(**with_row(enabled: false, configured: true)).render_in(view_context)
     end
 
     it "renders the Disabled badge" do
@@ -159,7 +151,7 @@ RSpec.describe Components::SubPluginRow do
 
   context "when toggle_fields is empty (no settings record yet)" do
     subject(:html) do
-      described_class.new(**base_attrs.merge(enabled: false, configured: true, toggle_fields: {})).render_in(view_context)
+      described_class.new(**with_row(enabled: false, configured: true, toggle_fields: {})).render_in(view_context)
     end
 
     it "renders without hidden fields" do

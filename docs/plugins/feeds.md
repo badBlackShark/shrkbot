@@ -3,6 +3,30 @@
 A server follows a source (today a Steam game) and gets its new posts in a channel.
 This page covers the data, polling and posting sides.
 
+## Pages
+
+Two catalog entries make the plugin group: `:feeds` (the parent) and `:steam_news`
+(`parent: :feeds`). A new source is another sub-plugin entry, its `Feeds::SOURCE_PLUGINS`
+line and its own page.
+
+- **Feeds** (`Servers::FeedsController`): the overview. It renders
+  `Components::SubPluginDirectory` with one row per sub-plugin
+  (`SubPluginStatus.rows(config, parent: :feeds)`), and `Components::SubPluginToggleForms`
+  after the page so a row's toggle can submit from the overview. A row toggle posts the
+  sub-plugin's own `PATCH` with `from_overview=1` and the controller redirects back to
+  the Feeds page.
+- **Steam News** (`Servers::SteamNewsController`, a `Views::Servers::SubPluginShow`):
+  lists the games the server follows, read-only for now.
+  `Finders::Feeds::SourceSubscriptions` returns the server's subscriptions on that
+  source, ordered by game name, and `Components::Feeds::SubscriptionList` builds the
+  channel and role lookups once for all rows. A row shows the game, the channel, the
+  pinged role, the followed event types, and a warning when the watch is broken
+  (`Integrations::Watch#broken?`).
+- Turning Feeds off or on goes through `Ops::ServerConfiguration::Plugins::Toggle`
+  like any plugin. A sub-plugin cannot be turned on while Feeds is off.
+- Demo data: `config/preview_data.yml` enables both and follows two games, each through a
+  shared `Integrations::Watch`, see [../web/preview.md](../web/preview.md).
+
 ## Tables
 
 - `feed_subscriptions` (`Feeds::Subscription`): one row per server and followed watch.

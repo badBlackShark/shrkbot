@@ -16,7 +16,7 @@ class Components::PluginSidebar < Components::Base
         div(class: "my-3 h-px bg-border-subtle")
         p(class: "mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins") }
         nav(class: "flex flex-col gap-0.5") do
-          items.each do |row|
+          all_rows.each do |row|
             next if PluginCatalog.sub_plugin?(row.key)
 
             item(row)
@@ -37,10 +37,6 @@ class Components::PluginSidebar < Components::Base
     return group(row) if PluginCatalog.sub_plugin_keys(row.key).any?
 
     nav_item(row)
-  end
-
-  def items
-    all_rows.select { |row| PluginPaths.for(@config, row.key) }
   end
 
   def group(row)
@@ -65,7 +61,15 @@ class Components::PluginSidebar < Components::Base
       active: @active_key == parent,
       status: nil
     }
-    [overview] + PluginCatalog.visible_sub_plugin_keys(parent, @config).map { |key| sub_item(key) }
+    [overview] + visible_sub_plugin_keys(parent).map { |key| sub_item(key) }
+  end
+
+  def visible_sub_plugin_keys(parent)
+    PluginCatalog.sub_plugin_keys(parent) & visible_keys
+  end
+
+  def visible_keys
+    @visible_keys ||= all_rows.map(&:key)
   end
 
   def sub_item(key)
