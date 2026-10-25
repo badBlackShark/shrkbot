@@ -5,10 +5,10 @@ require "rails_helper"
 RSpec.describe Components::Feeds::SubscriptionList do
   include_context "component view context"
 
-  subject(:html) { described_class.new(server_configuration:, plugin_key: :steam_news).render_in(view_context) }
+  subject(:html) { described_class.new(server_configuration:, plugin_key: :steam).render_in(view_context) }
 
   let(:server_configuration) { create(:server_configuration) }
-  let(:add_path) { Rails.application.routes.url_helpers.new_server_steam_news_subscription_path(server_configuration.discord_id) }
+  let(:add_path) { Rails.application.routes.url_helpers.new_server_steam_subscription_path(server_configuration.discord_id) }
 
   context "with room left" do
     before { create(:feed_subscription, server_configuration:) }

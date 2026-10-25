@@ -77,29 +77,29 @@ RSpec.describe Feeds::Subscription do
 
     let(:server_configuration) { create(:server_configuration) }
     let!(:subscription) { create(:feed_subscription, server_configuration:) }
-    let(:feeds_enabled) { true }
-    let(:steam_news_enabled) { true }
+    let(:integrations_enabled) { true }
+    let(:steam_enabled) { true }
 
     before do
-      feeds_activation = create(:plugin_activation, server_configuration:, plugin: create(:plugin, key: "feeds"), enabled: true)
-      create(:plugin_activation, server_configuration:, plugin: create(:plugin, key: "steam_news"), enabled: steam_news_enabled)
-      feeds_activation.update_column(:enabled, feeds_enabled)
+      integrations_activation = create(:plugin_activation, server_configuration:, plugin: create(:plugin, key: "integrations"), enabled: true)
+      create(:plugin_activation, server_configuration:, plugin: create(:plugin, key: "steam"), enabled: steam_enabled)
+      integrations_activation.update_column(:enabled, integrations_enabled)
     end
 
-    context "with feeds and steam_news enabled on a real server" do
+    context "with integrations and steam enabled on a real server" do
       it "includes the subscription" do
         expect(active).to contain_exactly(subscription)
       end
     end
 
-    context "with feeds disabled" do
-      let(:feeds_enabled) { false }
+    context "with integrations disabled" do
+      let(:integrations_enabled) { false }
 
       it { is_expected.to be_empty }
     end
 
-    context "with steam_news disabled" do
-      let(:steam_news_enabled) { false }
+    context "with steam disabled" do
+      let(:steam_enabled) { false }
 
       it { is_expected.to be_empty }
     end
@@ -118,11 +118,11 @@ RSpec.describe Feeds::Subscription do
       it { is_expected.to be_empty }
     end
 
-    context "with another server that has only feeds enabled" do
+    context "with another server that has only integrations enabled" do
       let!(:other) { create(:feed_subscription) }
 
       before do
-        create(:plugin_activation, server_configuration: other.server_configuration, plugin: Plugin.find_by!(key: "feeds"), enabled: true)
+        create(:plugin_activation, server_configuration: other.server_configuration, plugin: Plugin.find_by!(key: "integrations"), enabled: true)
       end
 
       it "includes only the fully enabled one" do

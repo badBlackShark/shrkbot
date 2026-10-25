@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-class Servers::FeedsController < ApplicationController
+class Servers::IntegrationsController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
 
   def show
-    render Views::Servers::Feeds::Show.new(
+    render Views::Servers::Integrations::Show.new(
       server_configuration: @server_configuration,
       user: current_user,
       enabled: plugin_enabled?
@@ -13,13 +13,13 @@ class Servers::FeedsController < ApplicationController
   end
 
   def update
-    result = toggle_plugin(feeds_params[:enabled])
+    result = toggle_plugin(integrations_params[:enabled])
     respond_with_configuration(result)
   end
 
   private
 
-  def feeds_params
-    params.expect(feeds: [:enabled])
+  def integrations_params
+    params.expect(integrations: [:enabled])
   end
 end

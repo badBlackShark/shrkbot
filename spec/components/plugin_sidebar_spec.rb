@@ -124,16 +124,16 @@ RSpec.describe Components::PluginSidebar do
     end
   end
 
-  context "when the Steam News page is active" do
+  context "when the Steam page is active" do
     subject(:html) do
-      described_class.new(server_configuration: config, active_key: :steam_news, access:).render_in(view_context)
+      described_class.new(server_configuration: config, active_key: :steam, access:).render_in(view_context)
     end
 
     let(:name) { "Dev Refuge" }
     let(:groups) { Nokogiri::HTML.fragment(html).css("details").to_h { |group| [group.at_css("summary").text.strip, group] } }
 
-    it "opens the Feeds group and leaves Server Shield closed" do
-      expect(groups.fetch("Feeds").key?("open")).to be(true)
+    it "opens the Integrations group and leaves Server Shield closed" do
+      expect(groups.fetch("Integrations").key?("open")).to be(true)
       expect(groups.fetch("Server Shield").key?("open")).to be(false)
     end
   end

@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe Components::Feeds::VolumeLine do
   include_context "component view context"
 
-  subject(:html) { described_class.new(volume:, plugin_key: :steam_news).render_in(view_context) }
+  subject(:html) { described_class.new(volume:, plugin_key: :steam).render_in(view_context) }
 
   let(:patch_notes) { "Integrations::Steam::PatchNotesPublished" }
   let(:announcements) { "Integrations::Steam::AnnouncementPublished" }

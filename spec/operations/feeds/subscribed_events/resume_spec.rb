@@ -27,8 +27,8 @@ RSpec.describe Ops::Feeds::SubscribedEvents::Resume do
     travel_to(now)
   end
 
-  context "when the feeds plugin is the one enabled" do
-    let(:plugin_key) { :feeds }
+  context "when the integrations plugin is the one enabled" do
+    let(:plugin_key) { :integrations }
 
     it "resets every follow time of the server" do
       result
@@ -44,7 +44,7 @@ RSpec.describe Ops::Feeds::SubscribedEvents::Resume do
   end
 
   context "when a source plugin is the one enabled" do
-    let(:plugin_key) { :steam_news }
+    let(:plugin_key) { :steam }
 
     it "resets the follow times on that source's watches only" do
       result

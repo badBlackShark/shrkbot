@@ -118,7 +118,7 @@ A new plugin isn't done until it demos. Add an entry to the `plugins:` list in
 - `plugin` is the `PluginCatalog` key.
 - `settings_association` is the association name on `ServerConfiguration` for
   that plugin's settings row (`Ensure` already created it — `ApplyPlugin` only
-  updates). A plugin without a settings row (Feeds) leaves it out, and its
+  updates). A plugin without a settings row (Integrations) leaves it out, and its
   `records` hang off the `ServerConfiguration` itself.
 - `settings` is applied straight onto that row with `update!`, when present.
 - `records`, if present, is a hash of association name → array of attribute
@@ -135,7 +135,7 @@ A new plugin isn't done until it demos. Add an entry to the `plugins:` list in
   `external_id`), never by a display name.
 
 ```yaml
-- plugin: steam_news
+- plugin: steam
   enabled: true
   records:
     feed_subscriptions:

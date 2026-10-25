@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe Finders::Feeds::SourceSubscriptions do
-  subject(:subscriptions) { described_class.call(server_configuration:, plugin_key: :steam_news) }
+  subject(:subscriptions) { described_class.call(server_configuration:, plugin_key: :steam) }
 
   let(:server_configuration) { create(:server_configuration) }
   let(:other_server) { create(:server_configuration) }

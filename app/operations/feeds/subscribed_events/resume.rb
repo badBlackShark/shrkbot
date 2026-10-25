@@ -16,7 +16,7 @@ module Ops
 
         def subscriptions
           all = server_configuration.feed_subscriptions
-          return all if plugin_key == ::Feeds::PLUGIN_KEY
+          return all if plugin_key == ::Feeds::GROUP_KEY
 
           watcher = ::Feeds::SOURCE_PLUGINS.key(plugin_key)
           all.where(watch_id: ::Integrations::Watch.where(watcher:).select(:id)) if watcher

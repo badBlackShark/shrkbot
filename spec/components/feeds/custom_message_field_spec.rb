@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe Components::Feeds::CustomMessageField do
   include_context "component view context"
 
-  subject(:html) { described_class.new(subscription:, plugin_key: :steam_news, event_type:, event:).render_in(view_context) }
+  subject(:html) { described_class.new(subscription:, plugin_key: :steam, event_type:, event:).render_in(view_context) }
 
   let(:event_type) { "Integrations::Steam::PatchNotesPublished" }
   let(:subscription) { build(:feed_subscription, watch: build(:integration_watch, name: "Hades II")) }
@@ -20,7 +20,7 @@ RSpec.describe Components::Feeds::CustomMessageField do
   end
 
   it "renders one copy chip per token" do
-    Feeds::Templates::TOKENS_BY_SOURCE.fetch(:steam_news).each do |token|
+    Feeds::Templates::TOKENS_BY_SOURCE.fetch(:steam).each do |token|
       expect(html).to include(%(data-clipboard-text-param="{#{token}}"))
     end
   end

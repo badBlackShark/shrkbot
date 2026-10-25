@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-class Views::Servers::SteamNews::Subscriptions::Lookup < Views::Base
+class Views::Servers::Steam::Subscriptions::Lookup < Views::Base
   include Phlex::Rails::Helpers::FormWith
 
   FIELD = "w-full rounded-control border-[1.5px] border-border-strong bg-surface-card px-3 py-2 font-mono text-sm " \
     "text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
     "focus:ring-3 focus:ring-[var(--focus-ring)] aria-invalid:border-danger"
-  ERROR_ID = "steam-news-lookup-error"
+  ERROR_ID = "steam-lookup-error"
 
   def initialize(server_configuration:, user:, input: nil, error: nil, existing: nil)
     @config = server_configuration
@@ -17,8 +17,8 @@ class Views::Servers::SteamNews::Subscriptions::Lookup < Views::Base
   end
 
   def view_template
-    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :steam_news) do
-      render Components::Feeds::AddPage.new(server_configuration: @config, plugin_key: :steam_news) do
+    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :steam) do
+      render Components::Feeds::AddPage.new(server_configuration: @config, plugin_key: :steam) do
         render Components::PageHeading.new(title: t(".title"), subtitle: t(".subtitle"))
         render Components::Card.new { lookup_form }
       end
@@ -28,7 +28,7 @@ class Views::Servers::SteamNews::Subscriptions::Lookup < Views::Base
   private
 
   def lookup_form
-    form_with(url: new_server_steam_news_subscription_path(@config.discord_id), method: :get, class: "flex flex-col gap-3") do
+    form_with(url: new_server_steam_subscription_path(@config.discord_id), method: :get, class: "flex flex-col gap-3") do
       render Components::FieldLabel.new { t(".label") }
       input(
         type: "text",
@@ -61,7 +61,7 @@ class Views::Servers::SteamNews::Subscriptions::Lookup < Views::Base
     p(id: ERROR_ID, class: "text-sm text-text-secondary") do
       plain t("operations.feeds.subscriptions.already_followed", name: @existing.watch.name)
       plain " "
-      a(href: edit_server_steam_news_subscription_path(@config.discord_id, @existing), class: "text-accent-soft-fg underline") { t(".edit_existing") }
+      a(href: edit_server_steam_subscription_path(@config.discord_id, @existing), class: "text-accent-soft-fg underline") { t(".edit_existing") }
     end
   end
 end

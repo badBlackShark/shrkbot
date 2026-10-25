@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-class Servers::SteamNews::VolumesController < ApplicationController
+class Servers::Steam::VolumesController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
 
-  WATCHER = Integrations::Steam::NewsWatcher
+  WATCHER = ::Integrations::Steam::NewsWatcher
 
   def show
-    render Views::Servers::SteamNews::Volumes::Show.new(
+    render Views::Servers::Steam::Volumes::Show.new(
       volume: ::Feeds::VolumeLookup.call(WATCHER, params.expect(:app)),
       plugin_key:
     )
@@ -16,6 +16,6 @@ class Servers::SteamNews::VolumesController < ApplicationController
   private
 
   def plugin_key
-    :steam_news
+    :steam
   end
 end

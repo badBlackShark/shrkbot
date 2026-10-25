@@ -2,22 +2,22 @@
 
 require "rails_helper"
 
-RSpec.describe "Steam News config", type: :request do
+RSpec.describe "Steam config", type: :request do
   include_context "plugin config request"
 
-  let(:plugin_path) { server_steam_news_path(guild.id) }
+  let(:plugin_path) { server_steam_path(guild.id) }
 
   it_behaves_like "a config page that requires sign-in"
 
   context "when signed in" do
-    let!(:feeds_plugin) { create(:plugin, key: "feeds", name: "Feeds") }
-    let!(:steam_news_plugin) { create(:plugin, key: "steam_news", name: "Steam News") }
-    let(:feeds_enabled) { true }
+    let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
+    let!(:steam_plugin) { create(:plugin, key: "steam", name: "Steam") }
+    let(:integrations_enabled) { true }
 
     before do
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
-      create(:plugin_activation, server_configuration: config, plugin: feeds_plugin, enabled: true) if feeds_enabled
+      create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: true) if integrations_enabled
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     end
 
@@ -26,21 +26,21 @@ RSpec.describe "Steam News config", type: :request do
     context "after loading the dashboard authorizes the server" do
       before { get server_path(guild.id) }
 
-      describe "GET /servers/:server_id/steam_news" do
-        context "when Feeds is off" do
-          let(:feeds_enabled) { false }
+      describe "GET /servers/:server_id/steam" do
+        context "when Integrations is off" do
+          let(:integrations_enabled) { false }
 
           it "renders the prerequisite gate and a locked toggle" do
             get plugin_path
 
             expect(response).to have_http_status(:ok)
-            expect(response.body).to include("Feeds is off")
-            expect(response.body).to include("Go to Feeds")
-            expect(response.body).to include("Turn Feeds on first.")
+            expect(response.body).to include("Integrations is off")
+            expect(response.body).to include("Go to Integrations")
+            expect(response.body).to include("Turn Integrations on first.")
           end
         end
 
-        context "when Feeds is on and the server follows no games" do
+        context "when Integrations is on and the server follows no games" do
           it "renders the empty state" do
             get plugin_path
 
@@ -72,8 +72,8 @@ RSpec.describe "Steam News config", type: :request do
           it "offers adding, editing and stopping on a real server" do
             get plugin_path
 
-            expect(response.body).to include("Add a game", new_server_steam_news_subscription_path(guild.id))
-            expect(response.body).to include(edit_server_steam_news_subscription_path(guild.id, Feeds::Subscription.find_by!(watch: hades)))
+            expect(response.body).to include("Add a game", new_server_steam_subscription_path(guild.id))
+            expect(response.body).to include(edit_server_steam_subscription_path(guild.id, Feeds::Subscription.find_by!(watch: hades)))
             expect(response.body).to include("Stop following")
           end
 
@@ -142,29 +142,29 @@ RSpec.describe "Steam News config", type: :request do
         end
       end
 
-      describe "PATCH /servers/:server_id/steam_news" do
-        subject(:toggle) { patch plugin_path, params: {steam_news: {enabled: "1"}}.merge(extra_params), **headers }
+      describe "PATCH /servers/:server_id/steam" do
+        subject(:toggle) { patch plugin_path, params: {steam: {enabled: "1"}}.merge(extra_params), **headers }
 
         let(:extra_params) { {} }
         let(:headers) { turbo }
 
-        it "enables Steam News when Feeds is on" do
+        it "enables Steam when Integrations is on" do
           toggle
 
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
-          expect(response.body).to include("steam_news-config")
-          expect(config.enabled_plugin_keys).to include(:steam_news)
+          expect(response.body).to include("steam-config")
+          expect(config.enabled_plugin_keys).to include(:steam)
         end
 
-        context "when Feeds is off" do
-          let(:feeds_enabled) { false }
+        context "when Integrations is off" do
+          let(:integrations_enabled) { false }
 
           it "refuses with the reason rendered" do
             toggle
 
             expect(response).to have_http_status(:unprocessable_content)
-            expect(response.body).to include("Steam News is part of Feeds. Turn Feeds on first.")
-            expect(config.enabled_plugin_keys).not_to include(:steam_news)
+            expect(response.body).to include("Steam is part of Integrations. Turn Integrations on first.")
+            expect(config.enabled_plugin_keys).not_to include(:steam)
           end
 
           context "without a Turbo Stream" do
@@ -183,11 +183,11 @@ RSpec.describe "Steam News config", type: :request do
           let(:extra_params) { {from_overview: "1"} }
           let(:headers) { {} }
 
-          it "redirects to the Feeds page" do
+          it "redirects to the Integrations page" do
             toggle
 
-            expect(response).to redirect_to(server_feeds_path(guild.id))
-            expect(flash[:notice]).to eq("Steam News settings saved.")
+            expect(response).to redirect_to(server_integrations_path(guild.id))
+            expect(flash[:notice]).to eq("Steam settings saved.")
           end
         end
       end

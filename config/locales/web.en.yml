@@ -129,7 +129,7 @@ en:
         length_title: Post length
         role_label: Role to ping (optional)
         role_placeholder: No ping
-        steam_news:
+        steam:
           what_note: Some developers don't tag their patch notes, so their updates
             arrive as announcements. To get every update, keep Patch notes and Announcements
             both on.
@@ -137,7 +137,7 @@ en:
         what_title: What to post
         where_title: Where to post
       subscription_list:
-        steam_news:
+        steam:
           add: Add a game
           empty_title: No games yet
           heading: Followed games
@@ -146,13 +146,13 @@ en:
         no_ping: no ping
         pings: pings @%{role}
         role_missing: pings a role that was deleted
-        steam_news:
+        steam:
           broken: Steam hasn't answered for this game since %{since} UTC. shrkbot
             keeps trying every hour, and posts what it missed from the last 48 hours
             once Steam answers.
       target_card:
         change: Not this one?
-        steam_news:
+        steam:
           external_id: Steam app %{id}
       volume_line:
         counts:
@@ -445,10 +445,10 @@ en:
       needs_setup_hint: Complete setup before enabling this plugin.
       not_manageable: You can't configure this plugin on this server.
       plugin:
-        feeds:
+        integrations:
           description: Posts news from the platforms you follow, like Steam, in the
             channels you pick.
-          name: Feeds
+          name: Integrations
         lfg:
           description: Let members find people to play with, on the fly or scheduled.
           name: Looking for Game
@@ -466,10 +466,10 @@ en:
         roles:
           description: Let members give themselves roles from a menu.
           name: Roles
-        steam_news:
+        steam:
           description: Posts new patch notes, announcements and press coverage of
             the Steam games you follow.
-          name: Steam News
+          name: Steam
         twilight_struggle:
           description: Post results from twilight-struggle.com as they are reported.
           name: Twilight Struggle
@@ -731,10 +731,10 @@ en:
         title: "%{channel_name} was deleted"
         title_unknown: A channel was deleted
   servers:
-    feeds:
-      saved: Feeds settings saved.
     image_scanning:
       saved: Scam Image Detection settings saved.
+    integrations:
+      saved: Integrations settings saved.
     lfg:
       saved: Looking for Game settings saved.
     logging:
@@ -758,9 +758,9 @@ en:
       saved: Role settings saved.
     spam_protection:
       saved: Cross-Channel Spam Guard settings saved.
-    steam_news:
+    steam:
       followed: Now following %{name}.
-      saved: Steam News settings saved.
+      saved: Steam settings saved.
       unfollowed: Stopped following %{name}.
     twilight_struggle:
       saved: Twilight Struggle settings saved.
@@ -872,12 +872,6 @@ en:
       continue: Continue
       title: Signing you back in
     servers:
-      feeds:
-        show:
-          description: Posts news from the platforms you follow, like Steam, in the
-            channels you pick.
-          gate_message: Enable Feeds to post news from the sources you follow.
-          title: Feeds
       image_scanning:
         show:
           description: Reads the text inside posted images and checks it against known
@@ -910,6 +904,12 @@ en:
         refresh: Refresh
         subtitle: Pick a server to configure shrkbot.
         title: Your servers
+      integrations:
+        show:
+          description: Posts news from the platforms you follow, like Steam, in the
+            channels you pick.
+          gate_message: Enable Integrations to post news from the sources you follow.
+          title: Integrations
       lfg:
         show:
           description: Let members find people to play with, on the fly or scheduled.
@@ -973,11 +973,11 @@ en:
           no_role_callout_suffix: ", then enable spam protection here."
           role_locked_reason: Pick a staff role first.
           title: Cross-Channel Spam Guard
-      steam_news:
+      steam:
         show:
           description: Posts new patch notes, announcements and press coverage of
             the Steam games you follow.
-          title: Steam News
+          title: Steam
         subscriptions:
           lookup:
             edit_existing: Edit its settings

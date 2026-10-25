@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module Feeds
-  PLUGIN_KEY = :feeds
-  SOURCE_PLUGINS = {"Integrations::Steam::NewsWatcher" => :steam_news}.freeze
+  GROUP_KEY = :integrations
+  SOURCE_PLUGINS = {"Integrations::Steam::NewsWatcher" => :steam}.freeze
   EVENT_TYPES_BY_SOURCE = {
-    steam_news: %w[
+    steam: %w[
       Integrations::Steam::PatchNotesPublished
       Integrations::Steam::AnnouncementPublished
       Integrations::Steam::ArticlePublished
@@ -12,7 +12,7 @@ module Feeds
   }.freeze
   EVENT_TYPES = EVENT_TYPES_BY_SOURCE.values.flatten.freeze
   DEFAULT_EVENT_TYPES_BY_SOURCE = {
-    steam_news: %w[
+    steam: %w[
       Integrations::Steam::PatchNotesPublished
       Integrations::Steam::AnnouncementPublished
     ]

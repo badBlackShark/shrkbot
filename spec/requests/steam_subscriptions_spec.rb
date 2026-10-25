@@ -2,23 +2,23 @@
 
 require "rails_helper"
 
-RSpec.describe "Steam News subscriptions", type: :request do
+RSpec.describe "Steam subscriptions", type: :request do
   include_context "plugin config request"
 
-  let(:plugin_path) { new_server_steam_news_subscription_path(guild.id) }
-  let(:list_path) { server_steam_news_path(guild.id) }
+  let(:plugin_path) { new_server_steam_subscription_path(guild.id) }
+  let(:list_path) { server_steam_path(guild.id) }
   let(:patch_notes) { "Integrations::Steam::PatchNotesPublished" }
   let(:announcements) { "Integrations::Steam::AnnouncementPublished" }
   let(:articles) { "Integrations::Steam::ArticlePublished" }
   let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg") }
-  let!(:feeds_plugin) { create(:plugin, key: "feeds", name: "Feeds") }
-  let!(:steam_news_plugin) { create(:plugin, key: "steam_news", name: "Steam News") }
+  let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
+  let!(:steam_plugin) { create(:plugin, key: "steam", name: "Steam") }
 
   before do
     post "/auth/discord/callback"
     create(:server_configuration, discord_id: guild.id)
-    create(:plugin_activation, server_configuration: config, plugin: feeds_plugin, enabled: true)
-    create(:plugin_activation, server_configuration: config, plugin: steam_news_plugin, enabled: true)
+    create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: true)
+    create(:plugin_activation, server_configuration: config, plugin: steam_plugin, enabled: true)
     create(:server_channel, server_configuration: config, discord_id: 777, name: "news")
     create(:server_role, server_configuration: config, discord_id: 888, name: "Gamers")
     allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
@@ -31,7 +31,7 @@ RSpec.describe "Steam News subscriptions", type: :request do
     Nokogiri::HTML(response.body).at_css(%(input[type=checkbox][name="subscription[event_types][#{type}]"]))
   end
 
-  describe "GET /servers/:server_id/steam_news/subscriptions/new" do
+  describe "GET /servers/:server_id/steam/subscriptions/new" do
     subject(:lookup) { get plugin_path, params: {app: input} }
 
     let(:input) { "1145350" }
@@ -76,7 +76,7 @@ RSpec.describe "Steam News subscriptions", type: :request do
         lookup
 
         expect(response.body).to include("This server already follows Hades II.")
-        expect(response.body).to include(edit_server_steam_news_subscription_path(guild.id, subscription))
+        expect(response.body).to include(edit_server_steam_subscription_path(guild.id, subscription))
       end
     end
 
@@ -106,14 +106,14 @@ RSpec.describe "Steam News subscriptions", type: :request do
 
         frame = Nokogiri::HTML(response.body).at_css("turbo-frame#feed-volume")
         expect(frame["loading"]).to eq("lazy")
-        expect(frame["src"]).to eq(server_steam_news_volume_path(guild.id, app: "1145350"))
+        expect(frame["src"]).to eq(server_steam_volume_path(guild.id, app: "1145350"))
         expect(Feeds::VolumeLookup).not_to have_received(:call)
       end
     end
   end
 
-  describe "POST /servers/:server_id/steam_news/subscriptions" do
-    subject(:create_subscription) { post server_steam_news_subscriptions_path(guild.id), params: {subscription: attributes} }
+  describe "POST /servers/:server_id/steam/subscriptions" do
+    subject(:create_subscription) { post server_steam_subscriptions_path(guild.id), params: {subscription: attributes} }
 
     let(:channel_id) { "777" }
     let(:role_id) { "888" }
@@ -234,8 +234,8 @@ RSpec.describe "Steam News subscriptions", type: :request do
     end
   end
 
-  describe "GET /servers/:server_id/steam_news/subscriptions/:id/edit" do
-    subject(:edit) { get edit_server_steam_news_subscription_path(guild.id, subscription) }
+  describe "GET /servers/:server_id/steam/subscriptions/:id/edit" do
+    subject(:edit) { get edit_server_steam_subscription_path(guild.id, subscription) }
 
     let(:watch) { create(:integration_watch, name: "Hades II", external_id: "1145350") }
     let!(:subscription) { create(:feed_subscription, server_configuration: config, watch:, channel_id: 777) }
@@ -281,7 +281,7 @@ RSpec.describe "Steam News subscriptions", type: :request do
 
       frame = Nokogiri::HTML(response.body).at_css("turbo-frame#feed-volume")
       expect(frame["loading"]).to eq("lazy")
-      expect(frame["src"]).to eq(server_steam_news_volume_path(guild.id, app: subscription.watch.external_id))
+      expect(frame["src"]).to eq(server_steam_volume_path(guild.id, app: subscription.watch.external_id))
       expect(Feeds::VolumeLookup).not_to have_received(:call)
     end
 
@@ -303,10 +303,10 @@ RSpec.describe "Steam News subscriptions", type: :request do
     end
   end
 
-  describe "PATCH /servers/:server_id/steam_news/subscriptions/:id" do
+  describe "PATCH /servers/:server_id/steam/subscriptions/:id" do
     subject(:update) do
       patch(
-        server_steam_news_subscription_path(guild.id, subscription),
+        server_steam_subscription_path(guild.id, subscription),
         params: {subscription: {channel_id:, role_id: "", body_length: "full", event_types:, templates:}},
         **headers
       )
@@ -331,7 +331,7 @@ RSpec.describe "Steam News subscriptions", type: :request do
       update
 
       expect(response.media_type).to eq("text/vnd.turbo-stream.html")
-      expect(response.body).to include("steam_news-config")
+      expect(response.body).to include("steam-config")
       expect(subscription.reload).to have_attributes(channel_id: 777, body_length: "full")
       expect(subscription.subscribed_events.find_by!(event_type: patch_notes).subscribed_since).to eq(followed_since)
       expect(subscription.subscribed_events.map(&:event_type)).to match_array([patch_notes, announcements])
@@ -398,14 +398,14 @@ RSpec.describe "Steam News subscriptions", type: :request do
       it "redirects back to the edit page" do
         update
 
-        expect(response).to redirect_to(edit_server_steam_news_subscription_path(guild.id, subscription))
-        expect(flash[:notice]).to eq("Steam News settings saved.")
+        expect(response).to redirect_to(edit_server_steam_subscription_path(guild.id, subscription))
+        expect(flash[:notice]).to eq("Steam settings saved.")
       end
     end
 
     context "with a channel from another server" do
       subject(:update) do
-        patch server_steam_news_subscription_path(guild.id, subscription), params: {subscription: {channel_id: "999", event_types: {}}}
+        patch server_steam_subscription_path(guild.id, subscription), params: {subscription: {channel_id: "999", event_types: {}}}
       end
 
       it "responds not found and changes nothing" do
@@ -417,8 +417,8 @@ RSpec.describe "Steam News subscriptions", type: :request do
     end
   end
 
-  describe "DELETE /servers/:server_id/steam_news/subscriptions/:id" do
-    subject(:destroy) { delete server_steam_news_subscription_path(guild.id, subscription) }
+  describe "DELETE /servers/:server_id/steam/subscriptions/:id" do
+    subject(:destroy) { delete server_steam_subscription_path(guild.id, subscription) }
 
     let!(:subscription) { create(:feed_subscription, server_configuration: config, watch: create(:integration_watch, name: "Hades II")) }
 
