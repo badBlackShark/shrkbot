@@ -171,7 +171,7 @@ Shield (`:moderation`) is the current one. The pages are
 `parent_crumb` hooks carry the group chrome, and `parent_crumb` defaults to the
 catalog parent. A sub-plugin page subclasses `Views::Servers::SubPluginShow`
 (supplying `plugin_key`, `icon` and `body`, plus its copy: `prereq_gate_*`,
-`group_locked_reason`, `subline_*`). It locks the header toggle with a reason
+`group_locked_reason`). It locks the header toggle with a reason
 inside a `Tooltip` and shows **`Components::PrereqGate`** while the parent is off
 -- a variant of the gate whose card names the blocking dependency and deep-links to
 where it's fixed instead of offering an Enable button -- and no gate once the parent

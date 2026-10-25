@@ -10,7 +10,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
 
   before_action :load_subscription, only: [:edit, :update, :destroy]
 
-  helper_method :subscription_volume
+  helper_method :volume_for
 
   def new
     return redirect_to steam_news_path, alert: cap_message if ::Feeds::Subscription.at_cap?(@server_configuration)
@@ -56,7 +56,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
       server_configuration: @server_configuration,
       user: current_user,
       subscription: @subscription,
-      volume: subscription_volume
+      volume: volume_for(@subscription.watch.external_id)
     )
   end
 
@@ -86,8 +86,8 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
     :steam_news
   end
 
-  def subscription_volume
-    ::Feeds::VolumeLookup.call(WATCHER, @subscription.watch.external_id)
+  def volume_for(external_id)
+    ::Feeds::VolumeLookup.call(WATCHER, external_id)
   end
 
   def load_subscription
@@ -130,7 +130,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
       subscription:,
       target:,
       error:,
-      volume: ::Feeds::VolumeLookup.call(WATCHER, target.external_id)
+      volume: volume_for(target.external_id)
     ), status:
   end
 

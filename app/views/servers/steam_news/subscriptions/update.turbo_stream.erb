@@ -1,1 +1,1 @@
-<%= render "servers/configuration_update", form: Components::Feeds::SubscriptionForm.new(subscription: @subscription, plugin_key: :steam_news, error: @error, volume: subscription_volume), active_key: "steam_news" %>
+<%= render "servers/configuration_update", form: Components::Feeds::SubscriptionForm.new(subscription: @subscription, plugin_key: :steam_news, error: @error, volume: volume_for(@subscription.watch.external_id)), active_key: "steam_news" %>
