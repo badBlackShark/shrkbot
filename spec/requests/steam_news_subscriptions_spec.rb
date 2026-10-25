@@ -265,6 +265,17 @@ RSpec.describe "Steam News subscriptions", type: :request do
       expect(checkbox(articles)["checked"]).to be_nil
     end
 
+    context "when the game has a header image" do
+      let(:watch) { create(:integration_watch, name: "Hades II", external_id: "1145350", image_url: "https://shared.akamai.steamstatic.com/hades.jpg") }
+
+      it "shows it in the header, loaded eagerly" do
+        edit
+
+        image = Nokogiri::HTML(response.body).at_css("img[src='https://shared.akamai.steamstatic.com/hades.jpg']")
+        expect(image["loading"]).to eq("eager")
+      end
+    end
+
     it "loads the volume line lazily from the volume endpoint without calling Steam" do
       edit
 
