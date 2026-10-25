@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 class Components::Feeds::EventTypeSetting < Components::Base
-  def initialize(subscription:, plugin_key:, event_type:, event:, volume:)
+  def initialize(subscription:, plugin_key:, event_type:, event:)
     @subscription = subscription
     @plugin_key = plugin_key
     @event_type = event_type
     @event = event
-    @volume = volume
   end
 
   def view_template
@@ -15,7 +14,7 @@ class Components::Feeds::EventTypeSetting < Components::Base
         name: "subscription[event_types][#{@event_type}]",
         checked: followed?,
         label: t("components.feeds.event_types.#{key}.label"),
-        help: help_with_volume,
+        help: t("components.feeds.event_types.#{key}.help"),
         data: {action: "change->disclosure#sync", disclosure_target: "toggle"}
       )
       message_disclosure
@@ -30,16 +29,6 @@ class Components::Feeds::EventTypeSetting < Components::Base
 
   def followed?
     @event.present? && !@event.marked_for_destruction?
-  end
-
-  def help_with_volume
-    [t("components.feeds.event_types.#{key}.help"), volume_hint].compact.join(" ")
-  end
-
-  def volume_hint
-    return unless @volume&.sample_size&.positive?
-
-    t(".volume", count: @volume.counts.fetch(@event_type, 0), total: @volume.sample_size)
   end
 
   def message_disclosure

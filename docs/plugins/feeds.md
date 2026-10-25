@@ -66,9 +66,11 @@ are no preview routes for these pages.
   stores `nil` when the text is blank or equals the default. `Feeds::Subscription`
   rejects a template that renders empty (`Templates.renders_empty?`, role counted only when
   one is set). Turning a post type off drops its event row, so its custom message goes too.
-- **Volume hints.** The add page (not edit) shows how many of the last 20 news items were
-  each post type (`Integrations::Steam::NewsWatcher.volume`, `Feeds::VolumeLookup`). When
-  Steam fails the lookup returns `nil` and the hints are left out.
+- **Volume line.** Under "What to post" a lazy Turbo frame (`feed-volume`) loads
+  `Servers::SteamNews::VolumesController#show`, which shows how many of the last 20 news
+  items were each post type (`Integrations::Steam::NewsWatcher.volume`,
+  `Feeds::VolumeLookup`). The follow and edit pages and saving never call Steam. When Steam
+  fails the lookup returns `nil` and the frame stays empty.
 
 ## Tables
 

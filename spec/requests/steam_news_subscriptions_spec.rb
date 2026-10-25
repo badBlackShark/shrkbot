@@ -23,7 +23,7 @@ RSpec.describe "Steam News subscriptions", type: :request do
     create(:server_role, server_configuration: config, discord_id: 888, name: "Gamers")
     allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     allow(Integrations::Steam::NewsWatcher).to receive(:resolve).with("1145350").and_return(target)
-    allow(Integrations::Steam::NewsWatcher).to receive(:volume).and_return(Integrations::Volume.new(counts: {}, sample_size: 20))
+    allow(Feeds::VolumeLookup).to receive(:call)
     get server_path(guild.id)
   end
 
@@ -101,34 +101,13 @@ RSpec.describe "Steam News subscriptions", type: :request do
         expect(checkbox(articles)["checked"]).to be_nil
       end
 
-      it "shows how many of the last posts were each type" do
+      it "loads the volume line lazily without calling Steam" do
         lookup
 
-        expect(response.body).to include("None of the last 20 posts.")
-      end
-
-      context "when the last posts included some of a type" do
-        before do
-          allow(Integrations::Steam::NewsWatcher).to receive(:volume)
-            .and_return(Integrations::Volume.new(counts: {patch_notes => 2}, sample_size: 20))
-        end
-
-        it "shows the count on that type" do
-          lookup
-
-          expect(response.body).to include("2 of the last 20 posts.")
-        end
-      end
-
-      context "when the volume lookup fails" do
-        before { allow(Feeds::VolumeLookup).to receive(:call).and_return(nil) }
-
-        it "renders the form without hints" do
-          lookup
-
-          expect(response).to have_http_status(:ok)
-          expect(response.body).not_to include("of the last")
-        end
+        frame = Nokogiri::HTML(response.body).at_css("turbo-frame#feed-volume")
+        expect(frame["loading"]).to eq("lazy")
+        expect(frame["src"]).to eq(server_steam_news_volume_path(guild.id, app: "1145350"))
+        expect(Feeds::VolumeLookup).not_to have_received(:call)
       end
     end
   end
@@ -286,17 +265,13 @@ RSpec.describe "Steam News subscriptions", type: :request do
       expect(checkbox(articles)["checked"]).to be_nil
     end
 
-    context "when the last posts included some of a type" do
-      before do
-        allow(Integrations::Steam::NewsWatcher).to receive(:volume)
-          .and_return(Integrations::Volume.new(counts: {patch_notes => 2}, sample_size: 20))
-      end
+    it "loads the volume line lazily from the volume endpoint without calling Steam" do
+      edit
 
-      it "shows the count on that type" do
-        edit
-
-        expect(response.body).to include("2 of the last 20 posts.")
-      end
+      frame = Nokogiri::HTML(response.body).at_css("turbo-frame#feed-volume")
+      expect(frame["loading"]).to eq("lazy")
+      expect(frame["src"]).to eq(server_steam_news_volume_path(guild.id, app: subscription.watch.external_id))
+      expect(Feeds::VolumeLookup).not_to have_received(:call)
     end
 
     it "offers one stop-following button named after the game" do
@@ -334,6 +309,12 @@ RSpec.describe "Steam News subscriptions", type: :request do
     let!(:subscription) { create(:feed_subscription, server_configuration: config, channel_id: 555) }
 
     before { create(:feed_subscribed_event, subscription:, event_type: patch_notes, subscribed_since: followed_since) }
+
+    it "does not call Steam" do
+      update
+
+      expect(Feeds::VolumeLookup).not_to have_received(:call)
+    end
 
     it "saves, keeps the followed type's follow time and re-renders the form" do
       update

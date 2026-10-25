@@ -100,10 +100,6 @@ en:
             title: 'Patch 1.4: Controller fixes'
       event_type_setting:
         summary: Custom message
-        volume:
-          one: 1 of the last %{total} posts.
-          other: "%{count} of the last %{total} posts."
-          zero: None of the last %{total} posts.
       event_types:
         announcement_published:
           help: The developer's other posts on Steam.
@@ -137,6 +133,7 @@ en:
           what_note: Some developers don't tag their patch notes, so their updates
             arrive as announcements. To get every update, keep Patch notes and Announcements
             both on.
+        volume_loading: Checking recent posts…
         what_title: What to post
         where_title: Where to post
       subscription_list:
@@ -157,6 +154,18 @@ en:
         change: Not this one?
         steam_news:
           external_id: Steam app %{id}
+      volume_line:
+        counts:
+          announcement_published:
+            one: 1 announcement
+            other: "%{count} announcements"
+          article_published:
+            one: 1 article
+            other: "%{count} articles"
+          patch_notes_published:
+            one: 1 patch note
+            other: "%{count} patch notes"
+        line: 'Last %{total} posts: %{counts}.'
     legal_links:
       imprint: Imprint
       privacy: Privacy policy

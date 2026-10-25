@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 class Components::Feeds::SubscriptionFields < Components::Base
-  def initialize(subscription:, plugin_key:, volume: nil)
+  include Phlex::Rails::Helpers::TurboFrameTag
+
+  def initialize(subscription:, plugin_key:)
     @subscription = subscription
     @plugin_key = plugin_key
-    @volume = volume
   end
 
   def view_template
@@ -55,8 +56,19 @@ class Components::Feeds::SubscriptionFields < Components::Base
   def event_types_card
     render Components::Card.new(class: "flex flex-col gap-4") do
       h2(class: "font-semibold") { t(".what_title") }
+      volume_frame
       render Components::Callout.new(variant: :warning) { t(".#{@plugin_key}.what_note") }
       ::Feeds::EVENT_TYPES_BY_SOURCE.fetch(@plugin_key).each { |event_type| event_type_row(event_type) }
+    end
+  end
+
+  def volume_frame
+    turbo_frame_tag(
+      Components::Feeds::VolumeLine::FRAME_ID,
+      src: ::Feeds::SubscriptionPaths.volume_for(@subscription),
+      loading: "lazy"
+    ) do
+      p(class: "text-sm text-text-muted") { t(".volume_loading") }
     end
   end
 
@@ -65,8 +77,7 @@ class Components::Feeds::SubscriptionFields < Components::Base
       subscription: @subscription,
       plugin_key: @plugin_key,
       event_type:,
-      event: events_by_type[event_type],
-      volume: @volume
+      event: events_by_type[event_type]
     )
   end
 

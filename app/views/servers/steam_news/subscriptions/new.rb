@@ -3,13 +3,12 @@
 class Views::Servers::SteamNews::Subscriptions::New < Views::Base
   include Phlex::Rails::Helpers::FormWith
 
-  def initialize(server_configuration:, user:, subscription:, target:, error: nil, volume: nil)
+  def initialize(server_configuration:, user:, subscription:, target:, error: nil)
     @config = server_configuration
     @user = user
     @subscription = subscription
     @target = target
     @error = error
-    @volume = volume
   end
 
   def view_template
@@ -30,7 +29,7 @@ class Views::Servers::SteamNews::Subscriptions::New < Views::Base
   def follow_form
     form_with(url: server_steam_news_subscriptions_path(@config.discord_id), class: "mt-5 flex flex-col gap-5") do
       input(type: "hidden", name: "subscription[external_id]", value: @target.external_id)
-      render Components::Feeds::SubscriptionForm.new(subscription: @subscription, plugin_key: :steam_news, error: @error, volume: @volume)
+      render Components::Feeds::SubscriptionForm.new(subscription: @subscription, plugin_key: :steam_news, error: @error)
       actions
     end
   end
