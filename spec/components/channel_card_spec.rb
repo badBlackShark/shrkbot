@@ -27,6 +27,7 @@ RSpec.describe Components::ChannelCard do
 
   it "does not render a required marker by default" do
     expect(html).not_to include("text-danger")
+    expect(html).not_to include("aria-required")
   end
 
   context "when required: true" do
@@ -43,6 +44,10 @@ RSpec.describe Components::ChannelCard do
 
     it "renders the required marker" do
       expect(html).to include("text-danger").and include("*")
+    end
+
+    it "marks the select required" do
+      expect(html).to include('aria-required="true"')
     end
   end
 

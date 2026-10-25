@@ -3,8 +3,12 @@ import assert from "node:assert/strict"
 
 const { enableBlankOption } = await import("lib/blank_option")
 
-function fakeSelect({ multiple = false, blank = null } = {}) {
-  return { multiple, querySelector: () => blank }
+function fakeSelect({ multiple = false, blank = null, required = false } = {}) {
+  return {
+    multiple,
+    querySelector: () => blank,
+    getAttribute: (name) => (name === "aria-required" && required ? "true" : null)
+  }
 }
 
 test("allows the blank option on a single select that has one", () => {
@@ -31,5 +35,11 @@ test("does not allow blank without a blank option", () => {
 test("never allows blank on a multi select", () => {
   const blank = { textContent: "" }
   assert.equal(enableBlankOption(fakeSelect({ multiple: true, blank }), "No ping"), false)
+  assert.equal(blank.textContent, "")
+})
+
+test("never allows blank on a required single select and leaves its blank text alone", () => {
+  const blank = { textContent: "" }
+  assert.equal(enableBlankOption(fakeSelect({ blank, required: true }), "Choose a channel"), false)
   assert.equal(blank.textContent, "")
 })

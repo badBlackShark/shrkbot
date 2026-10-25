@@ -119,7 +119,6 @@ en:
         confirm: This deletes your settings for this game.
         confirm_button: Stop following
         confirm_title: Stop following %{name}?
-        label: Stop following
         label_with_name: Stop following %{name}
       subscription_fields:
         channel_label: Channel (required)

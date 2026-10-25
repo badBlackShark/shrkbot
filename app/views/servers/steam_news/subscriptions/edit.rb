@@ -16,8 +16,7 @@ class Views::Servers::SteamNews::Subscriptions::Edit < Views::Base
         header:,
         server_configuration: @config,
         url: ::Feeds::SubscriptionPaths.for(@subscription),
-        parent_crumb: {label: PluginCatalog.find(:steam_news).name, href: server_steam_news_path(@config.discord_id)},
-        header_media: Components::Feeds::WatchImage.new(url: @subscription.watch.image_url, size: :md)
+        parent_crumb: {label: PluginCatalog.find(:steam_news).name, href: server_steam_news_path(@config.discord_id)}
       ) do
         render Components::Feeds::SubscriptionForm.new(subscription: @subscription, plugin_key: :steam_news, volume: @volume)
       end
@@ -30,7 +29,15 @@ class Views::Servers::SteamNews::Subscriptions::Edit < Views::Base
     Components::ConfigPageHeader.new(
       icon: plugin_icon(:steam_news),
       title: @subscription.watch.name,
-      description: t("components.feeds.target_card.steam_news.external_id", id: @subscription.watch.external_id)
+      description: t("components.feeds.target_card.steam_news.external_id", id: @subscription.watch.external_id),
+      media:
     )
+  end
+
+  def media
+    image_url = @subscription.watch.image_url
+    return unless image_url
+
+    Components::Feeds::WatchImage.new(url: image_url, size: :list, loading: "eager")
   end
 end

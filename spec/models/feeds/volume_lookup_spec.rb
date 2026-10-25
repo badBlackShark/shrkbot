@@ -3,6 +3,8 @@
 require "rails_helper"
 
 RSpec.describe Feeds::VolumeLookup do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject(:result) { described_class.call(watcher_class, "440") }
 
   let(:watcher_class) { class_double(Integrations::Steam::NewsWatcher, name: "Integrations::Steam::NewsWatcher") }
@@ -30,8 +32,18 @@ RSpec.describe Feeds::VolumeLookup do
       expect(result).to be_nil
     end
 
-    it "does not cache the failure" do
+    it "does not ask the watcher again within the minute" do
       2.times { described_class.call(watcher_class, "440") }
+
+      expect(watcher_class).to have_received(:volume).once
+    end
+
+    it "asks the watcher again once the minute is up" do
+      described_class.call(watcher_class, "440")
+
+      travel_to(61.seconds.from_now) do
+        described_class.call(watcher_class, "440")
+      end
 
       expect(watcher_class).to have_received(:volume).twice
     end

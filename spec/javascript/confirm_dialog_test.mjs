@@ -156,8 +156,11 @@ function installedClickOnOpenDialog(click) {
   const doc = fakeDoc()
   install(turbo, doc)
   const result = confirmWith("Sure?", [plain], doc)
-  const listener = doc.listeners.filter((entry) => entry.type === "click" && !entry.capture)[0]
-  listener.handler({ target: click.child ? {} : doc.dialog, clientX: click.x, clientY: click.y })
+  const down = doc.listeners.find((entry) => entry.type === "mousedown")
+  const up = doc.listeners.find((entry) => entry.type === "click" && !entry.capture)
+  const from = click.from ?? click
+  down.handler({ target: from.child ? {} : doc.dialog, clientX: from.x, clientY: from.y })
+  up.handler({ target: click.child ? {} : doc.dialog, clientX: click.x, clientY: click.y })
   return { doc, result }
 }
 
@@ -176,6 +179,13 @@ test("ignores a click on the dialog's own padding", async () => {
 
 test("ignores a click on a child element", async () => {
   const { doc, result } = installedClickOnOpenDialog({ x: 50, y: 50, child: true })
+  assert.equal(doc.dialog.returnValue, "")
+  doc.dialog.close("")
+  await result
+})
+
+test("ignores a drag that starts inside the dialog and ends outside it", async () => {
+  const { doc, result } = installedClickOnOpenDialog({ x: 50, y: 200, from: { x: 150, y: 150 } })
   assert.equal(doc.dialog.returnValue, "")
   doc.dialog.close("")
   await result

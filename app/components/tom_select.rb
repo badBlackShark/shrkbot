@@ -17,17 +17,18 @@ class Components::TomSelect < Components::Base
     end
   end
 
-  def initialize(name:, options:, selected: nil, multiple: false, include_blank: false, controller_data: {})
+  def initialize(name:, options:, selected: nil, multiple: false, include_blank: false, required: false, controller_data: {})
     @name = name
     @options = options
     @selected = selected
     @multiple = multiple
     @include_blank = include_blank
+    @required = required
     @controller_data = controller_data
   end
 
   def view_template
-    select(name: @name, multiple: @multiple, autocomplete: "off", class: "w-full", data: {controller: "tom-select", **@controller_data}) do
+    select(**select_attrs) do
       option(value: "") if @include_blank
       @options.each do |entry|
         render_entry(entry)
@@ -36,6 +37,12 @@ class Components::TomSelect < Components::Base
   end
 
   private
+
+  def select_attrs
+    attrs = {name: @name, multiple: @multiple, autocomplete: "off", class: "w-full", data: {controller: "tom-select", **@controller_data}}
+    attrs[:aria_required] = "true" if @required
+    attrs
+  end
 
   def render_entry(entry)
     case entry

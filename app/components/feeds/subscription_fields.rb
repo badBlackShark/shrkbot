@@ -34,7 +34,8 @@ class Components::Feeds::SubscriptionFields < Components::Base
       options: ChannelOptions.new(server_configuration).options,
       selected: @subscription.channel_id,
       placeholder: t(".channel_placeholder"),
-      include_blank: true
+      include_blank: true,
+      required: true
     )
   end
 

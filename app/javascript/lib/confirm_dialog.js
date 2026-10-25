@@ -11,9 +11,14 @@ export function install(turbo, doc = document) {
   // An open dialog would otherwise be cached into the page snapshot and come back on restore
   doc.addEventListener("turbo:before-cache", () => doc.getElementById(DIALOG_ID)?.close())
 
+  let pressedOutside = false
+
+  doc.addEventListener("mousedown", (event) => {
+    pressedOutside = onBackdrop(doc, event)
+  }, true)
+
   doc.addEventListener("click", (event) => {
-    const dialog = doc.getElementById(DIALOG_ID)
-    if (event.target === dialog && outside(dialog.getBoundingClientRect(), event)) dialog.close("cancel")
+    if (pressedOutside && onBackdrop(doc, event)) doc.getElementById(DIALOG_ID).close("cancel")
   })
 
   turbo.config.forms.confirm = (message, form, submitter) => {
@@ -39,6 +44,11 @@ export function confirmWith(message, sources, doc = document) {
 
 function withCopy(element) {
   return element?.dataset?.confirmTitle || element?.dataset?.confirmButton
+}
+
+function onBackdrop(doc, event) {
+  const dialog = doc.getElementById(DIALOG_ID)
+  return event.target === dialog && outside(dialog.getBoundingClientRect(), event)
 }
 
 function outside(rect, { clientX, clientY }) {

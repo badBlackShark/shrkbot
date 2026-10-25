@@ -8,7 +8,7 @@ class Components::Feeds::StopFollowingButton < Components::Base
 
   def view_template
     if @compact
-      render Components::IconButton.new(icon: "trash", label: t(".label"), tone: :danger, href:, data:)
+      render Components::IconButton.new(icon: "trash", label: t(".label_with_name", name: @subscription.watch.name), tone: :danger, href:, data:)
     else
       render Components::Button.new(variant: :danger_outline, label: t(".label_with_name", name: @subscription.watch.name), href:, data:)
     end
