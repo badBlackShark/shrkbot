@@ -18,6 +18,7 @@ class Views::TermsOfService < Views::Base
       liability_section
       privacy_section
       source_section
+      trademark_section
       termination_section
       changes_section
       law_section
@@ -78,6 +79,11 @@ class Views::TermsOfService < Views::Base
   def source_section
     heading(t(".source_h"))
     paragraph(t(".source_p"))
+  end
+
+  def trademark_section
+    heading(t(".trademark_h"))
+    paragraph(t(".trademark_p"))
   end
 
   def termination_section

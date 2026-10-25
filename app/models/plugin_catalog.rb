@@ -51,7 +51,7 @@ class PluginCatalog
     Definition.new(key: :image_scanning, name: "Scam Image Detection", description: "Reads the text inside posted images and checks it against known scam patterns and previously confirmed scam images. Staff confirm or dismiss every catch, and the bot remembers.", parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
     Definition.new(key: :lfg, name: "Looking for Game", description: "Let members find people to play with both on the fly and scheduled in the future. Only shrkbot will ping, allowing you to turn off generally available role pings."),
     Definition.new(key: :feeds, name: "Feeds", description: "Posts news from the platforms you follow, like Steam, in the channels you pick."),
-    Definition.new(key: :steam_news, name: "Steam News", description: "Posts new patch notes, announcements and press coverage of the Steam games you follow.", parent: :feeds),
+    Definition.new(key: :steam_news, name: "Steam News", description: "Posts new patch notes, announcements, and press coverage of the Steam games you follow.", parent: :feeds),
     Definition.new(key: :twilight_struggle, name: "Twilight Struggle", description: "Posts results from twilight-struggle.com as they are reported. Subscribe to a tournament, pick its channel, and write the message however you like.", bespoke: true)
   ].freeze
 

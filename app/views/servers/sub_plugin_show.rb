@@ -47,23 +47,4 @@ class Views::Servers::SubPluginShow < Views::Servers::PluginConfigShow
   def plugin_name
     PluginCatalog.find(plugin_key).name
   end
-
-  def subline_note
-    nil
-  end
-
-  def group_subline
-    p(class: "text-xs text-text-muted mb-6 flex items-center gap-1.5 pl-16") do
-      render Components::Icon.new(plugin_icon(parent_key), class: "size-4")
-      span do
-        plain t("views.servers.sub_plugin_show.subline_prefix")
-        a(href: parent_path, class: "underline hover:text-text-secondary") { parent_name }
-        plain t("views.servers.sub_plugin_show.subline_suffix")
-        if subline_note
-          plain " "
-          plain subline_note
-        end
-      end
-    end
-  end
 end

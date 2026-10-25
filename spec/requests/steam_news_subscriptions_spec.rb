@@ -286,6 +286,26 @@ RSpec.describe "Steam News subscriptions", type: :request do
       expect(checkbox(articles)["checked"]).to be_nil
     end
 
+    context "when the last posts included some of a type" do
+      before do
+        allow(Integrations::Steam::NewsWatcher).to receive(:volume)
+          .and_return(Integrations::Volume.new(counts: {patch_notes => 2}, sample_size: 20))
+      end
+
+      it "shows the count on that type" do
+        edit
+
+        expect(response.body).to include("2 of the last 20 posts.")
+      end
+    end
+
+    it "offers one stop-following button named after the game" do
+      edit
+
+      expect(response.body).to include("Stop following Hades II")
+      expect(response.body).not_to include("No more posts for this game")
+    end
+
     context "when the subscription belongs to another server" do
       let!(:subscription) { create(:feed_subscription, watch:) }
 

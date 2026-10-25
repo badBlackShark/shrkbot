@@ -3,10 +3,11 @@
 class Views::Servers::SteamNews::Subscriptions::Edit < Views::Base
   include Components::PluginNav
 
-  def initialize(server_configuration:, user:, subscription:)
+  def initialize(server_configuration:, user:, subscription:, volume: nil)
     @config = server_configuration
     @user = user
     @subscription = subscription
+    @volume = volume
   end
 
   def view_template
@@ -15,9 +16,10 @@ class Views::Servers::SteamNews::Subscriptions::Edit < Views::Base
         header:,
         server_configuration: @config,
         url: ::Feeds::SubscriptionPaths.for(@subscription),
-        parent_crumb: {label: PluginCatalog.find(:steam_news).name, href: server_steam_news_path(@config.discord_id)}
+        parent_crumb: {label: PluginCatalog.find(:steam_news).name, href: server_steam_news_path(@config.discord_id)},
+        header_media: Components::Feeds::WatchImage.new(url: @subscription.watch.image_url, size: :md)
       ) do
-        render Components::Feeds::SubscriptionForm.new(subscription: @subscription, plugin_key: :steam_news)
+        render Components::Feeds::SubscriptionForm.new(subscription: @subscription, plugin_key: :steam_news, volume: @volume)
       end
     end
   end

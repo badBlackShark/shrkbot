@@ -11,7 +11,7 @@ module Components::PluginNav
     image_scanning: "scan",
     lfg: "game-controller",
     feeds: "rss",
-    steam_news: "newspaper",
+    steam_news: "steam-logo",
     twilight_struggle: "trophy"
   }.freeze
 

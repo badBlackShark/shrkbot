@@ -10,6 +10,8 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
 
   before_action :load_subscription, only: [:edit, :update, :destroy]
 
+  helper_method :subscription_volume
+
   def new
     return redirect_to steam_news_path, alert: cap_message if ::Feeds::Subscription.at_cap?(@server_configuration)
     return render_lookup if params[:app].blank?
@@ -53,7 +55,8 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
     render Views::Servers::SteamNews::Subscriptions::Edit.new(
       server_configuration: @server_configuration,
       user: current_user,
-      subscription: @subscription
+      subscription: @subscription,
+      volume: subscription_volume
     )
   end
 
@@ -81,6 +84,10 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
 
   def plugin_key
     :steam_news
+  end
+
+  def subscription_volume
+    ::Feeds::VolumeLookup.call(WATCHER, @subscription.watch.external_id)
   end
 
   def load_subscription

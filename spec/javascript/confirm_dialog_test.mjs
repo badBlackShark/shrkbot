@@ -8,6 +8,7 @@ function fakeDialog() {
     returnValue: "",
     closeListener: null,
     opened: false,
+    getBoundingClientRect: () => ({ left: 100, right: 300, top: 100, bottom: 300 }),
     addEventListener(type, handler) {
       if (type === "close") this.closeListener = handler
     },
@@ -146,6 +147,36 @@ test("forgets the link when a later click lands outside any confirm link", async
 
   const result = turbo.config.forms.confirm("Sure?", plain, null)
   assert.equal(doc.elements["confirm-dialog-title"].textContent, "")
+  doc.dialog.close("")
+  await result
+})
+
+function installedClickOnOpenDialog(click) {
+  const turbo = { config: { forms: {} } }
+  const doc = fakeDoc()
+  install(turbo, doc)
+  const result = confirmWith("Sure?", [plain], doc)
+  const listener = doc.listeners.filter((entry) => entry.type === "click" && !entry.capture)[0]
+  listener.handler({ target: click.child ? {} : doc.dialog, clientX: click.x, clientY: click.y })
+  return { doc, result }
+}
+
+test("closes and resolves false when the click lands outside the dialog box", async () => {
+  const { doc, result } = installedClickOnOpenDialog({ x: 50, y: 200 })
+  assert.equal(doc.dialog.returnValue, "cancel")
+  assert.equal(await result, false)
+})
+
+test("ignores a click on the dialog's own padding", async () => {
+  const { doc, result } = installedClickOnOpenDialog({ x: 150, y: 150 })
+  assert.equal(doc.dialog.returnValue, "")
+  doc.dialog.close("")
+  await result
+})
+
+test("ignores a click on a child element", async () => {
+  const { doc, result } = installedClickOnOpenDialog({ x: 50, y: 50, child: true })
+  assert.equal(doc.dialog.returnValue, "")
   doc.dialog.close("")
   await result
 })

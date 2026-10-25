@@ -116,17 +116,17 @@ en:
           help: Posts the developer tagged as patch notes.
           label: Patch notes
       stop_following_button:
-        confirm: shrkbot deletes this server's settings for this game. Posts already
-          in Discord stay.
-        confirm_button: Stop following and delete settings
+        confirm: This deletes your settings for this game.
+        confirm_button: Stop following
         confirm_title: Stop following %{name}?
         label: Stop following
+        label_with_name: Stop following %{name}
       subscription_fields:
         channel_label: Channel (required)
         channel_placeholder: Choose a channel
         length:
           full:
-            description: Up to about 3,500 characters. Long patch notes fill the channel.
+            description: Up to about 3,500 characters.
             title: Full post
           preview:
             description: About 500 characters, then a link to the full post.
@@ -140,14 +140,9 @@ en:
             both on.
         what_title: What to post
         where_title: Where to post
-      subscription_form:
-        stop_body: No more posts for this game. Posts already in Discord stay.
-        stop_title: Stop following %{name}
       subscription_list:
         steam_news:
           add: Add a game
-          empty_body: Paste a Steam store link and pick a channel. shrkbot posts the
-            game's news there from then on.
           empty_title: No games yet
           heading: Followed games
       subscription_row:
@@ -933,9 +928,6 @@ en:
           title: Server Shield
           toggle_locked_reason: Enable the Logging plugin first - alerts are delivered
             through your log channel.
-        sub_plugin_show:
-          shared_settings_note: Shared settings like the staff role and alerts live
-            on the overview.
       reminders:
         show:
           badge: Global
@@ -1000,8 +992,6 @@ en:
         prereq_gate_message: "%{plugin} is part of %{parent}. Turn %{parent} on to
           configure this page."
         prereq_gate_title: "%{parent} is off"
-        subline_prefix: 'Part of '
-        subline_suffix: "."
       twilight_struggle:
         destinations:
           edit:

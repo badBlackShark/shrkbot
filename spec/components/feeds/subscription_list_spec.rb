@@ -19,6 +19,19 @@ RSpec.describe Components::Feeds::SubscriptionList do
     end
   end
 
+  context "with a followed game in a channel inside a category" do
+    let(:category) { create(:server_channel, server_configuration:, discord_id: 500, name: "Games", channel_type: ServerChannel::CATEGORY_TYPE) }
+
+    before do
+      create(:server_channel, server_configuration:, discord_id: 777, name: "news", parent_id: category.discord_id)
+      create(:feed_subscription, server_configuration:, channel_id: 777)
+    end
+
+    it "labels the channel with its category" do
+      expect(html).to include("Games / #news")
+    end
+  end
+
   context "at the cap" do
     before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SERVER, server_configuration:) }
 
@@ -29,8 +42,10 @@ RSpec.describe Components::Feeds::SubscriptionList do
   end
 
   context "with no games" do
-    it "puts the Add button in the empty state" do
+    it "puts the only Add button in the empty state, without a header" do
       expect(html).to include("No games yet", add_path)
+      expect(html.scan(add_path).size).to eq(1)
+      expect(html).not_to include("Followed games")
     end
   end
 end

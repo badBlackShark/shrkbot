@@ -295,7 +295,11 @@ en:
         or user that breaches these terms or that we reasonably believe is misusing
         the Service.
       title: Terms of service
-      updated: 'Last updated: July 5th, 2026'
+      trademark_h: Trademarks
+      trademark_p: Steam and the Steam logo are trademarks and/or registered trademarks
+        of Valve Corporation in the U.S. and/or other countries. shrkbot is not affiliated
+        with or endorsed by Valve.
+      updated: 'Last updated: October 25th, 2026'
       use_h: Acceptable use
       use_items_1: use the Service to violate Discord's Terms of Service, Community
         Guidelines or any applicable law;

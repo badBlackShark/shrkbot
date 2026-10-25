@@ -62,6 +62,12 @@ RSpec.describe "Legal pages", type: :request do
 
       expect(response.body).to include("Terms of service")
     end
+
+    it "attributes the Steam trademarks to Valve" do
+      terms
+
+      expect(response.body).to include("Steam and the Steam logo are trademarks", "not affiliated with or endorsed by Valve")
+    end
   end
 
   describe "GET /imprint" do

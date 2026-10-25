@@ -23,6 +23,28 @@ RSpec.describe Components::ConfigPage do
     ).render_in(view_context) { "" }
   end
 
+  context "without header media" do
+    it "shows the plugin tile" do
+      expect(html).to include("chamfer-tile")
+    end
+  end
+
+  context "with header media" do
+    subject(:html) do
+      described_class.new(
+        header:,
+        server_configuration: config,
+        url: "/servers/900000001/reminders",
+        header_media: Components::Feeds::WatchImage.new(url: "https://example.test/game.jpg")
+      ).render_in(view_context) { "" }
+    end
+
+    it "shows the media instead of the plugin tile" do
+      expect(html).to include("https://example.test/game.jpg")
+      expect(html).not_to include("chamfer-tile")
+    end
+  end
+
   context "when the server configuration has a name" do
     it "shows the server name in the breadcrumb" do
       expect(html).to include("Dev Refuge")

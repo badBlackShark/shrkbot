@@ -98,6 +98,9 @@ In Server Settings -> Integrations -> shrkbot, limit the /lfg command to the cha
 Stylized and lookalike characters are folded to their plain form (ⓕⓡⓔⓔ, ｆｒｅｅ -> free), so disguises don't help.
 ```
 
+**Serial comma.** Lists of three or more take the serial (Oxford) comma:
+`announcements, and press coverage`, never `announcements and press coverage`.
+
 **Never "we".** shrkbot is one developer. Name shrkbot when something acts, use
 the passive when no actor matters, and use "I" only where the developer speaks
 personally, as on the bespoke-plugins page. "We" is correct in exactly one case:
@@ -271,6 +274,12 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Delete your account and all associated data? This cannot be undone.` | Title `Delete your account?`, body `shrkbot deletes your account and all data tied to it. This cannot be undone.` | The dialog has a title, so the question moved there and the body says what happens. "Associated" is filler for "tied to", and the body names the actor. |
 | `Your account and all associated data have been deleted.` / `Permanently deletes your account and all data associated with it.` | `shrkbot deleted your account and all data tied to it.` / `Permanently deletes your account and all data tied to it.` | Same filler as the confirm body beside them. The flash names the actor. |
 | `Revoke this plugin? The server loses the page and its commands, and the plugin is switched off.` | Title `Revoke this plugin?`, body `The server loses the page and its commands, and the plugin is switched off.` | Same split: the question is the title, the body states the consequence without repeating it. |
+| `Posts new patch notes, announcements and press coverage of the Steam games you follow.` | `Posts new patch notes, announcements, and press coverage of the Steam games you follow.` | Three items, no serial comma. Only this string was fixed when the rule was written. |
+| `Up to about 3,500 characters. Long patch notes fill the channel.` | `Up to about 3,500 characters.` | The second sentence was a warning the reader can see for themselves from the number. |
+| `shrkbot deletes this server's settings for this game. Posts already in Discord stay.` / `Stop following and delete settings` | `This deletes your settings for this game.` / `Stop following` | The dialog title already names the game and the action, and the button repeats it. "Posts already in Discord stay" is what any reader assumes, and the button needs no clause explaining what the title promised. |
+| `Stop following %{name}` card with `No more posts for this game. Posts already in Discord stay.` | Button only, labelled `Stop following %{name}`. | The card title, body and button said the same thing three times. The button now carries the name, so nothing else is needed. |
+| `Paste a Steam store link and pick a channel. shrkbot posts the game's news there from then on.` | Deleted. | The empty state sits beside an "Add a game" button and the page it opens explains the steps. The sentence restated both. |
+| `Part of Feeds.` (subline under every sub-plugin title) | Deleted. | The breadcrumb above the title already names the parent. |
 
 ## Kept on purpose
 

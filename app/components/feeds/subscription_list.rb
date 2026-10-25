@@ -11,10 +11,10 @@ class Components::Feeds::SubscriptionList < Components::Base
 
   def view_template
     render Components::ConfigSections.new(key: @plugin_key.to_s, enable_error: @enable_error) do
-      header
+      header if subscriptions.any?
       cap_reason if at_cap?
       if subscriptions.empty?
-        render Components::EmptyState.new(title: t(".#{@plugin_key}.empty_title"), body: t(".#{@plugin_key}.empty_body")) { add_button }
+        render Components::EmptyState.new(title: t(".#{@plugin_key}.empty_title")) { add_button }
       else
         subscriptions.each { |subscription| subscription_row(subscription) }
       end
@@ -26,7 +26,7 @@ class Components::Feeds::SubscriptionList < Components::Base
   def header
     div(class: "flex flex-wrap items-center justify-between gap-3") do
       p(class: "text-[11px] font-semibold uppercase tracking-widest text-text-muted") { t(".#{@plugin_key}.heading") }
-      add_button if subscriptions.any?
+      add_button
     end
   end
 
@@ -70,7 +70,7 @@ class Components::Feeds::SubscriptionList < Components::Base
   end
 
   def channel_labels
-    @channel_labels ||= ChannelOptions.new(@config).labels_by_id
+    @channel_labels ||= ChannelOptions.new(@config).qualified_labels_by_id
   end
 
   def role_names

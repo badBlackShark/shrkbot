@@ -16,12 +16,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
     super || (t(".role_locked_reason") unless @context.staff_role_present?)
   end
 
-  def subline_note
-    t("views.servers.moderation.sub_plugin_show.shared_settings_note")
-  end
-
   def body
-    group_subline
     no_role_callout
     render form
   end
