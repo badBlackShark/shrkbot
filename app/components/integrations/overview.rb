@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Components::IntegrationsOverview < Components::Base
+class Components::Integrations::Overview < Components::Base
   def initialize(server_configuration:, enable_error: nil)
     @config = server_configuration
     @enable_error = enable_error

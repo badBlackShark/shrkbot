@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module Feeds
-  GROUP_KEY = :integrations
   SOURCE_PLUGINS = {"Integrations::Steam::NewsWatcher" => :steam}.freeze
   EVENT_TYPES_BY_SOURCE = {
     steam: %w[
@@ -17,6 +16,10 @@ module Feeds
       Integrations::Steam::AnnouncementPublished
     ]
   }.freeze
+
+  def self.watchers_for(plugin_key)
+    SOURCE_PLUGINS.select { |_, key| key == plugin_key }.keys
+  end
 
   def self.event_key(event_type)
     event_type.demodulize.underscore

@@ -3,6 +3,10 @@
 A server follows a source (today a Steam game) and gets its new posts in a channel.
 This page covers the data, polling and posting sides.
 
+The plugin group is "Integrations" (`:integrations`, one sub-plugin per provider such as `:steam`).
+`Feeds::` is the capability that posts a source's news into a channel, so its code, tables and this
+doc keep the Feeds name; the provider layer is `Integrations::` (see `docs/integrations/`).
+
 ## Pages
 
 Two catalog entries make the plugin group: `:integrations` (the parent) and `:steam`

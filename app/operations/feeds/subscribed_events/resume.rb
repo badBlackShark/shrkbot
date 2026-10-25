@@ -14,12 +14,16 @@ module Ops
 
         private
 
+        def feeds_group?
+          PluginCatalog.sub_plugin_keys(plugin_key).intersect?(::Feeds::SOURCE_PLUGINS.values)
+        end
+
         def subscriptions
           all = server_configuration.feed_subscriptions
-          return all if plugin_key == ::Feeds::GROUP_KEY
+          return all if feeds_group?
 
-          watcher = ::Feeds::SOURCE_PLUGINS.key(plugin_key)
-          all.where(watch_id: ::Integrations::Watch.where(watcher:).select(:id)) if watcher
+          watchers = ::Feeds.watchers_for(plugin_key)
+          all.where(watch_id: ::Integrations::Watch.where(watcher: watchers).select(:id)) if watchers.any?
         end
       end
     end

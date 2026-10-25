@@ -60,8 +60,37 @@ RSpec.describe Ops::Feeds::SubscribedEvents::Resume do
     end
   end
 
+  context "when several watchers feed the enabled source plugin" do
+    let(:plugin_key) { :steam }
+
+    let(:twin_watch) { create(:integration_watch, watcher: "Integrations::Steam::OtherWatcher") }
+    let(:twin_subscription) { create(:feed_subscription, server_configuration: server, watch: twin_watch) }
+    let(:twin_follow) { create(:feed_subscribed_event, subscription: twin_subscription, subscribed_since: long_ago) }
+
+    before do
+      stub_const("Feeds::SOURCE_PLUGINS", Feeds::SOURCE_PLUGINS.merge("Integrations::Steam::OtherWatcher" => :steam))
+      twin_follow
+    end
+
+    it "resets the follow times of every watcher" do
+      result
+
+      expect(Feeds::SubscribedEvent.where(id: [steam_follow, twin_follow]).pluck(:subscribed_since)).to all(eq(now))
+    end
+  end
+
   context "when an unrelated plugin is the one enabled" do
     let(:plugin_key) { :logging }
+
+    it "changes nothing" do
+      result
+
+      expect(Feeds::SubscribedEvent.pluck(:subscribed_since)).to all(eq(long_ago))
+    end
+  end
+
+  context "when another group plugin is the one enabled" do
+    let(:plugin_key) { :moderation }
 
     it "changes nothing" do
       result

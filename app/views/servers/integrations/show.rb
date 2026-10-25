@@ -8,7 +8,7 @@ class Views::Servers::Integrations::Show < Views::Servers::PluginConfigShow
   end
 
   def body
-    render Components::IntegrationsOverview.new(server_configuration: @config)
+    render Components::Integrations::Overview.new(server_configuration: @config)
   end
 
   def after_config_page
