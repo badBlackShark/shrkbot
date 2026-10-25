@@ -45,7 +45,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
     let(:templates) do
       {
         "Integrations::Steam::PatchNotesPublished" => " Patch day: {title} ",
-        "Integrations::Steam::AnnouncementPublished" => "{role} New {game} announcement: {title}"
+        "Integrations::Steam::AnnouncementPublished" => "New {game} announcement: {title}"
       }
     end
 
@@ -61,7 +61,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
 
   context "with a template that would post nothing" do
     let(:role_id) { "" }
-    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "{role}"} }
+    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "{author}"} }
 
     it "fails and writes nothing" do
       expect { result }.not_to change { [Integrations::Watch.count, Feeds::Subscription.count] }

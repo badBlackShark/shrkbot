@@ -44,14 +44,14 @@ class Components::Feeds::CustomMessageField < Components::Base
     render Components::TemplateTextarea.new(
       name: field_name,
       id: field_id,
-      value: @event&.template,
+      value: @event&.template || ::Feeds::Templates.default(@event_type),
       placeholder: ::Feeds::Templates.default(@event_type),
       data: {feed_preview_target: "template", action: "input->feed-preview#render", tokens: sample_tokens.to_json, optional_tokens: optional_tokens.to_json}
     )
   end
 
   def optional_tokens
-    ::Feeds::Templates::OPTIONAL_TOKENS - ["role"]
+    ::Feeds::Templates::OPTIONAL_TOKENS
   end
 
   def sample_tokens
@@ -69,15 +69,13 @@ class Components::Feeds::CustomMessageField < Components::Base
   end
 
   def placeholder_help
-    render Components::Callout.new(variant: :neutral) do
-      render Components::CopyableTokens.new do
-        span(class: "font-semibold") { t(".placeholders.intro") }
-        ::Feeds::Templates::TOKENS_BY_SOURCE.fetch(@plugin_key).each do |name|
-          whitespace
-          render Components::TokenChip.new(token: name, description: t(".placeholders.#{name}"))
-        end
-      end
+    render Components::PlaceholderSection.new do
+      render Components::PlaceholderChips.new(tokens: placeholders)
     end
+  end
+
+  def placeholders
+    ::Feeds::Templates::TOKENS_BY_SOURCE.fetch(@plugin_key).index_with { |name| t(".placeholders.#{name}") }
   end
 
   def preview

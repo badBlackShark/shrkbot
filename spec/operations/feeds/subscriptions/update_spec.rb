@@ -48,7 +48,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
   end
 
   context "with blank or default text" do
-    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "  ", "Integrations::Steam::AnnouncementPublished" => "{role} New {game} announcement: {title}"} }
+    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "  ", "Integrations::Steam::AnnouncementPublished" => "New {game} announcement: {title}"} }
 
     it "stores no template" do
       result
@@ -57,8 +57,8 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
     end
   end
 
-  context "with a template that would post nothing and no role" do
-    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "{role}"} }
+  context "with a template that would post nothing" do
+    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "{author}"} }
 
     it "fails and writes nothing" do
       expect(result).to be_failure

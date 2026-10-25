@@ -13,7 +13,7 @@ module Feeds
     end
 
     def subject
-      @subject ||= Bot::Discord::Truncate.call(TemplateText.render(template, tokens).strip, SUBJECT_LIMIT)
+      @subject ||= Bot::Discord::Truncate.call("#{role_mention} #{TemplateText.render(template, tokens)}".strip, SUBJECT_LIMIT)
     end
 
     def fallback
@@ -35,9 +35,12 @@ module Feeds
       subscription.subscribed_events.where(event_type: event.type).pick(:template).presence || Templates.default(event.type)
     end
 
+    def role_mention
+      "<@&#{subscription.role_id}>" if subscription.role_id
+    end
+
     def tokens
       {
-        role: subscription.role_id ? "<@&#{subscription.role_id}>" : "",
         game: event.watch.name,
         title: event.title,
         url: event.url,

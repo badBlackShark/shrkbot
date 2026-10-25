@@ -54,7 +54,7 @@ module Feeds
     end
 
     def keeps_empty_message?(event)
-      event.template && !event.marked_for_destruction? && Templates.renders_empty?(event.template, role_id:)
+      event.template && !event.marked_for_destruction? && Templates.renders_empty?(event.template)
     end
   end
 end

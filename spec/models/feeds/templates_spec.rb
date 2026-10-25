@@ -48,19 +48,16 @@ RSpec.describe Feeds::Templates do
   end
 
   describe ".renders_empty?" do
-    subject(:renders_empty) { described_class.renders_empty?(template, role_id:) }
-
-    let(:role_id) { nil }
+    subject(:renders_empty) { described_class.renders_empty?(template) }
 
     {
-      "{role}" => true,
       "{author}" => true,
-      "  {role} {author} " => true,
+      "  {author} " => true,
       "{title}" => false,
       "New patch!" => false,
       "{unknown}" => false
     }.each do |text, empty|
-      context "with #{text.inspect} and no role" do
+      context "with #{text.inspect}" do
         let(:template) { text }
 
         it { is_expected.to be(empty) }
@@ -68,16 +65,9 @@ RSpec.describe Feeds::Templates do
     end
 
     context "with a non-breaking space around an empty token" do
-      let(:template) { "\u00A0{role}" }
+      let(:template) { "\u00A0{author}" }
 
       it { is_expected.to be(true) }
-    end
-
-    context "with {role} and a role to ping" do
-      let(:template) { "{role}" }
-      let(:role_id) { 1 }
-
-      it { is_expected.to be(false) }
     end
   end
 end

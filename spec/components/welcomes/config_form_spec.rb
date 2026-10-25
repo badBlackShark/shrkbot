@@ -40,8 +40,8 @@ RSpec.describe Components::Welcomes::ConfigForm do
     expect(html).to include('data-controller="clipboard"').and include('data-clipboard-target="announcer"')
   end
 
-  it "reads the intro with the copy hint" do
-    expect(html).to include("Placeholders (click one to copy):")
+  it "heads the placeholders with the copy hint" do
+    expect(html).to include("Placeholders (click to copy)")
   end
 
   def card_containing(field)

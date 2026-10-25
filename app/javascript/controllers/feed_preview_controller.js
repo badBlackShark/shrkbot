@@ -22,7 +22,7 @@ export default class extends Controller {
 
   paint(input, output) {
     const template = input.value.trim() || input.placeholder
-    const tokens = { ...JSON.parse(input.dataset.tokens), role: this.roleName() }
+    const tokens = JSON.parse(input.dataset.tokens)
 
     output.replaceChildren()
 
@@ -31,13 +31,14 @@ export default class extends Controller {
       return
     }
 
-    output.append(...renderMarkdown(template, (leaf) => nodes(leaf, tokenPattern(tokens), (match) => [this.token(match[1], tokens)])))
+    const blocks = renderMarkdown(template, (leaf) => nodes(leaf, tokenPattern(tokens), (match) => [text(tokens[match[1]])]))
+    this.prependRoleMention(blocks[0])
+    output.append(...blocks)
   }
 
-  token(name, tokens) {
-    if (name === "role") return tokens.role ? pill(`@${tokens.role}`) : text("")
-
-    return text(tokens[name])
+  prependRoleMention(block) {
+    const role = this.roleName()
+    if (role) block.prepend(pill(`@${role}`), text(" "))
   }
 
   outputFor(input) {

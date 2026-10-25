@@ -145,7 +145,7 @@ RSpec.describe "Steam News subscriptions", type: :request do
         role_id:,
         body_length: "full",
         event_types: {patch_notes => "1", announcements => "0", articles => "1"},
-        templates: {patch_notes => " Patch day: {title} ", articles => "{role} {feed}: {title}"}
+        templates: {patch_notes => " Patch day: {title} ", articles => "{feed}: {title}"}
       }
     end
 
@@ -167,6 +167,21 @@ RSpec.describe "Steam News subscriptions", type: :request do
       expect(stored_templates).to eq(patch_notes => "Patch day: {title}", articles => nil)
     end
 
+    context "with the untouched default text" do
+      let(:attributes) do
+        super().merge(
+          event_types: {patch_notes => "1"},
+          templates: {patch_notes => Feeds::Templates.default(patch_notes)}
+        )
+      end
+
+      it "follows with the default and stores nothing" do
+        create_subscription
+
+        expect(stored_templates).to eq(patch_notes => nil)
+      end
+    end
+
     context "with a post type that is not one of the source's" do
       let(:attributes) do
         super().merge(
@@ -183,15 +198,15 @@ RSpec.describe "Steam News subscriptions", type: :request do
       end
     end
 
-    context "with a message that would post nothing and no role" do
+    context "with a message that would post nothing" do
       let(:role_id) { "" }
-      let(:attributes) { super().merge(templates: {patch_notes => "{role}"}) }
+      let(:attributes) { super().merge(templates: {patch_notes => "{author}"}) }
 
       it "renders the form again with the reason and writes nothing" do
         expect { create_subscription }.not_to change(Feeds::Subscription, :count)
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.body).to include("A custom message would post nothing.")
+        expect(response.body).to include("A custom message needs some text besides placeholders that can be empty")
       end
     end
 
@@ -246,13 +261,20 @@ RSpec.describe "Steam News subscriptions", type: :request do
     let(:watch) { create(:integration_watch, name: "Hades II", external_id: "1145350") }
     let!(:subscription) { create(:feed_subscription, server_configuration: config, watch:, channel_id: 777) }
 
-    before { create(:feed_subscribed_event, subscription:, event_type: patch_notes, template: "{role} Hot take: {title}") }
+    before { create(:feed_subscribed_event, subscription:, event_type: patch_notes, template: "Hot take: {title}") }
 
     it "shows the stored template in its textarea" do
       edit
 
       textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[templates][#{patch_notes}]"]))
-      expect(textarea.text).to eq("{role} Hot take: {title}")
+      expect(textarea.text).to eq("Hot take: {title}")
+    end
+
+    it "shows the default text for a post type without a custom template" do
+      edit
+
+      textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[templates][#{announcements}]"]))
+      expect(textarea.text).to eq(Feeds::Templates.default(announcements))
     end
 
     it "renders the form with the stored settings and a confirmed stop-following button" do
@@ -309,14 +331,14 @@ RSpec.describe "Steam News subscriptions", type: :request do
       expect(subscription.subscribed_events.find_by!(event_type: patch_notes).template).to eq("Patch day: {title}")
     end
 
-    context "with a message that would post nothing and no role" do
-      let(:templates) { {patch_notes => "{role}"} }
+    context "with a message that would post nothing" do
+      let(:templates) { {patch_notes => "{author}"} }
 
       it "re-renders the form with the reason and changes nothing" do
         update
 
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.body).to include("A custom message would post nothing.")
+        expect(response.body).to include("A custom message needs some text besides placeholders that can be empty")
         expect(subscription.subscribed_events.find_by!(event_type: patch_notes).template).to be_nil
       end
     end

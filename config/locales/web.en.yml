@@ -69,15 +69,13 @@ en:
       add_page:
         title: Add a game
       custom_message_field:
-        empty: This message would post nothing. Add some text, or pick a role to ping.
+        empty: This message needs some text besides placeholders that can be empty.
         label: Message (optional)
         placeholders:
           author: Who wrote the post. Empty when Steam doesn't say.
           feed: Where the post comes from, such as Community Announcements or a news
             site.
           game: The game's name on Steam.
-          intro: 'Placeholders (click one to copy):'
-          role: Mentions the role to ping. Empty when no role is set.
           title: The post's title.
           url: Link to the post.
         preview: Preview
@@ -435,6 +433,8 @@ en:
       title: Notifications
     number_stepper:
       recommended_default: 'Recommended default: %{value}'
+    placeholder_section:
+      label: Placeholders (click to copy)
     plugin_row:
       admin_only: Only a server admin can switch this plugin on or off.
       bespoke: Bespoke
@@ -636,9 +636,6 @@ en:
           usa: USA
           ussr: USSR
           winner: Winner
-        help: Anything in braces is replaced when the message is built. A token shrkbot
-          doesn't know is left exactly as you typed it. Click a token to copy it.
-        label: Tokens
         tokens:
           game_id: The game's code on twilight-struggle.com, such as G372.
           losing_flag: The losing player's flag. Empty on a tie.
@@ -711,7 +708,6 @@ en:
         placeholders:
           displayname: Expands to the member's nickname on this server, or their display
             name if they have none.
-          intro: 'Placeholders (click one to copy):'
           membercount: Expands to the server's current member count.
           user: Expands to a mention of the member on join, and to their plain @handle
             on leave.

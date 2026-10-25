@@ -46,14 +46,14 @@ RSpec.describe Feeds::Announcement do
       let(:template) { "{game} by {author}: {title} {url}" }
 
       it "renders every token" do
-        expect(subject_line).to eq("Team Fortress 2 by Valve: Smissmas 2026 https://store.steampowered.com/news/286827/")
+        expect(subject_line).to eq("<@&4242> Team Fortress 2 by Valve: Smissmas 2026 https://store.steampowered.com/news/286827/")
       end
     end
 
     context "without a role" do
       let(:role_id) { nil }
 
-      it "drops the role token and the space it leaves" do
+      it "starts with the text, without a leading space" do
         expect(subject_line).to eq("New Team Fortress 2 patch notes: Smissmas 2026")
       end
     end

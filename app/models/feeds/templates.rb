@@ -3,12 +3,12 @@
 module Feeds
   module Templates
     DEFAULTS = {
-      "Integrations::Steam::PatchNotesPublished" => "{role} New {game} patch notes: {title}",
-      "Integrations::Steam::AnnouncementPublished" => "{role} New {game} announcement: {title}",
-      "Integrations::Steam::ArticlePublished" => "{role} {feed}: {title}"
+      "Integrations::Steam::PatchNotesPublished" => "New {game} patch notes: {title}",
+      "Integrations::Steam::AnnouncementPublished" => "New {game} announcement: {title}",
+      "Integrations::Steam::ArticlePublished" => "{feed}: {title}"
     }.freeze
-    TOKENS_BY_SOURCE = {steam_news: %w[role game title url author feed]}.freeze
-    OPTIONAL_TOKENS = %w[role author].freeze
+    TOKENS_BY_SOURCE = {steam_news: %w[game title url author feed]}.freeze
+    OPTIONAL_TOKENS = %w[author].freeze
 
     EDGE_SPACE = /\A[[:space:]]+|[[:space:]]+\z/
 
@@ -23,9 +23,8 @@ module Feeds
       stripped unless stripped.empty? || stripped == default(event_type)
     end
 
-    def renders_empty?(template, role_id:)
+    def renders_empty?(template)
       tokens = TOKENS_BY_SOURCE.values.flatten.uniq.index_with { "x" }.merge(OPTIONAL_TOKENS.index_with { "" })
-      tokens["role"] = "x" if role_id
       strip(TemplateText.render(template, tokens)).empty?
     end
 
