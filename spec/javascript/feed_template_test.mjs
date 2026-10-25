@@ -1,7 +1,7 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
 
-const { subjectText, tokenPattern } = await import("lib/feed_template")
+const { isEmpty, subjectText, tokenPattern } = await import("lib/feed_template")
 
 const tokens = { role: "", game: "Hades", title: "Patch 1.4", author: "" }
 
@@ -19,4 +19,11 @@ test("matches exactly the given token names", () => {
 
 test("is empty when only empty tokens remain", () => {
   assert.equal(subjectText("  {role} {author} ", tokens), "")
+})
+
+test("isEmpty treats optional tokens as empty", () => {
+  const filled = { ...tokens, author: "Jane Doe" }
+
+  assert.equal(isEmpty("{author}", filled, ["author"]), true)
+  assert.equal(isEmpty("{title}", filled, ["author"]), false)
 })

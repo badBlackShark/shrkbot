@@ -167,6 +167,22 @@ RSpec.describe "Steam News subscriptions", type: :request do
       expect(stored_templates).to eq(patch_notes => "Patch day: {title}", articles => nil)
     end
 
+    context "with a post type that is not one of the source's" do
+      let(:attributes) do
+        super().merge(
+          event_types: {"Other::Thing" => "1", patch_notes => "1"},
+          templates: {"Other::Thing" => "x"}
+        )
+      end
+
+      it "follows only the source's types" do
+        create_subscription
+
+        expect(response).to redirect_to(list_path)
+        expect(config.feed_subscriptions.sole.subscribed_events.map(&:event_type)).to eq([patch_notes])
+      end
+    end
+
     context "with a message that would post nothing and no role" do
       let(:role_id) { "" }
       let(:attributes) { super().merge(templates: {patch_notes => "{role}"}) }
@@ -314,6 +330,18 @@ RSpec.describe "Steam News subscriptions", type: :request do
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include("Channel can&#39;t be blank")
         expect(subscription.reload).to have_attributes(channel_id: 555, body_length: "preview")
+      end
+
+      context "when a followed post type is unchecked with a draft message" do
+        let(:event_types) { {announcements => "1"} }
+        let(:templates) { {patch_notes => "Draft survives: {title}"} }
+
+        it "re-renders the draft in that type's textarea" do
+          update
+
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.body).to include(">Draft survives: {title}</textarea>")
+        end
       end
 
       context "when a followed post type is unchecked" do

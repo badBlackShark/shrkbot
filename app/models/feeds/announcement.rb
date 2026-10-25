@@ -4,6 +4,7 @@ module Feeds
   class Announcement
     SUBJECT_LIMIT = 2000
     TITLE_LIMIT = 256
+    TEXT_LIMIT = 4000
     LINK_LABEL = "Read the full post"
 
     def initialize(event:, subscription:)
@@ -46,15 +47,23 @@ module Feeds
     end
 
     def blocks
-      [heading, excerpt, image].compact
+      [subject_line, heading, excerpt, image].compact
+    end
+
+    def subject_line
+      Bot::Discord::Components.text(subject) if subject.present?
+    end
+
+    def heading_text
+      @heading_text ||= "## #{Bot::Discord::Truncate.call(event.title, TITLE_LIMIT)}"
     end
 
     def heading
-      Bot::Discord::Components.text("## #{Bot::Discord::Truncate.call(event.title, TITLE_LIMIT)}")
+      Bot::Discord::Components.text(heading_text)
     end
 
     def excerpt
-      body = Excerpt.new(event.body, subscription.body_length).to_s
+      body = Excerpt.new(event.body, subscription.body_length, max: TEXT_LIMIT - subject.length - heading_text.length).to_s
       Bot::Discord::Components.text(body) if body.present?
     end
 

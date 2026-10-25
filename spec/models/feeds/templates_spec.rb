@@ -28,6 +28,12 @@ RSpec.describe Feeds::Templates do
       end
     end
 
+    context "with only a non-breaking space" do
+      let(:text) { "\u00A0 \u3000" }
+
+      it { is_expected.to be_nil }
+    end
+
     context "with the default text" do
       let(:text) { described_class.default(patch_notes) }
 
@@ -59,6 +65,12 @@ RSpec.describe Feeds::Templates do
 
         it { is_expected.to be(empty) }
       end
+    end
+
+    context "with a non-breaking space around an empty token" do
+      let(:template) { "\u00A0{role}" }
+
+      it { is_expected.to be(true) }
     end
 
     context "with {role} and a role to ping" do

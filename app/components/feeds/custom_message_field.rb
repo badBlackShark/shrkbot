@@ -3,10 +3,11 @@
 class Components::Feeds::CustomMessageField < Components::Base
   STORE_URL = "https://store.steampowered.com/news/"
 
-  def initialize(subscription:, plugin_key:, event_type:)
+  def initialize(subscription:, plugin_key:, event_type:, event:)
     @subscription = subscription
     @plugin_key = plugin_key
     @event_type = event_type
+    @event = event
   end
 
   def view_template
@@ -21,7 +22,7 @@ class Components::Feeds::CustomMessageField < Components::Base
   private
 
   def key
-    @event_type.demodulize.underscore
+    ::Feeds.event_key(@event_type)
   end
 
   def field_name
@@ -43,14 +44,14 @@ class Components::Feeds::CustomMessageField < Components::Base
     render Components::TemplateTextarea.new(
       name: field_name,
       id: field_id,
-      value: stored_template,
+      value: @event&.template,
       placeholder: ::Feeds::Templates.default(@event_type),
-      data: {feed_preview_target: "template", action: "input->feed-preview#render", tokens: sample_tokens.to_json}
+      data: {feed_preview_target: "template", action: "input->feed-preview#render", tokens: sample_tokens.to_json, optional_tokens: optional_tokens.to_json}
     )
   end
 
-  def stored_template
-    @subscription.subscribed_events.reject(&:marked_for_destruction?).find { |event| event.event_type == @event_type }&.template
+  def optional_tokens
+    ::Feeds::Templates::OPTIONAL_TOKENS - ["role"]
   end
 
   def sample_tokens
@@ -82,11 +83,16 @@ class Components::Feeds::CustomMessageField < Components::Base
   def preview
     render Components::DiscordMessagePreview.new(
       label: t(".preview"),
-      messages: [{body_data: {feed_preview_target: "output", empty_hint: t(".empty")}, card:}]
+      messages: [{card:}]
     )
   end
 
   def card
-    {title: sample(:title), body: sample(:body), button: ::Feeds::Announcement::LINK_LABEL}
+    {
+      lead_data: {feed_preview_target: "output", empty_hint: t(".empty")},
+      title: sample(:title),
+      body: sample(:body),
+      button: ::Feeds::Announcement::LINK_LABEL
+    }
   end
 end

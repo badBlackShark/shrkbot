@@ -10,6 +10,8 @@ module Feeds
     TOKENS_BY_SOURCE = {steam_news: %w[role game title url author feed]}.freeze
     OPTIONAL_TOKENS = %w[role author].freeze
 
+    EDGE_SPACE = /\A[[:space:]]+|[[:space:]]+\z/
+
     module_function
 
     def default(event_type)
@@ -17,14 +19,18 @@ module Feeds
     end
 
     def custom(event_type, text)
-      stripped = text.to_s.strip
+      stripped = strip(text)
       stripped unless stripped.empty? || stripped == default(event_type)
     end
 
     def renders_empty?(template, role_id:)
       tokens = TOKENS_BY_SOURCE.values.flatten.uniq.index_with { "x" }.merge(OPTIONAL_TOKENS.index_with { "" })
       tokens["role"] = "x" if role_id
-      TemplateText.render(template, tokens).strip.empty?
+      strip(TemplateText.render(template, tokens)).empty?
+    end
+
+    def strip(text)
+      text.to_s.gsub(EDGE_SPACE, "")
     end
   end
 end

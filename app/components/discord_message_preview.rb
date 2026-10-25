@@ -3,6 +3,8 @@
 class Components::DiscordMessagePreview < Components::Base
   include Phlex::Rails::Helpers::ImageTag
 
+  MESSAGE_TEXT_CLASSES = "whitespace-pre-wrap text-sm leading-relaxed text-[color:var(--discord-text)]"
+
   def initialize(label:, channel: nil, bot_name: "shrkbot", messages: [])
     @label = label
     @channel = channel
@@ -38,14 +40,19 @@ class Components::DiscordMessagePreview < Components::Base
           span(class: "rounded bg-accent-fill px-1.5 py-0.5 text-[10px] font-semibold text-white") { "APP" }
           span(class: "text-[11px] text-[color:var(--discord-muted)]") { message[:timestamp] } if message[:timestamp]
         end
-        div(class: "whitespace-pre-wrap text-sm leading-relaxed text-[color:var(--discord-text)]", data: message[:body_data] || {})
+        message_text(message[:body_data]) if message[:body_data]
         card(message[:card]) if message[:card]
       end
     end
   end
 
+  def message_text(data)
+    div(class: MESSAGE_TEXT_CLASSES, data:)
+  end
+
   def card(card)
     div(class: "mt-2 max-w-lg rounded-lg border border-[color:var(--discord-code-bd)] bg-[var(--discord-code-bg)] p-3 text-[color:var(--discord-text)]") do
+      message_text(card[:lead_data]) if card[:lead_data]
       p(class: "text-base font-bold") { card[:title] }
       p(class: "mt-1 whitespace-pre-wrap text-sm") { card[:body] }
       span(class: "mt-3 inline-flex items-center gap-1.5 rounded bg-[var(--discord-divider)] px-3 py-1.5 text-sm font-medium") do

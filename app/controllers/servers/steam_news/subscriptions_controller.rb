@@ -140,7 +140,8 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
   end
 
   def event_types
-    subscription_params[:event_types].to_h.filter_map { |event_type, value| event_type if value == "1" }
+    submitted = subscription_params[:event_types].to_h
+    ::Feeds::EVENT_TYPES_BY_SOURCE.fetch(plugin_key).select { |event_type| submitted[event_type] == "1" }
   end
 
   def templates

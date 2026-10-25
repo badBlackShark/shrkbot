@@ -189,11 +189,15 @@ filled by `TemplateText`, stripped and cut to 2000 characters:
 
 Tokens: `role` (the role mention, or empty), `game`, `title`, `url`, `author`, `feed`.
 
-The **card** is a container with the title as a heading (cut to 256 characters), the
+The **card** is a container with the subject as its first line (the subject message
+vanishes once the card replaces it), the title as a heading (cut to 256 characters), the
 body excerpt, the post's first image when it has one, and a link button to the original.
 
 **Body length** is a per-subscription setting. `preview` (the default) keeps about 500
 characters and `full` about 3500, under Discord's 4000 for the whole message.
+Subject, heading and excerpt share Discord's 4000-character text budget
+(`Announcement::TEXT_LIMIT`): `Announcement` passes `Excerpt` the room left after the
+other two, and the excerpt shrinks to fit.
 `Feeds::Excerpt` takes the body length setting and looks up the limit itself. Past it,
 it cuts at the last paragraph break (when that keeps at least half the limit), else the
 last line break (same rule), else the last space, and appends "…". A cut that leaves a code fence open closes it

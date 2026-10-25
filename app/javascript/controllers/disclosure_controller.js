@@ -2,10 +2,11 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static values = { key: String }
-  static targets = ["details"]
+  static targets = ["details", "toggle"]
 
   connect() {
     if (this.details.open) return
+    if (this.hasToggleTarget && !this.toggleTarget.checked) return
 
     const stored = localStorage.getItem(this.keyValue)
     if (stored === "open") this.details.open = true

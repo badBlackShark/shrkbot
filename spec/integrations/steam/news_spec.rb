@@ -25,6 +25,21 @@ RSpec.describe Integrations::Steam::News do
     )
   end
 
+  context "with a maxlength" do
+    subject(:items) { news.for_app(440, maxlength: 1) }
+
+    it "passes it through" do
+      items
+
+      expect(client).to have_received(:get_json).with(
+        :api,
+        anything,
+        params: hash_including(maxlength: 1),
+        status_errors: anything
+      )
+    end
+  end
+
   it "treats Steam's 403 for an unknown app id as NotFound" do
     items
 
@@ -72,6 +87,34 @@ RSpec.describe Integrations::Steam::News do
 
   it "gives an item with no tags an empty list" do
     expect(items.second.tags).to eq([])
+  end
+
+  context "with null tags" do
+    let(:response) do
+      JSON.parse(Rails.root.join("spec/fixtures/integrations/steam/news_440.json").read).tap do |body|
+        body["appnews"]["newsitems"].first["tags"] = nil
+      end
+    end
+
+    it "gives an empty list" do
+      expect(items.first.tags).to eq([])
+    end
+  end
+
+  context "with a url Discord would reject" do
+    let(:response) do
+      JSON.parse(Rails.root.join("spec/fixtures/integrations/steam/news_440.json").read).tap do |body|
+        body["appnews"]["newsitems"].first["url"] = "https://steamstore-a.akamaihd.net/news/externalpost/Rock, Paper, Shotgun/1847286114036541/\u043e"
+      end
+    end
+
+    it "percent-encodes spaces and non-ASCII bytes" do
+      expect(items.first.url).to eq("https://steamstore-a.akamaihd.net/news/externalpost/Rock,%20Paper,%20Shotgun/1847286114036541/%D0%BE")
+    end
+
+    it "leaves a clean url unchanged" do
+      expect(items.second.url).to eq(response["appnews"]["newsitems"].second["url"])
+    end
   end
 
   it "turns a blank author into nil" do

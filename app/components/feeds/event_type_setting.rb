@@ -1,22 +1,22 @@
 # frozen_string_literal: true
 
 class Components::Feeds::EventTypeSetting < Components::Base
-  def initialize(subscription:, plugin_key:, event_type:, followed:, volume:)
+  def initialize(subscription:, plugin_key:, event_type:, event:, volume:)
     @subscription = subscription
     @plugin_key = plugin_key
     @event_type = event_type
-    @followed = followed
+    @event = event
     @volume = volume
   end
 
   def view_template
-    div(data: {controller: "disclosure", disclosure_key_value: "feeds-message-#{@subscription.id || "new"}-#{key}"}) do
+    div(data: {controller: "disclosure", disclosure_key_value: "feeds-message-#{@subscription.watch.external_id}-#{key}"}) do
       render Components::ToggleRow.new(
         name: "subscription[event_types][#{@event_type}]",
-        checked: @followed,
+        checked: followed?,
         label: t("components.feeds.event_types.#{key}.label"),
         help: help_with_volume,
-        data: {action: "change->disclosure#sync"}
+        data: {action: "change->disclosure#sync", disclosure_target: "toggle"}
       )
       message_disclosure
     end
@@ -25,7 +25,11 @@ class Components::Feeds::EventTypeSetting < Components::Base
   private
 
   def key
-    @event_type.demodulize.underscore
+    ::Feeds.event_key(@event_type)
+  end
+
+  def followed?
+    @event.present? && !@event.marked_for_destruction?
   end
 
   def help_with_volume
@@ -52,7 +56,8 @@ class Components::Feeds::EventTypeSetting < Components::Base
         render Components::Feeds::CustomMessageField.new(
           subscription: @subscription,
           plugin_key: @plugin_key,
-          event_type: @event_type
+          event_type: @event_type,
+          event: @event
         )
       end
     end

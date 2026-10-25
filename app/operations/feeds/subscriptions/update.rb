@@ -21,11 +21,10 @@ module Ops
 
         def update_followed_events
           subscription.subscribed_events.each do |event|
-            if event_types.include?(event.event_type)
-              event.template = ::Feeds::Templates.custom(event.event_type, templates[event.event_type])
-            else
-              event.mark_for_destruction
-            end
+            event.template = ::Feeds::Templates.custom(event.event_type, templates[event.event_type])
+          end
+          subscription.subscribed_events.each do |event|
+            event.mark_for_destruction unless event_types.include?(event.event_type)
           end
         end
 

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { text, pill, hint, nodes } from "lib/token_preview"
 import { render as renderMarkdown } from "lib/discord_markdown_dom"
-import { subjectText, tokenPattern } from "lib/feed_template"
+import { isEmpty, tokenPattern } from "lib/feed_template"
 
 export default class extends Controller {
   static targets = ["template", "output", "role"]
@@ -26,7 +26,7 @@ export default class extends Controller {
 
     output.replaceChildren()
 
-    if (!subjectText(template, tokens)) {
+    if (isEmpty(template, tokens, JSON.parse(input.dataset.optionalTokens))) {
       output.append(hint(output.dataset.emptyHint))
       return
     }

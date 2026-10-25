@@ -64,7 +64,7 @@ class Components::Feeds::SubscriptionFields < Components::Base
       subscription: @subscription,
       plugin_key: @plugin_key,
       event_type:,
-      followed: followed_types.include?(event_type),
+      event: events_by_type[event_type],
       volume: @volume
     )
   end
@@ -85,8 +85,8 @@ class Components::Feeds::SubscriptionFields < Components::Base
     {value: length, title: t(".length.#{length}.title"), description: t(".length.#{length}.description")}
   end
 
-  def followed_types
-    @followed_types ||= @subscription.subscribed_events.reject(&:marked_for_destruction?).map(&:event_type)
+  def events_by_type
+    @events_by_type ||= @subscription.subscribed_events.index_by(&:event_type)
   end
 
   def server_configuration

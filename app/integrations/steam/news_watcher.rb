@@ -11,7 +11,7 @@ module Integrations
       end
 
       def self.volume(external_id, news: News.new)
-        items = news.for_app(external_id, count: VOLUME_SAMPLE)
+        items = news.for_app(external_id, count: VOLUME_SAMPLE, maxlength: 1)
         Volume.new(counts: items.map { |item| event_class(item).name }.tally, sample_size: items.size)
       end
 

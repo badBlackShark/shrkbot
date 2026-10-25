@@ -36,7 +36,7 @@ RSpec.describe Integrations::Steam::NewsWatcher do
     end
 
     before do
-      allow(news).to receive(:for_app).with("440", count: 20).and_return(items)
+      allow(news).to receive(:for_app).with("440", count: 20, maxlength: 1).and_return(items)
     end
 
     it "counts the sampled posts per event class" do
