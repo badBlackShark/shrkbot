@@ -51,7 +51,7 @@ module Feeds
     end
 
     def subject_line
-      Bot::Discord::Components.text(subject) if subject.present?
+      Bot::Discord::Components.text(subject)
     end
 
     def heading_text
