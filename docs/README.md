@@ -36,7 +36,7 @@ work actually touches.
 - [plugins/roles.md](plugins/roles.md) — role self-assignment: why single-select sets are one click and multi-select sets are two, custom-id scoping against forgery, and how the role message is composed.
 - [plugins/activity-logging.md](plugins/activity-logging.md) — writing a user action to a server's log channel: the `enabled?`/`post` split, one toggle per `"<plugin>.<event>"` key, and why a role swap logs one message rather than two.
 - [plugins/server-shield.md](plugins/server-shield.md) — the moderation plugin group: the content-signal lock, the non-negotiable own-guild-confirmation gate on harsh actions, the SSRF `proxy_url` rule, and the pinned OCR sidecar.
-- [plugins/feeds.md](plugins/feeds.md) — feed subscriptions: the two tables, how `Subscription.active` combines the feeds plugin with a source's sub-plugin, and how a server's subscriptions are purged.
+- [plugins/feeds.md](plugins/feeds.md) — feed subscriptions: the two tables, how `Subscription.active` combines the integrations plugin with a source's sub-plugin, and how a server's subscriptions are purged.
 - [plugins/lfg.md](plugins/lfg.md) — Looking-for-Game posts: how joiner state stays out of Postgres, and the per-send `allowed_mentions` matrix that is the whole point of the feature.
 
 ## Integrations
