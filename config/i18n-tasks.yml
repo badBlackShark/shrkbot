@@ -43,8 +43,6 @@ ignore_missing:
 ignore_unused:
   # 6. Components::Feeds::VolumeLine
   - components.feeds.volume_line.counts.*
-  # 5. Feeds::Subscription#custom_messages_post_text
-  - activerecord.errors.models.feeds/subscription.custom_message_empty
   # 1. Views::Servers::SubPluginShow subclasses (through Moderation::SubPluginShow)
   - views.servers.spam_protection.show.*
   - views.servers.image_scanning.show.*

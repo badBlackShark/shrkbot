@@ -5,7 +5,8 @@ require "rails_helper"
 RSpec.describe Feeds::Announcement do
   subject(:announcement) { described_class.new(event:, subscription:) }
 
-  let(:watch) { create(:integration_watch, name: "Team Fortress 2") }
+  let(:image_url) { nil }
+  let(:watch) { create(:integration_watch, name: "Team Fortress 2", image_url:) }
   let(:role_id) { 4242 }
   let(:body_length) { "preview" }
   let(:subscription) { create(:feed_subscription, watch:, role_id:, body_length:) }
@@ -17,19 +18,27 @@ RSpec.describe Feeds::Announcement do
     create(:feed_subscribed_event, subscription:, event_type:, template:)
   end
 
+  describe ".eyebrow" do
+    it "labels patch notes, announcements and falls back to the feed" do
+      expect(described_class.eyebrow("Hades", "Integrations::Steam::PatchNotesPublished", "Feed")).to eq("Hades · Patch notes")
+      expect(described_class.eyebrow("Hades", "Integrations::Steam::AnnouncementPublished", "Feed")).to eq("Hades · Announcement")
+      expect(described_class.eyebrow("Hades", "Integrations::Steam::ArticlePublished", "PC Gamer")).to eq("Hades · PC Gamer")
+    end
+  end
+
   describe "#subject" do
     subject(:subject_line) { announcement.subject }
 
-    context "with the default template per event class" do
-      it "reads as patch notes" do
-        expect(subject_line).to eq("<@&4242> New Team Fortress 2 patch notes: Smissmas 2026")
+    context "without a custom message" do
+      it "is the role and the headline" do
+        expect(subject_line).to eq("<@&4242> Team Fortress 2 · Patch notes: Smissmas 2026")
       end
 
       context "for an announcement" do
         let(:event) { create(:steam_announcement_event, watch:, title: "Smissmas 2026") }
 
         it "reads as an announcement" do
-          expect(subject_line).to eq("<@&4242> New Team Fortress 2 announcement: Smissmas 2026")
+          expect(subject_line).to eq("<@&4242> Team Fortress 2 · Announcement: Smissmas 2026")
         end
       end
 
@@ -37,28 +46,36 @@ RSpec.describe Feeds::Announcement do
         let(:event) { create(:steam_article_event, watch:, title: "Smissmas 2026", feed_label: "Rock Paper Shotgun") }
 
         it "leads with the feed" do
-          expect(subject_line).to eq("<@&4242> Rock Paper Shotgun: Smissmas 2026")
+          expect(subject_line).to eq("<@&4242> Team Fortress 2 · Rock Paper Shotgun: Smissmas 2026")
         end
       end
     end
 
-    context "with a custom template" do
-      let(:template) { "{game} by {author}: {title} {url}" }
+    context "with a custom message" do
+      let(:template) { "Patch day for {game}!" }
 
-      it "renders every token" do
-        expect(subject_line).to eq("<@&4242> Team Fortress 2 by Valve: Smissmas 2026 https://store.steampowered.com/news/286827/")
+      it "is the role and the rendered text" do
+        expect(subject_line).to eq("<@&4242> Patch day for Team Fortress 2!")
+      end
+    end
+
+    context "with a stored template that still has the removed title token" do
+      let(:template) { "{title}" }
+
+      it "leaves it literal" do
+        expect(subject_line).to eq("<@&4242> {title}")
       end
     end
 
     context "without a role" do
       let(:role_id) { nil }
 
-      it "starts with the text, without a leading space" do
-        expect(subject_line).to eq("New Team Fortress 2 patch notes: Smissmas 2026")
+      it "starts with the headline, without a leading space" do
+        expect(subject_line).to eq("Team Fortress 2 · Patch notes: Smissmas 2026")
       end
     end
 
-    context "when the rendered text is longer than Discord allows" do
+    context "when the text is longer than Discord allows" do
       let(:event) { create(:steam_news_event, watch:, title: "word " * 600) }
 
       it "truncates to 2000 characters" do
@@ -72,7 +89,7 @@ RSpec.describe Feeds::Announcement do
     subject(:fallback) { announcement.fallback }
 
     it "is the subject followed by the link" do
-      expect(fallback).to eq("<@&4242> New Team Fortress 2 patch notes: Smissmas 2026\nhttps://store.steampowered.com/news/286827/")
+      expect(fallback).to eq("<@&4242> Team Fortress 2 · Patch notes: Smissmas 2026\nhttps://store.steampowered.com/news/286827/")
     end
 
     context "when the subject already fills Discord's limit" do
@@ -88,21 +105,66 @@ RSpec.describe Feeds::Announcement do
   describe "#card" do
     subject(:card) { announcement.card }
 
-    let(:container) { card[:components].first }
+    let(:lead) { card[:components].first }
+    let(:container) { card[:components].find { |component| component[:type] == Bot::Discord::Components::CONTAINER } }
     let(:action_row) { card[:components].last }
+    let(:texts) { container[:components].filter_map { |block| block[:content] } }
 
     it "is a Components V2 message" do
       expect(card[:flags]).to eq(Bot::Discord::Components::COMPONENTS_V2)
     end
 
-    it "carries the subject, the heading and the excerpt" do
+    it "puts the role mention above the container" do
+      expect(lead).to eq(Bot::Discord::Components.text("<@&4242>"))
+      expect(card[:components].second).to eq(container)
+    end
+
+    context "with a custom message" do
+      let(:template) { "Patch day for {game}!" }
+
+      it "adds it to the lead line" do
+        expect(lead).to eq(Bot::Discord::Components.text("<@&4242> Patch day for Team Fortress 2!"))
+      end
+
+      context "without a role" do
+        let(:role_id) { nil }
+
+        it "is the lead line alone" do
+          expect(lead).to eq(Bot::Discord::Components.text("Patch day for Team Fortress 2!"))
+        end
+      end
+    end
+
+    context "with neither a role nor a custom message" do
+      let(:role_id) { nil }
+
+      it "starts with the container" do
+        expect(card[:components].first).to eq(container)
+        expect(card[:components].map { |component| component[:type] }).to eq([Bot::Discord::Components::CONTAINER, Bot::Discord::Components::ACTION_ROW])
+      end
+    end
+
+    it "carries the eyebrow, the heading and the excerpt" do
       expect(container[:components]).to eq(
         [
-          Bot::Discord::Components.text("<@&4242> New Team Fortress 2 patch notes: Smissmas 2026"),
+          Bot::Discord::Components.text("-# Team Fortress 2 · Patch notes"),
           Bot::Discord::Components.text("## Smissmas 2026"),
           Bot::Discord::Components.text("Snow is falling.")
         ]
       )
+    end
+
+    context "when the watch has a header image" do
+      let(:image_url) { "https://img/header.jpg" }
+
+      it "shows it as the thumbnail of a section around the eyebrow and heading" do
+        expect(container[:components].first).to eq(
+          Bot::Discord::Components.section(
+            [Bot::Discord::Components.text("-# Team Fortress 2 · Patch notes"), Bot::Discord::Components.text("## Smissmas 2026")],
+            accessory: Bot::Discord::Components.thumbnail("https://img/header.jpg")
+          )
+        )
+      end
     end
 
     it "links the original post" do
@@ -123,9 +185,7 @@ RSpec.describe Feeds::Announcement do
       let(:event) { create(:steam_news_event, watch:, title: "Smissmas 2026", body: "") }
 
       it "omits the excerpt block" do
-        expect(container[:components].map { |block| block[:content] }).to eq(
-          ["<@&4242> New Team Fortress 2 patch notes: Smissmas 2026", "## Smissmas 2026"]
-        )
+        expect(texts).to eq(["-# Team Fortress 2 · Patch notes", "## Smissmas 2026"])
       end
     end
 
@@ -145,14 +205,14 @@ RSpec.describe Feeds::Announcement do
         expect(container[:components].third[:content].length).to be > 500
       end
 
-      context "with a subject and title at their limits" do
+      context "with a lead line and title at their limits" do
         let(:template) { "word " * 600 }
         let(:event) { create(:steam_news_event, watch:, title: "t" * 300, body: "word " * 2000) }
 
         it "keeps the text of the whole message within Discord's 4000" do
-          texts = container[:components].filter_map { |block| block[:content] }
+          all_texts = texts + [lead[:content]]
 
-          expect(texts.sum(&:length)).to be <= 4000
+          expect(all_texts.sum(&:length)).to be <= 4000
           expect(texts.last.length).to be > 1000
         end
       end

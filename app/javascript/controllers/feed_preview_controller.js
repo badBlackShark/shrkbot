@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
-import { text, pill, hint, nodes } from "lib/token_preview"
+import { text, pill, nodes } from "lib/token_preview"
 import { render as renderMarkdown } from "lib/discord_markdown_dom"
-import { isEmpty, tokenPattern } from "lib/feed_template"
+import { tokenPattern } from "lib/feed_template"
 
 export default class extends Controller {
   static targets = ["template", "output", "role"]
@@ -14,31 +14,18 @@ export default class extends Controller {
     this.templateTargets.forEach((input) => this.paint(input, this.outputFor(input)))
   }
 
-  reset(event) {
-    const input = event.target.closest("[data-feed-preview-field]").querySelector("textarea")
-    input.value = input.placeholder
-    input.dispatchEvent(new Event("input", { bubbles: true }))
-  }
-
   paint(input, output) {
-    const template = input.value.trim() || input.placeholder
+    const template = input.value.trim()
     const tokens = JSON.parse(input.dataset.tokens)
+    const blocks = template ? renderMarkdown(template, (leaf) => nodes(leaf, tokenPattern(tokens), (match) => [text(tokens[match[1]])])) : []
+    const role = this.roleName()
 
-    output.replaceChildren()
-
-    if (isEmpty(template, tokens, JSON.parse(input.dataset.optionalTokens))) {
-      output.append(hint(output.dataset.emptyHint))
-      return
+    if (role) {
+      if (blocks.length === 0) blocks.push(document.createElement("p"))
+      blocks[0].prepend(pill(`@${role}`), text(" "))
     }
 
-    const blocks = renderMarkdown(template, (leaf) => nodes(leaf, tokenPattern(tokens), (match) => [text(tokens[match[1]])]))
-    this.prependRoleMention(blocks[0])
-    output.append(...blocks)
-  }
-
-  prependRoleMention(block) {
-    const role = this.roleName()
-    if (role) block.prepend(pill(`@${role}`), text(" "))
+    output.replaceChildren(...blocks)
   }
 
   outputFor(input) {

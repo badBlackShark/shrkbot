@@ -22,7 +22,7 @@ RSpec.describe Ops::Feeds::Posts::Create do
 
     expect(Bot::Discord::Components).to have_received(:create_with_subject).with(
       channel_id: 555_000,
-      subject: "<@&4242> New Team Fortress 2 patch notes: Smissmas 2026",
+      subject: "<@&4242> Team Fortress 2 · Patch notes: Smissmas 2026",
       rendered: announcement.card,
       allowed_mentions: {parse: [], roles: [4242]},
       fallback: announcement.fallback
@@ -43,7 +43,7 @@ RSpec.describe Ops::Feeds::Posts::Create do
 
       expect(Bot::Discord::Components).to have_received(:create_with_subject).with(
         hash_including(
-          subject: "New Team Fortress 2 patch notes: Smissmas 2026",
+          subject: "Team Fortress 2 · Patch notes: Smissmas 2026",
           allowed_mentions: {parse: []}
         )
       )

@@ -10,8 +10,8 @@ module Components::PluginNav
     spam_protection: "megaphone-slash",
     image_scanning: "scan",
     lfg: "game-controller",
-    integrations: "plugs-connected",
-    steam: "steam-logo",
+    integrations: "plugs",
+    steam: "steam",
     twilight_struggle: "trophy"
   }.freeze
 

@@ -43,7 +43,7 @@ RSpec.describe "Steam subscriptions", type: :request do
         lookup
 
         expect(response).to have_http_status(:ok)
-        expect(response.body).to include("Steam link or app ID", "Look up")
+        expect(response.body).to include("Paste a link to the game", "SteamDB page", "Look up")
         expect(response.body).not_to include("aria-invalid=\"true\"")
       end
     end
@@ -124,7 +124,7 @@ RSpec.describe "Steam subscriptions", type: :request do
         role_id:,
         body_length: "full",
         event_types: {patch_notes => "1", announcements => "0", articles => "1"},
-        templates: {patch_notes => " Patch day: {title} ", articles => "{feed}: {title}"}
+        templates: {patch_notes => " Patch day: {title} ", articles => "  "}
       }
     end
 
@@ -140,21 +140,21 @@ RSpec.describe "Steam subscriptions", type: :request do
       expect(config.feed_subscriptions.sole.watch).to have_attributes(name: "Hades II", image_url: target.image_url)
     end
 
-    it "stores custom text and nothing for the default text" do
+    it "stores custom text and nothing for blank text" do
       create_subscription
 
       expect(stored_templates).to eq(patch_notes => "Patch day: {title}", articles => nil)
     end
 
-    context "with the untouched default text" do
+    context "with blank text" do
       let(:attributes) do
         super().merge(
           event_types: {patch_notes => "1"},
-          templates: {patch_notes => Feeds::Templates.default(patch_notes)}
+          templates: {patch_notes => "  "}
         )
       end
 
-      it "follows with the default and stores nothing" do
+      it "follows and stores nothing" do
         create_subscription
 
         expect(stored_templates).to eq(patch_notes => nil)
@@ -174,18 +174,6 @@ RSpec.describe "Steam subscriptions", type: :request do
 
         expect(response).to redirect_to(list_path)
         expect(config.feed_subscriptions.sole.subscribed_events.map(&:event_type)).to eq([patch_notes])
-      end
-    end
-
-    context "with a message that would post nothing" do
-      let(:role_id) { "" }
-      let(:attributes) { super().merge(templates: {patch_notes => "{author}"}) }
-
-      it "renders the form again with the reason and writes nothing" do
-        expect { create_subscription }.not_to change(Feeds::Subscription, :count)
-
-        expect(response).to have_http_status(:unprocessable_content)
-        expect(response.body).to include("A custom message needs some text besides placeholders that can be empty")
       end
     end
 
@@ -249,11 +237,11 @@ RSpec.describe "Steam subscriptions", type: :request do
       expect(textarea.text).to eq("Hot take: {title}")
     end
 
-    it "shows the default text for a post type without a custom template" do
+    it "leaves the textarea empty for a post type without a custom template" do
       edit
 
       textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[templates][#{announcements}]"]))
-      expect(textarea.text).to eq(Feeds::Templates.default(announcements))
+      expect(textarea.text).to eq("")
     end
 
     it "renders the form with the stored settings and a confirmed stop-following button" do
@@ -341,18 +329,6 @@ RSpec.describe "Steam subscriptions", type: :request do
       update
 
       expect(subscription.subscribed_events.find_by!(event_type: patch_notes).template).to eq("Patch day: {title}")
-    end
-
-    context "with a message that would post nothing" do
-      let(:templates) { {patch_notes => "{author}"} }
-
-      it "re-renders the form with the reason and changes nothing" do
-        update
-
-        expect(response).to have_http_status(:unprocessable_content)
-        expect(response.body).to include("A custom message needs some text besides placeholders that can be empty")
-        expect(subscription.subscribed_events.find_by!(event_type: patch_notes).template).to be_nil
-      end
     end
 
     context "when the channel is cleared" do

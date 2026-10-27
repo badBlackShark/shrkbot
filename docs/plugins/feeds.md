@@ -65,11 +65,10 @@ are no preview routes for these pages.
   viewer's IP address. A watch without an `image_url` shows a neutral placeholder.
 - **Custom messages.** Each post type has a collapsed "Custom message" disclosure
   (`Components::Feeds::EventTypeSetting`, opens with the toggle through
-  `disclosure#sync`) holding the subject-line template, a placeholder list and a live
-  preview (`feed-preview` controller, `lib/feed_template.js`). `Feeds::Templates.custom`
-  stores `nil` when the text is blank or equals the default. `Feeds::Subscription`
-  rejects a template that renders empty (`Templates.renders_empty?`, role counted only when
-  one is set). Turning a post type off drops its event row, so its custom message goes too.
+  `disclosure#sync`) holding the optional lead-line text (empty by default, no reset), a
+  placeholder list and a live preview (`feed-preview` controller,
+  `lib/feed_template.js`). `Feeds::Templates.custom` stores `nil` when the text is
+  blank, and any text is allowed. Turning a post type off drops its event row, so its custom message goes too.
 - **Volume line.** Under "What to post" a lazy Turbo frame (`feed-volume`) loads
   `Servers::Steam::VolumesController#show`, which shows how many of the last 20 news
   items were each post type (`Integrations::Steam::NewsWatcher.volume`,
@@ -184,26 +183,30 @@ what a server gets, so a fresh or long-unpolled watch never replays its backlog.
 
 `Feeds::Announcement` renders both messages.
 
-The **subject** is the subscribed event's `template`, or the default for its class,
-filled by `TemplateText`, stripped and cut to 2000 characters:
+The **subject** is the plain first message, so it is also the push-notification text.
+It is the role mention plus the subscription's custom message, or, when there is no
+custom message, the headline `<game> · <type>: <title>`, stripped and cut to 2000
+characters. The custom message is optional and empty by default. It is the subscribed
+event's `template` filled by `TemplateText`, with the tokens `game`, `author` and
+`feed`. A stored template that still has `{title}` or `{url}` from before those tokens
+were removed renders them literally.
 
-| Event | Default template |
-| --- | --- |
-| `PatchNotesPublished` | `{role} New {game} patch notes: {title}` |
-| `AnnouncementPublished` | `{role} New {game} announcement: {title}` |
-| `ArticlePublished` | `{role} {feed}: {title}` |
+The type in the eyebrow and headline comes from `Announcement::TYPE_LABELS`
+(`Patch notes`, `Announcement`). Articles fall back to their feed label, such as
+`Team Fortress 2 · Rock Paper Shotgun`.
 
-Tokens: `role` (the role mention, or empty), `game`, `title`, `url`, `author`, `feed`.
-
-The **card** is a container with the subject as its first line (the subject message
-vanishes once the card replaces it), the title as a heading (cut to 256 characters), the
-body excerpt, the post's first image when it has one, and a link button to the original.
+The **card** replaces the subject message. When there is a role mention or a custom
+message, they sit on a lead line above the container, outside it. The container holds a
+section with the eyebrow (`-# <game> · <type>`) and the title as a heading (cut to 256
+characters), with the game's header image as the section thumbnail (plain texts when the
+watch has no `image_url`), then the body excerpt, the post's first image when it has one,
+and a link button to the original below it.
 
 **Body length** is a per-subscription setting. `preview` (the default) keeps about 500
 characters and `full` about 3500, under Discord's 4000 for the whole message.
-Subject, heading and excerpt share Discord's 4000-character text budget
-(`Announcement::TEXT_LIMIT`): `Announcement` passes `Excerpt` the room left after the
-other two, and the excerpt shrinks to fit.
+The lead line, eyebrow and heading share Discord's 4000-character text budget
+(`Announcement::TEXT_LIMIT`) with the excerpt: `Announcement` passes `Excerpt` the room
+left after those three, and the excerpt shrinks to fit.
 `Feeds::Excerpt` takes the body length setting and looks up the limit itself. Past it,
 it cuts at the last paragraph break (when that keeps at least half the limit), else the
 last line break (same rule), else the last space, and appends "…". A cut that leaves a code fence open closes it

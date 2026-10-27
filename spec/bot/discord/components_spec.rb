@@ -422,6 +422,15 @@ RSpec.describe Bot::Discord::Components do
       expect(container[:components].sole).to include(type: described_class::CONTAINER)
     end
 
+    context "with a lead" do
+      subject(:container) { described_class.container([described_class.text("hello")], lead: "<@&1> Patch day") }
+
+      it "puts the lead text before the container" do
+        expect(container[:components].map { |component| component[:type] }).to eq([described_class::TEXT_DISPLAY, described_class::CONTAINER])
+        expect(container[:components].first[:content]).to eq("<@&1> Patch day")
+      end
+    end
+
     context "with buttons" do
       subject(:container) { described_class.container([described_class.text("hello")], buttons: [button]) }
 

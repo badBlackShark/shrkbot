@@ -50,10 +50,19 @@ class Components::DiscordMessagePreview < Components::Base
     div(class: MESSAGE_TEXT_CLASSES, data:)
   end
 
+  def card_header(card)
+    div(class: "flex items-start gap-3") do
+      div(class: "min-w-0 flex-1") do
+        p(class: "text-xs text-[color:var(--discord-muted)]") { card[:eyebrow] } if card[:eyebrow]
+        p(class: "text-base font-bold") { card[:title] }
+      end
+      img(src: card[:thumbnail], alt: "", class: "w-20 flex-none rounded") if card[:thumbnail]
+    end
+  end
+
   def card(card)
     div(class: "mt-2 max-w-lg rounded-lg border border-[color:var(--discord-code-bd)] bg-[var(--discord-code-bg)] p-3 text-[color:var(--discord-text)]") do
-      message_text(card[:lead_data]) if card[:lead_data]
-      p(class: "text-base font-bold") { card[:title] }
+      card_header(card)
       p(class: "mt-1 whitespace-pre-wrap text-sm") { card[:body] }
       span(class: "mt-3 inline-flex items-center gap-1.5 rounded bg-[var(--discord-divider)] px-3 py-1.5 text-sm font-medium") do
         plain card[:button]

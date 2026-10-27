@@ -32,8 +32,10 @@ module Bot
         {type: BUTTON, style: BUTTON_LINK, url:, label:}
       end
 
-      def container(blocks, accent_color: Config::ACCENT_COLOR, buttons: [])
-        components = [{type: CONTAINER, accent_color:, components: blocks}]
+      def container(blocks, accent_color: Config::ACCENT_COLOR, buttons: [], lead: nil)
+        components = []
+        components << text(lead) if lead
+        components << {type: CONTAINER, accent_color:, components: blocks}
         components << action_row(buttons) if buttons.any?
         {components:, flags: COMPONENTS_V2}
       end
