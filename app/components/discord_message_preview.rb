@@ -51,12 +51,9 @@ class Components::DiscordMessagePreview < Components::Base
   end
 
   def card_header(card)
-    div(class: "flex items-start gap-3") do
-      div(class: "min-w-0 flex-1") do
-        p(class: "text-xs text-[color:var(--discord-muted)]") { card[:eyebrow] } if card[:eyebrow]
-        p(class: "text-base font-bold") { card[:title] }
-      end
-      img(src: card[:thumbnail], alt: "", class: "w-20 flex-none rounded") if card[:thumbnail]
+    div(class: "min-w-0") do
+      p(class: "text-xs text-[color:var(--discord-muted)]") { card[:eyebrow] } if card[:eyebrow]
+      p(class: "text-base font-bold") { card[:title] }
     end
   end
 

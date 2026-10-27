@@ -3,10 +3,10 @@
 require "rails_helper"
 
 RSpec.describe Feeds::Announcement do
-  subject(:announcement) { described_class.new(event:, subscription:) }
+  subject(:announcement) { described_class.new(event:, subscription:, thumbnail:) }
 
-  let(:image_url) { nil }
-  let(:watch) { create(:integration_watch, name: "Team Fortress 2", image_url:) }
+  let(:thumbnail) { nil }
+  let(:watch) { create(:integration_watch, name: "Team Fortress 2") }
   let(:role_id) { 4242 }
   let(:body_length) { "preview" }
   let(:subscription) { create(:feed_subscription, watch:, role_id:, body_length:) }
@@ -102,6 +102,27 @@ RSpec.describe Feeds::Announcement do
     end
   end
 
+  describe "#attachments" do
+    subject(:attachments) { announcement.attachments }
+
+    context "with thumbnail bytes" do
+      let(:thumbnail) { "webp-bytes" }
+
+      it "is one upload named thumbnail.webp carrying them" do
+        expect(attachments.size).to eq(1)
+        expect(attachments.first).to be_a(Bot::Discord::FileUpload)
+        expect(attachments.first.original_filename).to eq("thumbnail.webp")
+        expect(attachments.first.read).to eq("webp-bytes")
+      end
+    end
+
+    context "without a thumbnail" do
+      it "is nil" do
+        expect(attachments).to be_nil
+      end
+    end
+  end
+
   describe "#card" do
     subject(:card) { announcement.card }
 
@@ -154,14 +175,14 @@ RSpec.describe Feeds::Announcement do
       )
     end
 
-    context "when the watch has a header image" do
-      let(:image_url) { "https://img/header.jpg" }
+    context "with thumbnail bytes" do
+      let(:thumbnail) { "webp-bytes" }
 
-      it "shows it as the thumbnail of a section around the eyebrow and heading" do
+      it "shows the attachment as the thumbnail of a section around the eyebrow and heading" do
         expect(container[:components].first).to eq(
           Bot::Discord::Components.section(
             [Bot::Discord::Components.text("-# Team Fortress 2 · Patch notes"), Bot::Discord::Components.text("## Smissmas 2026")],
-            accessory: Bot::Discord::Components.thumbnail("https://img/header.jpg")
+            accessory: Bot::Discord::Components.thumbnail("attachment://thumbnail.webp")
           )
         )
       end

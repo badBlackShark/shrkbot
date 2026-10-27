@@ -53,26 +53,24 @@ RSpec.describe Components::DiscordMessagePreview do
     end
   end
 
-  context "with an eyebrow and thumbnail on the card" do
+  context "with an eyebrow on the card" do
     let(:options) do
       {
         label: "Preview",
-        messages: [{card: {eyebrow: "Hades II · Patch notes", thumbnail: "https://img/header.jpg", title: "Patch 1.4", body: "Fixed.", button: "Read"}}]
+        messages: [{card: {eyebrow: "Hades II · Patch notes", title: "Patch 1.4", body: "Fixed.", button: "Read"}}]
       }
     end
 
-    it "renders the eyebrow above the title and the thumbnail beside them" do
+    it "renders the eyebrow above the title" do
       expect(html.index("Hades II · Patch notes")).to be < html.index("Patch 1.4")
-      expect(html).to include('src="https://img/header.jpg"')
     end
   end
 
-  context "without an eyebrow or thumbnail" do
+  context "without an eyebrow" do
     let(:options) { {label: "Preview", messages: [{card: {title: "Patch 1.4", body: "Fixed.", button: "Read"}}]} }
 
     it "renders just the title" do
       expect(html).to include("Patch 1.4")
-      expect(html).not_to include("<img src=")
     end
   end
 

@@ -77,7 +77,6 @@ class Components::Feeds::CustomMessageField < Components::Base
   def card
     {
       eyebrow: ::Feeds::Announcement.eyebrow(@subscription.watch.name, @event_type, sample(:feed)),
-      thumbnail: @subscription.watch.image_url,
       title: sample(:title),
       body: sample(:body),
       button: ::Feeds::Announcement::LINK_LABEL

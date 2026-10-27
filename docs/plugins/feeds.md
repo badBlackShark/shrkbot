@@ -198,9 +198,16 @@ The type in the eyebrow and headline comes from `Announcement::TYPE_LABELS`
 The **card** replaces the subject message. When there is a role mention or a custom
 message, they sit on a lead line above the container, outside it. The container holds a
 section with the eyebrow (`-# <game> · <type>`) and the title as a heading (cut to 256
-characters), with the game's header image as the section thumbnail (plain texts when the
-watch has no `image_url`), then the body excerpt, the post's first image when it has one,
-and a link button to the original below it.
+characters), with the game's artwork as the section thumbnail (plain texts when there is
+none), then the body excerpt, the post's first image when it has one, and a link button to
+the original below it.
+
+The thumbnail is the game's Steam hero capsule (`NewsWatcher.artwork_url`, which asks
+`Integrations::Steam::StoreItems`). Discord crops thumbnails to a square, so
+`Feeds::SquareImage` pads it to a transparent square WebP. `Feeds::Thumbnail` caches the
+result for a day by URL, and `Announcement#attachments` uploads it with the message as
+`thumbnail.webp`, which the section references as `attachment://thumbnail.webp`. On any
+failure the card posts without a thumbnail. The web preview shows no thumbnail.
 
 **Body length** is a per-subscription setting. `preview` (the default) keeps about 500
 characters and `full` about 3500, under Discord's 4000 for the whole message.

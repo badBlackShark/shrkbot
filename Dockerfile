@@ -7,7 +7,7 @@ FROM ruby:4.0.7-slim
 # libyaml-dev + pkg-config: psych · libpq-dev: pg · git: discordrb is a git gem
 RUN apt-get update -qq \
   && apt-get install --no-install-recommends -y \
-       build-essential libyaml-dev pkg-config libpq-dev git \
+       build-essential libyaml-dev pkg-config libpq-dev git libvips42t64 \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

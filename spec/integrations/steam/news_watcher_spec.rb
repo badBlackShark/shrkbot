@@ -22,6 +22,20 @@ RSpec.describe Integrations::Steam::NewsWatcher do
     end
   end
 
+  describe ".artwork_url" do
+    subject(:artwork_url) { described_class.artwork_url("440", store_items:) }
+
+    let(:store_items) { instance_double(Integrations::Steam::StoreItems) }
+
+    before do
+      allow(store_items).to receive(:hero_capsule_url).with("440").and_return("https://cdn.test/hero.jpg")
+    end
+
+    it "is the store's hero capsule for the app" do
+      expect(artwork_url).to eq("https://cdn.test/hero.jpg")
+    end
+  end
+
   describe ".volume" do
     subject(:volume) { described_class.volume("440", news:) }
 

@@ -18,6 +18,7 @@ RSpec.describe Feeds::PostJob do
     subscribed_types.each do |event_type|
       create(:feed_subscribed_event, subscription:, event_type:, subscribed_since:)
     end
+    allow(Feeds::Thumbnail).to receive(:for).and_return(nil)
     allow(Bot::Discord::Components).to receive(:create_with_subject).and_return(777_000)
   end
 

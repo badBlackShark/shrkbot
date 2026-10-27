@@ -15,9 +15,10 @@ module Feeds
       "#{game} · #{TYPE_LABELS.fetch(event_type, feed_label)}"
     end
 
-    def initialize(event:, subscription:)
+    def initialize(event:, subscription:, thumbnail: nil)
       @event = event
       @subscription = subscription
+      @thumbnail = thumbnail
     end
 
     def subject
@@ -36,9 +37,13 @@ module Feeds
       )
     end
 
+    def attachments
+      [Bot::Discord::FileUpload.new(thumbnail, Thumbnail::FILENAME)] if thumbnail
+    end
+
     private
 
-    attr_reader :event, :subscription
+    attr_reader :event, :subscription, :thumbnail
 
     def template
       subscription.subscribed_events.where(event_type: event.type).pick(:template).to_s
@@ -81,10 +86,9 @@ module Feeds
 
     def header
       texts = [eyebrow, heading]
-      image_url = event.watch.image_url
-      return texts unless image_url.present?
+      return texts unless thumbnail
 
-      [Bot::Discord::Components.section(texts, accessory: Bot::Discord::Components.thumbnail(image_url))]
+      [Bot::Discord::Components.section(texts, accessory: Bot::Discord::Components.thumbnail("attachment://#{Thumbnail::FILENAME}"))]
     end
 
     def eyebrow_markdown

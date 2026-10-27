@@ -23,7 +23,8 @@ module Ops
             subject: announcement.subject,
             rendered: announcement.card,
             allowed_mentions:,
-            fallback: announcement.fallback
+            fallback: announcement.fallback,
+            attachments: announcement.attachments
           )
         rescue
           post.destroy!
@@ -31,7 +32,7 @@ module Ops
         end
 
         def announcement
-          @announcement ||= ::Feeds::Announcement.new(event:, subscription:)
+          @announcement ||= ::Feeds::Announcement.new(event:, subscription:, thumbnail: ::Feeds::Thumbnail.for(event.watch))
         end
 
         def allowed_mentions

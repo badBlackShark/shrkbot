@@ -24,15 +24,30 @@ module Integrations
       Zlib::Error,
       JSON::ParserError
     ].freeze
+    MAX_BYTES = 5.megabytes
 
     def self.get_json(url, params: {}, status_errors: {}, &)
       new(url, params:, status_errors:).get_json(&)
     end
 
-    def initialize(url, params:, status_errors:)
+    def self.get_bytes(url)
+      new(url, params: {}, status_errors: {}, accept: "*/*").get_bytes
+    end
+
+    def initialize(url, params:, status_errors:, accept: "application/json")
       @uri = URI(url)
-      @uri.query = URI.encode_www_form(params).presence
+      @uri.query = URI.encode_www_form(params) if params.any?
       @status_errors = STATUS_ERRORS.merge(status_errors)
+      @accept = accept
+    end
+
+    def get_bytes
+      body = response_body
+      raise Unavailable, "#{@uri.host} sent more than #{MAX_BYTES} bytes" if body.bytesize > MAX_BYTES
+
+      body
+    rescue *TRANSPORT_ERRORS => e
+      raise Unavailable, "#{@uri.host}: #{e.class}: #{e.message}"
     end
 
     def get_json
@@ -64,7 +79,7 @@ module Integrations
     def request
       Net::HTTP::Get.new(@uri).tap do |request|
         request["User-Agent"] = USER_AGENT
-        request["Accept"] = "application/json"
+        request["Accept"] = @accept
       end
     end
 

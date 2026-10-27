@@ -15,6 +15,10 @@ module Integrations
         Volume.new(counts: items.map { |item| event_class(item).name }.tally, sample_size: items.size)
       end
 
+      def self.artwork_url(external_id, store_items: StoreItems.new)
+        store_items.hero_capsule_url(external_id)
+      end
+
       def self.event_class(item)
         return ArticlePublished if item.feed_type.zero?
 

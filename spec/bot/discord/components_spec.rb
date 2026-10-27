@@ -47,6 +47,28 @@ RSpec.describe Bot::Discord::Components do
       create_message
     end
 
+    it "sends no attachments by default" do
+      expect(Discordrb::API::Channel).to receive(:create_message) do |*args|
+        expect(args[6]).to be_nil
+        {id: "7"}.to_json
+      end
+      create_message
+    end
+
+    context "with attachments" do
+      subject(:create_message) { described_class.create_message(channel_id: 20, content: "hello", allowed_mentions:, attachments:) }
+
+      let(:attachments) { [Bot::Discord::FileUpload.new("bytes", "img.webp")] }
+
+      it "uploads them with the message" do
+        expect(Discordrb::API::Channel).to receive(:create_message) do |*args|
+          expect(args[6]).to eq(attachments)
+          {id: "7"}.to_json
+        end
+        create_message
+      end
+    end
+
     context "with a reply_to_id" do
       let(:reply_to_id) { 500 }
 
@@ -68,13 +90,15 @@ RSpec.describe Bot::Discord::Components do
         rendered:,
         allowed_mentions:,
         reply_to_id: 500,
-        fallback:
+        fallback:,
+        attachments:
       )
     end
 
     let(:rendered) { described_class.container([described_class.text("hi")]) }
     let(:allowed_mentions) { {parse: [], users: [1]} }
     let(:fallback) { nil }
+    let(:attachments) { [Bot::Discord::FileUpload.new("bytes", "img.webp")] }
 
     before do
       allow(Bot::Config).to receive(:token).and_return("tok")
@@ -83,14 +107,15 @@ RSpec.describe Bot::Discord::Components do
       allow(described_class).to receive(:create_message).and_call_original
     end
 
-    it "creates the plain message with the subject, allowed_mentions and reply reference" do
+    it "creates the plain message with the subject, allowed_mentions, reply reference and attachments" do
       create_with_subject
 
       expect(described_class).to have_received(:create_message).with(
         channel_id: 20,
         content: "hello there",
         allowed_mentions:,
-        reply_to_id: 500
+        reply_to_id: 500,
+        attachments:
       )
     end
 
