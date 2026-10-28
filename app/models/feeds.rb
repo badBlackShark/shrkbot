@@ -17,4 +17,8 @@ module Feeds
       Integrations::Steam::AnnouncementPublished
     ]
   }.freeze
+
+  def self.event_key(event_type)
+    event_type.demodulize.underscore
+  end
 end

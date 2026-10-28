@@ -4,14 +4,19 @@ require "rails_helper"
 
 RSpec.describe Components::ToggleRow do
   subject(:html) do
-    described_class.new(name: "welcomes[ping_on_join]", checked: true, label: "Ping on join", help:).call
+    described_class.new(name: "welcomes[ping_on_join]", checked: true, label: "Ping on join", help:, data:).call
   end
 
   let(:help) { "Ping new members." }
+  let(:data) { {action: "change->x#y"} }
 
   it "renders a checked toggle wired to the given field name" do
     expect(html).to include('name="welcomes[ping_on_join]"')
     expect(html).to include('type="checkbox"').and include("checked")
+  end
+
+  it "passes data attributes to the checkbox" do
+    expect(html).to include('data-action="change->x#y"')
   end
 
   it "renders the label and the help text" do

@@ -70,7 +70,7 @@ class Components::Feeds::SubscriptionRow < Components::Base
   def event_badges
     div(class: "mt-3 flex flex-wrap gap-1.5") do
       event_types.each do |event_type|
-        render Components::Badge.new(variant: :brand) { t("components.feeds.event_types.#{event_type.demodulize.underscore}.label") }
+        render Components::Badge.new(variant: :brand) { t("components.feeds.event_types.#{::Feeds.event_key(event_type)}.label") }
       end
     end
   end

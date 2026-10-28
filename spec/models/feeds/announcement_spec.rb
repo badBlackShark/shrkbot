@@ -17,12 +17,6 @@ RSpec.describe Feeds::Announcement do
     create(:feed_subscribed_event, subscription:, event_type:, template:)
   end
 
-  describe "DEFAULT_TEMPLATES" do
-    it "has a template for exactly the subscribable event types" do
-      expect(described_class::DEFAULT_TEMPLATES.keys).to match_array(Feeds::EVENT_TYPES)
-    end
-  end
-
   describe "#subject" do
     subject(:subject_line) { announcement.subject }
 
@@ -52,14 +46,14 @@ RSpec.describe Feeds::Announcement do
       let(:template) { "{game} by {author}: {title} {url}" }
 
       it "renders every token" do
-        expect(subject_line).to eq("Team Fortress 2 by Valve: Smissmas 2026 https://store.steampowered.com/news/286827/")
+        expect(subject_line).to eq("<@&4242> Team Fortress 2 by Valve: Smissmas 2026 https://store.steampowered.com/news/286827/")
       end
     end
 
     context "without a role" do
       let(:role_id) { nil }
 
-      it "drops the role token and the space it leaves" do
+      it "starts with the text, without a leading space" do
         expect(subject_line).to eq("New Team Fortress 2 patch notes: Smissmas 2026")
       end
     end
@@ -101,9 +95,10 @@ RSpec.describe Feeds::Announcement do
       expect(card[:flags]).to eq(Bot::Discord::Components::COMPONENTS_V2)
     end
 
-    it "carries the heading and the excerpt" do
+    it "carries the subject, the heading and the excerpt" do
       expect(container[:components]).to eq(
         [
+          Bot::Discord::Components.text("<@&4242> New Team Fortress 2 patch notes: Smissmas 2026"),
           Bot::Discord::Components.text("## Smissmas 2026"),
           Bot::Discord::Components.text("Snow is falling.")
         ]
@@ -128,7 +123,9 @@ RSpec.describe Feeds::Announcement do
       let(:event) { create(:steam_news_event, watch:, title: "Smissmas 2026", body: "") }
 
       it "omits the excerpt block" do
-        expect(container[:components]).to eq([Bot::Discord::Components.text("## Smissmas 2026")])
+        expect(container[:components].map { |block| block[:content] }).to eq(
+          ["<@&4242> New Team Fortress 2 patch notes: Smissmas 2026", "## Smissmas 2026"]
+        )
       end
     end
 
@@ -136,7 +133,7 @@ RSpec.describe Feeds::Announcement do
       let(:event) { create(:steam_news_event, watch:, title: "word " * 100) }
 
       it "truncates it to 256 characters" do
-        expect(container[:components].first[:content].delete_prefix("## ").length).to be <= 256
+        expect(container[:components].second[:content].delete_prefix("## ").length).to be <= 256
       end
     end
 
@@ -145,7 +142,19 @@ RSpec.describe Feeds::Announcement do
       let(:event) { create(:steam_news_event, watch:, body: "word " * 300) }
 
       it "keeps more than the preview would" do
-        expect(container[:components].second[:content].length).to be > 500
+        expect(container[:components].third[:content].length).to be > 500
+      end
+
+      context "with a subject and title at their limits" do
+        let(:template) { "word " * 600 }
+        let(:event) { create(:steam_news_event, watch:, title: "t" * 300, body: "word " * 2000) }
+
+        it "keeps the text of the whole message within Discord's 4000" do
+          texts = container[:components].filter_map { |block| block[:content] }
+
+          expect(texts.sum(&:length)).to be <= 4000
+          expect(texts.last.length).to be > 1000
+        end
       end
     end
 
@@ -153,7 +162,7 @@ RSpec.describe Feeds::Announcement do
       let(:event) { create(:steam_news_event, watch:, body: "word " * 300) }
 
       it "cuts the body down" do
-        expect(container[:components].second[:content].length).to be <= 501
+        expect(container[:components].third[:content].length).to be <= 501
       end
     end
   end

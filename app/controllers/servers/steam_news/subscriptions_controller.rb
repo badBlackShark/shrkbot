@@ -20,7 +20,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
     existing = followed_subscription(lookup.target)
     return render_lookup(input: params[:app], existing:) if existing
 
-    render_new(subscription: build_subscription({body_length: "preview"}, ::Feeds::DEFAULT_EVENT_TYPES_BY_SOURCE.fetch(plugin_key)), target: lookup.target)
+    render_new(subscription: build_subscription(lookup.target, {body_length: "preview"}, ::Feeds::DEFAULT_EVENT_TYPES_BY_SOURCE.fetch(plugin_key)), target: lookup.target)
   end
 
   def create
@@ -36,12 +36,13 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
       channel_id: subscription_params[:channel_id],
       role_id: subscription_params[:role_id],
       body_length: subscription_params[:body_length],
-      event_types:
+      event_types:,
+      templates:
     )
     return redirect_to steam_news_path, notice: t("servers.steam_news.followed", name: lookup.target.name) if result.success?
 
     render_new(
-      subscription: result.value || build_subscription(subscription_params.slice(:channel_id, :role_id, :body_length), event_types),
+      subscription: result.value || build_subscription(lookup.target, subscription_params.slice(:channel_id, :role_id, :body_length), event_types, templates:),
       target: lookup.target,
       error: result.errors.to_sentence,
       status: :unprocessable_content
@@ -64,7 +65,8 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
       channel_id: subscription_params[:channel_id],
       role_id: subscription_params[:role_id],
       body_length: subscription_params[:body_length],
-      event_types:
+      event_types:,
+      templates:
     )
     @error = result.errors.to_sentence if result.failure?
     respond_with_save(result)
@@ -94,10 +96,14 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
     source_subscriptions.find_by(integration_watches: {external_id: target.external_id})
   end
 
-  def build_subscription(attributes, event_types)
-    @server_configuration.feed_subscriptions.build(attributes).tap do |subscription|
-      event_types.each { |event_type| subscription.subscribed_events.build(event_type:) }
+  def build_subscription(target, attributes, event_types, templates: {})
+    @server_configuration.feed_subscriptions.build(attributes.merge(watch: unsaved_watch(target))).tap do |subscription|
+      event_types.each { |event_type| subscription.follow(event_type, templates[event_type]) }
     end
+  end
+
+  def unsaved_watch(target)
+    ::Integrations::Watch.new(watcher: WATCHER.name, external_id: target.external_id, name: target.name, image_url: target.image_url)
   end
 
   def render_lookup(input: nil, error: nil, existing: nil, status: :ok)
@@ -116,7 +122,8 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
       user: current_user,
       subscription:,
       target:,
-      error:
+      error:,
+      volume: ::Feeds::VolumeLookup.call(WATCHER, target.external_id)
     ), status:
   end
 
@@ -133,10 +140,15 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
   end
 
   def event_types
-    subscription_params[:event_types].to_h.filter_map { |event_type, value| event_type if value == "1" }
+    submitted = subscription_params[:event_types].to_h
+    ::Feeds::EVENT_TYPES_BY_SOURCE.fetch(plugin_key).select { |event_type| submitted[event_type] == "1" }
+  end
+
+  def templates
+    subscription_params[:templates].to_h
   end
 
   def subscription_params
-    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, :role_id, :body_length, event_types: {}])
+    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, :role_id, :body_length, event_types: {}, templates: {}])
   end
 end

@@ -24,7 +24,8 @@ create with that preview), then `convert_to_v2` edits the message into the conta
 (explicit null content + the `COMPONENTS_V2` flag — Discord only allows this conversion
 plain→V2, never back). A failed conversion is logged and leaves the readable plain
 message standing, or edits it to `fallback:` when one is given (feed posts pass the subject
-plus the link). `create_with_subject` raises only when the create fails, never once the
+plus the link). The conversion drops the subject from the channel, so a card that should
+keep it repeats the subject as its first text block (feed posts do). `create_with_subject` raises only when the create fails, never once the
 message exists, so a caller can release a claim on a raise without risking a second ping.
 
 ## Mentioning a user

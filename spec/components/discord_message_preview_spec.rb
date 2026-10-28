@@ -40,6 +40,40 @@ RSpec.describe Components::DiscordMessagePreview do
     expect(html.scan("Today").size).to eq(1)
   end
 
+  context "with a card on a message" do
+    let(:options) do
+      {
+        label: "Preview",
+        messages: [{body_data: {}, card: {title: "Patch 1.4", body: "Fixed things.", button: "Read the full post"}}]
+      }
+    end
+
+    it "renders the title, body and link button under the message" do
+      expect(html).to include("Patch 1.4", "Fixed things.", "Read the full post", "--discord-code-bg")
+    end
+  end
+
+  context "with lead data on the card and no message body" do
+    let(:options) do
+      {
+        label: "Preview",
+        messages: [{card: {lead_data: {feed_preview_target: "output"}, title: "Patch 1.4", body: "Fixed.", button: "Read"}}]
+      }
+    end
+
+    it "renders the lead as the card's first line and no message body" do
+      expect(html.scan('data-feed-preview-target="output"').size).to eq(1)
+      expect(html.index('data-feed-preview-target="output"')).to be > html.index("--discord-code-bg")
+      expect(html.index('data-feed-preview-target="output"')).to be < html.index("Patch 1.4")
+    end
+  end
+
+  context "without a card" do
+    it "renders no card" do
+      expect(html).not_to include("--discord-code-bg")
+    end
+  end
+
   context "without a channel" do
     let(:options) { {label: "Live preview", messages: []} }
 

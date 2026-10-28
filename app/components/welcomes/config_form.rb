@@ -94,15 +94,15 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def placeholder_help
-    render Components::Callout.new(variant: :neutral) do
-      render Components::CopyableTokens.new do
-        span(class: "font-semibold") { t(".placeholders.intro") }
-        PLACEHOLDERS.each do |name|
-          whitespace
-          render Components::TokenChip.new(token: name, description: t(".placeholders.#{name}"))
-        end
+    render Components::Card.new do
+      render Components::PlaceholderSection.new do
+        render Components::PlaceholderChips.new(tokens: placeholders)
       end
     end
+  end
+
+  def placeholders
+    PLACEHOLDERS.index_with { |name| t(".placeholders.#{name}") }
   end
 
   def preview

@@ -5,10 +5,11 @@ module Feeds
     LIMITS = {"preview" => 500, "full" => 3500}.freeze
     FENCE = "```"
     ELLIPSIS = "…"
+    CLOSING = "\n#{FENCE}\n#{ELLIPSIS}"
 
-    def initialize(text, body_length)
+    def initialize(text, body_length, max: Float::INFINITY)
       @text = text.to_s
-      @limit = LIMITS.fetch(body_length)
+      @limit = [LIMITS.fetch(body_length), max - CLOSING.length].min
     end
 
     def to_s
@@ -17,7 +18,7 @@ module Feeds
       kept = text[0, cut_at].rstrip
       return "#{kept}#{ELLIPSIS}" if kept.scan(FENCE).size.even?
 
-      "#{kept}\n#{FENCE}\n#{ELLIPSIS}"
+      "#{kept}#{CLOSING}"
     end
 
     private

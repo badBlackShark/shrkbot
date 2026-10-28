@@ -2,13 +2,9 @@
 
 module Feeds
   class Announcement
-    DEFAULT_TEMPLATES = {
-      "Integrations::Steam::PatchNotesPublished" => "{role} New {game} patch notes: {title}",
-      "Integrations::Steam::AnnouncementPublished" => "{role} New {game} announcement: {title}",
-      "Integrations::Steam::ArticlePublished" => "{role} {feed}: {title}"
-    }.freeze
     SUBJECT_LIMIT = 2000
     TITLE_LIMIT = 256
+    TEXT_LIMIT = 4000
     LINK_LABEL = "Read the full post"
 
     def initialize(event:, subscription:)
@@ -17,7 +13,7 @@ module Feeds
     end
 
     def subject
-      @subject ||= Bot::Discord::Truncate.call(TemplateText.render(template, tokens).strip, SUBJECT_LIMIT)
+      @subject ||= Bot::Discord::Truncate.call("#{role_mention} #{TemplateText.render(template, tokens)}".strip, SUBJECT_LIMIT)
     end
 
     def fallback
@@ -36,12 +32,15 @@ module Feeds
     attr_reader :event, :subscription
 
     def template
-      subscription.subscribed_events.where(event_type: event.type).pick(:template).presence || DEFAULT_TEMPLATES.fetch(event.type)
+      subscription.subscribed_events.where(event_type: event.type).pick(:template).presence || Templates.default(event.type)
+    end
+
+    def role_mention
+      "<@&#{subscription.role_id}>" if subscription.role_id
     end
 
     def tokens
       {
-        role: subscription.role_id ? "<@&#{subscription.role_id}>" : "",
         game: event.watch.name,
         title: event.title,
         url: event.url,
@@ -51,15 +50,23 @@ module Feeds
     end
 
     def blocks
-      [heading, excerpt, image].compact
+      [subject_line, heading, excerpt, image].compact
+    end
+
+    def subject_line
+      Bot::Discord::Components.text(subject)
+    end
+
+    def heading_text
+      @heading_text ||= "## #{Bot::Discord::Truncate.call(event.title, TITLE_LIMIT)}"
     end
 
     def heading
-      Bot::Discord::Components.text("## #{Bot::Discord::Truncate.call(event.title, TITLE_LIMIT)}")
+      Bot::Discord::Components.text(heading_text)
     end
 
     def excerpt
-      body = Excerpt.new(event.body, subscription.body_length).to_s
+      body = Excerpt.new(event.body, subscription.body_length, max: TEXT_LIMIT - subject.length - heading_text.length).to_s
       Bot::Discord::Components.text(body) if body.present?
     end
 

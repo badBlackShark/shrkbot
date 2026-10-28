@@ -22,6 +22,37 @@ RSpec.describe Integrations::Steam::NewsWatcher do
     end
   end
 
+  describe ".volume" do
+    subject(:volume) { described_class.volume("440", news:) }
+
+    let(:news) { instance_double(Integrations::Steam::News) }
+    let(:items) do
+      [
+        instance_double(Integrations::Steam::NewsItem, feed_type: 0, tags: []),
+        instance_double(Integrations::Steam::NewsItem, feed_type: 1, tags: ["patchnotes"]),
+        instance_double(Integrations::Steam::NewsItem, feed_type: 1, tags: []),
+        instance_double(Integrations::Steam::NewsItem, feed_type: 1, tags: ["patchnotes"])
+      ]
+    end
+
+    before do
+      allow(news).to receive(:for_app).with("440", count: 20, maxlength: 1).and_return(items)
+    end
+
+    it "counts the sampled posts per event class" do
+      expect(volume).to eq(
+        Integrations::Volume.new(
+          counts: {
+            "Integrations::Steam::ArticlePublished" => 1,
+            "Integrations::Steam::PatchNotesPublished" => 2,
+            "Integrations::Steam::AnnouncementPublished" => 1
+          },
+          sample_size: 4
+        )
+      )
+    end
+  end
+
   describe "#observe" do
     subject(:events) { described_class.new(watch, news: Integrations::Steam::News.new(client:)).observe }
 

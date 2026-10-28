@@ -13,10 +13,8 @@ class Components::TwilightStruggle::TokenHelpCard < Components::Base
 
   def view_template
     render Components::Card.new do
-      p(class: "text-sm font-semibold") { t(".label") }
-      p(class: "mb-3 mt-0.5 text-sm text-text-secondary") { t(".help") }
-      render Components::CopyableTokens.new do
-        dl(class: "flex flex-col gap-2.5") do
+      render Components::PlaceholderSection.new do
+        dl(class: "mt-3 flex flex-col gap-2.5") do
           GROUPS.each { |group, tokens| token_row(group, tokens) }
         end
       end

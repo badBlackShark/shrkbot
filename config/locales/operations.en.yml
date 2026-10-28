@@ -1,5 +1,11 @@
 ---
 en:
+  activerecord:
+    errors:
+      models:
+        feeds/subscription:
+          custom_message_empty: A custom message needs some text besides placeholders
+            that can be empty, such as {author}.
   operations:
     feeds:
       subscriptions:

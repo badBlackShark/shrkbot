@@ -4,8 +4,10 @@ module TemplateText
   module_function
 
   def render(template, tokens)
-    tokens.reduce(template.to_s) do |text, (token, value)|
-      text.gsub("{#{token}}") { value.to_s }
+    lookup = tokens.transform_keys(&:to_s)
+    template.to_s.gsub(/\{(\w+)\}/) do |match|
+      name = Regexp.last_match(1)
+      lookup.key?(name) ? lookup[name].to_s : match
     end
   end
 end

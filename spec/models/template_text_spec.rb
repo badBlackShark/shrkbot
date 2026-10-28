@@ -37,6 +37,23 @@ RSpec.describe TemplateText do
     end
   end
 
+  context "with a value containing a token that comes later in the tokens" do
+    let(:template) { "{alpha} {beta}" }
+    let(:tokens) { {alpha: "{beta}", beta: "later"} }
+
+    it "keeps the value literal" do
+      expect(rendered).to eq("{beta} later")
+    end
+  end
+
+  context "with string keys" do
+    let(:tokens) { {"name" => "World"} }
+
+    it "substitutes them like symbol keys" do
+      expect(rendered).to eq("Hello World!")
+    end
+  end
+
   context "with a non-String value" do
     let(:template) { "Count: {count}" }
     let(:tokens) { {count: 42} }
