@@ -10,6 +10,8 @@ module Integrations
 
     belongs_to :watch
 
+    store_accessor :payload, :language
+
     validates :type, :subject_key, :occurred_at, presence: true
 
     scope :undispatched, -> { where(dispatched_at: nil) }

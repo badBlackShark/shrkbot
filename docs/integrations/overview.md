@@ -336,6 +336,24 @@ and the lifted `image_urls`.
 format. Escaping `_` would break bare URLs, so the converter leaves it. That is the
 known ceiling.
 
+## Language detection
+
+`Integrations::Language.detect(text)` returns a fastText lid.176 code or `nil`. The
+input is the event's posted title plus converted Markdown, so there is no second
+fetch. Link and image targets, URLs and Markdown punctuation are stripped first. Text
+under 50 characters or a prediction under 0.5 confidence returns `nil` (unknown), and
+unknown always passes a subscription's language filter.
+
+The benchmark it rests on (2026-10-28, 5,093 Steam items, 11 languages): 100% on
+English and Russian news, 99.3% on localized announcements, about 250 µs per item,
++6 MB RSS. With the gates, 26 items came out unknown and the only wrong answer was a
+mislabelled source.
+
+The model lives in `vendor/fasttext/` with its CC BY-SA 3.0 `NOTICE`, and its SHA-256
+is pinned in the spec. It is frozen upstream (2017, repo archived 2024), so it is
+vendored and never downloaded at build. `CODES` mirrors the model's labels, also
+spec-pinned.
+
 ## Retention
 
 `Ops::Integrations::Prune` runs daily and deletes events and seen items created more

@@ -11,6 +11,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
       channel_id:,
       role_id:,
       body_length: "full",
+      languages:,
       event_types:,
       templates:
     )
@@ -20,6 +21,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg") }
   let(:channel_id) { "555" }
   let(:role_id) { "777" }
+  let(:languages) { %w[de en] }
   let(:event_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
   let(:templates) { {} }
   let(:watch) { Integrations::Watch.find_by!(external_id: "1145350") }
@@ -30,7 +32,8 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
       server_configuration:,
       channel_id: 555,
       role_id: 777,
-      body_length: "full"
+      body_length: "full",
+      languages: %w[de en]
     )
   end
 

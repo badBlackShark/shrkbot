@@ -9,11 +9,13 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
       channel_id: "999",
       role_id: "",
       body_length: "full",
+      languages:,
       event_types:,
       templates:
     )
   end
 
+  let(:languages) { %w[de en] }
   let(:followed_since) { 3.days.ago.change(usec: 0) }
   let(:subscription) { create(:feed_subscription, channel_id: 555, role_id: 777) }
   let!(:patch_notes) do
@@ -33,6 +35,23 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
     result
 
     expect(subscription.reload).to have_attributes(channel_id: 999, role_id: nil, body_length: "full")
+  end
+
+  it "stores the submitted languages" do
+    result
+
+    expect(subscription.reload.languages).to eq(%w[de en])
+  end
+
+  context "with no languages" do
+    let(:subscription) { create(:feed_subscription, channel_id: 555, role_id: 777, languages: %w[ru]) }
+    let(:languages) { [] }
+
+    it "clears the filter" do
+      result
+
+      expect(subscription.reload.languages).to eq([])
+    end
   end
 
   it "keeps follow time and saves the submitted template" do
@@ -87,7 +106,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
 
   context "when the channel is blank" do
     subject(:result) do
-      described_class.call(subscription:, channel_id: "", body_length: "full", event_types:, templates:)
+      described_class.call(subscription:, channel_id: "", body_length: "full", languages:, event_types:, templates:)
     end
 
     it "fails and keeps the stored events" do

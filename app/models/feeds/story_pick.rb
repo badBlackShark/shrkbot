@@ -27,7 +27,7 @@ module Feeds
 
     def eligible_copy?(copy)
       since = followed_since[copy.type]
-      since.present? && copy.occurred_at >= since
+      since.present? && copy.occurred_at >= since && subscription.accepts_language?(copy.language)
     end
 
     def followed_since
@@ -38,7 +38,7 @@ module Feeds
       Integrations::Event
         .where(watch_id: event.watch_id, type: followed_since.keys)
         .where("payload ->> 'story_key' = ?", event.story_key)
-        .select(:id, :type, :occurred_at)
+        .select(:id, :type, :occurred_at, :payload)
     end
   end
 end

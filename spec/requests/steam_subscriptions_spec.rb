@@ -123,6 +123,7 @@ RSpec.describe "Steam subscriptions", type: :request do
         channel_id:,
         role_id:,
         body_length: "full",
+        languages: %w[de en],
         event_types: {patch_notes => "1", announcements => "0", articles => "1"},
         templates: {patch_notes => " Patch day: {title} ", articles => "  "}
       }
@@ -135,7 +136,7 @@ RSpec.describe "Steam subscriptions", type: :request do
 
       expect(response).to redirect_to(list_path)
       expect(flash[:notice]).to eq("Now following Hades II.")
-      expect(config.feed_subscriptions.sole).to have_attributes(channel_id: 777, role_id: 888, body_length: "full")
+      expect(config.feed_subscriptions.sole).to have_attributes(channel_id: 777, role_id: 888, body_length: "full", languages: %w[de en])
       expect(config.feed_subscriptions.sole.subscribed_events.map(&:event_type)).to match_array([patch_notes, articles])
       expect(config.feed_subscriptions.sole.watch).to have_attributes(name: "Hades II", image_url: target.image_url)
     end
@@ -295,13 +296,14 @@ RSpec.describe "Steam subscriptions", type: :request do
     subject(:update) do
       patch(
         server_steam_subscription_path(guild.id, subscription),
-        params: {subscription: {channel_id:, role_id: "", body_length: "full", event_types:, templates:}},
+        params: {subscription: {channel_id:, role_id: "", body_length: "full", languages:, event_types:, templates:}},
         **headers
       )
     end
 
     let(:headers) { turbo }
     let(:channel_id) { "777" }
+    let(:languages) { %w[de en] }
     let(:event_types) { {patch_notes => "1", announcements => "1"} }
     let(:templates) { {patch_notes => "Patch day: {title}"} }
     let(:followed_since) { 3.days.ago.change(usec: 0) }
@@ -320,9 +322,20 @@ RSpec.describe "Steam subscriptions", type: :request do
 
       expect(response.media_type).to eq("text/vnd.turbo-stream.html")
       expect(response.body).to include("steam-config")
-      expect(subscription.reload).to have_attributes(channel_id: 777, body_length: "full")
+      expect(subscription.reload).to have_attributes(channel_id: 777, body_length: "full", languages: %w[de en])
       expect(subscription.subscribed_events.find_by!(event_type: patch_notes).subscribed_since).to eq(followed_since)
       expect(subscription.subscribed_events.map(&:event_type)).to match_array([patch_notes, announcements])
+    end
+
+    context "when the only language submitted is the blank placeholder" do
+      let(:languages) { [""] }
+      let!(:subscription) { create(:feed_subscription, server_configuration: config, channel_id: 555, languages: %w[ru]) }
+
+      it "clears the filter" do
+        update
+
+        expect(subscription.reload.languages).to eq([])
+      end
     end
 
     it "stores the submitted custom text" do

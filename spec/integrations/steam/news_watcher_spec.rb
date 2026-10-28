@@ -118,6 +118,10 @@ RSpec.describe Integrations::Steam::NewsWatcher do
       )
     end
 
+    it "detects the language of the title and body" do
+      expect(events.map(&:language)).to all(eq("en"))
+    end
+
     it "converts BBCode and HTML bodies to the same Markdown" do
       expect(events.map(&:body).uniq.size).to eq(1)
     end

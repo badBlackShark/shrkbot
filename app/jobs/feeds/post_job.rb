@@ -20,7 +20,7 @@ module Feeds
       return log_skipped(event, "the story was already posted") if subscription.posts.exists?(story_key: event.story_key)
 
       pick = StoryPick.new(subscription:, event:)
-      return log_skipped(event, "the server does not follow this kind of post, or followed it after it was published") unless pick.eligible?
+      return log_skipped(event, "the server does not follow this kind of post or its language, or followed it after it was published") unless pick.eligible?
       return log_skipped(event, "a better copy of the story is followed") unless pick.best?
 
       Ops::Feeds::Posts::Create.call(subscription:, event:)
