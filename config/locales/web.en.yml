@@ -127,9 +127,9 @@ en:
         role_label: Role to ping (optional)
         role_placeholder: No ping
         steam:
-          what_note: Some developers don't tag their patch notes, so their updates
-            arrive as announcements. To get every update, keep Patch notes and Announcements
-            both on.
+          what_note: Some developers don't tag their patch notes, so shrkbot posts
+            them as announcements. To get every update, keep both "Patch notes" and
+            "Announcements" on.
         volume_loading: Checking recent posts…
         what_title: What to post
         where_title: Where to post
