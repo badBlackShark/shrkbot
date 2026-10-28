@@ -168,7 +168,11 @@ as a bug. The batch moves on.
 
 A failure stays with its watch: the batch records it and moves on. `RateLimited` also
 stops the batch, so the rest of the list does not keep hitting a provider that asked
-us to back off; the next tick starts over. Every error is recorded, ours included: a
+us to back off; the next tick starts over. It DMs the owner at once through
+`ReportRateLimitJob`, because a rate limit means our request volume needs a look, and
+the 24-hour report would come far too late. Like a bug (see Bugs), it is reported when
+the watch's last error was something else, so a limit that persists across ticks DMs
+once. Every error is recorded, ours included: a
 bug in a mapping or converter is a failure like an outage, so it reaches the owner DM
 (see Failures) instead of only the logs.
 
@@ -229,18 +233,19 @@ Events and ledger rows are written in one transaction; `unique [:watch_id, :type
 ## Failures
 
 A watch is **broken** after 24 hours of failures (`failing_since` older than
-`Watch::BROKEN_AFTER`), not after a count: ten failures at ten-minute intervals is a
-100-minute outage, not a dead source. `BROKEN_AFTER` stays below the 48-hour freshness
+`Watch::BROKEN_AFTER`), not after a count: a count means a different outage length for each polling
+interval. `BROKEN_AFTER` stays below the 48-hour freshness
 window, so the owner hears of a broken watch while the posts from the start of the
 outage can still be delivered. A failing watch is polled normally until it
 breaks. A broken one is retried on the first tick of every clock hour (its last poll
 was in an earlier hour), so retries stay on :00 instead of drifting by however long the
 batch ran. The first success clears `failing_since` and `last_error`, so it heals by
 itself. `last_error` holds the error's class and message; it is what the DM shows. A
-failure after a gap of more than `Watch::DORMANT_AFTER` (2 hours) starts a new
-`failing_since`: a followed watch is polled at least hourly, so only a watch nobody
-followed has such a gap, and its old outage must not count toward the 24 hours. A
-jobs outage longer than 2 hours restarts the clock too, which only delays the DM.
+failure after a gap of more than `Watch::DORMANT_AFTER` (3 hours) starts a new
+`failing_since`: a followed watch is polled hourly, and 3 hours tolerates one dropped
+tick (a batch that overran into the next hour), so only a watch nobody followed has
+such a gap, and its old outage must not count toward the 24 hours. A jobs outage longer
+than 3 hours restarts the clock too, which only delays the DM.
 
 `ReportBrokenWatchesJob` runs hourly and sends the bot owner **one DM** listing every
 newly broken watch (ten at most, then "and N more"), then stamps them

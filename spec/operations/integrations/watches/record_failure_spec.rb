@@ -23,9 +23,9 @@ RSpec.describe Ops::Integrations::Watches::RecordFailure do
     expect { result }.to change { watch.reload.polled_at }.from(nil)
   end
 
-  context "when the watch was already failing" do
-    let(:failing_since) { 3.hours.ago.change(usec: 0) }
-    let(:polled_at) { 1.hour.ago }
+  context "when the watch was already failing and one hourly tick was dropped since" do
+    let(:failing_since) { 5.hours.ago.change(usec: 0) }
+    let(:polled_at) { 2.hours.ago - 5.minutes }
 
     it "keeps the original start" do
       result

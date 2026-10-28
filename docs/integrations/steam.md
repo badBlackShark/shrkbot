@@ -151,9 +151,10 @@ webm) and `dynamiclink` become a link paragraph: embeds are links, not players.
 Tags are matched in lowercase only, so `[PC]`, `[Corrupted]` and unknown tags stay as
 literal text.
 
-**Interval.** The poll runs every 10 minutes for every due watch; one request per
-watch, serial. Steam's weekly Tuesday maintenance (up to an hour) shows up as a batch of
-failures and dropped ticks, then heals on the next good poll. Posts published in the
+**Interval.** The poll runs on the hour for every due watch; one request per watch,
+serial. News is not urgent enough to spend more requests on, so a post arrives up to an
+hour after Steam publishes it. Steam's weekly Tuesday maintenance (up to an hour) shows
+up as a batch of failures, then heals on the next good poll. Posts published in the
 meantime still arrive, as long as the outage stays inside the 48-hour freshness window.
 
 ## Fixtures

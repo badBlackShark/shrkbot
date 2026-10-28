@@ -140,6 +140,22 @@ RSpec.describe Integrations::PollJob do
       expect(Integrations::Watch.where.not(failing_since: nil).count).to eq(1)
       expect(Integrations::Steam::NewsWatcher).to have_received(:new).once
     end
+
+    it "reports the rate limit to the owner at once" do
+      expect { perform }.to have_enqueued_job(Integrations::ReportRateLimitJob)
+        .with(a_string_matching(/\ATeam Fortress 2 \(\d+\)\z/), "slow down", nil)
+        .once
+    end
+
+    context "when the watches were already rate limited" do
+      let(:rate_limited) { {failing_since: 1.hour.ago, polled_at: 1.hour.ago, last_error: "Integrations::RateLimited: slow down"} }
+      let!(:first) { create(:integration_watch, **rate_limited) }
+      let!(:second) { create(:integration_watch, **rate_limited) }
+
+      it "does not report it again" do
+        expect { perform }.not_to have_enqueued_job(Integrations::ReportRateLimitJob)
+      end
+    end
   end
 
   describe "concurrency" do
