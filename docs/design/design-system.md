@@ -162,6 +162,12 @@ save — config controllers return **422** (not 200) when a save fails validatio
 which is both the correct status and the signal (`turbo:submit-end` reports
 `success: false`) that tells the bar to stay dirty.
 
+The header is a `Components::ConfigPageHeader` value: icon, title, description,
+and optionally `badge`, `media` and `aside`. The leading visual is the `PluginTile`
+unless `media` is set (Steam News' edit page passes the game's header image, and
+passes no `media` when the game has none, so the tile shows). `aside` renders
+beside the title, e.g. the Twilight Struggle tournament switcher.
+
 ### Plugin groups
 
 A plugin *group* (a parent plus sub-plugins) is derived from `PluginCatalog`: any
@@ -171,7 +177,7 @@ Shield (`:moderation`) is the current one. The pages are
 `parent_crumb` hooks carry the group chrome, and `parent_crumb` defaults to the
 catalog parent. A sub-plugin page subclasses `Views::Servers::SubPluginShow`
 (supplying `plugin_key`, `icon` and `body`, plus its copy: `prereq_gate_*`,
-`group_locked_reason`, `subline_*`). It locks the header toggle with a reason
+`group_locked_reason`). It locks the header toggle with a reason
 inside a `Tooltip` and shows **`Components::PrereqGate`** while the parent is off
 -- a variant of the gate whose card names the blocking dependency and deep-links to
 where it's fixed instead of offering an Enable button -- and no gate once the parent
@@ -246,6 +252,12 @@ explainer dropdowns on the Server Shield pages use real lists instead, and the
 list type carries the meaning: `ol` on the image-scanning explainer, whose rows
 are the pipeline in order, and dash-marked `ul` on the matching explainer, whose
 rows are parallel facts. Number a list only where the order is real.
+
+Single `TomSelect` pickers keep a selectable blank option, labelled with the
+placeholder, so an optional value can be cleared. A required picker
+(`ChannelSelect` takes `required: true`) renders `aria-required="true"`, and
+`lib/blank_option` then skips the blank option so the placeholder stays an
+unselectable hint.
 
 ## Where it lives
 
@@ -344,6 +356,10 @@ no default copy, so a missing title or button label shows up empty. It works on
 `button_to` and on `turbo_method` links. Never call `window.confirm` directly. `Components::ConfirmDialog`
 is mounted once in the layout, and `lib/confirm_dialog` routes Turbo's confirm
 through it.
+
+The dialog cancels on a click outside it, not on a drag that merely ends outside
+(selecting text inside the dialog and releasing over the backdrop keeps it open):
+both the `mousedown` and the `click` must land on the backdrop.
 
 ## Layout: flex, not grid
 

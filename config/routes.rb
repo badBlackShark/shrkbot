@@ -40,6 +40,7 @@ Rails.application.routes.draw do
       resource :feeds, only: [:show, :update], controller: "feeds"
       resource :steam_news, only: [:show, :update], controller: "steam_news" do
         resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], module: :steam_news
+        resource :volume, only: :show, module: :steam_news
       end
       resource :twilight_struggle, only: [:show, :update], controller: "twilight_struggle" do
         scope module: :twilight_struggle do

@@ -122,8 +122,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
       user: current_user,
       subscription:,
       target:,
-      error:,
-      volume: ::Feeds::VolumeLookup.call(WATCHER, target.external_id)
+      error:
     ), status:
   end
 

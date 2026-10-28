@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus"
 import TomSelect from "tom-select"
+import { enableBlankOption } from "lib/blank_option"
 
 export default class extends Controller {
   static values = { placeholder: String, prefix: String, colorDots: Boolean, lockIcon: String, create: Boolean }
@@ -7,7 +8,7 @@ export default class extends Controller {
   connect() {
     this.select = new TomSelect(this.element, {
       placeholder: this.placeholderValue || undefined,
-      allowEmptyOption: false,
+      allowEmptyOption: enableBlankOption(this.element, this.placeholderValue),
       maxOptions: null,
       plugins: this.plugins(),
       render: this.renderers(),

@@ -20,7 +20,6 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
           label: t(".subscribe", tournament: tournament.name)
         },
         gate:,
-        header_aside: switcher,
         parent_crumb: {label: t(".tournaments"), href: server_twilight_struggle_path(server_configuration.discord_id)}
       ) do
         render Components::TwilightStruggle::ConfigForm.new(destination: @destination)
@@ -31,7 +30,12 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
   private
 
   def header
-    Components::ConfigPageHeader.new(icon: "trophy", title: t(".title"), description: t(".description"))
+    Components::ConfigPageHeader.new(
+      icon: "trophy",
+      title: t(".title"),
+      description: t(".description"),
+      aside: switcher
+    )
   end
 
   def tournament

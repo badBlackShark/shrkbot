@@ -3,7 +3,7 @@
 class Components::ConfigPage < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
-  def initialize(header:, server_configuration:, url:, toggle: nil, gate: nil, channel_lost: false, parent_crumb: nil, header_aside: nil)
+  def initialize(header:, server_configuration:, url:, toggle: nil, gate: nil, channel_lost: false, parent_crumb: nil)
     @header = header
     @server_configuration = server_configuration
     @url = url
@@ -11,7 +11,6 @@ class Components::ConfigPage < Components::Base
     @gate = gate
     @channel_lost = channel_lost
     @parent_crumb = parent_crumb
-    @header_aside = header_aside
   end
 
   def view_template(&block)
@@ -45,17 +44,21 @@ class Components::ConfigPage < Components::Base
 
   def page_header
     div(class: "mb-6 flex items-start gap-4") do
-      render Components::PluginTile.new(icon: @header.icon, size: :lg)
+      div(class: "mt-2 flex-none") { header_visual }
       div(class: "flex-1") do
         div(class: "flex flex-wrap items-center gap-3") do
           h1(class: "font-display text-2xl font-bold tracking-tight") { @header.title }
           render Components::Badge.new(variant: :copper) { @header.badge } if @header.badge
-          render @header_aside if @header_aside
+          render @header.aside if @header.aside
         end
         p(class: "mt-1 text-sm text-text-secondary") { @header.description }
       end
       enable_control if @toggle
     end
+  end
+
+  def header_visual
+    render(@header.media || Components::PluginTile.new(icon: @header.icon, size: :lg))
   end
 
   def enable_control

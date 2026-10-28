@@ -25,6 +25,15 @@ RSpec.describe Components::TomSelect do
     expect(html).to include('value=""')
   end
 
+  it "does not mark the select required by default" do
+    expect(html).not_to include("aria-required")
+  end
+
+  it "marks the select required for assistive tech when required" do
+    html = described_class.new(name: "x", options: [], required: true).call
+    expect(html).to include('aria-required="true"')
+  end
+
   it "marks the selected option" do
     expect(html).to include('value="111"').and include("selected")
   end

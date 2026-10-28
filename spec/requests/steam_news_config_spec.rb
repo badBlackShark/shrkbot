@@ -44,7 +44,7 @@ RSpec.describe "Steam News config", type: :request do
           it "renders the empty state" do
             get plugin_path
 
-            expect(response.body).to include("Part of")
+            expect(response.body).not_to include("Part of")
             expect(response.body).to include("No games yet")
           end
         end

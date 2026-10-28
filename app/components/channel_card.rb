@@ -26,7 +26,8 @@ class Components::ChannelCard < Components::Base
           options: @channels,
           selected: @selected,
           placeholder: t(".placeholder"),
-          include_blank: true
+          include_blank: true,
+          required: @required
         )
       end
       yield if block

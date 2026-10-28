@@ -8,7 +8,6 @@ class Views::Servers::SteamNews::Show < Views::Servers::SubPluginShow
   end
 
   def body
-    group_subline
     render Components::Feeds::SubscriptionList.new(server_configuration: @config, plugin_key:)
   end
 end
