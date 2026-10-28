@@ -12,12 +12,19 @@ module Feeds
     has_many :subscribed_events, dependent: :delete_all, autosave: true
     has_many :posts, dependent: :delete_all
 
+    normalizes :languages, with: ->(languages) { languages.compact_blank.uniq }
+
     validates :body_length, inclusion: {in: BODY_LENGTHS}
     validates :channel_id, presence: true
     validates :watch_id, uniqueness: {scope: :server_configuration_id}
+    validate :languages_supported
 
     def follow(event_type, text)
       subscribed_events.build(event_type:, template: Templates.custom(text))
+    end
+
+    def accepts_language?(language)
+      languages.empty? || language.nil? || languages.include?(language)
     end
 
     def plugin_key
@@ -43,6 +50,12 @@ module Feeds
           server_configuration_id: PluginActivation.enabled_for(PluginCatalog.find(key).parent).select(:server_configuration_id)
         )
       }.reduce(:or)
+    end
+
+    private
+
+    def languages_supported
+      errors.add(:languages, :inclusion) unless (languages - Integrations::Language::CODES).empty?
     end
   end
 end

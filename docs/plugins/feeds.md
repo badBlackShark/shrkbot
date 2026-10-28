@@ -79,7 +79,9 @@ are no preview routes for these pages.
 
 - `feed_subscriptions` (`Feeds::Subscription`): one row per server and followed watch.
   The `channel_id` to post in, an optional `role_id` to ping, and `body_length`
-  (`preview` by default, or `full`). Unique on `[server_configuration_id, watch_id]`.
+  (`preview` by default, or `full`) and `languages` (empty means every language; a DB
+  check constraint limits the values to the model's codes). Unique on
+  `[server_configuration_id, watch_id]`.
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
   wants, each with an optional `template` override and `subscribed_since`, the moment
   that kind of post was followed (see Following since). Unique on
@@ -178,6 +180,13 @@ while it was off. Editing a subscription does not reset it.
 
 It replaces priming. A watch stores whatever is fresh and unseen, and the gate decides
 what a server gets, so a fresh or long-unpolled watch never replays its backlog.
+
+## Language
+
+A copy is eligible only if its subscription accepts its language
+(`Subscription#accepts_language?`; a copy of unknown language always passes). The check
+lives in `StoryPick`, not `AnnounceJob`, so a story's copy in an accepted language
+still wins when its primary copy is filtered out.
 
 ## What a post looks like
 

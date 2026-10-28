@@ -12,6 +12,7 @@ class Components::Feeds::SubscriptionFields < Components::Base
     div(class: "contents", data: {controller: "feed-preview"}) do
       destination_card
       event_types_card
+      render Components::Feeds::LanguageCard.new(subscription: @subscription, plugin_key: @plugin_key)
       body_length_card
     end
   end

@@ -36,13 +36,14 @@ class Servers::Steam::SubscriptionsController < ApplicationController
       channel_id: subscription_params[:channel_id],
       role_id: subscription_params[:role_id],
       body_length: subscription_params[:body_length],
+      languages:,
       event_types:,
       templates:
     )
     return redirect_to steam_path, notice: t("servers.steam.followed", name: lookup.target.name) if result.success?
 
     render_new(
-      subscription: result.value || build_subscription(lookup.target, subscription_params.slice(:channel_id, :role_id, :body_length), event_types, templates:),
+      subscription: result.value || build_subscription(lookup.target, subscription_params.slice(:channel_id, :role_id, :body_length).merge(languages:), event_types, templates:),
       target: lookup.target,
       error: result.errors.to_sentence,
       status: :unprocessable_content
@@ -65,6 +66,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
       channel_id: subscription_params[:channel_id],
       role_id: subscription_params[:role_id],
       body_length: subscription_params[:body_length],
+      languages:,
       event_types:,
       templates:
     )
@@ -147,7 +149,11 @@ class Servers::Steam::SubscriptionsController < ApplicationController
     subscription_params[:templates].to_h
   end
 
+  def languages
+    Array(subscription_params[:languages])
+  end
+
   def subscription_params
-    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, :role_id, :body_length, event_types: {}, templates: {}])
+    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, :role_id, :body_length, languages: [], event_types: {}, templates: {}])
   end
 end

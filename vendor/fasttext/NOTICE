@@ -1,0 +1,13 @@
+lid.176.ftz - fastText language identification model (176 languages, compressed)
+
+Source:   https://fasttext.cc/docs/en/language-identification.html
+Download: https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.ftz
+Authors:  Facebook AI Research
+License:  Creative Commons Attribution-ShareAlike 3.0 (CC BY-SA 3.0)
+          https://creativecommons.org/licenses/by-sa/3.0/
+
+Distributed unmodified.
+
+References:
+A. Joulin, E. Grave, P. Bojanowski, T. Mikolov, Bag of Tricks for Efficient Text Classification (2016)
+A. Joulin, E. Grave, P. Bojanowski, M. Douze, H. Jégou, T. Mikolov, FastText.zip: Compressing text classification models (2016)

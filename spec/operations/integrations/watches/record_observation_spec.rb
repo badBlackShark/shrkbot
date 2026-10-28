@@ -45,6 +45,30 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     end
   end
 
+  context "when one event is stored and another was seen before" do
+    let(:events) { [fresh, seen] }
+    let(:fresh) { build(:steam_news_event, watch:, subject_key: "fresh", occurred_at: 1.hour.ago, body: english) }
+    let(:seen) { build(:steam_news_event, watch:, subject_key: "seen", occurred_at: 1.hour.ago, body: english) }
+    let(:english) { "The new update is now available. It fixes several crashes on launch and improves performance on lower-end machines." }
+
+    before do
+      create(:integration_seen_item, watch:, external_id: "seen")
+      allow(Integrations::Language).to receive(:detect).and_call_original
+    end
+
+    it "detects the language only for the stored event" do
+      result
+
+      expect(Integrations::Language).to have_received(:detect).once
+    end
+
+    it "stores the detected language" do
+      result
+
+      expect(fresh.reload.language).to eq("en")
+    end
+  end
+
   context "when an item was seen before" do
     before do
       create(:integration_seen_item, watch:, external_id: "fresh")

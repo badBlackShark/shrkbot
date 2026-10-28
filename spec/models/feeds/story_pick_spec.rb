@@ -126,6 +126,32 @@ RSpec.describe Feeds::StoryPick do
     end
   end
 
+  context "when the subscription only wants Russian" do
+    let(:subscription) { create(:feed_subscription, languages: %w[ru]) }
+    let!(:patch_notes) { create(:steam_news_event, watch:, story_key: "story-1", occurred_at: 2.hours.ago, language: "en") }
+    let!(:article) { create(:steam_article_event, watch:, story_key: "story-1", occurred_at: 3.hours.ago, language: "ru") }
+
+    it "does not find the English copy eligible" do
+      expect(pick).not_to be_eligible
+    end
+
+    context "when asked about the Russian copy" do
+      let(:event) { article }
+
+      it "picks it over the filtered primary copy" do
+        expect(pick).to be_best
+      end
+    end
+
+    context "when the copy's language is unknown" do
+      let!(:patch_notes) { create(:steam_news_event, watch:, story_key: "story-1", occurred_at: 2.hours.ago, language: nil) }
+
+      it "stays eligible" do
+        expect(pick).to be_eligible
+      end
+    end
+  end
+
   context "when the event occurred after its type was followed" do
     it "is eligible" do
       expect(pick).to be_eligible

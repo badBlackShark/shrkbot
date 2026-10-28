@@ -214,7 +214,9 @@ items.
 - **Ledger.** Every item's `subject_key` goes into `integration_seen_items`. An item
   already there is skipped.
 - **Storing.** A watch saves whatever is fresh and unseen as events, its first poll
-  included. Capabilities decide what to announce; Feeds gates on `subscribed_since`.
+  included. Before saving, each event gets `Event#enrich`, a no-op on the base class
+  that a provider's event overrides to derive stored fields (`Steam::NewsEvent` detects
+  its language). Capabilities decide what to announce; Feeds gates on `subscribed_since`.
 - **Freshness.** An item older than 48 hours is ignored before the ledger: not
   recorded, not saved. A watch that was down, or an item that surfaces late, does not
   announce old news, and the old items every list repeats cost no writes.
@@ -335,6 +337,30 @@ and the lifted `image_urls`.
 **Not escaped.** Text is not Markdown-escaped, so a literal `*` or `_` in a post can
 format. Escaping `_` would break bare URLs, so the converter leaves it. That is the
 known ceiling.
+
+## Language detection
+
+`Integrations::Language.detect(text)` returns a fastText lid.176 code or `nil`. The
+input is the event's posted title plus converted Markdown, so there is no second
+fetch. Link and image targets, URLs and Markdown punctuation are stripped first. Text
+under 50 characters or a prediction under 0.5 confidence returns `nil` (unknown), and
+unknown always passes a subscription's language filter.
+
+Detection runs only for events `RecordObservation` is about to store (it calls
+`Event#enrich`, which `Steam::NewsEvent` overrides), so the ~20 already-seen items per
+poll are never re-detected. A detection failure logs, DMs the owner through
+`ReportPollBugsJob` (once a day per error class) and returns `nil` (unknown), so the
+feed keeps posting.
+
+The benchmark it rests on (2026-10-28, 5,093 Steam items, 11 languages): 100% on
+English and Russian news, 99.3% on localized announcements, about 250 µs per item,
++6 MB RSS. With the gates, 26 items came out unknown and the only wrong answer was a
+mislabelled source.
+
+The model lives in `vendor/fasttext/` with its CC BY-SA 3.0 `NOTICE`, and its SHA-256
+is pinned in the spec. It is frozen upstream (2017, repo archived 2024), so it is
+vendored and never downloaded at build. `CODES` mirrors the model's labels, also
+spec-pinned.
 
 ## Retention
 

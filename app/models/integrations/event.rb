@@ -16,5 +16,8 @@ module Integrations
     scope :stranded, -> {
       undispatched.where(created_at: FRESHNESS_WINDOW.ago...1.minute.ago, occurred_at: FRESHNESS_WINDOW.ago..)
     }
+
+    def enrich
+    end
   end
 end
