@@ -291,8 +291,8 @@ en:
           zh: Chinese
         placeholder: Every language
         steam:
-          note: Steam sends developer posts in English, so leaving English out also
-            drops patch notes and announcements.
+          note: Most developers write their Steam posts in English, so leaving English
+            out usually drops patch notes and announcements.
         title: Languages
       stop_following_button:
         confirm: This deletes your settings for this game.
