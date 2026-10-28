@@ -67,5 +67,13 @@ RSpec.describe Moderation::ImageScanning::Signals do
         expect(signals[:has_role]).to be(true)
       end
     end
+
+    context "when the author has left the server" do
+      let(:author) { double(id: discord_id) }
+
+      it "is false" do
+        expect(signals[:has_role]).to be(false)
+      end
+    end
   end
 end
