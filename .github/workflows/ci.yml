@@ -12,6 +12,11 @@ on:
 permissions:
   contents: read
 
+env:
+  # The fasttext gem compiles with -march=native by default, and a cached bundle
+  # restored on a runner with an older CPU dies with SIGILL at require time.
+  BUNDLE_BUILD__FASTTEXT: "--with-optflags="
+
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
