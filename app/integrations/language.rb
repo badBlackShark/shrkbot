@@ -10,7 +10,7 @@ module Integrations
 
     def self.detect(text)
       new(text).detect
-    rescue StandardError, LoadError => error
+    rescue => error
       Rails.logger.error("Integrations: language detection failed: #{error.full_message(highlight: false)}")
       alert_owner(error)
       nil
@@ -24,7 +24,6 @@ module Integrations
     private_class_method :alert_owner
 
     def self.model
-      require "fasttext"
       @model ||= FastText.load_model(MODEL_PATH.to_s)
     end
 
