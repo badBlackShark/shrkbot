@@ -241,7 +241,9 @@ duplicated class strings:
   duplicates it.
 
 `Components::Icon` wraps Phosphor; names not in Phosphor (the `megaphone-slash`
-sub-plugin glyph) are served from its `CUSTOM_GLYPHS` map of inline SVGs.
+sub-plugin glyph) are served from its `CUSTOM_GLYPHS` map of inline SVGs. `steam` is
+Valve's mark, its path taken from Simple Icons (CC0); Valve's trademark terms are in the
+terms of service.
 
 An icon has to encode something the text does not already carry: state
 (`caret-down` on a dropdown summary), identity (a plugin tile), or a symbol the

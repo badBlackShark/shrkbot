@@ -39,4 +39,16 @@ RSpec.describe Feeds::SquareImage do
       expect(alpha_at(square, 230, 230)).to eq(255)
     end
   end
+
+  context "with a PNG that already has transparency" do
+    let(:bytes) do
+      opaque = Vips::Image.black(width, height, bands: 3).add(200).cast(:uchar).copy(interpretation: :srgb)
+      opaque.bandjoin(128).pngsave_buffer
+    end
+
+    it "keeps the image's own alpha and pads with transparency" do
+      expect(alpha_at(square, 0, 0)).to eq(0)
+      expect(alpha_at(square, 224, 224)).to eq(128)
+    end
+  end
 end

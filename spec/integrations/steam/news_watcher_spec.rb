@@ -36,6 +36,20 @@ RSpec.describe Integrations::Steam::NewsWatcher do
     end
   end
 
+  describe ".artwork" do
+    subject(:artwork) { described_class.artwork("https://cdn.test/hero.jpg", client:) }
+
+    let(:client) { instance_double(Integrations::Steam::Client) }
+
+    before do
+      allow(client).to receive(:get_bytes).with("https://cdn.test/hero.jpg").and_return("jpeg")
+    end
+
+    it "downloads the image through the Steam client" do
+      expect(artwork).to eq("jpeg")
+    end
+  end
+
   describe ".volume" do
     subject(:volume) { described_class.volume("440", news:) }
 

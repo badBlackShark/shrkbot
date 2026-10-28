@@ -12,6 +12,10 @@ module Integrations
       def get_json(host, path, params: {}, status_errors: {}, &)
         Http.get_json("#{HOSTS.fetch(host)}#{path}", params:, status_errors:, &)
       end
+
+      def get_bytes(url)
+        Http.get_bytes(url)
+      end
     end
   end
 end

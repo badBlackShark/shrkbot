@@ -19,6 +19,10 @@ module Integrations
         store_items.hero_capsule_url(external_id)
       end
 
+      def self.artwork(url, client: Client.new)
+        client.get_bytes(url)
+      end
+
       def self.event_class(item)
         return ArticlePublished if item.feed_type.zero?
 

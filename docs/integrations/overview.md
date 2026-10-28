@@ -67,8 +67,10 @@ original message kept. The resource specs run every mapping line against a recor
 response, so a typo fails there before it ships. Anything that isn't mapping, such
 as a query or a write, belongs after `get_json` returns.
 
-`Integrations::Http.get_bytes(url)` downloads a binary body (an image). It follows the
-same error mapping as `get_json` and raises `Unavailable` past `Http::MAX_BYTES` (5 MB).
+`Integrations::Http.get_bytes(url)` downloads a binary body (an image), reached through
+the provider's `Client#get_bytes`. It follows the same error mapping as `get_json` and
+rejects a body over `Http::MAX_BYTES` (5 MB) with `Unavailable`. The check runs after the
+download, so it keeps an oversized image away from the decoder, not out of memory.
 
 ### Errors
 

@@ -14,7 +14,7 @@ RSpec.describe Feeds::Thumbnail do
   before do
     allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
     allow(watcher_class).to receive(:artwork_url).with("440").and_return(artwork_url)
-    allow(Integrations::Http).to receive(:get_bytes).with(artwork_url).and_return("jpeg")
+    allow(watcher_class).to receive(:artwork).with(artwork_url).and_return("jpeg")
     allow(Feeds::SquareImage).to receive(:call).with("jpeg").and_return("webp")
   end
 
@@ -26,35 +26,35 @@ RSpec.describe Feeds::Thumbnail do
     2.times { described_class.for(watch) }
 
     expect(watcher_class).to have_received(:artwork_url).once
-    expect(Integrations::Http).to have_received(:get_bytes).once
+    expect(watcher_class).to have_received(:artwork).once
   end
 
   context "when the watcher has no artwork" do
     let(:artwork_url) { nil }
 
-    before do
-      allow(Integrations::Http).to receive(:get_bytes)
-    end
-
     it "is nil without downloading anything" do
       expect(result).to be_nil
-      expect(Integrations::Http).not_to have_received(:get_bytes)
+      expect(watcher_class).not_to have_received(:artwork)
+    end
+
+    it "does not look up again within the day" do
+      described_class.for(watch)
+
+      travel_to(23.hours.from_now) do
+        described_class.for(watch)
+      end
+
+      expect(watcher_class).to have_received(:artwork_url).once
     end
   end
 
-  context "when the download fails" do
+  context "when the lookup fails" do
     before do
-      allow(Integrations::Http).to receive(:get_bytes).and_raise(Integrations::Unavailable)
+      allow(watcher_class).to receive(:artwork_url).and_raise(Integrations::Unavailable)
     end
 
     it "is nil" do
       expect(result).to be_nil
-    end
-
-    it "does not look up again within the failure window" do
-      2.times { described_class.for(watch) }
-
-      expect(watcher_class).to have_received(:artwork_url).once
     end
 
     it "looks up again once the failure window is up" do
@@ -65,6 +65,33 @@ RSpec.describe Feeds::Thumbnail do
       end
 
       expect(watcher_class).to have_received(:artwork_url).twice
+    end
+  end
+
+  context "when the download fails" do
+    before do
+      allow(watcher_class).to receive(:artwork).and_raise(Integrations::Unavailable)
+    end
+
+    it "is nil" do
+      expect(result).to be_nil
+    end
+
+    it "does not download again within the failure window" do
+      2.times { described_class.for(watch) }
+
+      expect(watcher_class).to have_received(:artwork).once
+    end
+
+    it "downloads again once the failure window is up, keeping the looked-up URL" do
+      described_class.for(watch)
+
+      travel_to(11.minutes.from_now) do
+        described_class.for(watch)
+      end
+
+      expect(watcher_class).to have_received(:artwork).twice
+      expect(watcher_class).to have_received(:artwork_url).once
     end
   end
 

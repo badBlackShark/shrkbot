@@ -7,17 +7,29 @@ module Feeds
     FAILURE_TTL = 10.minutes
 
     def self.for(watch)
-      url_key = ["feeds/artwork_url/v1", watch.watcher, watch.external_id]
-      url = Rails.cache.fetch(url_key, expires_in: TTL) { watch.watcher_class.artwork_url(watch.external_id) }
-      return unless url
+      url = artwork_url(watch)
+      padded(watch, url) if url
+    end
 
-      Rails.cache.fetch(["feeds/thumbnail/v1", url], expires_in: TTL) do
-        SquareImage.call(Integrations::Http.get_bytes(url))
-      end
+    def self.artwork_url(watch)
+      key = ["feeds/artwork_url/v1", watch.watcher, watch.external_id]
+      Rails.cache.fetch(key, expires_in: TTL) { watch.watcher_class.artwork_url(watch.external_id) }
+    rescue Integrations::Error => error
+      failed(watch, key, error)
+    end
+
+    def self.padded(watch, url)
+      key = ["feeds/thumbnail/v1", url]
+      Rails.cache.fetch(key, expires_in: TTL) { SquareImage.call(watch.watcher_class.artwork(url)) }
     rescue Integrations::Error, Vips::Error => error
+      failed(watch, key, error)
+    end
+
+    def self.failed(watch, key, error)
       Rails.logger.warn("Feeds: no thumbnail for #{watch.watcher} #{watch.external_id}: #{error.class}: #{error.message}")
-      Rails.cache.write(url_key, nil, expires_in: FAILURE_TTL)
+      Rails.cache.write(key, nil, expires_in: FAILURE_TTL)
       nil
     end
+    private_class_method :artwork_url, :padded, :failed
   end
 end

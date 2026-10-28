@@ -10,13 +10,15 @@ module Integrations
       def hero_capsule_url(app_id)
         @client.get_json(:api, "/IStoreBrowseService/GetItems/v1/", params: {input_json: input(app_id).to_json}) do |body|
           assets = body.fetch("response").fetch("store_items").first&.dig("assets")
-          next unless assets&.dig("hero_capsule")
-
-          "#{Client::ASSET_HOST}/store_item_assets/#{assets.fetch("asset_url_format").sub("${FILENAME}", assets.fetch("hero_capsule"))}"
+          asset_url(assets, assets["hero_capsule"]) if assets&.dig("hero_capsule")
         end
       end
 
       private
+
+      def asset_url(assets, filename)
+        "#{Client::ASSET_HOST}/store_item_assets/#{assets.fetch("asset_url_format").sub("${FILENAME}", filename)}"
+      end
 
       def input(app_id)
         {
