@@ -12,11 +12,12 @@ RSpec.describe Components::Icon do
     expect(svg).to include("<svg").and include('fill="currentColor"')
   end
 
-  context "with the Steam logo" do
-    let(:name) { "steam-logo" }
+  context "with the Steam glyph" do
+    let(:name) { "steam" }
+    let(:options) { {class: "size-6"} }
 
-    it "renders the Phosphor glyph" do
-      expect(svg).to include("<svg")
+    it "renders the custom path and carries the class" do
+      expect(svg).to include('viewBox="0 0 24 24"').and include("M11.979 0C5.678").and include("size-6")
     end
   end
 

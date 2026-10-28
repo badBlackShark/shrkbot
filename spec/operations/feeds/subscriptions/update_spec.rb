@@ -47,23 +47,13 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
     expect(subscription.subscribed_events.find_by!(event_type: "Integrations::Steam::AnnouncementPublished").template).to eq("fresh {game}")
   end
 
-  context "with blank or default text" do
-    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "  ", "Integrations::Steam::AnnouncementPublished" => "New {game} announcement: {title}"} }
+  context "with blank text" do
+    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "  ", "Integrations::Steam::AnnouncementPublished" => ""} }
 
     it "stores no template" do
       result
 
       expect(subscription.subscribed_events.reload.map(&:template)).to all(be_nil)
-    end
-  end
-
-  context "with a template that would post nothing" do
-    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "{author}"} }
-
-    it "fails and writes nothing" do
-      expect(result).to be_failure
-
-      expect(patch_notes.reload.template).to eq("custom {title}")
     end
   end
 

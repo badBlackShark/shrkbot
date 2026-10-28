@@ -53,18 +53,24 @@ RSpec.describe Components::DiscordMessagePreview do
     end
   end
 
-  context "with lead data on the card and no message body" do
+  context "with an eyebrow on the card" do
     let(:options) do
       {
         label: "Preview",
-        messages: [{card: {lead_data: {feed_preview_target: "output"}, title: "Patch 1.4", body: "Fixed.", button: "Read"}}]
+        messages: [{card: {eyebrow: "Hades II · Patch notes", title: "Patch 1.4", body: "Fixed.", button: "Read"}}]
       }
     end
 
-    it "renders the lead as the card's first line and no message body" do
-      expect(html.scan('data-feed-preview-target="output"').size).to eq(1)
-      expect(html.index('data-feed-preview-target="output"')).to be > html.index("--discord-code-bg")
-      expect(html.index('data-feed-preview-target="output"')).to be < html.index("Patch 1.4")
+    it "renders the eyebrow above the title" do
+      expect(html.index("Hades II · Patch notes")).to be < html.index("Patch 1.4")
+    end
+  end
+
+  context "without an eyebrow" do
+    let(:options) { {label: "Preview", messages: [{card: {title: "Patch 1.4", body: "Fixed.", button: "Read"}}]} }
+
+    it "renders just the title" do
+      expect(html).to include("Patch 1.4")
     end
   end
 

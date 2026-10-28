@@ -214,4 +214,48 @@ RSpec.describe Integrations::Http do
       end
     end
   end
+
+  describe ".get_bytes" do
+    subject(:get_bytes) { described_class.get_bytes(url) }
+
+    let(:url) { "https://img.test/a/hero.jpg?t=17" }
+    let(:body) { "\xFF\xD8bytes".b }
+
+    it "returns the raw body" do
+      expect(get_bytes).to eq(body)
+    end
+
+    it "keeps the URL's own query string and accepts any type" do
+      get_bytes
+
+      expect(sent_requests.first.path).to eq("/a/hero.jpg?t=17")
+      expect(sent_requests.first["accept"]).to eq("*/*")
+    end
+
+    context "when the body is over the size cap" do
+      let(:body) { "a" * (described_class::MAX_BYTES + 1) }
+
+      it "raises Unavailable naming the host" do
+        expect { get_bytes }.to raise_error(Integrations::Unavailable, /\Aimg\.test sent more than/)
+      end
+    end
+
+    context "when the connection fails" do
+      before do
+        allow(Net::HTTP).to receive(:start).and_raise(Net::ReadTimeout)
+      end
+
+      it "raises Unavailable naming the host" do
+        expect { get_bytes }.to raise_error(Integrations::Unavailable, /\Aimg\.test: /)
+      end
+    end
+
+    context "when the host responds 404" do
+      let(:status) { "404" }
+
+      it "raises NotFound" do
+        expect { get_bytes }.to raise_error(Integrations::NotFound)
+      end
+    end
+  end
 end

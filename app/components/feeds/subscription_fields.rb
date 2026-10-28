@@ -68,7 +68,7 @@ class Components::Feeds::SubscriptionFields < Components::Base
       src: ::Feeds::SubscriptionPaths.volume_for(@subscription),
       loading: "lazy"
     ) do
-      p(class: "text-sm text-text-muted") { t(".volume_loading") }
+      render Components::Callout.new(variant: :info, icon: Components::Feeds::VolumeLine::ICON) { t(".volume_loading") }
     end
   end
 

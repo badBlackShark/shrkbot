@@ -56,4 +56,16 @@ RSpec.describe Integrations::Steam::Client do
       expect(Integrations::Http).not_to have_received(:get_json)
     end
   end
+
+  describe "#get_bytes" do
+    subject(:bytes) { client.get_bytes("https://cdn.test/hero.jpg") }
+
+    before do
+      allow(Integrations::Http).to receive(:get_bytes).with("https://cdn.test/hero.jpg").and_return("jpeg")
+    end
+
+    it "downloads the URL through Http" do
+      expect(bytes).to eq("jpeg")
+    end
+  end
 end

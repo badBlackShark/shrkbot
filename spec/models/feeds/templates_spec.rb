@@ -3,21 +3,13 @@
 require "rails_helper"
 
 RSpec.describe Feeds::Templates do
-  let(:patch_notes) { "Integrations::Steam::PatchNotesPublished" }
-
-  describe "DEFAULTS" do
-    it "has a template for exactly the subscribable event types" do
-      expect(described_class::DEFAULTS.keys).to match_array(Feeds::EVENT_TYPES)
-    end
-  end
-
   describe ".custom" do
-    subject(:custom) { described_class.custom(patch_notes, text) }
+    subject(:custom) { described_class.custom(text) }
 
     context "with text of its own" do
-      let(:text) { "  Patch day: {title}  " }
+      let(:text) { "  Patch day: {game}  " }
 
-      it { is_expected.to eq("Patch day: {title}") }
+      it { is_expected.to eq("Patch day: {game}") }
     end
 
     ["", "  ", nil].each do |blank|
@@ -34,40 +26,10 @@ RSpec.describe Feeds::Templates do
       it { is_expected.to be_nil }
     end
 
-    context "with the default text" do
-      let(:text) { described_class.default(patch_notes) }
+    context "with text that equals the old default template" do
+      let(:text) { "New {game} patch notes: {title}" }
 
-      it { is_expected.to be_nil }
-    end
-
-    context "with the default text and surrounding whitespace" do
-      let(:text) { "  #{described_class.default(patch_notes)}\n" }
-
-      it { is_expected.to be_nil }
-    end
-  end
-
-  describe ".renders_empty?" do
-    subject(:renders_empty) { described_class.renders_empty?(template) }
-
-    {
-      "{author}" => true,
-      "  {author} " => true,
-      "{title}" => false,
-      "New patch!" => false,
-      "{unknown}" => false
-    }.each do |text, empty|
-      context "with #{text.inspect}" do
-        let(:template) { text }
-
-        it { is_expected.to be(empty) }
-      end
-    end
-
-    context "with a non-breaking space around an empty token" do
-      let(:template) { "\u00A0{author}" }
-
-      it { is_expected.to be(true) }
+      it { is_expected.to eq(text) }
     end
   end
 end

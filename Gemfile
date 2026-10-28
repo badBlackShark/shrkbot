@@ -40,6 +40,9 @@ gem "strong_migrations"
 # request-validation middleware.
 gem "committee"
 
+# Pads Steam artwork to a square for Discord thumbnails; needs libvips in the image.
+gem "ruby-vips"
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 

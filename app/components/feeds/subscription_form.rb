@@ -17,6 +17,6 @@ class Components::Feeds::SubscriptionForm < Components::Base
   private
 
   def stop_following_button
-    div { render Components::Feeds::StopFollowingButton.new(subscription: @subscription) }
+    div(class: "flex justify-end") { render Components::Feeds::StopFollowingButton.new(subscription: @subscription) }
   end
 end

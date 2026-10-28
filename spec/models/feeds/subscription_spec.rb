@@ -40,26 +40,6 @@ RSpec.describe Feeds::Subscription do
 
       it { is_expected.to be_valid }
     end
-
-    context "with a custom message that renders empty" do
-      let(:marked_for_destruction) { false }
-      let!(:event) { subscription.subscribed_events.build(event_type: "Integrations::Steam::PatchNotesPublished", template: "{author}") }
-
-      before do
-        event.mark_for_destruction if marked_for_destruction
-      end
-
-      it "is invalid with the reason" do
-        expect(subscription).not_to be_valid
-        expect(subscription.errors.full_messages).to eq(["A custom message needs some text besides placeholders that can be empty, such as {author}."])
-      end
-
-      context "when that post type is being dropped" do
-        let(:marked_for_destruction) { true }
-
-        it { is_expected.to be_valid }
-      end
-    end
   end
 
   describe "defaults" do

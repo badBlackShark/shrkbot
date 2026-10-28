@@ -10,10 +10,12 @@ RSpec.describe Ops::Feeds::Posts::Create do
   let(:role_id) { 4242 }
   let(:subscription) { create(:feed_subscription, watch:, channel_id: 555_000, role_id:) }
   let(:event) { create(:steam_news_event, watch:, title: "Smissmas 2026", story_key: "story-1") }
-  let(:announcement) { Feeds::Announcement.new(event:, subscription:) }
+  let(:thumbnail) { nil }
+  let(:announcement) { Feeds::Announcement.new(event:, subscription:, thumbnail:) }
 
   before do
     create(:feed_subscribed_event, subscription:, event_type: event.type)
+    allow(Feeds::Thumbnail).to receive(:for).with(watch).and_return(thumbnail)
     allow(Bot::Discord::Components).to receive(:create_with_subject).and_return(777_000)
   end
 
@@ -22,11 +24,27 @@ RSpec.describe Ops::Feeds::Posts::Create do
 
     expect(Bot::Discord::Components).to have_received(:create_with_subject).with(
       channel_id: 555_000,
-      subject: "<@&4242> New Team Fortress 2 patch notes: Smissmas 2026",
+      subject: "<@&4242> Team Fortress 2 · Patch notes: Smissmas 2026",
       rendered: announcement.card,
       allowed_mentions: {parse: [], roles: [4242]},
-      fallback: announcement.fallback
+      fallback: announcement.fallback,
+      attachments: nil
     )
+  end
+
+  context "with a thumbnail" do
+    let(:thumbnail) { "webp-bytes" }
+
+    it "uploads it with the message and points the card at it" do
+      result
+
+      expect(Bot::Discord::Components).to have_received(:create_with_subject).with(
+        hash_including(
+          rendered: announcement.card,
+          attachments: [an_object_having_attributes(original_filename: "thumbnail.webp", string: "webp-bytes")]
+        )
+      )
+    end
   end
 
   it "records that the story was posted" do
@@ -43,7 +61,7 @@ RSpec.describe Ops::Feeds::Posts::Create do
 
       expect(Bot::Discord::Components).to have_received(:create_with_subject).with(
         hash_including(
-          subject: "New Team Fortress 2 patch notes: Smissmas 2026",
+          subject: "Team Fortress 2 · Patch notes: Smissmas 2026",
           allowed_mentions: {parse: []}
         )
       )

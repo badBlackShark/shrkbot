@@ -2,6 +2,7 @@
 
 class Components::Feeds::VolumeLine < Components::Base
   FRAME_ID = "feed-volume"
+  ICON = "chart-bar"
 
   def initialize(volume:, plugin_key:)
     @volume = volume
@@ -13,7 +14,7 @@ class Components::Feeds::VolumeLine < Components::Base
   end
 
   def view_template
-    p(class: "text-sm text-text-secondary") { t(".line", total: @volume.sample_size, counts:) }
+    render Components::Callout.new(variant: :info, icon: ICON) { t(".line", total: @volume.sample_size, counts:) }
   end
 
   private

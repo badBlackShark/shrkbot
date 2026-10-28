@@ -32,8 +32,10 @@ module Bot
         {type: BUTTON, style: BUTTON_LINK, url:, label:}
       end
 
-      def container(blocks, accent_color: Config::ACCENT_COLOR, buttons: [])
-        components = [{type: CONTAINER, accent_color:, components: blocks}]
+      def container(blocks, accent_color: Config::ACCENT_COLOR, buttons: [], lead: nil)
+        components = []
+        components << text(lead) if lead
+        components << {type: CONTAINER, accent_color:, components: blocks}
         components << action_row(buttons) if buttons.any?
         {components:, flags: COMPONENTS_V2}
       end
@@ -58,7 +60,7 @@ module Bot
         {type: MEDIA_GALLERY, items: urls.map { |url| {media: {url:}} }}
       end
 
-      def create_message(channel_id:, content:, allowed_mentions:, reply_to_id: nil)
+      def create_message(channel_id:, content:, allowed_mentions:, reply_to_id: nil, attachments: nil)
         response = Discordrb::API::Channel.create_message(
           Bot::Config.rest_token,
           channel_id,
@@ -66,7 +68,7 @@ module Bot
           false,
           nil,
           nil,
-          nil,
+          attachments,
           allowed_mentions,
           reply_to_id && {message_id: reply_to_id},
           nil,
@@ -75,8 +77,8 @@ module Bot
         JSON.parse(response)["id"]
       end
 
-      def create_with_subject(channel_id:, subject:, rendered:, allowed_mentions:, reply_to_id: nil, fallback: nil)
-        message_id = create_message(channel_id:, content: subject, allowed_mentions:, reply_to_id:)
+      def create_with_subject(channel_id:, subject:, rendered:, allowed_mentions:, reply_to_id: nil, fallback: nil, attachments: nil)
+        message_id = create_message(channel_id:, content: subject, allowed_mentions:, reply_to_id:, attachments:)
         apply_fallback(channel_id, message_id, fallback) unless convert_to_v2(channel_id, message_id, rendered)
         message_id
       end

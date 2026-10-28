@@ -281,6 +281,9 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Paste a Steam store link and pick a channel. shrkbot posts the game's news there from then on.` | Deleted. | The empty state sits beside an "Add a game" button and the page it opens explains the steps. The sentence restated both. |
 | `Part of Feeds.` (subline under every sub-plugin title) | Deleted. | The breadcrumb above the title already names the parent. |
 | `Feeds` / `Steam News` (plugin names) | `Integrations` / `Steam` | The group will hold more than feeds of posts and each provider is named for the platform, so `Steam` is the name now and `Steam News` would repeat itself under `Integrations`. |
+| `Steam link or app ID` with the subtitle `Paste the game's Steam store page, its community hub, or its SteamDB page. An app ID works too.` | One label: `Paste a link to the game's Steam store page, community hub, or SteamDB page. An app ID works too.` | The label named the field and the subtitle explained it, one screen apart. The label now carries the instruction and the page heading stands alone. |
+| `New {game} patch notes: {title}` (prefilled default in the custom-message box) | Empty box with the placeholder `Shown above the card. Leave it empty to post the card alone.` | The card now carries the game, the post type and the title, so the prefilled line repeated it. The placeholder says where the text lands and that leaving it empty is fine. |
+| `Some developers don't tag their patch notes, so their updates arrive as announcements. To get every update, keep Patch notes and Announcements both on.` | `Some developers don't tag their patch notes, so shrkbot posts them as announcements. To get every update, keep both "Patch notes" and "Announcements" on.` | "Their updates arrive" hid who files them; shrkbot does. The toggle names in quotes read as the two switches below, not as kinds of post. |
 
 ## Kept on purpose
 

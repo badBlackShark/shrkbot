@@ -69,17 +69,14 @@ en:
       add_page:
         title: Add a game
       custom_message_field:
-        empty: This message needs some text besides placeholders that can be empty.
         label: Message (optional)
+        placeholder: Shown above the card. Leave it empty to post the card alone.
         placeholders:
           author: Who wrote the post. Empty when Steam doesn't say.
           feed: Where the post comes from, such as Community Announcements or a news
             site.
           game: The game's name on Steam.
-          title: The post's title.
-          url: Link to the post.
         preview: Preview
-        reset: Reset to default
         samples:
           announcement_published:
             author: ''
@@ -130,9 +127,9 @@ en:
         role_label: Role to ping (optional)
         role_placeholder: No ping
         steam:
-          what_note: Some developers don't tag their patch notes, so their updates
-            arrive as announcements. To get every update, keep Patch notes and Announcements
-            both on.
+          what_note: Some developers don't tag their patch notes, so shrkbot posts
+            them as announcements. To get every update, keep both "Patch notes" and
+            "Announcements" on.
         volume_loading: Checking recent posts…
         what_title: What to post
         where_title: Where to post
@@ -986,10 +983,9 @@ en:
                 that contains /app/ followed by a number, or the number alone.
               not_found: Steam has no app with that ID. Check the link and try again.
               unavailable: Steam didn't answer. Try again in a minute.
-            label: Steam link or app ID
-            submit: Look up
-            subtitle: Paste the game's Steam store page, its community hub, or its
+            label: Paste a link to the game's Steam store page, community hub, or
               SteamDB page. An app ID works too.
+            submit: Look up
             title: Add a game
           new:
             cancel: Cancel

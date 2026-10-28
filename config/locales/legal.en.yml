@@ -65,10 +65,12 @@ en:
         and text) and the IDs of posts it has already seen. For each Steam game a
         server follows, it also keeps the game''s public Steam app ID, name and header
         image link, and the channel, role, kinds of post, any custom message text
-        for each kind, and post length the server chose. It records which posts it
-        has sent to each server, so a post is not sent twice. The Steam pages on the
-        website load each game''s header image straight from Steam''s servers, so
-        Steam sees the IP address of the browser that opens the page.'
+        for each kind, and post length the server chose. When it posts, it fetches
+        the game''s artwork from Steam and keeps a padded copy for up to a day to
+        show next to the post. It records which posts it has sent to each server,
+        so a post is not sent twice. The Steam pages on the website load each game''s
+        header image straight from Steam''s servers, so Steam sees the IP address
+        of the browser that opens the page.'
       data_lead: 'We store only what the enabled features need:'
       data_lfg: 'Looking for Game: the roles you make pingable and the policy limits
         you set for each of them (which roles or channels may use them, minimum membership
@@ -190,7 +192,8 @@ en:
         days after they are fetched or sent. A followed game''s app ID, name and header
         image link are kept while at least one server''s configuration includes it,
         even with the feature turned off, and are deleted within a day after the last
-        one is removed. A server''s choices are deleted with the rest of its configuration.'
+        one is removed. The padded artwork copy is kept for up to a day. A server''s
+        choices are deleted with the rest of its configuration.'
       retention_lfg: 'Looking for Game configuration: deleted automatically with the
         rest of the server''s configuration the moment the bot is removed. A post''s
         message references are deleted when the post is closed or expires, and otherwise
@@ -239,7 +242,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: October 25th, 2026'
+      updated: 'Last updated: October 27th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

@@ -19,7 +19,7 @@ class Views::Servers::Steam::Subscriptions::Lookup < Views::Base
   def view_template
     render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :steam) do
       render Components::Feeds::AddPage.new(server_configuration: @config, plugin_key: :steam) do
-        render Components::PageHeading.new(title: t(".title"), subtitle: t(".subtitle"))
+        render Components::PageHeading.new(title: t(".title"))
         render Components::Card.new { lookup_form }
       end
     end

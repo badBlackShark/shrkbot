@@ -67,6 +67,11 @@ original message kept. The resource specs run every mapping line against a recor
 response, so a typo fails there before it ships. Anything that isn't mapping, such
 as a query or a write, belongs after `get_json` returns.
 
+`Integrations::Http.get_bytes(url)` downloads a binary body (an image), reached through
+the provider's `Client#get_bytes`. It follows the same error mapping as `get_json` and
+rejects a body over `Http::MAX_BYTES` (5 MB) with `Unavailable`. The check runs after the
+download, so it keeps an oversized image away from the decoder, not out of memory.
+
 ### Errors
 
 Every failure is an `Integrations::Error` subclass, so a caller can handle failure
@@ -104,7 +109,8 @@ job is to build the URL (and, once a provider has credentials, authenticate) and
 off to `Http`. `Integrations::Steam::Client` holds Steam's two hosts and has no
 credentials.
 
-**Resource classes** sit on top, one per API resource (`Steam::News`, `Steam::Apps`).
+**Resource classes** sit on top, one per API resource (`Steam::News`, `Steam::Apps`,
+`Steam::StoreItems`, which resolves a game's store artwork URL).
 They take the client as a keyword with a default, call it, and return the provider's
 own `Data` value objects (`Steam::NewsItem`, `Steam::App`):
 

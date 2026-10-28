@@ -15,10 +15,9 @@ module Feeds
     validates :body_length, inclusion: {in: BODY_LENGTHS}
     validates :channel_id, presence: true
     validates :watch_id, uniqueness: {scope: :server_configuration_id}
-    validate :custom_messages_post_text
 
     def follow(event_type, text)
-      subscribed_events.build(event_type:, template: Templates.custom(event_type, text))
+      subscribed_events.build(event_type:, template: Templates.custom(text))
     end
 
     def plugin_key
@@ -44,18 +43,6 @@ module Feeds
           server_configuration_id: PluginActivation.enabled_for(PluginCatalog.find(key).parent).select(:server_configuration_id)
         )
       }.reduce(:or)
-    end
-
-    private
-
-    def custom_messages_post_text
-      return unless association(:subscribed_events).target.any? { |event| keeps_empty_message?(event) }
-
-      errors.add(:base, :custom_message_empty)
-    end
-
-    def keeps_empty_message?(event)
-      event.template && !event.marked_for_destruction? && Templates.renders_empty?(event.template)
     end
   end
 end
