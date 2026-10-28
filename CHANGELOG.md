@@ -5,6 +5,23 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.13.0] - 2026-10-28
+
+### Added
+- Servers can follow Steam games and get their news in a channel. Steam is the first service in the new Integrations plugin group. Add a game by its Steam link or app ID. Then choose the channel, an optional role to ping, and the post types to follow. The post types are patch notes, announcements, and articles, which are the press coverage Steam lists for the game. A server follows up to 25 games. shrkbot checks Steam once an hour, so a post arrives up to an hour after Steam publishes it. ([#310](https://github.com/badBlackShark/shrkbot/pull/310), [#311](https://github.com/badBlackShark/shrkbot/pull/311), [#315](https://github.com/badBlackShark/shrkbot/pull/315), [#317](https://github.com/badBlackShark/shrkbot/pull/317), [#320](https://github.com/badBlackShark/shrkbot/pull/320), [#330](https://github.com/badBlackShark/shrkbot/pull/330))
+- A server gets only Steam posts published after it followed that post type, so following a game never replays its backlog. Turning the plugin off and on again does not post what was published in between. A story that appears in two Steam feeds posts once, and the developer's own post wins over press coverage. ([#311](https://github.com/badBlackShark/shrkbot/pull/311))
+- Each Steam post is a card that names the game and the post type, then shows the title, the text, and a link. "Preview" shows about 500 characters, and "Full post" up to about 3,500. The game's art is shown beside the title, padded to a square so Discord does not crop it. Each post type can carry its own message above the card, with `{game}`, `{author}`, and `{feed}` placeholders and a live preview. The follow page shows how many of the game's last 20 posts were of each type. ([#318](https://github.com/badBlackShark/shrkbot/pull/318), [#319](https://github.com/badBlackShark/shrkbot/pull/319), [#323](https://github.com/badBlackShark/shrkbot/pull/323))
+- Each followed Steam game can be limited to a list of languages. If the language cannot be determined, the post goes through. An empty list posts every language. ([#327](https://github.com/badBlackShark/shrkbot/pull/327))
+- When Discord is down, a Steam post retries for about 2.5 hours. If it still fails, the bot owner gets a DM. The owner also gets a DM as soon as Steam rate-limits shrkbot. ([#311](https://github.com/badBlackShark/shrkbot/pull/311), [#330](https://github.com/badBlackShark/shrkbot/pull/330))
+
+### Changed
+- Destructive actions on the website open a styled confirmation dialog in place of the browser's confirm box. This covers deleting your account, revoking a bespoke plugin, and the Stop following button on a Steam game. Escape or a click outside the dialog cancels. ([#316](https://github.com/badBlackShark/shrkbot/pull/316))
+- The privacy policy lists only personal data and the free text admins write, such as welcome messages and message templates. Plain server settings such as channels, roles, and toggles are no longer listed. It also says that Steam sees your IP address when a page shows a game's art. The terms of service carry Valve's trademark notice. ([#317](https://github.com/badBlackShark/shrkbot/pull/317), [#319](https://github.com/badBlackShark/shrkbot/pull/319), [#328](https://github.com/badBlackShark/shrkbot/pull/328))
+- shrkbot needs libvips to boot. The shipped Dockerfiles install it, so a self-hosted instance using them needs no action. A custom deploy installs `libvips42t64` or its distribution's equivalent. ([#323](https://github.com/badBlackShark/shrkbot/pull/323))
+
+### Fixed
+- Server Shield no longer crashes on a message whose author has left the server. After a kick or a ban for spam, the rest of the burst crashed before cleanup, so those messages stayed in the channel. A departed author now counts as having no roles, and the burst is cleared. ([#325](https://github.com/badBlackShark/shrkbot/pull/325))
+
 ## [3.12.0] - 2026-10-22
 
 ### Added
