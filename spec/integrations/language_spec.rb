@@ -28,6 +28,7 @@ RSpec.describe Integrations::Language do
       let(:text) { "The new update is now available. It fixes several crashes on launch and improves performance on lower-end machines." }
 
       before do
+        allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
         allow(described_class).to receive(:model).and_raise(RuntimeError, "boom")
       end
 
@@ -35,6 +36,14 @@ RSpec.describe Integrations::Language do
 
       it "alerts the owner" do
         expect { language }.to have_enqueued_job(Integrations::ReportPollBugsJob)
+      end
+
+      context "when it fails again within a day" do
+        subject(:language) { 2.times { described_class.detect(text) } }
+
+        it "alerts the owner once" do
+          expect { language }.to have_enqueued_job(Integrations::ReportPollBugsJob).once
+        end
       end
     end
 

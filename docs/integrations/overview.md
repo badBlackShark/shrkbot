@@ -349,7 +349,8 @@ unknown always passes a subscription's language filter.
 Detection runs only for events `RecordObservation` is about to store (it calls
 `Event#enrich`, which `Steam::NewsEvent` overrides), so the ~20 already-seen items per
 poll are never re-detected. A detection failure logs, DMs the owner through
-`ReportPollBugsJob` and returns `nil` (unknown), so the feed keeps posting.
+`ReportPollBugsJob` (once a day per error class) and returns `nil` (unknown), so the
+feed keeps posting.
 
 The benchmark it rests on (2026-10-28, 5,093 Steam items, 11 languages): 100% on
 English and Russian news, 99.3% on localized announcements, about 250 µs per item,

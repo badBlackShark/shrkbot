@@ -150,7 +150,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
   end
 
   def languages
-    Array(subscription_params[:languages]).compact_blank
+    Array(subscription_params[:languages])
   end
 
   def subscription_params
