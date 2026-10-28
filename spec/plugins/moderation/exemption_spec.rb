@@ -37,6 +37,14 @@ RSpec.describe Moderation::Exemption do
       end
     end
 
+    context "when the author has left the server" do
+      let(:member) { double("user", id: 999) }
+
+      it "is false" do
+        expect(result).to be(false)
+      end
+    end
+
     context "when the member has other roles but not the staff role" do
       let(:other_role) { double("role", id: 333) }
       let(:member) { double("member", id: 999, roles: [other_role]) }

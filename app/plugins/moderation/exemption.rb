@@ -8,7 +8,7 @@ module Moderation
       return true if member.id == server.owner.id
       return false unless staff_role_id
 
-      member.roles.any? { |role| role.id == staff_role_id }
+      AuthorRoles.of(member).any? { |role| role.id == staff_role_id }
     end
   end
 end
