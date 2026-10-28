@@ -183,10 +183,10 @@ plugins:
         - role_id: 206
         - role_id: 207
 
-  - plugin: feeds
+  - plugin: integrations
     enabled: true
 
-  - plugin: steam_news
+  - plugin: steam
     enabled: true
     records:
       feed_subscriptions:

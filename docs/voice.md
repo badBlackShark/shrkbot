@@ -280,6 +280,7 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Stop following %{name}` card with `No more posts for this game. Posts already in Discord stay.` | Button only, labelled `Stop following %{name}`. | The card title, body, and button said the same thing three times. The button now carries the name, so nothing else is needed. |
 | `Paste a Steam store link and pick a channel. shrkbot posts the game's news there from then on.` | Deleted. | The empty state sits beside an "Add a game" button and the page it opens explains the steps. The sentence restated both. |
 | `Part of Feeds.` (subline under every sub-plugin title) | Deleted. | The breadcrumb above the title already names the parent. |
+| `Feeds` / `Steam News` (plugin names) | `Integrations` / `Steam` | The group will hold more than feeds of posts and each provider is named for the platform, so `Steam` is the name now and `Steam News` would repeat itself under `Integrations`. |
 
 ## Kept on purpose
 

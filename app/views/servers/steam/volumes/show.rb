@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Views::Servers::SteamNews::Volumes::Show < Views::Base
+class Views::Servers::Steam::Volumes::Show < Views::Base
   include Phlex::Rails::Helpers::TurboFrameTag
 
   def initialize(volume:, plugin_key:)

@@ -94,9 +94,9 @@ RSpec.describe Ops::ServerConfiguration::Previews::ApplyPlugin do
   end
 
   context "with a plugin that has no settings row" do
-    let!(:plugin) { create(:plugin, key: "feeds", name: "Feeds") }
-    let!(:source_plugin) { create(:plugin, key: "steam_news", name: "Steam News") }
-    let(:entry) { {plugin: "feeds", enabled: true} }
+    let!(:plugin) { create(:plugin, key: "integrations", name: "Integrations") }
+    let!(:source_plugin) { create(:plugin, key: "steam", name: "Steam") }
+    let(:entry) { {plugin: "integrations", enabled: true} }
 
     it "flips the plugin activation without a settings association" do
       result
@@ -105,10 +105,10 @@ RSpec.describe Ops::ServerConfiguration::Previews::ApplyPlugin do
     end
 
     context "with records that hang off the server configuration" do
-      let(:feeds_entry) { {plugin: "feeds", enabled: true} }
+      let(:integrations_entry) { {plugin: "integrations", enabled: true} }
       let(:entry) do
         {
-          plugin: "steam_news",
+          plugin: "steam",
           enabled: true,
           records: {
             feed_subscriptions: [
@@ -130,7 +130,7 @@ RSpec.describe Ops::ServerConfiguration::Previews::ApplyPlugin do
         }
       end
 
-      before { described_class.call(server_configuration:, entry: feeds_entry) }
+      before { described_class.call(server_configuration:, entry: integrations_entry) }
 
       it "builds the subscription with its nested events on the server configuration" do
         result

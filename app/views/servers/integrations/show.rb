@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
-class Views::Servers::Feeds::Show < Views::Servers::PluginConfigShow
+class Views::Servers::Integrations::Show < Views::Servers::PluginConfigShow
   private
 
   def plugin_key
-    :feeds
+    :integrations
   end
 
   def body
-    render Components::Feeds::Overview.new(server_configuration: @config)
+    render Components::Integrations::Overview.new(server_configuration: @config)
   end
 
   def after_config_page
     render Components::SubPluginToggleForms.new(
       server_configuration: @config,
-      parent: :feeds
+      parent: :integrations
     )
   end
 end

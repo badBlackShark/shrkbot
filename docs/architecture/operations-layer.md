@@ -55,4 +55,4 @@ leading `::`:
 
 It bites one level deeper every time the namespace deepens, and it fails as a
 confusing `NoMethodError` on a module rather than a `NameError`. `Finders::` has the
-same problem — see [finders.md](finders.md).
+same problem — see [finders.md](finders.md). The rule is general: namespaces follow paths, and inside a namespace that shadows a top-level module (`Components::Integrations`, `Servers::Steam`, `Views::Servers::Integrations`), refer to that module with a leading `::` (`::Integrations::Steam::NewsWatcher`).

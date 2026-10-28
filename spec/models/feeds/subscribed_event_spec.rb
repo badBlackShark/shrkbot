@@ -29,7 +29,7 @@ RSpec.describe Feeds::SubscribedEvent do
       stub_const(
         "Feeds::EVENT_TYPES_BY_SOURCE",
         {
-          steam_news: ["Integrations::Steam::PatchNotesPublished"],
+          steam: ["Integrations::Steam::PatchNotesPublished"],
           other: [event_type]
         }
       )

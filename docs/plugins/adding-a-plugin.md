@@ -93,8 +93,8 @@ the `PluginActivation` validation. Example: the moderation group's sub-plugins s
 `parent: :moderation`, and `:moderation` sets `requires_plugin: :logging`. A
 sub-plugin's page subclasses `Views::Servers::SubPluginShow`, and its parent's overview
 renders `Components::SubPluginDirectory` (rows from `SubPluginStatus.rows`) plus
-`Components::SubPluginToggleForms`, so the row toggles work from the overview. Feeds
-(`:feeds` with `:steam_news`) is the minimal example; Server Shield adds its own
+`Components::SubPluginToggleForms`, so the row toggles work from the overview. Integrations
+(`:integrations` with `:steam`) is the minimal example; Server Shield adds its own
 settings on top.
 
 `bespoke: true` marks a plugin as bot-owner-granted: it's hidden from every server's

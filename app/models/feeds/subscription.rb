@@ -35,12 +35,13 @@ module Feeds
 
     def self.active
       base = where(server_configuration_id: ServerConfiguration.real.select(:id))
-        .where(server_configuration_id: PluginActivation.enabled_for(PLUGIN_KEY).select(:server_configuration_id))
 
       SOURCE_PLUGINS.map { |watcher, key|
         base.where(
           watch_id: Integrations::Watch.where(watcher:).select(:id),
           server_configuration_id: PluginActivation.enabled_for(key).select(:server_configuration_id)
+        ).where(
+          server_configuration_id: PluginActivation.enabled_for(PluginCatalog.find(key).parent).select(:server_configuration_id)
         )
       }.reduce(:or)
     end

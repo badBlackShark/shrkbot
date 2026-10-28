@@ -6,7 +6,7 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   include_context "component view context"
 
   subject(:html) do
-    described_class.new(subscription:, plugin_key: :steam_news, event_type:, event:).render_in(view_context)
+    described_class.new(subscription:, plugin_key: :steam, event_type:, event:).render_in(view_context)
   end
 
   let(:subscription) { build(:feed_subscription, watch: build(:integration_watch, name: "Hades II", external_id: "1145350")) }

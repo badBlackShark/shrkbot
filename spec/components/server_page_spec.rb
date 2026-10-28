@@ -8,7 +8,7 @@ RSpec.describe Components::ServerPage do
   subject(:html) do
     described_class.new(
       server_configuration: config,
-      crumbs: [{label: "Steam News", href: "/steam"}, {label: "Add a game"}]
+      crumbs: [{label: "Steam", href: "/steam"}, {label: "Add a game"}]
     ).render_in(view_context) { "page body" }
   end
 
@@ -16,14 +16,14 @@ RSpec.describe Components::ServerPage do
   let(:name) { "Dev Refuge" }
 
   it "renders Servers, the server name and the given crumbs in order, then the block" do
-    expect(html).to match(/Servers.*Dev Refuge.*Steam News.*Add a game.*page body/m)
+    expect(html).to match(/Servers.*Dev Refuge.*Steam.*Add a game.*page body/m)
   end
 
   context "when the server configuration has no name" do
     let(:name) { nil }
 
     it "falls back to the generic dashboard label" do
-      expect(html).to match(/Servers.*Dashboard.*Steam News/m)
+      expect(html).to match(/Servers.*Dashboard.*Steam/m)
     end
   end
 end

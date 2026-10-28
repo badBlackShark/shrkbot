@@ -49,8 +49,8 @@ ignore_unused:
   - views.servers.spam_protection.show.*
   - views.servers.image_scanning.show.*
   # 1. Views::Servers::SubPluginShow subclasses
-  - views.servers.steam_news.show.title
-  - views.servers.steam_news.show.description
+  - views.servers.steam.show.title
+  - views.servers.steam.show.description
   # 1. Views::Servers::PluginConfigShow subclasses
   - views.servers.logging.show.*
   - views.servers.roles.show.*
@@ -64,9 +64,9 @@ ignore_unused:
   - views.servers.moderation.show.title
   - views.servers.moderation.show.description
   - views.servers.moderation.show.gate_message
-  - views.servers.feeds.show.title
-  - views.servers.feeds.show.description
-  - views.servers.feeds.show.gate_message
+  - views.servers.integrations.show.title
+  - views.servers.integrations.show.description
+  - views.servers.integrations.show.gate_message
   - views.servers.twilight_struggle.show.title
   - views.servers.twilight_struggle.show.description
   - views.servers.twilight_struggle.show.gate_message

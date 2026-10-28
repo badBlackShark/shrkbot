@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-class Servers::SteamNews::SubscriptionsController < ApplicationController
+class Servers::Steam::SubscriptionsController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
   include VerifiesGuildChannels
   include VerifiesGuildRoles
 
-  WATCHER = Integrations::Steam::NewsWatcher
+  WATCHER = ::Integrations::Steam::NewsWatcher
 
   before_action :load_subscription, only: [:edit, :update, :destroy]
 
   def new
-    return redirect_to steam_news_path, alert: cap_message if ::Feeds::Subscription.at_cap?(@server_configuration)
+    return redirect_to steam_path, alert: cap_message if ::Feeds::Subscription.at_cap?(@server_configuration)
     return render_lookup if params[:app].blank?
 
     lookup = ::Feeds::TargetLookup.call(WATCHER, params[:app])
@@ -39,7 +39,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
       event_types:,
       templates:
     )
-    return redirect_to steam_news_path, notice: t("servers.steam_news.followed", name: lookup.target.name) if result.success?
+    return redirect_to steam_path, notice: t("servers.steam.followed", name: lookup.target.name) if result.success?
 
     render_new(
       subscription: result.value || build_subscription(lookup.target, subscription_params.slice(:channel_id, :role_id, :body_length), event_types, templates:),
@@ -50,7 +50,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
   end
 
   def edit
-    render Views::Servers::SteamNews::Subscriptions::Edit.new(
+    render Views::Servers::Steam::Subscriptions::Edit.new(
       server_configuration: @server_configuration,
       user: current_user,
       subscription: @subscription
@@ -74,13 +74,13 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
 
   def destroy
     Ops::Feeds::Subscriptions::Destroy.call(subscription: @subscription)
-    redirect_to steam_news_path, notice: t("servers.steam_news.unfollowed", name: @subscription.watch.name), status: :see_other
+    redirect_to steam_path, notice: t("servers.steam.unfollowed", name: @subscription.watch.name), status: :see_other
   end
 
   private
 
   def plugin_key
-    :steam_news
+    :steam
   end
 
   def load_subscription
@@ -107,7 +107,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
   end
 
   def render_lookup(input: nil, error: nil, existing: nil, status: :ok)
-    render Views::Servers::SteamNews::Subscriptions::Lookup.new(
+    render Views::Servers::Steam::Subscriptions::Lookup.new(
       server_configuration: @server_configuration,
       user: current_user,
       input:,
@@ -117,7 +117,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
   end
 
   def render_new(subscription:, target:, error: nil, status: :ok)
-    render Views::Servers::SteamNews::Subscriptions::New.new(
+    render Views::Servers::Steam::Subscriptions::New.new(
       server_configuration: @server_configuration,
       user: current_user,
       subscription:,
@@ -126,8 +126,8 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
     ), status:
   end
 
-  def steam_news_path
-    server_steam_news_path(params[:server_id])
+  def steam_path
+    server_steam_path(params[:server_id])
   end
 
   def cap_message
@@ -135,7 +135,7 @@ class Servers::SteamNews::SubscriptionsController < ApplicationController
   end
 
   def configuration_url
-    edit_server_steam_news_subscription_path(params[:server_id], @subscription)
+    edit_server_steam_subscription_path(params[:server_id], @subscription)
   end
 
   def event_types

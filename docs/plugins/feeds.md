@@ -3,34 +3,38 @@
 A server follows a source (today a Steam game) and gets its new posts in a channel.
 This page covers the data, polling and posting sides.
 
+The plugin group is "Integrations" (`:integrations`, one sub-plugin per provider such as `:steam`).
+`Feeds::` is the capability that posts a source's news into a channel, so its code, tables and this
+doc keep the Feeds name; the provider layer is `Integrations::` (see `docs/integrations/`).
+
 ## Pages
 
-Two catalog entries make the plugin group: `:feeds` (the parent) and `:steam_news`
-(`parent: :feeds`). A new source is another sub-plugin entry, its `Feeds::SOURCE_PLUGINS`
+Two catalog entries make the plugin group: `:integrations` (the parent) and `:steam`
+(`parent: :integrations`). A new source is another sub-plugin entry, its `Feeds::SOURCE_PLUGINS`
 line and its own page.
 
-- **Feeds** (`Servers::FeedsController`): the overview. It renders
+- **Integrations** (`Servers::IntegrationsController`): the overview. It renders
   `Components::SubPluginDirectory` with one row per sub-plugin
-  (`SubPluginStatus.rows(config, parent: :feeds)`), and `Components::SubPluginToggleForms`
+  (`SubPluginStatus.rows(config, parent: :integrations)`), and `Components::SubPluginToggleForms`
   after the page so a row's toggle can submit from the overview. A row toggle posts the
   sub-plugin's own `PATCH` with `from_overview=1` and the controller redirects back to
-  the Feeds page.
-- **Steam News** (`Servers::SteamNewsController`, a `Views::Servers::SubPluginShow`):
+  the Integrations page.
+- **Steam** (`Servers::SteamController`, a `Views::Servers::SubPluginShow`):
   lists the games the server follows, with Add, Edit and Stop following (see Config UI).
   `Finders::Feeds::SourceSubscriptions` returns the server's subscriptions on that
   source, ordered by game name, and `Components::Feeds::SubscriptionList` builds the
   channel and role lookups once for all rows. A row shows the game's header image, the
   channel, the pinged role, the followed event types, and a warning when the watch is
   broken (`Integrations::Watch#broken?`).
-- Turning Feeds off or on goes through `Ops::ServerConfiguration::Plugins::Toggle`
-  like any plugin. A sub-plugin cannot be turned on while Feeds is off.
+- Turning Integrations off or on goes through `Ops::ServerConfiguration::Plugins::Toggle`
+  like any plugin. A sub-plugin cannot be turned on while Integrations is off.
 - Demo data: `config/preview_data.yml` enables both and follows two games, each through a
   shared `Integrations::Watch`, see [../web/preview.md](../web/preview.md).
 
 ## Config UI
 
-Routes live under `resource :steam_news` as `resources :subscriptions` (`new`, `create`,
-`edit`, `update`, `destroy`), served by `Servers::SteamNews::SubscriptionsController`. Real
+Routes live under `resource :steam` as `resources :subscriptions` (`new`, `create`,
+`edit`, `update`, `destroy`), served by `Servers::Steam::SubscriptionsController`. Real
 servers only: the preview list renders no Add, Edit or Stop following controls, and there
 are no preview routes for these pages.
 
@@ -67,7 +71,7 @@ are no preview routes for these pages.
   rejects a template that renders empty (`Templates.renders_empty?`, role counted only when
   one is set). Turning a post type off drops its event row, so its custom message goes too.
 - **Volume line.** Under "What to post" a lazy Turbo frame (`feed-volume`) loads
-  `Servers::SteamNews::VolumesController#show`, which shows how many of the last 20 news
+  `Servers::Steam::VolumesController#show`, which shows how many of the last 20 news
   items were each post type (`Integrations::Steam::NewsWatcher.volume`,
   `Feeds::VolumeLookup`). The follow and edit pages and saving never call Steam. When Steam
   fails the lookup returns `nil` and the frame stays empty.
@@ -91,9 +95,9 @@ are no preview routes for these pages.
 ## `Subscription.active`
 
 A subscription is **active** when its server is real (not a preview) and has both the
-`feeds` plugin and the source's sub-plugin enabled. `Feeds::SOURCE_PLUGINS` maps a
+`integrations` plugin and the source's sub-plugin enabled. `Feeds::SOURCE_PLUGINS` maps a
 watcher class name to its sub-plugin key (`Integrations::Steam::NewsWatcher` ->
-`:steam_news`), so a new source is one entry there. `Feeds::Subscription` is registered
+`:steam`), so a new source is one entry there. `Feeds::Subscription` is registered
 as a demand source in `config/initializers/integrations.rb`, and a watch is polled only
 while an active subscription points at it.
 
@@ -169,7 +173,7 @@ ignores it when ranking, so a copy the subscription could never have received ca
 displace one it could.
 
 `Ops::Feeds::SubscribedEvents::Resume` resets it to now for the server's subscriptions
-when `feeds` is enabled again (all of them) or a source plugin is (the subscriptions on
+when `integrations` is enabled again (all of them) or a source plugin is (the subscriptions on
 that source's watches). Off means off: re-enabling must not post what was published
 while it was off. Editing a subscription does not reset it.
 

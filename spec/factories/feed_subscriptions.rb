@@ -9,7 +9,7 @@ FactoryBot.define do
     trait :active do
       after(:create) do |subscription|
         Prosopite.pause do
-          %w[feeds steam_news].each do |key|
+          %w[integrations steam].each do |key|
             create(
               :plugin_activation,
               server_configuration: subscription.server_configuration,

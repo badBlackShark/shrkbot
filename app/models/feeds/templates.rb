@@ -7,7 +7,7 @@ module Feeds
       "Integrations::Steam::AnnouncementPublished" => "New {game} announcement: {title}",
       "Integrations::Steam::ArticlePublished" => "{feed}: {title}"
     }.freeze
-    TOKENS_BY_SOURCE = {steam_news: %w[game title url author feed]}.freeze
+    TOKENS_BY_SOURCE = {steam: %w[game title url author feed]}.freeze
     OPTIONAL_TOKENS = %w[author].freeze
 
     EDGE_SPACE = /\A[[:space:]]+|[[:space:]]+\z/
