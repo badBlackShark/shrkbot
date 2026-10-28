@@ -14,7 +14,9 @@ Any chunk that stores NEW data (a column, table, cache, or log line) must, in th
 same chunk:
 
 - update the **privacy policy** (`config/locales/legal.en.yml`) — what is stored,
-  why, and for how long;
+  why, and for how long — if the data is personal or is free text that can hold
+  personal data (a template, a keyword list). The policy lists personal data only;
+  server settings such as a channel, a role or a language list stay out of it;
 - extend **`Ops::User::Destroy`** if the data is per-user (keyed by a user's
   Discord ID);
 - cover the data in the **guild purge** — guild-scoped tables hang off
