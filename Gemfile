@@ -43,8 +43,7 @@ gem "committee"
 # Pads Steam artwork to a square for Discord thumbnails; needs libvips in the image.
 gem "ruby-vips"
 
-# Detects the language of Steam posts for the per-game language filter; model in vendor/fasttext.
-gem "fasttext"
+gem "fasttext", require: false
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"

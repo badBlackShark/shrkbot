@@ -9,9 +9,14 @@ module Integrations
 
     def self.detect(text)
       new(text).detect
+    rescue StandardError, LoadError => error
+      Rails.logger.error("Integrations: language detection failed: #{error.full_message(highlight: false)}")
+      ReportPollBugsJob.perform_later(["Language detection: #{error.class}: #{error.message}"])
+      nil
     end
 
     def self.model
+      require "fasttext"
       @model ||= FastText.load_model(MODEL_PATH.to_s)
     end
 

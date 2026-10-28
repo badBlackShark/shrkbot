@@ -12,6 +12,8 @@ module Feeds
     has_many :subscribed_events, dependent: :delete_all, autosave: true
     has_many :posts, dependent: :delete_all
 
+    normalizes :languages, with: ->(languages) { languages.uniq }
+
     validates :body_length, inclusion: {in: BODY_LENGTHS}
     validates :channel_id, presence: true
     validates :watch_id, uniqueness: {scope: :server_configuration_id}

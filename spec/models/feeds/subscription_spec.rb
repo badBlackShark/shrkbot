@@ -49,6 +49,14 @@ RSpec.describe Feeds::Subscription do
     end
   end
 
+  describe "languages normalization" do
+    subject(:subscription) { build(:feed_subscription, languages: %w[de de en]) }
+
+    it "stores each language once" do
+      expect(subscription.languages).to eq(%w[de en])
+    end
+  end
+
   describe "#accepts_language?" do
     subject(:accepted) { build(:feed_subscription, languages:).accepts_language?(language) }
 

@@ -54,8 +54,7 @@ module Integrations
           feed_name: item.feed_name,
           feed_label: item.feed_label,
           body: converted.markdown,
-          image_urls: converted.image_urls,
-          language: Language.detect("#{item.title}\n#{converted.markdown}")
+          image_urls: converted.image_urls
         )
       end
 

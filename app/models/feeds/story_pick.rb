@@ -38,7 +38,7 @@ module Feeds
       Integrations::Event
         .where(watch_id: event.watch_id, type: followed_since.keys)
         .where("payload ->> 'story_key' = ?", event.story_key)
-        .select(:id, :type, :occurred_at, :payload)
+        .select(:id, :type, :occurred_at, "jsonb_build_object('language', payload -> 'language') AS payload")
     end
   end
 end

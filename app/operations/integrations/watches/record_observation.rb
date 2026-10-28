@@ -36,6 +36,7 @@ module Ops
         end
 
         def persist(event)
+          event.enrich
           return true if event.save
 
           Rails.logger.warn("Integrations: dropped invalid #{event.class} #{event.subject_key} for #{watch.watcher} #{watch.external_id}: #{event.errors.full_messages.to_sentence}")

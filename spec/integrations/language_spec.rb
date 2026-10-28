@@ -24,6 +24,20 @@ RSpec.describe Integrations::Language do
       it { is_expected.to be_nil }
     end
 
+    context "when the model fails to load" do
+      let(:text) { "The new update is now available. It fixes several crashes on launch and improves performance on lower-end machines." }
+
+      before do
+        allow(described_class).to receive(:model).and_raise(RuntimeError, "boom")
+      end
+
+      it { is_expected.to be_nil }
+
+      it "alerts the owner" do
+        expect { language }.to have_enqueued_job(Integrations::ReportPollBugsJob)
+      end
+    end
+
     context "with a text too short to judge" do
       let(:text) { "The new update is now available" }
 
