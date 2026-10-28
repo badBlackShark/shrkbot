@@ -362,6 +362,12 @@ is pinned in the spec. It is frozen upstream (2017, repo archived 2024), so it i
 vendored and never downloaded at build. `CODES` mirrors the model's labels, also
 spec-pinned.
 
+The fasttext gem compiles with `-march=native` by default, so a compiled bundle only
+runs on CPUs with the build machine's instruction set. Anywhere a bundle can move
+between machines (the CI cache, `Dockerfile.prod`), `BUNDLE_BUILD__FASTTEXT` is set to
+`--with-optflags=` for a portable build; otherwise the gem dies with SIGILL at
+`require`.
+
 ## Retention
 
 `Ops::Integrations::Prune` runs daily and deletes events and seen items created more
