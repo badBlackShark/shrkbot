@@ -143,8 +143,9 @@ see [Preview mode](../web/preview.md).
 
 Any new stored data must be reflected **in the same chunk** in three places:
 
-1. **Privacy policy** (`config/locales/legal.en.yml`): describe what is stored, why,
-   and how long it is retained.
+1. **Privacy policy** (`config/locales/legal.en.yml`): if the data is personal, or free
+   text that can hold personal data, describe what is stored, why, and how long it is
+   retained. Plain server settings (channels, roles, toggles) stay out of the policy.
 2. **`Ops::User::Destroy`**: if the data is per-user (keyed by a Discord user ID),
    add deletion there so a user's data is purged on request.
 3. **Guild purge**: if the data is guild-scoped, it must cascade when the guild

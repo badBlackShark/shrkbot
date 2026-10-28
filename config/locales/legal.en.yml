@@ -52,37 +52,23 @@ en:
         messages. Your Discord access token is held only in an encrypted session cookie
         in your browser (valid two weeks), never in our database, and is used solely
         to read which servers you manage.'
-      data_guild: 'Server configuration: the server''s Discord ID, name, icon reference
-        and approximate member count, plus a cached copy of its channels and roles
-        (IDs, names, types, colours, positions, permission sets) and their permission
-        overwrites (which can reference member Discord IDs) mirrored from Discord
-        so the dashboard can display and apply your setup. Also which plugins are
-        enabled, and the welcome, logging, role-menu and moderation settings admins
-        configure - including any custom scam-keyword list.'
-      data_h: What we store and why
-      data_integrations: 'Steam news: so that each post is announced once, shrkbot
-        keeps the posts it fetches from Steam (title, link, author name as published,
-        and text) and the IDs of posts it has already seen. For each Steam game a
-        server follows, it also keeps the game''s public Steam app ID, name and header
-        image link, and the channel, role, kinds of post, any custom message text
-        for each kind, and post length the server chose. When it posts, it fetches
-        the game''s artwork from Steam and keeps a padded copy for up to a day to
-        show next to the post. It records which posts it has sent to each server,
-        so a post is not sent twice. The Steam pages on the website load each game''s
-        header image straight from Steam''s servers, so Steam sees the IP address
-        of the browser that opens the page.'
-      data_lead: 'We store only what the enabled features need:'
-      data_lfg: 'Looking for Game: the roles you make pingable and the policy limits
-        you set for each of them (which roles or channels may use them, minimum membership
-        age, cooldowns and post lifetime). This is server configuration only. Who
-        joins a post lives entirely in the Discord message, under Discord''s retention
-        — we never store joiners or post content. We keep only the non-personal message
-        references needed to manage and clean up a post (channel and message IDs,
-        and the IDs of the follow-up messages we post for it). A short-lived in-memory
-        cooldown (minutes) throttles spam and is never written down.'
-      data_notifications: 'Dashboard notifications: short activity entries (an event
-        type plus details such as a plugin or channel name) so admins can see recent
-        changes.'
+      data_guild: 'Server configuration: a cached copy of the server''s channels and
+        roles, mirrored from Discord so the dashboard can show and apply your setup.
+        Their permission overwrites can reference member Discord IDs. We also keep
+        the free text admins write into their settings, such as welcome messages and
+        a custom scam-keyword list.'
+      data_h: What personal data we store and why
+      data_integrations: 'Steam news: shrkbot keeps the posts it fetches from Steam,
+        including each author name as published and the post text, so it can announce
+        them. It also keeps any custom message text a server writes for a followed
+        game. The Steam pages on the website load each game''s header image straight
+        from Steam''s servers, so Steam sees the IP address of the browser that opens
+        the page.'
+      data_lead: 'Each feature stores only the personal data it needs:'
+      data_lfg: 'Looking for Game: who joins a post lives entirely in the Discord
+        message, under Discord''s retention — we never store joiners or post content.
+        A short-lived in-memory cooldown per member (minutes) throttles spam and is
+        never written down.'
       data_operational: 'Operational data: background jobs briefly process the data
         above while running; a failed job may keep a short error record for up to
         30 days. The Service keeps technical logs for security and troubleshooting:
@@ -94,17 +80,12 @@ en:
       data_reminders: 'Reminders: the reminder text you write, your Discord ID, the
         target channel and server, whether to deliver by DM, and the due time - kept
         until delivered or deleted by you with /unremind.'
-      data_twilight_struggle: 'Twilight Struggle integration: the tournament names
-        and identifiers supplied by twilight-struggle.com. For each server that subscribes
-        to a tournament, we store which tournament it subscribes to, the Discord channel
-        it posts results in, and the message settings it configured - the templates,
-        how long to delay posting, whether players are mentioned, whether it is archived,
-        and whether it is currently switched on - plus references (channel and message
-        IDs) to the messages we post there, one per subscribing server. The result
-        details themselves - player names, flags, Discord IDs and dates - are never
-        stored on the tournament or game record. They exist only in the queued job
-        that posts the message and in our technical logs (see operational data above).
-        We also store the Discord IDs of a tournament''s organisers, when twilight-struggle.com
+      data_twilight_struggle: 'Twilight Struggle integration: for each server that
+        subscribes to a tournament, we store the message templates it writes. The
+        result details - player names, flags, Discord IDs and dates - are never stored
+        on the tournament or game record. They exist only in the queued job that posts
+        the message and in our technical logs (see operational data above). We also
+        store the Discord IDs of a tournament''s organisers, when twilight-struggle.com
         sends them, so that an organiser can configure this integration on the servers
         subscribed to their tournament without being a Discord admin there. Setting
         a Discord ID on twilight-struggle.com is optional: an organiser who sets none
@@ -187,39 +168,25 @@ en:
       retention_infra: Caches, background-job records and logs are cleared automatically
         (at most 60 days, 30 days and 7 days, respectively). Deleted data also drops
         out of database backups as they rotate.
-      retention_integrations: 'Steam news: fetched posts and the record of which posts
-        were already seen, and the record of which posts were sent, are deleted 14
-        days after they are fetched or sent. A followed game''s app ID, name and header
-        image link are kept while at least one server''s configuration includes it,
-        even with the feature turned off, and are deleted within a day after the last
-        one is removed. The padded artwork copy is kept for up to a day. A server''s
-        choices are deleted with the rest of its configuration.'
-      retention_lfg: 'Looking for Game configuration: deleted automatically with the
-        rest of the server''s configuration the moment the bot is removed. A post''s
-        message references are deleted when the post is closed or expires, and otherwise
-        removed with the server''s configuration. Cooldowns live in memory only and
-        vanish on restart; the posts themselves are ordinary Discord messages, kept
-        by Discord until they expire or are deleted.'
+      retention_integrations: 'Steam news: fetched posts are deleted 14 days after
+        they are fetched. A server''s custom message text is deleted with the rest
+        of its configuration.'
+      retention_lfg: 'Looking for Game: cooldowns live in memory only and vanish on
+        restart. The posts themselves are ordinary Discord messages, kept by Discord
+        until they expire or are deleted.'
       retention_phash: 'Confirmed scam-image fingerprints: pruned 180 days after they
         were last matched, and removed once every server that confirmed them has removed
         the bot. Global scam fingerprints set by the bot owner are retained indefinitely.'
       retention_reminders: 'Reminders: deleted once delivered, or earlier if you delete
         them.'
-      retention_twilight_struggle: 'Twilight Struggle integration: tournament and
-        game data is kept until deleted through the integration. The result details
+      retention_twilight_struggle: 'Twilight Struggle integration: the result details
         held in a queued posting job are cleared within an hour of the message going
         out; if posting keeps failing, the job is discarded within 48 hours. A server
         can delay posting by up to a week, and the posting job holds the result details
         until then. The copy in our technical logs is deleted after at most 7 days.
-        A server''s subscriptions and the message references belonging to it are deleted
-        the moment the bot is removed from that server, whether or not they are switched
-        on; the tournaments and games themselves are twilight-struggle.com''s data
-        and are unaffected. Organiser Discord IDs are kept for as long as twilight-struggle.com
-        keeps sending them - each tournament update replaces the set we hold for that
-        tournament - and are deleted with the tournament. The highest result number
-        twilight-struggle.com has ever sent is kept for as long as the integration
-        is set up, so a result withdrawn on purpose is never later reported as one
-        that never arrived.'
+        Organiser Discord IDs are kept for as long as twilight-struggle.com keeps
+        sending them - each tournament update replaces the set we hold for that tournament
+        - and are deleted with the tournament.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down. Kick and ban notes are
@@ -242,7 +209,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: October 27th, 2026'
+      updated: 'Last updated: October 28th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

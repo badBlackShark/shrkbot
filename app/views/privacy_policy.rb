@@ -49,7 +49,6 @@ class Views::PrivacyPolicy < Views::Base
       t(".data_lfg"),
       t(".data_twilight_struggle"),
       t(".data_integrations"),
-      t(".data_notifications"),
       t(".data_operational")
     )
   end
