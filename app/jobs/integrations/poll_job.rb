@@ -15,7 +15,8 @@ module Integrations
       Watch.due.demanded.where(watcher:).find_each do |watch|
         poll(watch)
       rescue RateLimited => error
-        record_failure(watch, error)
+        failed = record_failure(watch, error)
+        ReportRateLimitJob.perform_later(failed.label, error.message, error.retry_after) if failed && new_error?(watch, error)
         break
       rescue => error
         failed = record_failure(watch, error)
@@ -32,7 +33,11 @@ module Integrations
     end
 
     def new_bug?(watch, error)
-      !error.is_a?(Error) && !watch.last_error.to_s.start_with?("#{error.class}:")
+      !error.is_a?(Error) && new_error?(watch, error)
+    end
+
+    def new_error?(watch, error)
+      !watch.last_error.to_s.start_with?("#{error.class}:")
     end
 
     def record_failure(watch, error)

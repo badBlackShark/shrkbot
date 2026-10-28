@@ -28,7 +28,7 @@ production:
   integrations_steam_news_poll:
     class: Integrations::PollJob
     args: ["Integrations::Steam::NewsWatcher"]
-    schedule: every 10 minutes
+    schedule: every hour
   integrations_broken_watch_report:
     class: Integrations::ReportBrokenWatchesJob
     schedule: every hour at minute 50
@@ -49,7 +49,7 @@ development:
   integrations_steam_news_poll:
     class: Integrations::PollJob
     args: ["Integrations::Steam::NewsWatcher"]
-    schedule: every 10 minutes
+    schedule: every hour
   integrations_broken_watch_report:
     class: Integrations::ReportBrokenWatchesJob
     schedule: every hour at minute 50
