@@ -34,7 +34,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
       watcher: WATCHER.name,
       target: lookup.target,
       channel_id: subscription_params[:channel_id],
-      role_id: subscription_params[:role_id],
+      roles:,
       body_length: subscription_params[:body_length],
       languages:,
       event_types:,
@@ -43,7 +43,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
     return redirect_to steam_path, notice: t("servers.steam.followed", name: lookup.target.name) if result.success?
 
     render_new(
-      subscription: result.value || build_subscription(lookup.target, subscription_params.slice(:channel_id, :role_id, :body_length).merge(languages:), event_types, templates:),
+      subscription: result.value || build_subscription(lookup.target, subscription_params.slice(:channel_id, :body_length).merge(languages:), event_types, templates:, roles:),
       target: lookup.target,
       error: result.errors.to_sentence,
       status: :unprocessable_content
@@ -64,7 +64,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
     result = Ops::Feeds::Subscriptions::Update.call(
       subscription: @subscription,
       channel_id: subscription_params[:channel_id],
-      role_id: subscription_params[:role_id],
+      roles:,
       body_length: subscription_params[:body_length],
       languages:,
       event_types:,
@@ -98,9 +98,9 @@ class Servers::Steam::SubscriptionsController < ApplicationController
     source_subscriptions.find_by(integration_watches: {external_id: target.external_id})
   end
 
-  def build_subscription(target, attributes, event_types, templates: {})
+  def build_subscription(target, attributes, event_types, templates: {}, roles: {})
     @server_configuration.feed_subscriptions.build(attributes.merge(watch: unsaved_watch(target))).tap do |subscription|
-      event_types.each { |event_type| subscription.follow(event_type, templates[event_type]) }
+      event_types.each { |event_type| subscription.follow(event_type, templates[event_type], roles[event_type]) }
     end
   end
 
@@ -147,6 +147,10 @@ class Servers::Steam::SubscriptionsController < ApplicationController
 
   def templates
     subscription_params[:templates].to_h
+  end
+
+  def roles
+    event_types.index_with { subscription_params[:role_id] }
   end
 
   def languages

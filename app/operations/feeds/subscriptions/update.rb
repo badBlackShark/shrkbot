@@ -4,11 +4,10 @@ module Ops
   module Feeds
     module Subscriptions
       class Update < ApplicationOperation
-        receives :subscription, :channel_id, :body_length, :languages, :event_types, :templates
-        receives :role_id, optional: true
+        receives :subscription, :channel_id, :body_length, :languages, :event_types, :templates, :roles
 
         def call
-          subscription.assign_attributes(channel_id:, role_id: role_id.presence, body_length:, languages:)
+          subscription.assign_attributes(channel_id:, body_length:, languages:)
           update_followed_events
           build_missing_events
           return failure(subscription.errors.full_messages, value: subscription) unless subscription.valid?
@@ -22,6 +21,7 @@ module Ops
         def update_followed_events
           subscription.subscribed_events.each do |event|
             event.template = ::Feeds::Templates.custom(templates[event.event_type])
+            event.role_id = roles[event.event_type].presence
           end
           subscription.subscribed_events.each do |event|
             event.mark_for_destruction unless event_types.include?(event.event_type)
@@ -30,7 +30,7 @@ module Ops
 
         def build_missing_events
           followed = subscription.subscribed_events.map(&:event_type)
-          (event_types.uniq - followed).each { |event_type| subscription.follow(event_type, templates[event_type]) }
+          (event_types.uniq - followed).each { |event_type| subscription.follow(event_type, templates[event_type], roles[event_type]) }
         end
       end
     end

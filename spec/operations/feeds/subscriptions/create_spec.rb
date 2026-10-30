@@ -9,7 +9,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
       watcher: "Integrations::Steam::NewsWatcher",
       target:,
       channel_id:,
-      role_id:,
+      roles:,
       body_length: "full",
       languages:,
       event_types:,
@@ -20,7 +20,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   let(:server_configuration) { create(:server_configuration) }
   let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg") }
   let(:channel_id) { "555" }
-  let(:role_id) { "777" }
+  let(:roles) { event_types.index_with { "777" } }
   let(:languages) { %w[de en] }
   let(:event_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
   let(:templates) { {} }
@@ -31,7 +31,6 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
       persisted?: true,
       server_configuration:,
       channel_id: 555,
-      role_id: 777,
       body_length: "full",
       languages: %w[de en]
     )
@@ -42,6 +41,28 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
 
     expect(result.value.subscribed_events.map(&:event_type)).to match_array(event_types)
     expect(result.value.subscribed_events.map(&:subscribed_since)).to all(be_within(1.minute).of(Time.current))
+  end
+
+  it "stores the role on each subscribed event" do
+    expect(result.value.subscribed_events.map(&:role_id)).to all(eq(777))
+  end
+
+  context "with a different role per type" do
+    let(:roles) do
+      {
+        "Integrations::Steam::PatchNotesPublished" => "777",
+        "Integrations::Steam::AnnouncementPublished" => "888"
+      }
+    end
+
+    it "gives each subscribed event its own role" do
+      stored = result.value.subscribed_events.to_h { |event| [event.event_type, event.role_id] }
+
+      expect(stored).to eq(
+        "Integrations::Steam::PatchNotesPublished" => 777,
+        "Integrations::Steam::AnnouncementPublished" => 888
+      )
+    end
   end
 
   context "with submitted templates" do
@@ -73,10 +94,10 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   end
 
   context "without a role" do
-    let(:role_id) { "" }
+    let(:roles) { event_types.index_with { "" } }
 
     it "stores no ping" do
-      expect(result.value.role_id).to be_nil
+      expect(result.value.subscribed_events.map(&:role_id)).to all(be_nil)
     end
   end
 

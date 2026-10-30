@@ -51,7 +51,7 @@ class Components::Feeds::SubscriptionList < Components::Base
       subscription:,
       plugin_key: @plugin_key,
       channel_label: channel_labels[subscription.channel_id],
-      role_name: role_names[subscription.role_id],
+      roles: role_names_for(subscription),
       edit_href: (::Feeds::SubscriptionPaths.edit_for(subscription) unless @config.preview?)
     )
   end
@@ -71,6 +71,10 @@ class Components::Feeds::SubscriptionList < Components::Base
 
   def channel_labels
     @channel_labels ||= ChannelOptions.new(@config).qualified_labels_by_id
+  end
+
+  def role_names_for(subscription)
+    subscription.role_ids.map { |id| role_names[id] }
   end
 
   def role_names

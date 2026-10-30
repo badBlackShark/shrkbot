@@ -5,11 +5,11 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   TITLE = "font-display font-semibold"
 
-  def initialize(subscription:, plugin_key:, channel_label:, role_name:, edit_href: nil)
+  def initialize(subscription:, plugin_key:, channel_label:, roles:, edit_href: nil)
     @subscription = subscription
     @plugin_key = plugin_key
     @channel_label = channel_label
-    @role_name = role_name
+    @roles = roles
     @edit_href = edit_href
   end
 
@@ -53,10 +53,10 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def ping_label
-    return t(".pings", role: @role_name) if @role_name
-    return t(".role_missing") if @subscription.role_id
+    return t(".no_ping") if @roles.empty?
+    return t(".role_missing") if @roles.any?(&:nil?)
 
-    t(".no_ping")
+    t(".pings", roles: @roles.map { |name| "@#{name}" }.to_sentence)
   end
 
   def channel

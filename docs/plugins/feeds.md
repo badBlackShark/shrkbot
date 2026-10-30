@@ -24,8 +24,8 @@ line and its own page.
   `Finders::Feeds::SourceSubscriptions` returns the server's subscriptions on that
   source, ordered by game name, and `Components::Feeds::SubscriptionList` builds the
   channel and role lookups once for all rows. A row shows the game's header image, the
-  channel, the pinged role, the followed event types, and a warning when the watch is
-  broken (`Integrations::Watch#broken?`).
+  channel, the pinged roles (each distinct role across the followed types), the followed
+  event types, and a warning when the watch is broken (`Integrations::Watch#broken?`).
 - Turning Integrations off or on goes through `Ops::ServerConfiguration::Plugins::Toggle`
   like any plugin. A sub-plugin cannot be turned on while Integrations is off.
 - Demo data: `config/preview_data.yml` enables both and follows two games, each through a
@@ -53,8 +53,9 @@ are no preview routes for these pages.
   event types that were switched off and adds the new ones; a kept type keeps its
   `subscribed_since` and `template`. `Destroy` removes the subscription and leaves the
   watch for the prune.
-- **All post types off is allowed.** It pauses a game without losing its channel, role and
-  length; turning a type back on starts from that moment (`subscribed_since`).
+- **All post types off is allowed.** It pauses a game without losing its channel and
+  length. The role and custom message live on each type's row, so they go with the
+  switched-off types. Turning a type back on starts from that moment (`subscribed_since`).
 - **Paths.** `Feeds::SubscriptionPaths` builds the add, edit and subscription paths from
   the source's plugin key (`new_server_<key>_subscription_path`), so a new source adds a
   nested `resources :subscriptions`, not new path code.
@@ -78,13 +79,14 @@ are no preview routes for these pages.
 ## Tables
 
 - `feed_subscriptions` (`Feeds::Subscription`): one row per server and followed watch.
-  The `channel_id` to post in, an optional `role_id` to ping, and `body_length`
+  The `channel_id` to post in, `body_length`
   (`preview` by default, or `full`) and `languages` (empty means every language; a DB
   check constraint limits the values to the model's codes). Unique on
   `[server_configuration_id, watch_id]`.
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
-  wants, each with an optional `template` override and `subscribed_since`, the moment
-  that kind of post was followed (see Following since). Unique on
+  wants, each with an optional `template` override, an optional `role_id` to ping for
+  that type (the Steam form sets one role for all its types) and `subscribed_since`, the
+  moment that kind of post was followed (see Following since). Unique on
   `[subscription_id, event_type]`.
 - `feed_posts` (`Feeds::Post`): one row per story a subscription posted, holding
   the `story_key`. It is written before the message is sent, so it is the claim that
@@ -138,7 +140,7 @@ removed by the orphan prune once nothing references it.
   deleted event, channel or permission wins over the retry.
 - `Ops::Feeds::Posts::Create` is subject-first (see
   [../bot/message-rendering.md](../bot/message-rendering.md)): it sends the subject as
-  plain content, allowing only the subscription's own role to ping, then converts the
+  plain content, allowing only the event type's own role to ping, then converts the
   message into the card with the default suppressed mentions, all through
   `Components.create_with_subject` with `fallback: announcement.fallback`. The card
   carries untrusted post text, so nothing in it can ping. The `Post` is written first, as
@@ -193,8 +195,8 @@ still wins when its primary copy is filtered out.
 `Feeds::Announcement` renders both messages.
 
 The **subject** is the plain first message, so it is also the push-notification text.
-It is the role mention plus the subscription's custom message, or, when there is no
-custom message, the headline `<game> · <type>: <title>`, stripped and cut to 2000
+It is the mention of the event type's role plus the subscription's custom message, or,
+when there is no custom message, the headline `<game> · <type>: <title>`, stripped and cut to 2000
 characters. The custom message is optional and empty by default. It is the subscribed
 event's `template` filled by `TemplateText`, with the tokens `game`, `author` and
 `feed`. A stored template that still has `{title}` or `{url}` from before those tokens

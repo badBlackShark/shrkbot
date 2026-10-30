@@ -19,8 +19,12 @@ module Feeds
     validates :watch_id, uniqueness: {scope: :server_configuration_id}
     validate :languages_supported
 
-    def follow(event_type, text)
-      subscribed_events.build(event_type:, template: Templates.custom(text))
+    def follow(event_type, text, role_id)
+      subscribed_events.build(event_type:, template: Templates.custom(text), role_id: role_id.presence)
+    end
+
+    def role_ids
+      subscribed_events.filter_map(&:role_id).uniq
     end
 
     def accepts_language?(language)

@@ -56,9 +56,9 @@ RSpec.describe "Steam config", type: :request do
           before do
             create(:server_channel, server_configuration: config, discord_id: 777, name: "news")
             create(:server_role, server_configuration: config, discord_id: 888, name: "Gamers")
-            hades_subscription = create(:feed_subscription, server_configuration: config, watch: hades, channel_id: 777, role_id: 888)
-            create(:feed_subscribed_event, subscription: hades_subscription, event_type: "Integrations::Steam::ArticlePublished")
-            create(:feed_subscribed_event, subscription: hades_subscription, event_type: "Integrations::Steam::PatchNotesPublished")
+            hades_subscription = create(:feed_subscription, server_configuration: config, watch: hades, channel_id: 777)
+            create(:feed_subscribed_event, subscription: hades_subscription, event_type: "Integrations::Steam::ArticlePublished", role_id: 888)
+            create(:feed_subscribed_event, subscription: hades_subscription, event_type: "Integrations::Steam::PatchNotesPublished", role_id: 888)
             create(:feed_subscription, server_configuration: config, watch: tf2, channel_id: 999)
           end
 
@@ -96,7 +96,7 @@ RSpec.describe "Steam config", type: :request do
           end
 
           context "when a game's ping role was deleted from the server" do
-            before { Feeds::Subscription.find_by!(watch: tf2).update!(role_id: 555) }
+            before { create(:feed_subscribed_event, subscription: Feeds::Subscription.find_by!(watch: tf2), role_id: 555) }
 
             it "says the role is gone instead of claiming no ping" do
               get plugin_path

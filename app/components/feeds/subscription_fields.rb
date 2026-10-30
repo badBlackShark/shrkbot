@@ -46,12 +46,16 @@ class Components::Feeds::SubscriptionFields < Components::Base
     render Components::RoleSelect.new(
       name: "subscription[role_id]",
       options: ServerRoleOptions.new(server_configuration).options,
-      selected: @subscription.role_id,
+      selected: selected_role_id,
       placeholder: t(".role_placeholder"),
       multiple: false,
       include_blank: true,
       data: {feed_preview_target: "role", action: "change->feed-preview#render"}
     )
+  end
+
+  def selected_role_id
+    @subscription.role_ids.first
   end
 
   def event_types_card

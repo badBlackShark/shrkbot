@@ -4,8 +4,7 @@ module Ops
   module Feeds
     module Subscriptions
       class Create < ApplicationOperation
-        receives :server_configuration, :watcher, :target, :channel_id, :body_length, :languages, :event_types, :templates
-        receives :role_id, optional: true
+        receives :server_configuration, :watcher, :target, :channel_id, :body_length, :languages, :event_types, :templates, :roles
 
         def call
           return failure(I18n.t("operations.feeds.subscriptions.cap", max: ::Feeds::Subscription::MAX_PER_SERVER)) if ::Feeds::Subscription.at_cap?(server_configuration)
@@ -33,11 +32,10 @@ module Ops
           @subscription ||= server_configuration.feed_subscriptions.build(
             watch:,
             channel_id:,
-            role_id: role_id.presence,
             body_length:,
             languages:
           ).tap do |built|
-            event_types.uniq.each { |event_type| built.follow(event_type, templates[event_type]) }
+            event_types.uniq.each { |event_type| built.follow(event_type, templates[event_type], roles[event_type]) }
           end
         end
       end

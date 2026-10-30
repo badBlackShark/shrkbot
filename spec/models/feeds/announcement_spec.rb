@@ -9,13 +9,13 @@ RSpec.describe Feeds::Announcement do
   let(:watch) { create(:integration_watch, name: "Team Fortress 2") }
   let(:role_id) { 4242 }
   let(:body_length) { "preview" }
-  let(:subscription) { create(:feed_subscription, watch:, role_id:, body_length:) }
+  let(:subscription) { create(:feed_subscription, watch:, body_length:) }
   let(:template) { nil }
   let(:event) { create(:steam_news_event, watch:, title: "Smissmas 2026", body: "Snow is falling.", image_urls: []) }
   let(:event_type) { event.type }
 
   before do
-    create(:feed_subscribed_event, subscription:, event_type:, template:)
+    create(:feed_subscribed_event, subscription:, event_type:, template:, role_id:)
   end
 
   describe ".eyebrow" do
@@ -23,6 +23,43 @@ RSpec.describe Feeds::Announcement do
       expect(described_class.eyebrow("Hades", "Integrations::Steam::PatchNotesPublished", "Feed")).to eq("Hades · Patch notes")
       expect(described_class.eyebrow("Hades", "Integrations::Steam::AnnouncementPublished", "Feed")).to eq("Hades · Announcement")
       expect(described_class.eyebrow("Hades", "Integrations::Steam::ArticlePublished", "PC Gamer")).to eq("Hades · PC Gamer")
+    end
+  end
+
+  describe "#allowed_mentions" do
+    subject(:allowed_mentions) { announcement.allowed_mentions }
+
+    context "when the subscription follows two types with different roles" do
+      let(:other_type) { "Integrations::Steam::AnnouncementPublished" }
+
+      before do
+        create(:feed_subscribed_event, subscription:, event_type: other_type, role_id: 9999)
+      end
+
+      it "allows only the role of the event's type" do
+        expect(allowed_mentions).to eq({parse: [], roles: [4242]})
+      end
+
+      it "mentions only the role of the event's type" do
+        expect(announcement.subject).to eq("<@&4242> Team Fortress 2 · Patch notes: Smissmas 2026")
+      end
+    end
+
+    context "without a role on the type" do
+      let(:role_id) { nil }
+
+      it "allows no mention" do
+        expect(allowed_mentions).to eq({parse: []})
+      end
+    end
+
+    context "when the subscription no longer follows the event's type" do
+      let(:event_type) { "Integrations::Steam::AnnouncementPublished" }
+
+      it "allows no mention and mentions no role" do
+        expect(allowed_mentions).to eq({parse: []})
+        expect(announcement.subject).to eq("Team Fortress 2 · Patch notes: Smissmas 2026")
+      end
     end
   end
 

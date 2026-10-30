@@ -327,7 +327,7 @@ en:
       subscription_row:
         channel_missing: channel deleted
         no_ping: no ping
-        pings: pings @%{role}
+        pings: pings %{roles}
         role_missing: pings a role that was deleted
         steam:
           broken: Steam hasn't answered for this game since %{since} UTC. shrkbot

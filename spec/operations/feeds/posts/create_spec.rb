@@ -8,18 +8,19 @@ RSpec.describe Ops::Feeds::Posts::Create do
 
   let(:watch) { create(:integration_watch, name: "Team Fortress 2") }
   let(:role_id) { 4242 }
-  let(:subscription) { create(:feed_subscription, watch:, channel_id: 555_000, role_id:) }
+  let(:subscription) { create(:feed_subscription, watch:, channel_id: 555_000) }
   let(:event) { create(:steam_news_event, watch:, title: "Smissmas 2026", story_key: "story-1") }
   let(:thumbnail) { nil }
   let(:announcement) { Feeds::Announcement.new(event:, subscription:, thumbnail:) }
 
   before do
-    create(:feed_subscribed_event, subscription:, event_type: event.type)
+    create(:feed_subscribed_event, subscription:, event_type: event.type, role_id:)
+    create(:feed_subscribed_event, subscription:, event_type: "Integrations::Steam::AnnouncementPublished", role_id: 9999)
     allow(Feeds::Thumbnail).to receive(:for).with(watch).and_return(thumbnail)
     allow(Bot::Discord::Components).to receive(:create_with_subject).and_return(777_000)
   end
 
-  it "sends the subject first, allowing only the subscription's role to ping, with the card and the link fallback" do
+  it "sends the subject first, allowing only the event type's role to ping, with the card and the link fallback" do
     result
 
     expect(Bot::Discord::Components).to have_received(:create_with_subject).with(

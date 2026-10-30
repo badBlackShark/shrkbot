@@ -41,16 +41,30 @@ module Feeds
       [Bot::Discord::FileUpload.new(thumbnail, Thumbnail::FILENAME)] if thumbnail
     end
 
+    def allowed_mentions
+      role_id ? {parse: [], roles: [role_id]} : {parse: []}
+    end
+
     private
 
     attr_reader :event, :subscription, :thumbnail
 
+    def subscribed_event
+      return @subscribed_event if defined?(@subscribed_event)
+
+      @subscribed_event = subscription.subscribed_events.find_by(event_type: event.type)
+    end
+
     def template
-      subscription.subscribed_events.where(event_type: event.type).pick(:template).to_s
+      subscribed_event&.template.to_s
+    end
+
+    def role_id
+      subscribed_event&.role_id
     end
 
     def role_mention
-      "<@&#{subscription.role_id}>" if subscription.role_id
+      "<@&#{role_id}>" if role_id
     end
 
     def tokens

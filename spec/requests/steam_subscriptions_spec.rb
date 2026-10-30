@@ -136,9 +136,15 @@ RSpec.describe "Steam subscriptions", type: :request do
 
       expect(response).to redirect_to(list_path)
       expect(flash[:notice]).to eq("Now following Hades II.")
-      expect(config.feed_subscriptions.sole).to have_attributes(channel_id: 777, role_id: 888, body_length: "full", languages: %w[de en])
+      expect(config.feed_subscriptions.sole).to have_attributes(channel_id: 777, body_length: "full", languages: %w[de en])
       expect(config.feed_subscriptions.sole.subscribed_events.map(&:event_type)).to match_array([patch_notes, articles])
       expect(config.feed_subscriptions.sole.watch).to have_attributes(name: "Hades II", image_url: target.image_url)
+    end
+
+    it "stores the one submitted role on every followed type" do
+      create_subscription
+
+      expect(config.feed_subscriptions.sole.subscribed_events.map(&:role_id)).to eq([888, 888])
     end
 
     it "stores custom text and nothing for blank text" do
@@ -229,7 +235,14 @@ RSpec.describe "Steam subscriptions", type: :request do
     let(:watch) { create(:integration_watch, name: "Hades II", external_id: "1145350") }
     let!(:subscription) { create(:feed_subscription, server_configuration: config, watch:, channel_id: 777) }
 
-    before { create(:feed_subscribed_event, subscription:, event_type: patch_notes, template: "Hot take: {title}") }
+    before { create(:feed_subscribed_event, subscription:, event_type: patch_notes, template: "Hot take: {title}", role_id: 888) }
+
+    it "preselects the stored role" do
+      edit
+
+      selected = Nokogiri::HTML(response.body).at_css(%(select[name="subscription[role_id]"] option[selected]))
+      expect(selected["value"]).to eq("888")
+    end
 
     it "shows the stored template in its textarea" do
       edit
@@ -296,13 +309,14 @@ RSpec.describe "Steam subscriptions", type: :request do
     subject(:update) do
       patch(
         server_steam_subscription_path(guild.id, subscription),
-        params: {subscription: {channel_id:, role_id: "", body_length: "full", languages:, event_types:, templates:}},
+        params: {subscription: {channel_id:, role_id:, body_length: "full", languages:, event_types:, templates:}},
         **headers
       )
     end
 
     let(:headers) { turbo }
     let(:channel_id) { "777" }
+    let(:role_id) { "888" }
     let(:languages) { %w[de en] }
     let(:event_types) { {patch_notes => "1", announcements => "1"} }
     let(:templates) { {patch_notes => "Patch day: {title}"} }
@@ -336,6 +350,12 @@ RSpec.describe "Steam subscriptions", type: :request do
 
         expect(subscription.reload.languages).to eq([])
       end
+    end
+
+    it "stores the one submitted role on every followed type" do
+      update
+
+      expect(subscription.subscribed_events.reload.map(&:role_id)).to eq([888, 888])
     end
 
     it "stores the submitted custom text" do

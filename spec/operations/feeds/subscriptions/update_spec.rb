@@ -7,7 +7,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
     described_class.call(
       subscription:,
       channel_id: "999",
-      role_id: "",
+      roles:,
       body_length: "full",
       languages:,
       event_types:,
@@ -17,24 +17,54 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
 
   let(:languages) { %w[de en] }
   let(:followed_since) { 3.days.ago.change(usec: 0) }
-  let(:subscription) { create(:feed_subscription, channel_id: 555, role_id: 777) }
+  let(:subscription) { create(:feed_subscription, channel_id: 555) }
   let!(:patch_notes) do
     create(
       :feed_subscribed_event,
       subscription:,
       event_type: "Integrations::Steam::PatchNotesPublished",
       subscribed_since: followed_since,
-      template: "custom {title}"
+      template: "custom {title}",
+      role_id: 777
     )
   end
   let!(:articles) { create(:feed_subscribed_event, subscription:, event_type: "Integrations::Steam::ArticlePublished") }
   let(:event_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
   let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "new {title}", "Integrations::Steam::AnnouncementPublished" => "fresh {game}"} }
 
-  it "updates channel, role and post length" do
+  let(:roles) do
+    {
+      "Integrations::Steam::PatchNotesPublished" => "888",
+      "Integrations::Steam::AnnouncementPublished" => "999"
+    }
+  end
+
+  it "updates channel and post length" do
     result
 
-    expect(subscription.reload).to have_attributes(channel_id: 999, role_id: nil, body_length: "full")
+    expect(subscription.reload).to have_attributes(channel_id: 999, body_length: "full")
+  end
+
+  it "updates the role of a kept type" do
+    result
+
+    expect(patch_notes.reload.role_id).to eq(888)
+  end
+
+  it "gives a newly followed type its role" do
+    result
+
+    expect(subscription.subscribed_events.find_by!(event_type: "Integrations::Steam::AnnouncementPublished").role_id).to eq(999)
+  end
+
+  context "with a blank role" do
+    let(:roles) { {"Integrations::Steam::PatchNotesPublished" => ""} }
+
+    it "clears the kept type's role" do
+      result
+
+      expect(patch_notes.reload.role_id).to be_nil
+    end
   end
 
   it "stores the submitted languages" do
@@ -44,7 +74,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
   end
 
   context "with no languages" do
-    let(:subscription) { create(:feed_subscription, channel_id: 555, role_id: 777, languages: %w[ru]) }
+    let(:subscription) { create(:feed_subscription, channel_id: 555, languages: %w[ru]) }
     let(:languages) { [] }
 
     it "clears the filter" do
@@ -106,7 +136,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
 
   context "when the channel is blank" do
     subject(:result) do
-      described_class.call(subscription:, channel_id: "", body_length: "full", languages:, event_types:, templates:)
+      described_class.call(subscription:, channel_id: "", roles:, body_length: "full", languages:, event_types:, templates:)
     end
 
     it "fails and keeps the stored events" do
