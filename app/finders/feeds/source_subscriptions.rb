@@ -13,10 +13,12 @@ module Finders
       end
 
       def call
+        source = ::Feeds.source(@plugin_key)
+
         @config.feed_subscriptions
+          .for_source(source)
           .joins(:watch)
-          .where(integration_watches: {watcher: ::Feeds.watchers_for(@plugin_key)})
-          .includes(:watch, :subscribed_events)
+          .includes(:watch, :subscribed_events, source.settings_association)
           .order("integration_watches.name", :id)
       end
     end

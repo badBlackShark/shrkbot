@@ -8,10 +8,16 @@ RSpec.describe Ops::Feeds::SubscribedEvents::Resume do
   subject(:result) { described_class.call(server_configuration: server, plugin_key:) }
 
   before do
-    stub_const("Feeds::SOURCE_PLUGINS", Feeds::SOURCE_PLUGINS.merge("Integrations::Other::Watcher" => :other_source))
-    stub_const("Feeds::EVENT_TYPES_BY_SOURCE", Feeds::EVENT_TYPES_BY_SOURCE.merge(other_source: ["Integrations::Steam::PatchNotesPublished"]))
+    allow(Feeds).to receive(:sources).and_return([Feeds::Steam, other_source])
   end
 
+  let(:other_source) do
+    double(
+      plugin_key: :other_source,
+      watchers: %w[Integrations::Other::Watcher],
+      event_types: %w[Integrations::Steam::PatchNotesPublished]
+    )
+  end
   let(:now) { Time.utc(2026, 10, 23, 12, 0, 0) }
   let(:long_ago) { Time.utc(2026, 10, 1, 12, 0, 0) }
   let(:server) { create(:server_configuration) }
@@ -68,7 +74,7 @@ RSpec.describe Ops::Feeds::SubscribedEvents::Resume do
     let(:twin_follow) { create(:feed_subscribed_event, subscription: twin_subscription, subscribed_since: long_ago) }
 
     before do
-      stub_const("Feeds::SOURCE_PLUGINS", Feeds::SOURCE_PLUGINS.merge("Integrations::Steam::OtherWatcher" => :steam))
+      allow(Feeds::Steam).to receive(:watchers).and_return(%w[Integrations::Steam::NewsWatcher Integrations::Steam::OtherWatcher])
       twin_follow
     end
 

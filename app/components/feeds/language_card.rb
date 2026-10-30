@@ -16,7 +16,7 @@ class Components::Feeds::LanguageCard < Components::Base
         render Components::TomSelect.new(
           name: "subscription[languages][]",
           options:,
-          selected: @subscription.languages,
+          selected: @subscription.settings.languages,
           multiple: true,
           controller_data: {tom_select_placeholder_value: t(".placeholder")}
         )

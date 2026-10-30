@@ -8,7 +8,7 @@ module Feeds
 
     belongs_to :subscription
 
-    validates :event_type, inclusion: {in: ->(event) { event.subscription.source_event_types }}, uniqueness: {scope: :subscription_id}
+    validates :event_type, inclusion: {in: ->(event) { event.subscription.source.event_types }}, uniqueness: {scope: :subscription_id}
     validates :subscribed_since, presence: true
   end
 end

@@ -17,6 +17,10 @@ RSpec.describe Components::Feeds::SubscriptionList do
       expect(html).to include(%(href="#{add_path}"))
       expect(html).not_to include("feed-subscriptions-cap")
     end
+
+    it "shows how much of the cap the server uses" do
+      expect(html).to include("1 of 25")
+    end
   end
 
   context "with a followed game in a channel inside a category" do
@@ -33,7 +37,7 @@ RSpec.describe Components::Feeds::SubscriptionList do
   end
 
   context "at the cap" do
-    before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SERVER, server_configuration:) }
+    before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SOURCE, server_configuration:) }
 
     it "disables Add a game and points it at the reason" do
       expect(html).not_to include(add_path)

@@ -127,7 +127,7 @@ RSpec.describe Feeds::StoryPick do
   end
 
   context "when the subscription only wants Russian" do
-    let(:subscription) { create(:feed_subscription, languages: %w[ru]) }
+    let(:subscription) { create(:steam_feed_subscription, languages: %w[ru]) }
     let!(:patch_notes) { create(:steam_news_event, watch:, story_key: "story-1", occurred_at: 2.hours.ago, language: "en") }
     let!(:article) { create(:steam_article_event, watch:, story_key: "story-1", occurred_at: 3.hours.ago, language: "ru") }
 

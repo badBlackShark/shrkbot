@@ -7,15 +7,15 @@ module Feeds
     end
 
     def self.edit_for(subscription)
-      helpers.public_send("edit_server_#{subscription.plugin_key}_subscription_path", subscription.server_configuration.discord_id, subscription)
+      helpers.public_send("edit_server_#{subscription.source.plugin_key}_subscription_path", subscription.server_configuration.discord_id, subscription)
     end
 
     def self.for(subscription)
-      helpers.public_send("server_#{subscription.plugin_key}_subscription_path", subscription.server_configuration.discord_id, subscription)
+      helpers.public_send("server_#{subscription.source.plugin_key}_subscription_path", subscription.server_configuration.discord_id, subscription)
     end
 
     def self.volume_for(subscription)
-      helpers.public_send("server_#{subscription.plugin_key}_volume_path", subscription.server_configuration.discord_id, app: subscription.watch.external_id)
+      helpers.public_send("server_#{subscription.source.plugin_key}_volume_path", subscription.server_configuration.discord_id, app: subscription.watch.external_id)
     end
 
     private_class_method def self.helpers

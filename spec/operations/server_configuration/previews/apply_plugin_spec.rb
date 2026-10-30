@@ -118,8 +118,7 @@ RSpec.describe Ops::ServerConfiguration::Previews::ApplyPlugin do
                   create_with: {name: "Team Fortress 2"}
                 },
                 channel_id: 101,
-                role_id: 207,
-                body_length: "full",
+                steam_settings: [{role_id: 207, body_length: "full"}],
                 subscribed_events: [
                   {event_type: "Integrations::Steam::PatchNotesPublished"},
                   {event_type: "Integrations::Steam::ArticlePublished"}
@@ -136,7 +135,8 @@ RSpec.describe Ops::ServerConfiguration::Previews::ApplyPlugin do
         result
 
         subscription = server_configuration.feed_subscriptions.sole
-        expect(subscription).to have_attributes(channel_id: 101, role_id: 207, body_length: "full")
+        expect(subscription).to have_attributes(channel_id: 101)
+        expect(subscription.steam_settings).to have_attributes(role_id: 207, body_length: "full")
         expect(subscription.subscribed_events.pluck(:event_type)).to match_array(
           ["Integrations::Steam::PatchNotesPublished", "Integrations::Steam::ArticlePublished"]
         )

@@ -23,7 +23,7 @@ RSpec.describe Finders::Feeds::SourceSubscriptions do
 
   context "when several watchers feed the same plugin" do
     before do
-      stub_const("Feeds::SOURCE_PLUGINS", Feeds::SOURCE_PLUGINS.merge("Integrations::Other::NewsWatcher" => :steam))
+      allow(Feeds::Steam).to receive(:watchers).and_return(%w[Integrations::Steam::NewsWatcher Integrations::Other::NewsWatcher])
     end
 
     it "returns the subscriptions of every watcher" do

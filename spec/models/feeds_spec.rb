@@ -3,24 +3,57 @@
 require "rails_helper"
 
 RSpec.describe Feeds do
-  subject(:sources) { described_class::SOURCE_PLUGINS.values.map { |key| PluginCatalog.find(key) } }
-
   it "is a plugin in the catalog" do
     expect(PluginCatalog.find(:integrations)).to be_present
   end
 
-  it "maps every source to a sub-plugin of the integrations plugin" do
-    expect(sources).to be_present.and all(have_attributes(parent: :integrations))
+  describe ".sources" do
+    subject(:sources) { described_class.sources }
+
+    it "puts every source under a sub-plugin of the integrations plugin" do
+      expect(sources.map { |source| PluginCatalog.find(source.plugin_key) }).to all(have_attributes(parent: :integrations))
+    end
+
+    it "gives every source watcher classes that exist" do
+      expect(sources.flat_map(&:watchers).map(&:constantize)).to be_present
+    end
+
+    it "gives every source followable event types that are integration events" do
+      event_types = sources.flat_map(&:event_types)
+
+      expect(event_types.map(&:constantize)).to be_present.and all(be < Integrations::Event)
+    end
+
+    it "defaults each source to a subset of its own event types" do
+      expect(sources).to all(satisfy { |source| (source.default_event_types - source.event_types).empty? })
+    end
+
+    it "gives every source template tokens" do
+      expect(sources.map(&:template_tokens)).to all(be_present)
+    end
+
+    it "gives every source a follow-cap message" do
+      expect(sources.map { |source| "operations.feeds.subscriptions.cap.#{source.plugin_key}" }).to all(satisfy { |key| I18n.exists?(key) })
+    end
+
+    it "gives every source its settings contract" do
+      expect(sources).to all(respond_to(:settings_association, :role_id_for, :accepts?))
+    end
   end
 
-  it "keys every followable event type to a source plugin" do
-    expect(described_class::EVENT_TYPES_BY_SOURCE.keys).to match_array(described_class::SOURCE_PLUGINS.values)
+  describe ".source" do
+    it "finds a source by plugin key" do
+      expect(described_class.source(:steam)).to eq(Feeds::Steam)
+    end
+
+    it "raises for an unknown plugin key" do
+      expect { described_class.source(:nope) }.to raise_error(KeyError)
+    end
   end
 
-  it "defaults each source to a subset of its own event types" do
-    by_source = described_class::DEFAULT_EVENT_TYPES_BY_SOURCE
-
-    expect(by_source.keys).to match_array(described_class::EVENT_TYPES_BY_SOURCE.keys)
-    expect(by_source).to all(satisfy { |key, defaults| (defaults - described_class::EVENT_TYPES_BY_SOURCE.fetch(key)).empty? })
+  describe ".source_for_watcher" do
+    it "finds the source of a watcher" do
+      expect(described_class.source_for_watcher("Integrations::Steam::NewsWatcher")).to eq(Feeds::Steam)
+    end
   end
 end

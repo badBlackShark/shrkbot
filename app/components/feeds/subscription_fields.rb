@@ -46,7 +46,7 @@ class Components::Feeds::SubscriptionFields < Components::Base
     render Components::RoleSelect.new(
       name: "subscription[role_id]",
       options: ServerRoleOptions.new(server_configuration).options,
-      selected: @subscription.role_id,
+      selected: @subscription.settings.role_id,
       placeholder: t(".role_placeholder"),
       multiple: false,
       include_blank: true,
@@ -59,7 +59,7 @@ class Components::Feeds::SubscriptionFields < Components::Base
       h2(class: "font-semibold") { t(".what_title") }
       volume_frame
       render Components::Callout.new(variant: :warning) { t(".#{@plugin_key}.what_note") }
-      ::Feeds::EVENT_TYPES_BY_SOURCE.fetch(@plugin_key).each { |event_type| event_type_row(event_type) }
+      ::Feeds.source(@plugin_key).event_types.each { |event_type| event_type_row(event_type) }
     end
   end
 
@@ -87,9 +87,9 @@ class Components::Feeds::SubscriptionFields < Components::Base
       h2(class: "mb-3 font-semibold") { t(".length_title") }
       render Components::RadioCardGroup.new(
         name: "subscription[body_length]",
-        value: @subscription.body_length,
+        value: @subscription.settings.body_length,
         label: t(".length_title"),
-        options: ::Feeds::Subscription::BODY_LENGTHS.map { |length| length_option(length) }
+        options: ::Feeds::Steam::Settings::BODY_LENGTHS.map { |length| length_option(length) }
       )
     end
   end

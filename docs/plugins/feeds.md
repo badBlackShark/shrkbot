@@ -10,8 +10,8 @@ doc keep the Feeds name; the provider layer is `Integrations::` (see `docs/integ
 ## Pages
 
 Two catalog entries make the plugin group: `:integrations` (the parent) and `:steam`
-(`parent: :integrations`). A new source is another sub-plugin entry, its `Feeds::SOURCE_PLUGINS`
-line and its own page.
+(`parent: :integrations`). A new source is another sub-plugin entry, its `Feeds::`
+source module (see Sources) and its own page.
 
 - **Integrations** (`Servers::IntegrationsController`): the overview. It renders
   `Components::SubPluginDirectory` with one row per sub-plugin
@@ -31,6 +31,23 @@ line and its own page.
 - Demo data: `config/preview_data.yml` enables both and follows two games, each through a
   shared `Integrations::Watch`, see [../web/preview.md](../web/preview.md).
 
+## Sources
+
+A source is a module under `Feeds::` (`Feeds::Steam`) that answers `plugin_key`,
+`watchers`, `event_types` (in UI order), `default_event_types` and `template_tokens`,
+plus the settings contract: `settings_association` (the `Subscription` association that
+holds its provider settings, which the list finder preloads),
+`role_id_for(subscription, event_type)` and `accepts?(subscription, event)`. Each source
+with settings adds its own `has_one` on `Feeds::Subscription` (`steam_settings`), so the
+foreign key and the guild purge follow the subscription. `Subscription#settings` reads
+that row and `#build_settings` builds it; the row is built once, with the subscription,
+and reading never builds one. Shared code reads settings through the source, except
+`Feeds::Announcement` and the Steam config components (list, row, fields, cards), which
+read the Steam row directly until they split per source with Twitch.
+`Feeds.sources` lists them; a new source adds a module and one entry there. The
+contract is duck-typed with no base class: a shared mixin is extracted when two sources
+share code. `spec/models/feeds_spec.rb` enforces the contract.
+
 ## Config UI
 
 Routes live under `resource :steam` as `resources :subscriptions` (`new`, `create`,
@@ -42,7 +59,7 @@ are no preview routes for these pages.
   `Feeds::TargetLookup` calls the watcher's `resolve` and returns the target or one error
   (`invalid_reference`, `not_found`, `unavailable`). A game the server already follows
   links to its edit page; otherwise the follow form renders for the resolved target, with
-  Patch notes and Announcements on and Articles off (`Feeds::DEFAULT_EVENT_TYPES_BY_SOURCE`).
+  Patch notes and Announcements on and Articles off (`Feeds::Steam.default_event_types`).
   `create` resolves the game again from the hidden `external_id` rather than trusting
   anything the form carries.
 - **Ops.** `Ops::Feeds::Subscriptions::Create` checks the cap, finds or builds the shared
@@ -58,8 +75,11 @@ are no preview routes for these pages.
 - **Paths.** `Feeds::SubscriptionPaths` builds the add, edit and subscription paths from
   the source's plugin key (`new_server_<key>_subscription_path`), so a new source adds a
   nested `resources :subscriptions`, not new path code.
-- **Cap.** A server follows at most `Feeds::Subscription::MAX_PER_SERVER` (25) games,
-  all sources together. The list disables Add at the cap and says why.
+- **Cap.** A server follows at most `Feeds::Subscription::MAX_PER_SOURCE` (25) things per
+  source: 25 Steam games don't block a Twitch channel. The cap protects each provider's
+  request budget, so it counts per source. The list disables Add at the cap and says why
+  (`Subscription.cap_message`, one locale key per source under
+  `operations.feeds.subscriptions.cap`).
 - **Images.** The pages load each game's header image straight from Steam, so the CSP
   `img_src` lists the two Steam image hosts and the privacy policy says Steam sees the
   viewer's IP address. A watch without an `image_url` shows a neutral placeholder.
@@ -78,10 +98,12 @@ are no preview routes for these pages.
 ## Tables
 
 - `feed_subscriptions` (`Feeds::Subscription`): one row per server and followed watch.
-  The `channel_id` to post in, an optional `role_id` to ping, and `body_length`
-  (`preview` by default, or `full`) and `languages` (empty means every language; a DB
-  check constraint limits the values to the model's codes). Unique on
-  `[server_configuration_id, watch_id]`.
+  The `channel_id` to post in. Unique on `[server_configuration_id, watch_id]`.
+- `feed_steam_settings` (`Feeds::Steam::Settings`): the Steam-only settings of a
+  subscription, 1:1 (unique `subscription_id`). An optional `role_id` to ping,
+  `body_length` (`preview` by default, or `full`) and `languages` (empty means every
+  language). Check constraints limit `body_length` to its two values and `languages` to
+  the model's codes. The row outlives a pause: switching every post type off keeps it.
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
   wants, each with an optional `template` override and `subscribed_since`, the moment
   that kind of post was followed (see Following since). Unique on
@@ -96,11 +118,12 @@ are no preview routes for these pages.
 ## `Subscription.active`
 
 A subscription is **active** when its server is real (not a preview) and has both the
-`integrations` plugin and the source's sub-plugin enabled. `Feeds::SOURCE_PLUGINS` maps a
-watcher class name to its sub-plugin key (`Integrations::Steam::NewsWatcher` ->
-`:steam`), so a new source is one entry there. `Feeds::Subscription` is registered
-as a demand source in `config/initializers/integrations.rb`, and a watch is polled only
-while an active subscription points at it.
+`integrations` plugin and the source's sub-plugin enabled. Each source in
+`Feeds.sources` names its watcher classes and its sub-plugin key (`Feeds::Steam`:
+`Integrations::Steam::NewsWatcher`, `:steam`), so a new source is one module and one
+entry there. `Feeds::Subscription` is registered as a demand source in
+`config/initializers/integrations.rb`, and a watch is polled only while an active
+subscription points at it.
 
 Turning a plugin off keeps the subscription rows: the server's choices survive, the
 subscription goes inactive, and the watch stops being polled once no active
@@ -109,7 +132,8 @@ subscription is left.
 ## Purge
 
 `ServerConfiguration has_many :feed_subscriptions, dependent: :destroy`. Destroy rather
-than delete so each subscription's `subscribed_events` and `posts` go with it. That is the guild
+than delete so each subscription's `subscribed_events` and `posts` go with it; its
+`steam_settings` row goes with it too (`dependent: :delete`). That is the guild
 purge; there is no separate path. The watch itself is shared between servers and is
 removed by the orphan prune once nothing references it.
 
@@ -138,7 +162,7 @@ removed by the orphan prune once nothing references it.
   deleted event, channel or permission wins over the retry.
 - `Ops::Feeds::Posts::Create` is subject-first (see
   [../bot/message-rendering.md](../bot/message-rendering.md)): it sends the subject as
-  plain content, allowing only the subscription's own role to ping, then converts the
+  plain content, allowing only the role the source names (`role_id_for`) to ping, then converts the
   message into the card with the default suppressed mentions, all through
   `Components.create_with_subject` with `fallback: announcement.fallback`. The card
   carries untrusted post text, so nothing in it can ping. The `Post` is written first, as
@@ -184,8 +208,8 @@ what a server gets, so a fresh or long-unpolled watch never replays its backlog.
 ## Language
 
 A copy is eligible only if its subscription accepts its language
-(`Subscription#accepts_language?`; a copy of unknown language always passes). The check
-lives in `StoryPick`, not `AnnounceJob`, so a story's copy in an accepted language
+(`source.accepts?`, which for Steam checks `Settings#accepts_language?`; a copy of
+unknown language always passes). The check lives in `StoryPick`, not `AnnounceJob`, so a story's copy in an accepted language
 still wins when its primary copy is filtered out.
 
 ## What a post looks like

@@ -54,7 +54,7 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   def ping_label
     return t(".pings", role: @role_name) if @role_name
-    return t(".role_missing") if @subscription.role_id
+    return t(".role_missing") if @subscription.settings.role_id
 
     t(".no_ping")
   end
@@ -76,7 +76,8 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def event_types
-    @subscription.subscribed_events.map(&:event_type).sort_by { |event_type| ::Feeds::EVENT_TYPES_BY_SOURCE.fetch(@plugin_key).index(event_type) }
+    order = ::Feeds.source(@plugin_key).event_types
+    @subscription.subscribed_events.map(&:event_type).sort_by { |event_type| order.index(event_type) }
   end
 
   def stop_following
