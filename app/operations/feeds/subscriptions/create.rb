@@ -7,7 +7,7 @@ module Ops
         receives :server_configuration, :watcher, :target, :channel_id, :event_types, :templates, :settings
 
         def call
-          return failure(I18n.t("operations.feeds.subscriptions.cap", max: ::Feeds::Subscription::MAX_PER_SERVER)) if ::Feeds::Subscription.at_cap?(server_configuration)
+          return failure(::Feeds::Subscription.cap_message(source)) if ::Feeds::Subscription.at_cap?(server_configuration, source)
 
           watch.assign_attributes(name: target.name, image_url: target.image_url)
           return failure(I18n.t("operations.feeds.subscriptions.already_followed", name: target.name)) if already_followed?
@@ -19,6 +19,10 @@ module Ops
         end
 
         private
+
+        def source
+          ::Feeds.source_for_watcher(watcher)
+        end
 
         def watch
           @watch ||= ::Integrations::Watch.find_or_initialize_by(watcher:, external_id: target.external_id)

@@ -2,7 +2,7 @@
 
 module Feeds
   class Subscription < ApplicationRecord
-    MAX_PER_SERVER = 25
+    MAX_PER_SOURCE = 25
 
     self.table_name = "feed_subscriptions"
 
@@ -31,8 +31,16 @@ module Feeds
       association(source.settings_association).build(attributes)
     end
 
-    def self.at_cap?(server_configuration)
-      server_configuration.feed_subscriptions.count >= MAX_PER_SERVER
+    def self.for_source(source)
+      joins(:watch).where(integration_watches: {watcher: source.watchers})
+    end
+
+    def self.at_cap?(server_configuration, source)
+      server_configuration.feed_subscriptions.for_source(source).count >= MAX_PER_SOURCE
+    end
+
+    def self.cap_message(source)
+      I18n.t("operations.feeds.subscriptions.cap.#{source.plugin_key}", max: MAX_PER_SOURCE)
     end
 
     def self.active

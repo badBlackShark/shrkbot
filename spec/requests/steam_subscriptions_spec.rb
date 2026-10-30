@@ -81,7 +81,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     end
 
     context "when the server is at the cap" do
-      before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SERVER, server_configuration: config) }
+      before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SOURCE, server_configuration: config) }
 
       it "redirects to the list with the cap as the alert" do
         lookup

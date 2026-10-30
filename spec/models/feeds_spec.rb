@@ -32,6 +32,10 @@ RSpec.describe Feeds do
       expect(sources.map(&:template_tokens)).to all(be_present)
     end
 
+    it "gives every source a follow-cap message" do
+      expect(sources.map { |source| "operations.feeds.subscriptions.cap.#{source.plugin_key}" }).to all(satisfy { |key| I18n.exists?(key) })
+    end
+
     it "gives every source its settings contract" do
       expect(sources).to all(respond_to(:settings_association, :role_id_for, :accepts?))
     end

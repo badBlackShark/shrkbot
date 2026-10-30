@@ -42,7 +42,7 @@ class Components::Feeds::SubscriptionList < Components::Base
 
   def cap_reason
     p(id: CAP_REASON_ID, class: "text-sm text-text-secondary") do
-      t("operations.feeds.subscriptions.cap", max: ::Feeds::Subscription::MAX_PER_SERVER)
+      ::Feeds::Subscription.cap_message(source)
     end
   end
 
@@ -59,7 +59,11 @@ class Components::Feeds::SubscriptionList < Components::Base
   def at_cap?
     return @at_cap if defined?(@at_cap)
 
-    @at_cap = ::Feeds::Subscription.at_cap?(@config)
+    @at_cap = ::Feeds::Subscription.at_cap?(@config, source)
+  end
+
+  def source
+    @source ||= ::Feeds.source(@plugin_key)
   end
 
   def subscriptions

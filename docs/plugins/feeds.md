@@ -75,8 +75,11 @@ are no preview routes for these pages.
 - **Paths.** `Feeds::SubscriptionPaths` builds the add, edit and subscription paths from
   the source's plugin key (`new_server_<key>_subscription_path`), so a new source adds a
   nested `resources :subscriptions`, not new path code.
-- **Cap.** A server follows at most `Feeds::Subscription::MAX_PER_SERVER` (25) games,
-  all sources together. The list disables Add at the cap and says why.
+- **Cap.** A server follows at most `Feeds::Subscription::MAX_PER_SOURCE` (25) things per
+  source: 25 Steam games don't block a Twitch channel. The cap protects each provider's
+  request budget, so it counts per source. The list disables Add at the cap and says why
+  (`Subscription.cap_message`, one locale key per source under
+  `operations.feeds.subscriptions.cap`).
 - **Images.** The pages load each game's header image straight from Steam, so the CSP
   `img_src` lists the two Steam image hosts and the privacy policy says Steam sees the
   viewer's IP address. A watch without an `image_url` shows a neutral placeholder.

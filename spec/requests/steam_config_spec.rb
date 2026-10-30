@@ -118,7 +118,7 @@ RSpec.describe "Steam config", type: :request do
         end
 
         context "when the server is at the follow cap" do
-          before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SERVER, server_configuration: config) }
+          before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SOURCE, server_configuration: config) }
 
           it "disables Add and gives the reason" do
             get plugin_path

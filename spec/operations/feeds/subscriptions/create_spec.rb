@@ -109,7 +109,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
 
   context "when the server is at the cap" do
     before do
-      create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SERVER, server_configuration:)
+      create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SOURCE, server_configuration:)
     end
 
     it "fails with the cap and creates no watch" do

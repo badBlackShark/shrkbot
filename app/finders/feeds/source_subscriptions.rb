@@ -16,8 +16,7 @@ module Finders
         source = ::Feeds.source(@plugin_key)
 
         @config.feed_subscriptions
-          .joins(:watch)
-          .where(integration_watches: {watcher: source.watchers})
+          .for_source(source)
           .includes(:watch, :subscribed_events, source.settings_association)
           .order("integration_watches.name", :id)
       end

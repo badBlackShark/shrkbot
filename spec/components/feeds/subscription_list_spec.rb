@@ -33,7 +33,7 @@ RSpec.describe Components::Feeds::SubscriptionList do
   end
 
   context "at the cap" do
-    before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SERVER, server_configuration:) }
+    before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SOURCE, server_configuration:) }
 
     it "disables Add a game and points it at the reason" do
       expect(html).not_to include(add_path)

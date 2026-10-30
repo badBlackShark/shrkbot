@@ -11,7 +11,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
   before_action :load_subscription, only: [:edit, :update, :destroy]
 
   def new
-    return redirect_to steam_path, alert: cap_message if ::Feeds::Subscription.at_cap?(@server_configuration)
+    return redirect_to steam_path, alert: ::Feeds::Subscription.cap_message(source) if ::Feeds::Subscription.at_cap?(@server_configuration, source)
     return render_lookup if params[:app].blank?
 
     lookup = ::Feeds::TargetLookup.call(WATCHER, params[:app])
@@ -131,10 +131,6 @@ class Servers::Steam::SubscriptionsController < ApplicationController
 
   def steam_path
     server_steam_path(params[:server_id])
-  end
-
-  def cap_message
-    t("operations.feeds.subscriptions.cap", max: ::Feeds::Subscription::MAX_PER_SERVER)
   end
 
   def configuration_url
