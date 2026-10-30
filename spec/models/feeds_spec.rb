@@ -33,7 +33,7 @@ RSpec.describe Feeds do
     end
 
     it "gives every source its settings contract" do
-      expect(sources).to all(respond_to(:settings_association, :settings, :role_id_for, :accepts?))
+      expect(sources).to all(respond_to(:settings_association, :role_id_for, :accepts?))
     end
   end
 

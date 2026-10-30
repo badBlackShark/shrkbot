@@ -4,7 +4,7 @@ require "rails_helper"
 
 RSpec.describe Feeds::Steam::Settings do
   describe "validations" do
-    subject(:settings) { build(:feed_steam_settings, subscription:, body_length:, languages:) }
+    subject(:settings) { subscription.settings.tap { |built| built.assign_attributes(body_length:, languages:) } }
 
     let(:subscription) { create(:feed_subscription) }
     let(:body_length) { "preview" }
@@ -25,14 +25,16 @@ RSpec.describe Feeds::Steam::Settings do
     end
 
     context "when the subscription already has settings" do
-      before { create(:feed_steam_settings, subscription:) }
+      subject(:settings) { described_class.new(subscription:) }
+
+      before { subscription.save! }
 
       it { is_expected.not_to be_valid }
     end
   end
 
   describe "languages normalization" do
-    subject(:settings) { build(:feed_steam_settings, languages: ["de", "", "de", "en"]) }
+    subject(:settings) { described_class.new(languages: ["de", "", "de", "en"]) }
 
     it "stores each language once and drops blanks" do
       expect(settings.languages).to eq(%w[de en])
@@ -40,7 +42,7 @@ RSpec.describe Feeds::Steam::Settings do
   end
 
   describe "#accepts_language?" do
-    subject(:accepted) { build(:feed_steam_settings, languages:).accepts_language?(language) }
+    subject(:accepted) { described_class.new(languages:).accepts_language?(language) }
 
     let(:languages) { %w[de en] }
     let(:language) { "de" }
@@ -72,7 +74,7 @@ RSpec.describe Feeds::Steam::Settings do
   describe "languages check constraint" do
     subject(:save) { settings.save!(validate: false) }
 
-    let(:settings) { build(:feed_steam_settings, languages: Integrations::Language::CODES) }
+    let(:settings) { create(:feed_subscription).settings.tap { |built| built.languages = Integrations::Language::CODES } }
 
     it "accepts every code the detector can produce" do
       expect { save }.not_to raise_error
@@ -80,7 +82,7 @@ RSpec.describe Feeds::Steam::Settings do
   end
 
   describe "defaults" do
-    subject(:settings) { create(:feed_steam_settings) }
+    subject(:settings) { create(:feed_subscription).settings.reload }
 
     it "previews the body, pings no role and filters no language" do
       expect(settings).to have_attributes(body_length: "preview", role_id: nil, languages: [])

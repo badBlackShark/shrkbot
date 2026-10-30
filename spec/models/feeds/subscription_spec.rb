@@ -40,12 +40,26 @@ RSpec.describe Feeds::Subscription do
 
     let(:subscription) { create(:feed_subscription) }
 
-    it "builds the source's settings when none are stored" do
-      expect(settings).to be_a(Feeds::Steam::Settings).and be_new_record
+    it "is the source's stored settings row" do
+      expect(settings).to eq(Feeds::Steam::Settings.find_by!(subscription:))
     end
 
+    context "without a stored row" do
+      before { subscription.steam_settings.delete }
+
+      it "builds none" do
+        expect(subscription.reload.settings).to be_nil
+      end
+    end
+  end
+
+  describe "#build_settings" do
+    subject(:built) { subscription.build_settings(role_id: 42) }
+
+    let(:subscription) { build(:feed_subscription) }
+
     it "saves them with the subscription" do
-      settings.role_id = 42
+      built
       subscription.save!
 
       expect(subscription.reload.steam_settings.role_id).to eq(42)

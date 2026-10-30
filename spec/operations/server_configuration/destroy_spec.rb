@@ -70,8 +70,8 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
     let!(:other_subscription) { create(:feed_subscription, watch: subscription.watch) }
     let!(:other_subscribed_event) { create(:feed_subscribed_event, subscription: other_subscription) }
     let!(:post) { create(:feed_post, subscription:) }
-    let!(:steam_settings) { create(:feed_steam_settings, subscription:) }
-    let!(:other_steam_settings) { create(:feed_steam_settings, subscription: other_subscription) }
+    let(:steam_settings) { subscription.steam_settings }
+    let(:other_steam_settings) { other_subscription.steam_settings }
 
     it "removes the server's subscriptions, their subscribed events and their posts" do
       result

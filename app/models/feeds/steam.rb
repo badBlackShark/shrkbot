@@ -33,10 +33,6 @@ module Feeds
       :steam_settings
     end
 
-    def self.settings(subscription)
-      subscription.steam_settings || subscription.build_steam_settings
-    end
-
     def self.role_id_for(subscription, _event_type)
       subscription.settings.role_id
     end

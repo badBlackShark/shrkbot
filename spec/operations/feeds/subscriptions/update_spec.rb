@@ -105,16 +105,6 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
     end
   end
 
-  context "when the subscription has no stored settings" do
-    let(:subscription) { create(:feed_subscription, channel_id: 555) }
-
-    it "stores the submitted ones" do
-      result
-
-      expect(Feeds::Subscription.find(subscription.id).steam_settings).to have_attributes(body_length: "full", languages: %w[de en])
-    end
-  end
-
   context "when an event type is unknown" do
     let(:event_types) { %w[Nope] }
 

@@ -100,7 +100,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
 
   def build_subscription(target, event_types, channel_id: nil, settings: {}, templates: {})
     @server_configuration.feed_subscriptions.build(watch: unsaved_watch(target), channel_id:).tap do |subscription|
-      subscription.settings.assign_attributes(settings)
+      subscription.build_settings(settings)
       event_types.each { |event_type| subscription.follow(event_type, templates[event_type]) }
     end
   end

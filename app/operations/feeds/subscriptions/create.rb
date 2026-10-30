@@ -30,7 +30,7 @@ module Ops
 
         def subscription
           @subscription ||= server_configuration.feed_subscriptions.build(watch:, channel_id:).tap do |built|
-            built.settings.assign_attributes(settings)
+            built.build_settings(settings)
             event_types.uniq.each { |event_type| built.follow(event_type, templates[event_type]) }
           end
         end

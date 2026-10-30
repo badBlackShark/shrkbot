@@ -24,7 +24,11 @@ module Feeds
     end
 
     def settings
-      source.settings(self)
+      public_send(source.settings_association)
+    end
+
+    def build_settings(attributes = {})
+      association(source.settings_association).build(attributes)
     end
 
     def self.at_cap?(server_configuration)

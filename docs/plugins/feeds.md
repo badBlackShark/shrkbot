@@ -36,11 +36,14 @@ source module (see Sources) and its own page.
 A source is a module under `Feeds::` (`Feeds::Steam`) that answers `plugin_key`,
 `watchers`, `event_types` (in UI order), `default_event_types` and `template_tokens`,
 plus the settings contract: `settings_association` (the `Subscription` association that
-holds its provider settings, which the list finder preloads), `settings(subscription)`
-(the stored row, or a built one), `role_id_for(subscription, event_type)` and
-`accepts?(subscription, event)`. Shared code reaches provider settings only through the
-source. Each source with settings adds its own `has_one` on `Feeds::Subscription`
-(`steam_settings`), so the foreign key and the guild purge follow the subscription.
+holds its provider settings, which the list finder preloads),
+`role_id_for(subscription, event_type)` and `accepts?(subscription, event)`. Each source
+with settings adds its own `has_one` on `Feeds::Subscription` (`steam_settings`), so the
+foreign key and the guild purge follow the subscription. `Subscription#settings` reads
+that row and `#build_settings` builds it; the row is built once, with the subscription,
+and reading never builds one. Shared code reads settings through the source, except
+`Feeds::Announcement` and the Steam config components (list, row, fields, cards), which
+read the Steam row directly until they split per source with Twitch.
 `Feeds.sources` lists them; a new source adds a module and one entry there. The
 contract is duck-typed with no base class: a shared mixin is extracted when two sources
 share code. `spec/models/feeds_spec.rb` enforces the contract.

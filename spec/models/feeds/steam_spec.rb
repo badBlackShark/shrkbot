@@ -5,22 +5,6 @@ require "rails_helper"
 RSpec.describe Feeds::Steam do
   let(:subscription) { create(:feed_subscription) }
 
-  describe ".settings" do
-    subject(:settings) { described_class.settings(subscription) }
-
-    it "builds settings when none are stored" do
-      expect(settings).to be_new_record.and have_attributes(subscription:)
-    end
-
-    context "with stored settings" do
-      let!(:stored) { create(:feed_steam_settings, subscription:) }
-
-      it "returns the stored row" do
-        expect(settings).to eq(stored)
-      end
-    end
-  end
-
   describe ".role_id_for" do
     subject(:role_id) { described_class.role_id_for(subscription, "Integrations::Steam::PatchNotesPublished") }
 
