@@ -10,8 +10,8 @@ doc keep the Feeds name; the provider layer is `Integrations::` (see `docs/integ
 ## Pages
 
 Two catalog entries make the plugin group: `:integrations` (the parent) and `:steam`
-(`parent: :integrations`). A new source is another sub-plugin entry, its `Feeds::SOURCE_PLUGINS`
-line and its own page.
+(`parent: :integrations`). A new source is another sub-plugin entry, its `Feeds::`
+source module (see Sources) and its own page.
 
 - **Integrations** (`Servers::IntegrationsController`): the overview. It renders
   `Components::SubPluginDirectory` with one row per sub-plugin
@@ -31,6 +31,14 @@ line and its own page.
 - Demo data: `config/preview_data.yml` enables both and follows two games, each through a
   shared `Integrations::Watch`, see [../web/preview.md](../web/preview.md).
 
+## Sources
+
+A source is a module under `Feeds::` (`Feeds::Steam`) that answers `plugin_key`,
+`watchers`, `event_types` (in UI order), `default_event_types` and `template_tokens`.
+`Feeds.sources` lists them; a new source adds a module and one entry there. The
+contract is duck-typed with no base class: a shared mixin is extracted when two sources
+share code. `spec/models/feeds_spec.rb` enforces the contract.
+
 ## Config UI
 
 Routes live under `resource :steam` as `resources :subscriptions` (`new`, `create`,
@@ -42,7 +50,7 @@ are no preview routes for these pages.
   `Feeds::TargetLookup` calls the watcher's `resolve` and returns the target or one error
   (`invalid_reference`, `not_found`, `unavailable`). A game the server already follows
   links to its edit page; otherwise the follow form renders for the resolved target, with
-  Patch notes and Announcements on and Articles off (`Feeds::DEFAULT_EVENT_TYPES_BY_SOURCE`).
+  Patch notes and Announcements on and Articles off (`Feeds::Steam.default_event_types`).
   `create` resolves the game again from the hidden `external_id` rather than trusting
   anything the form carries.
 - **Ops.** `Ops::Feeds::Subscriptions::Create` checks the cap, finds or builds the shared
@@ -96,11 +104,12 @@ are no preview routes for these pages.
 ## `Subscription.active`
 
 A subscription is **active** when its server is real (not a preview) and has both the
-`integrations` plugin and the source's sub-plugin enabled. `Feeds::SOURCE_PLUGINS` maps a
-watcher class name to its sub-plugin key (`Integrations::Steam::NewsWatcher` ->
-`:steam`), so a new source is one entry there. `Feeds::Subscription` is registered
-as a demand source in `config/initializers/integrations.rb`, and a watch is polled only
-while an active subscription points at it.
+`integrations` plugin and the source's sub-plugin enabled. Each source in
+`Feeds.sources` names its watcher classes and its sub-plugin key (`Feeds::Steam`:
+`Integrations::Steam::NewsWatcher`, `:steam`), so a new source is one module and one
+entry there. `Feeds::Subscription` is registered as a demand source in
+`config/initializers/integrations.rb`, and a watch is polled only while an active
+subscription points at it.
 
 Turning a plugin off keeps the subscription rows: the server's choices survive, the
 subscription goes inactive, and the watch stops being polled once no active

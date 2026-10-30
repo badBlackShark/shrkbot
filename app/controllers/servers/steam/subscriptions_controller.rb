@@ -20,7 +20,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
     existing = followed_subscription(lookup.target)
     return render_lookup(input: params[:app], existing:) if existing
 
-    render_new(subscription: build_subscription(lookup.target, {body_length: "preview"}, ::Feeds::DEFAULT_EVENT_TYPES_BY_SOURCE.fetch(plugin_key)), target: lookup.target)
+    render_new(subscription: build_subscription(lookup.target, {body_length: "preview"}, source.default_event_types), target: lookup.target)
   end
 
   def create
@@ -85,6 +85,10 @@ class Servers::Steam::SubscriptionsController < ApplicationController
     :steam
   end
 
+  def source
+    ::Feeds.source(plugin_key)
+  end
+
   def load_subscription
     @subscription = source_subscriptions.find_by(id: params[:id])
     head :not_found unless @subscription
@@ -142,7 +146,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
 
   def event_types
     submitted = subscription_params[:event_types].to_h
-    ::Feeds::EVENT_TYPES_BY_SOURCE.fetch(plugin_key).select { |event_type| submitted[event_type] == "1" }
+    source.event_types.select { |event_type| submitted[event_type] == "1" }
   end
 
   def templates

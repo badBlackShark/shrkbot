@@ -27,12 +27,8 @@ module Feeds
       languages.empty? || language.nil? || languages.include?(language)
     end
 
-    def plugin_key
-      SOURCE_PLUGINS.fetch(watch.watcher)
-    end
-
-    def source_event_types
-      EVENT_TYPES_BY_SOURCE.fetch(plugin_key)
+    def source
+      Feeds.source_for_watcher(watch.watcher)
     end
 
     def self.at_cap?(server_configuration)
@@ -42,12 +38,12 @@ module Feeds
     def self.active
       base = where(server_configuration_id: ServerConfiguration.real.select(:id))
 
-      SOURCE_PLUGINS.map { |watcher, key|
+      Feeds.sources.map { |source|
         base.where(
-          watch_id: Integrations::Watch.where(watcher:).select(:id),
-          server_configuration_id: PluginActivation.enabled_for(key).select(:server_configuration_id)
+          watch_id: Integrations::Watch.where(watcher: source.watchers).select(:id),
+          server_configuration_id: PluginActivation.enabled_for(source.plugin_key).select(:server_configuration_id)
         ).where(
-          server_configuration_id: PluginActivation.enabled_for(PluginCatalog.find(key).parent).select(:server_configuration_id)
+          server_configuration_id: PluginActivation.enabled_for(PluginCatalog.find(source.plugin_key).parent).select(:server_configuration_id)
         )
       }.reduce(:or)
     end

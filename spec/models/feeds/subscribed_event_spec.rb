@@ -26,13 +26,7 @@ RSpec.describe Feeds::SubscribedEvent do
     let(:event_type) { "Integrations::Steam::ArticlePublished" }
 
     before do
-      stub_const(
-        "Feeds::EVENT_TYPES_BY_SOURCE",
-        {
-          steam: ["Integrations::Steam::PatchNotesPublished"],
-          other: [event_type]
-        }
-      )
+      allow(Feeds::Steam).to receive(:event_types).and_return(["Integrations::Steam::PatchNotesPublished"])
     end
 
     it { is_expected.not_to be_valid }

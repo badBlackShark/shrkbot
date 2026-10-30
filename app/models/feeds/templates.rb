@@ -2,8 +2,6 @@
 
 module Feeds
   module Templates
-    TOKENS_BY_SOURCE = {steam: %w[game author feed]}.freeze
-
     EDGE_SPACE = /\A[[:space:]]+|[[:space:]]+\z/
 
     module_function

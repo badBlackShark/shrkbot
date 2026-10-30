@@ -20,7 +20,7 @@ class Components::Feeds::VolumeLine < Components::Base
   private
 
   def counts
-    ::Feeds::EVENT_TYPES_BY_SOURCE.fetch(@plugin_key).filter_map { |event_type| count_phrase(event_type) }.to_sentence
+    ::Feeds.source(@plugin_key).event_types.filter_map { |event_type| count_phrase(event_type) }.to_sentence
   end
 
   def count_phrase(event_type)

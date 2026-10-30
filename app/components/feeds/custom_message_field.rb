@@ -64,7 +64,7 @@ class Components::Feeds::CustomMessageField < Components::Base
   end
 
   def placeholders
-    ::Feeds::Templates::TOKENS_BY_SOURCE.fetch(@plugin_key).index_with { |name| t(".placeholders.#{name}") }
+    ::Feeds.source(@plugin_key).template_tokens.index_with { |name| t(".placeholders.#{name}") }
   end
 
   def preview

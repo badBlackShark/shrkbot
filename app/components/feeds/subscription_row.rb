@@ -76,7 +76,8 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def event_types
-    @subscription.subscribed_events.map(&:event_type).sort_by { |event_type| ::Feeds::EVENT_TYPES_BY_SOURCE.fetch(@plugin_key).index(event_type) }
+    order = ::Feeds.source(@plugin_key).event_types
+    @subscription.subscribed_events.map(&:event_type).sort_by { |event_type| order.index(event_type) }
   end
 
   def stop_following

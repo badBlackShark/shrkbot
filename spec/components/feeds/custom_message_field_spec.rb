@@ -20,7 +20,6 @@ RSpec.describe Components::Feeds::CustomMessageField do
   end
 
   it "renders one copy chip per token, and only game, author and feed" do
-    expect(Feeds::Templates::TOKENS_BY_SOURCE.fetch(:steam)).to eq(%w[game author feed])
     chips = html.scan(/data-clipboard-text-param="\{(\w+)\}"/).flatten
     expect(chips).to eq(%w[game author feed])
   end

@@ -59,7 +59,7 @@ class Components::Feeds::SubscriptionFields < Components::Base
       h2(class: "font-semibold") { t(".what_title") }
       volume_frame
       render Components::Callout.new(variant: :warning) { t(".#{@plugin_key}.what_note") }
-      ::Feeds::EVENT_TYPES_BY_SOURCE.fetch(@plugin_key).each { |event_type| event_type_row(event_type) }
+      ::Feeds.source(@plugin_key).event_types.each { |event_type| event_type_row(event_type) }
     end
   end
 
