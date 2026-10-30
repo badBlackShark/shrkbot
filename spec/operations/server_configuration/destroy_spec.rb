@@ -70,6 +70,8 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
     let!(:other_subscription) { create(:feed_subscription, watch: subscription.watch) }
     let!(:other_subscribed_event) { create(:feed_subscribed_event, subscription: other_subscription) }
     let!(:post) { create(:feed_post, subscription:) }
+    let!(:steam_settings) { create(:feed_steam_settings, subscription:) }
+    let!(:other_steam_settings) { create(:feed_steam_settings, subscription: other_subscription) }
 
     it "removes the server's subscriptions, their subscribed events and their posts" do
       result
@@ -77,6 +79,7 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
       expect(Feeds::Subscription.find_by(id: subscription.id)).to be_nil
       expect(Feeds::SubscribedEvent.find_by(id: subscribed_event.id)).to be_nil
       expect(Feeds::Post.find_by(id: post.id)).to be_nil
+      expect(Feeds::Steam::Settings.find_by(id: steam_settings.id)).to be_nil
     end
 
     it "leaves other servers' subscriptions and the shared watch untouched" do
@@ -84,6 +87,7 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
 
       expect(Feeds::Subscription.find_by(id: other_subscription.id)).to be_present
       expect(Feeds::SubscribedEvent.find_by(id: other_subscribed_event.id)).to be_present
+      expect(Feeds::Steam::Settings.find_by(id: other_steam_settings.id)).to be_present
       expect(Integrations::Watch.find_by(id: subscription.watch_id)).to be_present
     end
   end

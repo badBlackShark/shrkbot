@@ -9,11 +9,9 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
       watcher: "Integrations::Steam::NewsWatcher",
       target:,
       channel_id:,
-      role_id:,
-      body_length: "full",
-      languages:,
       event_types:,
-      templates:
+      templates:,
+      settings:
     )
   end
 
@@ -21,7 +19,9 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg") }
   let(:channel_id) { "555" }
   let(:role_id) { "777" }
+  let(:body_length) { "full" }
   let(:languages) { %w[de en] }
+  let(:settings) { {role_id:, body_length:, languages:} }
   let(:event_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
   let(:templates) { {} }
   let(:watch) { Integrations::Watch.find_by!(external_id: "1145350") }
@@ -30,7 +30,10 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
     expect(result.value).to have_attributes(
       persisted?: true,
       server_configuration:,
-      channel_id: 555,
+      channel_id: 555
+    )
+    expect(result.value.steam_settings).to have_attributes(
+      persisted?: true,
       role_id: 777,
       body_length: "full",
       languages: %w[de en]
@@ -76,7 +79,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
     let(:role_id) { "" }
 
     it "stores no ping" do
-      expect(result.value.role_id).to be_nil
+      expect(result.value.settings.role_id).to be_nil
     end
   end
 
@@ -125,6 +128,26 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
 
       expect(result).to be_failure
       expect(result.value).to be_a(Feeds::Subscription)
+    end
+  end
+
+  context "with an unknown body length" do
+    let(:body_length) { "everything" }
+
+    it "fails and creates no watch or subscription" do
+      expect { result }.not_to change { [Integrations::Watch.count, Feeds::Subscription.count] }
+
+      expect(result).to be_failure
+    end
+  end
+
+  context "with a language the detector cannot produce" do
+    let(:languages) { %w[de xx] }
+
+    it "fails and creates no subscription" do
+      expect { result }.not_to change(Feeds::Subscription, :count)
+
+      expect(result).to be_failure
     end
   end
 

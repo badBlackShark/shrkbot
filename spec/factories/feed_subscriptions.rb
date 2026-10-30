@@ -20,5 +20,18 @@ FactoryBot.define do
         end
       end
     end
+
+    factory :steam_feed_subscription do
+      transient do
+        role_id { nil }
+        body_length { nil }
+        languages { nil }
+      end
+
+      after(:build) do |subscription, evaluator|
+        given = {role_id: evaluator.role_id, body_length: evaluator.body_length, languages: evaluator.languages}.compact
+        subscription.settings.assign_attributes(given) if given.any?
+      end
+    end
   end
 end

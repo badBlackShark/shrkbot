@@ -28,5 +28,21 @@ module Feeds
     def self.template_tokens
       %w[game author feed]
     end
+
+    def self.settings_association
+      :steam_settings
+    end
+
+    def self.settings(subscription)
+      subscription.steam_settings || subscription.build_steam_settings
+    end
+
+    def self.role_id_for(subscription, _event_type)
+      subscription.settings.role_id
+    end
+
+    def self.accepts?(subscription, event)
+      subscription.settings.accepts_language?(event.language)
+    end
   end
 end

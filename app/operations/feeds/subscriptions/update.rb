@@ -4,11 +4,11 @@ module Ops
   module Feeds
     module Subscriptions
       class Update < ApplicationOperation
-        receives :subscription, :channel_id, :body_length, :languages, :event_types, :templates
-        receives :role_id, optional: true
+        receives :subscription, :channel_id, :event_types, :templates, :settings
 
         def call
-          subscription.assign_attributes(channel_id:, role_id: role_id.presence, body_length:, languages:)
+          subscription.assign_attributes(channel_id:)
+          subscription.settings.assign_attributes(settings)
           update_followed_events
           build_missing_events
           return failure(subscription.errors.full_messages, value: subscription) unless subscription.valid?

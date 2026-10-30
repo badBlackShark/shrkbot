@@ -136,7 +136,8 @@ RSpec.describe "Steam subscriptions", type: :request do
 
       expect(response).to redirect_to(list_path)
       expect(flash[:notice]).to eq("Now following Hades II.")
-      expect(config.feed_subscriptions.sole).to have_attributes(channel_id: 777, role_id: 888, body_length: "full", languages: %w[de en])
+      expect(config.feed_subscriptions.sole).to have_attributes(channel_id: 777)
+      expect(config.feed_subscriptions.sole.steam_settings).to have_attributes(role_id: 888, body_length: "full", languages: %w[de en])
       expect(config.feed_subscriptions.sole.subscribed_events.map(&:event_type)).to match_array([patch_notes, articles])
       expect(config.feed_subscriptions.sole.watch).to have_attributes(name: "Hades II", image_url: target.image_url)
     end
@@ -322,19 +323,20 @@ RSpec.describe "Steam subscriptions", type: :request do
 
       expect(response.media_type).to eq("text/vnd.turbo-stream.html")
       expect(response.body).to include("steam-config")
-      expect(subscription.reload).to have_attributes(channel_id: 777, body_length: "full", languages: %w[de en])
+      expect(subscription.reload).to have_attributes(channel_id: 777)
+      expect(subscription.steam_settings).to have_attributes(body_length: "full", languages: %w[de en])
       expect(subscription.subscribed_events.find_by!(event_type: patch_notes).subscribed_since).to eq(followed_since)
       expect(subscription.subscribed_events.map(&:event_type)).to match_array([patch_notes, announcements])
     end
 
     context "when the only language submitted is the blank placeholder" do
       let(:languages) { [""] }
-      let!(:subscription) { create(:feed_subscription, server_configuration: config, channel_id: 555, languages: %w[ru]) }
+      let!(:subscription) { create(:steam_feed_subscription, server_configuration: config, channel_id: 555, languages: %w[ru]) }
 
       it "clears the filter" do
         update
 
-        expect(subscription.reload.languages).to eq([])
+        expect(subscription.reload.steam_settings.languages).to eq([])
       end
     end
 
@@ -352,7 +354,8 @@ RSpec.describe "Steam subscriptions", type: :request do
 
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include("Channel can&#39;t be blank")
-        expect(subscription.reload).to have_attributes(channel_id: 555, body_length: "preview")
+        expect(subscription.reload).to have_attributes(channel_id: 555)
+        expect(subscription.settings.body_length).to eq("preview")
       end
 
       context "when a followed post type is unchecked with a draft message" do

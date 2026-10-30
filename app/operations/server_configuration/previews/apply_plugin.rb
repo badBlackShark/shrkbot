@@ -27,7 +27,7 @@ module Ops
 
         def build_records(record, records)
           records.each do |association, entries|
-            record.public_send(association).destroy_all
+            record.public_send(association).destroy_all if collection?(record, association)
             entries.each { |attributes| build_record(record, association, attributes) }
           end
         end
@@ -35,8 +35,20 @@ module Ops
         def build_record(record, association, attributes)
           scalars, references, nested_records = split_attributes(attributes)
           child_class = record.class.reflect_on_association(association).klass
-          child = record.public_send(association).create!(scalars.merge(resolve_references(child_class, references)))
+          child = create_child(record, association, scalars.merge(resolve_references(child_class, references)))
           build_records(child, nested_records)
+        end
+
+        def create_child(record, association, attributes)
+          if collection?(record, association)
+            record.public_send(association).create!(attributes)
+          else
+            record.public_send(:"create_#{association}!", attributes)
+          end
+        end
+
+        def collection?(record, association)
+          record.class.reflect_on_association(association).collection?
         end
 
         def split_attributes(attributes)

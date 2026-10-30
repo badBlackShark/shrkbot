@@ -7,17 +7,16 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
     described_class.call(
       subscription:,
       channel_id: "999",
-      role_id: "",
-      body_length: "full",
-      languages:,
       event_types:,
-      templates:
+      templates:,
+      settings:
     )
   end
 
   let(:languages) { %w[de en] }
+  let(:settings) { {role_id: "", body_length: "full", languages:} }
   let(:followed_since) { 3.days.ago.change(usec: 0) }
-  let(:subscription) { create(:feed_subscription, channel_id: 555, role_id: 777) }
+  let(:subscription) { create(:steam_feed_subscription, channel_id: 555, role_id: 777) }
   let!(:patch_notes) do
     create(
       :feed_subscribed_event,
@@ -34,23 +33,24 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
   it "updates channel, role and post length" do
     result
 
-    expect(subscription.reload).to have_attributes(channel_id: 999, role_id: nil, body_length: "full")
+    expect(subscription.reload).to have_attributes(channel_id: 999)
+    expect(subscription.settings).to have_attributes(role_id: nil, body_length: "full")
   end
 
   it "stores the submitted languages" do
     result
 
-    expect(subscription.reload.languages).to eq(%w[de en])
+    expect(subscription.reload.settings.languages).to eq(%w[de en])
   end
 
   context "with no languages" do
-    let(:subscription) { create(:feed_subscription, channel_id: 555, role_id: 777, languages: %w[ru]) }
+    let(:subscription) { create(:steam_feed_subscription, channel_id: 555, role_id: 777, languages: %w[ru]) }
     let(:languages) { [] }
 
     it "clears the filter" do
       result
 
-      expect(subscription.reload.languages).to eq([])
+      expect(subscription.reload.settings.languages).to eq([])
     end
   end
 
@@ -93,6 +93,28 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
     expect(result.value.subscribed_events.map(&:event_type)).to match_array(event_types)
   end
 
+  context "when every post type is switched off" do
+    let(:event_types) { [] }
+    let(:subscription) { create(:steam_feed_subscription, channel_id: 555, role_id: 777, body_length: "full", languages: %w[ru]) }
+    let(:settings) { {role_id: "777", body_length: "full", languages: %w[ru]} }
+
+    it "keeps the role, body length and languages" do
+      result
+
+      expect(subscription.reload.steam_settings).to have_attributes(role_id: 777, body_length: "full", languages: %w[ru])
+    end
+  end
+
+  context "when the subscription has no stored settings" do
+    let(:subscription) { create(:feed_subscription, channel_id: 555) }
+
+    it "stores the submitted ones" do
+      result
+
+      expect(Feeds::Subscription.find(subscription.id).steam_settings).to have_attributes(body_length: "full", languages: %w[de en])
+    end
+  end
+
   context "when an event type is unknown" do
     let(:event_types) { %w[Nope] }
 
@@ -106,7 +128,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
 
   context "when the channel is blank" do
     subject(:result) do
-      described_class.call(subscription:, channel_id: "", body_length: "full", languages:, event_types:, templates:)
+      described_class.call(subscription:, channel_id: "", event_types:, templates:, settings:)
     end
 
     it "fails and keeps the stored events" do

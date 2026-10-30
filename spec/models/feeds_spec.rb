@@ -31,6 +31,10 @@ RSpec.describe Feeds do
     it "gives every source template tokens" do
       expect(sources.map(&:template_tokens)).to all(be_present)
     end
+
+    it "gives every source its settings contract" do
+      expect(sources).to all(respond_to(:settings_association, :settings, :role_id_for, :accepts?))
+    end
   end
 
   describe ".source" do

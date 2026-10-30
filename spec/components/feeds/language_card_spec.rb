@@ -7,7 +7,7 @@ RSpec.describe Components::Feeds::LanguageCard do
 
   subject(:document) { Nokogiri::HTML.fragment(described_class.new(subscription:, plugin_key: :steam).render_in(view_context)) }
 
-  let(:subscription) { build(:feed_subscription, languages: %w[de ru]) }
+  let(:subscription) { build(:steam_feed_subscription, languages: %w[de ru]) }
 
   it "marks the subscription's languages as selected" do
     selected = document.css("select[name='subscription[languages][]'] option[selected]").map { |option| option["value"] }
