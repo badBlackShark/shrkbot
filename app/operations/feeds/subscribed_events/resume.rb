@@ -22,7 +22,7 @@ module Ops
           all = server_configuration.feed_subscriptions
           return all if feeds_group?
 
-          all.where(watch_id: ::Integrations::Watch.where(watcher: source.watchers).select(:id)) if source
+          all.for_source(source) if source
         end
 
         def source

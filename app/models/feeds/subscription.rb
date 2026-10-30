@@ -32,7 +32,7 @@ module Feeds
     end
 
     def self.for_source(source)
-      joins(:watch).where(integration_watches: {watcher: source.watchers})
+      where(watch_id: Integrations::Watch.where(watcher: source.watchers).select(:id))
     end
 
     def self.at_cap?(server_configuration, source)
@@ -47,8 +47,7 @@ module Feeds
       base = where(server_configuration_id: ServerConfiguration.real.select(:id))
 
       Feeds.sources.map { |source|
-        base.where(
-          watch_id: Integrations::Watch.where(watcher: source.watchers).select(:id),
+        base.for_source(source).where(
           server_configuration_id: PluginActivation.enabled_for(source.plugin_key).select(:server_configuration_id)
         ).where(
           server_configuration_id: PluginActivation.enabled_for(PluginCatalog.find(source.plugin_key).parent).select(:server_configuration_id)

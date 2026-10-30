@@ -17,6 +17,7 @@ module Finders
 
         @config.feed_subscriptions
           .for_source(source)
+          .joins(:watch)
           .includes(:watch, :subscribed_events, source.settings_association)
           .order("integration_watches.name", :id)
       end
