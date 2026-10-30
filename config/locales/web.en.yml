@@ -324,6 +324,7 @@ en:
           add: Add a game
           empty_title: No games yet
           heading: Followed games
+        usage: "%{used} of %{max}"
       subscription_row:
         channel_missing: channel deleted
         no_ping: no ping
