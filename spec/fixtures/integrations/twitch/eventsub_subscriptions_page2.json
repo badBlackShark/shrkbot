@@ -1,0 +1,23 @@
+{
+  "data": [
+    {
+      "id": "a8f3d1e2-5c44-4b8e-9d0a-6f6a1c2b7e90",
+      "status": "enabled",
+      "type": "stream.offline",
+      "version": "1",
+      "condition": {
+        "broadcaster_user_id": "141981764"
+      },
+      "created_at": "2026-10-30T10:00:01Z",
+      "transport": {
+        "method": "webhook",
+        "callback": "https://shrkbot.test/webhooks/twitch"
+      },
+      "cost": 1
+    }
+  ],
+  "total": 2,
+  "total_cost": 2,
+  "max_total_cost": 10000,
+  "pagination": {}
+}

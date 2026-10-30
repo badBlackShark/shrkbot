@@ -1,7 +1,7 @@
 # Integrations: the provider layer
 
 `Integrations::<Provider>` is how shrkbot talks to a third-party service as an API
-**consumer**. Steam is the first provider. Twilight Struggle is the inverse (the site
+**consumer**. Steam is the first provider, Twitch the second ([twitch.md](twitch.md)). Twilight Struggle is the inverse (the site
 pushes to us) and keeps its own code: see [twilight-struggle.md](twilight-struggle.md).
 
 The provider layer knows how to reach a service and what its answers mean. It knows
@@ -49,6 +49,16 @@ end
 ```
 
 `params:` is the whole query string: pass every parameter through it, never in `url`.
+`headers:` adds request headers (an API's credentials) next to the defaults.
+
+The other entry points follow the same rules, and all of them take `status_errors:`:
+
+- `Http.post_form(url, form:) { |body| ... }` posts a form-encoded body and yields the
+  parsed JSON response (a token endpoint).
+- `Http.post_json(url, body:, headers:) { |body| ... }` posts `body.to_json` as
+  `application/json` and yields the parsed JSON response.
+- `Http.delete(url, params:, headers:)` sends a DELETE and returns `nil`; it has no
+  response body to map.
 
 Net::HTTP's automatic retry of idempotent requests is off (`max_retries: 0`), so a
 failed call fails once and retrying stays the calling job's decision.
@@ -82,7 +92,7 @@ without knowing which provider produced it.
 | `Unauthorized` | 401, 403. Our credentials, not the source's fault. |
 | `NotFound` | 404, 410. |
 | `InvalidReference` | A `NotFound` subclass: the user's input does not name anything on the source (`Steam::AppReference.parse`), so no request was made. |
-| `RateLimited` | 429. `retry_after` is the `Retry-After` header in seconds, or `nil` when the header is absent or an HTTP date. |
+| `RateLimited` | 429. `retry_after` is the `Retry-After` header in seconds; without a usable one, the seconds until `Ratelimit-Reset` (Twitch's unix-time header, never below 0); `nil` when neither parses (absent, or an HTTP date). |
 | `Unavailable` | 5xx, timeouts, socket and system-call errors, dropped connections, TLS errors, a malformed HTTP response or header, a corrupt compressed body, a body that is not JSON, a response missing a key or shaped differently from what the mapping expects. Transient. |
 | `Error` | Anything else (other 4xx, 3xx; redirects are not followed). |
 
@@ -105,9 +115,10 @@ lookup and cannot be overridden.
 ## Clients and resources
 
 Every provider has a `Client`: the one place for its hosts and credentials. Its only
-job is to build the URL (and, once a provider has credentials, authenticate) and hand
-off to `Http`. `Integrations::Steam::Client` holds Steam's two hosts and has no
-credentials.
+job is to build the URL and authenticate, then hand off to `Http`.
+`Integrations::Steam::Client` holds Steam's two hosts and has no credentials.
+`Integrations::Twitch::Client` is the first with credentials: it sends the app's
+`Client-Id` and a cached bearer token, and retries once on a 401 with a fresh token.
 
 **Resource classes** sit on top, one per API resource (`Steam::News`, `Steam::Apps`,
 `Steam::StoreItems`, which resolves a game's store artwork URL).

@@ -1,0 +1,53 @@
+{
+  "data": [
+    {
+      "id": "318183054051",
+      "user_id": "92038375",
+      "user_login": "caedrel",
+      "user_name": "Caedrel",
+      "game_id": "21779",
+      "game_name": "League of Legends",
+      "type": "live",
+      "title": "🔴WORLDS 2026 G2 VS HLE ELIMINATION🔴",
+      "viewer_count": 307518,
+      "started_at": "2026-10-30T14:55:54Z",
+      "language": "en",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_caedrel-{width}x{height}.jpg",
+      "tag_ids": [],
+      "tags": [
+        "English",
+        "LPL",
+        "LCK",
+        "LEC",
+        "Worlds",
+        "Esports",
+        "DropsEnabled"
+      ],
+      "is_mature": false
+    },
+    {
+      "id": "319744886615",
+      "user_id": "36029255",
+      "user_login": "riotgames",
+      "user_name": "Riot Games",
+      "game_id": "21779",
+      "game_name": "League of Legends",
+      "type": "live",
+      "title": "G2 vs HLE | WORLDS 2026 | Swiss Stage Day 7",
+      "viewer_count": 63645,
+      "started_at": "2026-10-30T18:59:57Z",
+      "language": "en",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/previews-ttv/live_user_riotgames-{width}x{height}.jpg",
+      "tag_ids": [],
+      "tags": [
+        "Esports",
+        "English",
+        "DropsEnabled"
+      ],
+      "is_mature": false
+    }
+  ],
+  "pagination": {
+    "cursor": "eyJiIjp7IkN1cnNvciI6ImV5SnpJam96TURjMU1UZ3VOVGd3TmpZME5UVTVPRFVzSW1RaU9tWmhiSE5sTENKMElqcDBjblZsZlE9PSJ9LCJhIjp7IkN1cnNvciI6ImV5SnpJam8yTXpZME5TNDRNRFU1TXpZM09ESTBNU3dpWkNJNlptRnNjMlVzSW5RaU9uUnlkV1Y5In19"
+  }
+}

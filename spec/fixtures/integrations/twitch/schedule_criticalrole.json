@@ -1,0 +1,47 @@
+{
+  "data": {
+    "segments": [
+      {
+        "id": "eyJzZWdtZW50SUQiOiJiMTM1NmNmZC1hYmJhLTRhN2YtYjcyMi05ZGE5Yzk3YWNlYTkiLCJpc29ZZWFyIjoyMDI2LCJpc29XZWVrIjo0NX0=",
+        "start_time": "2026-11-06T03:00:00Z",
+        "end_time": "2026-11-06T07:00:00Z",
+        "title": "Critical Role: Campaign 4",
+        "canceled_until": null,
+        "category": {
+          "id": "509577",
+          "name": "Dungeons & Dragons"
+        },
+        "is_recurring": true
+      },
+      {
+        "id": "eyJzZWdtZW50SUQiOiJiMTM1NmNmZC1hYmJhLTRhN2YtYjcyMi05ZGE5Yzk3YWNlYTkiLCJpc29ZZWFyIjoyMDI2LCJpc29XZWVrIjo0Nn0=",
+        "start_time": "2026-11-13T03:00:00Z",
+        "end_time": "2026-11-13T07:00:00Z",
+        "title": "Critical Role: Campaign 4",
+        "canceled_until": null,
+        "category": {
+          "id": "509577",
+          "name": "Dungeons & Dragons"
+        },
+        "is_recurring": true
+      },
+      {
+        "id": "eyJzZWdtZW50SUQiOiJiMTM1NmNmZC1hYmJhLTRhN2YtYjcyMi05ZGE5Yzk3YWNlYTkiLCJpc29ZZWFyIjoyMDI2LCJpc29XZWVrIjo0N30=",
+        "start_time": "2026-11-20T03:00:00Z",
+        "end_time": "2026-11-20T07:00:00Z",
+        "title": "Critical Role: Campaign 4",
+        "canceled_until": null,
+        "category": {
+          "id": "509577",
+          "name": "Dungeons & Dragons"
+        },
+        "is_recurring": true
+      }
+    ],
+    "broadcaster_id": "229729353",
+    "broadcaster_name": "CriticalRole",
+    "broadcaster_login": "criticalrole",
+    "vacation": null
+  },
+  "pagination": {}
+}

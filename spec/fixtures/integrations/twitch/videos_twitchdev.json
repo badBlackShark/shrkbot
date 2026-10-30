@@ -1,0 +1,64 @@
+{
+  "data": [
+    {
+      "id": "2277656159",
+      "stream_id": "44926619787",
+      "user_id": "141981764",
+      "user_login": "twitchdev",
+      "user_name": "TwitchDev",
+      "title": "Standard Output // October 16, 2024",
+      "description": "",
+      "created_at": "2024-10-16T18:31:23Z",
+      "published_at": "2024-10-16T18:31:23Z",
+      "url": "https://www.twitch.tv/videos/2277656159",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/cf_vods/d2nvs31859zcd8/30f3738ff535638f66df_twitchdev_44926619787_1729103477//thumb/thumb0-%{width}x%{height}.jpg",
+      "viewable": "public",
+      "view_count": 1340,
+      "language": "en",
+      "type": "archive",
+      "duration": "53m58s",
+      "muted_segments": null
+    },
+    {
+      "id": "2110776323",
+      "stream_id": "43963679115",
+      "user_id": "141981764",
+      "user_login": "twitchdev",
+      "user_name": "TwitchDev",
+      "title": "Standard Output // April 4, 2024 at 3:15pm EDT",
+      "description": "",
+      "created_at": "2024-04-04T19:15:46Z",
+      "published_at": "2024-04-04T19:15:46Z",
+      "url": "https://www.twitch.tv/videos/2110776323",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/cf_vods/d2nvs31859zcd8/d90ea4923f844170d538_twitchdev_43963679115_1712258141//thumb/thumb0-%{width}x%{height}.jpg",
+      "viewable": "public",
+      "view_count": 1051,
+      "language": "en",
+      "type": "archive",
+      "duration": "1h4m35s",
+      "muted_segments": null
+    },
+    {
+      "id": "2009369378",
+      "stream_id": "43259168795",
+      "user_id": "141981764",
+      "user_login": "twitchdev",
+      "user_name": "TwitchDev",
+      "title": "Standard Output // December 20, 2023 at 2:00pm EST",
+      "description": "",
+      "created_at": "2023-12-20T19:04:41Z",
+      "published_at": "2023-12-20T19:04:41Z",
+      "url": "https://www.twitch.tv/videos/2009369378",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/cf_vods/d2nvs31859zcd8/d92928acd4c30ca2b6ee_twitchdev_43259168795_1703099076//thumb/thumb0-%{width}x%{height}.jpg",
+      "viewable": "public",
+      "view_count": 873,
+      "language": "en",
+      "type": "archive",
+      "duration": "1h7m28s",
+      "muted_segments": null
+    }
+  ],
+  "pagination": {
+    "cursor": "eyJiIjpudWxsLCJhIjp7Ik9mZnNldCI6NX19"
+  }
+}
