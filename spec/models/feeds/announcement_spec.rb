@@ -9,7 +9,7 @@ RSpec.describe Feeds::Announcement do
   let(:watch) { create(:integration_watch, name: "Team Fortress 2") }
   let(:role_id) { 4242 }
   let(:body_length) { "preview" }
-  let(:subscription) { create(:feed_subscription, watch:, role_id:, body_length:) }
+  let(:subscription) { create(:steam_feed_subscription, watch:, role_id:, body_length:) }
   let(:template) { nil }
   let(:event) { create(:steam_news_event, watch:, title: "Smissmas 2026", body: "Snow is falling.", image_urls: []) }
   let(:event_type) { event.type }

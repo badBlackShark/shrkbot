@@ -8,7 +8,7 @@ RSpec.describe Ops::Feeds::Posts::Create do
 
   let(:watch) { create(:integration_watch, name: "Team Fortress 2") }
   let(:role_id) { 4242 }
-  let(:subscription) { create(:feed_subscription, watch:, channel_id: 555_000, role_id:) }
+  let(:subscription) { create(:steam_feed_subscription, watch:, channel_id: 555_000, role_id:) }
   let(:event) { create(:steam_news_event, watch:, title: "Smissmas 2026", story_key: "story-1") }
   let(:thumbnail) { nil }
   let(:announcement) { Feeds::Announcement.new(event:, subscription:, thumbnail:) }

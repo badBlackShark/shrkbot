@@ -41,6 +41,10 @@ module Feeds
       [Bot::Discord::FileUpload.new(thumbnail, Thumbnail::FILENAME)] if thumbnail
     end
 
+    def allowed_mentions
+      role_id ? {parse: [], roles: [role_id]} : {parse: []}
+    end
+
     private
 
     attr_reader :event, :subscription, :thumbnail
@@ -49,8 +53,12 @@ module Feeds
       subscription.subscribed_events.where(event_type: event.type).pick(:template).to_s
     end
 
+    def role_id
+      subscription.source.role_id_for(subscription, event.type)
+    end
+
     def role_mention
-      "<@&#{subscription.role_id}>" if subscription.role_id
+      "<@&#{role_id}>" if role_id
     end
 
     def tokens
@@ -109,7 +117,7 @@ module Feeds
 
     def excerpt
       budget = TEXT_LIMIT - lead.to_s.length - eyebrow_markdown.length - heading_text.length
-      body = Excerpt.new(event.body, subscription.body_length, max: budget).to_s
+      body = Excerpt.new(event.body, subscription.settings.body_length, max: budget).to_s
       Bot::Discord::Components.text(body) if body.present?
     end
 

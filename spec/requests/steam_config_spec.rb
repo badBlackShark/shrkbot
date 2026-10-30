@@ -56,7 +56,7 @@ RSpec.describe "Steam config", type: :request do
           before do
             create(:server_channel, server_configuration: config, discord_id: 777, name: "news")
             create(:server_role, server_configuration: config, discord_id: 888, name: "Gamers")
-            hades_subscription = create(:feed_subscription, server_configuration: config, watch: hades, channel_id: 777, role_id: 888)
+            hades_subscription = create(:steam_feed_subscription, server_configuration: config, watch: hades, channel_id: 777, role_id: 888)
             create(:feed_subscribed_event, subscription: hades_subscription, event_type: "Integrations::Steam::ArticlePublished")
             create(:feed_subscribed_event, subscription: hades_subscription, event_type: "Integrations::Steam::PatchNotesPublished")
             create(:feed_subscription, server_configuration: config, watch: tf2, channel_id: 999)
@@ -96,7 +96,7 @@ RSpec.describe "Steam config", type: :request do
           end
 
           context "when a game's ping role was deleted from the server" do
-            before { Feeds::Subscription.find_by!(watch: tf2).update!(role_id: 555) }
+            before { Feeds::Subscription.find_by!(watch: tf2).settings.update!(role_id: 555) }
 
             it "says the role is gone instead of claiming no ping" do
               get plugin_path
@@ -118,7 +118,7 @@ RSpec.describe "Steam config", type: :request do
         end
 
         context "when the server is at the follow cap" do
-          before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SERVER, server_configuration: config) }
+          before { create_list(:feed_subscription, Feeds::Subscription::MAX_PER_SOURCE, server_configuration: config) }
 
           it "disables Add and gives the reason" do
             get plugin_path

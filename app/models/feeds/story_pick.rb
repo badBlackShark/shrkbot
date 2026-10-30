@@ -27,7 +27,7 @@ module Feeds
 
     def eligible_copy?(copy)
       since = followed_since[copy.type]
-      since.present? && copy.occurred_at >= since && subscription.accepts_language?(copy.language)
+      since.present? && copy.occurred_at >= since && subscription.source.accepts?(subscription, copy)
     end
 
     def followed_since

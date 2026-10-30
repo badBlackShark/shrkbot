@@ -54,7 +54,7 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   def ping_label
     return t(".pings", role: @role_name) if @role_name
-    return t(".role_missing") if @subscription.role_id
+    return t(".role_missing") if @subscription.settings.role_id
 
     t(".no_ping")
   end

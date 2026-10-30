@@ -104,7 +104,7 @@ RSpec.describe Integrations::PollJob do
     context "when the watch is deleted while its poll raises" do
       before do
         allow(watchers.fetch(first)).to receive(:observe) do
-          Feeds::Subscription.where(watch_id: first.id).delete_all
+          Feeds::Subscription.where(watch_id: first.id).destroy_all
           Integrations::Watch.find(first.id).destroy!
           raise NoMethodError, "gone"
         end

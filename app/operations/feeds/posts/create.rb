@@ -22,7 +22,7 @@ module Ops
             channel_id: subscription.channel_id,
             subject: announcement.subject,
             rendered: announcement.card,
-            allowed_mentions:,
+            allowed_mentions: announcement.allowed_mentions,
             fallback: announcement.fallback,
             attachments: announcement.attachments
           )
@@ -33,10 +33,6 @@ module Ops
 
         def announcement
           @announcement ||= ::Feeds::Announcement.new(event:, subscription:, thumbnail: ::Feeds::Thumbnail.for(event.watch))
-        end
-
-        def allowed_mentions
-          subscription.role_id ? {parse: [], roles: [subscription.role_id]} : {parse: []}
         end
       end
     end

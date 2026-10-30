@@ -4,30 +4,16 @@ require "rails_helper"
 
 RSpec.describe Feeds::Subscription do
   describe "validations" do
-    subject(:subscription) { build(:feed_subscription, server_configuration:, watch:, channel_id:, body_length:, languages:) }
+    subject(:subscription) { build(:feed_subscription, server_configuration:, watch:, channel_id:) }
 
     let(:server_configuration) { create(:server_configuration) }
     let(:watch) { create(:integration_watch) }
     let(:channel_id) { 555_000 }
-    let(:body_length) { "preview" }
-    let(:languages) { %w[de en] }
 
     it { is_expected.to be_valid }
 
     context "without a channel" do
       let(:channel_id) { nil }
-
-      it { is_expected.not_to be_valid }
-    end
-
-    context "with an unknown body length" do
-      let(:body_length) { "everything" }
-
-      it { is_expected.not_to be_valid }
-    end
-
-    context "with a language the detector cannot produce" do
-      let(:languages) { %w[de xx] }
 
       it { is_expected.not_to be_valid }
     end
@@ -49,61 +35,57 @@ RSpec.describe Feeds::Subscription do
     end
   end
 
-  describe "languages normalization" do
-    subject(:subscription) { build(:feed_subscription, languages: ["de", "", "de", "en"]) }
-
-    it "stores each language once and drops blanks" do
-      expect(subscription.languages).to eq(%w[de en])
-    end
-  end
-
-  describe "#accepts_language?" do
-    subject(:accepted) { build(:feed_subscription, languages:).accepts_language?(language) }
-
-    let(:languages) { %w[de en] }
-    let(:language) { "de" }
-
-    context "without a filter" do
-      let(:languages) { [] }
-      let(:language) { "ru" }
-
-      it { is_expected.to be(true) }
-    end
-
-    context "when the language is unknown" do
-      let(:language) { nil }
-
-      it { is_expected.to be(true) }
-    end
-
-    context "when the language is listed" do
-      it { is_expected.to be(true) }
-    end
-
-    context "when the language is not listed" do
-      let(:language) { "ru" }
-
-      it { is_expected.to be(false) }
-    end
-  end
-
-  describe "languages check constraint" do
-    subject(:save) { subscription.save!(validate: false) }
-
-    let(:subscription) { build(:feed_subscription, languages: Integrations::Language::CODES) }
-
-    it "accepts every code the detector can produce" do
-      expect { save }.not_to raise_error
-    end
-  end
-
-  describe "defaults" do
-    subject(:body_length) { subscription.body_length }
+  describe "#settings" do
+    subject(:settings) { subscription.settings }
 
     let(:subscription) { create(:feed_subscription) }
 
-    it "previews the body" do
-      expect(body_length).to eq("preview")
+    it "is the source's stored settings row" do
+      expect(settings).to eq(Feeds::Steam::Settings.find_by!(subscription:))
+    end
+
+    context "without a stored row" do
+      before { subscription.steam_settings.delete }
+
+      it "builds none" do
+        expect(subscription.reload.settings).to be_nil
+      end
+    end
+  end
+
+  describe "#build_settings" do
+    subject(:built) { subscription.build_settings(role_id: 42) }
+
+    let(:subscription) { build(:feed_subscription) }
+
+    it "saves them with the subscription" do
+      built
+      subscription.save!
+
+      expect(subscription.reload.steam_settings.role_id).to eq(42)
+    end
+  end
+
+  describe ".at_cap?" do
+    subject(:at_cap) { described_class.at_cap?(server_configuration, Feeds::Steam) }
+
+    let(:server_configuration) { create(:server_configuration) }
+
+    context "with the cap reached on the source" do
+      before { create_list(:feed_subscription, described_class::MAX_PER_SOURCE, server_configuration:) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context "with the cap reached on another source only" do
+      before do
+        create_list(:feed_subscription, described_class::MAX_PER_SOURCE - 1, server_configuration:)
+        create_list(:integration_watch, described_class::MAX_PER_SOURCE, watcher: "Integrations::Other::Watcher").each do |watch|
+          create(:feed_subscription, server_configuration:, watch:)
+        end
+      end
+
+      it { is_expected.to be(false) }
     end
   end
 

@@ -11,7 +11,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
   before_action :load_subscription, only: [:edit, :update, :destroy]
 
   def new
-    return redirect_to steam_path, alert: cap_message if ::Feeds::Subscription.at_cap?(@server_configuration)
+    return redirect_to steam_path, alert: ::Feeds::Subscription.cap_message(source) if ::Feeds::Subscription.at_cap?(@server_configuration, source)
     return render_lookup if params[:app].blank?
 
     lookup = ::Feeds::TargetLookup.call(WATCHER, params[:app])
@@ -20,7 +20,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
     existing = followed_subscription(lookup.target)
     return render_lookup(input: params[:app], existing:) if existing
 
-    render_new(subscription: build_subscription(lookup.target, {body_length: "preview"}, source.default_event_types), target: lookup.target)
+    render_new(subscription: build_subscription(lookup.target, source.default_event_types), target: lookup.target)
   end
 
   def create
@@ -34,16 +34,14 @@ class Servers::Steam::SubscriptionsController < ApplicationController
       watcher: WATCHER.name,
       target: lookup.target,
       channel_id: subscription_params[:channel_id],
-      role_id: subscription_params[:role_id],
-      body_length: subscription_params[:body_length],
-      languages:,
+      settings:,
       event_types:,
       templates:
     )
     return redirect_to steam_path, notice: t("servers.steam.followed", name: lookup.target.name) if result.success?
 
     render_new(
-      subscription: result.value || build_subscription(lookup.target, subscription_params.slice(:channel_id, :role_id, :body_length).merge(languages:), event_types, templates:),
+      subscription: result.value || build_subscription(lookup.target, event_types, channel_id: subscription_params[:channel_id], settings:, templates:),
       target: lookup.target,
       error: result.errors.to_sentence,
       status: :unprocessable_content
@@ -64,9 +62,7 @@ class Servers::Steam::SubscriptionsController < ApplicationController
     result = Ops::Feeds::Subscriptions::Update.call(
       subscription: @subscription,
       channel_id: subscription_params[:channel_id],
-      role_id: subscription_params[:role_id],
-      body_length: subscription_params[:body_length],
-      languages:,
+      settings:,
       event_types:,
       templates:
     )
@@ -102,8 +98,9 @@ class Servers::Steam::SubscriptionsController < ApplicationController
     source_subscriptions.find_by(integration_watches: {external_id: target.external_id})
   end
 
-  def build_subscription(target, attributes, event_types, templates: {})
-    @server_configuration.feed_subscriptions.build(attributes.merge(watch: unsaved_watch(target))).tap do |subscription|
+  def build_subscription(target, event_types, channel_id: nil, settings: {}, templates: {})
+    @server_configuration.feed_subscriptions.build(watch: unsaved_watch(target), channel_id:).tap do |subscription|
+      subscription.build_settings(settings)
       event_types.each { |event_type| subscription.follow(event_type, templates[event_type]) }
     end
   end
@@ -136,10 +133,6 @@ class Servers::Steam::SubscriptionsController < ApplicationController
     server_steam_path(params[:server_id])
   end
 
-  def cap_message
-    t("operations.feeds.subscriptions.cap", max: ::Feeds::Subscription::MAX_PER_SERVER)
-  end
-
   def configuration_url
     edit_server_steam_subscription_path(params[:server_id], @subscription)
   end
@@ -151,6 +144,10 @@ class Servers::Steam::SubscriptionsController < ApplicationController
 
   def templates
     subscription_params[:templates].to_h
+  end
+
+  def settings
+    {role_id: subscription_params[:role_id], body_length: subscription_params[:body_length], languages:}
   end
 
   def languages
