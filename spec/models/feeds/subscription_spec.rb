@@ -66,6 +66,29 @@ RSpec.describe Feeds::Subscription do
     end
   end
 
+  describe ".at_cap?" do
+    subject(:at_cap) { described_class.at_cap?(server_configuration, Feeds::Steam) }
+
+    let(:server_configuration) { create(:server_configuration) }
+
+    context "with the cap reached on the source" do
+      before { create_list(:feed_subscription, described_class::MAX_PER_SOURCE, server_configuration:) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context "with the cap reached on another source only" do
+      before do
+        create_list(:feed_subscription, described_class::MAX_PER_SOURCE - 1, server_configuration:)
+        create_list(:integration_watch, described_class::MAX_PER_SOURCE, watcher: "Integrations::Other::Watcher").each do |watch|
+          create(:feed_subscription, server_configuration:, watch:)
+        end
+      end
+
+      it { is_expected.to be(false) }
+    end
+  end
+
   describe ".active" do
     subject(:active) { described_class.active }
 

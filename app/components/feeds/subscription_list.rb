@@ -25,7 +25,11 @@ class Components::Feeds::SubscriptionList < Components::Base
 
   def header
     div(class: "flex flex-wrap items-center justify-between gap-3") do
-      p(class: "text-[11px] font-semibold uppercase tracking-widest text-text-muted") { t(".#{@plugin_key}.heading") }
+      div(class: "flex items-center gap-2") do
+        p(class: "text-[11px] font-semibold uppercase tracking-widest text-text-muted") { t(".#{@plugin_key}.heading") }
+        span(class: "text-sm leading-none text-text-muted", aria_hidden: "true") { "•" }
+        p(class: "text-xs tabular-nums text-text-muted") { t(".usage", used: subscriptions.size, max: ::Feeds::Subscription::MAX_PER_SOURCE) }
+      end
       add_button
     end
   end
@@ -42,7 +46,7 @@ class Components::Feeds::SubscriptionList < Components::Base
 
   def cap_reason
     p(id: CAP_REASON_ID, class: "text-sm text-text-secondary") do
-      t("operations.feeds.subscriptions.cap", max: ::Feeds::Subscription::MAX_PER_SERVER)
+      ::Feeds::Subscription.cap_message(source)
     end
   end
 
@@ -59,7 +63,11 @@ class Components::Feeds::SubscriptionList < Components::Base
   def at_cap?
     return @at_cap if defined?(@at_cap)
 
-    @at_cap = ::Feeds::Subscription.at_cap?(@config)
+    @at_cap = ::Feeds::Subscription.at_cap?(@config, source)
+  end
+
+  def source
+    @source ||= ::Feeds.source(@plugin_key)
   end
 
   def subscriptions
