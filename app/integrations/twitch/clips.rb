@@ -3,14 +3,21 @@
 module Integrations
   module Twitch
     class Clips
+      PAGE_SIZE = 100
+
       def initialize(client: Client.new)
         @client = client
       end
 
-      def for_broadcaster(broadcaster_id, started_at:, featured: nil, first: 20)
-        params = {broadcaster_id:, started_at: started_at.utc.iso8601, first:}
+      def for_broadcaster(broadcaster_id, started_at:, ended_at: Time.current, featured: nil)
+        params = {
+          broadcaster_id:,
+          started_at: started_at.utc.iso8601,
+          ended_at: ended_at.utc.iso8601,
+          first: PAGE_SIZE
+        }
         params[:is_featured] = featured unless featured.nil?
-        @client.get_json("/clips", params:) do |body|
+        @client.get_all("/clips", params:) do |body|
           body.fetch("data").map { |data| clip(data) }
         end
       end

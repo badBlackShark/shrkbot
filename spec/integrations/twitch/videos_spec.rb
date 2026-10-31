@@ -72,8 +72,8 @@ RSpec.describe Integrations::Twitch::Videos do
       super().tap { |body| body.fetch("data").first["duration"] = "an hour" }
     end
 
-    it "raises KeyError, which Http reports as a changed response" do
-      expect { videos_for_user }.to raise_error(KeyError, /unreadable video duration/)
+    it "raises Unavailable" do
+      expect { videos_for_user }.to raise_error(Integrations::Unavailable, /unreadable video duration/)
     end
   end
 

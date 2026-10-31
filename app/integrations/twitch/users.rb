@@ -8,7 +8,7 @@ module Integrations
       end
 
       def find_by_login(login)
-        @client.get_json("/users", params: {login:}) do |body|
+        @client.get_json("/users", params: {login:}, status_errors: {400 => InvalidReference}) do |body|
           data = body.fetch("data").first
           raise NotFound, "Twitch has no channel #{login}" unless data
 

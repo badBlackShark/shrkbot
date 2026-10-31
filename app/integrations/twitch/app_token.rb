@@ -29,7 +29,7 @@ module Integrations
         ) do |body|
           [body.fetch("access_token"), body.fetch("expires_in")]
         end
-        Rails.cache.write(CACHE_KEY, token, expires_in: expires_in - 1.day.to_i)
+        Rails.cache.write(CACHE_KEY, token, expires_in: [expires_in - 1.day.to_i, expires_in / 2].max)
         token
       end
     end

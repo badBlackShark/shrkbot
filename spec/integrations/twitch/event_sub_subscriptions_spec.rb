@@ -14,27 +14,22 @@ RSpec.describe Integrations::Twitch::EventSubSubscriptions do
     subject(:all) { subscriptions.all }
 
     before do
-      allow(client).to receive(:get_json) { |*_args, **_kwargs, &block| block.call(fixture("eventsub_subscriptions")) }
+      allow(client).to receive(:get_all) { |*_args, **_kwargs, &block| block.call(fixture("eventsub_subscriptions")) }
+    end
+
+    it "lists every page of the app's subscriptions" do
+      all
+
+      expect(client).to have_received(:get_all).with("/eventsub/subscriptions")
     end
 
     it "returns nothing for an app with no subscriptions" do
       expect(all).to eq([])
     end
 
-    context "when the list spans two pages" do
+    context "with subscriptions" do
       before do
-        allow(client).to receive(:get_json) do |_path, params:, &block|
-          block.call(fixture(params.key?(:after) ? "eventsub_subscriptions_page2" : "eventsub_subscriptions_page1"))
-        end
-      end
-
-      it "follows the cursor and returns both pages" do
-        expect(all.map(&:id)).to eq(%w[26b1c993-bfcf-44d9-b876-379dacafe75a a8f3d1e2-5c44-4b8e-9d0a-6f6a1c2b7e90])
-        expect(client).to have_received(:get_json).with("/eventsub/subscriptions", params: {}).once
-        expect(client).to have_received(:get_json).with(
-          "/eventsub/subscriptions",
-          params: {after: "eyJiIjpudWxsLCJhIjp7Ik9mZnNldCI6IjEifX0"}
-        ).once
+        allow(client).to receive(:get_all) { |*_args, **_kwargs, &block| block.call(fixture("eventsub_subscriptions_handwritten")) }
       end
 
       it "maps a subscription" do
@@ -108,6 +103,16 @@ RSpec.describe Integrations::Twitch::EventSubSubscriptions do
       destroy
 
       expect(client).to have_received(:delete).with("/eventsub/subscriptions", params: {id: "26b1c993"})
+    end
+
+    context "when Twitch already removed it" do
+      before do
+        allow(client).to receive(:delete).and_raise(Integrations::NotFound)
+      end
+
+      it "treats it as deleted" do
+        expect(destroy).to be_nil
+      end
     end
   end
 end

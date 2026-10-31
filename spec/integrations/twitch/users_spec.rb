@@ -16,7 +16,11 @@ RSpec.describe Integrations::Twitch::Users do
   it "looks the channel up by login" do
     user
 
-    expect(client).to have_received(:get_json).with("/users", params: {login: "twitchdev"})
+    expect(client).to have_received(:get_json).with(
+      "/users",
+      params: {login: "twitchdev"},
+      status_errors: {400 => Integrations::InvalidReference}
+    )
   end
 
   it "returns the user" do

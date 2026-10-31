@@ -10,14 +10,9 @@ module Integrations
       end
 
       def all
-        subscriptions = []
-        cursor = nil
-        loop do
-          found, cursor = page(cursor)
-          subscriptions.concat(found)
-          break unless cursor
+        @client.get_all(PATH) do |body|
+          body.fetch("data").map { |data| subscription(data) }
         end
-        subscriptions
       end
 
       def create(type:, version:, condition:, callback:)
@@ -31,16 +26,11 @@ module Integrations
 
       def destroy(id)
         @client.delete(PATH, params: {id:})
+      rescue NotFound
+        nil
       end
 
       private
-
-      def page(cursor)
-        params = cursor ? {after: cursor} : {}
-        @client.get_json(PATH, params:) do |body|
-          [body.fetch("data").map { |data| subscription(data) }, body.fetch("pagination")["cursor"]]
-        end
-      end
 
       def subscription(data)
         EventSubSubscription.new(

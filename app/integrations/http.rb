@@ -120,15 +120,11 @@ module Integrations
     end
 
     def rate_limited(response, message)
-      RateLimited.new(message, retry_after: retry_after(response))
-    end
-
-    def retry_after(response)
-      seconds = Integer(response["Retry-After"], 10, exception: false)
-      return seconds if seconds
-
-      reset = Integer(response["Ratelimit-Reset"], 10, exception: false)
-      [reset - Time.current.to_i, 0].max if reset
+      RateLimited.new(
+        message,
+        retry_after: Integer(response["Retry-After"], 10, exception: false),
+        headers: response.to_hash
+      )
     end
 
     def default_error(status)

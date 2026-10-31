@@ -3,8 +3,6 @@
 require "rails_helper"
 
 RSpec.describe Integrations::Http do
-  include ActiveSupport::Testing::TimeHelpers
-
   subject(:get_json) do
     described_class.get_json(url, params:, headers:, status_errors:) { |body| body.fetch("value") }
   end
@@ -16,14 +14,13 @@ RSpec.describe Integrations::Http do
   let(:status) { "200" }
   let(:body) { {"value" => 42}.to_json }
   let(:retry_after) { nil }
-  let(:ratelimit_reset) { nil }
   let(:response) { instance_double(Net::HTTPResponse, code: status, body:) }
   let(:http) { instance_double(Net::HTTP) }
   let(:sent_requests) { [] }
 
   before do
     allow(response).to receive(:[]).with("Retry-After").and_return(retry_after)
-    allow(response).to receive(:[]).with("Ratelimit-Reset").and_return(ratelimit_reset)
+    allow(response).to receive(:to_hash).and_return({"ratelimit-reset" => ["1793361645"]})
     allow(Net::HTTP).to receive(:start).and_yield(http).and_return(response)
     allow(http).to receive(:request) do |request|
       sent_requests << request
@@ -187,24 +184,9 @@ RSpec.describe Integrations::Http do
       end
     end
 
-    context "with only a Ratelimit-Reset epoch" do
-      let(:now) { Time.zone.local(2026, 10, 30, 12, 0, 0) }
-      let(:ratelimit_reset) { (now.to_i + 45).to_s }
-
-      around do |example|
-        travel_to(now) { example.run }
-      end
-
-      it "raises RateLimited carrying the seconds until the reset" do
-        expect { get_json }.to raise_error(Integrations::RateLimited) { |error| expect(error.retry_after).to eq(45) }
-      end
-
-      context "when the reset is already past" do
-        let(:ratelimit_reset) { (now.to_i - 10).to_s }
-
-        it "carries 0, never a negative wait" do
-          expect { get_json }.to raise_error(Integrations::RateLimited) { |error| expect(error.retry_after).to eq(0) }
-        end
+    it "carries the response headers for a provider-specific reset header" do
+      expect { get_json }.to raise_error(Integrations::RateLimited) do |error|
+        expect(error.headers).to eq({"ratelimit-reset" => ["1793361645"]})
       end
     end
   end

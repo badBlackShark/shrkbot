@@ -40,7 +40,7 @@ module Integrations
 
       def seconds(duration)
         parts = DURATION.match(duration)
-        raise KeyError, "unreadable video duration #{duration.inspect}" unless parts
+        raise Unavailable, "Twitch sent an unreadable video duration #{duration.inspect}" unless parts
 
         (parts[:hours].to_i * 3600) + (parts[:minutes].to_i * 60) + parts[:seconds].to_i
       end

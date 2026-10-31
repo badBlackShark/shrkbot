@@ -3,6 +3,8 @@
 require "rails_helper"
 
 RSpec.describe Integrations::Twitch::Client do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject(:get_json) do
     client.get_json("/streams", params:, status_errors:) { |body| body.fetch("answer") }
   end
@@ -28,7 +30,7 @@ RSpec.describe Integrations::Twitch::Client do
         "https://api.twitch.tv/helix/streams",
         params: {user_id: %w[1 2]},
         headers:,
-        status_errors: {404 => Integrations::Unavailable}
+        status_errors: {403 => Integrations::Error, 404 => Integrations::Unavailable}
       )
     end
 
@@ -49,7 +51,7 @@ RSpec.describe Integrations::Twitch::Client do
         "https://api.twitch.tv/helix/eventsub/subscriptions",
         body: {type: "x"},
         headers:,
-        status_errors: {404 => Integrations::Unavailable}
+        status_errors: {403 => Integrations::Error, 404 => Integrations::Unavailable}
       )
     end
 
@@ -68,7 +70,7 @@ RSpec.describe Integrations::Twitch::Client do
         "https://api.twitch.tv/helix/eventsub/subscriptions",
         params: {id: "abc"},
         headers:,
-        status_errors: {404 => Integrations::Unavailable}
+        status_errors: {403 => Integrations::Error, 404 => Integrations::Unavailable}
       )
     end
   end
@@ -115,6 +117,76 @@ RSpec.describe Integrations::Twitch::Client do
       expect { get_json }.to raise_error(Integrations::Unauthorized)
       expect(token).to have_received(:value).once
       expect(token).not_to have_received(:invalidate!)
+    end
+  end
+
+  context "when Twitch is rate limited" do
+    let(:now) { Time.utc(2026, 10, 31, 12, 0, 0) }
+    let(:limited) { Integrations::RateLimited.new("api.twitch.tv responded 429", retry_after:, headers: {"ratelimit-reset" => [reset.to_s]}) }
+    let(:retry_after) { nil }
+    let(:reset) { now.to_i + 45 }
+
+    before do
+      travel_to(now)
+      allow(Integrations::Http).to receive(:get_json).and_raise(limited)
+    end
+
+    after { travel_back }
+
+    it "waits until Twitch's Ratelimit-Reset" do
+      expect { get_json }.to raise_error(Integrations::RateLimited) { |error| expect(error.retry_after).to eq(45) }
+    end
+
+    context "when the reset is already past" do
+      let(:reset) { now.to_i - 10 }
+
+      it "waits 0, never a negative time" do
+        expect { get_json }.to raise_error(Integrations::RateLimited) { |error| expect(error.retry_after).to eq(0) }
+      end
+    end
+
+    context "when the response already says how long to wait" do
+      let(:retry_after) { 7 }
+
+      it "keeps that wait" do
+        expect { get_json }.to raise_error(Integrations::RateLimited) { |error| expect(error.retry_after).to eq(7) }
+      end
+    end
+
+    context "without a reset header" do
+      let(:limited) { Integrations::RateLimited.new("api.twitch.tv responded 429") }
+
+      it "has no wait" do
+        expect { get_json }.to raise_error(Integrations::RateLimited) { |error| expect(error.retry_after).to be_nil }
+      end
+    end
+  end
+
+  describe "#get_all" do
+    subject(:get_all) { client.get_all("/clips", params: {first: 100}) { |body| body.fetch("data") } }
+
+    let(:pages) do
+      {
+        nil => {"data" => [1, 2], "pagination" => {"cursor" => "next"}},
+        "next" => {"data" => [3], "pagination" => {}}
+      }
+    end
+
+    before do
+      allow(Integrations::Http).to receive(:get_json) do |_url, params:, **_kwargs, &block|
+        block.call(pages.fetch(params[:after]))
+      end
+    end
+
+    it "follows the cursor and joins the pages" do
+      expect(get_all).to eq([1, 2, 3])
+    end
+
+    it "keeps the caller's params on every page" do
+      get_all
+
+      expect(Integrations::Http).to have_received(:get_json).with(anything, hash_including(params: {first: 100}))
+      expect(Integrations::Http).to have_received(:get_json).with(anything, hash_including(params: {first: 100, after: "next"}))
     end
   end
 

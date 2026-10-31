@@ -3,25 +3,42 @@
 require "rails_helper"
 
 RSpec.describe Integrations::Twitch::Clips do
-  subject(:clips_for) { clips.for_broadcaster("23161357", started_at:, featured:) }
+  include ActiveSupport::Testing::TimeHelpers
+
+  subject(:clips_for) { clips.for_broadcaster("23161357", started_at:, ended_at:, featured:) }
 
   let(:clips) { described_class.new(client:) }
   let(:client) { instance_double(Integrations::Twitch::Client) }
   let(:started_at) { Time.utc(2026, 10, 1, 12, 0, 0) }
+  let(:ended_at) { Time.utc(2026, 10, 31, 12, 0, 0) }
   let(:featured) { nil }
   let(:response) { JSON.parse(Rails.root.join("spec/fixtures/integrations/twitch/clips_lirik.json").read) }
 
   before do
-    allow(client).to receive(:get_json) { |*_args, **_kwargs, &block| block.call(response) }
+    allow(client).to receive(:get_all) { |*_args, **_kwargs, &block| block.call(response) }
   end
 
-  it "asks for the broadcaster's clips since the given time" do
+  it "asks for every page of the broadcaster's clips inside the window" do
     clips_for
 
-    expect(client).to have_received(:get_json).with(
+    expect(client).to have_received(:get_all).with(
       "/clips",
-      params: {broadcaster_id: "23161357", started_at: "2026-10-01T12:00:00Z", first: 20}
+      params: {broadcaster_id: "23161357", started_at: "2026-10-01T12:00:00Z", ended_at: "2026-10-31T12:00:00Z", first: 100}
     )
+  end
+
+  context "without an end" do
+    subject(:clips_for) { clips.for_broadcaster("23161357", started_at:) }
+
+    before { travel_to(ended_at) }
+
+    after { travel_back }
+
+    it "ends the window now, because Twitch otherwise stops a week after the start" do
+      clips_for
+
+      expect(client).to have_received(:get_all).with("/clips", params: hash_including(ended_at: "2026-10-31T12:00:00Z"))
+    end
   end
 
   context "when asking only for featured clips" do
@@ -30,7 +47,7 @@ RSpec.describe Integrations::Twitch::Clips do
     it "sends is_featured" do
       clips_for
 
-      expect(client).to have_received(:get_json).with(
+      expect(client).to have_received(:get_all).with(
         "/clips",
         params: hash_including(is_featured: true)
       )
@@ -43,7 +60,7 @@ RSpec.describe Integrations::Twitch::Clips do
     it "sends is_featured false" do
       clips_for
 
-      expect(client).to have_received(:get_json).with(
+      expect(client).to have_received(:get_all).with(
         "/clips",
         params: hash_including(is_featured: false)
       )

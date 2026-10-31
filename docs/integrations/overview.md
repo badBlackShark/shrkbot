@@ -91,8 +91,8 @@ without knowing which provider produced it.
 | --- | --- |
 | `Unauthorized` | 401, 403. Our credentials, not the source's fault. |
 | `NotFound` | 404, 410. |
-| `InvalidReference` | A `NotFound` subclass: the user's input does not name anything on the source (`Steam::AppReference.parse`), so no request was made. |
-| `RateLimited` | 429. `retry_after` is the `Retry-After` header in seconds; without a usable one, the seconds until `Ratelimit-Reset` (Twitch's unix-time header, never below 0); `nil` when neither parses (absent, or an HTTP date). |
+| `InvalidReference` | A `NotFound` subclass: the user's input does not name anything on the source. Either no request was made (`Steam::AppReference.parse`), or the provider rejected the input's format (`Twitch::Users`, 400). |
+| `RateLimited` | 429. `retry_after` is the `Retry-After` header in seconds, or `nil` when the header is absent or an HTTP date. `headers` holds the response headers, so a client can read a provider's own reset header (`Twitch::Client`). |
 | `Unavailable` | 5xx, timeouts, socket and system-call errors, dropped connections, TLS errors, a malformed HTTP response or header, a corrupt compressed body, a body that is not JSON, a response missing a key or shaped differently from what the mapping expects. Transient. |
 | `Error` | Anything else (other 4xx, 3xx; redirects are not followed). |
 
@@ -109,7 +109,9 @@ Integrations::Http.get_json(url, status_errors: {403 => Integrations::NotFound})
 
 Steam's news endpoint answers an unknown app id with 403 and `{}`, so `Steam::News`
 maps 403 to `NotFound`. The override belongs to the endpoint, never the provider's
-client: on a keyed endpoint the same 403 means a bad key. 429 is handled before the
+client: on a keyed endpoint the same 403 means a bad key. The exception is a status
+whose meaning the provider documents for every endpoint: `Twitch::Client` maps 403 to
+`Error`, because on Helix only a 401 means a bad token. 429 is handled before the
 lookup and cannot be overridden.
 
 ## Clients and resources
@@ -118,7 +120,8 @@ Every provider has a `Client`: the one place for its hosts and credentials. Its 
 job is to build the URL and authenticate, then hand off to `Http`.
 `Integrations::Steam::Client` holds Steam's two hosts and has no credentials.
 `Integrations::Twitch::Client` is the first with credentials: it sends the app's
-`Client-Id` and a cached bearer token, and retries once on a 401 with a fresh token.
+`Client-Id` and a cached bearer token, retries once on a 401 with a fresh token, and
+pages through Helix lists with `get_all`.
 
 **Resource classes** sit on top, one per API resource (`Steam::News`, `Steam::Apps`,
 `Steam::StoreItems`, which resolves a game's store artwork URL).

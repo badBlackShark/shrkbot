@@ -44,6 +44,21 @@ RSpec.describe Integrations::Twitch::AppToken do
     end
   end
 
+  context "when the token lives less than two days" do
+    let(:expires_in) { 3600 }
+
+    it "caches it for half its life" do
+      value
+
+      travel_to(Time.current + 1740) do
+        expect(cache.read(described_class::CACHE_KEY)).to eq("fresh")
+      end
+      travel_to(Time.current + 1860) do
+        expect(cache.read(described_class::CACHE_KEY)).to be_nil
+      end
+    end
+  end
+
   context "when the cache already holds a token" do
     before do
       cache.write(described_class::CACHE_KEY, "cached")
