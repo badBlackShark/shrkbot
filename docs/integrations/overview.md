@@ -131,13 +131,16 @@ they're used.
 ## Watchers
 
 A watcher turns one provider's answers into events for one followed thing (a Steam
-app, later a channel). The contract is duck-typed, three members:
+app, later a channel). The contract is duck-typed, three members plus one optional:
 
 - `.resolve(input)` returns an `Integrations::Target` (`external_id`, `name`,
   `image_url`) from what a person typed, for the add-form.
 - `#initialize(watch)` takes the `Integrations::Watch` row.
 - `#observe` returns unsaved `Integrations::Event`s for everything the provider shows
   right now. It reads the provider and the watch's stored events and writes nothing.
+- optional `.refresh(external_ids)` returns `[Integrations::Target]` for the watches
+  the provider still knows. The daily `RefreshWatchesJob` uses it to keep `name` and
+  `image_url` current; a watcher without it keeps what the follow stored.
 
 There is **no base class**. One watcher exists, so a base would be a guess at what a
 second one shares. The shared machinery already sits in layers every watcher goes
@@ -146,6 +149,16 @@ through: writes in `Ops::Integrations::Watches::*`, scheduling in
 
 `Integrations::Watch` stores the watcher's class name, so `PollJob` reaches it with
 `watch.watcher_class`.
+
+## Refreshing
+
+    recurring.yml -> RefreshWatchesJob(watcher) -> watcher.refresh(all referenced) -> Watches::Refresh
+
+Once a day, per watcher, the job asks the provider about every referenced watch in
+batches and writes only what changed, so a renamed game or a new header image reaches
+the web follow pages. A watch the provider does not answer for is left alone. An
+integration error is logged and the refresh waits a day: the data is cosmetic, so there
+is no owner DM.
 
 ## Polling
 
