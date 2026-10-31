@@ -1,30 +1,39 @@
 # Steam
 
 Game news and store lookups. Neither endpoint needs an API key or any authentication.
+`GetNewsForApp` is the only documented one; see GetItems for the other.
 The provider layer (see [overview.md](overview.md)) stores nothing; the news watcher
 below keeps what it fetched as events.
 
-`Integrations::Steam::Client` is the one home for Steam's two hosts (`:api` for
-`api.steampowered.com`, `:store` for `store.steampowered.com`) and is where a Web API
-key would go. Three resources use it:
+`Integrations::Steam::Client` is the one home for Steam's host (`:api` for
+`api.steampowered.com`) and is where a Web API key would go. Two resources use it:
 
 | Resource | Endpoint | Returns |
 | --- | --- | --- |
 | `Steam::News#for_app(app_id, count: 20)` | `api` `/ISteamNews/GetNewsForApp/v2/` | `[Steam::NewsItem]` |
-| `Steam::Apps#find(app_id)` | `store` `/api/appdetails` | `Steam::App` |
 | `Steam::StoreItems#find_all(app_ids)` | `api` `/IStoreBrowseService/GetItems/v1/` | `[Steam::StoreItem]` |
+| `Steam::StoreItems#find(app_id)` | same | `Steam::StoreItem`, `NotFound` for an unknown app |
 
 `StoreItems` also has `#hero_capsule_url(app_id)` for the artwork of a single app.
 
 ## GetItems
 
 `IStoreBrowseService` is **undocumented**: it is on the Web API host and takes no key,
-but the Steamworks Web API reference does not list it (checked 2026-10-31). Treat it
-like the store endpoints below: it can change without notice.
+but the Steamworks Web API reference does not list it (checked 2026-10-31), so it can
+change without notice. No documented endpoint names one app or gives its images: the
+documented `IStoreService/GetAppList` needs a key, pages through the whole catalogue
+with no id filter, and has no images. Keep every name and image lookup on this one
+endpoint, so there is one undocumented dependency to watch.
+
+The store's own `appdetails` (`store.steampowered.com/api/appdetails`) gave the same
+name and header but sits behind the store's rate limit, which refuses a busy IP with
+403 or 429 for a while. `resolve` used it until 2026-10-31; it compared equal to
+`GetItems` on Hades and on the delisted Spec Ops: The Line (50300).
 
 `find_all` sends the ids in batches of 100. Checked live on 2026-10-31: 200 ids in one
 call were answered, in request order. An unknown app comes back as `appid 0,
-success 15` with an empty name and no assets, and is dropped. The header URL equals
+success 15` with an empty name and no assets, and is dropped. Every known app had
+`assets` in a 200-id sample, though 7 of 61 had no `header`. The header URL equals
 `appdetails`' `header_image` including the `?t=` cache key, so a changed header shows
 up as a changed URL.
 
@@ -84,26 +93,6 @@ Sampled live on 2026-10-22 across ten games (440, 570, 730, 105600, 413150, 5538
   title and the first 80 normalised characters of their body. Matching on title or
   body prefix is only safe across feeds.
 
-## Store lookup
-
-`appdetails` is keyed by the app id as a string:
-`{"1145360": {"success": true, "data": {...}}}`. `filters=basic` trims the answer to
-`type`, `name`, `steam_appid`, `header_image` and a few other basic fields. `type` is
-`game`, `dlc`, `music`, and so on; `App` carries it as-is and does not filter by it.
-
-An unknown id is **HTTP 200 with `success: false`**, which `Apps#find` raises as
-`NotFound`.
-
-`Apps` passes `status_errors: {403 => Unavailable}`. The endpoint takes no key, so a
-403 there can't be about our credentials; the likely cause is the store refusing a
-busy IP for a while, which is transient.
-
-These store endpoints are **unofficial and rate-limited**: Steam does not document
-them, and a 429 surfaces as `RateLimited`. Call them when a person gives you a game,
-never from a recurring poll. `store.steampowered.com/api/storesearch/?term=...`
-searches by name and returns images; it was checked live but no resource wraps it,
-and the same caveats apply.
-
 ## News watcher
 
 `Integrations::Steam::NewsWatcher` follows one app's news (see Watchers in
@@ -111,8 +100,8 @@ and the same caveats apply.
 
 **Inputs.** `resolve` takes what a person pastes. `Steam::AppReference.parse` reads a
 bare id or `/app/<id>` anywhere in a store, community hub or SteamDB URL, and raises
-`NotFound` for zero or anything else (`/sub/123`, a game name). `Apps#find` then
-names the app.
+`NotFound` for zero or anything else (`/sub/123`, a game name). `StoreItems#find`
+then names the app.
 
 **Categories to event classes.**
 
@@ -178,4 +167,3 @@ Recorded live on 2026-10-22 in `spec/fixtures/integrations/steam/`:
 
 - `news_440.json`: the TF2 triple (a `patchnotes`-tagged community post, the untagged
   `steam_updates` item, the untagged `tf2_blog` mirror with a blank author).
-- `appdetails_1145360.json`: Hades, trimmed to the basic fields.

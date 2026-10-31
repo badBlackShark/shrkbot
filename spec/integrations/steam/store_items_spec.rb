@@ -129,4 +129,29 @@ RSpec.describe Integrations::Steam::StoreItems do
       end
     end
   end
+
+  describe "#find" do
+    subject(:item) { store_items.find(app_id) }
+
+    let(:app_id) { 1145360 }
+    let(:response) { JSON.parse(Rails.root.join("spec/fixtures/integrations/steam/getitems_1145360_440_unknown.json").read) }
+
+    before do
+      allow(client).to receive(:get_json) do |*_args, **_kwargs, &block|
+        block.call({"response" => {"store_items" => response.fetch("response").fetch("store_items").select { |entry| entry.fetch("appid") == app_id }}})
+      end
+    end
+
+    it "returns the app" do
+      expect(item).to have_attributes(app_id: "1145360", name: "Hades")
+    end
+
+    context "when Steam does not know the app" do
+      let(:app_id) { 0 }
+
+      it "raises NotFound naming the id" do
+        expect { item }.to raise_error(Integrations::NotFound, "Steam has no app 0")
+      end
+    end
+  end
 end

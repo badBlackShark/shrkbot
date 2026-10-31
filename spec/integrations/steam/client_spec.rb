@@ -33,23 +33,8 @@ RSpec.describe Integrations::Steam::Client do
     end
   end
 
-  context "with the store host" do
-    let(:host) { :store }
-    let(:path) { "/api/appdetails" }
-
-    it "requests the path on store.steampowered.com" do
-      get_json
-
-      expect(Integrations::Http).to have_received(:get_json).with(
-        "https://store.steampowered.com/api/appdetails",
-        params: {appid: 440},
-        status_errors: {403 => Integrations::NotFound}
-      )
-    end
-  end
-
   context "with a host Steam does not have" do
-    let(:host) { :community }
+    let(:host) { :store }
 
     it "raises KeyError without requesting anything" do
       expect { get_json }.to raise_error(KeyError)

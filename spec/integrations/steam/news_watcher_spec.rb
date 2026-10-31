@@ -8,13 +8,13 @@ RSpec.describe Integrations::Steam::NewsWatcher do
   let(:response) { JSON.parse(Rails.root.join("spec/fixtures/integrations/steam/news_440.json").read) }
 
   describe ".resolve" do
-    subject(:target) { described_class.resolve("https://store.steampowered.com/app/1145360/Hades/", apps:) }
+    subject(:target) { described_class.resolve("https://store.steampowered.com/app/1145360/Hades/", store_items:) }
 
-    let(:apps) { instance_double(Integrations::Steam::Apps) }
-    let(:app) { Integrations::Steam::App.new(id: 1145360, name: "Hades", type: "game", header_image_url: "https://example.com/h.jpg") }
+    let(:store_items) { instance_double(Integrations::Steam::StoreItems) }
+    let(:item) { Integrations::Steam::StoreItem.new(app_id: "1145360", name: "Hades", header_image_url: "https://example.com/h.jpg") }
 
     before do
-      allow(apps).to receive(:find).with(1145360).and_return(app)
+      allow(store_items).to receive(:find).with(1145360).and_return(item)
     end
 
     it "looks the parsed app id up and describes it as a target" do
