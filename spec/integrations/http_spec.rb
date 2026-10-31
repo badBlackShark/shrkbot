@@ -4,11 +4,12 @@ require "rails_helper"
 
 RSpec.describe Integrations::Http do
   subject(:get_json) do
-    described_class.get_json(url, params:, status_errors:) { |body| body.fetch("value") }
+    described_class.get_json(url, params:, headers:, status_errors:) { |body| body.fetch("value") }
   end
 
   let(:url) { "https://example.test/api/data" }
   let(:params) { {} }
+  let(:headers) { {} }
   let(:status_errors) { {} }
   let(:status) { "200" }
   let(:body) { {"value" => 42}.to_json }
@@ -19,6 +20,7 @@ RSpec.describe Integrations::Http do
 
   before do
     allow(response).to receive(:[]).with("Retry-After").and_return(retry_after)
+    allow(response).to receive(:to_hash).and_return({"ratelimit-reset" => ["1793361645"]})
     allow(Net::HTTP).to receive(:start).and_yield(http).and_return(response)
     allow(http).to receive(:request) do |request|
       sent_requests << request
@@ -51,6 +53,20 @@ RSpec.describe Integrations::Http do
         "user-agent" => ["shrkbot (+https://shrkbot.com)"],
         "accept" => ["application/json"]
       )
+    end
+
+    context "with extra headers" do
+      let(:headers) { {"Client-Id" => "abc", "Authorization" => "Bearer xyz"} }
+
+      it "sends them next to the defaults" do
+        get_json
+
+        expect(sent_requests.first.to_hash).to include(
+          "client-id" => ["abc"],
+          "authorization" => ["Bearer xyz"],
+          "user-agent" => ["shrkbot (+https://shrkbot.com)"]
+        )
+      end
     end
 
     context "with params" do
@@ -167,6 +183,12 @@ RSpec.describe Integrations::Http do
         expect { get_json }.to raise_error(Integrations::RateLimited) { |error| expect(error.retry_after).to be_nil }
       end
     end
+
+    it "carries the response headers for a provider-specific reset header" do
+      expect { get_json }.to raise_error(Integrations::RateLimited) do |error|
+        expect(error.headers).to eq({"ratelimit-reset" => ["1793361645"]})
+      end
+    end
   end
 
   context "when the caller overrides a status" do
@@ -211,6 +233,78 @@ RSpec.describe Integrations::Http do
 
       it "raises Unavailable naming the host" do
         expect { get_json }.to raise_error(Integrations::Unavailable, /\Aexample\.test: /)
+      end
+    end
+  end
+
+  describe ".post_form" do
+    subject(:post_form) do
+      described_class.post_form(url, form: {a: "1", b: "x y"}) { |body| body.fetch("value") }
+    end
+
+    it "posts the form-encoded body and yields the parsed JSON" do
+      expect(post_form).to eq(42)
+      expect(sent_requests.first.method).to eq("POST")
+      expect(sent_requests.first.body).to eq("a=1&b=x+y")
+      expect(sent_requests.first["Content-Type"]).to eq("application/x-www-form-urlencoded")
+    end
+
+    context "when the provider responds 400" do
+      let(:status) { "400" }
+
+      subject(:post_form) do
+        described_class.post_form(url, form: {a: "1"}, status_errors: {400 => Integrations::Unauthorized}) { |body| body }
+      end
+
+      it "raises the mapped error" do
+        expect { post_form }.to raise_error(an_instance_of(Integrations::Unauthorized))
+      end
+    end
+  end
+
+  describe ".post_json" do
+    subject(:post_json) do
+      described_class.post_json(url, body: {type: "x", n: 1}, headers: {"Client-Id" => "abc"}) do |parsed|
+        parsed.fetch("value")
+      end
+    end
+
+    it "posts the JSON body with its content type and headers, yielding the parsed JSON" do
+      expect(post_json).to eq(42)
+      expect(sent_requests.first.method).to eq("POST")
+      expect(JSON.parse(sent_requests.first.body)).to eq({"type" => "x", "n" => 1})
+      expect(sent_requests.first["Content-Type"]).to eq("application/json")
+      expect(sent_requests.first["Client-Id"]).to eq("abc")
+    end
+  end
+
+  describe ".delete" do
+    subject(:delete) { described_class.delete(url, params: {id: "7"}, headers: {"Client-Id" => "abc"}) }
+
+    let(:body) { nil }
+
+    it "sends DELETE with the query and headers, and returns nil" do
+      expect(delete).to be_nil
+      expect(sent_requests.first.method).to eq("DELETE")
+      expect(sent_requests.first.path).to eq("/api/data?id=7")
+      expect(sent_requests.first["Client-Id"]).to eq("abc")
+    end
+
+    context "when the provider responds 404" do
+      let(:status) { "404" }
+
+      it "raises NotFound" do
+        expect { delete }.to raise_error(Integrations::NotFound)
+      end
+    end
+
+    context "when the connection fails" do
+      before do
+        allow(Net::HTTP).to receive(:start).and_raise(Net::ReadTimeout)
+      end
+
+      it "raises Unavailable naming the host" do
+        expect { delete }.to raise_error(Integrations::Unavailable, /\Aexample\.test: /)
       end
     end
   end
