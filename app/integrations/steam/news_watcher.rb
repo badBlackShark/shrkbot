@@ -5,9 +5,8 @@ module Integrations
     class NewsWatcher
       VOLUME_SAMPLE = 20
 
-      def self.resolve(input, apps: Apps.new)
-        app = apps.find(AppReference.parse(input))
-        Target.new(external_id: app.id.to_s, name: app.name, image_url: app.header_image_url)
+      def self.resolve(input, store_items: StoreItems.new)
+        target(store_items.find(AppReference.parse(input)))
       end
 
       def self.volume(external_id, news: News.new)
@@ -20,10 +19,13 @@ module Integrations
       end
 
       def self.refresh(external_ids, store_items: StoreItems.new)
-        store_items.find_all(external_ids).map do |item|
-          Target.new(external_id: item.app_id, name: item.name, image_url: item.header_image_url)
-        end
+        store_items.find_all(external_ids).map { |item| target(item) }
       end
+
+      def self.target(item)
+        Target.new(external_id: item.app_id, name: item.name, image_url: item.header_image_url)
+      end
+      private_class_method :target
 
       def self.artwork(url, client: Client.new)
         client.get_bytes(url)

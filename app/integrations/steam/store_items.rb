@@ -27,6 +27,10 @@ module Integrations
         end
       end
 
+      def find(app_id)
+        find_all([app_id]).first || raise(NotFound, "Steam has no app #{app_id}")
+      end
+
       private
 
       def store_item(item)
