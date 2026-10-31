@@ -22,6 +22,21 @@ RSpec.describe Integrations::Steam::NewsWatcher do
     end
   end
 
+  describe ".refresh" do
+    subject(:targets) { described_class.refresh(%w[1145360], store_items:) }
+
+    let(:store_items) { instance_double(Integrations::Steam::StoreItems) }
+    let(:item) { Integrations::Steam::StoreItem.new(app_id: "1145360", name: "Hades", header_image_url: "https://example.com/h.jpg") }
+
+    before do
+      allow(store_items).to receive(:find_all).with(%w[1145360]).and_return([item])
+    end
+
+    it "describes each store item as a target" do
+      expect(targets).to eq([Integrations::Target.new(external_id: "1145360", name: "Hades", image_url: "https://example.com/h.jpg")])
+    end
+  end
+
   describe ".artwork_url" do
     subject(:artwork_url) { described_class.artwork_url("440", store_items:) }
 
