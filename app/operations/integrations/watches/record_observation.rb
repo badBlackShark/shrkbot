@@ -10,8 +10,7 @@ module Ops
           now = Time.current
           unseen = fresh_events.reject { |event| seen_ids.include?(event.subject_key) }
           remember(unseen)
-          published = unseen.select { |event| persist(event) }
-          dispatch_after_commit(published)
+          published = Ops::Integrations::Events::Record.call(watch:, events: unseen).value
           watch.update!(
             polled_at: now,
             failing_since: nil,
@@ -33,24 +32,6 @@ module Ops
         def remember(unseen)
           rows = unseen.map { |event| {watch_id: watch.id, external_id: event.subject_key} }
           ::Integrations::SeenItem.insert_all(rows, unique_by: [:watch_id, :external_id])
-        end
-
-        def persist(event)
-          event.enrich
-          return true if event.save
-
-          Rails.logger.warn("Integrations: dropped invalid #{event.class} #{event.subject_key} for #{watch.watcher} #{watch.external_id}: #{event.errors.full_messages.to_sentence}")
-          false
-        end
-
-        def dispatch_after_commit(published)
-          return if published.empty?
-
-          ActiveRecord.after_all_transactions_commit do
-            Ops::Integrations::Events::Dispatch.call(events: published)
-          rescue => error
-            Rails.logger.warn("Integrations: dispatch failed for #{published.size} events of #{watch.watcher} #{watch.external_id}, the sweeper will retry: #{error.class}: #{error.message}")
-          end
         end
       end
     end

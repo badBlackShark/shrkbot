@@ -55,8 +55,20 @@ RSpec.describe Integrations::Bus do
       expect(concrete_event_classes).to include(Integrations::Steam::ArticlePublished)
     end
 
+    let(:awaiting_feeds) do
+      [
+        Integrations::Twitch::StreamStarted,
+        Integrations::Twitch::StreamUpdated,
+        Integrations::Twitch::StreamEnded
+      ]
+    end
+
     it "gives every concrete event class at least one handler" do
-      expect(unhandled).to be_empty
+      expect(unhandled - awaiting_feeds).to be_empty
+    end
+
+    it "still has no handler for the Twitch stream events, so this exemption goes once Feeds handles them" do
+      expect(unhandled).to include(*awaiting_feeds)
     end
   end
 end

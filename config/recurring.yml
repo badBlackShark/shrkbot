@@ -33,6 +33,13 @@ production:
     class: Integrations::RefreshWatchesJob
     args: ["Integrations::Steam::NewsWatcher"]
     schedule: every day at 6am
+  integrations_twitch_stream_reconcile:
+    class: Integrations::Twitch::StreamReconcileJob
+    schedule: every 10 minutes
+  integrations_twitch_watch_refresh:
+    class: Integrations::RefreshWatchesJob
+    args: ["Integrations::Twitch::ChannelWatcher"]
+    schedule: every day at 6:05am
   integrations_broken_watch_report:
     class: Integrations::ReportBrokenWatchesJob
     schedule: every hour at minute 50
@@ -58,6 +65,13 @@ development:
     class: Integrations::RefreshWatchesJob
     args: ["Integrations::Steam::NewsWatcher"]
     schedule: every day at 6am
+  integrations_twitch_stream_reconcile:
+    class: Integrations::Twitch::StreamReconcileJob
+    schedule: every 10 minutes
+  integrations_twitch_watch_refresh:
+    class: Integrations::RefreshWatchesJob
+    args: ["Integrations::Twitch::ChannelWatcher"]
+    schedule: every day at 6:05am
   integrations_broken_watch_report:
     class: Integrations::ReportBrokenWatchesJob
     schedule: every hour at minute 50

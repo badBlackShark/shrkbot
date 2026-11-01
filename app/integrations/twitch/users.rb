@@ -16,6 +16,14 @@ module Integrations
         end
       end
 
+      def for(user_ids)
+        user_ids.each_slice(Client::MAX_IDS).flat_map do |ids|
+          @client.get_json("/users", params: {id: ids}) do |body|
+            body.fetch("data").map { |data| user(data) }
+          end
+        end
+      end
+
       private
 
       def user(data)
