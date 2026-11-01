@@ -67,7 +67,9 @@ below ends it.
 State keys: `session` (the first stream id of the session), `stream_ids`, `title`,
 `category_id`, `category_name`, `started_at`, `last_live_at` (the latest live sighting),
 `login`, `display_name`, `peak_viewers` and, while the stream is down, `offline_at`.
-Times are ISO 8601 strings. An ended session keeps only `login` and `display_name`.
+Keys are strings and times are ISO 8601 strings, because jsonb hands both back that
+way: symbol keys would make a fresh state differ from the reloaded one. An ended
+session keeps only `login` and `display_name`.
 
 A session is **stale** when its `last_live_at` is more than `Session::STALE_AFTER`
 (20 minutes: the grace period, one 10-minute reconcile and slack) old. That covers our
