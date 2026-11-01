@@ -29,9 +29,7 @@ Models are the exception, because models stay in `app/models`: `Integrations::Wa
 **Not collapsed to top-level `Twitch::` / `Steam::`.** Provider gems own those
 constants (`twitch-api` defines `Twitch::Client`), and a collapsed directory would
 collide with them or shadow them. Inside `Integrations::Twitch`, reach a gem with a
-leading `::`, as in `::Twitch::Client`. For the same reason, inside
-`Integrations::Steam` the bare name `App` is the Steam value object; the Rails
-application module is `::App`.
+leading `::`, as in `::Twitch::Client`.
 
 **Not `lib/`.** `lib/` holds app-agnostic plumbing. These classes read our ENV and
 return our types, which makes them application code.
@@ -123,10 +121,10 @@ job is to build the URL and authenticate, then hand off to `Http`.
 `Client-Id` and a cached bearer token, retries once on a 401 with a fresh token, and
 pages through Helix lists with `get_all`.
 
-**Resource classes** sit on top, one per API resource (`Steam::News`, `Steam::Apps`,
-`Steam::StoreItems`, which resolves a game's store artwork URL).
+**Resource classes** sit on top, one per API resource (`Steam::News`, and
+`Steam::StoreItems`, which names games and resolves their store artwork URLs).
 They take the client as a keyword with a default, call it, and return the provider's
-own `Data` value objects (`Steam::NewsItem`, `Steam::App`):
+own `Data` value objects (`Steam::NewsItem`, `Steam::StoreItem`):
 
 ```ruby
 class News

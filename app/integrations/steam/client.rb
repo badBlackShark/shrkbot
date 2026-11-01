@@ -4,8 +4,7 @@ module Integrations
   module Steam
     class Client
       HOSTS = {
-        api: "https://api.steampowered.com",
-        store: "https://store.steampowered.com"
+        api: "https://api.steampowered.com"
       }.freeze
       ASSET_HOST = "https://shared.akamai.steamstatic.com"
 
