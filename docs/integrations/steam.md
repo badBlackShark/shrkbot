@@ -6,12 +6,27 @@ below keeps what it fetched as events.
 
 `Integrations::Steam::Client` is the one home for Steam's two hosts (`:api` for
 `api.steampowered.com`, `:store` for `store.steampowered.com`) and is where a Web API
-key would go. Two resources use it:
+key would go. Three resources use it:
 
 | Resource | Endpoint | Returns |
 | --- | --- | --- |
 | `Steam::News#for_app(app_id, count: 20)` | `api` `/ISteamNews/GetNewsForApp/v2/` | `[Steam::NewsItem]` |
 | `Steam::Apps#find(app_id)` | `store` `/api/appdetails` | `Steam::App` |
+| `Steam::StoreItems#find_all(app_ids)` | `api` `/IStoreBrowseService/GetItems/v1/` | `[Steam::StoreItem]` |
+
+`StoreItems` also has `#hero_capsule_url(app_id)` for the artwork of a single app.
+
+## GetItems
+
+`IStoreBrowseService` is **undocumented**: it is on the Web API host and takes no key,
+but the Steamworks Web API reference does not list it (checked 2026-10-31). Treat it
+like the store endpoints below: it can change without notice.
+
+`find_all` sends the ids in batches of 100. Checked live on 2026-10-31: 200 ids in one
+call were answered, in request order. An unknown app comes back as `appid 0,
+success 15` with an empty name and no assets, and is dropped. The header URL equals
+`appdetails`' `header_image` including the `?t=` cache key, so a changed header shows
+up as a changed URL.
 
 ## News
 

@@ -19,6 +19,12 @@ module Integrations
         store_items.hero_capsule_url(external_id)
       end
 
+      def self.refresh(external_ids, store_items: StoreItems.new)
+        store_items.find_all(external_ids).map do |item|
+          Target.new(external_id: item.app_id, name: item.name, image_url: item.header_image_url)
+        end
+      end
+
       def self.artwork(url, client: Client.new)
         client.get_bytes(url)
       end

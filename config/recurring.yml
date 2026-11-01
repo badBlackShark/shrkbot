@@ -29,6 +29,10 @@ production:
     class: Integrations::PollJob
     args: ["Integrations::Steam::NewsWatcher"]
     schedule: every hour
+  integrations_steam_watch_refresh:
+    class: Integrations::RefreshWatchesJob
+    args: ["Integrations::Steam::NewsWatcher"]
+    schedule: every day at 6am
   integrations_broken_watch_report:
     class: Integrations::ReportBrokenWatchesJob
     schedule: every hour at minute 50
@@ -50,6 +54,10 @@ development:
     class: Integrations::PollJob
     args: ["Integrations::Steam::NewsWatcher"]
     schedule: every hour
+  integrations_steam_watch_refresh:
+    class: Integrations::RefreshWatchesJob
+    args: ["Integrations::Steam::NewsWatcher"]
+    schedule: every day at 6am
   integrations_broken_watch_report:
     class: Integrations::ReportBrokenWatchesJob
     schedule: every hour at minute 50
