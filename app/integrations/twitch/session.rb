@@ -4,6 +4,7 @@ module Integrations
   module Twitch
     class Session
       GRACE = 5.minutes
+      STALE_AFTER = 20.minutes
       Outcome = Data.define(:state, :events, :went_offline)
 
       def initialize(state, now:)
@@ -26,43 +27,35 @@ module Integrations
 
       def live(observation)
         return start(observation) unless open?
-        return restart(observation) if grace_elapsed?
+        return restart(observation) if stale? && !@state.fetch("stream_ids").include?(observation.stream_id)
 
         continue(observation)
       end
 
       def offline
-        return unchanged unless open?
-        return mark_offline unless @state.key?("offline_at")
-        return finish if grace_elapsed?
+        return outcome(@state) unless open?
+        return finish(last_live_at) if stale?
+        return outcome(@state) if @state.key?("offline_at")
 
-        unchanged
+        outcome(@state.merge("offline_at" => @now.iso8601), went_offline: true)
       end
 
       def close(observation)
-        return unchanged unless open? && @state["offline_at"] == observation.offline_since
+        return outcome(@state) unless open? && @state["offline_at"] == observation.offline_since
 
-        finish
+        finish(Time.zone.parse(observation.offline_since))
       end
 
       def open?
         @state.key?("session")
       end
 
-      def grace_elapsed?
-        @state.key?("offline_at") && @now - offline_at >= GRACE
+      def stale?
+        @now - last_live_at > STALE_AFTER
       end
 
-      def offline_at
-        Time.zone.parse(@state.fetch("offline_at"))
-      end
-
-      def unchanged
-        outcome(@state)
-      end
-
-      def mark_offline
-        outcome(@state.merge("offline_at" => @now.iso8601), went_offline: true)
+      def last_live_at
+        Time.zone.parse(@state.fetch("last_live_at"))
       end
 
       def start(observation)
@@ -73,6 +66,7 @@ module Integrations
           "category_id" => observation.category_id,
           "category_name" => observation.category_name,
           "started_at" => observation.started_at.iso8601,
+          "last_live_at" => @now.iso8601,
           "login" => observation.login,
           "display_name" => observation.display_name,
           "peak_viewers" => observation.viewer_count
@@ -81,7 +75,7 @@ module Integrations
       end
 
       def restart(observation)
-        ended = finish
+        ended = finish(last_live_at)
         started = start(observation)
         outcome(started.state, ended.events + started.events)
       end
@@ -89,6 +83,7 @@ module Integrations
       def continue(observation)
         state = @state.except("offline_at").merge(
           "stream_ids" => @state.fetch("stream_ids") | [observation.stream_id],
+          "last_live_at" => @now.iso8601,
           "peak_viewers" => [@state.fetch("peak_viewers"), observation.viewer_count].max,
           "login" => observation.login,
           "display_name" => observation.display_name
@@ -100,16 +95,14 @@ module Integrations
           "category_id" => observation.category_id,
           "category_name" => observation.category_name
         )
-        update = event(StreamUpdated, state, occurred_at: @now, subject_key: "stream-update:#{state["session"]}:#{@now.to_i}")
-        outcome(state, [update])
+        outcome(state, [event(StreamUpdated, state, occurred_at: @now, subject_key: "stream-update:#{state["session"]}:#{@now.to_i}")])
       end
 
       def changed?(observation)
         @state["title"] != observation.title || @state["category_id"] != observation.category_id
       end
 
-      def finish
-        ended_at = offline_at
+      def finish(ended_at)
         ended = event(
           StreamEnded,
           @state,

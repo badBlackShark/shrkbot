@@ -3,6 +3,8 @@
 module Integrations
   module Twitch
     class StreamReconcileJob < ApplicationJob
+      include RecordsWatchFailures
+
       WATCHER = "Integrations::Twitch::ChannelWatcher"
 
       queue_as :default
@@ -44,15 +46,15 @@ module Integrations
             observation: stream ? Live.from_stream(stream) : Offline.new
           )
         rescue => error
-          Rails.logger.error(error.full_message(highlight: false))
-          bugs << "#{watch.label}: #{error.class}: #{error.message}"
+          failed = record_failure(watch, error)
+          bugs << "#{failed.label}: #{failed.last_error}" if failed && new_bug?(watch, error)
         end
         ReportPollBugsJob.perform_later(bugs) if bugs.any?
       end
 
       def report(watches, error)
         Rails.logger.warn("Integrations: Twitch stream reconcile failed: #{error.class}: #{error.message}")
-        if error.is_a?(RateLimited) && !watches.first.last_error.to_s.start_with?("#{RateLimited}:")
+        if error.is_a?(RateLimited) && watches.all? { |watch| new_error?(watch, error) }
           ReportRateLimitJob.perform_later("Twitch streams", error.message, error.retry_after)
         end
         watches.each { |watch| Ops::Integrations::Watches::RecordFailure.call(watch:, error:) }

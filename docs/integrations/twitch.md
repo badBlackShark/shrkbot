@@ -59,47 +59,63 @@ applies one observation and returns an `Outcome` (new state, unsaved events,
 `went_offline`). `Ops::Integrations::Twitch::Streams::Transition` runs it under the
 watch's row lock, saves the state, hands the events to `Ops::Integrations::Events::Record`
 and, when the stream just went offline, schedules `Twitch::CloseSessionJob` for
-`Session::GRACE` (5 minutes) later.
+`Session::GRACE` (5 minutes) later. The close job asks `/streams` about that one channel
+first: live again (a reconnect, often with a new stream id) continues the session, still
+offline ends it. If Twitch fails the check, the session stays open and the stale rule
+below ends it.
 
 State keys: `session` (the first stream id of the session), `stream_ids`, `title`,
-`category_id`, `category_name`, `started_at`, `login`, `display_name`, `peak_viewers`
-and, while the stream is down, `offline_at`. Times are ISO 8601 strings. An ended
-session keeps only `login` and `display_name`.
+`category_id`, `category_name`, `started_at`, `last_live_at` (the latest live sighting),
+`login`, `display_name`, `peak_viewers` and, while the stream is down, `offline_at`.
+Times are ISO 8601 strings. An ended session keeps only `login` and `display_name`.
+
+A session is **stale** when its `last_live_at` is more than `Session::STALE_AFTER`
+(20 minutes: the grace period, one 10-minute reconcile and slack) old. That covers our
+downtime and a channel nobody followed for a while, whose state froze: the session ends
+at `last_live_at`, so its duration stays true.
 
 | Observation | State | Result |
 | --- | --- | --- |
 | `Live` | no session | start; `StreamStarted` at the stream's `started_at` |
-| `Live` | session, offline more than `GRACE` ago | end, then start; `StreamEnded` + `StreamStarted` |
-| `Live` | session otherwise | continue: add the stream id (a reconnect with a new id merges), drop `offline_at`, raise the peak; `StreamUpdated` when title or category changed |
+| `Live` | stale session, a stream id it has not seen | end at `last_live_at`, then start; `StreamEnded` + `StreamStarted` |
+| `Live` | session otherwise | continue: stamp `last_live_at`, add the stream id (a reconnect with a new id merges), drop `offline_at`, raise the peak; `StreamUpdated` when title or category changed |
 | `Offline` | no session | nothing |
-| `Offline` | session, no `offline_at` | set `offline_at = now`, schedule the close; no event |
-| `Offline` | session, `offline_at` at least `GRACE` old | end |
+| `Offline` | stale session | end at `last_live_at` |
+| `Offline` | session, no `offline_at` | set `offline_at = now`, schedule the close check; no event |
 | `Offline` | otherwise | nothing |
-| `Close(offline_since)` | session, `offline_at == offline_since` | end |
+| `Close(offline_since)` | session, `offline_at == offline_since` | end at `offline_at` |
 | `Close(offline_since)` | back live, already ended or a stale time | nothing |
 
-End: `StreamEnded` occurs at `offline_at` and carries `ended_at`, `duration` (seconds
-from `started_at` to `offline_at`) and `peak_viewers`.
+A stale session that sees its own stream id again continues: the stream never ended, we
+only missed it.
+
+End: `StreamEnded` carries `ended_at`, `duration` (seconds from `started_at`) and
+`peak_viewers`.
 
 **Subject keys:** `stream:<session>` (started), `stream-update:<session>:<now unix>`
 (updated), `stream-end:<session>` (ended). **Story key:** `stream:<session>` on every
 stream event, so the three belong to one story. `StreamUpdated` fires on a title or
-category change only; viewer counts and name changes never emit.
+category change only; viewer counts and name changes never emit. `Events::Record` skips
+an event whose type and subject key the watch already stored, so a closed session that
+reopens on the same stream id does not break on the unique index.
 
 `Twitch::StreamReconcileJob` runs every 10 minutes. It asks `Streams#live` for every
 demanded Twitch watch in one batch (100 ids per call), stamps `polled_at` and clears the
 failure fields (`RecordPolls`: Twitch answered, so the watches are readable), then
 transitions each watch with `Live` or `Offline`. A transition that would drop an invalid
-event raises and rolls back, so the state never claims a session whose event was lost. Without push, an
-end is noticed on the first reconcile after the grace period, so up to 15 minutes late.
+event raises and rolls back, so the state never claims a session whose event was lost.
+Without push, an end is noticed by the close check 5 minutes after the first offline
+reconcile, so up to 15 minutes late.
 
-Failures map onto the shared machinery. An `Integrations::Error` from the live call
-records `RecordFailure` on every watch, which feeds the 24-hour broken-watch report (a
-persistent `Unauthorized`, say). A `RateLimited` also enqueues `ReportRateLimitJob`, once:
-not when the first watch already says `Integrations::RateLimited`. An exception from one
-watch's transition is logged, collected and sent through `ReportPollBugsJob`; the other
-watches still transition. Nothing creates Twitch watches yet, so in production the job
-finds no demanded watch and does nothing.
+Failures map onto the shared machinery (`RecordsWatchFailures`, shared with `PollJob`).
+An `Integrations::Error` from the live call records `RecordFailure` on every watch,
+which feeds the 24-hour broken-watch report (a persistent `Unauthorized`, say). A
+`RateLimited` also enqueues `ReportRateLimitJob`, unless any watch already says
+`Integrations::RateLimited`. An exception from one watch's transition is recorded on
+that watch and reported through `ReportPollBugsJob` only when its last error was
+something else, so a persistent bug reports once; the other watches still transition.
+Nothing creates Twitch watches yet, so in production the job finds no demanded watch
+and does nothing.
 
 ## Mapping notes
 

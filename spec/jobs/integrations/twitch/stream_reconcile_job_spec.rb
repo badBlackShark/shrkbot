@@ -61,7 +61,7 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
   end
 
   context "with a live channel and an offline one" do
-    let!(:idle_watch) { create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", state: {"session" => "old", "stream_ids" => ["old"], "peak_viewers" => 1, "started_at" => "2026-11-01T08:00:00Z", "login" => "idle", "display_name" => "Idle Two"}) }
+    let!(:idle_watch) { create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", state: {"session" => "old", "stream_ids" => ["old"], "peak_viewers" => 1, "started_at" => "2026-11-01T08:00:00Z", "last_live_at" => 10.minutes.ago.iso8601, "login" => "idle", "display_name" => "Idle Two"}) }
 
     it "starts a session for the live one" do
       perform
@@ -124,6 +124,16 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
       expect(idle_watch.reload.last_error).to eq("Integrations::RateLimited: slow down")
     end
 
+    context "when a watch other than the first was already rate limited" do
+      let!(:idle_watch) do
+        create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", failing_since: 1.hour.ago, polled_at: 1.hour.ago, last_error: "Integrations::RateLimited: slow down")
+      end
+
+      it "does not report it again" do
+        expect { perform }.not_to have_enqueued_job(Integrations::ReportRateLimitJob)
+      end
+    end
+
     context "when the watches were already rate limited" do
       let(:limited) { {failing_since: 1.hour.ago, polled_at: 1.hour.ago, last_error: "Integrations::RateLimited: slow down"} }
       let!(:live_watch) { create(:integration_watch, watcher:, external_id: "1", name: "Live One", **limited) }
@@ -141,7 +151,18 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
       allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).with(hash_including(watch: live_watch)).and_raise(NoMethodError, "our bug")
     end
 
-    let!(:idle_watch) { create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", state: {"session" => "old", "stream_ids" => ["old"], "peak_viewers" => 1, "started_at" => "2026-11-01T08:00:00Z", "login" => "idle", "display_name" => "Idle Two"}) }
+    let!(:idle_watch) { create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", state: {"session" => "old", "stream_ids" => ["old"], "peak_viewers" => 1, "started_at" => "2026-11-01T08:00:00Z", "last_live_at" => 10.minutes.ago.iso8601, "login" => "idle", "display_name" => "Idle Two"}) }
+
+    it "records the failure on the broken watch" do
+      perform
+
+      expect(live_watch.reload.last_error).to eq("NoMethodError: our bug")
+    end
+
+    it "does not report the same bug again on the next run" do
+      described_class.perform_now
+      expect { perform }.not_to have_enqueued_job(Integrations::ReportPollBugsJob)
+    end
 
     it "still transitions the other and reports the bug once" do
       expect { perform }.to have_enqueued_job(Integrations::ReportPollBugsJob)

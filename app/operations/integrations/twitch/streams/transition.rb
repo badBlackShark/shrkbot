@@ -14,8 +14,9 @@ module Ops
               outcome = ::Integrations::Twitch::Session.new(watch.state, now: Time.current).apply(observation)
               outcome.events.each { |event| event.watch = watch }
               watch.update!(state: outcome.state)
-              recorded = Ops::Integrations::Events::Record.call(watch:, events: outcome.events).value
-              raise DroppedEvent, "#{watch.label}: #{outcome.events.size - recorded.size} stream events were invalid" if recorded.size < outcome.events.size
+              Ops::Integrations::Events::Record.call(watch:, events: outcome.events)
+              invalid = outcome.events.select { |event| event.errors.any? }
+              raise DroppedEvent, "#{watch.label}: #{invalid.size} stream events were invalid" if invalid.any?
               schedule_close(outcome.state.fetch("offline_at")) if outcome.went_offline
             end
             ok

@@ -40,6 +40,27 @@ RSpec.describe Ops::Integrations::Twitch::Streams::Transition do
     end
   end
 
+  context "when a closed session's stream shows up live again" do
+    let(:state) { {"login" => "shroud", "display_name" => "Shroud"} }
+
+    before do
+      Integrations::Twitch::StreamStarted.create!(
+        watch:,
+        subject_key: "stream:s1",
+        occurred_at: started_at,
+        session: "s1",
+        login: "shroud",
+        display_name: "Shroud",
+        story_key: "stream:s1"
+      )
+    end
+
+    it "reopens the session without breaking on the already stored start" do
+      expect { result }.not_to change { Integrations::Event.where(watch:).count }
+      expect(watch.reload.state).to include("session" => "s1")
+    end
+  end
+
   context "with a live stream on an idle watch" do
     it "saves the session state and a StreamStarted for the watch" do
       result
@@ -51,7 +72,7 @@ RSpec.describe Ops::Integrations::Twitch::Streams::Transition do
 
   context "with an offline observation inside a session" do
     let(:observation) { going_offline }
-    let(:state) { {"session" => "s1", "stream_ids" => ["s1"], "peak_viewers" => 5, "started_at" => started_at.iso8601, "login" => "shroud", "display_name" => "Shroud"} }
+    let(:state) { {"session" => "s1", "stream_ids" => ["s1"], "last_live_at" => 8.minutes.ago.iso8601, "peak_viewers" => 5, "started_at" => started_at.iso8601, "login" => "shroud", "display_name" => "Shroud"} }
     let(:offline_at) { Time.current.iso8601 }
 
     it "stamps offline_at and schedules the close for the end of the grace period" do
@@ -76,7 +97,7 @@ RSpec.describe Ops::Integrations::Twitch::Streams::Transition do
     let(:state) do
       {
         "session" => "s1",
-        "stream_ids" => ["s1"],
+        "stream_ids" => ["s1"], "last_live_at" => 8.minutes.ago.iso8601,
         "peak_viewers" => 5,
         "started_at" => started_at.iso8601,
         "login" => "shroud",

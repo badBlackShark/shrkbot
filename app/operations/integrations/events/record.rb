@@ -7,12 +7,23 @@ module Ops
         receives :watch, :events
 
         def call
-          published = events.select { |event| persist(event) }
+          published = events.reject { |event| recorded?(event) }.select { |event| persist(event) }
           dispatch_after_commit(published)
           ok(published)
         end
 
         private
+
+        def recorded?(event)
+          already_recorded.include?([event.type, event.subject_key])
+        end
+
+        def already_recorded
+          @already_recorded ||= ::Integrations::Event
+            .where(watch:, subject_key: events.map(&:subject_key))
+            .pluck(:type, :subject_key)
+            .to_set
+        end
 
         def persist(event)
           event.enrich

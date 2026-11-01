@@ -35,6 +35,23 @@ RSpec.describe Ops::Integrations::Events::Record do
     end
   end
 
+  context "when an event with the same type and subject is already stored" do
+    before { create(:steam_news_event, watch:, subject_key: "valid", occurred_at: 2.hours.ago) }
+
+    it "skips it instead of breaking on the unique index, and does not publish it" do
+      expect(result.value).to eq([])
+      expect(Integrations::Event.where(watch:).count).to eq(1)
+    end
+  end
+
+  context "when another watch stored the same subject" do
+    before { create(:steam_news_event, subject_key: "valid", occurred_at: 2.hours.ago) }
+
+    it "still records it for this watch" do
+      expect(result.value).to eq([valid])
+    end
+  end
+
   context "with no events" do
     let(:events) { [] }
 
