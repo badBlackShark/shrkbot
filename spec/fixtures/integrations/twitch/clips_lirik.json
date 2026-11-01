@@ -1,0 +1,64 @@
+{
+  "data": [
+    {
+      "id": "PiercingFragileHornetPJSalt-MWN6RC3-Dp3tHDsx",
+      "url": "https://www.twitch.tv/lirik/clip/PiercingFragileHornetPJSalt-MWN6RC3-Dp3tHDsx",
+      "embed_url": "https://clips.twitch.tv/embed?clip=PiercingFragileHornetPJSalt-MWN6RC3-Dp3tHDsx",
+      "broadcaster_id": "23161357",
+      "broadcaster_name": "LIRIK",
+      "creator_id": "40764380",
+      "creator_name": "Mythriak_",
+      "video_id": "2889882220",
+      "game_id": "509658",
+      "language": "en",
+      "title": "thats crazy",
+      "view_count": 879,
+      "created_at": "2026-10-02T16:23:15Z",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/a156412b-e785-41e5-8ddd-e24d1d680bbd/landscape/thumb/thumb-0000000000-480x272.jpg",
+      "duration": 60,
+      "vod_offset": 308,
+      "is_featured": false
+    },
+    {
+      "id": "CleverGrotesqueSkunkHumbleLife-3jLXIILvcjBHp2zu",
+      "url": "https://www.twitch.tv/lirik/clip/CleverGrotesqueSkunkHumbleLife-3jLXIILvcjBHp2zu",
+      "embed_url": "https://clips.twitch.tv/embed?clip=CleverGrotesqueSkunkHumbleLife-3jLXIILvcjBHp2zu",
+      "broadcaster_id": "23161357",
+      "broadcaster_name": "LIRIK",
+      "creator_id": "37041125",
+      "creator_name": "Murkedd",
+      "video_id": "2892651363",
+      "game_id": "743893402",
+      "language": "en",
+      "title": "They were mean to our streamer",
+      "view_count": 879,
+      "created_at": "2026-10-05T22:12:20Z",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/4f4bd09b-43a0-44bb-a706-aa91f5a8db20/landscape/thumb/thumb-0000000000-480x272.jpg",
+      "duration": 31.9,
+      "vod_offset": 21870,
+      "is_featured": false
+    },
+    {
+      "id": "BoringBlatantJalapenoGOWSkull-nXTeq-y9ikR7my5_",
+      "url": "https://www.twitch.tv/lirik/clip/BoringBlatantJalapenoGOWSkull-nXTeq-y9ikR7my5_",
+      "embed_url": "https://clips.twitch.tv/embed?clip=BoringBlatantJalapenoGOWSkull-nXTeq-y9ikR7my5_",
+      "broadcaster_id": "23161357",
+      "broadcaster_name": "LIRIK",
+      "creator_id": "725127910",
+      "creator_name": "sTeVo_o7",
+      "video_id": "2890837693",
+      "game_id": "743893402",
+      "language": "en",
+      "title": "Wardogs Cheater?",
+      "view_count": 855,
+      "created_at": "2026-10-03T22:32:54Z",
+      "thumbnail_url": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/4a8f189e-6168-4290-8ad1-2d44ae3596fa/landscape/thumb/thumb-0000000000-480x272.jpg",
+      "duration": 30,
+      "vod_offset": 23462,
+      "is_featured": false
+    }
+  ],
+  "pagination": {
+    "cursor": "eyJiIjpudWxsLCJhIjp7IkN1cnNvciI6Ik13PT0ifX0"
+  }
+}
