@@ -28,8 +28,9 @@ module Integrations
       private
 
       def live(observation)
+        return outcome(@state) if outdated?(observation)
         return start(observation) unless open?
-        return restart(observation) if stale? && !@state.fetch("stream_ids").include?(observation.stream_id)
+        return restart(observation) if stale? && !known?(observation)
 
         continue(observation)
       end
@@ -50,6 +51,16 @@ module Integrations
 
       def open?
         @state.key?("session")
+      end
+
+      def outdated?(observation)
+        return @state.fetch("ended_stream_ids", []).include?(observation.stream_id) unless open?
+
+        known?(observation) && @state.key?("offline_at") && @now - Time.zone.parse(@state.fetch("offline_at")) < GRACE
+      end
+
+      def known?(observation)
+        @state.fetch("stream_ids").include?(observation.stream_id)
       end
 
       def stale?
@@ -90,13 +101,15 @@ module Integrations
           "login" => observation.login,
           "display_name" => observation.display_name
         )
+        return outcome(state) if state["titles_pushed"]
+
         update(state, observation)
       end
 
       def channel_update(observation)
         return outcome(@state) unless open?
 
-        update(@state, observation)
+        update(@state.merge("titles_pushed" => true), observation)
       end
 
       def update(state, observation)
@@ -124,7 +137,7 @@ module Integrations
           duration: (ended_at - Time.zone.parse(@state.fetch("started_at"))).to_i,
           peak_viewers: @state.fetch("peak_viewers")
         )
-        outcome(@state.slice("login", "display_name"), [ended])
+        outcome(@state.slice("login", "display_name").merge("ended_stream_ids" => @state.fetch("stream_ids")), [ended])
       end
 
       def outcome(state, events = [], went_offline: false)

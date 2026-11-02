@@ -36,8 +36,22 @@ RSpec.describe Integrations::Twitch::NotificationJob do
     }
   end
 
+  let(:demanded) { [watch] }
+
   before do
     allow(Integrations::Twitch::Channels).to receive(:new).and_return(channels)
+    allow(Integrations::Watch).to receive(:demanded) { Integrations::Watch.where(id: demanded.map(&:id)) }
+  end
+
+  context "when nobody follows the channel any more" do
+    let(:demanded) { [] }
+
+    it "leaves the watch alone" do
+      perform
+
+      expect(watch.reload.state).to eq({})
+      expect(channels).not_to have_received(:for)
+    end
   end
 
   context "when a stream goes online" do

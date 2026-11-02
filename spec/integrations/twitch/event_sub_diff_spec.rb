@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rails_helper"
+require "benchmark"
 
 RSpec.describe Integrations::Twitch::EventSubDiff do
   subject(:diff) { described_class.new(existing:, broadcaster_ids:, callback:, rebuild:) }
@@ -114,6 +115,21 @@ RSpec.describe Integrations::Twitch::EventSubDiff do
     it "deletes and recreates everything" do
       expect(diff.stale).to match_array(existing)
       expect(diff.missing.size).to eq(3)
+    end
+  end
+
+  context "with 3,300 channels fully subscribed" do
+    subject(:elapsed) { Benchmark.realtime { [diff.stale, diff.missing] } }
+
+    let(:broadcaster_ids) { Array.new(3300) { |index| index.to_s } }
+    let!(:existing) do
+      broadcaster_ids.flat_map do |broadcaster_id|
+        described_class::TYPES.map { |type, version| subscription("#{type}-#{broadcaster_id}", type, version, broadcaster_id:) }
+      end
+    end
+
+    it "decides within a second" do
+      expect(elapsed).to be < 1
     end
   end
 end

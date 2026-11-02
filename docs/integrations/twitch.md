@@ -66,10 +66,11 @@ below ends it.
 
 State keys: `session` (the first stream id of the session), `stream_ids`, `title`,
 `category_id`, `category_name`, `started_at`, `last_live_at` (the latest live sighting),
-`login`, `display_name`, `peak_viewers` and, while the stream is down, `offline_at`.
+`login`, `display_name`, `peak_viewers`, `titles_pushed` (set by the first
+`ChannelUpdate`) and, while the stream is down, `offline_at`.
 Keys are strings and times are ISO 8601 strings, because jsonb hands both back that
 way: symbol keys would make a fresh state differ from the reloaded one. An ended
-session keeps only `login` and `display_name`.
+session keeps only `login`, `display_name` and `ended_stream_ids` (its `stream_ids`).
 
 A session is **stale** when its `last_live_at` is more than `Session::STALE_AFTER`
 (20 minutes: the grace period, one 10-minute reconcile and slack) old. That covers our
@@ -78,9 +79,11 @@ at `last_live_at`, so its duration stays true.
 
 | Observation | State | Result |
 | --- | --- | --- |
+| `Live` | no session, a stream id in `ended_stream_ids` | nothing (a lagging `/streams` or a replayed push) |
+| `Live` | session, a known stream id, less than `GRACE` after `offline_at` | nothing (a lagging `/streams` after a pushed offline) |
 | `Live` | no session | start; `StreamStarted` at the stream's `started_at` |
 | `Live` | stale session, a stream id it has not seen | end at `last_live_at`, then start; `StreamEnded` + `StreamStarted` |
-| `Live` | session otherwise | continue: stamp `last_live_at`, add the stream id (a reconnect with a new id merges), drop `offline_at`, raise the peak; `StreamUpdated` when title or category changed |
+| `Live` | session otherwise | continue: stamp `last_live_at`, add the stream id (a reconnect with a new id merges), drop `offline_at`, raise the peak; `StreamUpdated` when title or category changed, unless `titles_pushed` (then push owns them and a lagging poll cannot undo a pushed title) |
 | `Offline` | no session | nothing |
 | `Offline` | stale session | end at `last_live_at` |
 | `Offline` | session, no `offline_at` | set `offline_at = now`, schedule the close check; no event |
@@ -137,7 +140,7 @@ minutes of now in either direction. A failed check answers 403 and does nothing 
 | `revocation` | 204 | warning log, `Twitch::EventSubReconcileJob` |
 | anything else, or an unparsable body | 400 | none |
 
-`NotificationJob` finds the watch by `broadcaster_user_id` (unknown broadcasters are
+`NotificationJob` finds the demanded watch by `broadcaster_user_id` (anything else is
 dropped) and maps the event onto a Session observation. `stream.online` becomes `Live`
 from the event plus a `/channels` lookup for title and category; viewers stay 0 until the
 stream reconcile samples them. `stream.offline` becomes `Offline`. `channel.update`
@@ -162,13 +165,18 @@ counts as already there. Twitch keeps disabled webhook subscriptions listed for 
 
 Statuses `notification_failures_exceeded`, `version_removed` and
 `webhook_callback_verification_failed` DM the owner (`ReportEventSubJob`); other disabled
-statuses are recreated silently. Create failures DM grouped by error. Each status or
-error DMs at most once a day (a cache key per message). A `RateLimited` stops the run.
+statuses are recreated silently. The revocation DM is claimed before any delete, so a
+failure later in the run cannot lose it. A create failure DMs, grouped by error, only
+when the same error also failed the run before (a cache mark for `REPEAT_WINDOW`, 11
+minutes); a passing blip stays quiet. Each status or error DMs at most once a day (a
+cache key per message). A `RateLimited` stops the run and sends the rate-limit DM, also
+once a day.
 
 Rotating the secret: set the new `TWITCH_EVENTSUB_SECRET`, deploy, then run
 `bin/rails runner 'Integrations::Twitch::EventSubReconcileJob.perform_now(rebuild: true)'`.
 Between the deploy and the rebuild notifications fail the signature check and the stream
-reconcile covers live state.
+reconcile covers live state. A rebuild that hits the rate limit enqueues itself again
+with `rebuild: true` once the limit resets (a minute at the earliest).
 
 In development no subscriptions get created (the callback must be https on 443). With
 `TWITCH_EVENTSUB_SECRET` set, the receiver can be exercised with the Twitch CLI:

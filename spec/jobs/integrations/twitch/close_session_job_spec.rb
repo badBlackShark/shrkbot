@@ -39,7 +39,7 @@ RSpec.describe Integrations::Twitch::CloseSessionJob do
     it "closes the session that went offline at that time" do
       perform
 
-      expect(watch.reload.state).to eq("login" => "shroud", "display_name" => "Shroud")
+      expect(watch.reload.state).to eq("login" => "shroud", "display_name" => "Shroud", "ended_stream_ids" => ["s1"])
       expect(watch.events).to contain_exactly(an_instance_of(Integrations::Twitch::StreamEnded))
     end
   end

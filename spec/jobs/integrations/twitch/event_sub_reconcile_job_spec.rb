@@ -3,6 +3,8 @@
 require "rails_helper"
 
 RSpec.describe Integrations::Twitch::EventSubReconcileJob do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject(:perform) { described_class.perform_now(rebuild:) }
 
   let(:watcher) { "Integrations::Twitch::ChannelWatcher" }
@@ -109,16 +111,30 @@ RSpec.describe Integrations::Twitch::EventSubReconcileJob do
       allow(subscriptions).to receive(:create).and_raise(Integrations::Error, "boom")
     end
 
-    it "tells the owner once, grouped by error" do
-      expect { perform }.to have_enqueued_job(Integrations::Twitch::ReportEventSubJob)
-        .with(["Creating 3 subscriptions failed (first: stream.online for channel 1): Integrations::Error: boom"])
-        .once
+    it "stays quiet the first time, since the next run may succeed" do
+      expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportEventSubJob)
     end
 
-    it "does not repeat the alert on the next run" do
-      described_class.perform_now
+    context "when it failed on the previous run too" do
+      before do
+        described_class.perform_now
+      end
 
-      expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportEventSubJob)
+      it "tells the owner, grouped by error" do
+        expect { perform }.to have_enqueued_job(Integrations::Twitch::ReportEventSubJob)
+          .with(["Creating 3 subscriptions failed (first: stream.online for channel 1): Integrations::Error: boom"])
+          .once
+      end
+    end
+
+    context "when the owner was already told" do
+      before do
+        Prosopite.pause { 2.times { described_class.perform_now } }
+      end
+
+      it "does not repeat the alert" do
+        expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportEventSubJob)
+      end
     end
   end
 
@@ -145,11 +161,40 @@ RSpec.describe Integrations::Twitch::EventSubReconcileJob do
       allow(subscriptions).to receive(:create).and_raise(Integrations::RateLimited.new("slow down", retry_after: 30))
     end
 
-    it "stops the run and logs it" do
-      expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportEventSubJob)
+    it "stops the run, logs it and tells the owner" do
+      expect { perform }.to have_enqueued_job(Integrations::ReportRateLimitJob).with("Twitch EventSub", "slow down", 30).once
 
       expect(subscriptions).to have_received(:create).once
       expect(Rails.logger).to have_received(:warn).with(/EventSub reconcile failed: Integrations::RateLimited/)
+    end
+
+    context "when the owner was already told" do
+      before do
+        described_class.perform_now
+      end
+
+      it "does not tell them again" do
+        expect { perform }.not_to have_enqueued_job(Integrations::ReportRateLimitJob)
+      end
+    end
+
+    context "with revoked subscriptions to report" do
+      let(:existing) { [subscription("a", "stream.online", "1", status: "notification_failures_exceeded")] }
+
+      it "still tells the owner about the revocation" do
+        expect { perform }.to have_enqueued_job(Integrations::Twitch::ReportEventSubJob)
+          .with(["Twitch revoked 1 subscription: notification_failures_exceeded."])
+      end
+    end
+
+    context "while rebuilding" do
+      let(:rebuild) { true }
+
+      it "resumes the rebuild after the limit resets, a minute at the earliest" do
+        freeze_time do
+          expect { perform }.to have_enqueued_job(described_class).with(rebuild: true).at(1.minute.from_now)
+        end
+      end
     end
   end
 

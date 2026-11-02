@@ -40,7 +40,7 @@ module Integrations
       end
 
       def wanted_keys
-        @wanted_keys ||= wanted.map(&:key)
+        @wanted_keys ||= wanted.to_set(&:key)
       end
 
       def kept
@@ -48,7 +48,7 @@ module Integrations
       end
 
       def kept_keys
-        @kept_keys ||= kept.map { |subscription| key_of(subscription) }
+        @kept_keys ||= kept.to_set { |subscription| key_of(subscription) }
       end
 
       def usable

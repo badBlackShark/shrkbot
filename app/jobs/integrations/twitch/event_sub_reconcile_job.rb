@@ -4,6 +4,8 @@ module Integrations
   module Twitch
     class EventSubReconcileJob < ApplicationJob
       ALERT_INTERVAL = 1.day
+      REPEAT_WINDOW = 11.minutes
+      MIN_RETRY = 1.minute
 
       queue_as :default
       limits_concurrency(
@@ -18,11 +20,14 @@ module Integrations
 
         subscriptions = EventSubSubscriptions.new
         diff = EventSubDiff.new(existing: subscriptions.all, broadcaster_ids:, callback:, rebuild:)
+        report(revocation_problems(diff.revoked))
         diff.stale.each { |subscription| subscriptions.destroy(subscription.id) }
         failures = diff.missing.filter_map { |wanted| create_failure(subscriptions, wanted) }
-        report(revocation_problems(diff.revoked) + creation_problems(failures))
+        report(creation_problems(failures).select { |key, _line| repeated?(key) })
+      rescue RateLimited => error
+        rate_limited(error, rebuild)
       rescue Error => error
-        Rails.logger.warn("Integrations: Twitch EventSub reconcile failed: #{error.class}: #{error.message}")
+        warn(error)
       end
 
       private
@@ -68,13 +73,31 @@ module Integrations
         end
       end
 
+      def rate_limited(error, rebuild)
+        warn(error)
+        self.class.set(wait: [error.retry_after.to_i.seconds, MIN_RETRY].max).perform_later(rebuild: true) if rebuild
+        ReportRateLimitJob.perform_later("Twitch EventSub", error.message, error.retry_after) if claim_alert("RateLimited")
+      end
+
+      def warn(error)
+        Rails.logger.warn("Integrations: Twitch EventSub reconcile failed: #{error.class}: #{error.message}")
+      end
+
+      def repeated?(key)
+        !Rails.cache.write(cache_key("failure", key), true, unless_exist: true, expires_in: REPEAT_WINDOW)
+      end
+
       def report(problems)
         lines = problems.filter_map { |key, line| line if claim_alert(key) }
         ReportEventSubJob.perform_later(lines) if lines.any?
       end
 
       def claim_alert(key)
-        Rails.cache.write("integrations/twitch/eventsub/alert/#{Digest::SHA256.hexdigest(key)}", true, unless_exist: true, expires_in: ALERT_INTERVAL)
+        Rails.cache.write(cache_key("alert", key), true, unless_exist: true, expires_in: ALERT_INTERVAL)
+      end
+
+      def cache_key(kind, key)
+        "integrations/twitch/eventsub/#{kind}/#{Digest::SHA256.hexdigest(key)}"
       end
     end
   end

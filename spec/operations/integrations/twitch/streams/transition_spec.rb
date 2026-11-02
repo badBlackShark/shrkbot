@@ -109,7 +109,7 @@ RSpec.describe Ops::Integrations::Twitch::Streams::Transition do
     it "ends the session and records StreamEnded" do
       result
 
-      expect(watch.reload.state).to eq("login" => "shroud", "display_name" => "Shroud")
+      expect(watch.reload.state).to eq("login" => "shroud", "display_name" => "Shroud", "ended_stream_ids" => ["s1"])
       expect(Integrations::Event.where(watch:)).to contain_exactly(an_instance_of(Integrations::Twitch::StreamEnded))
     end
   end
