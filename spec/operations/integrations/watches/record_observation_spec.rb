@@ -18,12 +18,6 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     expect { result }.to have_enqueued_job(Feeds::AnnounceJob).once.with(fresh)
   end
 
-  it "stamps the dispatched events" do
-    result
-
-    expect(fresh.reload.dispatched_at).to be_present
-  end
-
   it "saves fresh unseen events" do
     result
 
@@ -86,8 +80,9 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     let(:events) { [fresh, invalid] }
     let(:invalid) { build(:steam_news_event, watch:, subject_key: "blank", occurred_at: 1.hour.ago, title: "") }
 
-    it "drops it, publishes the rest and still marks it seen" do
-      expect(result.value).to eq([fresh])
+    it "still marks it seen" do
+      result
+
       expect(watch.seen_items.pluck(:external_id)).to contain_exactly("fresh", "blank")
     end
   end
@@ -118,19 +113,5 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
 
   it "stamps polled_at" do
     expect { result }.to change { watch.reload.polled_at }.from(nil)
-  end
-
-  context "when dispatching fails" do
-    let(:watch) { create(:integration_watch, failing_since: nil) }
-
-    before do
-      allow(Ops::Integrations::Events::Dispatch).to receive(:call).and_raise("redis down")
-    end
-
-    it "still completes the poll, leaving the events to the sweeper" do
-      expect(result).to be_success
-      expect(watch.reload.polled_at).to be_present
-      expect(watch.failing_since).to be_nil
-    end
   end
 end

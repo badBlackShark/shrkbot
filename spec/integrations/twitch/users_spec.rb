@@ -41,4 +41,40 @@ RSpec.describe Integrations::Twitch::Users do
       expect { user }.to raise_error(Integrations::NotFound, "Twitch has no channel twitchdev")
     end
   end
+
+  describe "#for" do
+    subject(:found) { users.for(ids) }
+
+    let(:ids) { %w[141981764] }
+
+    it "asks for the users by id" do
+      found
+
+      expect(client).to have_received(:get_json).with("/users", params: {id: ids})
+    end
+
+    it "maps each user" do
+      expect(found.map(&:login)).to eq(%w[twitchdev])
+    end
+
+    context "with more ids than one request takes" do
+      let(:ids) { Array.new(101, &:to_s) }
+
+      it "asks in slices of 100" do
+        found
+
+        expect(client).to have_received(:get_json).with("/users", params: {id: ids.first(100)}).once
+        expect(client).to have_received(:get_json).with("/users", params: {id: ids.last(1)}).once
+      end
+    end
+
+    context "with no ids" do
+      let(:ids) { [] }
+
+      it "makes no request" do
+        expect(found).to eq([])
+        expect(client).not_to have_received(:get_json)
+      end
+    end
+  end
 end

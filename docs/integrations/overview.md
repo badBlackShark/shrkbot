@@ -243,9 +243,10 @@ items.
 - **Ledger.** Every item's `subject_key` goes into `integration_seen_items`. An item
   already there is skipped.
 - **Storing.** A watch saves whatever is fresh and unseen as events, its first poll
-  included. Before saving, each event gets `Event#enrich`, a no-op on the base class
-  that a provider's event overrides to derive stored fields (`Steam::NewsEvent` detects
-  its language). Capabilities decide what to announce; Feeds gates on `subscribed_since`.
+  included, through `Ops::Integrations::Events::Record`, the shared persist + dispatch
+  step (Twitch's `Streams::Transition` calls it too). Before saving, each event gets
+  `Event#enrich`, a no-op on the base class that a provider's event overrides to derive
+  stored fields (`Steam::NewsEvent` detects its language). Capabilities decide what to announce; Feeds gates on `subscribed_since`.
 - **Freshness.** An item older than 48 hours is ignored before the ledger: not
   recorded, not saved. A watch that was down, or an item that surfaces late, does not
   announce old news, and the old items every list repeats cost no writes.
@@ -315,7 +316,8 @@ superclass of it (`is_a?`). `app/integrations/` never names the handlers; only t
 initializer does. The registry is module state on a reloadable module, so it resets on a
 code reload and `to_prepare` fills it again.
 
-`RecordObservation` hands the events it saved to `Ops::Integrations::Events::Dispatch`
+`Ops::Integrations::Events::Record` (called by `RecordObservation` and by Twitch's
+`Streams::Transition`) hands the events it saved to `Ops::Integrations::Events::Dispatch`
 in `ActiveRecord.after_all_transactions_commit`, so a handler never runs before the
 event row is visible. Dispatch sorts the events by `occurred_at`, builds one job per
 handler, enqueues them all with `ActiveJob.perform_all_later` (one transaction, so a
