@@ -5,11 +5,16 @@ module NotifiesOwner
 
   ATTEMPTS = 10
   MAX_LISTED = 10
+  ALERT_INTERVAL = 1.day
 
   included do
     retry_on StandardError, wait: :polynomially_longer, attempts: ATTEMPTS
     discard_on "Discordrb::Errors::UnknownChannel"
     discard_on "Discordrb::Errors::NoPermission"
+  end
+
+  def self.claim(key, expires_in: ALERT_INTERVAL)
+    Rails.cache.write("owner-alerts/#{Digest::SHA256.hexdigest(key)}", true, unless_exist: true, expires_in:)
   end
 
   private

@@ -19,7 +19,7 @@ RSpec.describe Integrations::Twitch::ReportUnauthorizedJob do
 
     expect(Bot::Discord::Components).to have_received(:create_message).with(
       channel_id: 77,
-      content: "Twitch rejected shrkbot's app credentials: id.twitch.tv responded 400. Live tracking and EventSub stay off " \
+      content: "Twitch rejected shrkbot's app credentials: id.twitch.tv responded 400. Go-live posts stop " \
         "until TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET work again.",
       allowed_mentions: {parse: []}
     )

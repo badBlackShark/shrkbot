@@ -9,7 +9,7 @@ module Integrations
 
       def perform(message)
         notify_owner(
-          "Twitch rejected shrkbot's app credentials: #{message}. Live tracking and EventSub stay off " \
+          "Twitch rejected shrkbot's app credentials: #{message}. Go-live posts stop " \
           "until TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET work again."
         )
       end

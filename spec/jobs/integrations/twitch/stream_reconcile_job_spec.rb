@@ -104,6 +104,10 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
       allow(streams).to receive(:live).and_raise(Integrations::Unavailable, "api.twitch.tv responded 503")
     end
 
+    it "does not claim the credentials were rejected" do
+      expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportUnauthorizedJob)
+    end
+
     it "records the failure on every watch and transitions none" do
       perform
 
@@ -150,16 +154,23 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
       allow(streams).to receive(:live).and_raise(Integrations::Unauthorized, "id.twitch.tv responded 400")
     end
 
+    before do
+      allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
+    end
+
     it "tells the owner at once, without waiting for the broken-watch report" do
       expect { perform }.to have_enqueued_job(Integrations::Twitch::ReportUnauthorizedJob).with("id.twitch.tv responded 400").once
     end
 
-    context "when a watch already records the rejection" do
-      let!(:idle_watch) do
-        create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", failing_since: 1.hour.ago, polled_at: 1.hour.ago, last_error: "Integrations::Unauthorized: id.twitch.tv responded 400")
+    context "when a timeout came between two rejections" do
+      before do
+        described_class.perform_now
+        allow(streams).to receive(:live).and_raise(Integrations::Unavailable, "api.twitch.tv timed out")
+        described_class.perform_now
+        allow(streams).to receive(:live).and_raise(Integrations::Unauthorized, "id.twitch.tv responded 400")
       end
 
-      it "does not tell them again" do
+      it "does not tell them again within the day" do
         expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportUnauthorizedJob)
       end
     end

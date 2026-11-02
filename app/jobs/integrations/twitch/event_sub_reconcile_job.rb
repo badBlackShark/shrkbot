@@ -3,7 +3,6 @@
 module Integrations
   module Twitch
     class EventSubReconcileJob < ApplicationJob
-      ALERT_INTERVAL = 1.day
       REPEAT_WINDOW = 11.minutes
       MIN_RETRY = 1.minute
 
@@ -99,7 +98,7 @@ module Integrations
       end
 
       def claim_alert(key)
-        Rails.cache.write(cache_key("alert", key), true, unless_exist: true, expires_in: ALERT_INTERVAL)
+        NotifiesOwner.claim("twitch/eventsub/#{key}")
       end
 
       def cache_key(kind, key)

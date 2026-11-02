@@ -119,13 +119,13 @@ An `Integrations::Error` from the live call records `RecordFailure` on every wat
 which feeds the 24-hour broken-watch report (a persistent `Unavailable`, say). A
 `RateLimited` also enqueues `ReportRateLimitJob`, unless any watch already says
 `Integrations::RateLimited`. An `Unauthorized` (Twitch rejected the app credentials, say
-after a leak) DMs at once through `Twitch::ReportUnauthorizedJob`, on the same
-once-per-outage rule, instead of waiting 24 hours for the broken-watch report; nothing
-retries its way out of a revoked secret. An exception from one watch's transition is
-recorded on that watch and reported through `ReportPollBugsJob` only when its last error
-was something else, so a persistent bug reports once; the other watches still
-transition. Nothing creates Twitch watches yet, so in production the job finds no
-demanded watch and does nothing.
+after a leak) DMs at once through `Twitch::ReportUnauthorizedJob`, at most once a day
+(`NotifiesOwner.claim`), before the 24-hour broken-watch report; nothing retries its way
+out of a revoked secret. An exception from one watch's transition is recorded on that
+watch and reported through `ReportPollBugsJob` only when its last error was something
+else, so a persistent bug reports once; the other watches still transition. Nothing
+creates Twitch watches yet, so in production the job finds no demanded watch and does
+nothing.
 
 ## EventSub
 
