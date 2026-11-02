@@ -6,12 +6,8 @@ class PluginCatalog
       super
     end
 
-    def recently_added?(today = Date.current)
-      added_on.present? && today < added_on + PluginCatalog::NEW_FOR
-    end
-
-    def beta?
-      beta
+    def recently_added?
+      added_on.present? && Date.current < added_on + PluginCatalog::NEW_FOR
     end
 
     def channel_backed?
@@ -76,11 +72,11 @@ class PluginCatalog
   end
 
   def self.recently_added?(key)
-    find(key)&.recently_added? || false
+    [key, *sub_plugin_keys(key)].any? { |candidate| find(candidate)&.recently_added? }
   end
 
   def self.beta?(key)
-    find(key)&.beta? || false
+    find(key)&.beta || false
   end
 
   def self.channel_backed

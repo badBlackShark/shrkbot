@@ -217,8 +217,9 @@ duplicated class strings:
   sit next to each other as one family; a new variant supplies a border colour too.
 - **`Components::PluginBadges(key:)`** — the New and Beta badges for a plugin, read
   from `PluginCatalog`; the Beta tooltip names the bot owner. Renders nothing when
-  neither applies. **`Components::NewSparkle`** is the sidebar's icon-only New
-  marker, with screen-reader text.
+  neither applies. New rolls up to a parent from a new sub-plugin; Beta does not.
+  **`Components::NewSparkle`** is the sidebar's icon-only New marker, with
+  screen-reader text, on an item and on a group's own line.
 - **`Components::PluginTile`** — the chamfered identity tile (icon on teal when
   `enabled:`, muted sand otherwise). `size:` (`:sm`/`:md`/`:lg`).
 - **`Components::Callout`** — tinted bordered notice. `variant:` (`:info`/

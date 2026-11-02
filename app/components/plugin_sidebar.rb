@@ -46,7 +46,8 @@ class Components::PluginSidebar < Components::Base
       open: group_active?(row.key),
       items: group_items(row.key),
       storage_key: "sidebar-group-#{row.key}",
-      enabled: row.enabled
+      enabled: row.enabled,
+      new: PluginCatalog.recently_added?(row.key)
     )
   end
 

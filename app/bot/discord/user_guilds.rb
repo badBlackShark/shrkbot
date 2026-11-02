@@ -27,7 +27,7 @@ module Bot
         end
 
         JSON.parse(response.body).map { |guild| Guild.from_api(guild) }
-      rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, JSON::ParserError => e
+      rescue *::Integrations::Http::TRANSPORT_ERRORS => e
         raise Error, e.message
       end
     end

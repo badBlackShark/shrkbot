@@ -28,27 +28,45 @@ RSpec.describe PluginCatalog do
   end
 
   describe "badges" do
+    include ActiveSupport::Testing::TimeHelpers
+
     let(:added_on) { Date.new(2026, 11, 1) }
+    let(:today) { added_on }
     let(:definition) { described_class::Definition.new(key: :x, name: "X", description: "x", added_on:, beta: true) }
 
+    around do |example|
+      travel_to(today) { example.run }
+    end
+
     describe "Definition#recently_added?" do
+      subject(:recently_added) { definition.recently_added? }
+
       it "is true on the day it was added" do
-        expect(definition.recently_added?(added_on)).to be(true)
+        expect(recently_added).to be(true)
       end
 
-      it "is true on the last day of the window" do
-        expect(definition.recently_added?(added_on + 29.days)).to be(true)
+      context "on the last day of the window" do
+        let(:today) { added_on + 29.days }
+
+        it "is true" do
+          expect(recently_added).to be(true)
+        end
       end
 
-      it "is false once the window has passed" do
-        expect(definition.recently_added?(added_on + 30.days)).to be(false)
+      context "once the window has passed" do
+        let(:today) { added_on + 30.days }
+
+        it "is false" do
+          expect(recently_added).to be(false)
+        end
       end
 
       context "without an added_on date" do
         let(:added_on) { nil }
+        let(:today) { Date.new(2026, 11, 1) }
 
         it "is false" do
-          expect(definition.recently_added?).to be(false)
+          expect(recently_added).to be(false)
         end
       end
     end
@@ -57,7 +75,6 @@ RSpec.describe PluginCatalog do
       before do
         allow(described_class).to receive(:find).and_call_original
         allow(described_class).to receive(:find).with(:x).and_return(definition)
-        allow(Date).to receive(:current).and_return(added_on)
       end
 
       it "are false for a global plugin, which has no catalog entry" do
@@ -68,6 +85,17 @@ RSpec.describe PluginCatalog do
       it "read the flags off the definition" do
         expect(described_class.recently_added?(:x)).to be(true)
         expect(described_class.beta?(:x)).to be(true)
+      end
+
+      context "with a new beta sub-plugin" do
+        before do
+          allow(described_class).to receive(:find).with(:steam).and_return(definition)
+        end
+
+        it "marks its parent new, but not beta" do
+          expect(described_class.recently_added?(:integrations)).to be(true)
+          expect(described_class.beta?(:integrations)).to be(false)
+        end
       end
     end
   end

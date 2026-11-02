@@ -7,13 +7,14 @@ class Components::SidebarGroup < Components::Base
     needs_setup: "bg-warning"
   }.freeze
 
-  def initialize(label:, icon:, open:, items:, storage_key:, enabled: false)
+  def initialize(label:, icon:, open:, items:, storage_key:, enabled: false, new: false)
     @label = label
     @icon = icon
     @open = open
     @items = items
     @storage_key = storage_key
     @enabled = enabled
+    @new = new
   end
 
   def view_template
@@ -39,6 +40,7 @@ class Components::SidebarGroup < Components::Base
     ) do
       parent_tile
       span(class: "flex-1 text-[13px] font-medium") { @label }
+      render Components::NewSparkle.new if @new
       chevron
     end
   end

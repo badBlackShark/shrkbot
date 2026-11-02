@@ -51,6 +51,16 @@ RSpec.describe Bot::Discord::UserGuilds do
     end
   end
 
+  context "when the connection drops" do
+    before do
+      allow(Net::HTTP).to receive(:start).and_raise(Errno::ECONNRESET)
+    end
+
+    it "raises Error, which the controller turns into a friendly page" do
+      expect { fetch }.to raise_error(described_class::Error)
+    end
+  end
+
   context "when the body is not valid JSON" do
     let(:body) { "not json" }
 

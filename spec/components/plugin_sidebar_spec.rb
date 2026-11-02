@@ -130,7 +130,7 @@ RSpec.describe Components::PluginSidebar do
 
     before do
       allow(PluginCatalog).to receive(:recently_added?).and_return(false)
-      allow(PluginCatalog).to receive(:recently_added?).with(recent_key).and_return(true)
+      Array(recent_key).each { |key| allow(PluginCatalog).to receive(:recently_added?).with(key).and_return(true) }
     end
 
     context "when a top-level plugin is new" do
@@ -144,11 +144,12 @@ RSpec.describe Components::PluginSidebar do
     end
 
     context "when a sub-plugin is new" do
-      let(:recent_key) { :steam }
+      let(:recent_key) { [:steam, :integrations] }
 
-      it "marks the sub-plugin inside its group" do
-        expect(sparkles.size).to eq(1)
-        expect(sparkles.first.ancestors("a").first["href"]).to eq("/servers/900000001/steam")
+      it "marks the sub-plugin inside its group and the group's own line" do
+        expect(sparkles.size).to eq(2)
+        expect(sparkles.first.ancestors("summary")).to be_present
+        expect(sparkles.last.ancestors("a").first["href"]).to eq("/servers/900000001/steam")
       end
     end
 

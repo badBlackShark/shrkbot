@@ -2,7 +2,9 @@
 
 require "rails_helper"
 
-RSpec.describe Bot::Discord::OwnerUsername do
+RSpec.describe Bot::Discord::OwnerUsername, :owner_lookup do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject(:lookup) { described_class.call }
 
   let(:http) { instance_double(Net::HTTP) }
@@ -36,6 +38,22 @@ RSpec.describe Bot::Discord::OwnerUsername do
     expect(Net::HTTP).to have_received(:start).once
   end
 
+  it "keeps a found name for a day" do
+    described_class.call
+    travel(23.hours) { described_class.call }
+    travel(25.hours) { described_class.call }
+
+    expect(Net::HTTP).to have_received(:start).twice
+  end
+
+  context "when Discord answers without a username" do
+    let(:body) { {"id" => "999"}.to_json }
+
+    it "returns nil" do
+      expect(lookup).to be_nil
+    end
+  end
+
   context "when Discord responds with an error" do
     let(:code) { "500" }
     let(:body) { "" }
@@ -48,6 +66,13 @@ RSpec.describe Bot::Discord::OwnerUsername do
       2.times { described_class.call }
 
       expect(Net::HTTP).to have_received(:start).once
+    end
+
+    it "tries again once the failure window has passed" do
+      described_class.call
+      travel(11.minutes) { described_class.call }
+
+      expect(Net::HTTP).to have_received(:start).twice
     end
   end
 
