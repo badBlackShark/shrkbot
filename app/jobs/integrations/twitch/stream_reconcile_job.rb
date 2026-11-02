@@ -5,8 +5,6 @@ module Integrations
     class StreamReconcileJob < ApplicationJob
       include RecordsWatchFailures
 
-      WATCHER = "Integrations::Twitch::ChannelWatcher"
-
       queue_as :default
       limits_concurrency(
         to: 1,
@@ -18,7 +16,7 @@ module Integrations
       def perform
         return unless Client.configured?
 
-        watches = Watch.demanded.where(watcher: WATCHER).to_a
+        watches = Watch.demanded.where(watcher: ChannelWatcher.name).to_a
         return if watches.empty?
 
         live = fetch_live(watches)

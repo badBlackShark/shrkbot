@@ -37,7 +37,7 @@ fresh one; a second 401 raises `Unauthorized`. A failed token fetch raises at on
 | `Twitch::Clips#for_broadcaster(broadcaster_id, started_at:, ended_at:, featured:)` | `GET /clips` | `[Twitch::Clip]`, every page |
 | `Twitch::Schedule#segments(broadcaster_id, start_time:, first:)` | `GET /schedule` | `[Twitch::Segment]` |
 | `Twitch::EventSubSubscriptions#all` | `GET /eventsub/subscriptions` | `[Twitch::EventSubSubscription]` |
-| `Twitch::EventSubSubscriptions#create(type:, version:, condition:, callback:)` | `POST /eventsub/subscriptions` | `Twitch::EventSubSubscription` |
+| `Twitch::EventSubSubscriptions#create(type:, version:, condition:, callback:)` | `POST /eventsub/subscriptions` | `Twitch::EventSubSubscription`, `nil` when it already exists (409) |
 | `Twitch::EventSubSubscriptions#destroy(id)` | `DELETE /eventsub/subscriptions` | `nil`, also when Twitch already removed it (404) |
 
 ## Channel input
@@ -87,6 +87,8 @@ at `last_live_at`, so its duration stays true.
 | `Offline` | otherwise | nothing |
 | `Close(offline_since)` | session, `offline_at == offline_since` | end at `offline_at` |
 | `Close(offline_since)` | back live, already ended or a stale time | nothing |
+| `ChannelUpdate` | session | `StreamUpdated` when title or category changed; no sighting stamp |
+| `ChannelUpdate` | no session | nothing |
 
 A stale session that sees its own stream id again continues: the stream never ended, we
 only missed it.
@@ -106,8 +108,8 @@ demanded Twitch watch in one batch (100 ids per call), stamps `polled_at` and cl
 failure fields (`RecordPolls`: Twitch answered, so the watches are readable), then
 transitions each watch with `Live` or `Offline`. A transition that would drop an invalid
 event raises and rolls back, so the state never claims a session whose event was lost.
-Without push, an end is noticed by the close check 5 minutes after the first offline
-reconcile, so up to 15 minutes late.
+With EventSub push (below) an end is noticed at once; only the poll path lags: the close
+check runs 5 minutes after the first offline reconcile, so up to 15 minutes late.
 
 Failures map onto the shared machinery (`RecordsWatchFailures`, shared with `PollJob`).
 An `Integrations::Error` from the live call records `RecordFailure` on every watch,
@@ -118,6 +120,59 @@ that watch and reported through `ReportPollBugsJob` only when its last error was
 something else, so a persistent bug reports once; the other watches still transition.
 Nothing creates Twitch watches yet, so in production the job finds no demanded watch
 and does nothing.
+
+## EventSub
+
+Twitch pushes `stream.online`, `stream.offline` and `channel.update` (v2) for every
+demanded channel to `POST /api/twitch/eventsub` (`Api::Twitch::EventSubsController`).
+`Twitch::EventSub.verified?` checks every request first: the signature is
+`sha256=` plus the HMAC-SHA256 of message id + timestamp + raw body under
+`TWITCH_EVENTSUB_SECRET`, compared in constant time, and the timestamp must be within 10
+minutes of now in either direction. A failed check answers 403 and does nothing else.
+
+| Message type | Answer | Effect |
+| --- | --- | --- |
+| `webhook_callback_verification` | 200, the `challenge` as plain text | none |
+| `notification` | 204 | `Twitch::NotificationJob` |
+| `revocation` | 204 | warning log, `Twitch::EventSubReconcileJob` |
+| anything else, or an unparsable body | 400 | none |
+
+`NotificationJob` finds the watch by `broadcaster_user_id` (unknown broadcasters are
+dropped) and maps the event onto a Session observation. `stream.online` becomes `Live`
+from the event plus a `/channels` lookup for title and category; viewers stay 0 until the
+stream reconcile samples them. `stream.offline` becomes `Offline`. `channel.update`
+becomes `ChannelUpdate`, which changes title and category of an open session (a
+`StreamUpdated` when they differ) and never stamps `last_live_at`. A Twitch failure in
+the job is logged; the stream reconcile catches up. A duplicate delivery changes nothing,
+because every Session rule is idempotent, so there is no Message-Id ledger. A late
+duplicate `stream.online` after the end at worst reopens the session until the next
+stream reconcile ends it again; `Events::Record` skips the already stored start and end,
+so nothing posts twice. `Twitch::EventSub` is the one home for the webhook secret:
+`Client` holds the app credentials, `EventSub` the secret that signs Twitch's calls to us.
+
+`Twitch::EventSubReconcileJob` runs every 5 minutes. It needs the Twitch credentials,
+`TWITCH_EVENTSUB_SECRET` and an `https` `WEB_BASE_URL`; otherwise it does nothing.
+`Twitch::EventSubDiff` decides the work. A subscription is kept when its status is
+`enabled` or `webhook_callback_verification_pending`, its callback is the receiver URL,
+and its type, version and channel are wanted (all three types for every demanded
+channel). Everything else is deleted: other statuses, another callback, an old version,
+an undemanded channel, and duplicates beyond the first. Missing ones are created; a 409
+counts as already there. Twitch keeps disabled webhook subscriptions listed for at least
+10 days, so the reconcile sees every revocation.
+
+Statuses `notification_failures_exceeded`, `version_removed` and
+`webhook_callback_verification_failed` DM the owner (`ReportEventSubJob`); other disabled
+statuses are recreated silently. Create failures DM grouped by error. Each status or
+error DMs at most once a day (a cache key per message). A `RateLimited` stops the run.
+
+Rotating the secret: set the new `TWITCH_EVENTSUB_SECRET`, deploy, then run
+`bin/rails runner 'Integrations::Twitch::EventSubReconcileJob.perform_now(rebuild: true)'`.
+Between the deploy and the rebuild notifications fail the signature check and the stream
+reconcile covers live state.
+
+In development no subscriptions get created (the callback must be https on 443). With
+`TWITCH_EVENTSUB_SECRET` set, the receiver can be exercised with the Twitch CLI:
+`twitch event trigger stream.online -F http://localhost:3000/api/twitch/eventsub -s <secret>`.
 
 ## Mapping notes
 

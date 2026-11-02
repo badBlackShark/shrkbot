@@ -36,6 +36,9 @@ production:
   integrations_twitch_stream_reconcile:
     class: Integrations::Twitch::StreamReconcileJob
     schedule: every 10 minutes
+  integrations_twitch_eventsub_reconcile:
+    class: Integrations::Twitch::EventSubReconcileJob
+    schedule: every 5 minutes
   integrations_twitch_watch_refresh:
     class: Integrations::RefreshWatchesJob
     args: ["Integrations::Twitch::ChannelWatcher"]
@@ -68,6 +71,9 @@ development:
   integrations_twitch_stream_reconcile:
     class: Integrations::Twitch::StreamReconcileJob
     schedule: every 10 minutes
+  integrations_twitch_eventsub_reconcile:
+    class: Integrations::Twitch::EventSubReconcileJob
+    schedule: every 5 minutes
   integrations_twitch_watch_refresh:
     class: Integrations::RefreshWatchesJob
     args: ["Integrations::Twitch::ChannelWatcher"]

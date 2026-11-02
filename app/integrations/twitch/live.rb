@@ -15,6 +15,19 @@ module Integrations
           viewer_count: stream.viewer_count
         )
       end
+
+      def self.from_online(event, channel)
+        new(
+          stream_id: event.fetch("id"),
+          started_at: Time.iso8601(event.fetch("started_at")).in_time_zone,
+          title: channel.title,
+          category_id: channel.category_id,
+          category_name: channel.category_name,
+          login: event.fetch("broadcaster_user_login"),
+          display_name: event.fetch("broadcaster_user_name"),
+          viewer_count: 0
+        )
+      end
     end
   end
 end

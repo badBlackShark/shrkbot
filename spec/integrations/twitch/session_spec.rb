@@ -234,6 +234,69 @@ RSpec.describe Integrations::Twitch::Session do
     end
   end
 
+  context "when a channel update arrives with no session" do
+    let(:observation) { channel_update }
+    let(:channel_update) { Integrations::Twitch::ChannelUpdate.new(title: "Casual", category_id: "1", category_name: "Chess") }
+
+    it "does nothing" do
+      expect(outcome).to have_attributes(state: {}, events: [])
+    end
+  end
+
+  context "when a channel update changes the title of an open session" do
+    let(:state) { open_state }
+    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Casual", category_id: "1", category_name: "Chess") }
+
+    it "emits StreamUpdated without stamping a sighting" do
+      expect(outcome.state).to eq(open_state.merge("title" => "Casual"))
+      expect(outcome.events).to match([
+        an_instance_of(Integrations::Twitch::StreamUpdated).and(
+          have_attributes(subject_key: "stream-update:s1:#{now.to_i}", story_key: "stream:s1", title: "Casual")
+        )
+      ])
+    end
+  end
+
+  context "when a channel update repeats the title and category" do
+    let(:state) { open_state }
+    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Ranked", category_id: "1", category_name: "Chess") }
+
+    it "does nothing" do
+      expect(outcome).to have_attributes(state: open_state, events: [])
+    end
+  end
+
+  context "when a channel update arrives with no session" do
+    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Casual", category_id: "1", category_name: "Chess") }
+
+    it "does nothing" do
+      expect(outcome).to have_attributes(state: {}, events: [])
+    end
+  end
+
+  context "when a channel update changes the title of an open session" do
+    let(:state) { open_state }
+    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Casual", category_id: "1", category_name: "Chess") }
+
+    it "emits StreamUpdated without stamping a sighting" do
+      expect(outcome.state).to eq(open_state.merge("title" => "Casual"))
+      expect(outcome.events).to match([
+        an_instance_of(Integrations::Twitch::StreamUpdated).and(
+          have_attributes(subject_key: "stream-update:s1:#{now.to_i}", story_key: "stream:s1", title: "Casual")
+        )
+      ])
+    end
+  end
+
+  context "when a channel update repeats the title and category" do
+    let(:state) { open_state }
+    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Ranked", category_id: "1", category_name: "Chess") }
+
+    it "does nothing" do
+      expect(outcome).to have_attributes(state: open_state, events: [])
+    end
+  end
+
   context "with an observation it does not know" do
     let(:observation) { Object.new }
 

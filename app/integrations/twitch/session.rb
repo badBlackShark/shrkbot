@@ -20,6 +20,8 @@ module Integrations
           offline
         in Close
           close(observation)
+        in ChannelUpdate
+          channel_update(observation)
         end
       end
 
@@ -88,6 +90,16 @@ module Integrations
           "login" => observation.login,
           "display_name" => observation.display_name
         )
+        update(state, observation)
+      end
+
+      def channel_update(observation)
+        return outcome(@state) unless open?
+
+        update(@state, observation)
+      end
+
+      def update(state, observation)
         return outcome(state) unless changed?(observation)
 
         state = state.merge(
