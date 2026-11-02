@@ -21,6 +21,14 @@ RSpec.describe Components::SidebarGroup do
     {label: "Server Shield", icon: "shield", open: false, items:, storage_key: "sidebar-group-moderation"}
   end
 
+  context "with a new sub-item" do
+    let(:items) { [{label: "Steam", href: "/servers/1/steam", active: false, status: :enabled, new: true}] }
+
+    it "renders the sparkle's screen-reader text" do
+      expect(html).to include(">New<")
+    end
+  end
+
   it "renders the group parent label" do
     expect(html).to include("Server Shield")
   end

@@ -23,8 +23,12 @@ RSpec.describe Bot::Discord::UserGuilds do
     expect(fetch.first).to have_attributes(id: 42, name: "Dev Refuge", owner: true, permissions: 8, member_count: 2481)
   end
 
-  it "targets the pinned Discord API version" do
-    expect(described_class::ENDPOINT.to_s).to include("/api/#{Bot::Config::API_VERSION}/")
+  it "asks the pinned Discord API version with the access token" do
+    fetch
+
+    expect(http).to have_received(:request).with(
+      satisfy { |get| get.path == "/api/#{Bot::Config::API_VERSION}/users/@me/guilds?with_counts=true" && get["Authorization"] == "Bearer access-token" }
+    )
   end
 
   context "when Discord rejects the access token" do

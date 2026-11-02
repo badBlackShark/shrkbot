@@ -608,6 +608,8 @@ en:
           role Manage Messages, or grant it access under Server Settings -> Integrations
           -> shrkbot.
         staff_permission_warning_bold: This role can't see staff commands.
+    new_sparkle:
+      label: New
     notification_bell:
       label: Notifications
       unread: Notifications, %{count} unread
@@ -622,6 +624,13 @@ en:
       recommended_default: 'Recommended default: %{value}'
     placeholder_section:
       label: Placeholders (click to copy)
+    plugin_badges:
+      beta: Beta
+      beta_hint: Works, but has not been tested widely yet. Report problems to @%{owner}
+        on Discord.
+      beta_hint_unknown: Works, but has not been tested widely yet. Report problems
+        to the bot owner on Discord.
+      new: New
     plugin_row:
       admin_only: Only a server admin can switch this plugin on or off.
       bespoke: Bespoke

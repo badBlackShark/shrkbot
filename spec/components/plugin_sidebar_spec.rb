@@ -124,6 +124,43 @@ RSpec.describe Components::PluginSidebar do
     end
   end
 
+  context "with recently added plugins" do
+    let(:name) { "Dev Refuge" }
+    let(:sparkles) { Nokogiri::HTML.fragment(html).css("span.sr-only").select { |node| node.text == "New" } }
+
+    before do
+      allow(PluginCatalog).to receive(:recently_added?).and_return(false)
+      allow(PluginCatalog).to receive(:recently_added?).with(recent_key).and_return(true)
+    end
+
+    context "when a top-level plugin is new" do
+      let(:recent_key) { :roles }
+
+      it "marks only that entry with the sparkle" do
+        expect(sparkles.size).to eq(1)
+        expect(sparkles.first.ancestors("a").first["href"]).to eq("/servers/900000001/roles")
+        expect(sparkles.first.parent.at_css('[aria-hidden="true"] svg')).to be_present
+      end
+    end
+
+    context "when a sub-plugin is new" do
+      let(:recent_key) { :steam }
+
+      it "marks the sub-plugin inside its group" do
+        expect(sparkles.size).to eq(1)
+        expect(sparkles.first.ancestors("a").first["href"]).to eq("/servers/900000001/steam")
+      end
+    end
+
+    context "when nothing is new" do
+      let(:recent_key) { :nothing }
+
+      it "shows no sparkle" do
+        expect(sparkles).to be_empty
+      end
+    end
+  end
+
   context "when the Steam page is active" do
     subject(:html) do
       described_class.new(server_configuration: config, active_key: :steam, access:).render_in(view_context)

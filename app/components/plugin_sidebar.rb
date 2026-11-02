@@ -74,7 +74,8 @@ class Components::PluginSidebar < Components::Base
       label: PluginCatalog.find(key).name,
       href: PluginPaths.for(@config, key),
       active: @active_key == key,
-      status: sub_status(row)
+      status: sub_status(row),
+      new: PluginCatalog.recently_added?(key)
     }
   end
 
@@ -104,6 +105,7 @@ class Components::PluginSidebar < Components::Base
     ) do
       item_tile(row, active)
       span(class: "flex-1 text-[13px]") { t("components.plugin_row.plugin.#{row.key}.name") }
+      new_sparkle(row.key)
       status_dot(row)
     end
   end
@@ -113,6 +115,7 @@ class Components::PluginSidebar < Components::Base
       span(class: "flex cursor-not-allowed items-center gap-2.5 rounded-md px-2.5 py-2 text-text-muted opacity-60") do
         item_tile(row, false)
         span(class: "flex-1 text-[13px]") { t("components.plugin_row.plugin.#{row.key}.name") }
+        new_sparkle(row.key)
         status_dot(row)
       end
     end
@@ -124,6 +127,10 @@ class Components::PluginSidebar < Components::Base
     span(class: "flex size-7 flex-none items-center justify-center rounded-md #{tone}") do
       render Components::Icon.new(plugin_icon(row.key), weight: (on ? :fill : :regular), class: "size-4")
     end
+  end
+
+  def new_sparkle(key)
+    render Components::NewSparkle.new if PluginCatalog.recently_added?(key)
   end
 
   def status_dot(row)

@@ -116,6 +116,10 @@ other plugin controller. The plugin's own enable toggle stays the per-server kil
 on top of the grant; check it wherever the plugin acts on a server
 (`Ops::TwilightStruggle::Games::Post`).
 
+`added_on:` (the `Date` the plugin ships) shows the New badge and the sidebar sparkle for
+`PluginCatalog::NEW_FOR` (30 days). `beta: true` shows the Beta badge until the plugin has
+been tested widely; remove the flag then.
+
 ## 4. Writes go through operations
 
 All settings writes and runtime mutations are operations under

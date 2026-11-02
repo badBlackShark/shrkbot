@@ -72,6 +72,7 @@ class Components::SidebarGroup < Components::Base
       class: "flex items-center gap-2 rounded-md px-2.5 py-1.5 text-[13px] transition-colors #{tone}"
     ) do
       span(class: "flex-1") { item[:label] }
+      render Components::NewSparkle.new if item[:new]
       sub_item_dot(item[:status]) if item[:status]
     end
   end

@@ -82,6 +82,9 @@
   --accent-2-text: var(--copper-600);
   --accent-2-fill: var(--copper-500);
   --accent-2-fill-hover: var(--copper-600);
+  --beta-soft: #f6ecf3;
+  --beta-soft-bd: #dcbcd3;
+  --beta-text: #7b3a6c;
   --nav-active: var(--accent);
   --eyebrow: var(--text-muted);
 
@@ -144,6 +147,9 @@
   --accent-2-fill-hover: var(--copper-600);
   --accent-2-soft: rgba(196, 98, 45, 0.15);
   --accent-2-soft-bd: rgba(196, 98, 45, 0.34);
+  --beta-soft: rgba(165, 85, 145, 0.16);
+  --beta-soft-bd: rgba(165, 85, 145, 0.36);
+  --beta-text: #e2b2d6;
   --nav-active: #e8a06d;
   --eyebrow: #e8a06d;
 

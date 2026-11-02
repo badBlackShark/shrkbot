@@ -26,6 +26,7 @@ class Components::SubPluginRow < Components::Base
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { @row.name }
           status_badge
+          render Components::PluginBadges.new(key: @row.key)
         end
         p(class: "mt-0.5 text-sm text-text-secondary") { @row.description }
         needs_setup_inline_warning if needs_setup?

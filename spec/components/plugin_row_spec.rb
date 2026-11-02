@@ -15,6 +15,16 @@ RSpec.describe Components::PluginRow do
   let(:toggleable) { true }
   let(:bespoke) { false }
 
+  context "when the plugin was added recently" do
+    before do
+      allow(PluginCatalog).to receive_messages(recently_added?: true, beta?: false)
+    end
+
+    it "shows the New badge" do
+      expect(html).to include("New</span>")
+    end
+  end
+
   context "when the user may configure the plugin" do
     it "links to the configuration page" do
       expect(html).to include(%(href="/servers/900000001/roles"))
