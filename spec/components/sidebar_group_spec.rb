@@ -21,6 +21,27 @@ RSpec.describe Components::SidebarGroup do
     {label: "Server Shield", icon: "shield", open: false, items:, storage_key: "sidebar-group-moderation"}
   end
 
+  context "with a new sub-item" do
+    let(:items) { [{label: "Steam", href: "/servers/1/steam", active: false, status: :enabled, new: true}] }
+
+    it "renders the sparkle's screen-reader text" do
+      expect(html).to include(">New<")
+    end
+  end
+
+  context "when the group holds something new" do
+    let(:options) { super().merge(new: true) }
+    let(:summary) { Nokogiri::HTML.fragment(html).at_css("summary") }
+
+    it "puts the sparkle on the group's own line, so a closed group still shows it" do
+      expect(summary.css("span.sr-only").map(&:text)).to eq(["New"])
+    end
+  end
+
+  it "puts no sparkle on the group line by default" do
+    expect(Nokogiri::HTML.fragment(html).at_css("summary").css("span.sr-only")).to be_empty
+  end
+
   it "renders the group parent label" do
     expect(html).to include("Server Shield")
   end

@@ -34,6 +34,7 @@ class Components::PluginRow < Components::Base
           span(class: "font-display font-semibold") { name }
           status_badge
           bespoke_badge if @row.bespoke
+          render Components::PluginBadges.new(key: @row.key)
         end
         p(class: "mt-0.5 text-sm leading-[1.5] text-pretty text-text-secondary") { t(".plugin.#{@row.key}.description") }
       end

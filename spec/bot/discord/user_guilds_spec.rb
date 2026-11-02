@@ -23,8 +23,12 @@ RSpec.describe Bot::Discord::UserGuilds do
     expect(fetch.first).to have_attributes(id: 42, name: "Dev Refuge", owner: true, permissions: 8, member_count: 2481)
   end
 
-  it "targets the pinned Discord API version" do
-    expect(described_class::ENDPOINT.to_s).to include("/api/#{Bot::Config::API_VERSION}/")
+  it "asks the pinned Discord API version with the access token" do
+    fetch
+
+    expect(http).to have_received(:request).with(
+      satisfy { |get| get.path == "/api/#{Bot::Config::API_VERSION}/users/@me/guilds?with_counts=true" && get["Authorization"] == "Bearer access-token" }
+    )
   end
 
   context "when Discord rejects the access token" do
@@ -44,6 +48,16 @@ RSpec.describe Bot::Discord::UserGuilds do
       expect { fetch }.to raise_error(described_class::Error) do |error|
         expect(error).not_to be_a(described_class::Unauthorized)
       end
+    end
+  end
+
+  context "when the connection drops" do
+    before do
+      allow(Net::HTTP).to receive(:start).and_raise(Errno::ECONNRESET)
+    end
+
+    it "raises Error, which the controller turns into a friendly page" do
+      expect { fetch }.to raise_error(described_class::Error)
     end
   end
 

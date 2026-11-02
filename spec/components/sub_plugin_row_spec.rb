@@ -39,6 +39,16 @@ RSpec.describe Components::SubPluginRow do
 
   subject(:html) { described_class.new(**base_attrs).render_in(view_context) }
 
+  context "when the plugin was added recently" do
+    before do
+      allow(PluginCatalog).to receive_messages(recently_added?: true, beta?: false)
+    end
+
+    it "shows the New badge" do
+      expect(html).to include("New</span>")
+    end
+  end
+
   context "when enabled and configured" do
     it "renders the Enabled badge" do
       expect(html).to include("Enabled")

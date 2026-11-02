@@ -27,6 +27,79 @@ RSpec.describe PluginCatalog do
     end
   end
 
+  describe "badges" do
+    include ActiveSupport::Testing::TimeHelpers
+
+    let(:added_on) { Date.new(2026, 11, 1) }
+    let(:today) { added_on }
+    let(:definition) { described_class::Definition.new(key: :x, name: "X", description: "x", added_on:, beta: true) }
+
+    around do |example|
+      travel_to(today) { example.run }
+    end
+
+    describe "Definition#recently_added?" do
+      subject(:recently_added) { definition.recently_added? }
+
+      it "is true on the day it was added" do
+        expect(recently_added).to be(true)
+      end
+
+      context "on the last day of the window" do
+        let(:today) { added_on + 29.days }
+
+        it "is true" do
+          expect(recently_added).to be(true)
+        end
+      end
+
+      context "once the window has passed" do
+        let(:today) { added_on + 30.days }
+
+        it "is false" do
+          expect(recently_added).to be(false)
+        end
+      end
+
+      context "without an added_on date" do
+        let(:added_on) { nil }
+        let(:today) { Date.new(2026, 11, 1) }
+
+        it "is false" do
+          expect(recently_added).to be(false)
+        end
+      end
+    end
+
+    describe ".recently_added? and .beta?" do
+      before do
+        allow(described_class).to receive(:find).and_call_original
+        allow(described_class).to receive(:find).with(:x).and_return(definition)
+      end
+
+      it "are false for a global plugin, which has no catalog entry" do
+        expect(described_class.recently_added?(:reminders)).to be(false)
+        expect(described_class.beta?(:reminders)).to be(false)
+      end
+
+      it "read the flags off the definition" do
+        expect(described_class.recently_added?(:x)).to be(true)
+        expect(described_class.beta?(:x)).to be(true)
+      end
+
+      context "with a new beta sub-plugin" do
+        before do
+          allow(described_class).to receive(:find).with(:steam).and_return(definition)
+        end
+
+        it "marks its parent new, but not beta" do
+          expect(described_class.recently_added?(:integrations)).to be(true)
+          expect(described_class.beta?(:integrations)).to be(false)
+        end
+      end
+    end
+  end
+
   describe ".channel_backed" do
     it "returns only the channel-backed definitions" do
       expect(described_class.channel_backed).to all(be_channel_backed)

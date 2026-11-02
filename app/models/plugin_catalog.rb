@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 class PluginCatalog
-  Definition = Data.define(:key, :name, :description, :channel_setting, :requires_plugin, :parent, :prerequisite, :bespoke) do
-    def initialize(key:, name:, description:, channel_setting: nil, requires_plugin: nil, parent: nil, prerequisite: nil, bespoke: false)
+  Definition = Data.define(:key, :name, :description, :channel_setting, :requires_plugin, :parent, :prerequisite, :bespoke, :beta, :added_on) do
+    def initialize(key:, name:, description:, channel_setting: nil, requires_plugin: nil, parent: nil, prerequisite: nil, bespoke: false, beta: false, added_on: nil)
       super
+    end
+
+    def recently_added?
+      added_on.present? && Date.current < added_on + PluginCatalog::NEW_FOR
     end
 
     def channel_backed?
@@ -42,6 +46,8 @@ class PluginCatalog
     end
   end
 
+  NEW_FOR = 30.days
+
   DEFINITIONS = [
     Definition.new(key: :logging, name: "Logging", description: "Writes moderation actions to a log channel.", channel_setting: :logging_settings),
     Definition.new(key: :roles, name: "Roles", description: "Self-assignable roles.", channel_setting: :role_setting),
@@ -63,6 +69,14 @@ class PluginCatalog
 
   def self.find(key)
     DEFINITIONS.find { |definition| definition.key == key }
+  end
+
+  def self.recently_added?(key)
+    [key, *sub_plugin_keys(key)].any? { |candidate| find(candidate)&.recently_added? }
+  end
+
+  def self.beta?(key)
+    find(key)&.beta || false
   end
 
   def self.channel_backed

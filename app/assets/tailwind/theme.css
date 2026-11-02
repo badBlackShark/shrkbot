@@ -81,6 +81,9 @@
   --color-accent-2-text: var(--accent-2-text);
   --color-accent-2-fill: var(--accent-2-fill);
   --color-accent-2-fill-hover: var(--accent-2-fill-hover);
+  --color-beta-soft: var(--beta-soft);
+  --color-beta-soft-bd: var(--beta-soft-bd);
+  --color-beta-text: var(--beta-text);
   --color-nav-active: var(--nav-active);
   --color-eyebrow: var(--eyebrow);
 

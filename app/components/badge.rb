@@ -7,7 +7,8 @@ class Components::Badge < Components::Base
     danger: {tone: "border-danger-soft-bd bg-danger-soft text-danger", dot: "bg-danger"},
     neutral: {tone: "border-border-default bg-surface-sunken text-text-secondary", dot: "bg-text-muted"},
     brand: {tone: "border-accent-soft-bd bg-accent-soft text-accent-soft-fg", dot: "bg-accent"},
-    copper: {tone: "border-accent-2-soft-bd bg-accent-2-soft text-accent-2-text", dot: "bg-accent-2"}
+    copper: {tone: "border-accent-2-soft-bd bg-accent-2-soft text-accent-2-text", dot: "bg-accent-2"},
+    beta: {tone: "border-beta-soft-bd bg-beta-soft text-beta-text", dot: "bg-beta-text"}
   }.freeze
 
   SHAPES = {pill: "rounded-full", chip: "rounded-chip"}.freeze

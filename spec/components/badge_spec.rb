@@ -41,6 +41,14 @@ RSpec.describe Components::Badge do
     end
   end
 
+  context "beta variant" do
+    let(:options) { {variant: :beta} }
+
+    it "uses the plum beta tone" do
+      expect(html).to include("border-beta-soft-bd").and include("bg-beta-soft").and include("text-beta-text")
+    end
+  end
+
   it "outlines every variant so the faint fills keep their edge on cream surfaces" do
     outlines = described_class::VARIANTS.each_key.map { |variant| described_class.new(variant:).call { "Enabled" } }
 
