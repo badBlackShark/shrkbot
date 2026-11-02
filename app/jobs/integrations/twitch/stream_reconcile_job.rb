@@ -55,6 +55,7 @@ module Integrations
         if error.is_a?(RateLimited) && watches.all? { |watch| new_error?(watch, error) }
           ReportRateLimitJob.perform_later("Twitch streams", error.message, error.retry_after)
         end
+        ReportUnauthorizedJob.perform_later(error.message) if error.is_a?(Unauthorized) && NotifiesOwner.claim("twitch/unauthorized")
         watches.each { |watch| Ops::Integrations::Watches::RecordFailure.call(watch:, error:) }
       end
     end

@@ -116,13 +116,16 @@ check runs 5 minutes after the first offline reconcile, so up to 15 minutes late
 
 Failures map onto the shared machinery (`RecordsWatchFailures`, shared with `PollJob`).
 An `Integrations::Error` from the live call records `RecordFailure` on every watch,
-which feeds the 24-hour broken-watch report (a persistent `Unauthorized`, say). A
+which feeds the 24-hour broken-watch report (a persistent `Unavailable`, say). A
 `RateLimited` also enqueues `ReportRateLimitJob`, unless any watch already says
-`Integrations::RateLimited`. An exception from one watch's transition is recorded on
-that watch and reported through `ReportPollBugsJob` only when its last error was
-something else, so a persistent bug reports once; the other watches still transition.
-Nothing creates Twitch watches yet, so in production the job finds no demanded watch
-and does nothing.
+`Integrations::RateLimited`. An `Unauthorized` (Twitch rejected the app credentials, say
+after a leak) DMs at once through `Twitch::ReportUnauthorizedJob`, at most once a day
+(`NotifiesOwner.claim`), before the 24-hour broken-watch report; nothing retries its way
+out of a revoked secret. An exception from one watch's transition is recorded on that
+watch and reported through `ReportPollBugsJob` only when its last error was something
+else, so a persistent bug reports once; the other watches still transition. Nothing
+creates Twitch watches yet, so in production the job finds no demanded watch and does
+nothing.
 
 ## EventSub
 
