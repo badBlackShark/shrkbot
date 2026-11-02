@@ -49,10 +49,6 @@ RSpec.describe SubPluginStatus do
     context "when the parent is off and the only requirement is the parent" do
       subject(:rows) { described_class.rows(server_configuration, parent: :integrations) }
 
-      before do
-        allow(Integrations::Twitch::Client).to receive(:configured?).and_return(true)
-      end
-
       it "does not flag the sub-plugins as needing setup" do
         expect(rows).to contain_exactly(
           have_attributes(key: :steam, configured: true, enabled: false),

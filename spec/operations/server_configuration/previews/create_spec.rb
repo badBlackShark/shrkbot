@@ -5,8 +5,6 @@ require "rails_helper"
 RSpec.describe Ops::ServerConfiguration::Previews::Create do
   subject(:result) { described_class.call }
 
-  before { allow(Integrations::Twitch::Client).to receive(:configured?).and_return(true) }
-
   let!(:plugins) do
     Plugin.insert_all(
       PluginCatalog.all.map do |definition|

@@ -8,6 +8,6 @@ class Views::Servers::Twitch::Show < Views::Servers::SubPluginShow
   end
 
   def body
-    render Components::EmptyState.new(title: t(".empty_title"))
+    render Components::Feeds::TwitchChannelList.new
   end
 end

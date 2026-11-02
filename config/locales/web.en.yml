@@ -338,6 +338,8 @@ en:
         change: Not this one?
         steam:
           external_id: Steam app %{id}
+      twitch_channel_list:
+        empty_title: No channels yet
       volume_line:
         counts:
           announcement_published:
@@ -760,11 +762,9 @@ en:
       locked_reason:
         image_scanning: Pick a staff role first.
         spam_protection: Pick a staff role first.
-        twitch: Twitch is not connected on this bot yet.
       needs_setup_hint:
         image_scanning: Pick a staff role first.
         spam_protection: Pick a staff role first.
-        twitch: The bot owner has not connected Twitch yet.
       status:
         disabled: Disabled
         enabled: Enabled
@@ -1226,7 +1226,6 @@ en:
         show:
           description: Announces when the Twitch channels you follow go live, and
             posts their highlights, uploads, and clips.
-          empty_title: No channels yet
           title: Twitch
       welcomes:
         show:

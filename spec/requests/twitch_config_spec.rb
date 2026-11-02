@@ -12,12 +12,12 @@ RSpec.describe "Twitch config", type: :request do
   context "when signed in" do
     let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
     let!(:twitch_plugin) { create(:plugin, key: "twitch", name: "Twitch") }
+    let(:integrations_enabled) { true }
 
     before do
-      allow(Integrations::Twitch::Client).to receive(:configured?).and_return(true)
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
-      create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: true)
+      create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: integrations_enabled)
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     end
 
@@ -42,8 +42,21 @@ RSpec.describe "Twitch config", type: :request do
           toggle
 
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
-          expect(response.body).to include("twitch-config")
+          expect(response.body).to include(%(id="twitch-config"))
           expect(config.enabled_plugin_keys).to include(:twitch)
+        end
+
+        context "when Integrations is off" do
+          let(:integrations_enabled) { false }
+          let(:replaced) { Nokogiri::HTML.fragment(response.body).at_css("template").inner_html }
+
+          it "refuses with the reason rendered inside the Twitch section" do
+            toggle
+
+            expect(response).to have_http_status(:unprocessable_content)
+            expect(Nokogiri::HTML.fragment(replaced).at_css("#twitch-config").text).to include("Twitch is part of Integrations. Turn Integrations on first.")
+            expect(config.enabled_plugin_keys).not_to include(:twitch)
+          end
         end
 
         context "when toggled from the overview" do

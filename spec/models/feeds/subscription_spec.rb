@@ -126,7 +126,6 @@ RSpec.describe Feeds::Subscription do
       let!(:twitch_subscription) { create(:feed_subscription, :twitch, server_configuration:) }
 
       before do
-        allow(Integrations::Twitch::Client).to receive(:configured?).and_return(true)
         create(:plugin_activation, server_configuration:, plugin: create(:plugin, key: "twitch"), enabled: twitch_enabled)
       end
 

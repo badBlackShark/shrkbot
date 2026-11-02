@@ -5,8 +5,6 @@ require "rails_helper"
 RSpec.describe "Preview", type: :request do
   include_context "discord auth"
 
-  before { allow(Integrations::Twitch::Client).to receive(:configured?).and_return(true) }
-
   let!(:plugins) do
     Plugin.insert_all(
       PluginCatalog.all.map do |definition|
