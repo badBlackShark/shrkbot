@@ -4,6 +4,7 @@ module Integrations
   module Twitch
     class EventSubSubscriptions
       PATH = "/eventsub/subscriptions"
+      AlreadyExists = Class.new(Error)
 
       def initialize(client: Client.new)
         @client = client
@@ -18,10 +19,13 @@ module Integrations
       def create(type:, version:, condition:, callback:)
         @client.post_json(
           PATH,
-          body: {type:, version:, condition:, transport: {method: "webhook", callback:, secret: ENV.fetch("TWITCH_EVENTSUB_SECRET")}}
+          body: {type:, version:, condition:, transport: {method: "webhook", callback:, secret: EventSub.secret}},
+          status_errors: {409 => AlreadyExists}
         ) do |body|
           subscription(body.fetch("data").first)
         end
+      rescue AlreadyExists
+        nil
       end
 
       def destroy(id)

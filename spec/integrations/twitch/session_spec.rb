@@ -38,7 +38,7 @@ RSpec.describe Integrations::Twitch::Session do
   end
   let(:offline_at) { now - 4.minutes }
   let(:offline_state) { open_state.merge("offline_at" => offline_at.iso8601) }
-  let(:closed_state) { {"login" => "shroud", "display_name" => "Shroud"} }
+  let(:closed_state) { {"login" => "shroud", "display_name" => "Shroud", "ended_stream_ids" => ["s1"]} }
 
   context "when live with no session" do
     it "starts one, stamping the sighting" do
@@ -231,6 +231,83 @@ RSpec.describe Integrations::Twitch::Session do
 
     it "does nothing" do
       expect(outcome).to have_attributes(state: open_state, events: [])
+    end
+  end
+
+  context "when a channel update arrives with no session" do
+    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Casual", category_id: "1", category_name: "Chess") }
+
+    it "does nothing" do
+      expect(outcome).to have_attributes(state: {}, events: [])
+    end
+  end
+
+  context "when a channel update changes the title of an open session" do
+    let(:state) { open_state }
+    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Casual", category_id: "1", category_name: "Chess") }
+
+    it "emits StreamUpdated, marks titles as pushed and stamps no sighting" do
+      expect(outcome.state).to eq(open_state.merge("title" => "Casual", "titles_pushed" => true))
+      expect(outcome.events).to match([
+        an_instance_of(Integrations::Twitch::StreamUpdated).and(
+          have_attributes(subject_key: "stream-update:s1:#{now.to_i}", story_key: "stream:s1", title: "Casual")
+        )
+      ])
+    end
+  end
+
+  context "when a channel update repeats the title and category" do
+    let(:state) { open_state }
+    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Ranked", category_id: "1", category_name: "Chess") }
+
+    it "only marks titles as pushed" do
+      expect(outcome).to have_attributes(state: open_state.merge("titles_pushed" => true), events: [])
+    end
+  end
+
+  context "when the poll reports an old title after a pushed one" do
+    let(:state) { open_state.merge("titles_pushed" => true) }
+    let(:observation) { live.with(title: "Old") }
+
+    it "keeps the pushed title and still stamps the sighting" do
+      expect(outcome.state).to include("title" => "Ranked", "last_live_at" => now.iso8601)
+      expect(outcome.events).to be_empty
+    end
+  end
+
+  context "when a lagging sighting of the stream follows a pushed offline" do
+    let(:state) { offline_state }
+
+    it "ignores it, so the close check still ends the session" do
+      expect(outcome).to have_attributes(state: offline_state, events: [])
+    end
+  end
+
+  context "when the close check finds the same stream still live" do
+    let(:offline_at) { now - Integrations::Twitch::Session::GRACE }
+    let(:state) { offline_state }
+
+    it "continues the session" do
+      expect(outcome.state).to include("session" => "s1", "last_live_at" => now.iso8601)
+      expect(outcome.state).not_to have_key("offline_at")
+    end
+  end
+
+  context "when an ended session's stream shows up again" do
+    let(:state) { closed_state }
+
+    it "ignores it" do
+      expect(outcome).to have_attributes(state: closed_state, events: [])
+    end
+  end
+
+  context "when a new stream follows an ended one" do
+    let(:state) { closed_state }
+    let(:observation) { live.with(stream_id: "s2") }
+
+    it "starts a session for it" do
+      expect(outcome.state).to include("session" => "s2", "stream_ids" => ["s2"])
+      expect(outcome.events).to match([an_instance_of(Integrations::Twitch::StreamStarted).and(have_attributes(subject_key: "stream:s2"))])
     end
   end
 

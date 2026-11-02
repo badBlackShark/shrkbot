@@ -2,6 +2,7 @@
 
 Rails.application.routes.draw do
   draw :twilight_struggle
+  draw :twitch
 
   get "up" => "rails/health#show", :as => :rails_health_check
 

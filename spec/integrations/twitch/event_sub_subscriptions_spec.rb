@@ -74,7 +74,8 @@ RSpec.describe Integrations::Twitch::EventSubSubscriptions do
           version: "1",
           condition: {user_id: "1234"},
           transport: {method: "webhook", callback: "https://this-is-a-callback.com", secret: "s3cret"}
-        }
+        },
+        status_errors: {409 => Integrations::Twitch::EventSubSubscriptions::AlreadyExists}
       )
     end
 
@@ -89,6 +90,36 @@ RSpec.describe Integrations::Twitch::EventSubSubscriptions do
           callback: "https://this-is-a-callback.com"
         )
       )
+    end
+  end
+
+  describe "#create when the subscription exists" do
+    subject(:create) do
+      subscriptions.create(type: "stream.online", version: "1", condition: {broadcaster_user_id: "1"}, callback: "https://example.test/hook")
+    end
+
+    before do
+      stub_const("ENV", ENV.to_h.merge("TWITCH_EVENTSUB_SECRET" => "s3cret"))
+      allow(client).to receive(:post_json).and_raise(Integrations::Twitch::EventSubSubscriptions::AlreadyExists)
+    end
+
+    it "returns nil" do
+      expect(create).to be_nil
+    end
+  end
+
+  describe "#create when the subscription exists" do
+    subject(:create) do
+      subscriptions.create(type: "stream.online", version: "1", condition: {broadcaster_user_id: "1"}, callback: "https://example.test/hook")
+    end
+
+    before do
+      stub_const("ENV", ENV.to_h.merge("TWITCH_EVENTSUB_SECRET" => "s3cret"))
+      allow(client).to receive(:post_json).and_raise(Integrations::Twitch::EventSubSubscriptions::AlreadyExists)
+    end
+
+    it "returns nil" do
+      expect(create).to be_nil
     end
   end
 
