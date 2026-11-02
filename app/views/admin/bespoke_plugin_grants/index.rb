@@ -20,7 +20,7 @@ class Views::Admin::BespokePluginGrants::Index < Views::Base
   private
 
   def empty
-    render Components::EmptyState.new(title: t(".empty_title"), body: t(".empty_body")) { nil }
+    render Components::EmptyState.new(title: t(".empty_title"), body: t(".empty_body"))
   end
 
   def cards

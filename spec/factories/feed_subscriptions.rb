@@ -7,13 +7,14 @@ FactoryBot.define do
     channel_id { 555_000 }
 
     after(:build) do |subscription|
-      subscription.build_settings if Feeds::Steam.watchers.include?(subscription.watch.watcher)
+      subscription.build_settings if (Feeds::Steam.watchers + Feeds::Twitch.watchers).include?(subscription.watch.watcher)
     end
 
     trait :active do
       after(:create) do |subscription|
         Prosopite.pause do
-          %w[integrations steam].each do |key|
+          source = Feeds.sources.find { |candidate| candidate.watchers.include?(subscription.watch.watcher) } || Feeds::Steam
+          ["integrations", source.plugin_key.to_s].each do |key|
             create(
               :plugin_activation,
               server_configuration: subscription.server_configuration,
@@ -23,6 +24,10 @@ FactoryBot.define do
           end
         end
       end
+    end
+
+    trait :twitch do
+      association :watch, factory: [:integration_watch, :twitch]
     end
 
     factory :steam_feed_subscription do

@@ -121,6 +121,27 @@ RSpec.describe Feeds::Subscription do
       it { is_expected.to be_empty }
     end
 
+    context "with a Twitch subscription" do
+      let(:twitch_enabled) { true }
+      let!(:twitch_subscription) { create(:feed_subscription, :twitch, server_configuration:) }
+
+      before do
+        create(:plugin_activation, server_configuration:, plugin: create(:plugin, key: "twitch"), enabled: twitch_enabled)
+      end
+
+      it "includes it next to the Steam one" do
+        expect(active).to contain_exactly(subscription, twitch_subscription)
+      end
+
+      context "with twitch disabled" do
+        let(:twitch_enabled) { false }
+
+        it "leaves it out" do
+          expect(active).to contain_exactly(subscription)
+        end
+      end
+    end
+
     context "on a preview server" do
       let(:server_configuration) { create(:server_configuration, :preview) }
 

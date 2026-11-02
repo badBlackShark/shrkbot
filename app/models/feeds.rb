@@ -2,7 +2,7 @@
 
 module Feeds
   def self.sources
-    [Steam]
+    [Steam, Twitch]
   end
 
   def self.find_source(plugin_key)

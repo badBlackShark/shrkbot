@@ -46,6 +46,10 @@ RSpec.describe Feeds do
       expect(described_class.source(:steam)).to eq(Feeds::Steam)
     end
 
+    it "finds the Twitch source" do
+      expect(described_class.source(:twitch)).to eq(Feeds::Twitch)
+    end
+
     it "raises for an unknown plugin key" do
       expect { described_class.source(:nope) }.to raise_error(KeyError)
     end
@@ -54,6 +58,10 @@ RSpec.describe Feeds do
   describe ".source_for_watcher" do
     it "finds the source of a watcher" do
       expect(described_class.source_for_watcher("Integrations::Steam::NewsWatcher")).to eq(Feeds::Steam)
+    end
+
+    it "finds the source of a Twitch watcher" do
+      expect(described_class.source_for_watcher("Integrations::Twitch::ChannelWatcher")).to eq(Feeds::Twitch)
     end
   end
 end

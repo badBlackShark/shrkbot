@@ -216,3 +216,5 @@ plugins:
             - body_length: full
           subscribed_events:
             - event_type: Integrations::Steam::PatchNotesPublished
+  - plugin: twitch
+    enabled: true

@@ -92,6 +92,17 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
     end
   end
 
+  context "twitch feed handling" do
+    let!(:twitch_subscription) { create(:feed_subscription, :twitch, server_configuration: config) }
+    let(:twitch_settings) { twitch_subscription.twitch_settings }
+
+    it "removes the Twitch settings with the subscription" do
+      result
+
+      expect(Feeds::Twitch::Settings.find_by(id: twitch_settings.id)).to be_nil
+    end
+  end
+
   context "twilight struggle destination handling" do
     let!(:tournament) { create(:twilight_struggle_tournament) }
     let!(:destination) do

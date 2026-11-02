@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_01_211112) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_02_202031) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -81,7 +81,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_211112) do
     t.text "template"
     t.datetime "updated_at", null: false
     t.index ["subscription_id", "event_type"], name: "index_feed_subscribed_events_on_subscription_id_and_event_type", unique: true
-    t.check_constraint "event_type::text = ANY (ARRAY['Integrations::Steam::PatchNotesPublished'::character varying, 'Integrations::Steam::AnnouncementPublished'::character varying, 'Integrations::Steam::ArticlePublished'::character varying]::text[])", name: "feed_subscribed_events_event_type"
+    t.check_constraint "event_type::text = ANY (ARRAY['Integrations::Steam::PatchNotesPublished'::character varying, 'Integrations::Steam::AnnouncementPublished'::character varying, 'Integrations::Steam::ArticlePublished'::character varying, 'Integrations::Twitch::StreamStarted'::character varying]::text[])", name: "feed_subscribed_events_event_type"
   end
 
   create_table "feed_subscriptions", id: :string, default: -> { "('fds_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -92,6 +92,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_211112) do
     t.string "watch_id", null: false
     t.index ["server_configuration_id", "watch_id"], name: "idx_on_server_configuration_id_watch_id_6baa6b1d76", unique: true
     t.index ["watch_id"], name: "index_feed_subscriptions_on_watch_id"
+  end
+
+  create_table "feed_twitch_settings", id: :string, default: -> { "('fts_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.string "subscription_id", null: false
+    t.bigint "live_role_id"
+    t.boolean "show_viewers", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subscription_id"], name: "index_feed_twitch_settings_on_subscription_id", unique: true
   end
 
   create_table "image_scanning_settings", id: :string, default: -> { "('iss_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -596,6 +605,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_01_211112) do
   add_foreign_key "feed_subscribed_events", "feed_subscriptions", column: "subscription_id"
   add_foreign_key "feed_subscriptions", "integration_watches", column: "watch_id"
   add_foreign_key "feed_subscriptions", "server_configurations"
+  add_foreign_key "feed_twitch_settings", "feed_subscriptions", column: "subscription_id"
   add_foreign_key "image_scanning_settings", "server_configurations"
   add_foreign_key "integration_events", "integration_watches", column: "watch_id"
   add_foreign_key "integration_seen_items", "integration_watches", column: "watch_id"
