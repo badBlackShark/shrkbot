@@ -94,7 +94,7 @@ group :development, :test do
   gem "simplecov", require: false
   gem "simplecov-lcov", require: false
 
-  gem "undercover", "0.8.5", require: false
+  gem "undercover", "0.9.0", require: false
 
   # Advisory code-smell + structural-duplication analysis (SRP/DRY signal); non-blocking
   gem "reek", require: false
