@@ -145,6 +145,26 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
     end
   end
 
+  context "when Twitch rejects the app credentials" do
+    before do
+      allow(streams).to receive(:live).and_raise(Integrations::Unauthorized, "id.twitch.tv responded 400")
+    end
+
+    it "tells the owner at once, without waiting for the broken-watch report" do
+      expect { perform }.to have_enqueued_job(Integrations::Twitch::ReportUnauthorizedJob).with("id.twitch.tv responded 400").once
+    end
+
+    context "when a watch already records the rejection" do
+      let!(:idle_watch) do
+        create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", failing_since: 1.hour.ago, polled_at: 1.hour.ago, last_error: "Integrations::Unauthorized: id.twitch.tv responded 400")
+      end
+
+      it "does not tell them again" do
+        expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportUnauthorizedJob)
+      end
+    end
+  end
+
   context "when one watch's transition raises" do
     before do
       allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).and_call_original
