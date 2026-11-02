@@ -7,6 +7,8 @@ en:
         cap:
           steam: This server follows %{max} games, the most it can. Stop following
             one to add another.
+          twitch: This server follows %{max} channels, the most it can. Stop following
+            one to add another.
     logging:
       moderation_dependency: can't be turned off or lose its channel while Server
         Shield is enabled

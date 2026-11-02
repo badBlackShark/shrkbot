@@ -95,6 +95,16 @@ are no preview routes for these pages.
   `Feeds::VolumeLookup`). The follow and edit pages and saving never call Steam. When Steam
   fails the lookup returns `nil` and the frame stays empty.
 
+### Twitch
+
+`Feeds::Twitch` is the second source: plugin key `:twitch`, watcher
+`Integrations::Twitch::ChannelWatcher`, one event type so far (`StreamStarted`, the live
+post), template tokens `streamer` and `category`. Its settings live in
+`feed_twitch_settings` (`Feeds::Twitch::Settings`, `twitch_settings` on the subscription):
+`live_role_id` to ping and `show_viewers` (true by default). `role_id_for` maps an event
+type to its role column. `accepts?` is always true until the category filter lands. The
+plugin needs the bot's Twitch credentials to be turned on.
+
 ## Tables
 
 - `feed_subscriptions` (`Feeds::Subscription`): one row per server and followed watch.
@@ -104,6 +114,9 @@ are no preview routes for these pages.
   `body_length` (`preview` by default, or `full`) and `languages` (empty means every
   language). Check constraints limit `body_length` to its two values and `languages` to
   the model's codes. The row outlives a pause: switching every post type off keeps it.
+- `feed_twitch_settings` (`Feeds::Twitch::Settings`): the Twitch-only settings of a
+  subscription, 1:1 (unique `subscription_id`). An optional `live_role_id` and
+  `show_viewers`.
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
   wants, each with an optional `template` override and `subscribed_since`, the moment
   that kind of post was followed (see Following since). Unique on

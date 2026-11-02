@@ -11,6 +11,7 @@ module Feeds
     has_many :subscribed_events, dependent: :delete_all, autosave: true
     has_many :posts, dependent: :delete_all
     has_one :steam_settings, class_name: "Feeds::Steam::Settings", dependent: :delete, autosave: true
+    has_one :twitch_settings, class_name: "Feeds::Twitch::Settings", dependent: :delete, autosave: true
 
     validates :channel_id, presence: true
     validates :watch_id, uniqueness: {scope: :server_configuration_id}

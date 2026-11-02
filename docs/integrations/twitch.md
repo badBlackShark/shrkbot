@@ -251,3 +251,7 @@ Not recorded:
   callback.
 - `eventsub_subscriptions_handwritten.json` is written by hand in the documented shape, so
   the mapping runs against an enabled subscription.
+
+## Feeds
+
+Twitch's Feeds source is `Feeds::Twitch` (see [../plugins/feeds.md](../plugins/feeds.md)). Posting arrives with the Live card.

@@ -24,7 +24,7 @@ class Views::Servers::TwilightStruggle::Show < Views::Servers::PluginConfigShow
   end
 
   def empty
-    render Components::EmptyState.new(title: t(".empty_title"), body: empty_body) { nil }
+    render Components::EmptyState.new(title: t(".empty_title"), body: empty_body)
   end
 
   def empty_body

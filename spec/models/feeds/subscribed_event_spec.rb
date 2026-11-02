@@ -32,6 +32,23 @@ RSpec.describe Feeds::SubscribedEvent do
     it { is_expected.not_to be_valid }
   end
 
+  context "on a Twitch subscription" do
+    let(:subscription) { create(:feed_subscription, :twitch) }
+    let(:event_type) { "Integrations::Twitch::StreamStarted" }
+
+    it { is_expected.to be_valid }
+
+    it "is accepted by the database" do
+      expect { subscribed_event.save! }.not_to raise_error
+    end
+
+    context "with a Steam event type" do
+      let(:event_type) { "Integrations::Steam::PatchNotesPublished" }
+
+      it { is_expected.not_to be_valid }
+    end
+  end
+
   it "starts following from now" do
     expect(subscribed_event.subscribed_since).to be_within(1.minute).of(Time.current)
   end

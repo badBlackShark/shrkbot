@@ -666,6 +666,10 @@ en:
         twilight_struggle:
           description: Post results from twilight-struggle.com as they are reported.
           name: Twilight Struggle
+        twitch:
+          description: Announces when the Twitch channels you follow go live, and
+            posts their highlights, uploads, and clips.
+          name: Twitch
         welcomes:
           description: Greet new members and say goodbye when they leave.
           name: Welcomes
@@ -756,9 +760,11 @@ en:
       locked_reason:
         image_scanning: Pick a staff role first.
         spam_protection: Pick a staff role first.
+        twitch: Twitch is not connected on this bot yet.
       needs_setup_hint:
         image_scanning: Pick a staff role first.
         spam_protection: Pick a staff role first.
+        twitch: The bot owner has not connected Twitch yet.
       status:
         disabled: Disabled
         enabled: Enabled
@@ -959,6 +965,8 @@ en:
       saved: Twilight Struggle settings saved.
       subscribed: Subscribed. Set where and how its results post below.
       unsubscribed: Unsubscribed. New results in this tournament won't be posted.
+    twitch:
+      saved: Twitch settings saved.
     unknown_plugin: That plugin doesn't exist.
     welcomes:
       saved: Welcomes settings saved.
@@ -1214,6 +1222,12 @@ en:
           gate_message: Enable Twilight Struggle to subscribe this server to tournaments.
           title: Twilight Struggle
           toggle_admin_only: Only a server admin can switch this plugin on or off.
+      twitch:
+        show:
+          description: Announces when the Twitch channels you follow go live, and
+            posts their highlights, uploads, and clips.
+          empty_title: No channels yet
+          title: Twitch
       welcomes:
         show:
           description: Greet new members and say goodbye when they leave.

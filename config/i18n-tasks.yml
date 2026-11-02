@@ -49,6 +49,8 @@ ignore_unused:
   # 1. Views::Servers::SubPluginShow subclasses
   - views.servers.steam.show.title
   - views.servers.steam.show.description
+  - views.servers.twitch.show.title
+  - views.servers.twitch.show.description
   # 1. Views::Servers::PluginConfigShow subclasses
   - views.servers.logging.show.*
   - views.servers.roles.show.*

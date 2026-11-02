@@ -12,6 +12,7 @@ module Components::PluginNav
     lfg: "game-controller",
     integrations: "plugs",
     steam: "steam",
+    twitch: "twitch-logo",
     twilight_struggle: "trophy"
   }.freeze
 
