@@ -187,14 +187,40 @@ RSpec.describe Integrations::Twitch::EventSubReconcileJob do
       end
     end
 
-    context "while rebuilding" do
+    context "while rebuilding, after every old subscription is gone" do
       let(:rebuild) { true }
 
-      it "resumes the rebuild after the limit resets, a minute at the earliest" do
-        freeze_time do
-          expect { perform }.to have_enqueued_job(described_class).with(rebuild: true).at(1.minute.from_now)
-        end
+      it "leaves the rest to the regular runs, so it keeps what it created" do
+        expect { perform }.not_to have_enqueued_job(described_class)
       end
+    end
+  end
+
+  context "when Twitch rate limits a delete" do
+    let(:existing) { [subscription("old", "stream.online", "1", broadcaster_id: "9")] }
+
+    before do
+      allow(subscriptions).to receive(:destroy).and_raise(Integrations::RateLimited.new("slow down", retry_after: 30))
+    end
+
+    it "starts no rebuild" do
+      expect { perform }.not_to have_enqueued_job(described_class)
+    end
+  end
+
+  context "when Twitch rate limits a delete while rebuilding" do
+    let(:rebuild) { true }
+    let(:existing) { [subscription("a", "stream.online", "1"), subscription("b", "stream.offline", "1")] }
+
+    before do
+      allow(subscriptions).to receive(:destroy).and_raise(Integrations::RateLimited.new("slow down", retry_after: 30))
+    end
+
+    it "resumes the rebuild after the limit resets, a minute at the earliest, and creates nothing yet" do
+      freeze_time do
+        expect { perform }.to have_enqueued_job(described_class).with(rebuild: true).at(1.minute.from_now)
+      end
+      expect(subscriptions).not_to have_received(:create)
     end
   end
 

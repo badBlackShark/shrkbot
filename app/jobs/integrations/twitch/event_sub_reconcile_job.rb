@@ -21,11 +21,11 @@ module Integrations
         subscriptions = EventSubSubscriptions.new
         diff = EventSubDiff.new(existing: subscriptions.all, broadcaster_ids:, callback:, rebuild:)
         report(revocation_problems(diff.revoked))
-        diff.stale.each { |subscription| subscriptions.destroy(subscription.id) }
+        destroy_stale(subscriptions, diff.stale, rebuild)
         failures = diff.missing.filter_map { |wanted| create_failure(subscriptions, wanted) }
         report(creation_problems(failures).select { |key, _line| repeated?(key) })
       rescue RateLimited => error
-        rate_limited(error, rebuild)
+        rate_limited(error)
       rescue Error => error
         warn(error)
       end
@@ -42,6 +42,13 @@ module Integrations
 
       def broadcaster_ids
         Watch.demanded.where(watcher: ChannelWatcher.name).pluck(:external_id)
+      end
+
+      def destroy_stale(subscriptions, stale, rebuild)
+        stale.each { |subscription| subscriptions.destroy(subscription.id) }
+      rescue RateLimited => error
+        self.class.set(wait: [error.retry_after.to_i.seconds, MIN_RETRY].max).perform_later(rebuild: true) if rebuild
+        raise
       end
 
       def create_failure(subscriptions, wanted)
@@ -73,9 +80,8 @@ module Integrations
         end
       end
 
-      def rate_limited(error, rebuild)
+      def rate_limited(error)
         warn(error)
-        self.class.set(wait: [error.retry_after.to_i.seconds, MIN_RETRY].max).perform_later(rebuild: true) if rebuild
         ReportRateLimitJob.perform_later("Twitch EventSub", error.message, error.retry_after) if claim_alert("RateLimited")
       end
 

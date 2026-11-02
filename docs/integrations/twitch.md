@@ -175,8 +175,14 @@ once a day.
 Rotating the secret: set the new `TWITCH_EVENTSUB_SECRET`, deploy, then run
 `bin/rails runner 'Integrations::Twitch::EventSubReconcileJob.perform_now(rebuild: true)'`.
 Between the deploy and the rebuild notifications fail the signature check and the stream
-reconcile covers live state. A rebuild that hits the rate limit enqueues itself again
-with `rebuild: true` once the limit resets (a minute at the earliest).
+reconcile covers live state. A rebuild rate-limited while it deletes enqueues itself
+again with `rebuild: true` once the limit resets (a minute at the earliest); it has
+created nothing yet, so it loses nothing. Rate-limited while it creates, every old
+subscription is already gone, so the regular runs create the rest and keep the new ones.
+A resumed rebuild that comes due while a regular run holds the concurrency key is
+discarded; the old-secret subscriptions then fail their notifications until Twitch
+revokes them (`notification_failures_exceeded`, which DMs) and the reconcile recreates
+them. After a rotation, run the rebuild again if that DM arrives.
 
 In development no subscriptions get created (the callback must be https on 443). With
 `TWITCH_EVENTSUB_SECRET` set, the receiver can be exercised with the Twitch CLI:
