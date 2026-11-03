@@ -112,11 +112,13 @@ The Live card shows `<name> · Live on Twitch` as the eyebrow, the stream title 
 heading and `Streaming **<category>**` when the channel has a category, with the
 channel's profile picture (`watch.image_url`) as the section thumbnail. The image slot
 holds the stream preview when Twitch already has a frame, else the category's box art,
-else nothing (`Feeds::Twitch::LiveImage`). The accent is Twitch purple and the button
+else nothing (`Feeds::Twitch::LiveImage`). The preview check is shared per stream for a
+minute, so every server following the channel gets the same URL and Discord fetches it once. The accent is Twitch purple and the button
 reads "Watch on Twitch". The default notification text is `<name> is live: <title>`.
 
-`PostJob` skips an event whose stream session already ended (`Integrations::Event#expired?`,
-true for a `StreamEvent` whose session is no longer the watch's open one). `show_viewers`
+`PostJob` skips an expired event (`Integrations::Event#expired?`, false by default):
+a `StreamStarted` whose session is no longer the watch's open one. `StreamEnded` keeps
+the default, because the state it leaves behind has no open session. `show_viewers`
 is first read by the refresh (revise); the go-live card shows no count.
 
 ## Tables
