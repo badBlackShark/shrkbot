@@ -67,8 +67,13 @@ below ends it.
 
 State keys: `session` (the first stream id of the session), `stream_ids`, `title`,
 `category_id`, `category_name`, `started_at`, `last_live_at` (the latest live sighting),
-`login`, `display_name`, `peak_viewers`, `titles_pushed` (set by the first
+`login`, `display_name`, `viewer_count` (the last sampled count, nil until the first
+`/streams` sighting), `peak_viewers`, `titles_pushed` (set by the first
 `ChannelUpdate`) and, while the stream is down, `offline_at`.
+Every stream event carries `viewer_count`. `StreamSampled` is emitted once per `/streams`
+sighting of an open session (every 10 minutes through the reconcile), with subject key
+`stream-sample:<session>:<epoch>` and story key `stream:<session>`. A push go-live has no
+count.
 Keys are strings and times are ISO 8601 strings, because jsonb hands both back that
 way: symbol keys would make a fresh state differ from the reloaded one. An ended
 session keeps only `login`, `display_name` and `ended_stream_ids` (its `stream_ids`).

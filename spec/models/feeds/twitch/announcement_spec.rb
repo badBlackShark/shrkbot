@@ -11,7 +11,10 @@ RSpec.describe Feeds::Twitch::Announcement do
   let(:subscription) { create(:feed_subscription, :twitch, watch:) }
   let(:template) { nil }
   let(:category_name) { "Hades II" }
-  let(:event) { create(:twitch_stream_started_event, watch:, category_name:) }
+  let(:viewer_count) { nil }
+  let(:started_at) { Time.zone.parse("2026-11-01 09:00:00") }
+  let(:started_epoch) { started_at.to_i }
+  let(:event) { create(:twitch_stream_started_event, watch:, category_name:, viewer_count:, started_at: started_at.iso8601) }
   let(:image_url) { nil }
 
   before do
@@ -55,7 +58,7 @@ RSpec.describe Feeds::Twitch::Announcement do
     let(:action_row) { card[:components].last }
     let(:eyebrow) { Bot::Discord::Components.text("-# shrkbot_dev · Live on Twitch") }
     let(:heading) { Bot::Discord::Components.text("## Hades II blind run, day 3") }
-    let(:category) { Bot::Discord::Components.text("Streaming **Hades II**") }
+    let(:details) { Bot::Discord::Components.text("Streaming **Hades II**\n-# Started <t:#{started_epoch}:R>") }
 
     it "is purple" do
       expect(container[:accent_color]).to eq(0x9146ff)
@@ -65,10 +68,10 @@ RSpec.describe Feeds::Twitch::Announcement do
       expect(lead).to eq(Bot::Discord::Components.text("<@&4242>"))
     end
 
-    it "shows the eyebrow, heading and category beside the profile picture" do
+    it "shows the eyebrow, heading and details beside the profile picture" do
       expect(container[:components].first).to eq(
         Bot::Discord::Components.section(
-          [eyebrow, heading, category],
+          [eyebrow, heading, details],
           accessory: Bot::Discord::Components.thumbnail(profile_image)
         )
       )
@@ -77,10 +80,32 @@ RSpec.describe Feeds::Twitch::Announcement do
     context "when the channel has no category" do
       let(:category_name) { nil }
 
-      it "drops the category line" do
-        expect(container[:components].first).to eq(
-          Bot::Discord::Components.section([eyebrow, heading], accessory: Bot::Discord::Components.thumbnail(profile_image))
+      it "keeps only the start time" do
+        expect(container[:components].first[:components].last).to eq(
+          Bot::Discord::Components.text("-# Started <t:#{started_epoch}:R>")
         )
+      end
+    end
+
+    context "with a viewer count" do
+      let(:viewer_count) { 1204 }
+
+      it "shows it before the start time" do
+        expect(container[:components].first[:components].last).to eq(
+          Bot::Discord::Components.text("Streaming **Hades II**\n-# 1,204 watching · started <t:#{started_epoch}:R>")
+        )
+      end
+
+      context "when the subscription hides viewers" do
+        before do
+          subscription.settings.update!(show_viewers: false)
+        end
+
+        it "shows only the start time" do
+          expect(container[:components].first[:components].last).to eq(
+            Bot::Discord::Components.text("Streaming **Hades II**\n-# Started <t:#{started_epoch}:R>")
+          )
+        end
       end
     end
 
@@ -88,7 +113,7 @@ RSpec.describe Feeds::Twitch::Announcement do
       let(:profile_image) { nil }
 
       it "puts the texts straight into the container" do
-        expect(container[:components]).to eq([eyebrow, heading, category])
+        expect(container[:components]).to eq([eyebrow, heading, details])
       end
     end
 

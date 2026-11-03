@@ -109,7 +109,10 @@ type to its role column. `accepts?` is always true until the category filter lan
 the bot's Twitch credentials the Twitch jobs return early, so nothing posts.
 
 The Live card shows `<name> · Live on Twitch` as the eyebrow, the stream title as the
-heading and `Streaming **<category>**` when the channel has a category, with the
+heading and `Streaming **<category>**` when the channel has a category, followed by a
+stats line, `N watching · started <relative time>` (viewers only with `show_viewers` and
+a sampled count, else `Started <relative time>`; Discord renders the relative time live,
+so the card needs no edit for uptime), with the
 channel's profile picture (`watch.image_url`) as the section thumbnail. The image slot
 holds the stream preview when Twitch already has a frame, else the category's box art,
 else nothing (`Feeds::Twitch::LiveImage`). The preview check is shared per stream for a
@@ -118,8 +121,9 @@ reads "Watch on Twitch". The default notification text is `<name> is live: <titl
 
 `PostJob` skips an expired event (`Integrations::Event#expired?`, false by default):
 a `StreamStarted` whose session is no longer the watch's open one. `StreamEnded` keeps
-the default, because the state it leaves behind has no open session. `show_viewers`
-is first read by the refresh (revise); the go-live card shows no count.
+the default, because the state it leaves behind has no open session. The card is
+refreshed with title, category, preview or box art and viewers on every `StreamUpdated`
+and `StreamSampled` (see Revising a post).
 
 ## Tables
 
@@ -139,7 +143,9 @@ is first read by the refresh (revise); the go-live card shows no count.
   `[subscription_id, event_type]`.
 - `feed_posts` (`Feeds::Post`): one row per story a subscription posted, holding
   the `story_key`. It is written before the message is sent, so it is the claim that
-  keeps a story from posting twice. Unique on `[subscription_id, story_key]`.
+  keeps a story from posting twice. `channel_id` and `message_id` are set after the send
+  (null while it is in flight, and on rows from before they were recorded). Unique on
+  `[subscription_id, story_key]`.
 
 `watch_id` points at `integration_watches`; see
 [../integrations/overview.md](../integrations/overview.md) for what a watch is.
@@ -199,6 +205,20 @@ removed by the orphan prune once nothing references it.
   claim is kept. When the conversion fails, the plain message is edited to
   `Announcement#fallback`: the subject cut so that the whole link still fits in 2000
   characters.
+
+## Revising a post
+
+    RecordObservation -> Bus -> ReviseJob(event) -> RevisePostJob(post, event) -> Posts::Revise
+
+- `Feeds::ReviseJob` is the bus handler for `StreamUpdated` and `StreamSampled`. It
+  enqueues one `Feeds::RevisePostJob` per sent post (`message_id` set) of the event's
+  story on an `active` subscription of the event's watch.
+- `Ops::Feeds::Posts::Revise` edits only when the event is the story's latest, so a
+  retried older refresh never overwrites a newer one and nothing edits after the stream
+  ended. It re-renders through the source's `announcement` and edits with mentions
+  suppressed, so nothing pings again (`Components.edit`).
+- A message a human deleted clears `message_id`, so later refreshes skip the post. A
+  channel that is gone or a lost permission discards the job.
 
 ## Stories
 

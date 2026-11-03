@@ -58,7 +58,7 @@ RSpec.describe Integrations::Twitch::NotificationJob do
     it "starts a session from the event and the channel's title, with no viewers yet" do
       perform
 
-      expect(watch.reload.state).to include("session" => "s1", "title" => "Ranked", "category_name" => "Chess", "peak_viewers" => 0, "login" => "liveone")
+      expect(watch.reload.state).to include("session" => "s1", "title" => "Ranked", "category_name" => "Chess", "viewer_count" => nil, "peak_viewers" => nil, "login" => "liveone")
       expect(watch.events).to contain_exactly(an_instance_of(Integrations::Twitch::StreamStarted))
       expect(channels).to have_received(:for).with(["1"])
     end

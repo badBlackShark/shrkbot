@@ -11,4 +11,11 @@ Rails.application.config.to_prepare do
       Integrations::Twitch::StreamStarted
     ]
   )
+  Integrations::Bus.subscribe(
+    Feeds::ReviseJob,
+    to: [
+      Integrations::Twitch::StreamUpdated,
+      Integrations::Twitch::StreamSampled
+    ]
+  )
 end

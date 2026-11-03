@@ -53,6 +53,12 @@ RSpec.describe Ops::Feeds::Posts::Create do
     expect(subscription.posts.sole.story_key).to eq("story-1")
   end
 
+  it "remembers where the card went so it can be revised" do
+    result
+
+    expect(subscription.posts.sole).to have_attributes(channel_id: 555_000, message_id: 777_000)
+  end
+
   context "without a role" do
     let(:role_id) { nil }
 

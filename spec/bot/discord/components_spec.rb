@@ -241,6 +241,42 @@ RSpec.describe Bot::Discord::Components do
     end
   end
 
+  describe ".edit" do
+    subject(:edit) { described_class.edit(channel_id: 20, message_id: 30, rendered:) }
+
+    let(:rendered) { described_class.container([described_class.text("hello")]) }
+
+    before do
+      allow(Bot::Config).to receive(:rest_token).and_return("Bot tok")
+      allow(Discordrb::API::Channel).to receive(:edit_message)
+    end
+
+    it "replaces the components and flags, mentioning nobody" do
+      edit
+
+      expect(Discordrb::API::Channel).to have_received(:edit_message).with(
+        "Bot tok",
+        20,
+        30,
+        nil,
+        {parse: []},
+        nil,
+        rendered[:components],
+        rendered[:flags]
+      )
+    end
+
+    context "when Discord raises" do
+      before do
+        allow(Discordrb::API::Channel).to receive(:edit_message).and_raise(Discordrb::Errors::UnknownMessage.new("Unknown Message"))
+      end
+
+      it "propagates the error" do
+        expect { edit }.to raise_error(Discordrb::Errors::UnknownMessage)
+      end
+    end
+  end
+
   describe ".convert_to_v2" do
     subject(:convert_to_v2) { described_class.convert_to_v2(20, 30, rendered) }
 

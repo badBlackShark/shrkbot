@@ -19,6 +19,10 @@ module Feeds
         ACCENT_COLOR
       end
 
+      def post_type
+        "Integrations::Twitch::StreamStarted"
+      end
+
       def url
         "https://www.twitch.tv/#{event.login}"
       end
@@ -40,7 +44,7 @@ module Feeds
       end
 
       def header
-        texts = [eyebrow, heading, category].compact
+        texts = [eyebrow, heading, details]
         profile = event.watch.image_url
         return texts unless profile
 
@@ -51,8 +55,19 @@ module Feeds
         Bot::Discord::Components.text("-# #{event.display_name} · Live on Twitch")
       end
 
-      def category
-        Bot::Discord::Components.text("Streaming **#{event.category_name}**") if event.category_name
+      def details
+        Bot::Discord::Components.text([category_line, "-# #{stats}"].compact.join("\n"))
+      end
+
+      def category_line
+        "Streaming **#{event.category_name}**" if event.category_name
+      end
+
+      def stats
+        started = "<t:#{Time.iso8601(event.started_at).to_i}:R>"
+        return "Started #{started}" unless subscription.settings.show_viewers && event.viewer_count
+
+        "#{event.viewer_count.to_i.to_fs(:delimited)} watching · started #{started}"
       end
 
       def image

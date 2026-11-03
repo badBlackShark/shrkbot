@@ -25,7 +25,7 @@ module Integrations
           category_name: channel.category_name,
           login: event.fetch("broadcaster_user_login"),
           display_name: event.fetch("broadcaster_user_name"),
-          viewer_count: 0
+          viewer_count: nil
         )
       end
     end

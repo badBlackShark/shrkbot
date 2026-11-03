@@ -111,7 +111,7 @@ module Bot
       end
       private_class_method :mention_users
 
-      def convert_to_v2(channel_id, message_id, rendered, allowed_mentions = {parse: []})
+      def edit(channel_id:, message_id:, rendered:, allowed_mentions: {parse: []})
         Discordrb::API::Channel.edit_message(
           Bot::Config.rest_token,
           channel_id,
@@ -122,6 +122,10 @@ module Bot
           rendered[:components],
           rendered[:flags]
         )
+      end
+
+      def convert_to_v2(channel_id, message_id, rendered, allowed_mentions = {parse: []})
+        edit(channel_id:, message_id:, rendered:, allowed_mentions:)
         true
       rescue => e
         Rails.logger.warn("[Components] message #{message_id} left as plain text: #{e.class}: #{e.message}")

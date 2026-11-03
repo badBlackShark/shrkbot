@@ -33,6 +33,7 @@ RSpec.describe Integrations::Twitch::Session do
       "last_live_at" => last_live_at.iso8601,
       "login" => "shroud",
       "display_name" => "Shroud",
+      "viewer_count" => 100,
       "peak_viewers" => 100
     }
   end
@@ -66,40 +67,67 @@ RSpec.describe Integrations::Twitch::Session do
     end
   end
 
+  context "when a push go-live starts the session" do
+    let(:observation) { live.with(viewer_count: nil) }
+
+    it "stores no viewers or peak, and a later sighting sets both" do
+      expect(outcome.state).to include("viewer_count" => nil, "peak_viewers" => nil)
+
+      later = described_class.new(outcome.state, now: now + 10.minutes).apply(live.with(viewer_count: 60))
+
+      expect(later.state).to include("viewer_count" => 60, "peak_viewers" => 60)
+    end
+  end
+
   context "when live in a session seen recently" do
     let(:state) { open_state }
 
-    it "keeps the session, stamps the sighting and emits nothing" do
+    it "keeps the session, stamps the sighting and samples the viewers" do
       expect(outcome.state).to eq(open_state.merge("last_live_at" => now.iso8601))
-      expect(outcome.events).to be_empty
+      expect(outcome.events).to match([
+        an_instance_of(Integrations::Twitch::StreamSampled).and(
+          have_attributes(subject_key: "stream-sample:s1:#{now.to_i}", occurred_at: now, story_key: "stream:s1", viewer_count: 100)
+        )
+      ])
     end
 
     context "with more viewers" do
       let(:observation) { live.with(viewer_count: 250) }
 
-      it "raises the peak without an event" do
-        expect(outcome.state["peak_viewers"]).to eq(250)
-        expect(outcome.events).to be_empty
+      it "raises the peak and samples the new count" do
+        expect(outcome.state).to include("peak_viewers" => 250, "viewer_count" => 250)
+        expect(outcome.events).to match([an_instance_of(Integrations::Twitch::StreamSampled).and(have_attributes(viewer_count: 250))])
       end
     end
 
     context "with fewer viewers" do
       let(:observation) { live.with(viewer_count: 40) }
 
-      it "keeps the peak" do
-        expect(outcome.state["peak_viewers"]).to eq(100)
+      it "keeps the peak and samples the current count" do
+        expect(outcome.state).to include("peak_viewers" => 100, "viewer_count" => 40)
+        expect(outcome.events).to match([an_instance_of(Integrations::Twitch::StreamSampled).and(have_attributes(viewer_count: 40))])
+      end
+    end
+
+    context "without a viewer count, as after a push reconnect" do
+      let(:observation) { live.with(viewer_count: nil) }
+
+      it "keeps the stored count and emits no sample" do
+        expect(outcome.state).to include("peak_viewers" => 100, "viewer_count" => 100)
+        expect(outcome.events).to be_empty
       end
     end
 
     context "with a new title" do
       let(:observation) { live.with(title: "Casual") }
 
-      it "stores it and emits StreamUpdated" do
+      it "stores it and emits StreamUpdated, then StreamSampled, both carrying the new title and count" do
         expect(outcome.state["title"]).to eq("Casual")
         expect(outcome.events).to match([
           an_instance_of(Integrations::Twitch::StreamUpdated).and(
-            have_attributes(subject_key: "stream-update:s1:#{now.to_i}", occurred_at: now, title: "Casual", story_key: "stream:s1")
-          )
+            have_attributes(subject_key: "stream-update:s1:#{now.to_i}", occurred_at: now, title: "Casual", story_key: "stream:s1", viewer_count: 100)
+          ),
+          an_instance_of(Integrations::Twitch::StreamSampled).and(have_attributes(title: "Casual", viewer_count: 100))
         ])
       end
     end
@@ -109,7 +137,7 @@ RSpec.describe Integrations::Twitch::Session do
 
       it "stores it and emits StreamUpdated" do
         expect(outcome.state).to include("category_id" => "2", "category_name" => "Just Chatting")
-        expect(outcome.events.map(&:class)).to eq([Integrations::Twitch::StreamUpdated])
+        expect(outcome.events.map(&:class)).to eq([Integrations::Twitch::StreamUpdated, Integrations::Twitch::StreamSampled])
       end
     end
   end
@@ -118,10 +146,10 @@ RSpec.describe Integrations::Twitch::Session do
     let(:state) { offline_state.merge("last_live_at" => (now - 14.minutes).iso8601) }
     let(:observation) { live.with(stream_id: "s2") }
 
-    it "stays in the session without an event" do
+    it "stays in the session, with only a sample" do
       expect(outcome.state).to include("session" => "s1", "stream_ids" => %w[s1 s2], "last_live_at" => now.iso8601)
       expect(outcome.state).not_to have_key("offline_at")
-      expect(outcome.events).to be_empty
+      expect(outcome.events.map(&:class)).to eq([Integrations::Twitch::StreamSampled])
     end
   end
 
@@ -147,7 +175,7 @@ RSpec.describe Integrations::Twitch::Session do
 
     it "keeps the session, because the stream never ended" do
       expect(outcome.state).to include("session" => "s1", "last_live_at" => now.iso8601)
-      expect(outcome.events).to be_empty
+      expect(outcome.events.map(&:class)).to eq([Integrations::Twitch::StreamSampled])
     end
   end
 
@@ -269,9 +297,9 @@ RSpec.describe Integrations::Twitch::Session do
     let(:state) { open_state.merge("titles_pushed" => true) }
     let(:observation) { live.with(title: "Old") }
 
-    it "keeps the pushed title and still stamps the sighting" do
+    it "keeps the pushed title and still stamps and samples the sighting" do
       expect(outcome.state).to include("title" => "Ranked", "last_live_at" => now.iso8601)
-      expect(outcome.events).to be_empty
+      expect(outcome.events).to match([an_instance_of(Integrations::Twitch::StreamSampled).and(have_attributes(title: "Ranked"))])
     end
   end
 
