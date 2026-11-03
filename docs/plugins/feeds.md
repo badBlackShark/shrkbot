@@ -217,8 +217,8 @@ removed by the orphan prune once nothing references it.
   retried older refresh never overwrites a newer one and nothing edits after the stream
   ended. It re-renders through the source's `announcement` and edits with mentions
   suppressed, so nothing pings again (`Components.edit`).
-- A message a human deleted clears `message_id`, so later refreshes skip the post. A
-  channel that is gone or a lost permission discards the job.
+- A message that can no longer be edited (a human deleted it, the channel is gone or the
+  bot lost its permission) clears `message_id`, so later refreshes skip the post.
 
 ## Stories
 

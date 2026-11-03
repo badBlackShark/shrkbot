@@ -67,7 +67,7 @@ module Feeds
         started = "<t:#{Time.iso8601(event.started_at).to_i}:R>"
         return "Started #{started}" unless subscription.settings.show_viewers && event.viewer_count
 
-        "#{event.viewer_count.to_i.to_fs(:delimited)} watching · started #{started}"
+        "#{event.viewer_count.to_fs(:delimited)} watching · started #{started}"
       end
 
       def image

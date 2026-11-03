@@ -21,7 +21,7 @@ RSpec.describe Ops::Feeds::Posts::Revise do
     allow(Bot::Discord::Components).to receive(:edit)
   end
 
-  it "edits the post's own message with the event's card and no mentions" do
+  it "edits the post's own message with the event's card" do
     result
 
     expect(Bot::Discord::Components).to have_received(:edit).with(channel_id: 555_000, message_id: 777_000, rendered: card)
@@ -71,13 +71,43 @@ RSpec.describe Ops::Feeds::Posts::Revise do
     end
   end
 
-  context "when a human deleted the message" do
+  context "when the message can no longer be edited" do
+    let(:error) { Discordrb::Errors::UnknownMessage.new("Unknown Message") }
+
     before do
-      allow(Bot::Discord::Components).to receive(:edit).and_raise(Discordrb::Errors::UnknownMessage.new("Unknown Message"))
+      allow(Bot::Discord::Components).to receive(:edit).and_raise(error)
     end
 
     it "forgets the message id and does not raise" do
       expect { result }.to change { post.reload.message_id }.from(777_000).to(nil)
+    end
+
+    context "because the channel is gone" do
+      let(:error) { Discordrb::Errors::UnknownChannel.new("Unknown Channel") }
+
+      it "forgets the message id" do
+        expect { result }.to change { post.reload.message_id }.to(nil)
+      end
+    end
+
+    context "because the bot lost its permission" do
+      let(:error) { Discordrb::Errors::NoPermission.new("Missing Permissions") }
+
+      it "forgets the message id" do
+        expect { result }.to change { post.reload.message_id }.to(nil)
+      end
+    end
+  end
+
+  context "when an earlier revision already forgot the message" do
+    before do
+      post.update!(message_id: nil)
+    end
+
+    it "edits nothing" do
+      result
+
+      expect(Bot::Discord::Components).not_to have_received(:edit)
     end
   end
 end

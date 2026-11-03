@@ -9,11 +9,11 @@ module Ops
         receives :post, :event
 
         def call
-          return ok unless latest?
+          return ok unless post.message_id && latest?
 
           ::Bot::Discord::Components.edit(channel_id: post.channel_id, message_id: post.message_id, rendered: announcement.card)
           ok
-        rescue Discordrb::Errors::UnknownMessage
+        rescue Discordrb::Errors::UnknownMessage, Discordrb::Errors::UnknownChannel, Discordrb::Errors::NoPermission
           post.update!(message_id: nil)
           ok
         end

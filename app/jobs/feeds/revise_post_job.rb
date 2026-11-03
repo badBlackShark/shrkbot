@@ -12,8 +12,6 @@ module Feeds
     self.log_arguments = false
 
     discard_on ActiveJob::DeserializationError
-    discard_on "Discordrb::Errors::UnknownChannel"
-    discard_on "Discordrb::Errors::NoPermission"
 
     def perform(post, event)
       Ops::Feeds::Posts::Revise.call(post:, event:)
