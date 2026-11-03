@@ -4,21 +4,10 @@ module Feeds
   class Announcement
     SUBJECT_LIMIT = 2000
     TITLE_LIMIT = 256
-    TEXT_LIMIT = 4000
-    LINK_LABEL = "Read the full post"
-    TYPE_LABELS = {
-      "Integrations::Steam::PatchNotesPublished" => "Patch notes",
-      "Integrations::Steam::AnnouncementPublished" => "Announcement"
-    }.freeze
 
-    def self.eyebrow(game, event_type, feed_label)
-      "#{game} · #{TYPE_LABELS.fetch(event_type, feed_label)}"
-    end
-
-    def initialize(event:, subscription:, thumbnail: nil)
+    def initialize(event:, subscription:)
       @event = event
       @subscription = subscription
-      @thumbnail = thumbnail
     end
 
     def subject
@@ -26,19 +15,20 @@ module Feeds
     end
 
     def fallback
-      "#{Bot::Discord::Truncate.call(subject, SUBJECT_LIMIT - event.url.to_s.length - 1)}\n#{event.url}"
+      "#{Bot::Discord::Truncate.call(subject, SUBJECT_LIMIT - url.to_s.length - 1)}\n#{url}"
     end
 
     def card
       Bot::Discord::Components.container(
         blocks,
-        buttons: [Bot::Discord::Components.link_button(url: event.url, label: LINK_LABEL)],
+        accent_color:,
+        buttons: [Bot::Discord::Components.link_button(url:, label: link_label)],
         lead:
       )
     end
 
     def attachments
-      [Bot::Discord::FileUpload.new(thumbnail, Thumbnail::FILENAME)] if thumbnail
+      nil
     end
 
     def allowed_mentions
@@ -47,7 +37,11 @@ module Feeds
 
     private
 
-    attr_reader :event, :subscription, :thumbnail
+    attr_reader :event, :subscription
+
+    def accent_color
+      Bot::Config::ACCENT_COLOR
+    end
 
     def template
       subscription.subscribed_events.where(event_type: event.type).pick(:template).to_s
@@ -61,24 +55,8 @@ module Feeds
       "<@&#{role_id}>" if role_id
     end
 
-    def tokens
-      {
-        game: event.watch.name,
-        author: event.author,
-        feed: event.feed_label
-      }
-    end
-
     def custom_text
       @custom_text ||= Templates.strip(TemplateText.render(template, tokens))
-    end
-
-    def eyebrow_plain
-      @eyebrow_plain ||= self.class.eyebrow(event.watch.name, event.type, event.feed_label)
-    end
-
-    def headline
-      "#{eyebrow_plain}: #{event.title}"
     end
 
     def lead
@@ -88,42 +66,12 @@ module Feeds
       end
     end
 
-    def blocks
-      [*header, excerpt, image].compact
-    end
-
-    def header
-      texts = [eyebrow, heading]
-      return texts unless thumbnail
-
-      [Bot::Discord::Components.section(texts, accessory: Bot::Discord::Components.thumbnail("attachment://#{Thumbnail::FILENAME}"))]
-    end
-
-    def eyebrow_markdown
-      "-# #{eyebrow_plain}"
-    end
-
-    def eyebrow
-      Bot::Discord::Components.text(eyebrow_markdown)
-    end
-
     def heading_text
       @heading_text ||= "## #{Bot::Discord::Truncate.call(event.title, TITLE_LIMIT)}"
     end
 
     def heading
       Bot::Discord::Components.text(heading_text)
-    end
-
-    def excerpt
-      budget = TEXT_LIMIT - lead.to_s.length - eyebrow_markdown.length - heading_text.length
-      body = Excerpt.new(event.body, subscription.settings.body_length, max: budget).to_s
-      Bot::Discord::Components.text(body) if body.present?
-    end
-
-    def image
-      url = Array(event.image_urls).first
-      Bot::Discord::Components.media_gallery([url]) if url
     end
   end
 end

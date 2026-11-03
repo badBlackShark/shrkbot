@@ -76,10 +76,10 @@ class Components::Feeds::CustomMessageField < Components::Base
 
   def card
     {
-      eyebrow: ::Feeds::Announcement.eyebrow(@subscription.watch.name, @event_type, sample(:feed)),
+      eyebrow: ::Feeds::Steam::Announcement.eyebrow(@subscription.watch.name, @event_type, sample(:feed)),
       title: sample(:title),
       body: sample(:body),
-      button: ::Feeds::Announcement::LINK_LABEL
+      button: ::Feeds::Steam::Announcement::LINK_LABEL
     }
   end
 end

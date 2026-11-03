@@ -17,6 +17,7 @@ module Feeds
 
     def perform(subscription, event)
       return log_skipped(event, "the subscription is no longer active") unless Subscription.active.exists?(subscription.id)
+      return log_skipped(event, "the event expired") if event.expired?
       return log_skipped(event, "the story was already posted") if subscription.posts.exists?(story_key: event.story_key)
 
       pick = StoryPick.new(subscription:, event:)

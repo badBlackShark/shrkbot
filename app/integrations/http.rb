@@ -47,6 +47,10 @@ module Integrations
       new(Net::HTTP::Delete.new(uri(url, params)), headers:, status_errors:).perform
     end
 
+    def self.head(url, status_errors: {})
+      new(Net::HTTP::Head.new(uri(url, {})), status_errors:, accept: "*/*").perform
+    end
+
     def self.get_bytes(url)
       new(Net::HTTP::Get.new(uri(url, {})), accept: "*/*").bytes
     end

@@ -7,7 +7,8 @@ Rails.application.config.to_prepare do
     to: [
       Integrations::Steam::PatchNotesPublished,
       Integrations::Steam::AnnouncementPublished,
-      Integrations::Steam::ArticlePublished
+      Integrations::Steam::ArticlePublished,
+      Integrations::Twitch::StreamStarted
     ]
   )
 end

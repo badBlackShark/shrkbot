@@ -309,6 +309,26 @@ RSpec.describe Integrations::Http do
     end
   end
 
+  describe ".head" do
+    subject(:head) { described_class.head(url, status_errors:) }
+
+    let(:body) { nil }
+
+    it "sends HEAD and returns nil" do
+      expect(head).to be_nil
+      expect(sent_requests.first).to be_a(Net::HTTP::Head)
+    end
+
+    context "when a status is mapped in status_errors" do
+      let(:status) { "302" }
+      let(:status_errors) { {302 => Integrations::NotFound} }
+
+      it "raises the mapped class" do
+        expect { head }.to raise_error(Integrations::NotFound)
+      end
+    end
+  end
+
   describe ".get_bytes" do
     subject(:get_bytes) { described_class.get_bytes(url) }
 

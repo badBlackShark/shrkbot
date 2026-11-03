@@ -57,7 +57,6 @@ RSpec.describe Integrations::Bus do
 
     let(:awaiting_feeds) do
       [
-        Integrations::Twitch::StreamStarted,
         Integrations::Twitch::StreamUpdated,
         Integrations::Twitch::StreamEnded
       ]
@@ -67,7 +66,7 @@ RSpec.describe Integrations::Bus do
       expect(unhandled - awaiting_feeds).to be_empty
     end
 
-    it "still has no handler for the Twitch stream events, so this exemption goes once Feeds handles them" do
+    it "still has no handler for the Twitch stream follow-ups, so this exemption goes once revise handles them" do
       expect(unhandled).to include(*awaiting_feeds)
     end
   end

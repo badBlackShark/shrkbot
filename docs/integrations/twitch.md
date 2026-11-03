@@ -33,6 +33,7 @@ fresh one; a second 401 raises `Unauthorized`. A failed token fetch raises at on
 | `Twitch::Users#for(user_ids)` | `GET /users` | `[Twitch::User]`, 100 ids per call |
 | `Twitch::Channels#for(broadcaster_ids)` | `GET /channels` | `[Twitch::Channel]` |
 | `Twitch::Streams#live(user_ids)` | `GET /streams` | `[Twitch::Stream]` |
+| `Twitch::Games#find(id)` | `GET /games` | `Twitch::Game` (box art at 285x380), `nil` for an unknown id |
 | `Twitch::Videos#for_user(user_id, type:, first:)` | `GET /videos` | `[Twitch::Video]` |
 | `Twitch::Clips#for_broadcaster(broadcaster_id, started_at:, ended_at:, featured:)` | `GET /clips` | `[Twitch::Clip]`, every page |
 | `Twitch::Schedule#segments(broadcaster_id, start_time:, first:)` | `GET /schedule` | `[Twitch::Segment]` |
@@ -227,6 +228,14 @@ Helix reference, because no recorded item had them.
   counts as deleted. `condition` stays a string-keyed hash; `callback` is read from
   `transport.callback`.
 
+## Images
+
+Box-art URLs can't be built from the id: some categories use an `<id>_IGDB` path, and the
+plain id redirects to `404_boxart`. So `Games#find` asks `/games`, and Feeds caches the
+result per category for a day. `ChannelWatcher.preview_url(login)` HEADs the static-cdn
+preview, which redirects (302) to `404_preview` until the stream's first frame exists
+(checked 2026-11-02: still the placeholder 4 minutes in), and costs no Helix point.
+
 ## Rate limit
 
 Helix allows 800 points per minute for an app token; most reads cost 1. A 429 carries
@@ -246,6 +255,7 @@ three items:
 - `schedule_criticalrole.json`: a schedule with categories. `schedule_lirik.json`: segments
   with no category, no end time and an empty title.
 - `eventsub_subscriptions.json`: an app with no subscriptions.
+- `games_minecraft.json`: recorded 2026-11-03, with an `_IGDB` box-art path.
 
 Not recorded:
 
@@ -257,4 +267,4 @@ Not recorded:
 
 ## Feeds
 
-Twitch's Feeds source is `Feeds::Twitch` (see [../plugins/feeds.md](../plugins/feeds.md)). Posting arrives with the Live card.
+Twitch's Feeds source is `Feeds::Twitch` (see [../plugins/feeds.md](../plugins/feeds.md)). The Live card is described there.

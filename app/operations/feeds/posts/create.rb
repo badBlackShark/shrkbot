@@ -32,7 +32,7 @@ module Ops
         end
 
         def announcement
-          @announcement ||= ::Feeds::Announcement.new(event:, subscription:, thumbnail: ::Feeds::Thumbnail.for(event.watch))
+          @announcement ||= subscription.source.announcement(event:, subscription:)
         end
       end
     end
