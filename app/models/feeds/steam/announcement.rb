@@ -77,8 +77,8 @@ module Feeds
       end
 
       def image
-        url = Array(event.image_urls).first
-        Bot::Discord::Components.media_gallery([url]) if url
+        image_url = Array(event.image_urls).first
+        Bot::Discord::Components.media_gallery([image_url]) if image_url
       end
     end
   end

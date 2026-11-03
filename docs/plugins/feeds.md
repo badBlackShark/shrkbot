@@ -270,7 +270,8 @@ The thumbnail is the game's Steam hero capsule (`NewsWatcher.artwork_url`, which
 `Feeds::SquareImage` pads it to a transparent square WebP. `Feeds::Thumbnail` caches the
 URL for a day per game and the padded image for a day per URL (Steam's URL carries a hash
 that changes with the art), so a story followed by many servers is fetched once. A failed
-lookup or download is cached as nil for 10 minutes under its own key. `NewsWatcher.artwork`
+lookup or download is cached as nil for 10 minutes under its own key (`Feeds::CachedFetch`,
+shared with the Twitch box art). `NewsWatcher.artwork`
 downloads through `Steam::Client`. libvips runs with untrusted loaders blocked
 (`config/initializers/vips.rb`). `Feeds::Steam::Announcement#attachments` uploads it with the message as
 `thumbnail.webp`, which the section references as `attachment://thumbnail.webp`. On any

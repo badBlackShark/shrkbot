@@ -3,8 +3,6 @@
 module Feeds
   class Thumbnail
     FILENAME = "thumbnail.webp"
-    TTL = 1.day
-    FAILURE_TTL = 10.minutes
 
     def self.for(watch)
       url = artwork_url(watch)
@@ -12,24 +10,20 @@ module Feeds
     end
 
     def self.artwork_url(watch)
-      key = ["feeds/artwork_url/v1", watch.watcher, watch.external_id]
-      Rails.cache.fetch(key, expires_in: TTL) { watch.watcher_class.artwork_url(watch.external_id) }
-    rescue Integrations::Error => error
-      failed(watch, key, error)
+      CachedFetch.call(["feeds/artwork_url/v1", watch.watcher, watch.external_id], missing: missing(watch)) do
+        watch.watcher_class.artwork_url(watch.external_id)
+      end
     end
 
     def self.padded(watch, url)
-      key = ["feeds/thumbnail/v1", url]
-      Rails.cache.fetch(key, expires_in: TTL) { SquareImage.call(watch.watcher_class.artwork(url)) }
-    rescue Integrations::Error, Vips::Error => error
-      failed(watch, key, error)
+      CachedFetch.call(["feeds/thumbnail/v1", url], missing: missing(watch), errors: [Integrations::Error, Vips::Error]) do
+        SquareImage.call(watch.watcher_class.artwork(url))
+      end
     end
 
-    def self.failed(watch, key, error)
-      Rails.logger.warn("Feeds: no thumbnail for #{watch.watcher} #{watch.external_id}: #{error.class}: #{error.message}")
-      Rails.cache.write(key, nil, expires_in: FAILURE_TTL)
-      nil
+    def self.missing(watch)
+      "thumbnail for #{watch.watcher} #{watch.external_id}"
     end
-    private_class_method :artwork_url, :padded, :failed
+    private_class_method :artwork_url, :padded, :missing
   end
 end
