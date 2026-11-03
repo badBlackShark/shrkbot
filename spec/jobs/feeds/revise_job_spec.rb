@@ -51,4 +51,14 @@ RSpec.describe Feeds::ReviseJob do
       expect { perform }.not_to raise_error
     end
   end
+
+  describe "concurrency" do
+    subject(:key) { described_class.new(event).concurrency_key }
+
+    let(:other_watch_event) { create(:twitch_stream_sampled_event) }
+
+    it "differs between watches" do
+      expect(described_class.new(other_watch_event).concurrency_key).not_to eq(key)
+    end
+  end
 end
