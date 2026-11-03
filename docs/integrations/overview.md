@@ -57,6 +57,7 @@ The other entry points follow the same rules, and all of them take `status_error
   `application/json` and yields the parsed JSON response.
 - `Http.delete(url, params:, headers:)` sends a DELETE and returns `nil`; it has no
   response body to map.
+- `Http.head(url, status_errors:)` sends a HEAD and returns `nil`, raising like `delete`.
 
 Net::HTTP's automatic retry of idempotent requests is off (`max_retries: 0`), so a
 failed call fails once and retrying stays the calling job's decision.

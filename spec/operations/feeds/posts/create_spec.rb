@@ -11,7 +11,7 @@ RSpec.describe Ops::Feeds::Posts::Create do
   let(:subscription) { create(:steam_feed_subscription, watch:, channel_id: 555_000, role_id:) }
   let(:event) { create(:steam_news_event, watch:, title: "Smissmas 2026", story_key: "story-1") }
   let(:thumbnail) { nil }
-  let(:announcement) { Feeds::Announcement.new(event:, subscription:, thumbnail:) }
+  let(:announcement) { Feeds::Steam::Announcement.new(event:, subscription:, thumbnail:) }
 
   before do
     create(:feed_subscribed_event, subscription:, event_type: event.type)
@@ -65,6 +65,32 @@ RSpec.describe Ops::Feeds::Posts::Create do
           allowed_mentions: {parse: []}
         )
       )
+    end
+  end
+
+  context "for a Twitch stream" do
+    let(:watch) { create(:integration_watch, :twitch) }
+    let(:subscription) { create(:feed_subscription, :twitch, watch:, channel_id: 555_000) }
+    let(:event) { create(:twitch_stream_started_event, watch:) }
+    let(:announcement) { Feeds::Twitch::Announcement.new(event:, subscription:, image_url: "https://box.art/x.jpg") }
+
+    before do
+      subscription.settings.update!(live_role_id: 4242)
+      allow(Feeds::Twitch::LiveImage).to receive(:for).with(event).and_return("https://box.art/x.jpg")
+    end
+
+    it "sends the Twitch card with the live role allowed and no attachment" do
+      result
+
+      expect(Bot::Discord::Components).to have_received(:create_with_subject).with(
+        channel_id: 555_000,
+        subject: "<@&4242> shrkbot_dev is live: Hades II blind run, day 3",
+        rendered: announcement.card,
+        allowed_mentions: {parse: [], roles: [4242]},
+        fallback: announcement.fallback,
+        attachments: nil
+      )
+      expect(Feeds::Thumbnail).not_to have_received(:for)
     end
   end
 

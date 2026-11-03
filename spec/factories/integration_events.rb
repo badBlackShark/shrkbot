@@ -17,4 +17,18 @@ FactoryBot.define do
     factory :steam_announcement_event, class: "Integrations::Steam::AnnouncementPublished"
     factory :steam_article_event, class: "Integrations::Steam::ArticlePublished"
   end
+
+  factory :twitch_stream_started_event, class: "Integrations::Twitch::StreamStarted" do
+    association :watch, factory: [:integration_watch, :twitch]
+    sequence(:session) { |n| (40_000_000_000 + n).to_s }
+    subject_key { "stream:#{session}" }
+    occurred_at { Time.current }
+    login { "shrkbot_dev" }
+    display_name { "shrkbot_dev" }
+    title { "Hades II blind run, day 3" }
+    category_id { "1145360737" }
+    category_name { "Hades II" }
+    started_at { Time.current.iso8601 }
+    story_key { "stream:#{session}" }
+  end
 end

@@ -107,6 +107,45 @@ RSpec.describe Feeds::PostJob do
     end
   end
 
+  context "for a Twitch stream" do
+    let(:watch) { create(:integration_watch, :twitch, state: watch_state) }
+    let(:subscription) { create(:feed_subscription, :active, :twitch, watch:) }
+    let(:event) { create(:twitch_stream_started_event, watch:, session: "9001") }
+    let(:subscribed_types) { %w[Integrations::Twitch::StreamStarted] }
+    let(:watch_state) { {"session" => "9001"} }
+
+    before do
+      allow(Feeds::Twitch::LiveImage).to receive(:for).and_return(nil)
+    end
+
+    it "posts while the stream's session is the open one" do
+      perform
+
+      expect(subscription.posts.pluck(:story_key)).to eq(["stream:9001"])
+    end
+
+    context "when the session already ended" do
+      let(:watch_state) { {} }
+
+      it "sends nothing and records no post" do
+        perform
+
+        expect(Bot::Discord::Components).not_to have_received(:create_with_subject)
+        expect(subscription.posts).to be_empty
+      end
+    end
+
+    context "when a newer session is open" do
+      let(:watch_state) { {"session" => "other"} }
+
+      it "sends nothing" do
+        perform
+
+        expect(Bot::Discord::Components).not_to have_received(:create_with_subject)
+      end
+    end
+  end
+
   describe "concurrency" do
     subject(:key) { described_class.new(subscription, patch_notes).concurrency_key }
 

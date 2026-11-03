@@ -19,5 +19,9 @@ module Integrations
 
     def enrich
     end
+
+    def expired?
+      false
+    end
   end
 end

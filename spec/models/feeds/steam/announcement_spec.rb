@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Feeds::Announcement do
+RSpec.describe Feeds::Steam::Announcement do
   subject(:announcement) { described_class.new(event:, subscription:, thumbnail:) }
 
   let(:thumbnail) { nil }

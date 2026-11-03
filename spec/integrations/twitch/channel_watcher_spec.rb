@@ -30,4 +30,62 @@ RSpec.describe Integrations::Twitch::ChannelWatcher do
       expect(refreshed).to eq([target])
     end
   end
+
+  describe ".preview_url" do
+    subject(:preview_url) { described_class.preview_url("shrkbot_dev") }
+
+    let(:url) { "https://static-cdn.jtvnw.net/previews-ttv/live_user_shrkbot_dev-1280x720.jpg" }
+
+    before do
+      allow(Integrations::Http).to receive(:head)
+    end
+
+    it "is the preview URL, checked with a HEAD that treats a redirect as not found" do
+      expect(preview_url).to eq(url)
+      expect(Integrations::Http).to have_received(:head).with(url, status_errors: {302 => Integrations::NotFound})
+    end
+
+    context "when the preview redirects to the placeholder" do
+      before do
+        allow(Integrations::Http).to receive(:head).and_raise(Integrations::NotFound)
+      end
+
+      it "is nil" do
+        expect(preview_url).to be_nil
+      end
+    end
+
+    context "when Twitch is unavailable" do
+      before do
+        allow(Integrations::Http).to receive(:head).and_raise(Integrations::Unavailable)
+      end
+
+      it "raises" do
+        expect { preview_url }.to raise_error(Integrations::Unavailable)
+      end
+    end
+  end
+
+  describe ".box_art_url" do
+    subject(:box_art_url) { described_class.box_art_url("27471", games:) }
+
+    let(:games) { instance_double(Integrations::Twitch::Games) }
+    let(:game) { Integrations::Twitch::Game.new(id: "27471", name: "Minecraft", box_art_url: "https://example.test/box.jpg") }
+
+    before do
+      allow(games).to receive(:find).with("27471").and_return(game)
+    end
+
+    it "is the game's box art" do
+      expect(box_art_url).to eq("https://example.test/box.jpg")
+    end
+
+    context "when Twitch has no such game" do
+      let(:game) { nil }
+
+      it "is nil" do
+        expect(box_art_url).to be_nil
+      end
+    end
+  end
 end

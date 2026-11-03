@@ -33,5 +33,9 @@ module Feeds
     def self.accepts?(_subscription, _event)
       true
     end
+
+    def self.announcement(event:, subscription:)
+      Announcement.new(event:, subscription:, image_url: LiveImage.for(event))
+    end
   end
 end

@@ -39,6 +39,10 @@ RSpec.describe Feeds do
     it "gives every source its settings contract" do
       expect(sources).to all(respond_to(:settings_association, :role_id_for, :accepts?))
     end
+
+    it "gives every source an announcement builder" do
+      expect(sources).to all(respond_to(:announcement))
+    end
   end
 
   describe ".source" do

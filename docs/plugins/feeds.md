@@ -42,8 +42,11 @@ with settings adds its own `has_one` on `Feeds::Subscription` (`steam_settings`)
 foreign key and the guild purge follow the subscription. `Subscription#settings` reads
 that row and `#build_settings` builds it; the row is built once, with the subscription,
 and reading never builds one. Shared code reads settings through the source, except
-`Feeds::Announcement` and the Steam config components (list, row, fields, cards), which
-read the Steam row directly until they split per source with Twitch.
+the Steam config components (list, row, fields, cards), which read the Steam row directly
+until they split per source with Twitch.
+A source also answers `announcement(event:, subscription:)`: it builds the source's
+renderer and does the I/O that renderer needs (Steam: the padded thumbnail via
+`Feeds::Thumbnail`; Twitch: `Feeds::Twitch::LiveImage`).
 `Feeds.sources` lists them; a new source adds a module and one entry there. The
 contract is duck-typed with no base class: a shared mixin is extracted when two sources
 share code. `spec/models/feeds_spec.rb` enforces the contract.
@@ -102,8 +105,19 @@ are no preview routes for these pages.
 post), template tokens `streamer` and `category`. Its settings live in
 `feed_twitch_settings` (`Feeds::Twitch::Settings`, `twitch_settings` on the subscription):
 `live_role_id` to ping and `show_viewers` (true by default). `role_id_for` maps an event
-type to its role column. `accepts?` is always true until the category filter lands. The
-plugin needs the bot's Twitch credentials to be turned on.
+type to its role column. `accepts?` is always true until the category filter lands. Without
+the bot's Twitch credentials the Twitch jobs return early, so nothing posts.
+
+The Live card shows `<name> · Live on Twitch` as the eyebrow, the stream title as the
+heading and `Streaming **<category>**` when the channel has a category, with the
+channel's profile picture (`watch.image_url`) as the section thumbnail. The image slot
+holds the stream preview when Twitch already has a frame, else the category's box art,
+else nothing (`Feeds::Twitch::LiveImage`). The accent is Twitch purple and the button
+reads "Watch on Twitch". The default notification text is `<name> is live: <title>`.
+
+`PostJob` skips an event whose stream session already ended (`Integrations::Event#expired?`,
+true for a `StreamEvent` whose session is no longer the watch's open one). `show_viewers`
+is first read by the refresh (revise); the go-live card shows no count.
 
 ## Tables
 
@@ -227,7 +241,10 @@ still wins when its primary copy is filtered out.
 
 ## What a post looks like
 
-`Feeds::Announcement` renders both messages.
+`Feeds::Announcement` is the shared base: subject, fallback, lead line, mentions and the
+card frame with the source's accent colour and link button. `Feeds::Steam::Announcement`
+and `Feeds::Twitch::Announcement` fill in tokens, headline, blocks, url and link label.
+The rest of this section describes the Steam renderer, which builds both messages.
 
 The **subject** is the plain first message, so it is also the push-notification text.
 It is the role mention plus the subscription's custom message, or, when there is no
@@ -237,7 +254,7 @@ event's `template` filled by `TemplateText`, with the tokens `game`, `author` an
 `feed`. A stored template that still has `{title}` or `{url}` from before those tokens
 were removed renders them literally.
 
-The type in the eyebrow and headline comes from `Announcement::TYPE_LABELS`
+The type in the eyebrow and headline comes from `Feeds::Steam::Announcement::TYPE_LABELS`
 (`Patch notes`, `Announcement`). Articles fall back to their feed label, such as
 `Team Fortress 2 · Rock Paper Shotgun`.
 
@@ -255,14 +272,14 @@ URL for a day per game and the padded image for a day per URL (Steam's URL carri
 that changes with the art), so a story followed by many servers is fetched once. A failed
 lookup or download is cached as nil for 10 minutes under its own key. `NewsWatcher.artwork`
 downloads through `Steam::Client`. libvips runs with untrusted loaders blocked
-(`config/initializers/vips.rb`). `Announcement#attachments` `Announcement#attachments` uploads it with the message as
+(`config/initializers/vips.rb`). `Feeds::Steam::Announcement#attachments` uploads it with the message as
 `thumbnail.webp`, which the section references as `attachment://thumbnail.webp`. On any
 failure the card posts without a thumbnail. The web preview shows no thumbnail.
 
 **Body length** is a per-subscription setting. `preview` (the default) keeps about 500
 characters and `full` about 3500, under Discord's 4000 for the whole message.
 The lead line, eyebrow and heading share Discord's 4000-character text budget
-(`Announcement::TEXT_LIMIT`) with the excerpt: `Announcement` passes `Excerpt` the room
+(`Feeds::Steam::Announcement::TEXT_LIMIT`) with the excerpt: `Feeds::Steam::Announcement` passes `Excerpt` the room
 left after those three, and the excerpt shrinks to fit.
 `Feeds::Excerpt` takes the body length setting and looks up the limit itself. Past it,
 it cuts at the last paragraph break (when that keeps at least half the limit), else the
