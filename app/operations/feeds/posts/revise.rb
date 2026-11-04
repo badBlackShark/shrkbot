@@ -22,10 +22,9 @@ module Ops
 
         def latest?
           ::Integrations::Event
-            .where(watch_id: event.watch_id)
-            .where("payload ->> 'story_key' = ?", post.story_key)
-            .order(:occurred_at, :created_at, :id)
-            .last == event
+            .in_story(event.watch_id, post.story_key)
+            .order(occurred_at: :desc, created_at: :desc, id: :desc)
+            .pick(:id) == event.id
         end
 
         def announcement

@@ -208,14 +208,15 @@ removed by the orphan prune once nothing references it.
 
 ## Revising a post
 
-    RecordObservation -> Bus -> ReviseJob(event) -> RevisePostJob(post, event) -> Posts::Revise
+    Twitch::Streams::Transition -> Events::Record -> Bus -> ReviseJob(event) -> RevisePostJob(post, event) -> Posts::Revise
 
 - `Feeds::ReviseJob` is the bus handler for `StreamUpdated` and `StreamSampled`. It
   enqueues one `Feeds::RevisePostJob` per sent post (`message_id` set) of the event's
   story on an `active` subscription of the event's watch.
 - `Ops::Feeds::Posts::Revise` edits only when the event is the story's latest, so a
-  retried older refresh never overwrites a newer one and nothing edits after the stream
-  ended. It re-renders through the source's `announcement` and edits with mentions
+  retried older refresh never overwrites a newer one. A refresh that passed the check
+  just before `StreamEnded` was recorded can still edit once (the card render includes a
+  network call); the end edit has to run after it on `RevisePostJob`'s per-post key. It re-renders through the source's `announcement` and edits with mentions
   suppressed, so nothing pings again (`Components.edit`).
 - A message that can no longer be edited (a human deleted it, the channel is gone or the
   bot lost its permission) clears `message_id`, so later refreshes skip the post.

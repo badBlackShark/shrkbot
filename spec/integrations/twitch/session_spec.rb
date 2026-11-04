@@ -70,12 +70,17 @@ RSpec.describe Integrations::Twitch::Session do
   context "when a push go-live starts the session" do
     let(:observation) { live.with(viewer_count: nil) }
 
-    it "stores no viewers or peak, and a later sighting sets both" do
+    it "stores no viewers or peak" do
       expect(outcome.state).to include("viewer_count" => nil, "peak_viewers" => nil)
+    end
+  end
 
-      later = described_class.new(outcome.state, now: now + 10.minutes).apply(live.with(viewer_count: 60))
+  context "when live in a session that a push go-live started" do
+    let(:state) { open_state.merge("viewer_count" => nil, "peak_viewers" => nil) }
+    let(:observation) { live.with(viewer_count: 60) }
 
-      expect(later.state).to include("viewer_count" => 60, "peak_viewers" => 60)
+    it "sets the viewers and the peak" do
+      expect(outcome.state).to include("viewer_count" => 60, "peak_viewers" => 60)
     end
   end
 

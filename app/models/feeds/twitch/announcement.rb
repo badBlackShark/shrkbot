@@ -20,7 +20,7 @@ module Feeds
       end
 
       def post_type
-        "Integrations::Twitch::StreamStarted"
+        Integrations::Twitch::StreamStarted.name
       end
 
       def url
