@@ -3,6 +3,12 @@
 module Feeds
   class AnnounceJob < ApplicationJob
     include ReportsExhaustion
+    include Integrations::Handler
+
+    handles Integrations::Steam::PatchNotesPublished,
+      Integrations::Steam::AnnouncementPublished,
+      Integrations::Steam::ArticlePublished,
+      Integrations::Twitch::StreamStarted
 
     queue_as :default
     limits_concurrency(

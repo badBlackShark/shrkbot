@@ -213,8 +213,8 @@ Rails.application.config.to_prepare do
 end
 ```
 
-That is the only file that names a capability next to `Integrations::`; the dependency
-rule holds because `Watch` knows a list of sources, not what they are. A source is
+Besides handler jobs (see The bus), that is the only place that names a capability next
+to `Integrations::`; the dependency rule holds because `Watch` knows a list of sources, not what they are. A source is
 duck-typed: a model with a `watch_id` column and an `active` scope. `to_prepare`
 re-registers it after every code reload, and `demand_sources` resets with the reloaded
 `Watch`.
@@ -305,16 +305,26 @@ under `app/models/integrations/<provider>/` (`Integrations::Steam::NewsEvent`).
 
 ## The bus
 
-Events leave the provider layer through `Integrations::Bus`. A capability subscribes a
-handler job to event classes in the same initializer that registers demand:
+Events leave the provider layer through `Integrations::Bus`. A handler job includes
+`Integrations::Handler` and names the event classes it handles, so the job itself says
+what triggers it:
 
 ```ruby
-Integrations::Bus.subscribe(Feeds::AnnounceJob, to: [Integrations::Steam::PatchNotesPublished, ...])
+class Feeds::AnnounceJob < ApplicationJob
+  include Integrations::Handler
+
+  handles Integrations::Steam::PatchNotesPublished, Integrations::Twitch::StreamStarted
+end
 ```
 
+`handles` subscribes the job when its class loads. The demand initializer eager-loads
+`app/jobs` in `to_prepare`, so every handler is registered at boot and after every code
+reload, also where Rails loads lazily (development, local test runs). Without it, an event
+recorded before its handler class was first referenced would find no handler.
+`spec/integrations/bus_spec.rb` fails when a concrete event class has no handler.
+
 `Bus.handlers_for(event)` returns every handler subscribed to the event's class or a
-superclass of it (`is_a?`). `app/integrations/` never names the handlers; only the
-initializer does. The registry is module state on a reloadable module, so it resets on a
+superclass of it (`is_a?`). `app/integrations/` never names the handlers. The registry is module state on a reloadable module, so it resets on a
 code reload and `to_prepare` fills it again.
 
 `Ops::Integrations::Events::Record` (called by `RecordObservation` and by Twitch's

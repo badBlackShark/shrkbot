@@ -3,6 +3,9 @@
 module Feeds
   class ReviseJob < ApplicationJob
     include ReportsExhaustion
+    include Integrations::Handler
+
+    handles Integrations::Twitch::StreamUpdated, Integrations::Twitch::StreamSampled
 
     queue_as :default
     limits_concurrency(

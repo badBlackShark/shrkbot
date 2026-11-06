@@ -2,20 +2,5 @@
 
 Rails.application.config.to_prepare do
   Integrations::Watch.demanded_by(Feeds::Subscription)
-  Integrations::Bus.subscribe(
-    Feeds::AnnounceJob,
-    to: [
-      Integrations::Steam::PatchNotesPublished,
-      Integrations::Steam::AnnouncementPublished,
-      Integrations::Steam::ArticlePublished,
-      Integrations::Twitch::StreamStarted
-    ]
-  )
-  Integrations::Bus.subscribe(
-    Feeds::ReviseJob,
-    to: [
-      Integrations::Twitch::StreamUpdated,
-      Integrations::Twitch::StreamSampled
-    ]
-  )
+  Rails.autoloaders.main.eager_load_dir(Rails.root.join("app/jobs"))
 end
