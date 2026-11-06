@@ -30,4 +30,15 @@ RSpec.describe Feeds::Steam do
       it { is_expected.to be(false) }
     end
   end
+
+  describe ".retract?" do
+    subject(:retract) { described_class.retract?(subscription, event) }
+
+    let(:subscription) { create(:steam_feed_subscription) }
+    let(:event) { build(:steam_news_event, watch: subscription.watch) }
+
+    it "never deletes a Steam post" do
+      expect(retract).to be(false)
+    end
+  end
 end

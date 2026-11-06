@@ -10,7 +10,7 @@ module Feeds
           Announcement.new(event: live, subscription:, image_url: LiveImage.for(live), ended_at: event.ended_at)
         when "mark_ended"
           EndedAnnouncement.new(event:, subscription:, history: TitleHistory.for(event))
-        when "mark_ended_with_vod"
+        else
           EndedAnnouncement.new(event:, subscription:, history: TitleHistory.for(event), vod_url: Vod.url_for(event))
         end
       end
