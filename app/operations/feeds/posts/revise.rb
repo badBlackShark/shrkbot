@@ -11,7 +11,12 @@ module Ops
         def call
           return ok unless post.message_id && latest?
 
-          ::Bot::Discord::Components.edit(channel_id: post.channel_id, message_id: post.message_id, rendered: announcement.card)
+          if post.subscription.source.retract?(post.subscription, event)
+            ::Bot::Discord::Components.delete_message(post.channel_id, post.message_id)
+            post.update!(message_id: nil)
+          else
+            ::Bot::Discord::Components.edit(channel_id: post.channel_id, message_id: post.message_id, rendered: announcement.card)
+          end
           ok
         rescue Discordrb::Errors::UnknownMessage, Discordrb::Errors::UnknownChannel, Discordrb::Errors::NoPermission
           post.update!(message_id: nil)

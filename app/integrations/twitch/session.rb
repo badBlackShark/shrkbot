@@ -139,7 +139,8 @@ module Integrations
           subject_key: "stream-end:#{@state["session"]}",
           ended_at: ended_at.iso8601,
           duration: (ended_at - Time.zone.parse(@state.fetch("started_at"))).to_i,
-          peak_viewers: @state.fetch("peak_viewers")
+          peak_viewers: @state.fetch("peak_viewers"),
+          stream_ids: @state.fetch("stream_ids")
         )
         outcome(@state.slice("login", "display_name").merge("ended_stream_ids" => @state.fetch("stream_ids")), [ended])
       end

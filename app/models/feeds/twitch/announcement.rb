@@ -6,14 +6,15 @@ module Feeds
       LINK_LABEL = "Watch on Twitch"
       ACCENT_COLOR = 0x9146ff
 
-      def initialize(event:, subscription:, image_url: nil)
+      def initialize(event:, subscription:, image_url: nil, ended_at: nil)
         super(event:, subscription:)
         @image_url = image_url
+        @ended_at = ended_at
       end
 
       private
 
-      attr_reader :image_url
+      attr_reader :image_url, :ended_at
 
       def accent_color
         ACCENT_COLOR
@@ -40,7 +41,7 @@ module Feeds
       end
 
       def blocks
-        [*header, image].compact
+        [*header, image, footer].compact
       end
 
       def header
@@ -68,6 +69,10 @@ module Feeds
         return "Started #{started}" unless subscription.settings.show_viewers && event.viewer_count
 
         "#{event.viewer_count.to_fs(:delimited)} watching · started #{started}"
+      end
+
+      def footer
+        Bot::Discord::Components.text("-# Stream ended <t:#{Time.iso8601(ended_at).to_i}:R>") if ended_at
       end
 
       def image

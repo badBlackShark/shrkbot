@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe Feeds::Twitch::Announcement do
-  subject(:announcement) { described_class.new(event:, subscription:, image_url:) }
+  subject(:announcement) { described_class.new(event:, subscription:, image_url:, ended_at:) }
 
   let(:profile_image) { "https://static-cdn.jtvnw.net/jtv_user_pictures/shrkbot-profile_image-300x300.png" }
   let(:watch) { create(:integration_watch, :twitch, image_url: profile_image) }
@@ -16,6 +16,7 @@ RSpec.describe Feeds::Twitch::Announcement do
   let(:started_epoch) { started_at.to_i }
   let(:event) { create(:twitch_stream_started_event, watch:, category_name:, viewer_count:, started_at: started_at.iso8601) }
   let(:image_url) { nil }
+  let(:ended_at) { nil }
 
   before do
     subscription.settings.update!(live_role_id: role_id)
@@ -122,6 +123,19 @@ RSpec.describe Feeds::Twitch::Announcement do
 
       it "ends with a media gallery of it" do
         expect(container[:components].last).to eq(Bot::Discord::Components.media_gallery([image_url]))
+      end
+    end
+
+    context "with an end time" do
+      let(:image_url) { "https://cdn.test/preview.jpg" }
+      let(:ended_at) { (started_at + 2.hours).iso8601 }
+
+      it "closes the card with when the stream ended, after the image" do
+        expect(container[:components].last).to eq(Bot::Discord::Components.text("-# Stream ended <t:#{(started_at + 2.hours).to_i}:R>"))
+      end
+
+      it "keeps the lead" do
+        expect(lead).to eq(Bot::Discord::Components.text("<@&4242>"))
       end
     end
 

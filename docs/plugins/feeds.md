@@ -37,7 +37,9 @@ A source is a module under `Feeds::` (`Feeds::Steam`) that answers `plugin_key`,
 `watchers`, `event_types` (in UI order), `default_event_types` and `template_tokens`,
 plus the settings contract: `settings_association` (the `Subscription` association that
 holds its provider settings, which the list finder preloads),
-`role_id_for(subscription, event_type)` and `accepts?(subscription, event)`. Each source
+`role_id_for(subscription, event_type)`, `accepts?(subscription, event)` and
+`retract?(subscription, event)` (true when the post is deleted instead of edited; Steam
+never, Twitch for `StreamEnded` in `delete` mode). Each source
 with settings adds its own `has_one` on `Feeds::Subscription` (`steam_settings`), so the
 foreign key and the guild purge follow the subscription. `Subscription#settings` reads
 that row and `#build_settings` builds it; the row is built once, with the subscription,
@@ -104,7 +106,7 @@ are no preview routes for these pages.
 `Integrations::Twitch::ChannelWatcher`, one event type so far (`StreamStarted`, the live
 post), template tokens `streamer` and `category`. Its settings live in
 `feed_twitch_settings` (`Feeds::Twitch::Settings`, `twitch_settings` on the subscription):
-`live_role_id` to ping and `show_viewers` (true by default). `role_id_for` maps an event
+`live_role_id` to ping, `show_viewers` (true by default) and `live_end_mode` (see below). `role_id_for` maps an event
 type to its role column. `accepts?` is always true until the category filter lands. Without
 the bot's Twitch credentials the Twitch jobs return early, so nothing posts.
 
@@ -123,7 +125,41 @@ reads "Watch on Twitch". The default notification text is `<name> is live: <titl
 a `StreamStarted` whose session is no longer the watch's open one. `StreamEnded` keeps
 the default, because the state it leaves behind has no open session. The card is
 refreshed with title, category, preview or box art and viewers on every `StreamUpdated`
-and `StreamSampled` (see Revising a post).
+and `StreamSampled`, and edited once more on `StreamEnded` (see Revising a post).
+
+### How a stream ends
+
+`live_end_mode` decides what happens to the live post when the stream ends
+(`Feeds::Twitch::Ending` builds the card):
+
+- `keep`: the live card as of its last refresh (ping line and custom message kept) plus a
+  last block, `-# Stream ended <relative time>`.
+- `delete`: the Discord message is deleted (`retract?`), and the post's `message_id` is cleared.
+- `mark_ended`: the ended card (`Feeds::Twitch::EndedAnnouncement`): no ping line or custom
+  message, grey accent, no image, profile picture kept, no button.
+- `mark_ended_with_vod` (default): the ended card with a "Watch the VOD" button when a VOD
+  exists, otherwise no button.
+
+The ended card says `<name> · Was live on Twitch`, then either the stream title with
+`Streamed **<category>** for about <duration>`, or, with a title history,
+`Streamed for about <duration>` and one line per title. A stats line follows:
+`At least N viewers at the peak · ended <relative time>` (peak only with `show_viewers`
+and a known peak, else `Ended <relative time>`). Every duration reads `about 3 h 12 min`,
+rounded to the minute, at least `about 1 min` (`Feeds::Twitch::Duration`).
+
+Title history (`Feeds::Twitch::TitleHistory`): the go-live title plus every title or
+category change, in stream order. An entry held for under 5 minutes is dropped, and
+consecutive entries with the same title and category merge. It shows only when at least 2
+entries remain, at most 15 lines, then `and N more`. A line shows the category only when
+the title does not already name it (`Feeds::Twitch::TitleMatch`: the category's words appear
+in the title, in order and as whole words, after both are lower-cased, accent-folded,
+punctuation turned into spaces, Roman numerals II to XX turned into digits and `&` read as
+`and`). There is no typo tolerance: a wrongly hidden category would lose information,
+while a redundant one only reads clumsily.
+
+VOD lookup (`Feeds::Twitch::Vod`): `ChannelWatcher.vod_url` over the session's
+`stream_ids`, cached per session for a day. Only `mark_ended_with_vod` looks. Errors are not
+rescued: the end edit is the only chance to add the button, so `RevisePostJob` retries.
 
 ## Tables
 
@@ -210,14 +246,16 @@ removed by the orphan prune once nothing references it.
 
     Twitch::Streams::Transition -> Events::Record -> Bus -> ReviseJob(event) -> RevisePostJob(post, event) -> Posts::Revise
 
-- `Feeds::ReviseJob` is the bus handler for `StreamUpdated` and `StreamSampled`. It
+- `Feeds::ReviseJob` is the bus handler for `StreamUpdated`, `StreamSampled` and
+  `StreamEnded`. It
   enqueues one `Feeds::RevisePostJob` per sent post (`message_id` set) of the event's
   story on an `active` subscription of the event's watch.
 - `Ops::Feeds::Posts::Revise` edits only when the event is the story's latest, so a
-  retried older refresh never overwrites a newer one. A refresh that passed the check
-  just before `StreamEnded` was recorded can still edit once (the card render includes a
-  network call); the end edit has to run after it on `RevisePostJob`'s per-post key. It re-renders through the source's `announcement` and edits with mentions
-  suppressed, so nothing pings again (`Components.edit`).
+  retried older refresh never overwrites a newer one. The end edit runs on
+  `RevisePostJob`'s per-post key, so a refresh that passed `latest?` finishes before it.
+  It re-renders through the source's `announcement` and edits with mentions suppressed,
+  so nothing pings again (`Components.edit`). When the source `retract?`s the event, it
+  deletes the message and clears `message_id` instead.
 - A message that can no longer be edited (a human deleted it, the channel is gone or the
   bot lost its permission) clears `message_id`, so later refreshes skip the post.
 

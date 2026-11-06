@@ -88,4 +88,37 @@ RSpec.describe Integrations::Twitch::ChannelWatcher do
       end
     end
   end
+
+  describe ".vod_url" do
+    subject(:vod_url) { described_class.vod_url("141981764", stream_ids, videos:) }
+
+    let(:videos) { instance_double(Integrations::Twitch::Videos) }
+    let(:stream_ids) { %w[s1 s2] }
+    let(:blank_video) { Integrations::Twitch::Video.members.index_with(nil) }
+    let(:archives) do
+      %w[s2 s9 s1].map do |stream_id|
+        Integrations::Twitch::Video.new(**blank_video, stream_id:, url: "https://www.twitch.tv/videos/v-#{stream_id}")
+      end
+    end
+
+    before do
+      allow(videos).to receive(:for_user).and_return(archives)
+    end
+
+    it "is the URL of the archive of the first stream id that has one" do
+      expect(vod_url).to eq("https://www.twitch.tv/videos/v-s1")
+    end
+
+    it "asks for the channel's archives" do
+      vod_url
+
+      expect(videos).to have_received(:for_user).with("141981764", type: "archive", first: 20)
+    end
+
+    context "when no archive matches" do
+      let(:stream_ids) { ["s7"] }
+
+      it { is_expected.to be_nil }
+    end
+  end
 end
