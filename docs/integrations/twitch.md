@@ -116,7 +116,7 @@ an event whose type and subject key the watch already stored, so a closed sessio
 reopens on the same stream id does not break on the unique index.
 
 `Twitch::StreamReconcileJob` runs every 10 minutes. It asks `Streams#live` for every
-Twitch watch in `ChannelWatcher.live_watches` (watches some active subscription follows
+Twitch watch in `ChannelWatcher.followed_for_live` (watches some active subscription follows
 Live for) in one batch (100 ids per call), then transitions each watch with `Live` or
 `Offline`. A transition that would drop an invalid
 event raises and rolls back, so the state never claims a session whose event was lost.
@@ -143,7 +143,7 @@ job finds no live watch and does nothing.
 ## EventSub
 
 Twitch pushes `stream.online`, `stream.offline` and `channel.update` (v2) for every
-channel followed for Live (`ChannelWatcher.live_watches`) to `POST /api/twitch/eventsub` (`Api::Twitch::EventSubsController`).
+channel followed for Live (`ChannelWatcher.followed_for_live`) to `POST /api/twitch/eventsub` (`Api::Twitch::EventSubsController`).
 `Twitch::EventSub.verified?` checks every request first: the signature is
 `sha256=` plus the HMAC-SHA256 of message id + timestamp + raw body under
 `TWITCH_EVENTSUB_SECRET`, compared in constant time, and the timestamp must be within 10
@@ -156,7 +156,7 @@ minutes of now in either direction. A failed check answers 403 and does nothing 
 | `revocation` | 204 | warning log, `Twitch::EventSubReconcileJob` |
 | anything else, or an unparsable body | 400 | none |
 
-`NotificationJob` finds the watch in `ChannelWatcher.live_watches` by `broadcaster_user_id` (anything else is
+`NotificationJob` finds the watch in `ChannelWatcher.followed_for_live` by `broadcaster_user_id` (anything else is
 dropped) and maps the event onto a Session observation. `stream.online` becomes `Live`
 from the event plus a `/channels` lookup for title and category; viewers stay nil until the
 stream reconcile samples them. `stream.offline` becomes `Offline`. `channel.update`

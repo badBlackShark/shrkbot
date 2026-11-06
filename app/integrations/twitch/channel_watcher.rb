@@ -13,7 +13,7 @@ module Integrations
         users.for(external_ids).map { |user| target(user) }
       end
 
-      def self.live_watches
+      def self.followed_for_live
         Watch.demanding([StreamStarted.name]).where(watcher: name)
       end
 

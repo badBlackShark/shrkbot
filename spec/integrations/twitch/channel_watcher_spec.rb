@@ -31,8 +31,8 @@ RSpec.describe Integrations::Twitch::ChannelWatcher do
     end
   end
 
-  describe ".live_watches" do
-    subject(:live_watches) { described_class.live_watches }
+  describe ".followed_for_live" do
+    subject(:followed_for_live) { described_class.followed_for_live }
 
     let!(:following) { create(:feed_subscription, :twitch, :active).watch }
     let!(:idle) { create(:feed_subscription, :twitch, :active).watch }
@@ -44,7 +44,7 @@ RSpec.describe Integrations::Twitch::ChannelWatcher do
     end
 
     it "includes only Twitch watches an active subscription follows for Live" do
-      expect(live_watches).to contain_exactly(following)
+      expect(followed_for_live).to contain_exactly(following)
     end
   end
 

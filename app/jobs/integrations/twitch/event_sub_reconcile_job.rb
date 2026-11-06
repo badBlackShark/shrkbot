@@ -40,7 +40,7 @@ module Integrations
       end
 
       def broadcaster_ids
-        ChannelWatcher.live_watches.pluck(:external_id)
+        ChannelWatcher.followed_for_live.pluck(:external_id)
       end
 
       def destroy_stale(subscriptions, stale, rebuild)

@@ -227,7 +227,7 @@ re-registers it after every code reload, and `demand_sources` resets with the re
   registered source it is `none`.
 - `Watch.demanding(event_types)` is the union of each source's `demanding(event_types)`:
   its active rows that follow any of those event types. Twitch's live jobs use it
-  through `ChannelWatcher.live_watches`, so a channel nobody follows for Live is not
+  through `ChannelWatcher.followed_for_live`, so a channel nobody follows for Live is not
   checked.
 - `Watch.referenced` is every watch any source row points at, active or not. It is the
   keep side of the orphan prune.

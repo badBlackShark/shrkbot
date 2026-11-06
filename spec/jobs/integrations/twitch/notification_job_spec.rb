@@ -40,7 +40,7 @@ RSpec.describe Integrations::Twitch::NotificationJob do
 
   before do
     allow(Integrations::Twitch::Channels).to receive(:new).and_return(channels)
-    allow(Integrations::Twitch::ChannelWatcher).to receive(:live_watches) { Integrations::Watch.where(id: demanded.map(&:id)) }
+    allow(Integrations::Twitch::ChannelWatcher).to receive(:followed_for_live) { Integrations::Watch.where(id: demanded.map(&:id)) }
   end
 
   context "when nobody follows the channel any more" do

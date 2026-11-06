@@ -28,9 +28,10 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
   end
 
   before do
+    allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
     allow(Integrations::Twitch::Client).to receive(:configured?).and_return(true)
     allow(Integrations::Twitch::Streams).to receive(:new).and_return(streams)
-    allow(Integrations::Twitch::ChannelWatcher).to receive(:live_watches) { Integrations::Watch.where(id: live.map(&:id)) }
+    allow(Integrations::Twitch::ChannelWatcher).to receive(:followed_for_live) { Integrations::Watch.where(id: live.map(&:id)) }
   end
 
   context "when Twitch is not configured" do
@@ -100,7 +101,6 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
       let(:failing_for) { 22.hours }
 
       before do
-        allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
         freeze_time
         described_class.perform_now
         (failing_for / 2.hours).times do
@@ -170,7 +170,6 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
 
   context "when Twitch rate limits the request" do
     before do
-      allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
       allow(streams).to receive(:live).and_raise(Integrations::RateLimited.new("slow down", retry_after: 30))
     end
 
@@ -202,10 +201,6 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
       allow(streams).to receive(:live).and_raise(Integrations::Unauthorized, "id.twitch.tv responded 400")
     end
 
-    before do
-      allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
-    end
-
     it "tells the owner at once, without waiting for the broken-watch report" do
       expect { perform }.to have_enqueued_job(Integrations::Twitch::ReportUnauthorizedJob).with("id.twitch.tv responded 400").once
     end
@@ -226,7 +221,6 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
 
   context "when one watch's transition raises" do
     before do
-      allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
       allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).and_call_original
       allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).with(hash_including(watch: live_watch)).and_raise(NoMethodError, "our bug")
     end

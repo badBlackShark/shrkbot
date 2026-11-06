@@ -33,7 +33,7 @@ RSpec.describe Integrations::Twitch::EventSubReconcileJob do
     allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
     allow(Integrations::Twitch::Client).to receive(:configured?).and_return(true)
     allow(Integrations::Twitch::EventSubSubscriptions).to receive(:new).and_return(subscriptions)
-    allow(Integrations::Twitch::ChannelWatcher).to receive(:live_watches) { Integrations::Watch.where(id: demanded.map(&:id)) }
+    allow(Integrations::Twitch::ChannelWatcher).to receive(:followed_for_live) { Integrations::Watch.where(id: demanded.map(&:id)) }
     allow(Rails.logger).to receive(:warn)
   end
 
