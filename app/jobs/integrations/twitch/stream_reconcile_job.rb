@@ -3,6 +3,8 @@
 module Integrations
   module Twitch
     class StreamReconcileJob < ApplicationJob
+      FAILING_SINCE_KEY = "integrations/twitch/streams/failing_since"
+
       queue_as :default
       limits_concurrency(
         to: 1,
@@ -26,7 +28,9 @@ module Integrations
       private
 
       def fetch_live(watches)
-        Streams.new.live(watches.map(&:external_id)).index_by(&:user_id)
+        live = Streams.new.live(watches.map(&:external_id)).index_by(&:user_id)
+        Rails.cache.delete(FAILING_SINCE_KEY)
+        live
       rescue Error => error
         report(error)
         nil
@@ -58,6 +62,13 @@ module Integrations
         Rails.logger.warn("Integrations: Twitch stream reconcile failed: #{error.class}: #{error.message}")
         ReportRateLimitJob.perform_later("Twitch streams", error.message, error.retry_after) if error.is_a?(RateLimited) && NotifiesOwner.claim("twitch/streams/rate_limited")
         ReportUnauthorizedJob.perform_later(error.message) if error.is_a?(Unauthorized) && NotifiesOwner.claim("twitch/unauthorized")
+        ReportLiveCheckBrokenJob.perform_later("#{error.class}: #{error.message}") if failing_since <= Watch::BROKEN_AFTER.ago && NotifiesOwner.claim("twitch/streams/broken")
+      end
+
+      def failing_since
+        since = Rails.cache.read(FAILING_SINCE_KEY) || Time.current
+        Rails.cache.write(FAILING_SINCE_KEY, since, expires_in: Watch::DORMANT_AFTER)
+        since
       end
     end
   end

@@ -3,6 +3,8 @@
 require "rails_helper"
 
 RSpec.describe Integrations::Twitch::StreamReconcileJob do
+  include ActiveSupport::Testing::TimeHelpers
+
   subject(:perform) { described_class.perform_now }
 
   let(:watcher) { "Integrations::Twitch::ChannelWatcher" }
@@ -92,6 +94,77 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
         have_attributes(failing_since: nil, last_error: nil, polled_at: nil, state: {})
       )
       expect(Integrations::Event.count).to eq(0)
+    end
+
+    describe "the broken live check report" do
+      let(:failing_for) { 22.hours }
+
+      before do
+        allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
+        freeze_time
+        described_class.perform_now
+        (failing_for / 2.hours).times do
+          travel 2.hours
+          described_class.perform_now
+        end
+        travel 2.hours
+      end
+
+      it "tells the owner once the check has failed for 24 hours" do
+        expect { perform }.to have_enqueued_job(Integrations::Twitch::ReportLiveCheckBrokenJob)
+          .with("Integrations::Unavailable: api.twitch.tv responded 503").once
+      end
+
+      context "when the check has failed for less than 24 hours" do
+        let(:failing_for) { 20.hours }
+
+        it "does not tell the owner yet" do
+          expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportLiveCheckBrokenJob)
+        end
+      end
+
+      context "when the owner was already told today" do
+        before do
+          described_class.perform_now
+        end
+
+        it "does not tell them again" do
+          expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportLiveCheckBrokenJob)
+        end
+      end
+
+      context "when a check succeeded in between" do
+        let(:failing_for) { 12.hours }
+
+        before do
+          allow(streams).to receive(:live).and_return([stream])
+          described_class.perform_now
+          allow(streams).to receive(:live).and_raise(Integrations::Unavailable, "api.twitch.tv responded 503")
+          travel 50.minutes
+          described_class.perform_now
+          4.times do
+            travel 2.hours
+            described_class.perform_now
+          end
+          travel 70.minutes
+        end
+
+        it "counts the 24 hours from the failure after it" do
+          expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportLiveCheckBrokenJob)
+        end
+      end
+
+      context "when no check ran for longer than the dormant gap" do
+        let(:failing_for) { 0.hours }
+
+        before do
+          travel 25.hours
+        end
+
+        it "does not count the old failure toward the 24 hours" do
+          expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportLiveCheckBrokenJob)
+        end
+      end
     end
   end
 

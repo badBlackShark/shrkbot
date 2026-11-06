@@ -125,7 +125,12 @@ check runs 5 minutes after the first offline reconcile, so up to 15 minutes late
 
 The reconcile writes no watch health: `failing_since`, `last_error` and `polled_at` belong
 to the per-watch poll, so its failures are not cleared every 10 minutes by the live
-check. A failed live call is logged. A `RateLimited` also DMs the owner through
+check. A failed live call is logged. After 24 hours of failed live calls
+(`Watch::BROKEN_AFTER`, counted from a job-level "failing since" in the cache that a
+successful call clears) `Twitch::ReportLiveCheckBrokenJob` DMs the owner, at most once a
+day: without the check, live cards stop updating and only EventSub notices an end. Like a
+watch's `failing_since`, the stamp lapses after `Watch::DORMANT_AFTER` without a run, so an
+old outage never counts toward a new one. A `RateLimited` also DMs the owner through
 `ReportRateLimitJob`, at most once a day (`NotifiesOwner.claim`). An `Unauthorized`
 (Twitch rejected the app credentials, say after a leak) DMs at once through
 `Twitch::ReportUnauthorizedJob`, at most once a day; nothing retries its way out of a

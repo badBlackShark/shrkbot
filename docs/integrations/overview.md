@@ -194,7 +194,7 @@ as a bug. The batch moves on.
 
 A failure stays with its watch: the batch records it and moves on. The health columns
 belong to the per-watch `PollJob`; a batched producer (the Twitch stream reconcile)
-reports at job level instead of writing them. `RateLimited` also
+reports at job level instead of writing them, with its own 24-hour broken report. `RateLimited` also
 stops the batch, so the rest of the list does not keep hitting a provider that asked
 us to back off; the next tick starts over. It DMs the owner at once through
 `ReportRateLimitJob`, because a rate limit means our request volume needs a look, and
