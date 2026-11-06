@@ -7,6 +7,7 @@ module Ops
         receives :watch, :events
 
         def call
+          watch.lock!
           published = events.reject { |event| recorded?(event) }.select { |event| persist(event) }
           dispatch_after_commit(published)
           ok(published)

@@ -9,7 +9,6 @@ module Integrations
 
     class_attribute :demand_sources, default: []
 
-    has_many :seen_items, dependent: :delete_all
     has_many :events, dependent: :delete_all
 
     validates :watcher, :name, presence: true

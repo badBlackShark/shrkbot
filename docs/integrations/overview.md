@@ -184,9 +184,10 @@ batch instead of queueing more work behind it.
 `limits_concurrency` is keyed by the watcher class with `on_conflict: :discard`, so a
 tick that finds the previous batch still running is dropped. During a provider outage
 every request can take its full timeout (about 20 s), batches run long, and ticks are
-dropped. Nothing is lost: the next good poll sees the same list, and the ledger sorts
-out what is new. The concurrency `duration` (1 hour) must outlast the slowest batch or
-two batches overlap; at 20 s per request that is 180 watches per watcher.
+dropped. Nothing is lost: the next good poll sees the same list, and `Events::Record`
+skips what it already stored. The concurrency `duration` (1 hour) must outlast the
+slowest batch or two batches overlap; at 20 s per request that is 180 watches per
+watcher.
 
 A watch deleted by the orphan prune while the batch runs is skipped, whether its poll
 failed or its write hit the missing row: it is logged, not recorded, and never reported
@@ -233,7 +234,7 @@ re-registers it after every code reload, and `demand_sources` resets with the re
   keep side of the orphan prune.
 
 `Ops::Integrations::Watches::PruneOrphans` runs daily at 5:35 and destroys each watch
-that is not `referenced`, taking its seen items and events with it. With no registered
+that is not `referenced`, taking its events with it. With no registered
 source it deletes nothing: an empty registry means the wiring failed, not that nothing
 is followed. A server that switches a plugin off keeps its rows, so its watch stays
 and is simply not polled.
@@ -247,21 +248,23 @@ run, watches already deleted stay deleted, and the next day's run continues.
 `RecordObservation` is the strategy for sources that answer with a list of recent
 items.
 
-- **Ledger.** Every item's `subject_key` goes into `integration_seen_items`. An item
-  already there is skipped.
-- **Storing.** A watch saves whatever is fresh and unseen as events, its first poll
-  included, through `Ops::Integrations::Events::Record`, the shared persist + dispatch
-  step (Twitch's `Streams::Transition` calls it too). Before saving, each event gets
-  `Event#enrich`, a no-op on the base class that a provider's event overrides to derive
-  stored fields (`Steam::NewsEvent` detects its language). Capabilities decide what to announce; Feeds gates on `subscribed_since`.
-- **Freshness.** An item older than 48 hours is ignored before the ledger: not
-  recorded, not saved. A watch that was down, or an item that surfaces late, does not
-  announce old news, and the old items every list repeats cost no writes.
+- **Storing.** A watch saves whatever is fresh as events, its first poll included,
+  through `Ops::Integrations::Events::Record`, the shared persist + dispatch step
+  (Twitch's `Streams::Transition` calls it too). `Record` skips an event whose type and
+  subject the watch already stored, so the items every list repeats are written once.
+  Before saving, each event gets `Event#enrich`, a no-op on the base class that a
+  provider's event overrides to derive stored fields (`Steam::NewsEvent` detects its
+  language). Capabilities decide what to announce; Feeds gates on `subscribed_since`.
+- **Freshness.** An item older than 48 hours is ignored before `Record`: not saved. A
+  watch that was down, or an item that surfaces late, does not announce old news, and
+  the old items every list repeats cost no writes.
 - **Invariant.** `Event::FRESHNESS_WINDOW` (48 h) must stay below `Prune::RETENTION` (14 d).
-  The ledger has to outlive the window, or a pruned item could look unseen and fresh.
+  Stored events have to outlive the window, or a pruned item could look new and fresh.
 
-Events and ledger rows are written in one transaction; `unique [:watch_id, :type,
-:subject_key]` on events is the backstop against a double write.
+`Record` locks the watch row before it checks, so two producers recording the same item
+at once (a push and a poll) take turns: the second sees the first's event and skips it.
+`unique [:watch_id, :type, :subject_key]` on events is the backstop if a writer ever skips
+the lock.
 
 ## Failures
 
@@ -396,7 +399,7 @@ under 50 characters or a prediction under 0.5 confidence returns `nil` (unknown)
 unknown always passes a subscription's language filter.
 
 Detection runs only for events `RecordObservation` is about to store (it calls
-`Event#enrich`, which `Steam::NewsEvent` overrides), so the ~20 already-seen items per
+`Event#enrich`, which `Steam::NewsEvent` overrides), so the ~20 already-stored items per
 poll are never re-detected. A detection failure logs, DMs the owner through
 `ReportPollBugsJob` (once a day per error class) and returns `nil` (unknown), so the
 feed keeps posting.
@@ -419,7 +422,7 @@ between machines (the CI cache, `Dockerfile.prod`), `BUNDLE_BUILD__FASTTEXT` is 
 
 ## Retention
 
-`Ops::Integrations::Prune` runs daily and deletes events and seen items created more
+`Ops::Integrations::Prune` runs daily and deletes events created more
 than 14 days ago: one policy across the integrations log tables (`Ops::Feeds::Posts::Prune`
 reuses its `RETENTION` for the post ledger). Watches themselves
 are deleted by the orphan prune (see Demand).

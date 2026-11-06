@@ -20,8 +20,11 @@ Prosopite.rails_logger = false
 # a handful of nested record trees once, at seed time — once per plugin/association, not per row.
 # Rejected finding: the Twitch stream reconcile transitions one watch at a time, each under its
 # own row lock, because a watch's state change and its events must commit together.
+# Rejected finding: PollJob polls one watch at a time, and Events::Record locks each watch's
+# row so a push and a poll recording the same item take turns.
 Prosopite.allow_stack_paths = [
   "app/finders/twilight_struggle/administered_tournaments.rb",
+  "app/jobs/integrations/poll_job.rb",
   "app/jobs/integrations/twitch/stream_reconcile_job.rb",
   "app/operations/server_configuration/previews/apply_plugin.rb"
 ]

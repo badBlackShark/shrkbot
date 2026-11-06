@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_06_162608) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_06_221543) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -141,14 +141,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_162608) do
     t.string "watch_id", null: false
     t.index ["created_at"], name: "index_integration_events_undispatched", where: "(dispatched_at IS NULL)"
     t.index ["watch_id", "type", "subject_key"], name: "index_integration_events_on_watch_id_and_type_and_subject_key", unique: true
-  end
-
-  create_table "integration_seen_items", id: :string, default: -> { "('its_'::text || gen_random_uuid())" }, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "external_id", null: false
-    t.datetime "updated_at", null: false
-    t.string "watch_id", null: false
-    t.index ["watch_id", "external_id"], name: "index_integration_seen_items_on_watch_id_and_external_id", unique: true
   end
 
   create_table "integration_watches", id: :string, default: -> { "('itw_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -612,7 +604,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_162608) do
   add_foreign_key "feed_twitch_settings", "feed_subscriptions", column: "subscription_id"
   add_foreign_key "image_scanning_settings", "server_configurations"
   add_foreign_key "integration_events", "integration_watches", column: "watch_id"
-  add_foreign_key "integration_seen_items", "integration_watches", column: "watch_id"
   add_foreign_key "lfg_messages", "server_configurations"
   add_foreign_key "lfg_pingable_roles", "lfg_settings", column: "lfg_settings_id"
   add_foreign_key "lfg_settings", "server_configurations"

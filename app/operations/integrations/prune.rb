@@ -8,7 +8,6 @@ module Ops
       def call
         cutoff = RETENTION.ago
         ::Integrations::Event.where(created_at: ...cutoff).delete_all
-        ::Integrations::SeenItem.where(created_at: ...cutoff).delete_all
         ok
       end
     end
