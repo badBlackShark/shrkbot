@@ -89,6 +89,24 @@ RSpec.describe Feeds::Subscription do
     end
   end
 
+  describe ".demanding" do
+    subject(:demanding) { described_class.demanding([stream_started]) }
+
+    let(:stream_started) { "Integrations::Twitch::StreamStarted" }
+    let!(:following) { create(:feed_subscription, :twitch, :active) }
+    let!(:idle) { create(:feed_subscription, :twitch, :active) }
+    let!(:inactive) { create(:feed_subscription, :twitch) }
+
+    before do
+      create(:feed_subscribed_event, subscription: following, event_type: stream_started)
+      create(:feed_subscribed_event, subscription: inactive, event_type: stream_started)
+    end
+
+    it "includes only active subscriptions that follow one of the types" do
+      expect(demanding).to contain_exactly(following)
+    end
+  end
+
   describe ".active" do
     subject(:active) { described_class.active }
 

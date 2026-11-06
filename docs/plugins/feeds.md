@@ -202,6 +202,9 @@ Turning a plugin off keeps the subscription rows: the server's choices survive, 
 subscription goes inactive, and the watch stops being polled once no active
 subscription is left.
 
+`Subscription.demanding(event_types)` narrows `active` to subscriptions that follow any of
+those event types; `AnnounceJob` and `Watch.demanding` build on it.
+
 ## Purge
 
 `ServerConfiguration has_many :feed_subscriptions, dependent: :destroy`. Destroy rather

@@ -31,15 +31,19 @@ module Integrations
     end
 
     def self.demanded
-      demand_matching(:active)
+      demand_matching(&:active)
     end
 
     def self.referenced
-      demand_matching(:all)
+      demand_matching(&:all)
     end
 
-    def self.demand_matching(kind)
-      demand_sources.map { |source| where(id: source.public_send(kind).select(:watch_id)) }.reduce(:or) || none
+    def self.demanding(event_types)
+      demand_matching { |source| source.demanding(event_types) }
+    end
+
+    def self.demand_matching
+      demand_sources.map { |source| where(id: yield(source).select(:watch_id)) }.reduce(:or) || none
     end
     private_class_method :demand_matching
 

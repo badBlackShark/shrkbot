@@ -13,6 +13,14 @@ module Integrations
         users.for(external_ids).map { |user| target(user) }
       end
 
+      def self.followed_for_live
+        Watch.demanding([StreamStarted.name]).where(watcher: name)
+      end
+
+      def self.live_checked
+        followed_for_live.or(Watch.where(watcher: name).where("state ? 'session'"))
+      end
+
       def self.preview_url(login)
         url = format(PREVIEW_URL, login:)
         # Until a stream's first frame exists, Twitch redirects this URL to its grey 404_preview image.

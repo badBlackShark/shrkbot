@@ -31,6 +31,39 @@ RSpec.describe Integrations::Twitch::ChannelWatcher do
     end
   end
 
+  describe ".followed_for_live" do
+    subject(:followed_for_live) { described_class.followed_for_live }
+
+    let!(:following) { create(:feed_subscription, :twitch, :active).watch }
+    let!(:idle) { create(:feed_subscription, :twitch, :active).watch }
+    let!(:steam) { create(:feed_subscription, :active).watch }
+
+    before do
+      create(:feed_subscribed_event, subscription: Feeds::Subscription.find_by!(watch: following), event_type: "Integrations::Twitch::StreamStarted")
+      create(:feed_subscribed_event, subscription: Feeds::Subscription.find_by!(watch: steam), event_type: "Integrations::Steam::PatchNotesPublished")
+    end
+
+    it "includes only Twitch watches an active subscription follows for Live" do
+      expect(followed_for_live).to contain_exactly(following)
+    end
+  end
+
+  describe ".live_checked" do
+    subject(:live_checked) { described_class.live_checked }
+
+    let!(:following) { create(:feed_subscription, :twitch, :active).watch }
+    let!(:open_session) { create(:integration_watch, :twitch, state: {"session" => "s1"}) }
+    let!(:ended) { create(:integration_watch, :twitch, state: {"login" => "ended"}) }
+
+    before do
+      create(:feed_subscribed_event, subscription: Feeds::Subscription.find_by!(watch: following), event_type: "Integrations::Twitch::StreamStarted")
+    end
+
+    it "includes Live followers and any watch whose session is still open, so a switched-off follow still sees its stream end" do
+      expect(live_checked).to contain_exactly(following, open_session)
+    end
+  end
+
   describe ".preview_url" do
     subject(:preview_url) { described_class.preview_url("shrkbot_dev") }
 

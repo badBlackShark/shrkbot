@@ -192,7 +192,9 @@ A watch deleted by the orphan prune while the batch runs is skipped, whether its
 failed or its write hit the missing row: it is logged, not recorded, and never reported
 as a bug. The batch moves on.
 
-A failure stays with its watch: the batch records it and moves on. `RateLimited` also
+A failure stays with its watch: the batch records it and moves on. The health columns
+belong to the per-watch `PollJob`; a batched producer (the Twitch stream reconcile)
+reports at job level instead of writing them, with its own 24-hour broken report. `RateLimited` also
 stops the batch, so the rest of the list does not keep hitting a provider that asked
 us to back off; the next tick starts over. It DMs the owner at once through
 `ReportRateLimitJob`, because a rate limit means our request volume needs a look, and
@@ -215,7 +217,7 @@ end
 
 Besides handler jobs (see The bus), that is the only place that names a capability next
 to `Integrations::`; the dependency rule holds because `Watch` knows a list of sources, not what they are. A source is
-duck-typed: a model with a `watch_id` column and an `active` scope. `to_prepare`
+duck-typed: a model with a `watch_id` column, an `active` scope and a `demanding(event_types)` scope. `to_prepare`
 re-registers it after every code reload, and `demand_sources` resets with the reloaded
 `Watch`.
 
@@ -223,6 +225,10 @@ re-registers it after every code reload, and `demand_sources` resets with the re
   polls `Watch.due.demanded`, and `ReportBrokenWatchesJob` reports
   `Watch.broken.unreported.demanded`: a watch nobody polls is not worth a DM. With no
   registered source it is `none`.
+- `Watch.demanding(event_types)` is the union of each source's `demanding(event_types)`:
+  its active rows that follow any of those event types. Twitch's live jobs use it
+  through `ChannelWatcher.followed_for_live`, so a channel nobody follows for Live is not
+  checked.
 - `Watch.referenced` is every watch any source row points at, active or not. It is the
   keep side of the orphan prune.
 
