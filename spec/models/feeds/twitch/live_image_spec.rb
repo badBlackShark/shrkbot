@@ -53,6 +53,14 @@ RSpec.describe Feeds::Twitch::LiveImage do
       expect(games).to have_received(:find).once
     end
 
+    context "when Twitch has no such category" do
+      let(:game) { nil }
+
+      it "is nil" do
+        expect(result).to be_nil
+      end
+    end
+
     context "when the channel has no category" do
       let(:category_id) { nil }
 
