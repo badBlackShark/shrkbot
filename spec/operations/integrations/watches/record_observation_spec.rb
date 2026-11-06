@@ -18,16 +18,10 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     expect { result }.to have_enqueued_job(Feeds::AnnounceJob).once.with(fresh)
   end
 
-  it "saves fresh unseen events" do
+  it "saves fresh events" do
     result
 
     expect(Integrations::Event.where(watch:).pluck(:subject_key)).to eq(["fresh"])
-  end
-
-  it "records fresh unseen items as seen and never writes stale ones" do
-    result
-
-    expect(watch.seen_items.pluck(:external_id)).to eq(["fresh"])
   end
 
   context "on the first poll of a fresh watch" do
@@ -39,14 +33,14 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     end
   end
 
-  context "when one event is stored and another was seen before" do
+  context "when one event is new and another was already recorded" do
     let(:events) { [fresh, seen] }
     let(:fresh) { build(:steam_news_event, watch:, subject_key: "fresh", occurred_at: 1.hour.ago, body: english) }
     let(:seen) { build(:steam_news_event, watch:, subject_key: "seen", occurred_at: 1.hour.ago, body: english) }
     let(:english) { "The new update is now available. It fixes several crashes on launch and improves performance on lower-end machines." }
 
     before do
-      create(:integration_seen_item, watch:, external_id: "seen")
+      create(:steam_news_event, watch:, subject_key: "seen", occurred_at: 1.hour.ago)
       allow(Integrations::Language).to receive(:detect).and_call_original
     end
 
@@ -63,39 +57,14 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
     end
   end
 
-  context "when an item was seen before" do
+  context "when an item was already recorded" do
     before do
-      create(:integration_seen_item, watch:, external_id: "fresh")
+      create(:steam_news_event, watch:, subject_key: "fresh", occurred_at: 1.hour.ago)
     end
 
-    it "skips it without duplicating the ledger entry" do
-      result
-
-      expect(Integrations::Event.count).to eq(0)
-      expect(watch.seen_items.where(external_id: "fresh").count).to eq(1)
-    end
-  end
-
-  context "when a fresh event is invalid" do
-    let(:events) { [fresh, invalid] }
-    let(:invalid) { build(:steam_news_event, watch:, subject_key: "blank", occurred_at: 1.hour.ago, title: "") }
-
-    it "still marks it seen" do
-      result
-
-      expect(watch.seen_items.pluck(:external_id)).to contain_exactly("fresh", "blank")
-    end
-  end
-
-  context "when every item was seen before" do
-    before do
-      create(:integration_seen_item, watch:, external_id: "fresh")
-      create(:integration_seen_item, watch:, external_id: "stale")
-    end
-
-    it "publishes nothing and leaves the ledger as it was" do
+    it "publishes nothing and stores no second copy" do
       expect(result.value).to be_empty
-      expect(watch.seen_items.count).to eq(2)
+      expect(Integrations::Event.where(watch:, subject_key: "fresh").count).to eq(1)
     end
   end
 

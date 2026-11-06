@@ -295,7 +295,7 @@ when `integrations` is enabled again (all of them) or a source plugin is (the su
 that source's watches). Off means off: re-enabling must not post what was published
 while it was off. Editing a subscription does not reset it.
 
-It replaces priming. A watch stores whatever is fresh and unseen, and the gate decides
+It replaces priming. A watch stores whatever is fresh and not yet stored, and the gate decides
 what a server gets, so a fresh or long-unpolled watch never replays its backlog.
 
 ## Language

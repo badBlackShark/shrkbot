@@ -11,7 +11,7 @@ RSpec.describe Integrations::Event do
     travel_to(now)
   end
 
-  it "keeps the freshness window shorter than ledger retention, so an item whose seen row was pruned comes back stale" do
+  it "keeps the freshness window shorter than event retention, so an item whose stored event was pruned comes back stale" do
     expect(described_class::FRESHNESS_WINDOW).to be < Ops::Integrations::Prune::RETENTION
   end
 
