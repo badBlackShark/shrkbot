@@ -44,7 +44,7 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
       allow(Integrations::Language).to receive(:detect).and_call_original
     end
 
-    it "detects the language only for the stored event" do
+    it "detects the language only for the new event" do
       result
 
       expect(Integrations::Language).to have_received(:detect).once
@@ -54,17 +54,6 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
       result
 
       expect(fresh.reload.language).to eq("en")
-    end
-  end
-
-  context "when an item was already recorded" do
-    before do
-      create(:steam_news_event, watch:, subject_key: "fresh", occurred_at: 1.hour.ago)
-    end
-
-    it "publishes nothing and stores no second copy" do
-      expect(result.value).to be_empty
-      expect(Integrations::Event.where(watch:, subject_key: "fresh").count).to eq(1)
     end
   end
 

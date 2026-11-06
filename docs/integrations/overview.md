@@ -261,7 +261,10 @@ items.
 - **Invariant.** `Event::FRESHNESS_WINDOW` (48 h) must stay below `Prune::RETENTION` (14 d).
   Stored events have to outlive the window, or a pruned item could look new and fresh.
 
-`unique [:watch_id, :type, :subject_key]` on events backs that check.
+`Record` locks the watch row before it checks, so two producers recording the same item
+at once (a push and a poll) take turns: the second sees the first's event and skips it.
+`unique [:watch_id, :type, :subject_key]` on events is the backstop if a writer ever skips
+the lock.
 
 ## Failures
 

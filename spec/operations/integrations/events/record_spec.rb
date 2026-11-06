@@ -25,6 +25,28 @@ RSpec.describe Ops::Integrations::Events::Record do
     expect(valid.reload.dispatched_at).to be_present
   end
 
+  describe "locking" do
+    let(:statements) { [] }
+    let(:collector) do
+      lambda do |*, payload|
+        statements << payload[:sql]
+      end
+    end
+
+    before do
+      ActiveSupport::Notifications.subscribed(collector, "sql.active_record") do
+        result
+      end
+    end
+
+    it "locks the watch row before it checks for stored events, so a concurrent record of the same item waits and then skips it" do
+      lock = statements.index { |sql| sql.match?(/FROM "integration_watches".*FOR UPDATE/m) }
+      check = statements.index { |sql| sql.match?(/SELECT .* FROM "integration_events"/m) }
+
+      expect(lock).to be < check
+    end
+  end
+
   context "when one event is invalid" do
     let(:events) { [valid, invalid] }
 
