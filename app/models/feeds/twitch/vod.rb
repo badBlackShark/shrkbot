@@ -2,7 +2,7 @@
 
 module Feeds
   module Twitch
-    class Vod
+    module Vod
       TTL = 1.day
 
       def self.url_for(event)

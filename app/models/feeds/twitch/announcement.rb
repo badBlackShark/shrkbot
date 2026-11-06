@@ -3,6 +3,8 @@
 module Feeds
   module Twitch
     class Announcement < Feeds::Announcement
+      include ProfileHeader
+
       LINK_LABEL = "Watch on Twitch"
       ACCENT_COLOR = 0x9146ff
 
@@ -44,12 +46,8 @@ module Feeds
         [*header, image, footer].compact
       end
 
-      def header
-        texts = [eyebrow, heading, details]
-        profile = event.watch.image_url
-        return texts unless profile
-
-        [Bot::Discord::Components.section(texts, accessory: Bot::Discord::Components.thumbnail(profile))]
+      def header_texts
+        [eyebrow, heading, details]
       end
 
       def eyebrow

@@ -3,6 +3,8 @@
 module Feeds
   module Twitch
     class EndedAnnouncement < Feeds::Announcement
+      include ProfileHeader
+
       VOD_LABEL = "Watch the VOD"
       ACCENT_COLOR = 0x80848e
 
@@ -37,15 +39,15 @@ module Feeds
       end
 
       def blocks
-        [*header]
+        header
       end
 
-      def header
-        texts = [eyebrow, summary_heading, details]
-        profile = event.watch.image_url
-        return texts unless profile
+      def header_texts
+        [eyebrow, summary_heading, details]
+      end
 
-        [Bot::Discord::Components.section(texts, accessory: Bot::Discord::Components.thumbnail(profile))]
+      def multi_title?
+        history.size >= 2
       end
 
       def eyebrow
@@ -53,13 +55,13 @@ module Feeds
       end
 
       def summary_heading
-        return heading unless history.size >= 2
+        return heading unless multi_title?
 
         Bot::Discord::Components.text("## Streamed for #{Duration.about(event.duration)}")
       end
 
       def details
-        body = (history.size >= 2) ? history_lines : summary_line
+        body = multi_title? ? history_lines : summary_line
         Bot::Discord::Components.text("#{body}\n-# #{stats}")
       end
 
