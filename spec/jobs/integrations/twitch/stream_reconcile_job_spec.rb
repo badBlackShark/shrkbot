@@ -8,7 +8,7 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
   let(:watcher) { "Integrations::Twitch::ChannelWatcher" }
   let!(:live_watch) { create(:integration_watch, watcher:, external_id: "1", name: "Live One") }
   let!(:idle_watch) { create(:integration_watch, watcher:, external_id: "2", name: "Idle Two") }
-  let(:demanded) { [live_watch, idle_watch] }
+  let(:live) { [live_watch, idle_watch] }
   let(:streams) { instance_double(Integrations::Twitch::Streams, live: [stream]) }
   let(:stream) do
     Integrations::Twitch::Stream.new(
@@ -28,7 +28,7 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
   before do
     allow(Integrations::Twitch::Client).to receive(:configured?).and_return(true)
     allow(Integrations::Twitch::Streams).to receive(:new).and_return(streams)
-    allow(Integrations::Watch).to receive(:demanded) { Integrations::Watch.where(id: demanded.map(&:id)) }
+    allow(Integrations::Twitch::ChannelWatcher).to receive(:live_watches) { Integrations::Watch.where(id: live.map(&:id)) }
   end
 
   context "when Twitch is not configured" do
@@ -43,8 +43,8 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
     end
   end
 
-  context "when no Twitch channel is demanded" do
-    let(:demanded) { [] }
+  context "when no Twitch channel is followed for Live" do
+    let(:live) { [] }
 
     it "asks Twitch for nothing" do
       perform
@@ -76,29 +76,6 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
     end
   end
 
-  context "with a Steam watch and an undemanded Twitch watch" do
-    let!(:steam_watch) { create(:integration_watch, external_id: "3") }
-    let!(:undemanded) { create(:integration_watch, watcher:, external_id: "4") }
-    let(:demanded) { [live_watch, idle_watch, steam_watch] }
-
-    it "asks only for the demanded Twitch channels" do
-      perform
-
-      expect(streams).to have_received(:live).with(match_array(%w[1 2]))
-      expect(undemanded.reload.polled_at).to be_nil
-    end
-  end
-
-  context "when the watches were failing" do
-    let!(:live_watch) { create(:integration_watch, watcher:, external_id: "1", name: "Live One", failing_since: 2.hours.ago, polled_at: 1.hour.ago, last_error: "Integrations::Unavailable: 503") }
-
-    it "clears the failure and stamps polled_at" do
-      perform
-
-      expect(live_watch.reload).to have_attributes(failing_since: nil, last_error: nil, polled_at: be_present)
-    end
-  end
-
   context "when Twitch is unavailable" do
     before do
       allow(streams).to receive(:live).and_raise(Integrations::Unavailable, "api.twitch.tv responded 503")
@@ -108,11 +85,11 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
       expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportUnauthorizedJob)
     end
 
-    it "records the failure on every watch and transitions none" do
+    it "leaves every watch's health untouched and transitions none" do
       perform
 
       expect(Integrations::Watch.where(watcher:)).to all(
-        have_attributes(failing_since: be_present, last_error: "Integrations::Unavailable: api.twitch.tv responded 503", state: {})
+        have_attributes(failing_since: nil, last_error: nil, polled_at: nil, state: {})
       )
       expect(Integrations::Event.count).to eq(0)
     end
@@ -120,30 +97,28 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
 
   context "when Twitch rate limits the request" do
     before do
+      allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
       allow(streams).to receive(:live).and_raise(Integrations::RateLimited.new("slow down", retry_after: 30))
     end
 
-    it "reports it to the owner once and records the failure" do
+    it "reports it to the owner once" do
       expect { perform }.to have_enqueued_job(Integrations::ReportRateLimitJob).with("Twitch streams", "slow down", 30).once
-      expect(idle_watch.reload.last_error).to eq("Integrations::RateLimited: slow down")
     end
 
-    context "when a watch other than the first was already rate limited" do
-      let!(:idle_watch) do
-        create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", failing_since: 1.hour.ago, polled_at: 1.hour.ago, last_error: "Integrations::RateLimited: slow down")
-      end
+    it "leaves every watch's health untouched" do
+      perform
 
-      it "does not report it again" do
-        expect { perform }.not_to have_enqueued_job(Integrations::ReportRateLimitJob)
-      end
+      expect(Integrations::Watch.where(watcher:)).to all(
+        have_attributes(failing_since: nil, last_error: nil, polled_at: nil)
+      )
     end
 
-    context "when the watches were already rate limited" do
-      let(:limited) { {failing_since: 1.hour.ago, polled_at: 1.hour.ago, last_error: "Integrations::RateLimited: slow down"} }
-      let!(:live_watch) { create(:integration_watch, watcher:, external_id: "1", name: "Live One", **limited) }
-      let!(:idle_watch) { create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", **limited) }
+    context "when the next run is rate limited too" do
+      before do
+        described_class.perform_now
+      end
 
-      it "does not report it again" do
+      it "does not report it again within the day" do
         expect { perform }.not_to have_enqueued_job(Integrations::ReportRateLimitJob)
       end
     end
@@ -178,16 +153,17 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
 
   context "when one watch's transition raises" do
     before do
+      allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
       allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).and_call_original
       allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).with(hash_including(watch: live_watch)).and_raise(NoMethodError, "our bug")
     end
 
     let!(:idle_watch) { create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", state: {"session" => "old", "stream_ids" => ["old"], "peak_viewers" => 1, "started_at" => "2026-11-01T08:00:00Z", "last_live_at" => 10.minutes.ago.iso8601, "login" => "idle", "display_name" => "Idle Two"}) }
 
-    it "records the failure on the broken watch" do
+    it "does not write the error onto the watch" do
       perform
 
-      expect(live_watch.reload.last_error).to eq("NoMethodError: our bug")
+      expect(live_watch.reload.last_error).to be_nil
     end
 
     it "does not report the same bug again on the next run" do
@@ -199,6 +175,25 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
       expect { perform }.to have_enqueued_job(Integrations::ReportPollBugsJob)
         .with(["Live One (1): NoMethodError: our bug"])
         .once
+      expect(idle_watch.reload.state).to have_key("offline_at")
+    end
+  end
+
+  context "when one watch's transition raises an Integrations error" do
+    before do
+      allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).and_call_original
+      allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).with(hash_including(watch: live_watch)).and_raise(Integrations::Unavailable, "api.twitch.tv responded 503")
+    end
+
+    let!(:idle_watch) { create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", state: {"session" => "old", "stream_ids" => ["old"], "peak_viewers" => 1, "started_at" => "2026-11-01T08:00:00Z", "last_live_at" => 10.minutes.ago.iso8601, "login" => "idle", "display_name" => "Idle Two"}) }
+
+    it "reports no bug" do
+      expect { perform }.not_to have_enqueued_job(Integrations::ReportPollBugsJob)
+    end
+
+    it "still transitions the other" do
+      perform
+
       expect(idle_watch.reload.state).to have_key("offline_at")
     end
   end

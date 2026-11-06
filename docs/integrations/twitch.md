@@ -116,30 +116,29 @@ an event whose type and subject key the watch already stored, so a closed sessio
 reopens on the same stream id does not break on the unique index.
 
 `Twitch::StreamReconcileJob` runs every 10 minutes. It asks `Streams#live` for every
-demanded Twitch watch in one batch (100 ids per call), stamps `polled_at` and clears the
-failure fields (`RecordPolls`: Twitch answered, so the watches are readable), then
-transitions each watch with `Live` or `Offline`. A transition that would drop an invalid
+Twitch watch in `ChannelWatcher.live_watches` (watches some active subscription follows
+Live for) in one batch (100 ids per call), then transitions each watch with `Live` or
+`Offline`. A transition that would drop an invalid
 event raises and rolls back, so the state never claims a session whose event was lost.
 With EventSub push (below) an end is noticed at once; only the poll path lags: the close
 check runs 5 minutes after the first offline reconcile, so up to 15 minutes late.
 
-Failures map onto the shared machinery (`RecordsWatchFailures`, shared with `PollJob`).
-An `Integrations::Error` from the live call records `RecordFailure` on every watch,
-which feeds the 24-hour broken-watch report (a persistent `Unavailable`, say). A
-`RateLimited` also enqueues `ReportRateLimitJob`, unless any watch already says
-`Integrations::RateLimited`. An `Unauthorized` (Twitch rejected the app credentials, say
-after a leak) DMs at once through `Twitch::ReportUnauthorizedJob`, at most once a day
-(`NotifiesOwner.claim`), before the 24-hour broken-watch report; nothing retries its way
-out of a revoked secret. An exception from one watch's transition is recorded on that
-watch and reported through `ReportPollBugsJob` only when its last error was something
-else, so a persistent bug reports once; the other watches still transition. Nothing
-creates Twitch watches yet, so in production the job finds no demanded watch and does
-nothing.
+The reconcile writes no watch health: `failing_since`, `last_error` and `polled_at` belong
+to the per-watch poll, so its failures are not cleared every 10 minutes by the live
+check. A failed live call is logged. A `RateLimited` also DMs the owner through
+`ReportRateLimitJob`, at most once a day (`NotifiesOwner.claim`). An `Unauthorized`
+(Twitch rejected the app credentials, say after a leak) DMs at once through
+`Twitch::ReportUnauthorizedJob`, at most once a day; nothing retries its way out of a
+revoked secret. An `Integrations::Error` from one watch's transition is logged and the
+next run retries it. Any other exception from a transition is logged with its backtrace
+and DMs through `ReportPollBugsJob`, at most once a day per watch and error class; the
+other watches still transition. Nothing creates Twitch watches yet, so in production the
+job finds no live watch and does nothing.
 
 ## EventSub
 
 Twitch pushes `stream.online`, `stream.offline` and `channel.update` (v2) for every
-demanded channel to `POST /api/twitch/eventsub` (`Api::Twitch::EventSubsController`).
+channel followed for Live (`ChannelWatcher.live_watches`) to `POST /api/twitch/eventsub` (`Api::Twitch::EventSubsController`).
 `Twitch::EventSub.verified?` checks every request first: the signature is
 `sha256=` plus the HMAC-SHA256 of message id + timestamp + raw body under
 `TWITCH_EVENTSUB_SECRET`, compared in constant time, and the timestamp must be within 10
@@ -152,7 +151,7 @@ minutes of now in either direction. A failed check answers 403 and does nothing 
 | `revocation` | 204 | warning log, `Twitch::EventSubReconcileJob` |
 | anything else, or an unparsable body | 400 | none |
 
-`NotificationJob` finds the demanded watch by `broadcaster_user_id` (anything else is
+`NotificationJob` finds the watch in `ChannelWatcher.live_watches` by `broadcaster_user_id` (anything else is
 dropped) and maps the event onto a Session observation. `stream.online` becomes `Live`
 from the event plus a `/channels` lookup for title and category; viewers stay nil until the
 stream reconcile samples them. `stream.offline` becomes `Offline`. `channel.update`
@@ -169,9 +168,9 @@ so nothing posts twice. `Twitch::EventSub` is the one home for the webhook secre
 `TWITCH_EVENTSUB_SECRET` and an `https` `WEB_BASE_URL`; otherwise it does nothing.
 `Twitch::EventSubDiff` decides the work. A subscription is kept when its status is
 `enabled` or `webhook_callback_verification_pending`, its callback is the receiver URL,
-and its type, version and channel are wanted (all three types for every demanded
-channel). Everything else is deleted: other statuses, another callback, an old version,
-an undemanded channel, and duplicates beyond the first. Missing ones are created; a 409
+and its type, version and channel are wanted (all three types for every
+followed channel). Everything else is deleted: other statuses, another callback, an old version,
+a channel nobody follows for Live, and duplicates beyond the first. Missing ones are created; a 409
 counts as already there. Twitch keeps disabled webhook subscriptions listed for at least
 10 days, so the reconcile sees every revocation.
 

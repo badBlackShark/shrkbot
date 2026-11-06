@@ -31,6 +31,23 @@ RSpec.describe Integrations::Twitch::ChannelWatcher do
     end
   end
 
+  describe ".live_watches" do
+    subject(:live_watches) { described_class.live_watches }
+
+    let!(:following) { create(:feed_subscription, :twitch, :active).watch }
+    let!(:idle) { create(:feed_subscription, :twitch, :active).watch }
+    let!(:steam) { create(:feed_subscription, :active).watch }
+
+    before do
+      create(:feed_subscribed_event, subscription: Feeds::Subscription.find_by!(watch: following), event_type: "Integrations::Twitch::StreamStarted")
+      create(:feed_subscribed_event, subscription: Feeds::Subscription.find_by!(watch: steam), event_type: "Integrations::Steam::PatchNotesPublished")
+    end
+
+    it "includes only Twitch watches an active subscription follows for Live" do
+      expect(live_watches).to contain_exactly(following)
+    end
+  end
+
   describe ".preview_url" do
     subject(:preview_url) { described_class.preview_url("shrkbot_dev") }
 

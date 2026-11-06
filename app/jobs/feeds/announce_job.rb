@@ -26,10 +26,7 @@ module Feeds
     private
 
     def subscriptions(event)
-      Subscription
-        .active
-        .where(watch_id: event.watch_id)
-        .where(id: SubscribedEvent.where(event_type: event.type).select(:subscription_id))
+      Subscription.demanding(event.type).where(watch_id: event.watch_id)
     end
   end
 end

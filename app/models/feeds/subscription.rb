@@ -44,6 +44,10 @@ module Feeds
       I18n.t("operations.feeds.subscriptions.cap.#{source.plugin_key}", max: MAX_PER_SOURCE)
     end
 
+    def self.demanding(event_types)
+      active.where(id: SubscribedEvent.where(event_type: event_types).select(:subscription_id))
+    end
+
     def self.active
       base = where(server_configuration_id: ServerConfiguration.real.select(:id))
 

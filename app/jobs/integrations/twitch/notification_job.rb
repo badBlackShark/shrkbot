@@ -6,7 +6,7 @@ module Integrations
       queue_as :default
 
       def perform(type, event)
-        watch = Watch.demanded.find_by(watcher: ChannelWatcher.name, external_id: event.fetch("broadcaster_user_id"))
+        watch = ChannelWatcher.live_watches.find_by(external_id: event.fetch("broadcaster_user_id"))
         return unless watch
 
         observation = observation(type, event)

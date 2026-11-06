@@ -148,6 +148,21 @@ RSpec.describe Integrations::Watch do
       end
     end
 
+    describe ".demanding" do
+      subject(:demanding) { described_class.demanding(["Integrations::Steam::ArticlePublished"]) }
+
+      let!(:following_watch) { create(:integration_watch) }
+
+      before do
+        create(:feed_subscribed_event, subscription: create(:feed_subscription, :active, watch: following_watch), event_type: "Integrations::Steam::ArticlePublished")
+        create(:feed_subscribed_event, subscription: Feeds::Subscription.find_by!(watch: active_watch), event_type: "Integrations::Steam::PatchNotesPublished")
+      end
+
+      it "includes only watches whose active subscription follows one of the types" do
+        expect(demanding).to contain_exactly(following_watch)
+      end
+    end
+
     describe ".referenced" do
       subject(:referenced) { described_class.referenced }
 
@@ -157,7 +172,7 @@ RSpec.describe Integrations::Watch do
     end
 
     context "without a registered source" do
-      subject(:scopes) { [described_class.demanded, described_class.referenced] }
+      subject(:scopes) { [described_class.demanded, described_class.referenced, described_class.demanding(["Integrations::Steam::PatchNotesPublished"])] }
 
       include_context "without demand sources"
 
