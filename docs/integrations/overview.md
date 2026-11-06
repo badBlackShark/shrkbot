@@ -185,8 +185,9 @@ batch instead of queueing more work behind it.
 tick that finds the previous batch still running is dropped. During a provider outage
 every request can take its full timeout (about 20 s), batches run long, and ticks are
 dropped. Nothing is lost: the next good poll sees the same list, and `Events::Record`
-skips what it already stored. The concurrency `duration` (1 hour) must outlast the slowest batch or
-two batches overlap; at 20 s per request that is 180 watches per watcher.
+skips what it already stored. The concurrency `duration` (1 hour) must outlast the
+slowest batch or two batches overlap; at 20 s per request that is 180 watches per
+watcher.
 
 A watch deleted by the orphan prune while the batch runs is skipped, whether its poll
 failed or its write hit the missing row: it is logged, not recorded, and never reported
@@ -247,14 +248,16 @@ run, watches already deleted stay deleted, and the next day's run continues.
 `RecordObservation` is the strategy for sources that answer with a list of recent
 items.
 
-- **Storing.** A watch saves whatever is fresh as events, its first poll
-  included, through `Ops::Integrations::Events::Record`, the shared persist + dispatch
-  step (Twitch's `Streams::Transition` calls it too). Before saving, each event gets
-  `Event#enrich`, a no-op on the base class that a provider's event overrides to derive
-  stored fields (`Steam::NewsEvent` detects its language). Capabilities decide what to announce; Feeds gates on `subscribed_since`. `Record` skips an event whose type and subject the watch already stored, so the items every list repeats are written once.
-- **Freshness.** An item older than 48 hours is ignored before `Record`: not
-  saved. A watch that was down, or an item that surfaces late, does not
-  announce old news, and the old items every list repeats cost no writes.
+- **Storing.** A watch saves whatever is fresh as events, its first poll included,
+  through `Ops::Integrations::Events::Record`, the shared persist + dispatch step
+  (Twitch's `Streams::Transition` calls it too). `Record` skips an event whose type and
+  subject the watch already stored, so the items every list repeats are written once.
+  Before saving, each event gets `Event#enrich`, a no-op on the base class that a
+  provider's event overrides to derive stored fields (`Steam::NewsEvent` detects its
+  language). Capabilities decide what to announce; Feeds gates on `subscribed_since`.
+- **Freshness.** An item older than 48 hours is ignored before `Record`: not saved. A
+  watch that was down, or an item that surfaces late, does not announce old news, and
+  the old items every list repeats cost no writes.
 - **Invariant.** `Event::FRESHNESS_WINDOW` (48 h) must stay below `Prune::RETENTION` (14 d).
   Stored events have to outlive the window, or a pruned item could look new and fresh.
 

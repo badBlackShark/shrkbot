@@ -34,13 +34,13 @@ RSpec.describe Ops::Integrations::Watches::RecordObservation do
   end
 
   context "when one event is new and another was already recorded" do
-    let(:events) { [fresh, seen] }
+    let(:events) { [fresh, recorded] }
     let(:fresh) { build(:steam_news_event, watch:, subject_key: "fresh", occurred_at: 1.hour.ago, body: english) }
-    let(:seen) { build(:steam_news_event, watch:, subject_key: "seen", occurred_at: 1.hour.ago, body: english) }
+    let(:recorded) { build(:steam_news_event, watch:, subject_key: "recorded", occurred_at: 1.hour.ago, body: english) }
     let(:english) { "The new update is now available. It fixes several crashes on launch and improves performance on lower-end machines." }
 
     before do
-      create(:steam_news_event, watch:, subject_key: "seen", occurred_at: 1.hour.ago)
+      create(:steam_news_event, watch:, subject_key: "recorded", occurred_at: 1.hour.ago)
       allow(Integrations::Language).to receive(:detect).and_call_original
     end
 
