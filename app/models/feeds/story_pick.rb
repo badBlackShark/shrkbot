@@ -36,8 +36,8 @@ module Feeds
 
     def candidates
       Integrations::Event
-        .where(watch_id: event.watch_id, type: followed_since.keys)
-        .where("payload ->> 'story_key' = ?", event.story_key)
+        .in_story(event.watch_id, event.story_key)
+        .where(type: followed_since.keys)
         .select(:id, :type, :occurred_at, "jsonb_build_object('language', payload -> 'language') AS payload")
     end
   end

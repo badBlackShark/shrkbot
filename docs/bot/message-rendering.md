@@ -57,3 +57,5 @@ ping, a role message) take the plain `send_message` branch, where the allow-list
 applies once, and the callers of `create_with_subject` (LFG ping replies, reminders, feed
 posts) and the one direct `convert_to_v2` caller (the LFG join refresh) ping from their
 own create and keep the suppressed default on the edit.
+
+`Components.edit` is the raising edit (feed card refreshes catch what they need); `convert_to_v2` is the swallowing one, logging a failed conversion and returning `false`.

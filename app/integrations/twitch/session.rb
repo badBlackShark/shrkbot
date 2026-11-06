@@ -82,6 +82,7 @@ module Integrations
           "last_live_at" => @now.iso8601,
           "login" => observation.login,
           "display_name" => observation.display_name,
+          "viewer_count" => observation.viewer_count,
           "peak_viewers" => observation.viewer_count
         }
         outcome(state, [event(StreamStarted, state, occurred_at: observation.started_at, subject_key: "stream:#{state["session"]}")])
@@ -97,13 +98,16 @@ module Integrations
         state = @state.except("offline_at").merge(
           "stream_ids" => @state.fetch("stream_ids") | [observation.stream_id],
           "last_live_at" => @now.iso8601,
-          "peak_viewers" => [@state.fetch("peak_viewers"), observation.viewer_count].max,
+          "viewer_count" => observation.viewer_count || @state["viewer_count"],
+          "peak_viewers" => [@state["peak_viewers"], observation.viewer_count].compact.max,
           "login" => observation.login,
           "display_name" => observation.display_name
         )
-        return outcome(state) if state["titles_pushed"]
+        revised = state["titles_pushed"] ? outcome(state) : update(state, observation)
+        return revised unless observation.viewer_count
 
-        update(state, observation)
+        sampled = event(StreamSampled, revised.state, occurred_at: @now, subject_key: "stream-sample:#{state["session"]}:#{@now.to_i}")
+        outcome(revised.state, revised.events + [sampled])
       end
 
       def channel_update(observation)
@@ -155,6 +159,7 @@ module Integrations
           category_id: state["category_id"],
           category_name: state["category_name"],
           started_at: state["started_at"],
+          viewer_count: state["viewer_count"],
           story_key: "stream:#{state["session"]}",
           **extra
         )

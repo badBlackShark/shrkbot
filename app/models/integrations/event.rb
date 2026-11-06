@@ -13,6 +13,7 @@ module Integrations
     validates :type, :subject_key, :occurred_at, presence: true
 
     scope :undispatched, -> { where(dispatched_at: nil) }
+    scope :in_story, ->(watch_id, story_key) { where(watch_id:).where("payload ->> 'story_key' = ?", story_key) }
     scope :stranded, -> {
       undispatched.where(created_at: FRESHNESS_WINDOW.ago...1.minute.ago, occurred_at: FRESHNESS_WINDOW.ago..)
     }

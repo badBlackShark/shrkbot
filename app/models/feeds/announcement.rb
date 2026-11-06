@@ -43,12 +43,16 @@ module Feeds
       Bot::Config::ACCENT_COLOR
     end
 
+    def post_type
+      event.type
+    end
+
     def template
-      subscription.subscribed_events.where(event_type: event.type).pick(:template).to_s
+      subscription.subscribed_events.where(event_type: post_type).pick(:template).to_s
     end
 
     def role_id
-      subscription.source.role_id_for(subscription, event.type)
+      subscription.source.role_id_for(subscription, post_type)
     end
 
     def role_mention

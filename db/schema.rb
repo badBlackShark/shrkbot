@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_02_202031) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_233011) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -58,6 +58,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_02_202031) do
     t.string "story_key", null: false
     t.string "subscription_id", null: false
     t.datetime "updated_at", null: false
+    t.bigint "channel_id"
+    t.bigint "message_id"
     t.index ["subscription_id", "story_key"], name: "index_feed_posts_on_subscription_id_and_story_key", unique: true
   end
 

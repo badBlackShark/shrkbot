@@ -30,5 +30,15 @@ FactoryBot.define do
     category_name { "Hades II" }
     started_at { Time.current.iso8601 }
     story_key { "stream:#{session}" }
+    viewer_count { nil }
+
+    factory :twitch_stream_sampled_event, class: "Integrations::Twitch::StreamSampled" do
+      subject_key { "stream-sample:#{session}:#{occurred_at.to_i}" }
+      viewer_count { 1204 }
+    end
+
+    factory :twitch_stream_updated_event, class: "Integrations::Twitch::StreamUpdated" do
+      subject_key { "stream-update:#{session}:#{occurred_at.to_i}" }
+    end
   end
 end
