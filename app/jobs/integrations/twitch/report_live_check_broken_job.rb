@@ -9,8 +9,8 @@ module Integrations
 
       def perform(error)
         notify_owner(
-          "Twitch live checks have failed for 24 hours: #{error}. Live cards stop updating " \
-          "and a stream end is noticed only if Twitch's push arrives. shrkbot retries every 10 minutes."
+          "Twitch live checks have failed for 24 hours: #{error}. Live cards stop updating, and streams " \
+          "that end meanwhile are marked ended once the checks recover. shrkbot retries every 10 minutes."
         )
       end
     end

@@ -20,7 +20,7 @@ RSpec.describe Integrations::Twitch::ReportLiveCheckBrokenJob do
     expect(Bot::Discord::Components).to have_received(:create_message).with(
       channel_id: 77,
       content: "Twitch live checks have failed for 24 hours: Integrations::Unavailable: api.twitch.tv responded 503. " \
-        "Live cards stop updating and a stream end is noticed only if Twitch's push arrives. shrkbot retries every 10 minutes.",
+        "Live cards stop updating, and streams that end meanwhile are marked ended once the checks recover. shrkbot retries every 10 minutes.",
       allowed_mentions: {parse: []}
     )
   end

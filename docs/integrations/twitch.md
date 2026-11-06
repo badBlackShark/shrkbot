@@ -116,8 +116,10 @@ an event whose type and subject key the watch already stored, so a closed sessio
 reopens on the same stream id does not break on the unique index.
 
 `Twitch::StreamReconcileJob` runs every 10 minutes. It asks `Streams#live` for every
-Twitch watch in `ChannelWatcher.followed_for_live` (watches some active subscription follows
-Live for) in one batch (100 ids per call), then transitions each watch with `Live` or
+Twitch watch in `ChannelWatcher.live_checked` in one batch (100 ids per call): the watches
+some active subscription follows Live for (`followed_for_live`), plus any watch whose
+session is still open. The second half keeps a stream checked until it ends after its last
+Live follower switched off or paused, so the card already posted still gets its end. Then it transitions each watch with `Live` or
 `Offline`. A transition that would drop an invalid
 event raises and rolls back, so the state never claims a session whose event was lost.
 With EventSub push (below) an end is noticed at once; only the poll path lags: the close
@@ -128,14 +130,17 @@ to the per-watch poll, so its failures are not cleared every 10 minutes by the l
 check. A failed live call is logged. After 24 hours of failed live calls
 (`Watch::BROKEN_AFTER`, counted from a job-level "failing since" in the cache that a
 successful call clears) `Twitch::ReportLiveCheckBrokenJob` DMs the owner, at most once a
-day: without the check, live cards stop updating and only EventSub notices an end. Like a
+day: without the check, live cards stop updating, and no end is noticed at all (a push
+`stream.offline` only schedules `CloseSessionJob`, which calls `/streams` too); streams that
+ended meanwhile close as stale on the first good reconcile. Like a
 watch's `failing_since`, the stamp lapses after `Watch::DORMANT_AFTER` without a run, so an
 old outage never counts toward a new one. A `RateLimited` also DMs the owner through
-`ReportRateLimitJob`, at most once a day (`NotifiesOwner.claim`). An `Unauthorized`
+`ReportRateLimitJob`, at most once a day (`NotifiesOwner.claim`), and never adds the broken
+DM on top. An `Unauthorized`
 (Twitch rejected the app credentials, say after a leak) DMs at once through
 `Twitch::ReportUnauthorizedJob`, at most once a day; nothing retries its way out of a
-revoked secret. An `Integrations::Error` from one watch's transition is logged and the
-next run retries it. Any other exception from a transition is logged with its backtrace
+revoked secret; it never adds the broken DM either. A transition makes no network call, so
+any exception from one is logged with its backtrace
 and DMs through `ReportPollBugsJob`, at most once a day per watch and error class; the
 other watches still transition. Nothing creates Twitch watches yet, so in production the
 job finds no live watch and does nothing.

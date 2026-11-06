@@ -31,7 +31,7 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
     allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
     allow(Integrations::Twitch::Client).to receive(:configured?).and_return(true)
     allow(Integrations::Twitch::Streams).to receive(:new).and_return(streams)
-    allow(Integrations::Twitch::ChannelWatcher).to receive(:followed_for_live) { Integrations::Watch.where(id: live.map(&:id)) }
+    allow(Integrations::Twitch::ChannelWatcher).to receive(:live_checked) { Integrations::Watch.where(id: live.map(&:id)) }
   end
 
   context "when Twitch is not configured" do
@@ -217,6 +217,22 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
         expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportUnauthorizedJob)
       end
     end
+
+    context "when the rejections have lasted 24 hours" do
+      before do
+        freeze_time
+        described_class.perform_now
+        11.times do
+          travel 2.hours
+          described_class.perform_now
+        end
+        travel 2.hours
+      end
+
+      it "sends no broken-check DM on top of the credentials DM" do
+        expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportLiveCheckBrokenJob)
+      end
+    end
   end
 
   context "when one watch's transition raises" do
@@ -242,25 +258,6 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
       expect { perform }.to have_enqueued_job(Integrations::ReportPollBugsJob)
         .with(["Live One (1): NoMethodError: our bug"])
         .once
-      expect(idle_watch.reload.state).to have_key("offline_at")
-    end
-  end
-
-  context "when one watch's transition raises an Integrations error" do
-    before do
-      allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).and_call_original
-      allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).with(hash_including(watch: live_watch)).and_raise(Integrations::Unavailable, "api.twitch.tv responded 503")
-    end
-
-    let!(:idle_watch) { create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", state: {"session" => "old", "stream_ids" => ["old"], "peak_viewers" => 1, "started_at" => "2026-11-01T08:00:00Z", "last_live_at" => 10.minutes.ago.iso8601, "login" => "idle", "display_name" => "Idle Two"}) }
-
-    it "reports no bug" do
-      expect { perform }.not_to have_enqueued_job(Integrations::ReportPollBugsJob)
-    end
-
-    it "still transitions the other" do
-      perform
-
       expect(idle_watch.reload.state).to have_key("offline_at")
     end
   end

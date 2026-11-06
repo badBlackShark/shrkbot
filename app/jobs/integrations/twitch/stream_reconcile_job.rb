@@ -16,7 +16,7 @@ module Integrations
       def perform
         return unless Client.configured?
 
-        watches = ChannelWatcher.followed_for_live.to_a
+        watches = ChannelWatcher.live_checked.to_a
         return if watches.empty?
 
         live = fetch_live(watches)
@@ -44,8 +44,6 @@ module Integrations
             watch:,
             observation: stream ? Live.from_stream(stream) : Offline.new
           )
-        rescue Error => error
-          Rails.logger.warn("Integrations: Twitch stream transition for #{watch.label} failed, the next reconcile retries: #{error.class}: #{error.message}")
         rescue => error
           log_bug(watch, error)
           bugs << "#{watch.label}: #{error.class}: #{error.message}" if NotifiesOwner.claim("twitch/streams/bug/#{watch.id}/#{error.class}")
@@ -59,9 +57,12 @@ module Integrations
 
       def report(error)
         Rails.logger.warn("Integrations: Twitch stream reconcile failed: #{error.class}: #{error.message}")
-        report_rate_limit(error) if error.is_a?(RateLimited)
-        report_unauthorized(error) if error.is_a?(Unauthorized)
-        report_broken(error) if mark_failing <= Watch::BROKEN_AFTER.ago
+        failing_since = mark_failing
+        case error
+        when RateLimited then report_rate_limit(error)
+        when Unauthorized then report_unauthorized(error)
+        else report_broken(error) if failing_since <= Watch::BROKEN_AFTER.ago
+        end
       end
 
       def report_rate_limit(error)
