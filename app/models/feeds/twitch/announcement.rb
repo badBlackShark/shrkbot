@@ -3,17 +3,20 @@
 module Feeds
   module Twitch
     class Announcement < Feeds::Announcement
+      include ProfileHeader
+
       LINK_LABEL = "Watch on Twitch"
       ACCENT_COLOR = 0x9146ff
 
-      def initialize(event:, subscription:, image_url: nil)
+      def initialize(event:, subscription:, image_url: nil, ended_at: nil)
         super(event:, subscription:)
         @image_url = image_url
+        @ended_at = ended_at
       end
 
       private
 
-      attr_reader :image_url
+      attr_reader :image_url, :ended_at
 
       def accent_color
         ACCENT_COLOR
@@ -40,15 +43,11 @@ module Feeds
       end
 
       def blocks
-        [*header, image].compact
+        [*header, image, footer].compact
       end
 
-      def header
-        texts = [eyebrow, heading, details]
-        profile = event.watch.image_url
-        return texts unless profile
-
-        [Bot::Discord::Components.section(texts, accessory: Bot::Discord::Components.thumbnail(profile))]
+      def header_texts
+        [eyebrow, heading, details]
       end
 
       def eyebrow
@@ -64,10 +63,14 @@ module Feeds
       end
 
       def stats
-        started = "<t:#{Time.iso8601(event.started_at).to_i}:R>"
+        started = Bot::Discord::Timestamp.relative(Time.iso8601(event.started_at))
         return "Started #{started}" unless subscription.settings.show_viewers && event.viewer_count
 
         "#{event.viewer_count.to_fs(:delimited)} watching · started #{started}"
+      end
+
+      def footer
+        Bot::Discord::Components.text("-# Stream ended #{Bot::Discord::Timestamp.relative(Time.iso8601(ended_at))}") if ended_at
       end
 
       def image

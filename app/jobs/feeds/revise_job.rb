@@ -5,7 +5,7 @@ module Feeds
     include ReportsExhaustion
     include Integrations::Handler
 
-    handles Integrations::Twitch::StreamUpdated, Integrations::Twitch::StreamSampled
+    handles Integrations::Twitch::StreamUpdated, Integrations::Twitch::StreamSampled, Integrations::Twitch::StreamEnded
 
     queue_as :default
     limits_concurrency(

@@ -34,7 +34,13 @@ module Feeds
       true
     end
 
+    def self.retract?(subscription, event)
+      event.is_a?(Integrations::Twitch::StreamEnded) && subscription.settings.live_end_mode == "delete"
+    end
+
     def self.announcement(event:, subscription:)
+      return Ending.announcement(event:, subscription:) if event.is_a?(Integrations::Twitch::StreamEnded)
+
       Announcement.new(event:, subscription:, image_url: LiveImage.for(event))
     end
   end

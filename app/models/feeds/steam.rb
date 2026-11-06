@@ -41,6 +41,10 @@ module Feeds
       subscription.settings.accepts_language?(event.language)
     end
 
+    def self.retract?(_subscription, _event)
+      false
+    end
+
     def self.announcement(event:, subscription:)
       Announcement.new(event:, subscription:, thumbnail: Thumbnail.for(event.watch))
     end

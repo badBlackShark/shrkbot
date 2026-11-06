@@ -102,8 +102,10 @@ at `last_live_at`, so its duration stays true.
 A stale session that sees its own stream id again continues: the stream never ended, we
 only missed it.
 
-End: `StreamEnded` carries `ended_at`, `duration` (seconds from `started_at`) and
-`peak_viewers`, which is nil when no `/streams` sighting came before the end (a push
+End: `StreamEnded` is stamped with the time the session closed (`occurred_at`), so it sorts
+after a title change made during the grace window; `ended_at` is when the stream went
+offline. It carries `ended_at`, `duration` (seconds from `started_at`),
+`stream_ids` (every stream id the session merged) and `peak_viewers`, which is nil when no `/streams` sighting came before the end (a push
 go-live that ended within the first reconcile interval).
 
 **Subject keys:** `stream:<session>` (started), `stream-update:<session>:<now unix>`
@@ -241,6 +243,9 @@ plain id redirects to `404_boxart`. So `Games#find` asks `/games`, and Feeds cac
 result per category for a day. `ChannelWatcher.preview_url(login)` HEADs the static-cdn
 preview, which redirects (302) to `404_preview` until the stream's first frame exists
 (checked 2026-11-02: still the placeholder 4 minutes in), and costs no Helix point.
+
+`ChannelWatcher.vod_url(user_id, stream_ids)` finds a session's VOD with one
+`/videos?type=archive` call: the archive of the first stream id that has one.
 
 ## Rate limit
 

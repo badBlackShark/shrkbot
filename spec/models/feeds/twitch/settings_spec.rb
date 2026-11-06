@@ -11,6 +11,16 @@ RSpec.describe Feeds::Twitch::Settings do
     expect(settings.show_viewers).to be(true)
   end
 
+  it "marks the card ended with a VOD link by default" do
+    expect(settings.live_end_mode).to eq("mark_ended_with_vod")
+  end
+
+  describe "live_end_mode" do
+    before { settings.live_end_mode = "vanish" }
+
+    it { is_expected.not_to be_valid }
+  end
+
   describe "#role_id_for" do
     subject(:role_id) { settings.role_id_for(event_type) }
 

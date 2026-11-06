@@ -40,5 +40,13 @@ FactoryBot.define do
     factory :twitch_stream_updated_event, class: "Integrations::Twitch::StreamUpdated" do
       subject_key { "stream-update:#{session}:#{occurred_at.to_i}" }
     end
+
+    factory :twitch_stream_ended_event, class: "Integrations::Twitch::StreamEnded" do
+      subject_key { "stream-end:#{session}" }
+      ended_at { occurred_at.iso8601 }
+      duration { 11_520 }
+      peak_viewers { 1204 }
+      stream_ids { [session] }
+    end
   end
 end

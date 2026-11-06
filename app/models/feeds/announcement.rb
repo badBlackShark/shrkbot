@@ -22,7 +22,7 @@ module Feeds
       Bot::Discord::Components.container(
         blocks,
         accent_color:,
-        buttons: [Bot::Discord::Components.link_button(url:, label: link_label)],
+        buttons:,
         lead:
       )
     end
@@ -41,6 +41,10 @@ module Feeds
 
     def accent_color
       Bot::Config::ACCENT_COLOR
+    end
+
+    def buttons
+      [Bot::Discord::Components.link_button(url:, label: link_label)]
     end
 
     def post_type

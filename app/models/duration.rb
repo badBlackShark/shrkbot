@@ -15,4 +15,13 @@ module Duration
     end
     total.zero? ? nil : total
   end
+
+  def about(seconds)
+    minutes = [(seconds / 60.0).round, 1].max
+    hours, rest = minutes.divmod(60)
+    parts = []
+    parts << "#{hours} h" if hours.positive?
+    parts << "#{rest} min" if rest.positive? || hours.zero?
+    "about #{parts.join(" ")}"
+  end
 end

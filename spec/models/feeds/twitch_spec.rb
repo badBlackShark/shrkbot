@@ -20,4 +20,31 @@ RSpec.describe Feeds::Twitch do
 
     it { is_expected.to be(true) }
   end
+
+  describe ".retract?" do
+    subject(:retract) { described_class.retract?(subscription, event) }
+
+    let(:event) { build(:twitch_stream_ended_event) }
+
+    before { subscription.settings.update!(live_end_mode:) }
+
+    context "with an ended stream in delete mode" do
+      let(:live_end_mode) { "delete" }
+
+      it { is_expected.to be(true) }
+    end
+
+    context "with an ended stream in another mode" do
+      let(:live_end_mode) { "keep" }
+
+      it { is_expected.to be(false) }
+    end
+
+    context "with a live event in delete mode" do
+      let(:live_end_mode) { "delete" }
+      let(:event) { build(:twitch_stream_updated_event) }
+
+      it { is_expected.to be(false) }
+    end
+  end
 end

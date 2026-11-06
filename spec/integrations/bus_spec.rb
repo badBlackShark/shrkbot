@@ -55,16 +55,8 @@ RSpec.describe Integrations::Bus do
       expect(concrete_event_classes).to include(Integrations::Steam::ArticlePublished)
     end
 
-    let(:awaiting_feeds) do
-      [Integrations::Twitch::StreamEnded]
-    end
-
     it "gives every concrete event class at least one handler" do
-      expect(unhandled - awaiting_feeds).to be_empty
-    end
-
-    it "still has no handler for StreamEnded, so this exemption goes once the end PR handles it" do
-      expect(unhandled).to include(*awaiting_feeds)
+      expect(unhandled).to be_empty
     end
   end
 end

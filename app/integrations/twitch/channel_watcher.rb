@@ -26,6 +26,11 @@ module Integrations
         games.find(category_id)&.box_art_url
       end
 
+      def self.vod_url(user_id, stream_ids, videos: Videos.new)
+        by_stream = videos.for_user(user_id, type: "archive", first: 20).index_by(&:stream_id)
+        stream_ids.filter_map { |id| by_stream[id] }.first&.url
+      end
+
       def self.target(user)
         Target.new(external_id: user.id, name: user.display_name, image_url: user.profile_image_url)
       end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_233011) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_06_162608) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -102,7 +102,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_233011) do
     t.boolean "show_viewers", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "live_end_mode", default: "mark_ended_with_vod", null: false
     t.index ["subscription_id"], name: "index_feed_twitch_settings_on_subscription_id", unique: true
+    t.check_constraint "live_end_mode::text = ANY (ARRAY['keep'::character varying, 'delete'::character varying, 'mark_ended'::character varying, 'mark_ended_with_vod'::character varying]::text[])", name: "feed_twitch_settings_live_end_mode_check"
   end
 
   create_table "image_scanning_settings", id: :string, default: -> { "('iss_'::text || gen_random_uuid())" }, force: :cascade do |t|
