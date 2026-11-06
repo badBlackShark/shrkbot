@@ -55,9 +55,9 @@ module Feeds
       end
 
       def summary_heading
-        return heading unless multi_title?
+        return Bot::Discord::Components.text("## #{Bot::Discord::Truncate.call(single_title, TITLE_LIMIT)}") unless multi_title?
 
-        Bot::Discord::Components.text("## Streamed for #{Duration.about(event.duration)}")
+        Bot::Discord::Components.text("## Streamed for #{::Duration.about(event.duration)}")
       end
 
       def details
@@ -65,9 +65,17 @@ module Feeds
         Bot::Discord::Components.text("#{body}\n-# #{stats}")
       end
 
+      def single_title
+        history.first&.title || event.title
+      end
+
+      def single_category
+        history.empty? ? event.category_name : history.first.category
+      end
+
       def summary_line
-        category = " **#{event.category_name}**" if event.category_name
-        "Streamed#{category} for #{Duration.about(event.duration)}"
+        category = " **#{single_category}**" if single_category
+        "Streamed#{category} for #{::Duration.about(event.duration)}"
       end
 
       def history_lines
@@ -78,7 +86,7 @@ module Feeds
       end
 
       def history_line(entry)
-        "- #{entry.title}#{category_part(entry)} · #{Duration.about(entry.seconds)}"
+        "- #{entry.title}#{category_part(entry)} · #{::Duration.about(entry.seconds)}"
       end
 
       def category_part(entry)
@@ -88,7 +96,7 @@ module Feeds
       end
 
       def stats
-        ended = "<t:#{Time.iso8601(event.ended_at).to_i}:R>"
+        ended = Bot::Discord::Timestamp.relative(Time.iso8601(event.ended_at))
         return "Ended #{ended}" unless subscription.settings.show_viewers && event.peak_viewers
 
         "At least #{event.peak_viewers.to_fs(:delimited)} viewers at the peak · ended #{ended}"

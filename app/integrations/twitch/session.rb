@@ -135,7 +135,7 @@ module Integrations
         ended = event(
           StreamEnded,
           @state,
-          occurred_at: ended_at,
+          occurred_at: @now,
           subject_key: "stream-end:#{@state["session"]}",
           ended_at: ended_at.iso8601,
           duration: (ended_at - Time.zone.parse(@state.fetch("started_at"))).to_i,

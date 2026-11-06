@@ -16,7 +16,7 @@ module Feeds
       end
 
       def initialize(changes, ended_at:)
-        @changes = changes
+        @changes = changes.select { |change| change.is_a?(Integrations::Twitch::StreamStarted) || change.occurred_at < ended_at }
         @ended_at = ended_at
       end
 

@@ -166,7 +166,7 @@ RSpec.describe Integrations::Twitch::Session do
     it "ends the old session at its last sighting and starts the new one" do
       expect(outcome.events).to match([
         an_instance_of(Integrations::Twitch::StreamEnded).and(
-          have_attributes(subject_key: "stream-end:s1", occurred_at: last_live_at, duration: (last_live_at - started_at).to_i, stream_ids: ["s1"])
+          have_attributes(subject_key: "stream-end:s1", occurred_at: now, ended_at: last_live_at.iso8601, duration: (last_live_at - started_at).to_i, stream_ids: ["s1"])
         ),
         an_instance_of(Integrations::Twitch::StreamStarted).and(have_attributes(subject_key: "stream:s2"))
       ])
@@ -221,7 +221,7 @@ RSpec.describe Integrations::Twitch::Session do
     it "ends the session at the last sighting, so the duration stays true" do
       expect(outcome.events).to match([
         an_instance_of(Integrations::Twitch::StreamEnded).and(
-          have_attributes(occurred_at: last_live_at, ended_at: last_live_at.iso8601, duration: (last_live_at - started_at).to_i, stream_ids: ["s1"])
+          have_attributes(occurred_at: now, ended_at: last_live_at.iso8601, duration: (last_live_at - started_at).to_i, stream_ids: ["s1"])
         )
       ])
       expect(outcome.state).to eq(closed_state)
@@ -237,7 +237,7 @@ RSpec.describe Integrations::Twitch::Session do
         an_instance_of(Integrations::Twitch::StreamEnded).and(
           have_attributes(
             subject_key: "stream-end:s1",
-            occurred_at: offline_at,
+            occurred_at: now,
             ended_at: offline_at.iso8601,
             duration: (offline_at - started_at).to_i,
             peak_viewers: 100,

@@ -63,14 +63,14 @@ module Feeds
       end
 
       def stats
-        started = "<t:#{Time.iso8601(event.started_at).to_i}:R>"
+        started = Bot::Discord::Timestamp.relative(Time.iso8601(event.started_at))
         return "Started #{started}" unless subscription.settings.show_viewers && event.viewer_count
 
         "#{event.viewer_count.to_fs(:delimited)} watching · started #{started}"
       end
 
       def footer
-        Bot::Discord::Components.text("-# Stream ended <t:#{Time.iso8601(ended_at).to_i}:R>") if ended_at
+        Bot::Discord::Components.text("-# Stream ended #{Bot::Discord::Timestamp.relative(Time.iso8601(ended_at))}") if ended_at
       end
 
       def image

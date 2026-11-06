@@ -33,6 +33,22 @@ RSpec.describe Feeds::Twitch::TitleHistory do
       end
     end
 
+    context "with a title change after the stream went offline" do
+      let(:later_changes) do
+        [
+          update(120, title: "Boss rush", category_name: "Hades II"),
+          update(182, title: "Next stream: Tuesday", category_name: "Just Chatting")
+        ]
+      end
+
+      it "ignores it and ends the last entry at the end of the stream" do
+        expect(entries).to eq([
+          described_class::Entry.new(title: "Opening", category: "Hades II", seconds: 7200),
+          described_class::Entry.new(title: "Boss rush", category: "Hades II", seconds: 3600)
+        ])
+      end
+    end
+
     context "with a title that was up for 2 minutes" do
       let(:later_changes) do
         [

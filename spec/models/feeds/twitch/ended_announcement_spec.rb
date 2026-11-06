@@ -76,12 +76,32 @@ RSpec.describe Feeds::Twitch::EndedAnnouncement do
       ])
     end
 
-    context "when the channel had no category" do
-      let(:category_name) { nil }
+    context "when the entry had no category" do
+      let(:history) { [entry("Hades II blind run, day 3", nil, 11_520)] }
 
       it "leaves the category out" do
         expect(texts.last[:content]).to start_with("Streamed for about 3 h 12 min\n")
       end
+    end
+  end
+
+  context "with a single entry that differs from the stream's final title" do
+    let(:history) { [entry("Elden Ring: raiding a friend", "Elden Ring", 10_800)] }
+
+    it "heads the summary with the entry, not the short final segment" do
+      expect(texts[1..]).to eq([
+        Bot::Discord::Components.text("## Elden Ring: raiding a friend"),
+        Bot::Discord::Components.text("Streamed **Elden Ring** for about 3 h 12 min\n-# At least 1,204 viewers at the peak · ended <t:#{ended_epoch}:R>")
+      ])
+    end
+  end
+
+  context "without any entry held long enough" do
+    it "falls back to the stream's final title and category" do
+      expect(texts[1..]).to eq([
+        Bot::Discord::Components.text("## #{event.title}"),
+        Bot::Discord::Components.text("Streamed **Hades II** for about 3 h 12 min\n-# At least 1,204 viewers at the peak · ended <t:#{ended_epoch}:R>")
+      ])
     end
   end
 

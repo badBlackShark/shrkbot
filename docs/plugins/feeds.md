@@ -132,8 +132,9 @@ and `StreamSampled`, and edited once more on `StreamEnded` (see Revising a post)
 `live_end_mode` decides what happens to the live post when the stream ends
 (`Feeds::Twitch::Ending` builds the card):
 
-- `keep`: the live card as of its last refresh (ping line and custom message kept) plus a
-  last block, `-# Stream ended <relative time>`.
+- `keep`: the live card re-rendered from the story's last live event (ping line and custom
+  message kept) plus a last block, `-# Stream ended <relative time>`. Twitch has no frame
+  by then, so the image becomes the category box art.
 - `delete`: the Discord message is deleted (`retract?`), and the post's `message_id` is cleared.
 - `mark_ended`: the ended card (`Feeds::Twitch::EndedAnnouncement`): no ping line or custom
   message, grey accent, no image, profile picture kept, no button.
@@ -145,10 +146,11 @@ The ended card says `<name> · Was live on Twitch`, then either the stream title
 `Streamed for about <duration>` and one line per title. A stats line follows:
 `At least N viewers at the peak · ended <relative time>` (peak only with `show_viewers`
 and a known peak, else `Ended <relative time>`). Every duration reads `about 3 h 12 min`,
-rounded to the minute, at least `about 1 min` (`Feeds::Twitch::Duration`).
+rounded to the minute, at least `about 1 min` (`Duration.about`).
 
 Title history (`Feeds::Twitch::TitleHistory`): the go-live title plus every title or
-category change, in stream order. An entry held for under 5 minutes is dropped, and
+category change, in stream order; a change made after the stream went offline (during the
+grace window) is ignored. An entry held for under 5 minutes is dropped, and
 consecutive entries with the same title and category merge. It shows only when at least 2
 entries remain, at most 15 lines, then `and N more`. A line shows the category only when
 the title does not already name it (`Feeds::Twitch::TitleMatch`: the category's words appear

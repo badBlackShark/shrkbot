@@ -102,7 +102,9 @@ at `last_live_at`, so its duration stays true.
 A stale session that sees its own stream id again continues: the stream never ended, we
 only missed it.
 
-End: `StreamEnded` carries `ended_at`, `duration` (seconds from `started_at`),
+End: `StreamEnded` is stamped with the time the session closed (`occurred_at`), so it sorts
+after a title change made during the grace window; `ended_at` is when the stream went
+offline. It carries `ended_at`, `duration` (seconds from `started_at`),
 `stream_ids` (every stream id the session merged) and `peak_viewers`, which is nil when no `/streams` sighting came before the end (a push
 go-live that ended within the first reconcile interval).
 
