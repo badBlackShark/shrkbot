@@ -249,12 +249,12 @@ Helix reference, because no recorded item had them.
 
 Box-art URLs can't be built from the id: some categories use an `<id>_IGDB` path, and the
 plain id redirects to `404_boxart`. So `Games#find` asks `/games`, and Feeds caches the
-result per category for a day. `ChannelWatcher.preview_url(login)` HEADs the static-cdn
+result per category for a day. `Twitch::Previews#url_for(login)` HEADs the static-cdn
 preview, which redirects (302) to `404_preview` until the stream's first frame exists
 (checked 2026-11-02: still the placeholder 4 minutes in), and costs no Helix point.
 
-`ChannelWatcher.vod_url(user_id, stream_ids)` finds a session's VOD with one
-`/videos?type=archive` call: the archive of the first stream id that has one.
+`Feeds::Twitch::Vod` finds a session's VOD with one `Videos#for_user(type: "archive")`
+call: the archive of the first stream id that has one.
 
 ## Rate limit
 

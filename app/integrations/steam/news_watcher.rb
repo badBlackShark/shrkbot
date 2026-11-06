@@ -14,10 +14,6 @@ module Integrations
         Volume.new(counts: items.map { |item| event_class(item).name }.tally, sample_size: items.size)
       end
 
-      def self.artwork_url(external_id, store_items: StoreItems.new)
-        store_items.hero_capsule_url(external_id)
-      end
-
       def self.refresh(external_ids, store_items: StoreItems.new)
         store_items.find_all(external_ids).map { |item| target(item) }
       end
@@ -26,10 +22,6 @@ module Integrations
         Target.new(external_id: item.app_id, name: item.name, image_url: item.header_image_url)
       end
       private_class_method :target
-
-      def self.artwork(url, client: Client.new)
-        client.get_bytes(url)
-      end
 
       def self.event_class(item)
         return ArticlePublished if item.feed_type.zero?
