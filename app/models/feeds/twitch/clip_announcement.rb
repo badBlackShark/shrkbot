@@ -22,10 +22,6 @@ module Feeds
 
       attr_reader :category
 
-      def link_label
-        LINK_LABEL
-      end
-
       def tokens
         {streamer: event.display_name, category: category&.name.to_s, title: event.title, clipper: event.creator_name}
       end

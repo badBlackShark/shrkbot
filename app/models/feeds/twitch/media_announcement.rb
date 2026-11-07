@@ -15,6 +15,10 @@ module Feeds
         event.url
       end
 
+      def link_label
+        self.class::LINK_LABEL
+      end
+
       def blocks
         [*header, image]
       end

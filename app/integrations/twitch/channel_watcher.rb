@@ -56,41 +56,47 @@ module Integrations
           klass = wanted[video.type]
           next if klass.nil? || video.processing?
 
-          klass.new(
-            watch: @watch,
-            subject_key: "video:#{video.id}",
-            story_key: "video:#{video.id}",
-            occurred_at: video.published_at,
-            video_id: video.id,
-            login: video.user_login,
-            display_name: video.user_name,
-            title: video.title,
-            url: video.url,
-            thumbnail_url: video.thumbnail_url,
-            duration: video.duration
-          )
+          video_event(klass, video)
         end
       end
 
       def clip_events(klass, started_at, prefix:, featured: nil)
         return [] unless wanted?(klass)
 
-        @clips.for_broadcaster(@watch.external_id, started_at:, featured:).map do |clip|
-          klass.new(
-            watch: @watch,
-            subject_key: "#{prefix}:#{clip.id}",
-            story_key: "clip:#{clip.id}",
-            occurred_at: clip.created_at,
-            clip_id: clip.id,
-            display_name: clip.broadcaster_name,
-            title: clip.title,
-            url: clip.url,
-            thumbnail_url: clip.thumbnail_url,
-            duration: clip.duration,
-            creator_name: clip.creator_name,
-            category_id: clip.category_id
-          )
-        end
+        @clips.for_broadcaster(@watch.external_id, started_at:, featured:).map { |clip| clip_event(klass, clip, prefix) }
+      end
+
+      def video_event(klass, video)
+        klass.new(
+          watch: @watch,
+          subject_key: "video:#{video.id}",
+          story_key: "video:#{video.id}",
+          occurred_at: video.published_at,
+          video_id: video.id,
+          login: video.user_login,
+          display_name: video.user_name,
+          title: video.title,
+          url: video.url,
+          thumbnail_url: video.thumbnail_url,
+          duration: video.duration
+        )
+      end
+
+      def clip_event(klass, clip, prefix)
+        klass.new(
+          watch: @watch,
+          subject_key: "#{prefix}:#{clip.id}",
+          story_key: "clip:#{clip.id}",
+          occurred_at: clip.created_at,
+          clip_id: clip.id,
+          display_name: clip.broadcaster_name,
+          title: clip.title,
+          url: clip.url,
+          thumbnail_url: clip.thumbnail_url,
+          duration: clip.duration,
+          creator_name: clip.creator_name,
+          category_id: clip.category_id
+        )
       end
 
       def clip_window_start

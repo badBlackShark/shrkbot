@@ -15,10 +15,6 @@ module Feeds
 
       private
 
-      def link_label
-        LINK_LABEL
-      end
-
       def tokens
         {streamer: event.display_name, category: "", title: event.title}
       end

@@ -49,7 +49,11 @@ module Feeds
     end
 
     def self.demanded_types(watch_ids)
-      active.where(watch_id: watch_ids).joins(:subscribed_events).distinct.pluck(:watch_id, "feed_subscribed_events.event_type")
+      active
+        .where(watch_id: watch_ids)
+        .joins(:subscribed_events)
+        .distinct
+        .pluck(:watch_id, "feed_subscribed_events.event_type")
     end
 
     def self.active
