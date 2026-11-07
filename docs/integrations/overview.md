@@ -155,13 +155,18 @@ app, later a channel). The contract is duck-typed, three members plus one option
   the provider still knows. The daily `RefreshWatchesJob` uses it to keep `name` and
   `image_url` current; a watcher without it keeps what the follow stored.
 
-There is **no base class**. One watcher exists, so a base would be a guess at what a
-second one shares. The shared machinery already sits in layers every watcher goes
+There is **no base class**. Two watchers exist (`Steam::NewsWatcher`,
+`Twitch::ChannelWatcher`) and share nothing beyond this contract, so a base would still
+be a guess. The shared machinery already sits in layers every watcher goes
 through: writes in `Ops::Integrations::Watches::*`, scheduling in
-`Integrations::*Job`. Extract a base when the second watcher shares code.
+`Integrations::*Job`. Extract a base when two watchers share code.
 
 `Integrations::Watch` stores the watcher's class name, so `PollJob` reaches it with
-`watch.watcher_class`.
+`watch.watcher_class`. Only code that serves every provider goes through the watcher
+class: `PollJob`, `RefreshWatchesJob` (which gets the class name as its argument) and the
+add-form lookups. A Feeds class that serves one provider calls that provider's resources
+by name (`Feeds::Twitch::LiveImage` calls
+`Twitch::Previews` and `Twitch::Games`), so a watcher never grows pass-through methods.
 
 ## Refreshing
 

@@ -8,22 +8,25 @@ RSpec.describe Feeds::Twitch::LiveImage do
   subject(:result) { described_class.for(event) }
 
   let(:category_id) { "1145360737" }
-  let(:event) { instance_double(Integrations::Twitch::StreamStarted, session: "40000000001", login: "shrkbot_dev", category_id:, watch:) }
-  let(:watch) { instance_double(Integrations::Watch, watcher_class:) }
-  let(:watcher_class) { class_double(Integrations::Twitch::ChannelWatcher) }
+  let(:event) { instance_double(Integrations::Twitch::StreamStarted, session: "40000000001", login: "shrkbot_dev", category_id:) }
+  let(:previews) { instance_double(Integrations::Twitch::Previews) }
+  let(:games) { instance_double(Integrations::Twitch::Games) }
   let(:preview) { "https://cdn.test/live_user_shrkbot_dev-1280x720.jpg" }
   let(:box_art) { "https://cdn.test/box.jpg" }
+  let(:game) { Integrations::Twitch::Game.new(id: category_id, name: "Hades II", box_art_url: box_art) }
 
   before do
     freeze_time
     allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
-    allow(watcher_class).to receive(:preview_url).with("shrkbot_dev").and_return(preview)
-    allow(watcher_class).to receive(:box_art_url).with("1145360737").and_return(box_art)
+    allow(Integrations::Twitch::Previews).to receive(:new).and_return(previews)
+    allow(previews).to receive(:url_for).with("shrkbot_dev").and_return(preview)
+    allow(Integrations::Twitch::Games).to receive(:new).and_return(games)
+    allow(games).to receive(:find).with("1145360737").and_return(game)
   end
 
   it "is the preview with a cache-busting timestamp, without looking up box art" do
     expect(result).to eq("#{preview}?t=#{Time.current.to_i}")
-    expect(watcher_class).not_to have_received(:box_art_url)
+    expect(games).not_to have_received(:find)
   end
 
   it "checks the preview once a minute per stream, so every server gets the same URL" do
@@ -34,7 +37,7 @@ RSpec.describe Feeds::Twitch::LiveImage do
     described_class.for(event)
 
     expect(second).to eq(first)
-    expect(watcher_class).to have_received(:preview_url).twice
+    expect(previews).to have_received(:url_for).twice
   end
 
   context "when the preview is not ready" do
@@ -47,7 +50,15 @@ RSpec.describe Feeds::Twitch::LiveImage do
     it "looks the box art up once for repeated calls" do
       2.times { described_class.for(event) }
 
-      expect(watcher_class).to have_received(:box_art_url).once
+      expect(games).to have_received(:find).once
+    end
+
+    context "when Twitch has no such category" do
+      let(:game) { nil }
+
+      it "is nil" do
+        expect(result).to be_nil
+      end
     end
 
     context "when the channel has no category" do
@@ -55,13 +66,13 @@ RSpec.describe Feeds::Twitch::LiveImage do
 
       it "is nil without a box art lookup" do
         expect(result).to be_nil
-        expect(watcher_class).not_to have_received(:box_art_url)
+        expect(games).not_to have_received(:find)
       end
     end
 
     context "when the box art lookup fails" do
       before do
-        allow(watcher_class).to receive(:box_art_url).and_raise(Integrations::Unavailable)
+        allow(games).to receive(:find).and_raise(Integrations::Unavailable)
       end
 
       it "is nil" do
@@ -75,20 +86,20 @@ RSpec.describe Feeds::Twitch::LiveImage do
           described_class.for(event)
         end
 
-        expect(watcher_class).to have_received(:box_art_url).once
+        expect(games).to have_received(:find).once
 
         travel_to(11.minutes.from_now) do
           described_class.for(event)
         end
 
-        expect(watcher_class).to have_received(:box_art_url).twice
+        expect(games).to have_received(:find).twice
       end
     end
   end
 
   context "when the preview check fails" do
     before do
-      allow(watcher_class).to receive(:preview_url).and_raise(Integrations::Unavailable)
+      allow(previews).to receive(:url_for).and_raise(Integrations::Unavailable)
     end
 
     it "falls back to the box art" do

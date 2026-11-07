@@ -15,7 +15,7 @@ RSpec.describe Ops::Feeds::Posts::Create do
 
   before do
     create(:feed_subscribed_event, subscription:, event_type: event.type)
-    allow(Feeds::Thumbnail).to receive(:for).with(watch).and_return(thumbnail)
+    allow(Feeds::Steam::Thumbnail).to receive(:for).with(watch).and_return(thumbnail)
     allow(Bot::Discord::Components).to receive(:create_with_subject).and_return(777_000)
   end
 
@@ -96,7 +96,7 @@ RSpec.describe Ops::Feeds::Posts::Create do
         fallback: announcement.fallback,
         attachments: nil
       )
-      expect(Feeds::Thumbnail).not_to have_received(:for)
+      expect(Feeds::Steam::Thumbnail).not_to have_received(:for)
     end
   end
 
