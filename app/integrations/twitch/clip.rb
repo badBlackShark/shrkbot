@@ -6,6 +6,7 @@ module Integrations
       :id,
       :url,
       :broadcaster_id,
+      :broadcaster_name,
       :creator_name,
       :video_id,
       :category_id,

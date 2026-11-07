@@ -36,6 +36,10 @@ production:
   integrations_twitch_stream_reconcile:
     class: Integrations::Twitch::StreamReconcileJob
     schedule: every 10 minutes
+  integrations_twitch_media_poll:
+    class: Integrations::PollJob
+    args: ["Integrations::Twitch::ChannelWatcher"]
+    schedule: every 10 minutes
   integrations_twitch_eventsub_reconcile:
     class: Integrations::Twitch::EventSubReconcileJob
     schedule: every 5 minutes
@@ -70,6 +74,10 @@ development:
     schedule: every day at 6am
   integrations_twitch_stream_reconcile:
     class: Integrations::Twitch::StreamReconcileJob
+    schedule: every 10 minutes
+  integrations_twitch_media_poll:
+    class: Integrations::PollJob
+    args: ["Integrations::Twitch::ChannelWatcher"]
     schedule: every 10 minutes
   integrations_twitch_eventsub_reconcile:
     class: Integrations::Twitch::EventSubReconcileJob

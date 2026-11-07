@@ -8,7 +8,11 @@ module Feeds
     handles Integrations::Steam::PatchNotesPublished,
       Integrations::Steam::AnnouncementPublished,
       Integrations::Steam::ArticlePublished,
-      Integrations::Twitch::StreamStarted
+      Integrations::Twitch::StreamStarted,
+      Integrations::Twitch::HighlightPublished,
+      Integrations::Twitch::UploadPublished,
+      Integrations::Twitch::FeaturedClipPublished,
+      Integrations::Twitch::ClipCreated
 
     queue_as :default
     limits_concurrency(

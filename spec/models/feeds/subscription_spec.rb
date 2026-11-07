@@ -107,6 +107,25 @@ RSpec.describe Feeds::Subscription do
     end
   end
 
+  describe ".demanded_types" do
+    subject(:demanded_types) { described_class.demanded_types([followed.watch_id, inactive.watch_id]) }
+
+    let(:stream_started) { "Integrations::Twitch::StreamStarted" }
+    let!(:followed) { create(:feed_subscription, :twitch, :active) }
+    let!(:inactive) { create(:feed_subscription, :twitch) }
+    let!(:elsewhere) { create(:feed_subscription, :twitch, :active) }
+
+    before do
+      create(:feed_subscribed_event, subscription: followed, event_type: stream_started)
+      create(:feed_subscribed_event, subscription: inactive, event_type: stream_started)
+      create(:feed_subscribed_event, subscription: elsewhere, event_type: stream_started)
+    end
+
+    it "pairs each watch with the types its active subscriptions follow" do
+      expect(demanded_types).to contain_exactly([followed.watch_id, stream_started])
+    end
+  end
+
   describe ".active" do
     subject(:active) { described_class.active }
 

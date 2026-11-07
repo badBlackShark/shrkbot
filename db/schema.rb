@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_06_221543) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_07_002948) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -83,7 +83,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_221543) do
     t.text "template"
     t.datetime "updated_at", null: false
     t.index ["subscription_id", "event_type"], name: "index_feed_subscribed_events_on_subscription_id_and_event_type", unique: true
-    t.check_constraint "event_type::text = ANY (ARRAY['Integrations::Steam::PatchNotesPublished'::character varying, 'Integrations::Steam::AnnouncementPublished'::character varying, 'Integrations::Steam::ArticlePublished'::character varying, 'Integrations::Twitch::StreamStarted'::character varying]::text[])", name: "feed_subscribed_events_event_type"
+    t.check_constraint "event_type::text = ANY (ARRAY['Integrations::Steam::PatchNotesPublished'::character varying, 'Integrations::Steam::AnnouncementPublished'::character varying, 'Integrations::Steam::ArticlePublished'::character varying, 'Integrations::Twitch::StreamStarted'::character varying, 'Integrations::Twitch::HighlightPublished'::character varying, 'Integrations::Twitch::UploadPublished'::character varying, 'Integrations::Twitch::FeaturedClipPublished'::character varying, 'Integrations::Twitch::ClipCreated'::character varying]::text[])", name: "feed_subscribed_events_event_type"
   end
 
   create_table "feed_subscriptions", id: :string, default: -> { "('fds_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -103,6 +103,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_06_221543) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "live_end_mode", default: "mark_ended_with_vod", null: false
+    t.bigint "highlights_role_id"
+    t.bigint "uploads_role_id"
+    t.bigint "featured_clips_role_id"
+    t.bigint "clips_role_id"
     t.index ["subscription_id"], name: "index_feed_twitch_settings_on_subscription_id", unique: true
     t.check_constraint "live_end_mode::text = ANY (ARRAY['keep'::character varying, 'delete'::character varying, 'mark_ended'::character varying, 'mark_ended_with_vod'::character varying]::text[])", name: "feed_twitch_settings_live_end_mode_check"
   end

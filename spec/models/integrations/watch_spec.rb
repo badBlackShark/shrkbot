@@ -163,6 +163,31 @@ RSpec.describe Integrations::Watch do
       end
     end
 
+    describe ".demanded_types_for" do
+      subject(:types) { described_class.demanded_types_for([active_watch, following_watch, inactive_watch]) }
+
+      let!(:following_watch) { create(:integration_watch) }
+      let(:article) { "Integrations::Steam::ArticlePublished" }
+      let(:patch_notes) { "Integrations::Steam::PatchNotesPublished" }
+
+      before do
+        create(:feed_subscribed_event, subscription: Feeds::Subscription.find_by!(watch: active_watch), event_type: patch_notes)
+        create(:feed_subscribed_event, subscription: Feeds::Subscription.find_by!(watch: active_watch), event_type: article)
+        create(:feed_subscribed_event, subscription: create(:feed_subscription, :active, watch: following_watch), event_type: article)
+        create(:feed_subscribed_event, subscription: Feeds::Subscription.find_by!(watch: inactive_watch), event_type: patch_notes)
+      end
+
+      it "gives each watch id the set of types its active subscriptions follow" do
+        expect(types).to eq(active_watch.id => Set[patch_notes, article], following_watch.id => Set[article])
+      end
+
+      context "without a registered source" do
+        include_context "without demand sources"
+
+        it { is_expected.to eq({}) }
+      end
+    end
+
     describe ".referenced" do
       subject(:referenced) { described_class.referenced }
 

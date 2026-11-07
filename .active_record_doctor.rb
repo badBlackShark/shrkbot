@@ -41,7 +41,11 @@ ActiveRecordDoctor.configure do
       "feed_posts.channel_id",
       "feed_posts.message_id",
       "feed_steam_settings.role_id",
-      "feed_twitch_settings.live_role_id"
+      "feed_twitch_settings.live_role_id",
+      "feed_twitch_settings.highlights_role_id",
+      "feed_twitch_settings.uploads_role_id",
+      "feed_twitch_settings.featured_clips_role_id",
+      "feed_twitch_settings.clips_role_id"
     ]
 
   # The unique index on external_id is partial (WHERE external_id IS NOT NULL) because
