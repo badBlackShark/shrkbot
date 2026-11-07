@@ -238,6 +238,12 @@ re-registers it after every code reload, and `demand_sources` resets with the re
 - `Watch.referenced` is every watch any source row points at, active or not. It is the
   keep side of the orphan prune.
 
+A source may also answer `demanded_types(watch_ids)` with `[watch_id, event_type]` pairs
+for its active rows. `Watch.demanded_types_for(watches)` unions the answers into a hash
+of watch id to a `Set` of event types, and `PollJob` loads its due watches once and
+assigns each its set as the non-column `Watch#demanded_types`. A watcher reads that set
+to skip API calls for types nobody follows, so it never queries per channel.
+
 `Ops::Integrations::Watches::PruneOrphans` runs daily at 5:35 and destroys each watch
 that is not `referenced`, taking its events with it. With no registered
 source it deletes nothing: an empty registry means the wiring failed, not that nothing

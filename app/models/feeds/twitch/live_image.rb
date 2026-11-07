@@ -20,11 +20,7 @@ module Feeds
       end
 
       def self.box_art(event)
-        return unless event.category_id
-
-        CachedFetch.call(["feeds/twitch/box_art/v1", event.category_id], missing: "Twitch box art for category #{event.category_id}") do
-          Integrations::Twitch::Games.new.find(event.category_id)&.box_art_url
-        end
+        GameLookup.find(event.category_id)&.box_art_url
       end
       private_class_method :preview, :box_art
     end

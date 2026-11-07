@@ -83,6 +83,7 @@ RSpec.describe Integrations::Twitch::Clips do
         id: "PiercingFragileHornetPJSalt-MWN6RC3-Dp3tHDsx",
         url: "https://www.twitch.tv/lirik/clip/PiercingFragileHornetPJSalt-MWN6RC3-Dp3tHDsx",
         broadcaster_id: "23161357",
+        broadcaster_name: "LIRIK",
         creator_name: "Mythriak_",
         video_id: "2889882220",
         category_id: "509658",

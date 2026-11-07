@@ -9,6 +9,8 @@ module Integrations
 
     class_attribute :demand_sources, default: []
 
+    attribute :demanded_types, default: -> { Set.new }
+
     has_many :events, dependent: :delete_all
 
     validates :watcher, :name, presence: true
@@ -39,6 +41,12 @@ module Integrations
 
     def self.demanding(event_types)
       demand_matching { |source| source.demanding(event_types) }
+    end
+
+    def self.demanded_types_for(watches)
+      ids = watches.map(&:id)
+      pairs = demand_sources.flat_map { |source| source.demanded_types(ids) }
+      pairs.group_by(&:first).transform_values { |rows| rows.to_set(&:last) }
     end
 
     def self.demand_matching

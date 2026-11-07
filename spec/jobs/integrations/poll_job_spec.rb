@@ -37,6 +37,25 @@ RSpec.describe Integrations::PollJob do
     end
   end
 
+  context "with a subscription following a type" do
+    let(:followed_type) { "Integrations::Steam::ArticlePublished" }
+    let(:received) { {} }
+
+    before do
+      create(:feed_subscribed_event, subscription: Feeds::Subscription.find_by!(watch: first), event_type: followed_type)
+      allow(Integrations::Steam::NewsWatcher).to receive(:new) do |watch|
+        received[watch.id] = watch.demanded_types
+        watchers.fetch(watch)
+      end
+    end
+
+    it "hands the watcher a watch carrying the types its subscriptions follow" do
+      perform
+
+      expect(received).to eq(first.id => Set[followed_type], second.id => Set.new)
+    end
+  end
+
   context "with a watch no active subscription wants" do
     let!(:undemanded) { create(:integration_watch) }
 

@@ -37,6 +37,14 @@ RSpec.describe Feeds::Twitch::Announcement do
         expect(subject_line).to eq("<@&4242> shrkbot_dev streamt Hades II!")
       end
     end
+
+    context "with the title in a custom message" do
+      let(:template) { "{title}" }
+
+      it "replaces the headline with the stream title" do
+        expect(subject_line).to eq("<@&4242> Hades II blind run, day 3")
+      end
+    end
   end
 
   describe "#fallback" do

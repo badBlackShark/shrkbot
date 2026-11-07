@@ -48,6 +48,10 @@ module Feeds
       active.where(id: SubscribedEvent.where(event_type: event_types).select(:subscription_id))
     end
 
+    def self.demanded_types(watch_ids)
+      active.where(watch_id: watch_ids).joins(:subscribed_events).distinct.pluck(:watch_id, "feed_subscribed_events.event_type")
+    end
+
     def self.active
       base = where(server_configuration_id: ServerConfiguration.real.select(:id))
 

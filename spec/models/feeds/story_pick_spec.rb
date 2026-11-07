@@ -183,4 +183,19 @@ RSpec.describe Feeds::StoryPick do
       end
     end
   end
+
+  context "when a Twitch clip is both new and featured" do
+    let(:subscription) { create(:feed_subscription, :twitch) }
+    let(:subscribed_types) { %w[Integrations::Twitch::ClipCreated Integrations::Twitch::FeaturedClipPublished] }
+    let!(:patch_notes) { nil }
+    let!(:article) { nil }
+    let!(:other_story) { nil }
+    let!(:created) { create(:twitch_clip_created_event, watch:, clip_id: "Ghost", occurred_at: 2.hours.ago) }
+    let!(:featured) { create(:twitch_featured_clip_published_event, watch:, clip_id: "Ghost", occurred_at: 1.hour.ago) }
+    let(:event) { created }
+
+    it "posts it as the featured clip, even though the new-clip copy is the older one" do
+      expect(pick).not_to be_best
+    end
+  end
 end
