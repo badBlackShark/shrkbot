@@ -162,9 +162,10 @@ through: writes in `Ops::Integrations::Watches::*`, scheduling in
 `Integrations::*Job`. Extract a base when two watchers share code.
 
 `Integrations::Watch` stores the watcher's class name, so `PollJob` reaches it with
-`watch.watcher_class`. Only code that serves every provider (`PollJob`,
-`RefreshWatchesJob`, the add-form lookups) goes through it. A Feeds class that serves
-one provider calls that provider's resources by name (`Feeds::Twitch::LiveImage` calls
+`watch.watcher_class`. Only code that serves every provider goes through the watcher
+class: `PollJob`, `RefreshWatchesJob` (which gets the class name as its argument) and the
+add-form lookups. A Feeds class that serves one provider calls that provider's resources
+by name (`Feeds::Twitch::LiveImage` calls
 `Twitch::Previews` and `Twitch::Games`), so a watcher never grows pass-through methods.
 
 ## Refreshing

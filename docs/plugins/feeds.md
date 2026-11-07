@@ -159,9 +159,10 @@ punctuation turned into spaces, Roman numerals II to XX turned into digits and `
 `and`). There is no typo tolerance: a wrongly hidden category would lose information,
 while a redundant one only reads clumsily.
 
-VOD lookup (`Feeds::Twitch::Vod`): `Videos#for_user` archives matched against the
-session's `stream_ids`, cached per session for a day. Only `mark_ended_with_vod` looks. Errors are not
-rescued: the end edit is the only chance to add the button, so `RevisePostJob` retries.
+VOD lookup (`Feeds::Twitch::Vod`): one `Videos#for_user` call for the channel's 20 most
+recent archives, then the archive of the first session stream id that has one, cached per
+session for a day. Only `mark_ended_with_vod` looks. Errors are not rescued: the end edit
+is the only chance to add the button, so `RevisePostJob` retries.
 
 ## Tables
 
@@ -331,15 +332,16 @@ characters), with the game's artwork as the section thumbnail (plain texts when 
 none), then the body excerpt, the post's first image when it has one, and a link button to
 the original below it.
 
-The thumbnail is the game's Steam hero capsule (`Integrations::Steam::StoreItems#hero_capsule_url`). Discord crops thumbnails to a square, so
-`Feeds::SquareImage` pads it to a transparent square WebP. `Feeds::Steam::Thumbnail` caches the
-URL for a day per game and the padded image for a day per URL (Steam's URL carries a hash
-that changes with the art), so a story followed by many servers is fetched once. A failed
-lookup or download is cached as nil for 10 minutes under its own key (`Feeds::CachedFetch`,
-shared with the Twitch box art). It
-downloads through `Steam::Client#get_bytes`. libvips runs with untrusted loaders blocked
-(`config/initializers/vips.rb`). `Feeds::Steam::Announcement#attachments` uploads it with the message as
-`thumbnail.webp`, which the section references as `attachment://thumbnail.webp`. On any
+The thumbnail is the game's Steam hero capsule
+(`Integrations::Steam::StoreItems#hero_capsule_url`), downloaded through
+`Steam::Client#get_bytes`. Discord crops thumbnails to a square, so `Feeds::SquareImage`
+pads it to a transparent square WebP. `Feeds::Steam::Thumbnail` caches the URL for a day
+per game and the padded image for a day per URL (Steam's URL carries a hash that changes
+with the art), so a story followed by many servers is fetched once. A failed lookup or
+download is cached as nil for 10 minutes under its own key (`Feeds::CachedFetch`, shared
+with the Twitch box art). libvips runs with untrusted loaders blocked
+(`config/initializers/vips.rb`). `Feeds::Steam::Announcement#attachments` uploads the image
+with the message as `thumbnail.webp`, which the section references as `attachment://thumbnail.webp`. On any
 failure the card posts without a thumbnail. The web preview shows no thumbnail.
 
 **Body length** is a per-subscription setting. `preview` (the default) keeps about 500

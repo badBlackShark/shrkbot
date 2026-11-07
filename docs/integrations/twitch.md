@@ -253,8 +253,8 @@ result per category for a day. `Twitch::Previews#url_for(login)` HEADs the stati
 preview, which redirects (302) to `404_preview` until the stream's first frame exists
 (checked 2026-11-02: still the placeholder 4 minutes in), and costs no Helix point.
 
-`Feeds::Twitch::Vod` finds a session's VOD with one `Videos#for_user(type: "archive")`
-call: the archive of the first stream id that has one.
+`Videos#for_user(user_id, type: "archive")` lists a channel's recent archives with their
+`stream_id`; `Feeds::Twitch::Vod` matches them to a session (see `docs/plugins/feeds.md`).
 
 ## Rate limit
 
