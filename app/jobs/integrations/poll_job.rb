@@ -12,7 +12,10 @@ module Integrations
 
     def perform(watcher)
       bugs = []
-      Watch.due.demanded.where(watcher:).find_each do |watch|
+      watches = Watch.due.demanded.where(watcher:).to_a
+      types = Watch.demanded_types_for(watches)
+      watches.each do |watch|
+        watch.demanded_types = types.fetch(watch.id, Set.new)
         poll(watch)
       rescue RateLimited => error
         failed = record_failure(watch, error)

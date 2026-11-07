@@ -334,6 +334,10 @@ en:
           broken: Steam hasn't answered for this game since %{since} UTC. shrkbot
             keeps trying every hour, and posts what it missed from the last 48 hours
             once Steam answers.
+        twitch:
+          broken: Twitch hasn't answered for this channel's videos and clips since
+            %{since} UTC; live posts still work. shrkbot keeps trying every hour,
+            and posts what it missed from the last 48 hours once Twitch answers.
       target_card:
         change: Not this one?
         steam:

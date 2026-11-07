@@ -35,7 +35,7 @@ module Feeds
       end
 
       def tokens
-        {streamer: event.display_name, category: event.category_name}
+        {streamer: event.display_name, category: event.category_name, title: event.title}
       end
 
       def headline
