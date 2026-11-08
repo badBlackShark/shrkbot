@@ -14,11 +14,10 @@ module Feeds
       end
 
       def blocks
-        header
+        [*header, footer].compact
       end
 
       def details
-        started = Bot::Discord::Timestamp.relative(Time.iso8601(event.started_at))
         Bot::Discord::Components.text([switched_line, "-# Started #{started}"].join("\n"))
       end
 

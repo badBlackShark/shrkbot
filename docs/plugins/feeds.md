@@ -187,11 +187,13 @@ stream is outside them, independent of `live_end_mode`:
 
 Back in a chosen category the live card returns by a normal edit. If shrkbot deleted the
 message, `revive?` lets `Posts::Revise` send the card again without a ping and clear
-`retracted_at`. A message a moderator deleted, or one lost to a missing channel or
+`retracted_at`, but only while `StoryPick` still finds the event eligible: a server that
+stopped following Live, or re-enabled the plugin mid-stream, gets no card back. A message a moderator deleted, or one lost to a missing channel or
 permission, has no `retracted_at` and stays gone; a re-post that hits a missing channel
 or permission clears `retracted_at`, so it is not retried on every sample. When the
 stream really ends,
-`live_end_mode` applies as usual, and a retracted post is not sent again: `revive?` is
+`live_end_mode` applies as usual (`keep` keeps the summary card, stamped with the end,
+when the stream ended outside the chosen categories), and a retracted post is not sent again: `revive?` is
 false for `StreamEnded`, so the end event does nothing to it.
 
 ### How a stream ends

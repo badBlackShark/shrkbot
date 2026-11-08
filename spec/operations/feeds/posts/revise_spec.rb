@@ -117,6 +117,7 @@ RSpec.describe Ops::Feeds::Posts::Revise do
 
     before do
       subscription.settings.update!(categories: [{"id" => "A", "name" => "A"}], switched_away:)
+      create(:feed_subscribed_event, subscription:, event_type: "Integrations::Twitch::StreamStarted", subscribed_since: 1.day.ago)
       allow(Bot::Discord::Components).to receive(:delete_message)
       allow(Bot::Discord::Components).to receive(:create_with_subject).and_return(888_000)
     end
@@ -154,6 +155,18 @@ RSpec.describe Ops::Feeds::Posts::Revise do
           hash_including(channel_id: 555_000, rendered: live_card, allowed_mentions: {parse: []})
         )
         expect(post.reload).to have_attributes(channel_id: 555_000, message_id: 888_000, retracted_at: nil)
+      end
+
+      context "when the server no longer follows Live" do
+        before do
+          subscription.subscribed_events.delete_all
+        end
+
+        it "does not post it again" do
+          result
+
+          expect(Bot::Discord::Components).not_to have_received(:create_with_subject)
+        end
       end
 
       context "when the channel is gone" do

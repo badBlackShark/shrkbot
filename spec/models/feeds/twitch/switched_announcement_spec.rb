@@ -3,13 +3,14 @@
 require "rails_helper"
 
 RSpec.describe Feeds::Twitch::SwitchedAnnouncement do
-  subject(:card) { described_class.new(event:, subscription:).card }
+  subject(:card) { described_class.new(event:, subscription:, ended_at:).card }
 
   let(:profile_image) { "https://static-cdn.jtvnw.net/jtv_user_pictures/shrkbot-profile_image-300x300.png" }
   let(:watch) { create(:integration_watch, :twitch, image_url: profile_image) }
   let(:subscription) { create(:feed_subscription, :twitch, watch:) }
   let(:started_at) { Time.zone.parse("2026-11-01 09:00:00") }
   let(:category_name) { "Just Chatting" }
+  let(:ended_at) { nil }
   let(:event) { create(:twitch_stream_updated_event, watch:, category_name:, started_at: started_at.iso8601) }
   let(:container) { card[:components].find { |component| component[:type] == Bot::Discord::Components::CONTAINER } }
   let(:texts) { container[:components].first[:components] }
@@ -38,6 +39,18 @@ RSpec.describe Feeds::Twitch::SwitchedAnnouncement do
     expect(card[:components].last[:components]).to eq(
       [Bot::Discord::Components.link_button(url: "https://www.twitch.tv/shrkbot_dev", label: "Watch on Twitch")]
     )
+  end
+
+  it "has no footer while the stream is live" do
+    expect(container[:components].size).to eq(1)
+  end
+
+  context "when the stream ended while switched away" do
+    let(:ended_at) { "2026-11-01T12:00:00Z" }
+
+    it "stamps the end below the texts" do
+      expect(container[:components].last).to eq(Bot::Discord::Components.text("-# Stream ended <t:#{Time.iso8601(ended_at).to_i}:R>"))
+    end
   end
 
   context "without a category" do

@@ -47,7 +47,10 @@ module Ops
         end
 
         def revivable?
-          post.message_id.nil? && post.retracted_at.present? && source.revive?(subscription, event)
+          post.message_id.nil? &&
+            post.retracted_at.present? &&
+            source.revive?(subscription, event) &&
+            ::Feeds::StoryPick.new(subscription:, event:).eligible?
         end
 
         def revive
