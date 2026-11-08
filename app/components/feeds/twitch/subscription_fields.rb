@@ -13,6 +13,7 @@ class Components::Feeds::Twitch::SubscriptionFields < Components::Base
         plugin_key: :twitch,
         type_fields: Components::Feeds::Twitch::TypeFields
       )
+      render Components::Feeds::Twitch::CategoriesCard.new(subscription: @subscription)
     end
   end
 end

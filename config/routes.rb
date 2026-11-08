@@ -45,6 +45,7 @@ Rails.application.routes.draw do
       end
       resource :twitch, only: [:show, :update], controller: "twitch" do
         resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], module: :twitch
+        resources :categories, only: :index, module: :twitch
       end
       resource :twilight_struggle, only: [:show, :update], controller: "twilight_struggle" do
         scope module: :twilight_struggle do

@@ -83,4 +83,19 @@ RSpec.describe Feeds::Twitch::PreviewSamples do
       expect(samples.end_mode_card("delete")).to be_nil
     end
   end
+
+  describe "#switched_card" do
+    subject(:card) { samples.switched_card }
+
+    let(:event_type) { "Integrations::Twitch::StreamStarted" }
+
+    it "words it like the switched announcement, with the new category and when the stream started" do
+      expect(card).to include(
+        eyebrow: "SomeStreamer · Live on Twitch",
+        title: "Hades II, first run",
+        body: [{text: "Switched to Just Chatting", class: nil}, {text: "Started 2 hours ago", class: nil}],
+        button: "Watch on Twitch"
+      )
+    end
+  end
 end

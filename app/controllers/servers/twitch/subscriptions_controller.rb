@@ -12,10 +12,14 @@ class Servers::Twitch::SubscriptionsController < Servers::Feeds::SubscriptionsCo
   end
 
   def settings_params
-    [*::Feeds::Twitch::Settings::ROLE_COLUMNS.values, :live_end_mode, :show_viewers]
+    [*scalar_settings, {categories: []}]
   end
 
   def settings
-    subscription_params.slice(*settings_params).to_h.symbolize_keys
+    subscription_params.slice(*scalar_settings).to_h.symbolize_keys.merge(categories: ::Feeds::Twitch::CategoryValue.parse_all(subscription_params[:categories]))
+  end
+
+  def scalar_settings
+    [*::Feeds::Twitch::Settings::ROLE_COLUMNS.values, :live_end_mode, :show_viewers, :switched_away]
   end
 end

@@ -41,6 +41,8 @@ ignore_missing:
 # 5. ActiveModel error messages, looked up by `errors.add(:base, :symbol)`.
 # 6. The key built from `Feeds.event_key(event_type)` inside the `t()` call.
 ignore_unused:
+  # Rails resolves model error messages by key (errors.add :too_long)
+  - activerecord.errors.models.feeds/twitch/settings.attributes.categories.too_long
   # 6. Components::Feeds::VolumeLine
   - components.feeds.volume_line.counts.*
   # 1. Views::Servers::SubPluginShow subclasses (through Moderation::SubPluginShow)

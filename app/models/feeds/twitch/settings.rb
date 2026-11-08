@@ -13,6 +13,7 @@ module Feeds
 
       LIVE_END_MODES = %w[mark_ended_with_vod mark_ended keep delete].freeze
       SWITCHED_AWAY_MODES = %w[summary delete].freeze
+      MAX_CATEGORIES = 100
 
       self.table_name = "feed_twitch_settings"
 
@@ -23,6 +24,7 @@ module Feeds
       validates :switched_away, inclusion: {in: SWITCHED_AWAY_MODES}
       validates :subscription_id, uniqueness: true
       validate :categories_shape
+      validate :categories_count
 
       def role_id_for(event_type)
         public_send(ROLE_COLUMNS.fetch(event_type))
@@ -35,13 +37,15 @@ module Feeds
       private
 
       def categories_shape
-        return if categories.is_a?(Array) && categories.all? { |category| valid_category?(category) }
+        return if categories.is_a?(Array) && categories.all? { |category| CategoryValue.valid?(category) }
 
         errors.add(:categories, :invalid)
       end
 
-      def valid_category?(category)
-        category.is_a?(Hash) && category["id"].is_a?(String) && category["id"].present? && category["name"].is_a?(String)
+      def categories_count
+        return unless categories.is_a?(Array) && categories.size > MAX_CATEGORIES
+
+        errors.add(:categories, :too_long, count: MAX_CATEGORIES)
       end
     end
   end

@@ -2,6 +2,13 @@
 en:
   accounts:
     deleted: shrkbot deleted your account and all data tied to it.
+  activerecord:
+    errors:
+      models:
+        feeds/twitch/settings:
+          attributes:
+            categories:
+              too_long: can have at most %{count} categories
   admin:
     bespoke_plugin_grants:
       granted: Plugin granted.
@@ -386,6 +393,12 @@ en:
         twitch:
           external_id: Twitch user %{id}
       twitch:
+        categories_card:
+          help: Leave it empty to post every category. Clips follow the same filter.
+            Highlights and uploads have no category, so they always post.
+          label: Only post while the stream is in (optional)
+          placeholder: Search Twitch categories
+          title: Categories
         end_mode_field:
           label: When the stream ends
           modes:
@@ -421,6 +434,17 @@ en:
             category: ''
             clipper: ''
             title: Everything new in the 1.0 update
+        switched_away_field:
+          label: When the stream switches to another category
+          modes:
+            delete: Delete it
+            summary: Show it switched
+        switched_away_panel:
+          delete: shrkbot deletes the post and posts it again, without a ping, when
+            the stream comes back.
+          preview: Preview
+          summary: The post turns grey and says where the stream went. It goes live
+            again when the stream comes back.
         type_fields:
           clip_warning: Big channels get dozens to hundreds of clips per stream, and
             each one is a post.
