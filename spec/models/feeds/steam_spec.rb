@@ -41,4 +41,15 @@ RSpec.describe Feeds::Steam do
       expect(retract).to be(false)
     end
   end
+
+  describe ".revive?" do
+    subject(:revive) { described_class.revive?(subscription, event) }
+
+    let(:subscription) { create(:steam_feed_subscription) }
+    let(:event) { build(:steam_news_event, watch: subscription.watch) }
+
+    it "never re-posts a Steam post" do
+      expect(revive).to be(false)
+    end
+  end
 end

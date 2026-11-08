@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_08_153435) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_08_161750) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -60,6 +60,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_08_153435) do
     t.datetime "updated_at", null: false
     t.bigint "channel_id"
     t.bigint "message_id"
+    t.datetime "retracted_at"
     t.index ["subscription_id", "story_key"], name: "index_feed_posts_on_subscription_id_and_story_key", unique: true
   end
 
@@ -108,9 +109,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_08_153435) do
     t.bigint "featured_clips_role_id"
     t.bigint "clips_role_id"
     t.jsonb "categories", default: [], null: false
+    t.string "switched_away", default: "summary", null: false
     t.index ["subscription_id"], name: "index_feed_twitch_settings_on_subscription_id", unique: true
     t.check_constraint "jsonb_typeof(categories) = 'array'::text", name: "feed_twitch_settings_categories_array"
     t.check_constraint "live_end_mode::text = ANY (ARRAY['keep'::character varying, 'delete'::character varying, 'mark_ended'::character varying, 'mark_ended_with_vod'::character varying]::text[])", name: "feed_twitch_settings_live_end_mode_check"
+    t.check_constraint "switched_away::text = ANY (ARRAY['summary'::character varying, 'delete'::character varying]::text[])", name: "feed_twitch_settings_switched_away_check"
   end
 
   create_table "image_scanning_settings", id: :string, default: -> { "('iss_'::text || gen_random_uuid())" }, force: :cascade do |t|

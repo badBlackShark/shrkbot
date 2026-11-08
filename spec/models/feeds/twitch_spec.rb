@@ -56,6 +56,14 @@ RSpec.describe Feeds::Twitch do
       it { is_expected.to be_a(Feeds::Twitch::Announcement) }
     end
 
+    context "with a live event outside the chosen categories" do
+      let(:event) { create(:twitch_stream_updated_event, watch: subscription.watch, category_id: "B") }
+
+      before { subscription.settings.update!(categories: [{"id" => "A", "name" => "A"}]) }
+
+      it { is_expected.to be_a(Feeds::Twitch::SwitchedAnnouncement) }
+    end
+
     context "with a video event" do
       let(:event) { create(:twitch_highlight_published_event, watch: subscription.watch) }
 
@@ -157,7 +165,11 @@ RSpec.describe Feeds::Twitch do
 
     let(:event) { build(:twitch_stream_ended_event) }
 
-    before { subscription.settings.update!(live_end_mode:) }
+    before { subscription.settings.update!(live_end_mode:, switched_away:, categories:) }
+
+    let(:live_end_mode) { "mark_ended" }
+    let(:switched_away) { "summary" }
+    let(:categories) { [] }
 
     context "with an ended stream in delete mode" do
       let(:live_end_mode) { "delete" }
@@ -171,9 +183,47 @@ RSpec.describe Feeds::Twitch do
       it { is_expected.to be(false) }
     end
 
-    context "with a live event in delete mode" do
+    context "with an accepted live event in delete mode" do
       let(:live_end_mode) { "delete" }
+      let(:switched_away) { "delete" }
       let(:event) { build(:twitch_stream_updated_event) }
+
+      it { is_expected.to be(false) }
+    end
+
+    context "with a switched-away event" do
+      let(:categories) { [{"id" => "A", "name" => "A"}] }
+      let(:event) { build(:twitch_stream_updated_event, category_id: "B") }
+
+      it { is_expected.to be(false) }
+
+      context "when switching away deletes" do
+        let(:switched_away) { "delete" }
+
+        it { is_expected.to be(true) }
+      end
+    end
+  end
+
+  describe ".revive?" do
+    subject(:revive) { described_class.revive?(subscription, event) }
+
+    let(:categories) { [{"id" => "A", "name" => "A"}] }
+    let(:event) { build(:twitch_stream_updated_event, category_id:) }
+    let(:category_id) { "A" }
+
+    before { subscription.settings.update!(categories:) }
+
+    it { is_expected.to be(true) }
+
+    context "when the stream is outside the filter" do
+      let(:category_id) { "B" }
+
+      it { is_expected.to be(false) }
+    end
+
+    context "when the stream ended" do
+      let(:event) { build(:twitch_stream_ended_event, category_id:) }
 
       it { is_expected.to be(false) }
     end

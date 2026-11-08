@@ -57,10 +57,28 @@ module Feeds
     end
 
     def self.retract?(subscription, event)
-      event.is_a?(Integrations::Twitch::StreamEnded) && subscription.settings.live_end_mode == "delete"
+      return subscription.settings.live_end_mode == "delete" if event.is_a?(Integrations::Twitch::StreamEnded)
+
+      switched_away?(subscription, event) && subscription.settings.switched_away == "delete"
     end
 
+    def self.revive?(subscription, event)
+      live?(event) && accepts?(subscription, event)
+    end
+
+    def self.live?(event)
+      event.is_a?(Integrations::Twitch::StreamEvent) && !event.is_a?(Integrations::Twitch::StreamEnded)
+    end
+    private_class_method :live?
+
+    def self.switched_away?(subscription, event)
+      live?(event) && !accepts?(subscription, event)
+    end
+    private_class_method :switched_away?
+
     def self.announcement(event:, subscription:)
+      return SwitchedAnnouncement.new(event:, subscription:) if switched_away?(subscription, event)
+
       case event
       when Integrations::Twitch::StreamEnded then Ending.announcement(event:, subscription:)
       when Integrations::Twitch::VideoEvent then VideoAnnouncement.new(event:, subscription:)

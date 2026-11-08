@@ -23,12 +23,11 @@ module Feeds
     private
 
     def posts(event)
-      Post
-        .where(
-          story_key: event.story_key,
-          subscription_id: Subscription.active.where(watch_id: event.watch_id).select(:id)
-        )
-        .where.not(message_id: nil)
+      base = Post.where(
+        story_key: event.story_key,
+        subscription_id: Subscription.active.where(watch_id: event.watch_id).select(:id)
+      )
+      base.where.not(message_id: nil).or(base.where.not(retracted_at: nil))
     end
   end
 end

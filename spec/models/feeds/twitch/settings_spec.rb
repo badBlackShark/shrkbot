@@ -21,6 +21,16 @@ RSpec.describe Feeds::Twitch::Settings do
     it { is_expected.not_to be_valid }
   end
 
+  it "summarises a stream that switched away by default" do
+    expect(settings.switched_away).to eq("summary")
+  end
+
+  describe "switched_away" do
+    before { settings.switched_away = "vanish" }
+
+    it { is_expected.not_to be_valid }
+  end
+
   describe "categories" do
     before { settings.categories = categories }
 
