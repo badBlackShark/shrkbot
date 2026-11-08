@@ -125,9 +125,12 @@ RSpec.describe "Steam subscriptions", type: :request do
         body_length: "full",
         languages: %w[de en],
         event_types: {patch_notes => "1", announcements => "0", articles => "1"},
-        templates: {patch_notes => " Patch day: {title} ", articles => "  "}
+        templates: {patch_notes => " Patch day: {title} ", articles => "  "},
+        notifications: {patch_notes => " Out now: {title} ", articles => "{game} · {feed}: {title}"}
       }
     end
+
+    let(:stored_notifications) { config.feed_subscriptions.sole.subscribed_events.to_h { |event| [event.event_type, event.notification_template] } }
 
     let(:stored_templates) { config.feed_subscriptions.sole.subscribed_events.to_h { |event| [event.event_type, event.template] } }
 
@@ -146,6 +149,12 @@ RSpec.describe "Steam subscriptions", type: :request do
       create_subscription
 
       expect(stored_templates).to eq(patch_notes => "Patch day: {title}", articles => nil)
+    end
+
+    it "stores a notification text and nothing for the default" do
+      create_subscription
+
+      expect(stored_notifications).to eq(patch_notes => "Out now: {title}", articles => nil)
     end
 
     context "with blank text" do
@@ -297,7 +306,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     subject(:update) do
       patch(
         server_steam_subscription_path(guild.id, subscription),
-        params: {subscription: {channel_id:, role_id: "", body_length: "full", languages:, event_types:, templates:}},
+        params: {subscription: {channel_id:, role_id: "", body_length: "full", languages:, event_types:, templates:, notifications:}},
         **headers
       )
     end
@@ -307,6 +316,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     let(:languages) { %w[de en] }
     let(:event_types) { {patch_notes => "1", announcements => "1"} }
     let(:templates) { {patch_notes => "Patch day: {title}"} }
+    let(:notifications) { {patch_notes => "Out now: {title}", announcements => "{game} · Announcement: {title}"} }
     let(:followed_since) { 3.days.ago.change(usec: 0) }
     let!(:subscription) { create(:feed_subscription, server_configuration: config, channel_id: 555) }
 
@@ -344,6 +354,13 @@ RSpec.describe "Steam subscriptions", type: :request do
       update
 
       expect(subscription.subscribed_events.find_by!(event_type: patch_notes).template).to eq("Patch day: {title}")
+    end
+
+    it "stores the submitted notification text and nothing for a default" do
+      update
+
+      expect(subscription.subscribed_events.find_by!(event_type: patch_notes).notification_template).to eq("Out now: {title}")
+      expect(subscription.subscribed_events.find_by!(event_type: announcements).notification_template).to be_nil
     end
 
     context "when the channel is cleared" do

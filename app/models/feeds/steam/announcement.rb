@@ -47,10 +47,6 @@ module Feeds
         @eyebrow_plain ||= self.class.eyebrow(event.watch.name, event.type, event.feed_label)
       end
 
-      def headline
-        "#{eyebrow_plain}: #{event.title}"
-      end
-
       def blocks
         [*header, excerpt, image].compact
       end

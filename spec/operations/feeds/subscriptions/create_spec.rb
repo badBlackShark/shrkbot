@@ -11,6 +11,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
       channel_id:,
       event_types:,
       templates:,
+      notifications:,
       settings:
     )
   end
@@ -24,6 +25,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   let(:settings) { {role_id:, body_length:, languages:} }
   let(:event_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
   let(:templates) { {} }
+  let(:notifications) { {} }
   let(:watch) { Integrations::Watch.find_by!(external_id: "1145350") }
 
   it "stores the subscription with its settings" do
@@ -60,6 +62,24 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
 
       expect(stored).to eq(
         "Integrations::Steam::PatchNotesPublished" => "Patch day: {title}",
+        "Integrations::Steam::AnnouncementPublished" => nil
+      )
+    end
+  end
+
+  context "with submitted notification texts" do
+    let(:notifications) do
+      {
+        "Integrations::Steam::PatchNotesPublished" => " Out now: {title} ",
+        "Integrations::Steam::AnnouncementPublished" => "{game} · Announcement: {title}"
+      }
+    end
+
+    it "stores custom text and nothing for a submitted default" do
+      stored = result.value.subscribed_events.to_h { |event| [event.event_type, event.notification_template] }
+
+      expect(stored).to eq(
+        "Integrations::Steam::PatchNotesPublished" => "Out now: {title}",
         "Integrations::Steam::AnnouncementPublished" => nil
       )
     end

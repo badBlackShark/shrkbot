@@ -43,6 +43,12 @@ RSpec.describe Feeds::Twitch do
     end
   end
 
+  describe ".notification_tokens" do
+    it "is the template tokens, which already include the title" do
+      expect(described_class.notification_tokens).to eq(described_class.template_tokens)
+    end
+  end
+
   describe ".announcement" do
     subject(:announcement) { described_class.announcement(event:, subscription:) }
 

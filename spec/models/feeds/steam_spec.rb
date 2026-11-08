@@ -5,6 +5,12 @@ require "rails_helper"
 RSpec.describe Feeds::Steam do
   let(:subscription) { create(:feed_subscription) }
 
+  describe ".notification_tokens" do
+    it "adds the title to the template tokens" do
+      expect(described_class.notification_tokens).to eq(%w[game author feed title])
+    end
+  end
+
   describe ".role_id_for" do
     subject(:role_id) { described_class.role_id_for(subscription, "Integrations::Steam::PatchNotesPublished") }
 

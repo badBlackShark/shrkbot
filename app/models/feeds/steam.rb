@@ -37,6 +37,14 @@ module Feeds
       %w[game author feed]
     end
 
+    def self.notification_tokens
+      template_tokens + %w[title]
+    end
+
+    def self.default_notification(event_type)
+      "{game} · #{Announcement::TYPE_LABELS.fetch(event_type, "{feed}")}: {title}"
+    end
+
     def self.settings_association
       :steam_settings
     end

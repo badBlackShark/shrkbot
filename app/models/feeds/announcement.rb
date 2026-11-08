@@ -11,11 +11,11 @@ module Feeds
     end
 
     def subject
-      @subject ||= Bot::Discord::Truncate.call([role_mention, custom_text.presence || headline].compact.join(" "), SUBJECT_LIMIT)
+      @subject ||= Bot::Discord::Truncate.call([role_mention, notification].compact.join(" "), SUBJECT_LIMIT)
     end
 
     def fallback
-      "#{Bot::Discord::Truncate.call(subject, SUBJECT_LIMIT - url.to_s.length - 1)}\n#{url}"
+      "#{Bot::Discord::Truncate.call(fallback_text, SUBJECT_LIMIT - url.to_s.length - 1)}\n#{url}"
     end
 
     def card
@@ -39,6 +39,10 @@ module Feeds
 
     attr_reader :event, :subscription
 
+    def fallback_text
+      custom_text.present? ? "#{lead}\n#{notification}" : subject
+    end
+
     def accent_color
       Bot::Config::ACCENT_COLOR
     end
@@ -51,8 +55,32 @@ module Feeds
       subscription.source.post_type(event.type)
     end
 
+    def stored_templates
+      @stored_templates ||= subscription.subscribed_events.where(event_type: post_type).pick(:template, :notification_template) || []
+    end
+
     def template
-      subscription.subscribed_events.where(event_type: post_type).pick(:template).to_s
+      stored_templates.first.to_s
+    end
+
+    def stored_notification
+      stored_templates.last
+    end
+
+    def notification
+      rendered_notification(stored_notification.presence) || rendered_notification(default_notification)
+    end
+
+    def default_notification
+      subscription.source.default_notification(post_type)
+    end
+
+    def rendered_notification(text)
+      Templates.strip(TemplateText.render(text, notification_values)).presence if text
+    end
+
+    def notification_values
+      blank(subscription.source.notification_tokens).merge(tokens, title: event.title)
     end
 
     def role_id
@@ -64,11 +92,11 @@ module Feeds
     end
 
     def custom_text
-      @custom_text ||= Templates.strip(TemplateText.render(template, blank_tokens.merge(tokens)))
+      @custom_text ||= Templates.strip(TemplateText.render(template, blank(subscription.source.template_tokens).merge(tokens)))
     end
 
-    def blank_tokens
-      subscription.source.template_tokens.to_h { |name| [name.to_sym, ""] }
+    def blank(names)
+      names.to_h { |name| [name.to_sym, ""] }
     end
 
     def lead

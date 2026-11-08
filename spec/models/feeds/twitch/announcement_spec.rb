@@ -10,6 +10,7 @@ RSpec.describe Feeds::Twitch::Announcement do
   let(:role_id) { 4242 }
   let(:subscription) { create(:feed_subscription, :twitch, watch:) }
   let(:template) { nil }
+  let(:notification_template) { nil }
   let(:category_name) { "Hades II" }
   let(:viewer_count) { nil }
   let(:started_at) { Time.zone.parse("2026-11-01 09:00:00") }
@@ -20,38 +21,55 @@ RSpec.describe Feeds::Twitch::Announcement do
 
   before do
     subscription.settings.update!(live_role_id: role_id)
-    create(:feed_subscribed_event, subscription:, event_type: "Integrations::Twitch::StreamStarted", template:)
+    create(:feed_subscribed_event, subscription:, event_type: "Integrations::Twitch::StreamStarted", template:, notification_template:)
   end
 
   describe "#subject" do
     subject(:subject_line) { announcement.subject }
 
-    it "is the role and the headline" do
+    it "is the role and the default text" do
       expect(subject_line).to eq("<@&4242> shrkbot_dev is live: Hades II blind run, day 3")
     end
 
     context "with a custom message" do
       let(:template) { "{streamer} streamt {category}!" }
 
-      it "replaces the headline" do
+      it "does not change the subject" do
+        expect(subject_line).to eq("<@&4242> shrkbot_dev is live: Hades II blind run, day 3")
+      end
+    end
+
+    context "with a notification text" do
+      let(:notification_template) { "{streamer} streamt {category}!" }
+
+      it "is the role and the rendered text" do
         expect(subject_line).to eq("<@&4242> shrkbot_dev streamt Hades II!")
       end
     end
 
     context "when the event is a category switch" do
-      let(:template) { "{streamer} switched to {category}!" }
+      let(:notification_template) { "{streamer} switched to {category}!" }
       let(:event) { create(:twitch_stream_updated_event, watch:, category_name:, started_at: started_at.iso8601) }
 
-      it "uses the Live template and role" do
+      it "uses the Live notification text and role" do
         expect(subject_line).to eq("<@&4242> shrkbot_dev switched to Hades II!")
       end
     end
 
-    context "with the title in a custom message" do
-      let(:template) { "{title}" }
+    context "with only the title in the notification text" do
+      let(:notification_template) { "{title}" }
 
-      it "replaces the headline with the stream title" do
+      it "is the role and the stream title" do
         expect(subject_line).to eq("<@&4242> Hades II blind run, day 3")
+      end
+    end
+
+    context "with a notification text that renders blank" do
+      let(:category_name) { nil }
+      let(:notification_template) { "{category}" }
+
+      it "falls back to the default text" do
+        expect(subject_line).to eq("<@&4242> shrkbot_dev is live: Hades II blind run, day 3")
       end
     end
   end

@@ -9,32 +9,33 @@ RSpec.describe Feeds::Twitch::VideoAnnouncement do
   let(:watch) { create(:integration_watch, :twitch, image_url: profile_image) }
   let(:subscription) { create(:feed_subscription, :twitch, watch:) }
   let(:template) { nil }
+  let(:notification_template) { nil }
   let(:event_type) { "Integrations::Twitch::HighlightPublished" }
   let(:event) { create(:twitch_highlight_published_event, watch:) }
   let(:role_column) { :highlights_role_id }
 
   before do
     subscription.settings.update!(role_column => 4242)
-    create(:feed_subscribed_event, subscription:, event_type:, template:)
+    create(:feed_subscribed_event, subscription:, event_type:, template:, notification_template:)
   end
 
   describe "#subject" do
     subject(:subject_line) { announcement.subject }
 
-    it "is the role and the headline" do
+    it "is the role and the default text" do
       expect(subject_line).to eq("<@&4242> shrkbot_dev posted a highlight: Fragpunk early access, best rounds")
     end
 
-    context "with a custom message" do
-      let(:template) { "{streamer} has a new video: {title}" }
+    context "with a notification text" do
+      let(:notification_template) { "{streamer} has a new video: {title}" }
 
-      it "replaces the headline" do
+      it "replaces the default text" do
         expect(subject_line).to eq("<@&4242> shrkbot_dev has a new video: Fragpunk early access, best rounds")
       end
     end
 
     context "with tokens a video has no value for" do
-      let(:template) { "{streamer} [{category}] ({clipper})" }
+      let(:notification_template) { "{streamer} [{category}] ({clipper})" }
 
       it "leaves them empty instead of printing them" do
         expect(subject_line).to eq("<@&4242> shrkbot_dev [] ()")

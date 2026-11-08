@@ -48,6 +48,12 @@ class Components::Feeds::EventTypeSetting < Components::Base
           event_type: @event_type,
           event: @event
         )
+        render Components::Feeds::NotificationField.new(
+          subscription: @subscription,
+          plugin_key: @plugin_key,
+          event_type: @event_type,
+          event: @event
+        )
       end
     end
   end

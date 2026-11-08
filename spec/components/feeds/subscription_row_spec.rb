@@ -31,8 +31,8 @@ RSpec.describe Components::Feeds::SubscriptionRow do
     let(:watch) { create(:integration_watch) }
     let(:subscription) do
       build(:steam_feed_subscription, role_id: 7, watch:).tap do |built|
-        built.follow("Integrations::Steam::PatchNotesPublished", nil)
-        built.follow("Integrations::Steam::AnnouncementPublished", nil)
+        built.follow("Integrations::Steam::PatchNotesPublished")
+        built.follow("Integrations::Steam::AnnouncementPublished")
         built.save!
       end
     end
@@ -52,8 +52,8 @@ RSpec.describe Components::Feeds::SubscriptionRow do
 
     before do
       subscription.settings.update!(live_role_id: 1, highlights_role_id: 2)
-      subscription.follow("Integrations::Twitch::StreamStarted", nil)
-      subscription.follow("Integrations::Twitch::HighlightPublished", nil)
+      subscription.follow("Integrations::Twitch::StreamStarted")
+      subscription.follow("Integrations::Twitch::HighlightPublished")
       subscription.save!
     end
 
