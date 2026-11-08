@@ -56,10 +56,12 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   def ping_label
     role_id = roles.shared
-    return t(".pings", role: @role_names[role_id]) if @role_names[role_id]
-    return t(".role_missing") if role_id
+    role_id ? t(".pings", role: role_text(role_id)) : t(".no_ping")
+  end
 
-    t(".no_ping")
+  def role_text(role_id)
+    name = @role_names[role_id]
+    name ? t(".mention", role: name) : t(".role_missing")
   end
 
   def roles
@@ -84,13 +86,8 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   def badge_label(event_type)
     label = t("components.feeds.event_types.#{::Feeds.event_key(event_type)}.label")
-    return label if roles.shared?
-
-    role_id = roles.for(event_type)
-    return label unless role_id
-    return t(".badge_role", type: label, role: @role_names[role_id]) if @role_names[role_id]
-
-    t(".badge_role_missing", type: label, missing: t(".role_missing"))
+    role_id = roles.for(event_type) unless roles.shared?
+    role_id ? t(".badge_role", type: label, role: role_text(role_id)) : label
   end
 
   def source

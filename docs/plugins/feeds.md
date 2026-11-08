@@ -61,7 +61,8 @@ Routes live under each source's resource (`resource :steam`) as `resources
 :subscriptions` (`new`, `create`, `edit`, `update`, `destroy`). The abstract
 `Servers::Feeds::SubscriptionsController` holds the actions, and a source's subclass
 (`Servers::Steam::SubscriptionsController`) supplies its hooks: `plugin_key`,
-`lookup_param`, `settings_params`, `settings` and `role_ids`. The views are
+`lookup_param`, `settings_params` and `settings`. The base checks every `*role_id` key in
+`settings` against the server's roles, so a new role column needs no extra hook. The views are
 `Views::Servers::Feeds::Subscriptions::*`, keyed by plugin, and the form renders the
 source's own `Components::Feeds::<Source>::SubscriptionFields`, composed from the shared
 `DestinationCard` and `EventTypesCard` plus the source's cards. The followed list reads

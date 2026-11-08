@@ -26,6 +26,7 @@ RSpec.describe Feeds::SubscriptionRoles do
     before do
       subscription.settings.update!(role_id: 7)
       create(:feed_subscribed_event, subscription:, event_type: "Integrations::Steam::PatchNotesPublished")
+      create(:feed_subscribed_event, subscription:, event_type: "Integrations::Steam::AnnouncementPublished")
     end
 
     it "is shared" do

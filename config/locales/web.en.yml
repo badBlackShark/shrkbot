@@ -109,6 +109,10 @@ en:
           help: Press coverage and blogs that Steam lists for this game. For popular
             games this is most of the news.
           label: Articles
+        clip_created:
+          label: All clips
+        featured_clip_published:
+          label: Featured clips
         highlight_published:
           label: Highlights
         patch_notes_published:
@@ -116,6 +120,8 @@ en:
           label: Patch notes
         stream_started:
           label: Live
+        upload_published:
+          label: Uploads
       event_types_card:
         what_title: What to post
       steam:
@@ -322,10 +328,11 @@ en:
             them as announcements. To get every update, keep both "Patch notes" and
             "Announcements" on.
       stop_following_button:
-        confirm: This deletes your settings for this game.
         confirm_button: Stop following
         confirm_title: Stop following %{name}?
         label_with_name: Stop following %{name}
+        steam:
+          confirm: This deletes your settings for this game.
       subscription_list:
         steam:
           add: Add a game
@@ -333,12 +340,12 @@ en:
           heading: Followed games
         usage: "%{used} of %{max}"
       subscription_row:
-        badge_role: "%{type} · @%{role}"
-        badge_role_missing: "%{type} · %{missing}"
+        badge_role: "%{type} · %{role}"
         channel_missing: channel deleted
+        mention: "@%{role}"
         no_ping: no ping
-        pings: pings @%{role}
-        role_missing: pings a role that was deleted
+        pings: pings %{role}
+        role_missing: a role that was deleted
         steam:
           broken: Steam hasn't answered for this game since %{since} UTC. shrkbot
             keeps trying every hour, and posts what it missed from the last 48 hours

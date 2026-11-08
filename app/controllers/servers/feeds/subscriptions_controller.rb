@@ -7,6 +7,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   include VerifiesGuildRoles
 
   before_action :load_subscription, only: [:edit, :update, :destroy]
+  helper_method :plugin_key
 
   def new
     return redirect_to plugin_path, alert: ::Feeds::Subscription.cap_message(source) if ::Feeds::Subscription.at_cap?(@server_configuration, source)
@@ -142,6 +143,10 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   def event_types
     submitted = subscription_params[:event_types].to_h
     source.event_types.select { |event_type| submitted[event_type] == "1" }
+  end
+
+  def role_ids
+    settings.filter_map { |column, value| value if column.end_with?("role_id") }
   end
 
   def templates

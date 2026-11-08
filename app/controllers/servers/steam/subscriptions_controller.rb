@@ -22,8 +22,4 @@ class Servers::Steam::SubscriptionsController < Servers::Feeds::SubscriptionsCon
   def languages
     Array(subscription_params[:languages])
   end
-
-  def role_ids
-    [subscription_params[:role_id]]
-  end
 end

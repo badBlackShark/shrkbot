@@ -23,7 +23,7 @@ class Components::Feeds::StopFollowingButton < Components::Base
   def data
     {
       turbo_method: :delete,
-      turbo_confirm: t(".confirm"),
+      turbo_confirm: t(".#{@subscription.source.plugin_key}.confirm"),
       confirm_title: t(".confirm_title", name: @subscription.watch.name),
       confirm_button: t(".confirm_button")
     }

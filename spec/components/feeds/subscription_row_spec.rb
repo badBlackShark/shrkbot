@@ -81,7 +81,7 @@ RSpec.describe Components::Feeds::SubscriptionRow do
       let(:role_names) { {1 => "Streams"} }
 
       it "says so on that badge" do
-        expect(text).to include("Highlights · pings a role that was deleted")
+        expect(badges).to include("Highlights · a role that was deleted")
       end
     end
   end
