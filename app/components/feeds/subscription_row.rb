@@ -47,27 +47,23 @@ class Components::Feeds::SubscriptionRow < Components::Base
   def meta
     p(class: "mt-0.5 text-sm text-text-secondary") do
       channel
-      if shared_role?
+      if roles.shared?
         plain " - "
         plain ping_label
       end
     end
   end
 
-  def shared_role?
-    role_ids.values.uniq.size <= 1
-  end
-
   def ping_label
-    role_id = role_ids.values.first
+    role_id = roles.shared
     return t(".pings", role: @role_names[role_id]) if @role_names[role_id]
     return t(".role_missing") if role_id
 
     t(".no_ping")
   end
 
-  def role_ids
-    @role_ids ||= (event_types.presence || source.event_types).to_h { |type| [type, source.role_id_for(@subscription, type)] }
+  def roles
+    @roles ||= ::Feeds::SubscriptionRoles.new(@subscription)
   end
 
   def channel
@@ -88,9 +84,9 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   def badge_label(event_type)
     label = t("components.feeds.event_types.#{::Feeds.event_key(event_type)}.label")
-    return label if shared_role?
+    return label if roles.shared?
 
-    role_id = role_ids[event_type]
+    role_id = roles.for(event_type)
     return label unless role_id
     return t(".badge_role", type: label, role: @role_names[role_id]) if @role_names[role_id]
 
