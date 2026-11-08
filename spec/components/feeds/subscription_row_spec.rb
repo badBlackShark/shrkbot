@@ -64,5 +64,25 @@ RSpec.describe Components::Feeds::SubscriptionRow do
     it "drops the shared ping from the meta line" do
       expect(text).not_to include("pings")
     end
+
+    context "when one of them pings no role" do
+      let(:role_names) { {1 => "Streams"} }
+
+      before do
+        subscription.settings.update!(highlights_role_id: nil)
+      end
+
+      it "leaves that badge plain" do
+        expect(badges).to include("Live · @Streams", "Highlights")
+      end
+    end
+
+    context "when one of the roles was deleted" do
+      let(:role_names) { {1 => "Streams"} }
+
+      it "says so on that badge" do
+        expect(text).to include("Highlights · pings a role that was deleted")
+      end
+    end
   end
 end
