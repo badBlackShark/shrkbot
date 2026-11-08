@@ -52,15 +52,15 @@ module Feeds
     end
 
     def stored_templates
-      @stored_templates ||= subscription.subscribed_events.where(event_type: post_type).pick(:template, :notification_template)
+      @stored_templates ||= subscription.subscribed_events.where(event_type: post_type).pick(:template, :notification_template) || []
     end
 
     def template
-      stored_templates&.first.to_s
+      stored_templates.first.to_s
     end
 
     def stored_notification
-      stored_templates&.last
+      stored_templates.last
     end
 
     def notification
