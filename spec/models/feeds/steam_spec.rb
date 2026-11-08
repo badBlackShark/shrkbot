@@ -5,6 +5,20 @@ require "rails_helper"
 RSpec.describe Feeds::Steam do
   let(:subscription) { create(:feed_subscription) }
 
+  describe ".default_notification" do
+    it "has a default for every event type" do
+      described_class.event_types.each do |event_type|
+        expect(described_class.default_notification(event_type)).to be_present
+      end
+    end
+  end
+
+  describe ".notification_tokens" do
+    it "adds the title to the template tokens" do
+      expect(described_class.notification_tokens).to eq(%w[game author feed title])
+    end
+  end
+
   describe ".role_id_for" do
     subject(:role_id) { described_class.role_id_for(subscription, "Integrations::Steam::PatchNotesPublished") }
 

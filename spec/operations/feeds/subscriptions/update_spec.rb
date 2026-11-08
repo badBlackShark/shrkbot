@@ -9,6 +9,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
       channel_id: "999",
       event_types:,
       templates:,
+      notifications:,
       settings:
     )
   end
@@ -23,12 +24,20 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
       subscription:,
       event_type: "Integrations::Steam::PatchNotesPublished",
       subscribed_since: followed_since,
-      template: "custom {title}"
+      template: "custom {title}",
+      notification_template: "old {title}"
     )
   end
   let!(:articles) { create(:feed_subscribed_event, subscription:, event_type: "Integrations::Steam::ArticlePublished") }
   let(:event_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
   let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "new {title}", "Integrations::Steam::AnnouncementPublished" => "fresh {game}"} }
+
+  let(:notifications) do
+    {
+      "Integrations::Steam::PatchNotesPublished" => "new notification {title}",
+      "Integrations::Steam::AnnouncementPublished" => "{game} · Announcement: {title}"
+    }
+  end
 
   it "updates channel, role and post length" do
     result
@@ -64,6 +73,23 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
     result
 
     expect(subscription.subscribed_events.find_by!(event_type: "Integrations::Steam::AnnouncementPublished").template).to eq("fresh {game}")
+  end
+
+  it "stores the notification text of a kept type and nothing for a submitted default" do
+    result
+
+    expect(patch_notes.reload.notification_template).to eq("new notification {title}")
+    expect(subscription.subscribed_events.find_by!(event_type: "Integrations::Steam::AnnouncementPublished").notification_template).to be_nil
+  end
+
+  context "with a kept type's notification text reset to the default" do
+    let(:notifications) { {"Integrations::Steam::PatchNotesPublished" => "{game} · Patch notes: {title}"} }
+
+    it "clears the stored text" do
+      result
+
+      expect(patch_notes.reload.notification_template).to be_nil
+    end
   end
 
   context "with blank text" do
@@ -118,7 +144,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
 
   context "when the channel is blank" do
     subject(:result) do
-      described_class.call(subscription:, channel_id: "", event_types:, templates:, settings:)
+      described_class.call(subscription:, channel_id: "", event_types:, templates:, notifications:, settings:)
     end
 
     it "fails and keeps the stored events" do

@@ -29,6 +29,14 @@ RSpec.describe Feeds::Twitch do
     end
   end
 
+  describe ".default_notification" do
+    it "has a default for every event type" do
+      described_class.event_types.each do |event_type|
+        expect(described_class.default_notification(event_type)).to be_present
+      end
+    end
+  end
+
   describe ".default_event_types" do
     it "is Live and Highlights" do
       expect(described_class.default_event_types).to eq(
@@ -40,6 +48,12 @@ RSpec.describe Feeds::Twitch do
   describe ".template_tokens" do
     it "adds the title and the clipper" do
       expect(described_class.template_tokens).to eq(%w[streamer category title clipper])
+    end
+  end
+
+  describe ".notification_tokens" do
+    it "is the template tokens, which already include the title" do
+      expect(described_class.notification_tokens).to eq(described_class.template_tokens)
     end
   end
 

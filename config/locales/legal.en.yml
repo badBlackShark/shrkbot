@@ -60,10 +60,10 @@ en:
       data_h: What personal data we store and why
       data_integrations: 'Steam news: shrkbot keeps the posts it fetches from Steam,
         including each author name as published and the post text, so it can announce
-        them. It also keeps any custom message text a server writes for a followed
-        game. The Steam pages on the website load each game''s header image straight
-        from Steam''s servers, so Steam sees the IP address of the browser that opens
-        the page.'
+        them. It also keeps any text a server writes for a followed game, such as
+        a custom message. The Steam pages on the website load each game''s header
+        image straight from Steam''s servers, so Steam sees the IP address of the
+        browser that opens the page.'
       data_lead: 'Each feature stores only the personal data it needs:'
       data_lfg: 'Looking for Game: who joins a post lives entirely in the Discord
         message, under Discord''s retention — we never store joiners or post content.
@@ -169,8 +169,7 @@ en:
         (at most 60 days, 30 days and 7 days, respectively). Deleted data also drops
         out of database backups as they rotate.
       retention_integrations: 'Steam news: fetched posts are deleted 14 days after
-        they are fetched. A server''s custom message text is deleted with the rest
-        of its configuration.'
+        they are fetched. Text a server writes is deleted with the rest of its configuration.'
       retention_lfg: 'Looking for Game: cooldowns live in memory only and vanish on
         restart. The posts themselves are ordinary Discord messages, kept by Discord
         until they expire or are deleted.'
@@ -209,7 +208,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: October 28th, 2026'
+      updated: 'Last updated: November 8th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

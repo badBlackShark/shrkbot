@@ -8,19 +8,11 @@ module Feeds
         "Integrations::Twitch::HighlightPublished" => "New highlight on Twitch",
         "Integrations::Twitch::UploadPublished" => "New upload on Twitch"
       }.freeze
-      VERBS = {
-        "Integrations::Twitch::HighlightPublished" => "posted a highlight",
-        "Integrations::Twitch::UploadPublished" => "uploaded a video"
-      }.freeze
 
       private
 
       def tokens
         {streamer: event.display_name, title: event.title}
-      end
-
-      def headline
-        "#{event.display_name} #{VERBS.fetch(event.type)}: #{event.title}"
       end
 
       def details

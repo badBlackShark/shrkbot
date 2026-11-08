@@ -32,4 +32,26 @@ RSpec.describe Feeds::Templates do
       it { is_expected.to eq(text) }
     end
   end
+
+  describe ".notification" do
+    subject(:notification) { described_class.notification(text, "{game}: {title}") }
+
+    context "with text of its own" do
+      let(:text) { "  Out now: {title}  " }
+
+      it { is_expected.to eq("Out now: {title}") }
+    end
+
+    context "with the default, surrounded by whitespace" do
+      let(:text) { "  {game}: {title}\n" }
+
+      it { is_expected.to be_nil }
+    end
+
+    context "with blank text" do
+      let(:text) { " " }
+
+      it { is_expected.to be_nil }
+    end
+  end
 end

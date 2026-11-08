@@ -35,12 +35,13 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
       channel_id: subscription_params[:channel_id],
       settings:,
       event_types:,
-      templates:
+      templates:,
+      notifications:
     )
     return redirect_to plugin_path, notice: t("servers.#{plugin_key}.followed", name: lookup.target.name) if result.success?
 
     render_new(
-      subscription: result.value || build_subscription(lookup.target, event_types, channel_id: subscription_params[:channel_id], settings:, templates:),
+      subscription: result.value || build_subscription(lookup.target, event_types, channel_id: subscription_params[:channel_id], settings:, templates:, notifications:),
       target: lookup.target,
       error: result.errors.to_sentence,
       status: :unprocessable_content
@@ -64,7 +65,8 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
       channel_id: subscription_params[:channel_id],
       settings:,
       event_types:,
-      templates:
+      templates:,
+      notifications:
     )
     @error = result.errors.to_sentence if result.failure?
     respond_with_save(result)
@@ -98,10 +100,10 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     source_subscriptions.find_by(integration_watches: {external_id: target.external_id})
   end
 
-  def build_subscription(target, event_types, channel_id: nil, settings: {}, templates: {})
+  def build_subscription(target, event_types, channel_id: nil, settings: {}, templates: {}, notifications: {})
     @server_configuration.feed_subscriptions.build(watch: unsaved_watch(target), channel_id:).tap do |subscription|
       subscription.build_settings(settings)
-      event_types.each { |event_type| subscription.follow(event_type, templates[event_type]) }
+      event_types.each { |event_type| subscription.follow(event_type, templates[event_type], notifications[event_type]) }
     end
   end
 
@@ -153,7 +155,11 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     subscription_params[:templates].to_h
   end
 
+  def notifications
+    subscription_params[:notifications].to_h
+  end
+
   def subscription_params
-    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, *settings_params, {event_types: {}, templates: {}}])
+    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, *settings_params, {event_types: {}, templates: {}, notifications: {}}])
   end
 end

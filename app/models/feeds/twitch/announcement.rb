@@ -34,10 +34,6 @@ module Feeds
         {streamer: event.display_name, category: event.category_name, title: event.title}
       end
 
-      def headline
-        "#{event.display_name} is live: #{event.title}"
-      end
-
       def blocks
         [*header, image, footer].compact
       end

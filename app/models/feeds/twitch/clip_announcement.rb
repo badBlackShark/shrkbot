@@ -8,10 +8,6 @@ module Feeds
         "Integrations::Twitch::FeaturedClipPublished" => "Featured clip on Twitch",
         "Integrations::Twitch::ClipCreated" => "New clip on Twitch"
       }.freeze
-      HEADLINES = {
-        "Integrations::Twitch::FeaturedClipPublished" => "New featured clip from",
-        "Integrations::Twitch::ClipCreated" => "New clip from"
-      }.freeze
 
       def initialize(event:, subscription:, category: nil)
         super(event:, subscription:)
@@ -24,10 +20,6 @@ module Feeds
 
       def tokens
         {streamer: event.display_name, category: category&.name.to_s, title: event.title, clipper: event.creator_name}
-      end
-
-      def headline
-        "#{HEADLINES.fetch(event.type)} #{event.display_name}: #{event.title}"
       end
 
       def details

@@ -11,11 +11,12 @@ RSpec.describe Feeds::Steam::Announcement do
   let(:body_length) { "preview" }
   let(:subscription) { create(:steam_feed_subscription, watch:, role_id:, body_length:) }
   let(:template) { nil }
+  let(:notification_template) { nil }
   let(:event) { create(:steam_news_event, watch:, title: "Smissmas 2026", body: "Snow is falling.", image_urls: []) }
   let(:event_type) { event.type }
 
   before do
-    create(:feed_subscribed_event, subscription:, event_type:, template:)
+    create(:feed_subscribed_event, subscription:, event_type:, template:, notification_template:)
   end
 
   describe ".eyebrow" do
@@ -29,8 +30,8 @@ RSpec.describe Feeds::Steam::Announcement do
   describe "#subject" do
     subject(:subject_line) { announcement.subject }
 
-    context "without a custom message" do
-      it "is the role and the headline" do
+    context "without a notification text" do
+      it "is the role and the default text" do
         expect(subject_line).to eq("<@&4242> Team Fortress 2 · Patch notes: Smissmas 2026")
       end
 
@@ -54,23 +55,33 @@ RSpec.describe Feeds::Steam::Announcement do
     context "with a custom message" do
       let(:template) { "Patch day for {game}!" }
 
-      it "is the role and the rendered text" do
-        expect(subject_line).to eq("<@&4242> Patch day for Team Fortress 2!")
+      it "does not change the subject" do
+        expect(subject_line).to eq("<@&4242> Team Fortress 2 · Patch notes: Smissmas 2026")
       end
     end
 
-    context "with a stored template that still has the removed title token" do
-      let(:template) { "{title}" }
+    context "with a notification text" do
+      let(:notification_template) { "{game} patched: {title} by {author}" }
+      let(:event) { create(:steam_news_event, watch:, title: "Smissmas 2026", author: "Valve", image_urls: []) }
 
-      it "leaves it literal" do
-        expect(subject_line).to eq("<@&4242> {title}")
+      it "is the role and the rendered text, title included" do
+        expect(subject_line).to eq("<@&4242> Team Fortress 2 patched: Smissmas 2026 by Valve")
+      end
+    end
+
+    context "with a notification text that renders blank" do
+      let(:notification_template) { "{author}" }
+      let(:event) { create(:steam_news_event, watch:, title: "Smissmas 2026", author: nil, image_urls: []) }
+
+      it "falls back to the default text" do
+        expect(subject_line).to eq("<@&4242> Team Fortress 2 · Patch notes: Smissmas 2026")
       end
     end
 
     context "without a role" do
       let(:role_id) { nil }
 
-      it "starts with the headline, without a leading space" do
+      it "starts with the text, without a leading space" do
         expect(subject_line).to eq("Team Fortress 2 · Patch notes: Smissmas 2026")
       end
     end
@@ -153,6 +164,14 @@ RSpec.describe Feeds::Steam::Announcement do
         it "is the lead line alone" do
           expect(lead).to eq(Bot::Discord::Components.text("Patch day for Team Fortress 2!"))
         end
+      end
+    end
+
+    context "with a stored template that still has the removed title token" do
+      let(:template) { "{title}" }
+
+      it "leaves it literal in the lead line" do
+        expect(lead).to eq(Bot::Discord::Components.text("<@&4242> {title}"))
       end
     end
 

@@ -7,6 +7,13 @@ module Feeds
       "Integrations::Twitch::StreamSampled" => "Integrations::Twitch::StreamStarted",
       "Integrations::Twitch::StreamEnded" => "Integrations::Twitch::StreamStarted"
     }.freeze
+    NOTIFICATIONS = {
+      "Integrations::Twitch::StreamStarted" => "{streamer} is live: {title}",
+      "Integrations::Twitch::HighlightPublished" => "{streamer} posted a highlight: {title}",
+      "Integrations::Twitch::UploadPublished" => "{streamer} uploaded a video: {title}",
+      "Integrations::Twitch::FeaturedClipPublished" => "New featured clip from {streamer}: {title}",
+      "Integrations::Twitch::ClipCreated" => "New clip from {streamer}: {title}"
+    }.freeze
 
     def self.plugin_key
       :twitch
@@ -40,6 +47,14 @@ module Feeds
 
     def self.template_tokens
       %w[streamer category title clipper]
+    end
+
+    def self.notification_tokens
+      template_tokens
+    end
+
+    def self.default_notification(event_type)
+      NOTIFICATIONS[event_type]
     end
 
     def self.settings_association

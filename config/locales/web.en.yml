@@ -71,30 +71,7 @@ en:
       custom_message_field:
         label: Message (optional)
         placeholder: Shown above the card. Leave it empty to post the card alone.
-        placeholders:
-          author: Who wrote the post. Empty when Steam doesn't say.
-          feed: Where the post comes from, such as Community Announcements or a news
-            site.
-          game: The game's name on Steam.
         preview: Preview
-        samples:
-          announcement_published:
-            author: ''
-            body: Here's what we're working on next.
-            feed: Community Announcements
-            title: Our plans for this year
-          article_published:
-            author: Jane Doe
-            body: A first look at the full release.
-            feed: PC Gamer
-            title: Our review of the 1.0 release
-          patch_notes_published:
-            author: ''
-            body: |-
-              Fixed controller vibration on Steam Deck.
-              Rebalanced the second boss.
-            feed: Community Announcements
-            title: 'Patch 1.4: Controller fixes'
       destination_card:
         channel_label: Channel (required)
         channel_placeholder: Choose a channel
@@ -124,6 +101,16 @@ en:
           label: Uploads
       event_types_card:
         what_title: What to post
+      notification_field:
+        help: Only push notifications show this. Leave it empty for the default.
+        label: Notification text
+        preview: Push notification
+      placeholders:
+        author: Who wrote the post. Empty when Steam doesn't say.
+        feed: Where the post comes from, such as Community Announcements or a news
+          site.
+        game: The game's name on Steam.
+        title: The post's title.
       steam:
         language_card:
           help: Leave empty to post every language. shrkbot can't tell the language
@@ -322,6 +309,24 @@ en:
         role_field:
           role_label: Role to ping (optional)
           role_placeholder: No ping
+        samples:
+          announcement_published:
+            author: ''
+            body: Here's what we're working on next.
+            feed: Community Announcements
+            title: Our plans for this year
+          article_published:
+            author: Jane Doe
+            body: A first look at the full release.
+            feed: PC Gamer
+            title: Our review of the 1.0 release
+          patch_notes_published:
+            author: ''
+            body: |-
+              Fixed controller vibration on Steam Deck.
+              Rebalanced the second boss.
+            feed: Community Announcements
+            title: 'Patch 1.4: Controller fixes'
         subscription_fields:
           volume_loading: Checking recent posts…
           what_note: Some developers don't tag their patch notes, so shrkbot posts

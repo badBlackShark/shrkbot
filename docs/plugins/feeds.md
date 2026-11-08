@@ -34,7 +34,8 @@ source module (see Sources) and its own page.
 ## Sources
 
 A source is a module under `Feeds::` (`Feeds::Steam`) that answers `plugin_key`,
-`watchers`, `event_types` (in UI order), `default_event_types` and `template_tokens`,
+`watchers`, `event_types` (in UI order), `default_event_types`, `template_tokens`, `notification_tokens` and
+`default_notification(event_type)`,
 plus the settings contract: `settings_association` (the `Subscription` association that
 holds its provider settings, which the list finder preloads),
 `role_id_for(subscription, event_type)`, `accepts?(subscription, event)`,
@@ -396,18 +397,21 @@ still wins when its primary copy is filtered out.
 
 `Feeds::Announcement` is the shared base: subject, fallback, lead line, mentions and the
 card frame with the source's accent colour and link button. `Feeds::Steam::Announcement`
-and `Feeds::Twitch::Announcement` fill in tokens, headline, blocks, url and link label.
+and `Feeds::Twitch::Announcement` fill in tokens, blocks, url and link label.
 The rest of this section describes the Steam renderer, which builds both messages.
 
 The **subject** is the plain first message, so it is also the push-notification text.
-It is the role mention plus the subscription's custom message, or, when there is no
-custom message, the headline `<game> · <type>: <title>`, stripped and cut to 2000
-characters. The custom message is optional and empty by default. It is the subscribed
-event's `template` filled by `TemplateText`, with the tokens `game`, `author` and
-`feed`. A stored template that still has `{title}` or `{url}` from before those tokens
+It is the role mention plus the notification text, stripped and cut to 2000 characters.
+The notification text is a separate per-type template, the subscribed event's
+`notification_template`, used only here. `NULL` means the source's
+`default_notification` (for Steam `<game> · <type>: <title>`), and a submitted default is
+stored as `NULL` so later changes to the default reach it. A text that renders blank
+falls back to the default. The custom message is optional and empty by default. It is
+the subscribed event's `template` filled by `TemplateText`, with the tokens `game`,
+`author` and `feed`. It never touches the subject. A stored template that still has `{title}` or `{url}` from before those tokens
 were removed renders them literally.
 
-The type in the eyebrow and headline comes from `Feeds::Steam::Announcement::TYPE_LABELS`
+The type in the eyebrow comes from `Feeds::Steam::Announcement::TYPE_LABELS`
 (`Patch notes`, `Announcement`). Articles fall back to their feed label, such as
 `Team Fortress 2 · Rock Paper Shotgun`.
 
