@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
-class Views::Servers::Steam::Subscriptions::Lookup < Views::Base
+class Views::Servers::Feeds::Subscriptions::Lookup < Views::Base
   include Phlex::Rails::Helpers::FormWith
 
   FIELD = "w-full rounded-control border-[1.5px] border-border-strong bg-surface-card px-3 py-2 font-mono text-sm " \
     "text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
     "focus:ring-3 focus:ring-[var(--focus-ring)] aria-invalid:border-danger"
-  ERROR_ID = "steam-lookup-error"
+  ERROR_ID = "feed-lookup-error"
 
-  def initialize(server_configuration:, user:, input: nil, error: nil, existing: nil)
+  def initialize(plugin_key:, lookup_param:, server_configuration:, user:, input: nil, error: nil, existing: nil)
+    @plugin_key = plugin_key
+    @lookup_param = lookup_param
     @config = server_configuration
     @user = user
     @input = input
@@ -17,9 +19,9 @@ class Views::Servers::Steam::Subscriptions::Lookup < Views::Base
   end
 
   def view_template
-    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :steam) do
-      render Components::Feeds::AddPage.new(server_configuration: @config, plugin_key: :steam) do
-        render Components::PageHeading.new(title: t(".title"))
+    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: @plugin_key) do
+      render Components::Feeds::AddPage.new(server_configuration: @config, plugin_key: @plugin_key) do
+        render Components::PageHeading.new(title: t(".#{@plugin_key}.title"))
         render Components::Card.new { lookup_form }
       end
     end
@@ -28,11 +30,11 @@ class Views::Servers::Steam::Subscriptions::Lookup < Views::Base
   private
 
   def lookup_form
-    form_with(url: new_server_steam_subscription_path(@config.discord_id), method: :get, class: "flex flex-col gap-3") do
-      render Components::FieldLabel.new { t(".label") }
+    form_with(url: ::Feeds::SubscriptionPaths.new_for(@config, @plugin_key), method: :get, class: "flex flex-col gap-3") do
+      render Components::FieldLabel.new { t(".#{@plugin_key}.label") }
       input(
         type: "text",
-        name: "app",
+        name: @lookup_param,
         value: @input,
         class: FIELD,
         autofocus: true,
@@ -53,7 +55,7 @@ class Views::Servers::Steam::Subscriptions::Lookup < Views::Base
     if @existing
       existing_message
     elsif @error
-      p(id: ERROR_ID, class: "text-sm text-danger") { t(".errors.#{@error}") }
+      p(id: ERROR_ID, class: "text-sm text-danger") { t(".#{@plugin_key}.errors.#{@error}") }
     end
   end
 
@@ -61,7 +63,7 @@ class Views::Servers::Steam::Subscriptions::Lookup < Views::Base
     p(id: ERROR_ID, class: "text-sm text-text-secondary") do
       plain t("operations.feeds.subscriptions.already_followed", name: @existing.watch.name)
       plain " "
-      a(href: edit_server_steam_subscription_path(@config.discord_id, @existing), class: "text-accent-soft-fg underline") { t(".edit_existing") }
+      a(href: ::Feeds::SubscriptionPaths.edit_for(@existing), class: "text-accent-soft-fg underline") { t(".edit_existing") }
     end
   end
 end

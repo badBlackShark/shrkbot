@@ -57,8 +57,17 @@ share code. `spec/models/feeds_spec.rb` enforces the contract.
 
 ## Config UI
 
-Routes live under `resource :steam` as `resources :subscriptions` (`new`, `create`,
-`edit`, `update`, `destroy`), served by `Servers::Steam::SubscriptionsController`. Real
+Routes live under each source's resource (`resource :steam`) as `resources
+:subscriptions` (`new`, `create`, `edit`, `update`, `destroy`). The abstract
+`Servers::Feeds::SubscriptionsController` holds the actions, and a source's subclass
+(`Servers::Steam::SubscriptionsController`) supplies its hooks: `plugin_key`,
+`lookup_param`, `settings_params` and `settings`. The base checks every `*role_id` key in
+`settings` against the server's roles, so a new role column needs no extra hook. The views are
+`Views::Servers::Feeds::Subscriptions::*`, keyed by plugin, and the form renders the
+source's own `Components::Feeds::<Source>::SubscriptionFields`, composed from the shared
+`DestinationCard` and `EventTypesCard` plus the source's cards. The followed list reads
+roles through `Feeds::SubscriptionRoles` (`source.role_id_for`): one shared role shows as
+"pings @Role", roles that differ by type show on each badge. Real
 servers only: the preview list renders no Add, Edit or Stop following controls, and there
 are no preview routes for these pages.
 

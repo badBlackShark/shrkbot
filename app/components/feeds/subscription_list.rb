@@ -55,7 +55,7 @@ class Components::Feeds::SubscriptionList < Components::Base
       subscription:,
       plugin_key: @plugin_key,
       channel_label: channel_labels[subscription.channel_id],
-      role_name: role_names[subscription.settings.role_id],
+      role_names:,
       edit_href: (::Feeds::SubscriptionPaths.edit_for(subscription) unless @config.preview?)
     )
   end
