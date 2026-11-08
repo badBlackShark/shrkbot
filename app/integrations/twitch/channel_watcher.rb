@@ -3,8 +3,6 @@
 module Integrations
   module Twitch
     class ChannelWatcher
-      PREVIEW_URL = "https://static-cdn.jtvnw.net/previews-ttv/live_user_%<login>s-1280x720.jpg"
-
       def self.resolve(input, users: Users.new)
         target(users.find_by_login(ChannelReference.parse(input)))
       end
@@ -19,24 +17,6 @@ module Integrations
 
       def self.live_checked
         followed_for_live.or(Watch.where(watcher: name).where("state ? 'session'"))
-      end
-
-      def self.preview_url(login)
-        url = format(PREVIEW_URL, login:)
-        # Until a stream's first frame exists, Twitch redirects this URL to its grey 404_preview image.
-        Http.head(url, status_errors: {302 => NotFound})
-        url
-      rescue NotFound
-        nil
-      end
-
-      def self.box_art_url(category_id, games: Games.new)
-        games.find(category_id)&.box_art_url
-      end
-
-      def self.vod_url(user_id, stream_ids, videos: Videos.new)
-        by_stream = videos.for_user(user_id, type: "archive", first: 20).index_by(&:stream_id)
-        stream_ids.filter_map { |id| by_stream[id] }.first&.url
       end
 
       def self.target(user)
