@@ -5,11 +5,11 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   TITLE = "font-display font-semibold"
 
-  def initialize(subscription:, plugin_key:, channel_label:, role_name:, edit_href: nil)
+  def initialize(subscription:, plugin_key:, channel_label:, role_names:, edit_href: nil)
     @subscription = subscription
     @plugin_key = plugin_key
     @channel_label = channel_label
-    @role_name = role_name
+    @role_names = role_names
     @edit_href = edit_href
   end
 
@@ -47,16 +47,27 @@ class Components::Feeds::SubscriptionRow < Components::Base
   def meta
     p(class: "mt-0.5 text-sm text-text-secondary") do
       channel
-      plain " - "
-      plain ping_label
+      if shared_role?
+        plain " - "
+        plain ping_label
+      end
     end
   end
 
+  def shared_role?
+    role_ids.values.uniq.size <= 1
+  end
+
   def ping_label
-    return t(".pings", role: @role_name) if @role_name
-    return t(".role_missing") if @subscription.settings.role_id
+    role_id = role_ids.values.first
+    return t(".pings", role: @role_names[role_id]) if @role_names[role_id]
+    return t(".role_missing") if role_id
 
     t(".no_ping")
+  end
+
+  def role_ids
+    @role_ids ||= (event_types.presence || source.event_types).to_h { |type| [type, source.role_id_for(@subscription, type)] }
   end
 
   def channel
@@ -70,13 +81,28 @@ class Components::Feeds::SubscriptionRow < Components::Base
   def event_badges
     div(class: "mt-3 flex flex-wrap gap-1.5") do
       event_types.each do |event_type|
-        render Components::Badge.new(variant: :brand) { t("components.feeds.event_types.#{::Feeds.event_key(event_type)}.label") }
+        render Components::Badge.new(variant: :brand) { badge_label(event_type) }
       end
     end
   end
 
+  def badge_label(event_type)
+    label = t("components.feeds.event_types.#{::Feeds.event_key(event_type)}.label")
+    return label if shared_role?
+
+    role_id = role_ids[event_type]
+    return label unless role_id
+    return t(".badge_role", type: label, role: @role_names[role_id]) if @role_names[role_id]
+
+    t(".badge_role_missing", type: label, missing: t(".role_missing"))
+  end
+
+  def source
+    ::Feeds.source(@plugin_key)
+  end
+
   def event_types
-    order = ::Feeds.source(@plugin_key).event_types
+    order = source.event_types
     @subscription.subscribed_events.map(&:event_type).sort_by { |event_type| order.index(event_type) }
   end
 

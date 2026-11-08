@@ -1,23 +1,24 @@
 # frozen_string_literal: true
 
-class Views::Servers::Steam::Subscriptions::Edit < Views::Base
+class Views::Servers::Feeds::Subscriptions::Edit < Views::Base
   include Components::PluginNav
 
-  def initialize(server_configuration:, user:, subscription:)
+  def initialize(plugin_key:, server_configuration:, user:, subscription:)
+    @plugin_key = plugin_key
     @config = server_configuration
     @user = user
     @subscription = subscription
   end
 
   def view_template
-    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: :steam) do
+    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: @plugin_key) do
       render Components::ConfigPage.new(
         header:,
         server_configuration: @config,
         url: ::Feeds::SubscriptionPaths.for(@subscription),
-        parent_crumb: {label: PluginCatalog.find(:steam).name, href: server_steam_path(@config.discord_id)}
+        parent_crumb: {label: PluginCatalog.find(@plugin_key).name, href: PluginPaths.for(@config, @plugin_key)}
       ) do
-        render Components::Feeds::SubscriptionForm.new(subscription: @subscription, plugin_key: :steam)
+        render Components::Feeds::SubscriptionForm.new(subscription: @subscription, plugin_key: @plugin_key)
       end
     end
   end
@@ -26,9 +27,9 @@ class Views::Servers::Steam::Subscriptions::Edit < Views::Base
 
   def header
     Components::ConfigPageHeader.new(
-      icon: plugin_icon(:steam),
+      icon: plugin_icon(@plugin_key),
       title: @subscription.watch.name,
-      description: t("components.feeds.target_card.steam.external_id", id: @subscription.watch.external_id),
+      description: t("components.feeds.target_card.#{@plugin_key}.external_id", id: @subscription.watch.external_id),
       media:
     )
   end

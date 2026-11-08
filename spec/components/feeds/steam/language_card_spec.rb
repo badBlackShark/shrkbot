@@ -2,10 +2,10 @@
 
 require "rails_helper"
 
-RSpec.describe Components::Feeds::LanguageCard do
+RSpec.describe Components::Feeds::Steam::LanguageCard do
   include_context "component view context"
 
-  subject(:document) { Nokogiri::HTML.fragment(described_class.new(subscription:, plugin_key: :steam).render_in(view_context)) }
+  subject(:document) { Nokogiri::HTML.fragment(described_class.new(subscription:).render_in(view_context)) }
 
   let(:subscription) { build(:steam_feed_subscription, languages: %w[de ru]) }
 

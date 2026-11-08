@@ -1,15 +1,14 @@
 # frozen_string_literal: true
 
-class Components::Feeds::LanguageCard < Components::Base
-  def initialize(subscription:, plugin_key:)
+class Components::Feeds::Steam::LanguageCard < Components::Base
+  def initialize(subscription:)
     @subscription = subscription
-    @plugin_key = plugin_key
   end
 
   def view_template
     render Components::Card.new(class: "flex flex-col gap-4") do
       h2(class: "font-semibold") { t(".title") }
-      render Components::Callout.new(variant: :warning) { t(".#{@plugin_key}.note") }
+      render Components::Callout.new(variant: :warning) { t(".note") }
       div do
         render Components::FieldLabel.new { t(".label") }
         input(type: "hidden", name: "subscription[languages][]", value: "")

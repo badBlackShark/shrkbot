@@ -9,7 +9,7 @@ class Components::Feeds::SubscriptionForm < Components::Base
 
   def view_template
     render Components::ConfigSections.new(key: @plugin_key.to_s, enable_error: @error) do
-      render Components::Feeds::SubscriptionFields.new(subscription: @subscription, plugin_key: @plugin_key)
+      render "Components::Feeds::#{@plugin_key.to_s.camelize}::SubscriptionFields".constantize.new(subscription: @subscription)
       stop_following_button if @subscription.persisted?
     end
   end
