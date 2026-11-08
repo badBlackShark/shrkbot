@@ -10,7 +10,7 @@ class Components::Feeds::DestinationCard < Components::Base
       h2(class: "mb-3 font-semibold") { t(".where_title") }
       div(class: "flex flex-wrap gap-4") do
         div(class: "flex-1 basis-64") { channel_field }
-        yield
+        yield if block_given?
       end
     end
   end

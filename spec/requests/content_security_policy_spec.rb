@@ -30,6 +30,10 @@ RSpec.describe "Content Security Policy", type: :request do
     expect(header).to include("https://shared.akamai.steamstatic.com https://shared.fastly.steamstatic.com")
   end
 
+  it "allows Twitch's image host for channel profile pictures" do
+    expect(header).to include("https://static-cdn.jtvnw.net")
+  end
+
   it "stamps the inline theme script and the importmap with the header's nonce" do
     nonce = header[/script-src 'self' 'nonce-([^']+)'/, 1]
 

@@ -17,7 +17,7 @@ class Components::SegmentedControl < Components::Base
       class: "flex gap-2",
       data: {controller: "segmented", segmented_active_class: ACTIVE, segmented_inactive_class: INACTIVE}
     ) do
-      input(type: "hidden", name: @name, value: @value, data: {segmented_target: "input", **@input_data})
+      input(type: "hidden", name: @name, value: @value, autocomplete: "off", data: {segmented_target: "input", **@input_data})
       @options.each { |opt| option_button(opt) }
     end
   end

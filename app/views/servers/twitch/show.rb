@@ -8,6 +8,6 @@ class Views::Servers::Twitch::Show < Views::Servers::SubPluginShow
   end
 
   def body
-    render Components::Feeds::TwitchChannelList.new
+    render Components::Feeds::SubscriptionList.new(server_configuration: @config, plugin_key:)
   end
 end

@@ -49,6 +49,7 @@ class Views::PrivacyPolicy < Views::Base
       t(".data_lfg"),
       t(".data_twilight_struggle"),
       t(".data_integrations"),
+      t(".data_twitch"),
       t(".data_operational")
     )
   end
@@ -87,6 +88,7 @@ class Views::PrivacyPolicy < Views::Base
       t(".retention_lfg"),
       t(".retention_twilight_struggle"),
       t(".retention_integrations"),
+      t(".retention_twitch"),
       t(".retention_phash"),
       t(".retention_account"),
       t(".retention_infra")
