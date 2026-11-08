@@ -92,7 +92,7 @@ RSpec.describe Integrations::Twitch::ChannelWatcher do
     let(:clip_list) { [Integrations::Twitch::Clip.new(**blank_clip, id: "ClipOne-abc", broadcaster_name: "TwitchDev", creator_name: "Annonsu", title: "Ghost form", url: "https://www.twitch.tv/twitchdev/clip/ClipOne-abc", created_at: clip_created_at, thumbnail_url: "https://example.test/c.jpg", duration: 60, category_id: "18122")] }
 
     def video(id, type, thumbnail_url: thumbnail)
-      Integrations::Twitch::Video.new(**blank_video, id:, type:, thumbnail_url:, user_login: "twitchdev", user_name: "TwitchDev", title: "Best rounds #{id}", url: "https://www.twitch.tv/videos/#{id}", published_at:, duration: 9360)
+      Integrations::Twitch::Video.new(**blank_video, id:, type:, thumbnail_url:, user_name: "TwitchDev", title: "Best rounds #{id}", url: "https://www.twitch.tv/videos/#{id}", published_at:, duration: 9360)
     end
 
     before do
@@ -118,7 +118,6 @@ RSpec.describe Integrations::Twitch::ChannelWatcher do
               story_key: "video:1",
               occurred_at: published_at,
               video_id: "1",
-              login: "twitchdev",
               display_name: "TwitchDev",
               title: "Best rounds 1",
               url: "https://www.twitch.tv/videos/1",
@@ -170,7 +169,7 @@ RSpec.describe Integrations::Twitch::ChannelWatcher do
       it "fetches from ten minutes before the last poll, without a featured filter" do
         observe
 
-        expect(clips).to have_received(:for_broadcaster).with("141981764", started_at: polled_at - 10.minutes, featured: nil)
+        expect(clips).to have_received(:for_broadcaster).with("141981764", started_at: polled_at - 1.hour, featured: nil)
         expect(videos).not_to have_received(:for_user)
       end
 
@@ -181,7 +180,7 @@ RSpec.describe Integrations::Twitch::ChannelWatcher do
         it "fetches from before the first failure, so clips made between the last good poll and the failure are not skipped" do
           observe
 
-          expect(clips).to have_received(:for_broadcaster).with("141981764", started_at: failing_since - 10.minutes, featured: nil)
+          expect(clips).to have_received(:for_broadcaster).with("141981764", started_at: failing_since - 1.hour, featured: nil)
         end
       end
 

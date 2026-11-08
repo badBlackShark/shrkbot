@@ -56,7 +56,6 @@ FactoryBot.define do
     subject_key { "video:#{video_id}" }
     story_key { "video:#{video_id}" }
     occurred_at { Time.current }
-    login { "shrkbot_dev" }
     display_name { "shrkbot_dev" }
     title { "Fragpunk early access, best rounds" }
     url { "https://www.twitch.tv/videos/#{video_id}" }

@@ -4,7 +4,7 @@ module Integrations
   module Twitch
     class ChannelWatcher
       VIDEO_EVENTS = {"highlight" => HighlightPublished, "upload" => UploadPublished}.freeze
-      CLIP_OVERLAP = 10.minutes
+      CLIP_OVERLAP = 1.hour
       RECENT_VIDEOS = 20
 
       def self.resolve(input, users: Users.new)
@@ -73,7 +73,6 @@ module Integrations
           story_key: "video:#{video.id}",
           occurred_at: video.published_at,
           video_id: video.id,
-          login: video.user_login,
           display_name: video.user_name,
           title: video.title,
           url: video.url,

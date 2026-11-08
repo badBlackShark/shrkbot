@@ -64,7 +64,11 @@ module Feeds
     end
 
     def custom_text
-      @custom_text ||= Templates.strip(TemplateText.render(template, tokens))
+      @custom_text ||= Templates.strip(TemplateText.render(template, blank_tokens.merge(tokens)))
+    end
+
+    def blank_tokens
+      subscription.source.template_tokens.to_h { |name| [name.to_sym, ""] }
     end
 
     def lead

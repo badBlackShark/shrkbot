@@ -33,6 +33,14 @@ RSpec.describe Feeds::Twitch::VideoAnnouncement do
       end
     end
 
+    context "with tokens a video has no value for" do
+      let(:template) { "{streamer} [{category}] ({clipper})" }
+
+      it "leaves them empty instead of printing them" do
+        expect(subject_line).to eq("<@&4242> shrkbot_dev [] ()")
+      end
+    end
+
     context "with an upload" do
       let(:event_type) { "Integrations::Twitch::UploadPublished" }
       let(:event) { create(:twitch_upload_published_event, watch:) }

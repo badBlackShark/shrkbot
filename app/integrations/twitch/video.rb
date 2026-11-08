@@ -6,7 +6,6 @@ module Integrations
       :id,
       :stream_id,
       :user_id,
-      :user_login,
       :user_name,
       :title,
       :description,

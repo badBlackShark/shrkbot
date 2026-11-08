@@ -259,8 +259,10 @@ nothing wanted, `observe` makes no request.
   broadcasts) are dropped, as is any type nobody wants. A video still being processed
   (`Video#processing?`) is skipped and posted on a later poll, once Twitch has its real
   thumbnail. Subject and story key are `video:<id>`; `occurred_at` is `published_at`.
-- **Clips** (`ClipCreated`) are read from `failing_since || polled_at`, minus a
-  10-minute overlap, and never earlier than 48 hours back. `failing_since` goes first
+- **Clips** (`ClipCreated`) are read from `failing_since || polled_at`, minus a one-hour
+  overlap, and never earlier than 48 hours back. Twitch lists some clips well after they
+  were made (17.5 minutes late in a 61-clip sample on 2026-11-07), so a narrower window
+  would lose them for good; `Events::Record` skips the ones an earlier poll stored. `failing_since` goes first
   because `RecordFailure` stamps `polled_at` on failed polls too, so `polled_at` alone
   would skip clips made between the last good poll and the first failure. A watch that
   was never polled reads the full 48 hours.

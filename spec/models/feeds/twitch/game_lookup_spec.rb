@@ -22,6 +22,12 @@ RSpec.describe Feeds::Twitch::GameLookup do
     expect(result).to eq(game)
   end
 
+  it "caches plain attributes, so a Game that gains a member still reads entries cached before" do
+    result
+
+    expect(Rails.cache.read(["feeds/twitch/game/v1", category_id])).to eq(game.to_h)
+  end
+
   it "looks the game up once for repeated calls" do
     2.times { described_class.find(category_id) }
 

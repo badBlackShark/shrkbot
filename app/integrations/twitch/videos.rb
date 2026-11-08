@@ -22,7 +22,6 @@ module Integrations
           id: data.fetch("id"),
           stream_id: data.fetch("stream_id").presence,
           user_id: data.fetch("user_id"),
-          user_login: data.fetch("user_login"),
           user_name: data.fetch("user_name"),
           title: data.fetch("title"),
           description: data.fetch("description"),

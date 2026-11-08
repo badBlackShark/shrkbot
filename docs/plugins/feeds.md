@@ -106,8 +106,9 @@ are no preview routes for these pages.
 `Integrations::Twitch::ChannelWatcher`, five event types (`StreamStarted`, the live post,
 then `HighlightPublished`, `UploadPublished`, `FeaturedClipPublished` and `ClipCreated`,
 in the order the UI lists them). A new follow subscribes to Live and Highlights. Template
-tokens are `streamer`, `category`, `title` and `clipper`; a card fills only the tokens it
-has and leaves the rest empty. Its settings live in `feed_twitch_settings`
+tokens are `streamer`, `category`, `title` and `clipper`; a token a card has no value for
+(`clipper` on a live card, `category` on a video) renders empty
+(`Feeds::Announcement#blank_tokens`). Its settings live in `feed_twitch_settings`
 (`Feeds::Twitch::Settings`, `twitch_settings` on the subscription): one role column per
 post type (`live_role_id`, `highlights_role_id`, `uploads_role_id`,
 `featured_clips_role_id`, `clips_role_id`), `show_viewers` (true by default) and

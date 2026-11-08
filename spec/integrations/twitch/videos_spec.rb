@@ -37,7 +37,6 @@ RSpec.describe Integrations::Twitch::Videos do
         id: "2277656159",
         stream_id: "44926619787",
         user_id: "141981764",
-        user_login: "twitchdev",
         user_name: "TwitchDev",
         title: "Standard Output // October 16, 2024",
         description: "",

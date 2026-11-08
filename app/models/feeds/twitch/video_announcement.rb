@@ -16,7 +16,7 @@ module Feeds
       private
 
       def tokens
-        {streamer: event.display_name, category: "", title: event.title}
+        {streamer: event.display_name, title: event.title}
       end
 
       def headline
