@@ -14,10 +14,6 @@ module Feeds
 
       private
 
-      def plugin_key
-        :steam
-      end
-
       def watch_token
         "game"
       end

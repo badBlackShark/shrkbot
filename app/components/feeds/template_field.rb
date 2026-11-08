@@ -50,7 +50,7 @@ class Components::Feeds::TemplateField < Components::Base
   end
 
   def samples
-    @samples ||= "::Feeds::#{@plugin_key.to_s.camelize}::PreviewSamples".constantize.new(watch_name: @subscription.watch.name, event_type: @event_type)
+    @samples ||= source::PreviewSamples.new(watch_name: @subscription.watch.name, event_type: @event_type)
   end
 
   def placeholder_help

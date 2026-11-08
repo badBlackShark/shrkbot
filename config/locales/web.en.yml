@@ -125,6 +125,9 @@ en:
         game: The game's name on Steam.
         streamer: The channel's name on Twitch.
         title: The post's title.
+      role_field:
+        role_label: Role to ping (optional)
+        role_placeholder: No ping
       steam:
         language_card:
           help: Leave empty to post every language. shrkbot can't tell the language
@@ -320,9 +323,6 @@ en:
               description: About 500 characters, then a link to the full post.
               title: Preview
           length_title: Post length
-        role_field:
-          role_label: Role to ping (optional)
-          role_placeholder: No ping
         samples:
           announcement_published:
             author: ''
@@ -400,9 +400,6 @@ en:
           mark_ended_with_vod: The post turns into a summary of the stream, with a
             link to the VOD.
           preview: Preview
-        role_field:
-          role_label: Role to ping (optional)
-          role_placeholder: No ping
         samples:
           clip_created:
             category: Hades II

@@ -53,6 +53,20 @@ RSpec.describe Components::DiscordMessagePreview do
     end
   end
 
+  context "with a card body given as lines" do
+    let(:options) do
+      {
+        label: "Preview",
+        messages: [{card: {title: "Live", body: [{text: "First line", class: nil}, {text: "Second line", class: "hidden"}]}}]
+      }
+    end
+
+    it "renders each line as its own paragraph with its class, the first one spaced from the title" do
+      expect(html).to match(%r{<p class="whitespace-pre-wrap text-sm mt-1">First line</p>})
+      expect(html).to match(%r{<p class="whitespace-pre-wrap text-sm hidden">Second line</p>})
+    end
+  end
+
   context "with an eyebrow on the card" do
     let(:options) do
       {

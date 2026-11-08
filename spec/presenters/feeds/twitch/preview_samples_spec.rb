@@ -7,20 +7,14 @@ RSpec.describe Feeds::Twitch::PreviewSamples do
 
   let(:event_type) { "Integrations::Twitch::ClipCreated" }
 
-  describe "#value" do
-    it "is the watch name for streamer" do
-      expect(samples.value("streamer")).to eq("SomeStreamer")
-    end
-
-    it "reads the sample copy for every other name" do
-      expect(samples.value(:clipper)).to eq("Jane Doe")
-      expect(samples.value(:title)).to eq("That dodge")
-    end
-  end
-
   describe "#tokens" do
-    it "maps each name to its sample" do
-      expect(samples.tokens(%w[streamer category clipper])).to eq("streamer" => "SomeStreamer", "category" => "Hades II", "clipper" => "Jane Doe")
+    it "maps the watch name for streamer and the sample copy for every other name" do
+      expect(samples.tokens(%w[streamer category clipper title])).to eq(
+        "streamer" => "SomeStreamer",
+        "category" => "Hades II",
+        "clipper" => "Jane Doe",
+        "title" => "That dodge"
+      )
     end
   end
 
@@ -47,8 +41,16 @@ RSpec.describe Feeds::Twitch::PreviewSamples do
     context "with a live stream" do
       let(:event_type) { "Integrations::Twitch::StreamStarted" }
 
-      it "words it like the live announcement" do
-        expect(card).to include(eyebrow: "SomeStreamer · Live on Twitch", body: "Streaming Hades II\nStarted 2 hours ago", button: "Watch on Twitch")
+      it "words it like the live announcement, carrying the viewer and plain stats lines for the toggle to switch" do
+        expect(card).to include(
+          eyebrow: "SomeStreamer · Live on Twitch",
+          body: [
+            {text: "Streaming Hades II", class: nil},
+            {text: "1,234 watching · started 2 hours ago", class: described_class::VIEWERS_SHOWN},
+            {text: "Started 2 hours ago", class: described_class::VIEWERS_HIDDEN}
+          ],
+          button: "Watch on Twitch"
+        )
       end
     end
   end
@@ -61,8 +63,20 @@ RSpec.describe Feeds::Twitch::PreviewSamples do
       expect(samples.end_mode_card("mark_ended")[:button]).to be_nil
     end
 
-    it "stamps the live card with when the stream ended when it is kept" do
-      expect(samples.end_mode_card("keep")[:body]).to eq("Streaming Hades II\nStarted 2 hours ago\nStream ended 5 minutes ago")
+    it "carries the peak and plain ended lines on both ended cards" do
+      lines = [
+        {text: "Streamed Hades II for about 2 h", class: nil},
+        {text: "At least 2,345 viewers at the peak · ended 5 minutes ago", class: described_class::VIEWERS_SHOWN},
+        {text: "Ended 5 minutes ago", class: described_class::VIEWERS_HIDDEN}
+      ]
+      expect(samples.end_mode_card("mark_ended_with_vod")[:body]).to eq(lines)
+      expect(samples.end_mode_card("mark_ended")[:body]).to eq(lines)
+    end
+
+    it "ends the kept live card with when the stream ended" do
+      expect(samples.end_mode_card("keep")[:body]).to eq(
+        samples.card[:body] + [{text: "Stream ended 5 minutes ago", class: nil}]
+      )
     end
 
     it "has no card for a deleted post" do

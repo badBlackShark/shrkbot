@@ -10,7 +10,7 @@ class Components::Feeds::EventTypeSetting < Components::Base
   end
 
   def view_template
-    div(data: {controller: "disclosure", disclosure_key_value:, feed_preview_scope: true}) do
+    div(class: "group/type", data: {controller: "disclosure", disclosure_key_value:, feed_preview_scope: true}) do
       render Components::ToggleRow.new(
         name: "subscription[event_types][#{@event_type}]",
         checked: followed?,

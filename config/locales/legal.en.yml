@@ -193,7 +193,9 @@ en:
         sending them - each tournament update replaces the set we hold for that tournament
         - and are deleted with the tournament.'
       retention_twitch: 'Twitch: received events are deleted 14 days after they arrive.
-        Text a server writes is deleted with the rest of its configuration.'
+        Text a server writes is deleted with the rest of its configuration. A followed
+        channel''s name and the link to its picture are kept while a server follows
+        it.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down. Kick and ban notes are

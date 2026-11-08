@@ -11,10 +11,12 @@ module Feeds
       names.index_with { |name| value(name) }
     end
 
+    private
+
     def value(name)
       return @watch_name if name.to_s == watch_token
 
-      I18n.t("components.feeds.#{plugin_key}.samples.#{Feeds.event_key(@event_type)}.#{name}")
+      I18n.t("components.feeds.#{self.class.module_parent.plugin_key}.samples.#{Feeds.event_key(@event_type)}.#{name}")
     end
   end
 end

@@ -8,7 +8,13 @@ class Components::Feeds::Twitch::TypeFields < Components::Base
 
   def view_template
     render Components::Callout.new(variant: :warning) { t(".clip_warning") } if clips?
-    render Components::Feeds::Twitch::RoleField.new(subscription: @subscription, event_type: @event_type)
+    div do
+      render Components::Feeds::RoleField.new(
+        subscription: @subscription,
+        name: "subscription[#{::Feeds::Twitch::Settings::ROLE_COLUMNS.fetch(@event_type)}]",
+        selected: @subscription.settings.role_id_for(@event_type)
+      )
+    end
     return unless live?
 
     render Components::Feeds::Twitch::EndModeField.new(subscription: @subscription)

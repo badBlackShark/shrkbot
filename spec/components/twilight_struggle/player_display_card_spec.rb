@@ -18,7 +18,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
     end
 
     it "defaults to name only" do
-      expect(html).to include('value="name" data-segmented-target="input"')
+      expect(html).to include('value="name" autocomplete="off" data-segmented-target="input"')
     end
 
     it "does not claim anything is inherited" do
@@ -29,7 +29,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
       let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, player_display: "name_and_tag") }
 
       it "selects name and tag" do
-        expect(html).to include('value="name_and_tag" data-segmented-target="input"')
+        expect(html).to include('value="name_and_tag" autocomplete="off" data-segmented-target="input"')
       end
     end
 
@@ -37,7 +37,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
       let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, player_display: "tag") }
 
       it "selects tag only" do
-        expect(html).to include('value="tag" data-segmented-target="input"')
+        expect(html).to include('value="tag" autocomplete="off" data-segmented-target="input"')
       end
     end
   end
@@ -52,7 +52,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
     end
 
     it "starts on inherit while the destination sets nothing" do
-      expect(html).to include('value="" data-segmented-target="input"')
+      expect(html).to include('value="" autocomplete="off" data-segmented-target="input"')
     end
 
     it "names the parent and what it resolves to" do
@@ -63,7 +63,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
       let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, player_display: "name") }
 
       it "selects the override" do
-        expect(html).to include('value="name" data-segmented-target="input"')
+        expect(html).to include('value="name" autocomplete="off" data-segmented-target="input"')
       end
 
       it "still names what inherit would give" do

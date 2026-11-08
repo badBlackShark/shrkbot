@@ -16,6 +16,10 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   let(:event_type) { "Integrations::Steam::PatchNotesPublished" }
   let(:event) { subscription.subscribed_events.build(event_type:) }
 
+  it "scopes the viewer-count preview switch to its own type" do
+    expect(html).to start_with('<div class="group/type"')
+  end
+
   it "wires the toggle to sync the disclosure" do
     expect(html).to include('data-action="change->disclosure#sync"')
   end

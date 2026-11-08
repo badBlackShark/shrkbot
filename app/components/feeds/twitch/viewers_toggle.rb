@@ -10,7 +10,8 @@ class Components::Feeds::Twitch::ViewersToggle < Components::Base
       name: "subscription[show_viewers]",
       checked: @subscription.settings.show_viewers,
       label: t(".label"),
-      help: t(".help")
+      help: t(".help"),
+      data: {viewers_toggle: true}
     )
   end
 end
