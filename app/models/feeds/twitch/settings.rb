@@ -20,9 +20,26 @@ module Feeds
       validates :show_viewers, inclusion: {in: [true, false]}
       validates :live_end_mode, inclusion: {in: LIVE_END_MODES}
       validates :subscription_id, uniqueness: true
+      validate :categories_shape
 
       def role_id_for(event_type)
         public_send(ROLE_COLUMNS.fetch(event_type))
+      end
+
+      def accepts_category?(category_id)
+        categories.empty? || categories.any? { |category| category["id"] == category_id }
+      end
+
+      private
+
+      def categories_shape
+        return if categories.is_a?(Array) && categories.all? { |category| valid_category?(category) }
+
+        errors.add(:categories, :invalid)
+      end
+
+      def valid_category?(category)
+        category.is_a?(Hash) && category["id"].is_a?(String) && category["id"].present? && category["name"].is_a?(String)
       end
     end
   end

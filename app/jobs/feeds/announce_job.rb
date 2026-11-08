@@ -5,14 +5,7 @@ module Feeds
     include ReportsExhaustion
     include Integrations::Handler
 
-    handles Integrations::Steam::PatchNotesPublished,
-      Integrations::Steam::AnnouncementPublished,
-      Integrations::Steam::ArticlePublished,
-      Integrations::Twitch::StreamStarted,
-      Integrations::Twitch::HighlightPublished,
-      Integrations::Twitch::UploadPublished,
-      Integrations::Twitch::FeaturedClipPublished,
-      Integrations::Twitch::ClipCreated
+    handles(*Feeds.sources.flat_map(&:announced_types).map(&:constantize))
 
     queue_as :default
     limits_concurrency(
@@ -30,7 +23,14 @@ module Feeds
     private
 
     def subscriptions(event)
-      Subscription.demanding(event.type).where(watch_id: event.watch_id)
+      Subscription
+        .demanding(source(event).post_type(event.type))
+        .where(watch_id: event.watch_id)
+        .where.not(id: Post.where(story_key: event.story_key).select(:subscription_id))
+    end
+
+    def source(event)
+      Feeds.source_for_watcher(event.watch.watcher)
     end
   end
 end

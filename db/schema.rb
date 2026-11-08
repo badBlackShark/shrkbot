@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_07_002948) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_08_153435) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -107,7 +107,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_002948) do
     t.bigint "uploads_role_id"
     t.bigint "featured_clips_role_id"
     t.bigint "clips_role_id"
+    t.jsonb "categories", default: [], null: false
     t.index ["subscription_id"], name: "index_feed_twitch_settings_on_subscription_id", unique: true
+    t.check_constraint "jsonb_typeof(categories) = 'array'::text", name: "feed_twitch_settings_categories_array"
     t.check_constraint "live_end_mode::text = ANY (ARRAY['keep'::character varying, 'delete'::character varying, 'mark_ended'::character varying, 'mark_ended_with_vod'::character varying]::text[])", name: "feed_twitch_settings_live_end_mode_check"
   end
 

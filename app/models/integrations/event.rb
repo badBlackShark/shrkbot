@@ -26,5 +26,9 @@ module Integrations
     def expired?
       false
     end
+
+    def published_at
+      occurred_at
+    end
   end
 end

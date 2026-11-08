@@ -26,8 +26,8 @@ module Feeds
     end
 
     def eligible_copy?(copy)
-      since = followed_since[copy.type]
-      since.present? && copy.occurred_at >= since && subscription.source.accepts?(subscription, copy)
+      since = followed_since[source.post_type(copy.type)]
+      since.present? && copy.published_at >= since && source.accepts?(subscription, copy)
     end
 
     def followed_since
@@ -37,8 +37,11 @@ module Feeds
     def candidates
       Integrations::Event
         .in_story(event.watch_id, event.story_key)
-        .where(type: followed_since.keys)
-        .select(:id, :type, :occurred_at, "jsonb_build_object('language', payload -> 'language') AS payload")
+        .where(type: source.announced_types)
+    end
+
+    def source
+      subscription.source
     end
   end
 end

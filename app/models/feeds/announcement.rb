@@ -48,7 +48,7 @@ module Feeds
     end
 
     def post_type
-      event.type
+      subscription.source.post_type(event.type)
     end
 
     def template

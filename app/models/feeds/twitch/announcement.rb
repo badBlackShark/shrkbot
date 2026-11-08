@@ -22,10 +22,6 @@ module Feeds
         ACCENT_COLOR
       end
 
-      def post_type
-        Integrations::Twitch::StreamStarted.name
-      end
-
       def url
         "https://www.twitch.tv/#{event.login}"
       end

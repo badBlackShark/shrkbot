@@ -2,10 +2,6 @@
 
 module Integrations
   module Twitch
-    class StreamStarted < StreamEvent
-      def expired?
-        watch.state["session"] != session
-      end
-    end
+    class StreamStarted < StreamEvent; end
   end
 end

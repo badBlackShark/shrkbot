@@ -37,8 +37,8 @@ A source is a module under `Feeds::` (`Feeds::Steam`) that answers `plugin_key`,
 `watchers`, `event_types` (in UI order), `default_event_types` and `template_tokens`,
 plus the settings contract: `settings_association` (the `Subscription` association that
 holds its provider settings, which the list finder preloads),
-`role_id_for(subscription, event_type)`, `accepts?(subscription, event)` and
-`retract?(subscription, event)` (true when the post is deleted instead of edited; Steam
+`role_id_for(subscription, event_type)`, `accepts?(subscription, event)`,
+`post_type(event_type)`, `announced_types` and `retract?(subscription, event)` (true when the post is deleted instead of edited; Steam
 never, Twitch for `StreamEnded` in `delete` mode). Each source
 with settings adds its own `has_one` on `Feeds::Subscription` (`steam_settings`), so the
 foreign key and the guild purge follow the subscription. `Subscription#settings` reads
@@ -113,8 +113,18 @@ tokens are `streamer`, `category`, `title` and `clipper`; a token a card has no 
 post type (`live_role_id`, `highlights_role_id`, `uploads_role_id`,
 `featured_clips_role_id`, `clips_role_id`), `show_viewers` (true by default) and
 `live_end_mode` (see below). `role_id_for` maps an event type to its role column.
-`accepts?` is always true until the category filter lands. Without the bot's Twitch
-credentials the Twitch jobs return early, so nothing posts.
+`categories` (jsonb array of `{id, name}`, name kept so the UI needs no API call) limits
+a follow to chosen categories; empty means every category. `accepts?` checks the
+category id for streams and clips; videos have none and always pass. A stream that
+starts outside the filter and switches in posts (and pings) at the switch. Without the
+bot's Twitch credentials the Twitch jobs return early, so nothing posts.
+
+`post_type(event_type)` maps an event type to the post type it counts as, and
+`announced_types` lists every type that can produce a post. Twitch counts
+`StreamUpdated` as a Live post, so a switch into the filter posts. `AnnounceJob`
+(who is subscribed), `StoryPick` (since when, which copies compete) and the card's
+template and role all go through it. `AnnounceJob` subscribes to every source's
+`announced_types`, so the two lists cannot drift.
 
 The Live card shows `<name> · Live on Twitch` as the eyebrow, the stream title as the
 heading and `Streaming **<category>**` when the channel has a category, followed by a
@@ -154,8 +164,9 @@ A clip that is both new and featured posts once. `ClipCreated` is secondary, so
 stays a "New clip" card.
 
 `PostJob` skips an expired event (`Integrations::Event#expired?`, false by default):
-a `StreamStarted` whose session is no longer the watch's open one. `StreamEnded` keeps
-the default, because the state it leaves behind has no open session. The card is
+a `StreamStarted` or `StreamUpdated` whose session is no longer the watch's open one
+(`StreamEvent#expired?`). Only announced types reach `PostJob`, so `StreamSampled` and
+`StreamEnded` never ask. The card is
 refreshed with title, category, preview or box art and viewers on every `StreamUpdated`
 and `StreamSampled`, and edited once more on `StreamEnded` (see Revising a post).
 
@@ -252,10 +263,11 @@ removed by the orphan prune once nothing references it.
 
 - `Feeds::AnnounceJob` is the bus handler for the three Steam news event classes. It
   enqueues one `Feeds::PostJob` per `active` subscription on the event's watch that has
-  a `feed_subscribed_events` row for the event's type.
+  a `feed_subscribed_events` row for the event's post type and no `Post` for its story
+  yet (a stream's title edits would otherwise queue one dead job per follow each).
 - `Feeds::PostJob` checks, in order, that the subscription is still `active`, that it has
   no `Post` for the story yet, that `Feeds::StoryPick` finds the event eligible (its type
-  is followed and it occurred at or after that type's `subscribed_since`), and that no
+  is followed and it was published at or after that type's `subscribed_since`), and that no
   better eligible copy of the story exists. Then it calls `Ops::Feeds::Posts::Create`.
 - Both jobs serialize with `limits_concurrency`: `AnnounceJob` per watch and `PostJob`
   per subscription. `Dispatch` enqueues a poll's events oldest first, and Solid Queue
@@ -319,7 +331,10 @@ once, by two guards:
 
 `feed_subscribed_events.subscribed_since` is the gate that keeps a server from receiving
 posts published before it followed that kind of post. It defaults to the time the row
-is created. A post whose `occurred_at` is earlier is never eligible, and `StoryPick`
+is created. A post published earlier (`Integrations::Event#published_at`: `occurred_at`,
+or a stream's `started_at` for every event of that stream) is never eligible, so a server
+that follows a channel mid-stream waits for its next stream instead of being pinged at
+the next title edit. `StoryPick`
 ignores it when ranking, so a copy the subscription could never have received cannot
 displace one it could.
 

@@ -135,6 +135,17 @@ RSpec.describe Feeds::PostJob do
       end
     end
 
+    context "when a category switch comes from a session that is no longer open" do
+      let(:event) { create(:twitch_stream_updated_event, watch:, session: "9001") }
+      let(:watch_state) { {"session" => "other"} }
+
+      it "sends nothing" do
+        perform
+
+        expect(Bot::Discord::Components).not_to have_received(:create_with_subject)
+      end
+    end
+
     context "when a newer session is open" do
       let(:watch_state) { {"session" => "other"} }
 

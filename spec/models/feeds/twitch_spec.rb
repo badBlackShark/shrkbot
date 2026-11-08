@@ -83,10 +83,73 @@ RSpec.describe Feeds::Twitch do
     end
   end
 
+  describe ".post_type" do
+    it "counts a category switch as a Live post" do
+      expect(described_class.post_type("Integrations::Twitch::StreamUpdated")).to eq("Integrations::Twitch::StreamStarted")
+    end
+
+    it "renders revisions of a live post with the Live template and role" do
+      expect(described_class.post_type("Integrations::Twitch::StreamSampled")).to eq("Integrations::Twitch::StreamStarted")
+    end
+
+    it "leaves every other type as it is" do
+      expect(described_class.post_type("Integrations::Twitch::ClipCreated")).to eq("Integrations::Twitch::ClipCreated")
+    end
+  end
+
+  describe ".announced_types" do
+    it "leaves out the revision-only events" do
+      expect(described_class.announced_types).not_to include("Integrations::Twitch::StreamSampled")
+    end
+  end
+
   describe ".accepts?" do
-    subject(:accepted) { described_class.accepts?(subscription, instance_double(Integrations::Twitch::StreamStarted)) }
+    subject(:accepted) { described_class.accepts?(subscription, event) }
+
+    let(:categories) { [{"id" => "A", "name" => "Alpha"}] }
+    let(:event) { build(:twitch_stream_started_event, category_id:) }
+    let(:category_id) { "A" }
+
+    before { subscription.settings.update!(categories:) }
 
     it { is_expected.to be(true) }
+
+    context "when the stream is outside the filter" do
+      let(:category_id) { "B" }
+
+      it { is_expected.to be(false) }
+    end
+
+    context "when the stream switched into the filter" do
+      let(:event) { build(:twitch_stream_updated_event, category_id:) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context "when a clip is inside the filter" do
+      let(:event) { build(:twitch_clip_created_event, category_id:) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context "when a clip is outside the filter" do
+      let(:event) { build(:twitch_clip_created_event, category_id: "B") }
+
+      it { is_expected.to be(false) }
+    end
+
+    context "when the event is a video" do
+      let(:event) { build(:twitch_highlight_published_event) }
+
+      it { is_expected.to be(true) }
+    end
+
+    context "when the filter is empty" do
+      let(:categories) { [] }
+      let(:category_id) { "B" }
+
+      it { is_expected.to be(true) }
+    end
   end
 
   describe ".retract?" do

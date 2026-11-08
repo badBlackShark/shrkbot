@@ -184,6 +184,74 @@ RSpec.describe Feeds::StoryPick do
     end
   end
 
+  context "with a Twitch stream and a category filter" do
+    let(:subscription) { create(:feed_subscription, :twitch) }
+    let(:subscribed_types) { %w[Integrations::Twitch::StreamStarted] }
+    let(:categories) { [{"id" => "A", "name" => "A"}] }
+    let(:start_category) { "A" }
+    let(:update_category) { "A" }
+    let!(:patch_notes) { nil }
+    let!(:article) { nil }
+    let!(:other_story) { nil }
+    let!(:started) do
+      create(:twitch_stream_started_event, watch:, session: "77", category_id: start_category, occurred_at: 2.hours.ago, started_at: 2.hours.ago.iso8601)
+    end
+    let!(:updated) do
+      create(:twitch_stream_updated_event, watch:, session: "77", category_id: update_category, occurred_at: 1.hour.ago, started_at: 2.hours.ago.iso8601)
+    end
+    let(:event) { updated }
+
+    before { subscription.settings.update!(categories:) }
+
+    context "when the stream started outside the filter and switched in" do
+      let(:start_category) { "B" }
+
+      it "makes the switch eligible and the best copy" do
+        expect(pick).to be_eligible
+        expect(pick).to be_best
+      end
+
+      context "when asked about the start" do
+        let(:event) { started }
+
+        it "is not eligible" do
+          expect(pick).not_to be_eligible
+        end
+      end
+
+      context "when the server followed after the stream had started" do
+        let(:subscribed_since) { 90.minutes.ago }
+
+        it "waits for the next stream instead of pinging mid-stream" do
+          expect(pick).not_to be_eligible
+        end
+      end
+    end
+
+    context "when the stream started inside the filter" do
+      it "keeps the start as the best copy" do
+        expect(described_class.new(subscription:, event: started)).to be_best
+      end
+
+      it "does not pick the later update" do
+        expect(pick).not_to be_best
+      end
+    end
+
+    context "with no filter" do
+      let(:categories) { [] }
+      let(:start_category) { "B" }
+
+      it "keeps the start as the best copy" do
+        expect(described_class.new(subscription:, event: started)).to be_best
+      end
+
+      it "does not pick the later update" do
+        expect(pick).not_to be_best
+      end
+    end
+  end
+
   context "when a Twitch clip is both new and featured" do
     let(:subscription) { create(:feed_subscription, :twitch) }
     let(:subscribed_types) { %w[Integrations::Twitch::ClipCreated Integrations::Twitch::FeaturedClipPublished] }
