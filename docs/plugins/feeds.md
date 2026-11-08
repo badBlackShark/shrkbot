@@ -34,10 +34,10 @@ source module (see Sources) and its own page.
 ## Sources
 
 A source is a module under `Feeds::` (`Feeds::Steam`) that answers `plugin_key`,
-`watchers`, `event_types` (in UI order), `default_event_types`, `template_tokens`, `notification_tokens` and
-`default_notification(event_type)`,
-plus the settings contract: `settings_association` (the `Subscription` association that
-holds its provider settings, which the list finder preloads),
+`watchers`, `event_types` (in UI order), `default_event_types`, `template_tokens`,
+`notification_tokens` and `default_notification(event_type)`, plus the settings
+contract: `settings_association` (the `Subscription` association that holds
+its provider settings, which the list finder preloads),
 `role_id_for(subscription, event_type)`, `accepts?(subscription, event)`,
 `post_type(event_type)`, `announced_types`, `retract?(subscription, event)` (true when the post is deleted instead of
 edited; Steam never, Twitch for `StreamEnded` in `delete` mode and for a switched-away
@@ -408,8 +408,8 @@ The notification text is a separate per-type template, the subscribed event's
 stored as `NULL` so later changes to the default reach it. A text that renders blank
 falls back to the default. The custom message is optional and empty by default. It is
 the subscribed event's `template` filled by `TemplateText`, with the tokens `game`,
-`author` and `feed`. It never touches the subject. A stored template that still has `{title}` or `{url}` from before those tokens
-were removed renders them literally.
+`author` and `feed`. It never touches the subject. A stored template that still has
+`{title}` or `{url}` from before those tokens were removed renders them literally.
 
 The type in the eyebrow comes from `Feeds::Steam::Announcement::TYPE_LABELS`
 (`Patch notes`, `Announcement`). Articles fall back to their feed label, such as

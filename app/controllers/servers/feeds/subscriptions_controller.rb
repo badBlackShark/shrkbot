@@ -103,7 +103,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   def build_subscription(target, event_types, channel_id: nil, settings: {}, templates: {}, notifications: {})
     @server_configuration.feed_subscriptions.build(watch: unsaved_watch(target), channel_id:).tap do |subscription|
       subscription.build_settings(settings)
-      event_types.each { |event_type| subscription.follow(event_type, templates[event_type], notifications[event_type]) }
+      event_types.each { |event_type| subscription.follow(event_type, template: templates[event_type], notification: notifications[event_type]) }
     end
   end
 
