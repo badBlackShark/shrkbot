@@ -13,12 +13,7 @@ module Ops
           return revive if revivable?
           return ok unless post.message_id
 
-          if source.retract?(subscription, event)
-            ::Bot::Discord::Components.delete_message(post.channel_id, post.message_id)
-            post.update!(message_id: nil, retracted_at: Time.current)
-          else
-            ::Bot::Discord::Components.edit(channel_id: post.channel_id, message_id: post.message_id, rendered: announcement.card)
-          end
+          source.retract?(subscription, event) ? retract : edit
           ok
         rescue Discordrb::Errors::UnknownMessage, Discordrb::Errors::UnknownChannel, Discordrb::Errors::NoPermission
           post.update!(message_id: nil, retracted_at: nil)
@@ -40,6 +35,15 @@ module Ops
 
         def source
           subscription.source
+        end
+
+        def retract
+          ::Bot::Discord::Components.delete_message(post.channel_id, post.message_id)
+          post.update!(message_id: nil, retracted_at: Time.current)
+        end
+
+        def edit
+          ::Bot::Discord::Components.edit(channel_id: post.channel_id, message_id: post.message_id, rendered: announcement.card)
         end
 
         def revivable?

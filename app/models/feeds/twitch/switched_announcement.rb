@@ -2,9 +2,7 @@
 
 module Feeds
   module Twitch
-    class SwitchedAnnouncement < Feeds::Announcement
-      include ProfileHeader
-
+    class SwitchedAnnouncement < Announcement
       private
 
       def accent_color
@@ -15,24 +13,8 @@ module Feeds
         nil
       end
 
-      def url
-        "https://www.twitch.tv/#{event.login}"
-      end
-
-      def link_label
-        Announcement::LINK_LABEL
-      end
-
       def blocks
         header
-      end
-
-      def header_texts
-        [eyebrow, heading, details]
-      end
-
-      def eyebrow
-        Bot::Discord::Components.text("-# #{event.display_name} · Live on Twitch")
       end
 
       def details
