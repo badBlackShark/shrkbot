@@ -13,8 +13,9 @@ data:
     - ["operations.*", "config/locales/operations.%{locale}.yml"]
     - "config/locales/web.%{locale}.yml"
 
-# Relative keys in the abstract show views (SubPluginShow, PluginConfigShow)
-# and in Components::TwilightStruggle::SettingCardBase resolve at runtime
+# Relative keys in the abstract show views (SubPluginShow, PluginConfigShow),
+# in Components::TwilightStruggle::SettingCardBase and in
+# Components::Feeds::Twitch::ModeField resolve at runtime
 # against the SUBCLASS scope (e.g. logging/welcomes show),
 # which the static file-path scoping above cannot see.
 ignore_missing:
@@ -28,6 +29,8 @@ ignore_missing:
   - components.twilight_struggle.setting_card_base.help
   - components.twilight_struggle.setting_card_base.inherits_from
   - components.twilight_struggle.setting_card_base.inherits_default
+  - components.feeds.twitch.mode_field.label
+  - components.feeds.twitch.mode_field.preview
 
 # Every entry here is a key that IS used, by an indirection the static scanner
 # cannot follow. Keep this list exact — a wildcard wide enough to cover a real
@@ -41,13 +44,16 @@ ignore_missing:
 # 5. ActiveModel error messages, looked up by `errors.add(:base, :symbol)`.
 # 6. The key built from `Feeds.event_key(event_type)` inside the `t()` call.
 ignore_unused:
-  # Rails resolves model error messages by key (errors.add :too_long)
+  # 5. Feeds::Twitch::Settings
   - activerecord.errors.models.feeds/twitch/settings.attributes.categories.too_long
   # 6. Components::Feeds::VolumeLine
   - components.feeds.volume_line.counts.*
   # 1. Views::Servers::SubPluginShow subclasses (through Moderation::SubPluginShow)
   - views.servers.spam_protection.show.*
   - views.servers.image_scanning.show.*
+  # 1. Components::Feeds::Twitch::ModeField subclasses
+  - components.feeds.twitch.end_mode_field.*
+  - components.feeds.twitch.switched_away_field.*
   # 1. Views::Servers::SubPluginShow subclasses
   - views.servers.steam.show.title
   - views.servers.steam.show.description

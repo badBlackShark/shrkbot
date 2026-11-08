@@ -2,9 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 import TomSelect from "tom-select"
 import { enableBlankOption } from "lib/blank_option"
 import { categoryOptions } from "lib/category_options"
+import { noResultsHtml } from "lib/no_results"
 
 export default class extends Controller {
-  static values = { placeholder: String, prefix: String, colorDots: Boolean, lockIcon: String, create: Boolean, searchUrl: String }
+  static values = { placeholder: String, prefix: String, colorDots: Boolean, lockIcon: String, create: Boolean, searchUrl: String, searchFailed: String, maxItems: Number }
 
   connect() {
     this.select = new TomSelect(this.element, {
@@ -13,6 +14,7 @@ export default class extends Controller {
       maxOptions: null,
       plugins: this.plugins(),
       render: this.renderers(),
+      maxItems: this.maxItemsValue || null,
       create: this.createValue || false,
       persist: this.createValue ? false : undefined,
       ...this.remoteSearch()
@@ -23,17 +25,22 @@ export default class extends Controller {
     if (!this.searchUrlValue) return {}
     const url = this.searchUrlValue
     return {
-      valueField: "value",
-      labelField: "text",
       searchField: [],
       score: () => () => 1,
       loadThrottle: 300,
       shouldLoad: (query) => query.trim().length > 0,
       load: (query, callback) => {
+        this.select.clearOptions()
         fetch(`${url}?query=${encodeURIComponent(query)}`, { headers: { Accept: "application/json" } })
-          .then((response) => (response.ok ? response.json() : []))
+          .then((response) => {
+            this.searchFailed = !response.ok
+            return response.ok ? response.json() : []
+          })
           .then((json) => callback(categoryOptions(json)))
-          .catch(() => callback())
+          .catch(() => {
+            this.searchFailed = true
+            callback()
+          })
       }
     }
   }
@@ -45,9 +52,16 @@ export default class extends Controller {
   }
 
   renderers() {
+    if (this.searchUrlValue) return this.searchRenderers()
     if (this.colorDotsValue) return this.roleRenderers()
     if (this.prefixValue) return this.prefixRenderers()
     return {}
+  }
+
+  searchRenderers() {
+    return {
+      no_results: (_data, escape) => noResultsHtml({ failed: this.searchFailed, failureText: this.searchFailedValue, escape })
+    }
   }
 
   prefixRenderers() {

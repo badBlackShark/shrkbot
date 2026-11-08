@@ -20,7 +20,9 @@ class Components::Feeds::Twitch::CategoriesCard < Components::Base
           multiple: true,
           controller_data: {
             tom_select_search_url_value: server_twitch_categories_path(@subscription.server_configuration.discord_id),
-            tom_select_placeholder_value: t(".placeholder")
+            tom_select_placeholder_value: t(".placeholder"),
+            tom_select_search_failed_value: t(".search_failed"),
+            tom_select_max_items_value: ::Feeds::Twitch::Settings::MAX_CATEGORIES
           }
         )
         render Components::FieldHelp.new { t(".help") }

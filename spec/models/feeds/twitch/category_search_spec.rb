@@ -42,5 +42,15 @@ RSpec.describe Feeds::Twitch::CategorySearch do
     before { allow(categories).to receive(:search).and_raise(Integrations::Unavailable) }
 
     it { is_expected.to be_nil }
+
+    it "caches nothing, so the next call asks Twitch again" do
+      allow(Rails.cache).to receive(:write)
+
+      results
+      described_class.call(query)
+
+      expect(Rails.cache).not_to have_received(:write)
+      expect(categories).to have_received(:search).twice
+    end
   end
 end

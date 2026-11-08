@@ -61,8 +61,8 @@ RSpec.describe Feeds::Twitch::CategoryValue do
   describe ".parse_all" do
     let(:values) { [described_class.dump(category), "garbage", '{"id":1,"name":"x"}', "{}", described_class.dump({"id" => "27471", "name" => "Again"})] }
 
-    it "drops garbage and duplicates by id" do
-      expect(described_class.parse_all(values)).to eq([category])
+    it "drops garbage, and keeps a renamed duplicate once, in its first position, under the later name" do
+      expect(described_class.parse_all(values)).to eq([{"id" => category["id"], "name" => "Again"}])
     end
   end
 end

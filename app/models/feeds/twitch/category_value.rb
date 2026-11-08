@@ -24,7 +24,7 @@ module Feeds
       end
 
       def parse_all(values)
-        Array(values).filter_map { |value| parse(value) }.uniq { |category| category["id"] }
+        Array(values).filter_map { |value| parse(value) }.index_by { |category| category["id"] }.values
       end
     end
   end

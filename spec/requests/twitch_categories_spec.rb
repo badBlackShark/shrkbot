@@ -40,6 +40,17 @@ RSpec.describe "Twitch category search", type: :request do
     end
   end
 
+  context "when the per-user limit is exceeded" do
+    before { allow(Rails.cache).to receive(:increment).and_return(9_999) }
+
+    it "answers 429 and searches nothing" do
+      search
+
+      expect(response).to have_http_status(:too_many_requests)
+      expect(Feeds::Twitch::CategorySearch).not_to have_received(:call)
+    end
+  end
+
   context "when the user no longer manages the server" do
     before { allow(Bot::Discord::UserGuilds).to receive(:call).and_return([]) }
 

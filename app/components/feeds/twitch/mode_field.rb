@@ -25,7 +25,21 @@ class Components::Feeds::Twitch::ModeField < Components::Base
   end
 
   def panel(mode)
-    render panel_class.new(mode:, card: card(mode), hidden: mode != selected)
+    render Components::Feeds::Twitch::ModePanel.new(
+      mode:,
+      description: t(".descriptions.#{mode}"),
+      card: card(mode),
+      hidden: mode != selected,
+      preview_label: t(".preview")
+    )
+  end
+
+  def label
+    t(".label")
+  end
+
+  def mode_label(mode)
+    t(".modes.#{mode}")
   end
 
   def samples
