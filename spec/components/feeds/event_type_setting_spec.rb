@@ -6,8 +6,11 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   include_context "component view context"
 
   subject(:html) do
-    described_class.new(subscription:, plugin_key: :steam, event_type:, event:).render_in(view_context)
+    described_class.new(subscription:, plugin_key:, event_type:, event:, **extra).render_in(view_context)
   end
+
+  let(:plugin_key) { :steam }
+  let(:extra) { {} }
 
   let(:subscription) { build(:feed_subscription, watch: build(:integration_watch, name: "Hades II", external_id: "1145350")) }
   let(:event_type) { "Integrations::Steam::PatchNotesPublished" }
@@ -44,5 +47,26 @@ RSpec.describe Components::Feeds::EventTypeSetting do
 
   it "shows the custom message field inside the disclosure" do
     expect(html).to include('data-disclosure-target="details"', "Message and notification", "subscription[templates][#{event_type}]")
+  end
+
+  it "scopes the role pill of its fields to itself" do
+    root = Nokogiri::HTML.fragment(html).at_css("[data-controller=disclosure]")
+    expect(root.attributes).to have_key("data-feed-preview-scope")
+  end
+
+  context "with a source that has per-type fields" do
+    let(:plugin_key) { :twitch }
+    let(:event_type) { "Integrations::Twitch::HighlightPublished" }
+    let(:subscription) { build(:feed_subscription, :twitch) }
+    let(:extra) { {type_fields: Components::Feeds::Twitch::TypeFields} }
+
+    it "renders them inside the disclosure before the text fields, under a settings summary" do
+      details = Nokogiri::HTML.fragment(html).at_css("[data-disclosure-target=details]")
+
+      expect(details.at_css("summary").text).to include("Settings")
+      expect(details.css("select, textarea").map { |field| field["name"] }).to eq(
+        ["subscription[highlights_role_id]", "subscription[templates][#{event_type}]", "subscription[notifications][#{event_type}]"]
+      )
+    end
   end
 end

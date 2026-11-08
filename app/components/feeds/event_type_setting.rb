@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
 class Components::Feeds::EventTypeSetting < Components::Base
-  def initialize(subscription:, plugin_key:, event_type:, event:)
+  def initialize(subscription:, plugin_key:, event_type:, event:, type_fields: nil)
     @subscription = subscription
     @plugin_key = plugin_key
     @event_type = event_type
     @event = event
+    @type_fields = type_fields
   end
 
   def view_template
-    div(data: {controller: "disclosure", disclosure_key_value: "feeds-message-#{@subscription.watch.external_id}-#{key}"}) do
+    div(data: {controller: "disclosure", disclosure_key_value:, feed_preview_scope: true}) do
       render Components::ToggleRow.new(
         name: "subscription[event_types][#{@event_type}]",
         checked: followed?,
@@ -22,6 +23,10 @@ class Components::Feeds::EventTypeSetting < Components::Base
   end
 
   private
+
+  def disclosure_key_value
+    "feeds-message-#{@subscription.watch.external_id}-#{key}"
+  end
 
   def key
     ::Feeds.event_key(@event_type)
@@ -38,10 +43,11 @@ class Components::Feeds::EventTypeSetting < Components::Base
           "text-text-secondary [&::-webkit-details-marker]:hidden",
         data: {action: "click->disclosure#toggle"}
       ) do
-        span { t(".summary") }
+        span { t(".#{@plugin_key}.summary") }
         render Components::Icon.new("caret-down", class: "dropdown-chevron size-3.5 flex-none text-text-muted")
       end
       div(class: "mt-3 flex flex-col gap-3") do
+        render @type_fields.new(subscription: @subscription, event_type: @event_type) if @type_fields
         render Components::Feeds::CustomMessageField.new(
           subscription: @subscription,
           plugin_key: @plugin_key,

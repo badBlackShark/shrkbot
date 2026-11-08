@@ -43,7 +43,9 @@ Rails.application.routes.draw do
         resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], module: :steam
         resource :volume, only: :show, module: :steam
       end
-      resource :twitch, only: [:show, :update], controller: "twitch"
+      resource :twitch, only: [:show, :update], controller: "twitch" do
+        resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], module: :twitch
+      end
       resource :twilight_struggle, only: [:show, :update], controller: "twilight_struggle" do
         scope module: :twilight_struggle do
           resources :destinations, only: [:edit, :update], param: :tournament_id

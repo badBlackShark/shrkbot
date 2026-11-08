@@ -74,6 +74,14 @@ RSpec.describe Components::DiscordMessagePreview do
     end
   end
 
+  context "with a card that has no button" do
+    let(:options) { {label: "Preview", messages: [{card: {title: "Patch 1.4", body: "Fixed."}}]} }
+
+    it "draws no button" do
+      expect(html).not_to include("<svg")
+    end
+  end
+
   context "without a card" do
     it "renders no card" do
       expect(html).not_to include("--discord-code-bg")

@@ -112,6 +112,32 @@ are no preview routes for these pages.
   `Feeds::VolumeLookup`). The follow and edit pages and saving never call Steam. When Steam
   fails the lookup returns `nil` and the frame stays empty.
 
+- **Twitch pages.** `Servers::Twitch::SubscriptionsController` mirrors Steam's, with
+  `channel` as the lookup param and the five role columns plus `live_end_mode` and
+  `show_viewers` as settings. `Components::Feeds::Twitch::SubscriptionFields` is the form
+  (destination card, then the shared "What to post" card). Twitch's role pickers sit
+  per post type, so `EventTypesCard` and `EventTypeSetting` take an optional
+  `type_fields:` component class, rendered inside each type's disclosure ahead of the
+  text fields with `subscription:` and `event_type:`; the disclosure summary is keyed per
+  source (`event_type_setting.<plugin_key>.summary`). `Twitch::TypeFields` adds the role
+  field for every type, a volume warning on All clips, and the end mode and viewer
+  toggle on Live. The end mode is a `SegmentedControl` over one `Twitch::EndModePanel`
+  per mode; the generic `option-panels` controller shows the panel matching the
+  control's value (`lib/option_panels.js`).
+- **Previews per source.** `TemplateField` takes its sample values and card from
+  `Feeds::<Source>::PreviewSamples` (`tokens`, `value`, `card`). Twitch's also builds
+  the end-mode cards (`end_mode_card`). The labels come from the renderers
+  (`EndedAnnouncement::VOD_LABEL`, `ClipAnnouncement::LABELS`); the body lines are
+  copies of the renderers' text, so a renderer change needs the matching sample change.
+  The preview card shows text and an optional button only, so it has no accent bar,
+  profile picture or thumbnail. A role pill comes from the role
+  select in the field's own `data-feed-preview-scope` (the type's disclosure) and falls
+  back to the first role select on the page, which is Steam's single one
+  (`lib/role_scope.js`).
+- **Twitch images.** Channel profile pictures load straight from Twitch, so the CSP
+  `img_src` lists `static-cdn.jtvnw.net` and the privacy policy says Twitch sees the
+  viewer's IP address.
+
 ### Twitch
 
 `Feeds::Twitch` is the second source: plugin key `:twitch`, watcher

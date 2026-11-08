@@ -11,7 +11,7 @@ module Feeds
         "Integrations::Twitch::ClipCreated" => :clips_role_id
       }.freeze
 
-      LIVE_END_MODES = %w[keep delete mark_ended mark_ended_with_vod].freeze
+      LIVE_END_MODES = %w[mark_ended_with_vod mark_ended keep delete].freeze
       SWITCHED_AWAY_MODES = %w[summary delete].freeze
 
       self.table_name = "feed_twitch_settings"

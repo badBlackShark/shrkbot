@@ -2,20 +2,24 @@
 
 module Feeds
   module Steam
-    class PreviewSamples
-      def initialize(watch_name:, event_type:)
-        @watch_name = watch_name
-        @event_type = event_type
+    class PreviewSamples < Feeds::PreviewSamples
+      def card
+        {
+          eyebrow: Announcement.eyebrow(@watch_name, @event_type, value(:feed)),
+          title: value(:title),
+          body: value(:body),
+          button: Announcement::LINK_LABEL
+        }
       end
 
-      def tokens(names)
-        names.index_with { |name| value(name) }
+      private
+
+      def plugin_key
+        :steam
       end
 
-      def value(name)
-        return @watch_name if name.to_s == "game"
-
-        I18n.t("components.feeds.steam.samples.#{Feeds.event_key(@event_type)}.#{name}")
+      def watch_token
+        "game"
       end
     end
   end

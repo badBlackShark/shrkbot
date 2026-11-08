@@ -61,10 +61,14 @@ class Components::DiscordMessagePreview < Components::Base
     div(class: "mt-2 max-w-lg rounded-lg border border-[color:var(--discord-code-bd)] bg-[var(--discord-code-bg)] p-3 text-[color:var(--discord-text)]") do
       card_header(card)
       p(class: "mt-1 whitespace-pre-wrap text-sm") { card[:body] }
-      span(class: "mt-3 inline-flex items-center gap-1.5 rounded bg-[var(--discord-divider)] px-3 py-1.5 text-sm font-medium") do
-        plain card[:button]
-        render Components::Icon.new("arrow-square-out", class: "size-3.5")
-      end
+      card_button(card[:button]) if card[:button]
+    end
+  end
+
+  def card_button(label)
+    span(class: "mt-3 inline-flex items-center gap-1.5 rounded bg-[var(--discord-divider)] px-3 py-1.5 text-sm font-medium") do
+      plain label
+      render Components::Icon.new("arrow-square-out", class: "size-3.5")
     end
   end
 end

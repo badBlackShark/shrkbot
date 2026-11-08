@@ -67,7 +67,10 @@ en:
       copy_failed: Copy failed
     feeds:
       add_page:
-        title: Add a game
+        steam:
+          title: Add a game
+        twitch:
+          title: Add a channel
       custom_message_field:
         label: Message (optional)
         placeholder: Shown above the card. Leave it empty to post the card alone.
@@ -77,7 +80,10 @@ en:
         channel_placeholder: Choose a channel
         where_title: Where to post
       event_type_setting:
-        summary: Message and notification
+        steam:
+          summary: Message and notification
+        twitch:
+          summary: Settings
       event_types:
         announcement_published:
           help: The developer's other posts on Steam.
@@ -87,17 +93,22 @@ en:
             games this is most of the news.
           label: Articles
         clip_created:
+          help: Every clip viewers make.
           label: All clips
         featured_clip_published:
+          help: When the streamer features a clip, within 48 hours of it being made.
           label: Featured clips
         highlight_published:
+          help: When the streamer saves part of a past stream.
           label: Highlights
         patch_notes_published:
           help: Posts the developer tagged as patch notes.
           label: Patch notes
         stream_started:
+          help: When the channel goes live. The post updates while the stream runs.
           label: Live
         upload_published:
+          help: When the streamer uploads a video to Twitch.
           label: Uploads
       event_types_card:
         what_title: What to post
@@ -107,9 +118,12 @@ en:
         preview: Push notification
       placeholders:
         author: Who wrote the post. Empty when Steam doesn't say.
+        category: The game or category. Empty for highlights and uploads.
+        clipper: Who made the clip. Empty for other posts.
         feed: Where the post comes from, such as Community Announcements or a news
           site.
         game: The game's name on Steam.
+        streamer: The channel's name on Twitch.
         title: The post's title.
       steam:
         language_card:
@@ -338,11 +352,17 @@ en:
         label_with_name: Stop following %{name}
         steam:
           confirm: This deletes your settings for this game.
+        twitch:
+          confirm: This deletes your settings for this channel.
       subscription_list:
         steam:
           add: Add a game
           empty_title: No games yet
           heading: Followed games
+        twitch:
+          add: Add a channel
+          empty_title: No channels yet
+          heading: Followed channels
         usage: "%{used} of %{max}"
       subscription_row:
         badge_role: "%{type} · %{role}"
@@ -363,8 +383,53 @@ en:
         change: Not this one?
         steam:
           external_id: Steam app %{id}
-      twitch_channel_list:
-        empty_title: No channels yet
+        twitch:
+          external_id: Twitch user %{id}
+      twitch:
+        end_mode_field:
+          label: When the stream ends
+          modes:
+            delete: Delete
+            keep: Keep live card
+            mark_ended: Ended
+            mark_ended_with_vod: Ended, with VOD
+        end_mode_panel:
+          delete: shrkbot deletes the post.
+          keep: The live post stays, marked with when the stream ended.
+          mark_ended: The post turns into a summary of the stream.
+          mark_ended_with_vod: The post turns into a summary of the stream, with a
+            link to the VOD.
+          preview: Preview
+        role_field:
+          role_label: Role to ping (optional)
+          role_placeholder: No ping
+        samples:
+          clip_created:
+            category: Hades II
+            clipper: Jane Doe
+            title: That dodge
+          featured_clip_published:
+            category: Hades II
+            clipper: Jane Doe
+            title: Wait for the last second
+          highlight_published:
+            category: ''
+            clipper: ''
+            title: The boss fight that took all night
+          stream_started:
+            category: Hades II
+            clipper: ''
+            title: Hades II, first run
+          upload_published:
+            category: ''
+            clipper: ''
+            title: Everything new in the 1.0 update
+        type_fields:
+          clip_warning: Big channels get dozens to hundreds of clips per stream, and
+            each one is a post.
+        viewers_toggle:
+          help: On the live card, and as the peak on the ended card.
+          label: Show the viewer count
       volume_line:
         counts:
           announcement_published:
@@ -991,7 +1056,9 @@ en:
       subscribed: Subscribed. Set where and how its results post below.
       unsubscribed: Unsubscribed. New results in this tournament won't be posted.
     twitch:
+      followed: Now following %{name}.
       saved: Twitch settings saved.
+      unfollowed: Stopped following %{name}.
     unknown_plugin: That plugin doesn't exist.
     welcomes:
       saved: Welcomes settings saved.
@@ -1112,6 +1179,15 @@ en:
                 SteamDB page. An app ID works too.
               title: Add a game
             submit: Look up
+            twitch:
+              errors:
+                invalid_reference: That doesn't look like a Twitch channel. Paste
+                  a link to the channel, or its name.
+                not_found: Twitch has no channel with that name. Check the name and
+                  try again.
+                unavailable: Twitch didn't answer. Try again in a minute.
+              label: Paste a link to the channel on Twitch, or its name.
+              title: Add a channel
           new:
             cancel: Cancel
             follow: Follow %{name}

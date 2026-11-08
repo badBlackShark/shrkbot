@@ -21,4 +21,15 @@ RSpec.describe Feeds::Steam::PreviewSamples do
       expect(samples.tokens(%w[game author feed])).to eq("game" => "Hades II", "author" => "Jane Doe", "feed" => "PC Gamer")
     end
   end
+
+  describe "#card" do
+    it "words the card like the steam announcement" do
+      expect(samples.card).to eq(
+        eyebrow: "Hades II · PC Gamer",
+        title: "Our review of the 1.0 release",
+        body: "A first look at the full release.",
+        button: Feeds::Steam::Announcement::LINK_LABEL
+      )
+    end
+  end
 end

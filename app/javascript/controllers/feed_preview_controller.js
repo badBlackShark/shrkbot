@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { text, pill, nodes } from "lib/token_preview"
 import { render as renderMarkdown } from "lib/discord_markdown_dom"
 import { tokenPattern, previewTemplate } from "lib/feed_template"
+import { roleSelectFor } from "lib/role_scope"
 
 export default class extends Controller {
   static targets = ["template", "output", "role"]
@@ -18,7 +19,7 @@ export default class extends Controller {
     const tokens = JSON.parse(input.dataset.tokens)
     const template = previewTemplate(input.value.trim(), input.dataset.fallback, tokens).trim()
     const blocks = template ? renderMarkdown(template, (leaf) => nodes(leaf, tokenPattern(tokens), (match) => [text(tokens[match[1]])])) : []
-    const role = this.roleName()
+    const role = this.roleName(input)
 
     if (role) {
       if (blocks.length === 0) blocks.push(document.createElement("p"))
@@ -33,10 +34,9 @@ export default class extends Controller {
     return this.outputTargets.find((output) => field.contains(output))
   }
 
-  roleName() {
-    if (!this.hasRoleTarget) return ""
-
-    const selected = this.roleTarget.selectedOptions[0]
+  roleName(input) {
+    const select = roleSelectFor(input, this.roleTargets)
+    const selected = select && select.selectedOptions[0]
     return selected && selected.value ? selected.text : ""
   }
 }

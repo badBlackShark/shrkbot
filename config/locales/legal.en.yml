@@ -91,6 +91,12 @@ en:
         a Discord ID on twilight-struggle.com is optional: an organiser who sets none
         has no record here, and their tournament is configured by the server''s own
         admins.'
+      data_twitch: 'Twitch: shrkbot keeps the stream, video and clip events it receives
+        from Twitch, including channel names, titles and the name of each clip''s
+        creator, so it can announce them. It also keeps any text a server writes for
+        a followed channel. The Twitch pages on the website load each channel''s profile
+        picture straight from Twitch''s servers, so Twitch sees the IP address of
+        the browser that opens the page.'
       data_welcomes: 'Welcome messages: on servers that use Discord''s membership
         screening, a short-lived in-memory note that a member has joined but not yet
         finished onboarding - the server ID and their Discord ID, nothing else. It
@@ -186,6 +192,8 @@ en:
         Organiser Discord IDs are kept for as long as twilight-struggle.com keeps
         sending them - each tournament update replaces the set we hold for that tournament
         - and are deleted with the tournament.'
+      retention_twitch: 'Twitch: received events are deleted 14 days after they arrive.
+        Text a server writes is deleted with the rest of its configuration.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down. Kick and ban notes are
