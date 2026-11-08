@@ -14,6 +14,17 @@ RSpec.describe Feeds::AnnounceJob do
     expect { perform }.to have_enqueued_job(Feeds::PostJob).once.with(subscription, event)
   end
 
+  context "when a Twitch stream switches category" do
+    let(:watch) { create(:integration_watch, :twitch) }
+    let(:event) { create(:twitch_stream_updated_event, watch:) }
+    let!(:subscription) { create(:feed_subscription, :active, :twitch, watch:) }
+    let!(:subscribed_event) { create(:feed_subscribed_event, subscription:, event_type: "Integrations::Twitch::StreamStarted") }
+
+    it "enqueues a post job for the subscription following Live" do
+      expect { perform }.to have_enqueued_job(Feeds::PostJob).once.with(subscription, event)
+    end
+  end
+
   context "when the subscription is inactive" do
     let!(:subscription) { create(:feed_subscription, watch:) }
 

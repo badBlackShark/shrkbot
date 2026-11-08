@@ -15,6 +15,18 @@ RSpec.describe Feeds::Steam do
     end
   end
 
+  describe ".post_type" do
+    it "is the event type itself" do
+      expect(described_class.post_type("Integrations::Steam::ArticlePublished")).to eq("Integrations::Steam::ArticlePublished")
+    end
+  end
+
+  describe ".announced_types" do
+    it "is the subscribable event types" do
+      expect(described_class.announced_types).to eq(described_class.event_types)
+    end
+  end
+
   describe ".accepts?" do
     subject(:accepted) { described_class.accepts?(subscription, event) }
 

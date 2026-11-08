@@ -38,6 +38,15 @@ RSpec.describe Feeds::Twitch::Announcement do
       end
     end
 
+    context "when the event is a category switch" do
+      let(:template) { "{streamer} switched to {category}!" }
+      let(:event) { create(:twitch_stream_updated_event, watch:, category_name:, started_at: started_at.iso8601) }
+
+      it "uses the Live template and role" do
+        expect(subject_line).to eq("<@&4242> shrkbot_dev switched to Hades II!")
+      end
+    end
+
     context "with the title in a custom message" do
       let(:template) { "{title}" }
 

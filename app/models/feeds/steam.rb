@@ -25,6 +25,14 @@ module Feeds
       ]
     end
 
+    def self.post_type(event_type)
+      event_type
+    end
+
+    def self.announced_types
+      event_types
+    end
+
     def self.template_tokens
       %w[game author feed]
     end

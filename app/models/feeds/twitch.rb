@@ -2,6 +2,12 @@
 
 module Feeds
   module Twitch
+    POSTED_AS = {
+      "Integrations::Twitch::StreamUpdated" => "Integrations::Twitch::StreamStarted",
+      "Integrations::Twitch::StreamSampled" => "Integrations::Twitch::StreamStarted",
+      "Integrations::Twitch::StreamEnded" => "Integrations::Twitch::StreamStarted"
+    }.freeze
+
     def self.plugin_key
       :twitch
     end
@@ -24,6 +30,14 @@ module Feeds
       %w[Integrations::Twitch::StreamStarted Integrations::Twitch::HighlightPublished]
     end
 
+    def self.post_type(event_type)
+      POSTED_AS.fetch(event_type, event_type)
+    end
+
+    def self.announced_types
+      event_types + %w[Integrations::Twitch::StreamUpdated]
+    end
+
     def self.template_tokens
       %w[streamer category title clipper]
     end
@@ -36,8 +50,10 @@ module Feeds
       subscription.settings.role_id_for(event_type)
     end
 
-    def self.accepts?(_subscription, _event)
-      true
+    def self.accepts?(subscription, event)
+      return true if event.is_a?(Integrations::Twitch::VideoEvent)
+
+      subscription.settings.accepts_category?(event.category_id)
     end
 
     def self.retract?(subscription, event)

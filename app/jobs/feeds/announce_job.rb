@@ -9,6 +9,7 @@ module Feeds
       Integrations::Steam::AnnouncementPublished,
       Integrations::Steam::ArticlePublished,
       Integrations::Twitch::StreamStarted,
+      Integrations::Twitch::StreamUpdated,
       Integrations::Twitch::HighlightPublished,
       Integrations::Twitch::UploadPublished,
       Integrations::Twitch::FeaturedClipPublished,
@@ -30,7 +31,11 @@ module Feeds
     private
 
     def subscriptions(event)
-      Subscription.demanding(event.type).where(watch_id: event.watch_id)
+      Subscription.demanding(source(event).post_type(event.type)).where(watch_id: event.watch_id)
+    end
+
+    def source(event)
+      Feeds.source_for_watcher(event.watch.watcher)
     end
   end
 end
