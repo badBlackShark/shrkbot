@@ -19,14 +19,7 @@ module Ops
         private
 
         def send_announcement(post)
-          ::Bot::Discord::Components.create_with_subject(
-            channel_id: subscription.channel_id,
-            subject: announcement.subject,
-            rendered: announcement.card,
-            allowed_mentions: announcement.allowed_mentions,
-            fallback: announcement.fallback,
-            attachments: announcement.attachments
-          )
+          ::Feeds::AnnouncementMessage.create(channel_id: subscription.channel_id, announcement:)
         rescue
           post.destroy!
           raise

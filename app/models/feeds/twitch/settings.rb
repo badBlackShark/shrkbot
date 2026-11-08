@@ -12,6 +12,7 @@ module Feeds
       }.freeze
 
       LIVE_END_MODES = %w[keep delete mark_ended mark_ended_with_vod].freeze
+      SWITCHED_AWAY_MODES = %w[summary delete].freeze
 
       self.table_name = "feed_twitch_settings"
 
@@ -19,6 +20,7 @@ module Feeds
 
       validates :show_viewers, inclusion: {in: [true, false]}
       validates :live_end_mode, inclusion: {in: LIVE_END_MODES}
+      validates :switched_away, inclusion: {in: SWITCHED_AWAY_MODES}
       validates :subscription_id, uniqueness: true
       validate :categories_shape
 

@@ -28,6 +28,18 @@ RSpec.describe Feeds::Twitch::Ending do
         Feeds::Twitch::Announcement.new(event: updated, subscription:, image_url: "https://box.art/x.jpg", ended_at: ended.ended_at).card
       )
     end
+
+    context "when the stream had switched away from the follow's categories" do
+      before do
+        subscription.settings.update!(categories: [{"id" => "elsewhere", "name" => "Elsewhere"}])
+      end
+
+      it "keeps the summary card, stamped with the end, instead of bringing back the live card" do
+        expect(announcement.card).to eq(
+          Feeds::Twitch::SwitchedAnnouncement.new(event: updated, subscription:, ended_at: ended.ended_at).card
+        )
+      end
+    end
   end
 
   context "when marking the stream ended" do

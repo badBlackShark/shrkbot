@@ -53,6 +53,10 @@ module Feeds
       false
     end
 
+    def self.revive?(_subscription, _event)
+      false
+    end
+
     def self.announcement(event:, subscription:)
       Announcement.new(event:, subscription:, thumbnail: Thumbnail.for(event.watch))
     end

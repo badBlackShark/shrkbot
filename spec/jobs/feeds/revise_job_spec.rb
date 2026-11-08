@@ -14,6 +14,22 @@ RSpec.describe Feeds::ReviseJob do
     expect { perform }.to have_enqueued_job(Feeds::RevisePostJob).once.with(post, event)
   end
 
+  context "when shrkbot retracted the post" do
+    let!(:post) { create(:feed_post, :sent, subscription:, story_key: event.story_key, message_id: nil, retracted_at: Time.current) }
+
+    it "enqueues a revise job, so a switch back can re-post it" do
+      expect { perform }.to have_enqueued_job(Feeds::RevisePostJob).once.with(post, event)
+    end
+  end
+
+  context "when a moderator deleted the post" do
+    let!(:post) { create(:feed_post, :sent, subscription:, story_key: event.story_key, message_id: nil) }
+
+    it "enqueues nothing" do
+      expect { perform }.not_to have_enqueued_job(Feeds::RevisePostJob)
+    end
+  end
+
   context "when the post is still being sent" do
     let!(:post) { create(:feed_post, subscription:, story_key: event.story_key) }
 

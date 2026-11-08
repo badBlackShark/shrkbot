@@ -38,8 +38,10 @@ A source is a module under `Feeds::` (`Feeds::Steam`) that answers `plugin_key`,
 plus the settings contract: `settings_association` (the `Subscription` association that
 holds its provider settings, which the list finder preloads),
 `role_id_for(subscription, event_type)`, `accepts?(subscription, event)`,
-`post_type(event_type)`, `announced_types` and `retract?(subscription, event)` (true when the post is deleted instead of edited; Steam
-never, Twitch for `StreamEnded` in `delete` mode). Each source
+`post_type(event_type)`, `announced_types`, `retract?(subscription, event)` (true when the post is deleted instead of
+edited; Steam never, Twitch for `StreamEnded` in `delete` mode and for a switched-away
+stream in `delete` mode) and `revive?(subscription, event)` (true when a post shrkbot
+deleted may be sent again; Steam never, Twitch for a live event in a chosen category). Each source
 with settings adds its own `has_one` on `Feeds::Subscription` (`steam_settings`), so the
 foreign key and the guild purge follow the subscription. `Subscription#settings` reads
 that row and `#build_settings` builds it; the row is built once, with the subscription,
@@ -170,6 +172,30 @@ a `StreamStarted` or `StreamUpdated` whose session is no longer the watch's open
 refreshed with title, category, preview or box art and viewers on every `StreamUpdated`
 and `StreamSampled`, and edited once more on `StreamEnded` (see Revising a post).
 
+### Switching away
+
+A follow with a category filter can see a stream leave the chosen categories and come
+back. `switched_away` (`Feeds::Twitch::Settings`) decides what the live post does while the
+stream is outside them, independent of `live_end_mode`:
+
+- `summary` (default): the post is edited into a grey card
+  (`Feeds::Twitch::SwitchedAnnouncement`): `<name> · Live on Twitch`, the stream title,
+  `Switched to **<category>**` (or `Switched away from the chosen categories` without a
+  category) and `Started <relative time>`. No ping line, profile picture kept, the
+  "Watch on Twitch" button stays as the stream is still live.
+- `delete`: shrkbot deletes the message (`retract?`) and sets the post's `retracted_at`.
+
+Back in a chosen category the live card returns by a normal edit. If shrkbot deleted the
+message, `revive?` lets `Posts::Revise` send the card again without a ping and clear
+`retracted_at`, but only while `StoryPick` still finds the event eligible: a server that
+stopped following Live, or re-enabled the plugin mid-stream, gets no card back. A message a moderator deleted, or one lost to a missing channel or
+permission, has no `retracted_at` and stays gone; a re-post that hits a missing channel
+or permission clears `retracted_at`, so it is not retried on every sample. When the
+stream really ends,
+`live_end_mode` applies as usual (`keep` keeps the summary card, stamped with the end,
+when the stream ended outside the chosen categories), and a retracted post is not sent again: `revive?` is
+false for `StreamEnded`, so the end event does nothing to it.
+
 ### How a stream ends
 
 `live_end_mode` decides what happens to the live post when the stream ends
@@ -178,7 +204,8 @@ and `StreamSampled`, and edited once more on `StreamEnded` (see Revising a post)
 - `keep`: the live card re-rendered from the story's last live event (ping line and custom
   message kept) plus a last block, `-# Stream ended <relative time>`. Twitch has no frame
   by then, so the image becomes the category box art.
-- `delete`: the Discord message is deleted (`retract?`), and the post's `message_id` is cleared.
+- `delete`: the Discord message is deleted (`retract?`), and the post's `message_id` is cleared
+  and `retracted_at` set.
 - `mark_ended`: the ended card (`Feeds::Twitch::EndedAnnouncement`): no ping line or custom
   message, grey accent, no image, profile picture kept, no button.
 - `mark_ended_with_vod` (default): the ended card with a "Watch the VOD" button when a VOD
@@ -217,8 +244,8 @@ is the only chance to add the button, so `RevisePostJob` retries.
   language). Check constraints limit `body_length` to its two values and `languages` to
   the model's codes. The row outlives a pause: switching every post type off keeps it.
 - `feed_twitch_settings` (`Feeds::Twitch::Settings`): the Twitch-only settings of a
-  subscription, 1:1 (unique `subscription_id`). An optional `live_role_id` and
-  `show_viewers`.
+  subscription, 1:1 (unique `subscription_id`). An optional `live_role_id`,
+  `show_viewers` and `switched_away` (`summary` or `delete`, check-constrained).
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
   wants, each with an optional `template` override and `subscribed_since`, the moment
   that kind of post was followed (see Following since). Unique on
@@ -226,8 +253,9 @@ is the only chance to add the button, so `RevisePostJob` retries.
 - `feed_posts` (`Feeds::Post`): one row per story a subscription posted, holding
   the `story_key`. It is written before the message is sent, so it is the claim that
   keeps a story from posting twice. `channel_id` and `message_id` are set after the send
-  (null while it is in flight, and on rows from before they were recorded). Unique on
-  `[subscription_id, story_key]`.
+  (null while it is in flight, and on rows from before they were recorded).
+  `retracted_at` is set when shrkbot deletes the message, which tells that deletion apart
+  from a lost message. Unique on `[subscription_id, story_key]`.
 
 `watch_id` points at `integration_watches`; see
 [../integrations/overview.md](../integrations/overview.md) for what a watch is.
@@ -298,14 +326,16 @@ removed by the orphan prune once nothing references it.
 
 - `Feeds::ReviseJob` is the bus handler for `StreamUpdated`, `StreamSampled` and
   `StreamEnded`. It
-  enqueues one `Feeds::RevisePostJob` per sent post (`message_id` set) of the event's
-  story on an `active` subscription of the event's watch.
+  enqueues one `Feeds::RevisePostJob` per sent post (`message_id` set) or retracted post
+  (`retracted_at` set) of the event's story on an `active` subscription of the event's watch.
 - `Ops::Feeds::Posts::Revise` edits only when the event is the story's latest, so a
   retried older refresh never overwrites a newer one. The end edit runs on
   `RevisePostJob`'s per-post key, so a refresh that passed `latest?` finishes before it.
   It re-renders through the source's `announcement` and edits with mentions suppressed,
   so nothing pings again (`Components.edit`). When the source `retract?`s the event, it
-  deletes the message and clears `message_id` instead.
+  deletes the message, clears `message_id` and sets `retracted_at` instead. A post with no
+  `message_id` but a `retracted_at` is sent again (`Feeds::AnnouncementMessage`, the same
+  send `Posts::Create` uses, with mentions suppressed) when the source `revive?`s the event.
 - A message that can no longer be edited (a human deleted it, the channel is gone or the
   bot lost its permission) clears `message_id`, so later refreshes skip the post.
 

@@ -41,7 +41,7 @@ RSpec.describe Feeds do
     end
 
     it "gives every source an announcement builder" do
-      expect(sources).to all(respond_to(:announcement, :retract?))
+      expect(sources).to all(respond_to(:announcement, :retract?, :revive?))
     end
   end
 
