@@ -33,10 +33,13 @@ module Feeds
       private
 
       def categories_shape
-        valid = categories.is_a?(Array) && categories.all? { |category|
-          category.is_a?(Hash) && category["id"].is_a?(String) && category["id"].present? && category["name"].is_a?(String)
-        }
-        errors.add(:categories, :invalid) unless valid
+        return if categories.is_a?(Array) && categories.all? { |category| valid_category?(category) }
+
+        errors.add(:categories, :invalid)
+      end
+
+      def valid_category?(category)
+        category.is_a?(Hash) && category["id"].is_a?(String) && category["id"].present? && category["name"].is_a?(String)
       end
     end
   end
