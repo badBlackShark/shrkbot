@@ -123,7 +123,8 @@ bot's Twitch credentials the Twitch jobs return early, so nothing posts.
 `announced_types` lists every type that can produce a post. Twitch counts
 `StreamUpdated` as a Live post, so a switch into the filter posts. `AnnounceJob`
 (who is subscribed), `StoryPick` (since when, which copies compete) and the card's
-template and role all go through it.
+template and role all go through it. `AnnounceJob` subscribes to every source's
+`announced_types`, so the two lists cannot drift.
 
 The Live card shows `<name> · Live on Twitch` as the eyebrow, the stream title as the
 heading and `Streaming **<category>**` when the channel has a category, followed by a
@@ -262,10 +263,11 @@ removed by the orphan prune once nothing references it.
 
 - `Feeds::AnnounceJob` is the bus handler for the three Steam news event classes. It
   enqueues one `Feeds::PostJob` per `active` subscription on the event's watch that has
-  a `feed_subscribed_events` row for the event's type.
+  a `feed_subscribed_events` row for the event's post type and no `Post` for its story
+  yet (a stream's title edits would otherwise queue one dead job per follow each).
 - `Feeds::PostJob` checks, in order, that the subscription is still `active`, that it has
   no `Post` for the story yet, that `Feeds::StoryPick` finds the event eligible (its type
-  is followed and it occurred at or after that type's `subscribed_since`), and that no
+  is followed and it was published at or after that type's `subscribed_since`), and that no
   better eligible copy of the story exists. Then it calls `Ops::Feeds::Posts::Create`.
 - Both jobs serialize with `limits_concurrency`: `AnnounceJob` per watch and `PostJob`
   per subscription. `Dispatch` enqueues a poll's events oldest first, and Solid Queue
@@ -329,7 +331,10 @@ once, by two guards:
 
 `feed_subscribed_events.subscribed_since` is the gate that keeps a server from receiving
 posts published before it followed that kind of post. It defaults to the time the row
-is created. A post whose `occurred_at` is earlier is never eligible, and `StoryPick`
+is created. A post published earlier (`Integrations::Event#published_at`: `occurred_at`,
+or a stream's `started_at` for every event of that stream) is never eligible, so a server
+that follows a channel mid-stream waits for its next stream instead of being pinged at
+the next title edit. `StoryPick`
 ignores it when ranking, so a copy the subscription could never have received cannot
 displace one it could.
 

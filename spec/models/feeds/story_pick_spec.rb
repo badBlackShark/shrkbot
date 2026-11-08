@@ -194,10 +194,10 @@ RSpec.describe Feeds::StoryPick do
     let!(:article) { nil }
     let!(:other_story) { nil }
     let!(:started) do
-      create(:twitch_stream_started_event, watch:, session: "77", category_id: start_category, occurred_at: 2.hours.ago)
+      create(:twitch_stream_started_event, watch:, session: "77", category_id: start_category, occurred_at: 2.hours.ago, started_at: 2.hours.ago.iso8601)
     end
     let!(:updated) do
-      create(:twitch_stream_updated_event, watch:, session: "77", category_id: update_category, occurred_at: 1.hour.ago)
+      create(:twitch_stream_updated_event, watch:, session: "77", category_id: update_category, occurred_at: 1.hour.ago, started_at: 2.hours.ago.iso8601)
     end
     let(:event) { updated }
 
@@ -215,6 +215,14 @@ RSpec.describe Feeds::StoryPick do
         let(:event) { started }
 
         it "is not eligible" do
+          expect(pick).not_to be_eligible
+        end
+      end
+
+      context "when the server followed after the stream had started" do
+        let(:subscribed_since) { 90.minutes.ago }
+
+        it "waits for the next stream instead of pinging mid-stream" do
           expect(pick).not_to be_eligible
         end
       end

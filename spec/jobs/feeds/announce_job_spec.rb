@@ -23,6 +23,16 @@ RSpec.describe Feeds::AnnounceJob do
     it "enqueues a post job for the subscription following Live" do
       expect { perform }.to have_enqueued_job(Feeds::PostJob).once.with(subscription, event)
     end
+
+    context "when the subscription already posted the stream" do
+      before do
+        create(:feed_post, subscription:, story_key: event.story_key)
+      end
+
+      it "enqueues nothing" do
+        expect { perform }.not_to have_enqueued_job(Feeds::PostJob)
+      end
+    end
   end
 
   context "when the subscription is inactive" do

@@ -10,6 +10,10 @@ module Integrations
       def expired?
         watch.state["session"] != session
       end
+
+      def published_at
+        Time.iso8601(started_at)
+      end
     end
   end
 end

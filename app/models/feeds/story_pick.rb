@@ -27,7 +27,7 @@ module Feeds
 
     def eligible_copy?(copy)
       since = followed_since[source.post_type(copy.type)]
-      since.present? && copy.occurred_at >= since && source.accepts?(subscription, copy)
+      since.present? && copy.published_at >= since && source.accepts?(subscription, copy)
     end
 
     def followed_since

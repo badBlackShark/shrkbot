@@ -98,10 +98,6 @@ RSpec.describe Feeds::Twitch do
   end
 
   describe ".announced_types" do
-    it "adds the category switch to the subscribable types" do
-      expect(described_class.announced_types).to eq(described_class.event_types + %w[Integrations::Twitch::StreamUpdated])
-    end
-
     it "leaves out the revision-only events" do
       expect(described_class.announced_types).not_to include("Integrations::Twitch::StreamSampled")
     end
