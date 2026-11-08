@@ -32,6 +32,10 @@ RSpec.describe Feeds do
       expect(sources.map(&:template_tokens)).to all(be_present)
     end
 
+    it "gives every source notification tokens with the title and a default text per event type" do
+      expect(sources).to all(satisfy { |source| source.notification_tokens.include?("title") && source.event_types.all? { |type| source.default_notification(type).present? } })
+    end
+
     it "gives every source a follow-cap message" do
       expect(sources.map { |source| "operations.feeds.subscriptions.cap.#{source.plugin_key}" }).to all(satisfy { |key| I18n.exists?(key) })
     end

@@ -15,7 +15,7 @@ module Feeds
     end
 
     def fallback
-      "#{Bot::Discord::Truncate.call(subject, SUBJECT_LIMIT - url.to_s.length - 1)}\n#{url}"
+      "#{Bot::Discord::Truncate.call(fallback_text, SUBJECT_LIMIT - url.to_s.length - 1)}\n#{url}"
     end
 
     def card
@@ -38,6 +38,10 @@ module Feeds
     private
 
     attr_reader :event, :subscription
+
+    def fallback_text
+      custom_text.present? ? "#{lead}\n#{notification}" : subject
+    end
 
     def accent_color
       Bot::Config::ACCENT_COLOR

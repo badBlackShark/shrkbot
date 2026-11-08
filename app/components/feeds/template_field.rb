@@ -37,8 +37,12 @@ class Components::Feeds::TemplateField < Components::Base
       id: field_id,
       value:,
       placeholder:,
-      data: {feed_preview_target: "template", action: "input->feed-preview#render", tokens: samples.tokens(token_names).to_json}
+      data: textarea_data
     )
+  end
+
+  def textarea_data
+    {feed_preview_target: "template", action: "input->feed-preview#render", tokens: samples.tokens(token_names).to_json}
   end
 
   def placeholder

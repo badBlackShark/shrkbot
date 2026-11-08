@@ -77,7 +77,7 @@ en:
         channel_placeholder: Choose a channel
         where_title: Where to post
       event_type_setting:
-        summary: Custom message
+        summary: Message and notification
       event_types:
         announcement_published:
           help: The developer's other posts on Steam.
@@ -102,7 +102,7 @@ en:
       event_types_card:
         what_title: What to post
       notification_field:
-        help: Only push notifications show this. Leave it empty for the default.
+        help: What push notifications say. Leave it empty for the default.
         label: Notification text
         preview: Push notification
       placeholders:

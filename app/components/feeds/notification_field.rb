@@ -18,6 +18,10 @@ class Components::Feeds::NotificationField < Components::Feeds::TemplateField
     @event&.notification_template || source.default_notification(@event_type)
   end
 
+  def textarea_data
+    super.merge(fallback: source.default_notification(@event_type))
+  end
+
   def token_names
     source.notification_tokens
   end

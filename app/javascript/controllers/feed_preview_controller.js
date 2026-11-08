@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { text, pill, nodes } from "lib/token_preview"
 import { render as renderMarkdown } from "lib/discord_markdown_dom"
-import { tokenPattern } from "lib/feed_template"
+import { tokenPattern, previewTemplate } from "lib/feed_template"
 
 export default class extends Controller {
   static targets = ["template", "output", "role"]
@@ -15,8 +15,8 @@ export default class extends Controller {
   }
 
   paint(input, output) {
-    const template = input.value.trim()
     const tokens = JSON.parse(input.dataset.tokens)
+    const template = previewTemplate(input.value.trim(), input.dataset.fallback, tokens).trim()
     const blocks = template ? renderMarkdown(template, (leaf) => nodes(leaf, tokenPattern(tokens), (match) => [text(tokens[match[1]])])) : []
     const role = this.roleName()
 

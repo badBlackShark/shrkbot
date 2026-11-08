@@ -406,10 +406,15 @@ The notification text is a separate per-type template, the subscribed event's
 `notification_template`, used only here. `NULL` means the source's
 `default_notification` (for Steam `<game> · <type>: <title>`), and a submitted default is
 stored as `NULL` so later changes to the default reach it. A text that renders blank
-falls back to the default. The custom message is optional and empty by default. It is
-the subscribed event's `template` filled by `TemplateText`, with the tokens `game`,
-`author` and `feed`. It never touches the subject. A stored template that still has
+falls back to the default. Steam's default is built from `TYPE_LABELS`, the same label
+as the card eyebrow. A migration copied existing custom messages into the notification
+text, so existing pushes did not change. The custom message is optional and empty by
+default. It is the subscribed event's `template` filled by `TemplateText`, with the
+tokens `game`, `author` and `feed`. It never touches the subject. A stored template that still has
 `{title}` or `{url}` from before those tokens were removed renders them literally.
+
+The **fallback** content, used when the card conversion fails, keeps the custom message
+line: role and message, then the notification text, then the link.
 
 The type in the eyebrow comes from `Feeds::Steam::Announcement::TYPE_LABELS`
 (`Patch notes`, `Announcement`). Articles fall back to their feed label, such as

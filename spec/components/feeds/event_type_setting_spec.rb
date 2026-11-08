@@ -43,6 +43,6 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   end
 
   it "shows the custom message field inside the disclosure" do
-    expect(html).to include('data-disclosure-target="details"', "Custom message", "subscription[templates][#{event_type}]")
+    expect(html).to include('data-disclosure-target="details"', "Message and notification", "subscription[templates][#{event_type}]")
   end
 end

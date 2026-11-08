@@ -2,12 +2,6 @@
 
 module Feeds
   module Steam
-    NOTIFICATIONS = {
-      "Integrations::Steam::PatchNotesPublished" => "{game} · Patch notes: {title}",
-      "Integrations::Steam::AnnouncementPublished" => "{game} · Announcement: {title}",
-      "Integrations::Steam::ArticlePublished" => "{game} · {feed}: {title}"
-    }.freeze
-
     def self.plugin_key
       :steam
     end
@@ -48,7 +42,7 @@ module Feeds
     end
 
     def self.default_notification(event_type)
-      NOTIFICATIONS[event_type]
+      "{game} · #{Announcement::TYPE_LABELS.fetch(event_type, "{feed}")}: {title}"
     end
 
     def self.settings_association

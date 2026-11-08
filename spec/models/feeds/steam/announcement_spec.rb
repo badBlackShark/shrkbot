@@ -103,6 +103,14 @@ RSpec.describe Feeds::Steam::Announcement do
       expect(fallback).to eq("<@&4242> Team Fortress 2 · Patch notes: Smissmas 2026\nhttps://store.steampowered.com/news/286827/")
     end
 
+    context "with a custom message" do
+      let(:template) { "Hello {game}" }
+
+      it "puts the role and message line before the notification line and the link" do
+        expect(fallback).to eq("<@&4242> Hello Team Fortress 2\nTeam Fortress 2 · Patch notes: Smissmas 2026\nhttps://store.steampowered.com/news/286827/")
+      end
+    end
+
     context "when the subject already fills Discord's limit" do
       let(:event) { create(:steam_news_event, watch:, title: "word " * 600) }
 
