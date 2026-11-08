@@ -11,15 +11,21 @@ module Feeds
     end
 
     def self.event_types
-      %w[Integrations::Twitch::StreamStarted]
+      %w[
+        Integrations::Twitch::StreamStarted
+        Integrations::Twitch::HighlightPublished
+        Integrations::Twitch::UploadPublished
+        Integrations::Twitch::FeaturedClipPublished
+        Integrations::Twitch::ClipCreated
+      ]
     end
 
     def self.default_event_types
-      event_types
+      %w[Integrations::Twitch::StreamStarted Integrations::Twitch::HighlightPublished]
     end
 
     def self.template_tokens
-      %w[streamer category]
+      %w[streamer category title clipper]
     end
 
     def self.settings_association
@@ -39,9 +45,12 @@ module Feeds
     end
 
     def self.announcement(event:, subscription:)
-      return Ending.announcement(event:, subscription:) if event.is_a?(Integrations::Twitch::StreamEnded)
-
-      Announcement.new(event:, subscription:, image_url: LiveImage.for(event))
+      case event
+      when Integrations::Twitch::StreamEnded then Ending.announcement(event:, subscription:)
+      when Integrations::Twitch::VideoEvent then VideoAnnouncement.new(event:, subscription:)
+      when Integrations::Twitch::ClipEvent then ClipAnnouncement.new(event:, subscription:, category: GameLookup.find(event.category_id))
+      else Announcement.new(event:, subscription:, image_url: LiveImage.for(event))
+      end
     end
   end
 end

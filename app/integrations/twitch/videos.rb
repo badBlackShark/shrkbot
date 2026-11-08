@@ -22,6 +22,7 @@ module Integrations
           id: data.fetch("id"),
           stream_id: data.fetch("stream_id").presence,
           user_id: data.fetch("user_id"),
+          user_name: data.fetch("user_name"),
           title: data.fetch("title"),
           description: data.fetch("description"),
           created_at: Time.zone.parse(data.fetch("created_at")),
@@ -33,9 +34,8 @@ module Integrations
         )
       end
 
-      # Twitch serves video thumbnails at 320x180 only.
       def thumbnail(template)
-        template.sub("%{width}x%{height}", "320x180")
+        template.sub("%{width}x%{height}", "1280x720")
       end
 
       def seconds(duration)

@@ -103,12 +103,18 @@ are no preview routes for these pages.
 ### Twitch
 
 `Feeds::Twitch` is the second source: plugin key `:twitch`, watcher
-`Integrations::Twitch::ChannelWatcher`, one event type so far (`StreamStarted`, the live
-post), template tokens `streamer` and `category`. Its settings live in
-`feed_twitch_settings` (`Feeds::Twitch::Settings`, `twitch_settings` on the subscription):
-`live_role_id` to ping, `show_viewers` (true by default) and `live_end_mode` (see below). `role_id_for` maps an event
-type to its role column. `accepts?` is always true until the category filter lands. Without
-the bot's Twitch credentials the Twitch jobs return early, so nothing posts.
+`Integrations::Twitch::ChannelWatcher`, five event types (`StreamStarted`, the live post,
+then `HighlightPublished`, `UploadPublished`, `FeaturedClipPublished` and `ClipCreated`,
+in the order the UI lists them). A new follow subscribes to Live and Highlights. Template
+tokens are `streamer`, `category`, `title` and `clipper`; a token a card has no value for
+(`clipper` on a live card, `category` on a video) renders empty
+(`Feeds::Announcement#blank_tokens`). Its settings live in `feed_twitch_settings`
+(`Feeds::Twitch::Settings`, `twitch_settings` on the subscription): one role column per
+post type (`live_role_id`, `highlights_role_id`, `uploads_role_id`,
+`featured_clips_role_id`, `clips_role_id`), `show_viewers` (true by default) and
+`live_end_mode` (see below). `role_id_for` maps an event type to its role column.
+`accepts?` is always true until the category filter lands. Without the bot's Twitch
+credentials the Twitch jobs return early, so nothing posts.
 
 The Live card shows `<name> · Live on Twitch` as the eyebrow, the stream title as the
 heading and `Streaming **<category>**` when the channel has a category, followed by a
@@ -120,6 +126,32 @@ holds the stream preview when Twitch already has a frame, else the category's bo
 else nothing (`Feeds::Twitch::LiveImage`). The preview check is shared per stream for a
 minute, so every server following the channel gets the same URL and Discord fetches it once. The accent is Twitch purple and the button
 reads "Watch on Twitch". The default notification text is `<name> is live: <title>`.
+
+The video card (`Feeds::Twitch::VideoAnnouncement`, highlights and uploads) shows
+`<name> · New highlight on Twitch` or `<name> · New upload on Twitch` as the eyebrow, the
+video title as the heading and the length (`About 2 h 36 min`) as the details line, with
+the channel's profile picture as the section thumbnail and the video thumbnail as the
+image. Videos carry no category and the description is mostly empty or a link, so the card
+shows neither. The accent is Twitch purple and the button reads "Watch on Twitch". The
+default notification text is `<name> posted a highlight: <title>` or
+`<name> uploaded a video: <title>`.
+
+The clip card (`Feeds::Twitch::ClipAnnouncement`, featured and new clips) shows
+`<name> · Featured clip on Twitch` or `<name> · New clip on Twitch` as the eyebrow, the
+clip title as the heading, `Clipped by <creator> from **<category>**` (without `from` when
+the category is unknown) and a stats line, `<seconds> s · made <relative time>`, with the
+clip thumbnail as the image. The button reads "Watch the clip". The default notification
+text is `New featured clip from <name>: <title>` or `New clip from <name>: <title>`. The
+category comes from `Feeds::Twitch::GameLookup`, one cached `/games` call per category for
+a day, shared with the Live card's box art; a failed lookup is cached as nil for 10
+minutes.
+
+Both cards subclass `Feeds::Twitch::MediaAnnouncement`, which holds what they share
+(accent, profile header, eyebrow from the subclass's `LABELS`, thumbnail image, link).
+
+A clip that is both new and featured posts once. `ClipCreated` is secondary, so
+`StoryPick` prefers the featured copy. A clip featured after it already posted as new
+stays a "New clip" card.
 
 `PostJob` skips an expired event (`Integrations::Event#expired?`, false by default):
 a `StreamStarted` whose session is no longer the watch's open one. `StreamEnded` keeps

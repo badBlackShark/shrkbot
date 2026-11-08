@@ -31,18 +31,19 @@ RSpec.describe Integrations::Twitch::Videos do
     )
   end
 
-  it "maps the first video, filling the thumbnail size and reading the duration as seconds" do
+  it "maps the first video, filling the 1280x720 thumbnail size and reading the duration as seconds" do
     expect(videos_for_user.first).to eq(
       Integrations::Twitch::Video.new(
         id: "2277656159",
         stream_id: "44926619787",
         user_id: "141981764",
+        user_name: "TwitchDev",
         title: "Standard Output // October 16, 2024",
         description: "",
         created_at: Time.utc(2024, 10, 16, 18, 31, 23),
         published_at: Time.utc(2024, 10, 16, 18, 31, 23),
         url: "https://www.twitch.tv/videos/2277656159",
-        thumbnail_url: "https://static-cdn.jtvnw.net/cf_vods/d2nvs31859zcd8/30f3738ff535638f66df_twitchdev_44926619787_1729103477//thumb/thumb0-320x180.jpg",
+        thumbnail_url: "https://static-cdn.jtvnw.net/cf_vods/d2nvs31859zcd8/30f3738ff535638f66df_twitchdev_44926619787_1729103477//thumb/thumb0-1280x720.jpg",
         type: "archive",
         duration: 3238
       )
@@ -84,6 +85,24 @@ RSpec.describe Integrations::Twitch::Videos do
 
     it "has no stream id" do
       expect(videos_for_user.first.stream_id).to be_nil
+    end
+  end
+
+  describe "Video#processing?" do
+    subject(:processing) { video.processing? }
+
+    let(:video) { videos_for_user.first.with(thumbnail_url:) }
+
+    context "with the placeholder thumbnail Twitch serves while it processes the video" do
+      let(:thumbnail_url) { "https://vod-secure.twitch.tv/_404/404_processing_1280x720.png" }
+
+      it { is_expected.to be(true) }
+    end
+
+    context "with the fixture's first video" do
+      let(:video) { videos_for_user.first }
+
+      it { is_expected.to be(false) }
     end
   end
 end

@@ -29,6 +29,7 @@ module Integrations
           id: data.fetch("id"),
           url: data.fetch("url"),
           broadcaster_id: data.fetch("broadcaster_id"),
+          broadcaster_name: data.fetch("broadcaster_name"),
           creator_name: data.fetch("creator_name"),
           video_id: data.fetch("video_id").presence,
           category_id: data.fetch("game_id").presence,

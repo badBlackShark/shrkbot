@@ -6,6 +6,7 @@ module Integrations
       :id,
       :stream_id,
       :user_id,
+      :user_name,
       :title,
       :description,
       :created_at,
@@ -14,6 +15,10 @@ module Integrations
       :thumbnail_url,
       :type,
       :duration
-    )
+    ) do
+      def processing?
+        thumbnail_url.include?("/_404/404_processing")
+      end
+    end
   end
 end

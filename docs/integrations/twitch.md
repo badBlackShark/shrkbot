@@ -224,8 +224,10 @@ Helix reference, because no recorded item had them.
   Helix reads it.
 - **Stream thumbnails** keep their `{width}x{height}` template; the card that shows one
   fills it in.
-- **Video thumbnails** carry `%{width}x%{height}`; `Videos` substitutes `320x180`, the one
-  size Twitch serves for them.
+- **Video thumbnails** carry `%{width}x%{height}`; `Videos` substitutes `1280x720`, which
+  the CDN serves at that size (checked live on 2026-11-06). While Twitch still processes
+  a video, the thumbnail is `vod-secure.twitch.tv/_404/404_processing_%{width}x%{height}.png`;
+  `Video#processing?` detects it.
 - **Video durations** are `1h4m35s`, `3m21s` or `45s`; `Videos` reads them to integer
   seconds. Anything else raises `Unavailable`.
 - **Clips** come sorted by views, highest first, not by time. **Without `ended_at`, Twitch
@@ -244,6 +246,35 @@ Helix reference, because no recorded item had them.
   through `get_all`. `#destroy` of an id Twitch already removed answers 404, which
   counts as deleted. `condition` stays a string-keyed hash; `callback` is read from
   `transport.callback`.
+
+## Media
+
+`ChannelWatcher#observe` polls (`PollJob`, every 10 minutes) for highlights, uploads,
+featured clips and new clips. `PollJob` hands each watch its `demanded_types`, and each
+call below runs only if its event type is wanted by some active subscription; with
+nothing wanted, `observe` makes no request.
+
+- **Highlights and uploads** come from one `/videos?type=all&first=20` call, split by the
+  video's `type` into `HighlightPublished` and `UploadPublished`. Archives (past
+  broadcasts) are dropped, as is any type nobody wants. A video still being processed
+  (`Video#processing?`) is skipped and posted on a later poll, once Twitch has its real
+  thumbnail. Subject and story key are `video:<id>`; `occurred_at` is `published_at`.
+- **Clips** (`ClipCreated`) are read from `failing_since || polled_at`, minus a one-hour
+  overlap, and never earlier than 48 hours back. Twitch lists some clips well after they
+  were made (17.5 minutes late in a 61-clip sample on 2026-11-07), so a narrower window
+  would lose them for good; `Events::Record` skips the ones an earlier poll stored. `failing_since` goes first
+  because `RecordFailure` stamps `polled_at` on failed polls too, so `polled_at` alone
+  would skip clips made between the last good poll and the first failure. A watch that
+  was never polled reads the full 48 hours.
+- **Featured clips** (`FeaturedClipPublished`) are read with `is_featured=true` over the
+  last 48 hours on every poll. The ceiling is `Event::FRESHNESS_WINDOW`; the spec
+  "posts no featured clip made more than 48 hours ago" pins it, so a change to that
+  window fails by name.
+
+A clip's subject key is `clip:<id>` (`ClipCreated`) or `featured-clip:<id>`
+(`FeaturedClipPublished`); both share the story key `clip:<id>`. `ClipCreated` is
+`secondary`, so a clip that is both new and featured is one story and posts once, as
+featured.
 
 ## Images
 
