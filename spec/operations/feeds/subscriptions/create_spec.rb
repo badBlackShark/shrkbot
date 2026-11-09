@@ -10,8 +10,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
       target:,
       channel_id:,
       event_types:,
-      templates:,
-      notifications:,
+      choices:,
       settings:
     )
   end
@@ -24,8 +23,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   let(:languages) { %w[de en] }
   let(:settings) { {role_id:, body_length:, languages:} }
   let(:event_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
-  let(:templates) { {} }
-  let(:notifications) { {} }
+  let(:choices) { {} }
   let(:watch) { Integrations::Watch.find_by!(external_id: "1145350") }
 
   it "stores the subscription with its settings" do
@@ -50,10 +48,10 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   end
 
   context "with submitted templates" do
-    let(:templates) do
+    let(:choices) do
       {
-        "Integrations::Steam::PatchNotesPublished" => " Patch day: {title} ",
-        "Integrations::Steam::AnnouncementPublished" => "  "
+        "Integrations::Steam::PatchNotesPublished" => {template: " Patch day: {title} "},
+        "Integrations::Steam::AnnouncementPublished" => {template: "  "}
       }
     end
 
@@ -68,10 +66,10 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   end
 
   context "with submitted notification texts" do
-    let(:notifications) do
+    let(:choices) do
       {
-        "Integrations::Steam::PatchNotesPublished" => " Out now: {title} ",
-        "Integrations::Steam::AnnouncementPublished" => "{game} · Announcement: {title}"
+        "Integrations::Steam::PatchNotesPublished" => {notification: " Out now: {title} "},
+        "Integrations::Steam::AnnouncementPublished" => {notification: "{game} · Announcement: {title}"}
       }
     end
 

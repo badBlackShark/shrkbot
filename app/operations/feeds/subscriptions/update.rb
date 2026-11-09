@@ -4,7 +4,7 @@ module Ops
   module Feeds
     module Subscriptions
       class Update < ApplicationOperation
-        receives :subscription, :channel_id, :event_types, :templates, :notifications, :settings
+        receives :subscription, :channel_id, :event_types, :choices, :settings
 
         def call
           subscription.assign_attributes(channel_id:)
@@ -22,9 +22,10 @@ module Ops
 
         def update_followed_events
           subscription.subscribed_events.each do |event|
-            event.template = ::Feeds::Templates.custom(templates[event.event_type])
+            type_choices = choices.fetch(event.event_type, {})
+            event.template = ::Feeds::Templates.custom(type_choices[:template])
             event.notification_template = ::Feeds::Templates.notification(
-              notifications[event.event_type],
+              type_choices[:notification],
               subscription.source.default_notification(event.event_type)
             )
           end
@@ -36,7 +37,7 @@ module Ops
         def build_missing_events
           followed = subscription.subscribed_events.map(&:event_type)
           (event_types.uniq - followed).each do |event_type|
-            subscription.follow(event_type, template: templates[event_type], notification: notifications[event_type])
+            subscription.follow(event_type, **choices.fetch(event_type, {}))
           end
         end
       end

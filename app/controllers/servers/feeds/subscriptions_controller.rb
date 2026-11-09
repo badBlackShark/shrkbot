@@ -35,13 +35,12 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
       channel_id: subscription_params[:channel_id],
       settings:,
       event_types:,
-      templates:,
-      notifications:
+      choices: type_choices
     )
     return redirect_to plugin_path, notice: t("servers.#{plugin_key}.followed", name: lookup.target.name) if result.success?
 
     render_new(
-      subscription: result.value || build_subscription(lookup.target, event_types, channel_id: subscription_params[:channel_id], settings:, templates:, notifications:),
+      subscription: result.value || build_subscription(lookup.target, event_types, channel_id: subscription_params[:channel_id], settings:, choices: type_choices),
       target: lookup.target,
       error: result.errors.to_sentence,
       status: :unprocessable_content
@@ -65,8 +64,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
       channel_id: subscription_params[:channel_id],
       settings:,
       event_types:,
-      templates:,
-      notifications:
+      choices: type_choices
     )
     @error = result.errors.to_sentence if result.failure?
     respond_with_save(result)
@@ -100,10 +98,10 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     source_subscriptions.find_by(integration_watches: {external_id: target.external_id})
   end
 
-  def build_subscription(target, event_types = [], channel_id: nil, settings: {}, templates: {}, notifications: {})
+  def build_subscription(target, event_types = [], channel_id: nil, settings: {}, choices: {})
     @server_configuration.feed_subscriptions.build(watch: unsaved_watch(target), channel_id:).tap do |subscription|
       subscription.build_settings(settings)
-      event_types.each { |event_type| subscription.follow(event_type, template: templates[event_type], notification: notifications[event_type]) }
+      event_types.each { |event_type| subscription.follow(event_type, **choices.fetch(event_type, {})) }
     end
   end
 
@@ -145,6 +143,10 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   def event_types
     submitted = subscription_params[:event_types].to_h
     source.event_types.select { |event_type| submitted[event_type] == "1" }
+  end
+
+  def type_choices
+    source.event_types.index_with { |event_type| {template: templates[event_type], notification: notifications[event_type]} }
   end
 
   def role_ids

@@ -8,8 +8,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
       subscription:,
       channel_id: "999",
       event_types:,
-      templates:,
-      notifications:,
+      choices:,
       settings:
     )
   end
@@ -30,12 +29,10 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
   end
   let!(:articles) { create(:feed_subscribed_event, subscription:, event_type: "Integrations::Steam::ArticlePublished") }
   let(:event_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
-  let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "new {title}", "Integrations::Steam::AnnouncementPublished" => "fresh {game}"} }
-
-  let(:notifications) do
+  let(:choices) do
     {
-      "Integrations::Steam::PatchNotesPublished" => "new notification {title}",
-      "Integrations::Steam::AnnouncementPublished" => "{game} · Announcement: {title}"
+      "Integrations::Steam::PatchNotesPublished" => {template: "new {title}", notification: "new notification {title}"},
+      "Integrations::Steam::AnnouncementPublished" => {template: "fresh {game}", notification: "{game} · Announcement: {title}"}
     }
   end
 
@@ -83,7 +80,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
   end
 
   context "with a kept type's notification text reset to the default" do
-    let(:notifications) { {"Integrations::Steam::PatchNotesPublished" => "{game} · Patch notes: {title}"} }
+    let(:choices) { {"Integrations::Steam::PatchNotesPublished" => {notification: "{game} · Patch notes: {title}"}} }
 
     it "clears the stored text" do
       result
@@ -93,7 +90,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
   end
 
   context "with blank text" do
-    let(:templates) { {"Integrations::Steam::PatchNotesPublished" => "  ", "Integrations::Steam::AnnouncementPublished" => ""} }
+    let(:choices) { {"Integrations::Steam::PatchNotesPublished" => {template: "  "}, "Integrations::Steam::AnnouncementPublished" => {template: ""}} }
 
     it "stores no template" do
       result
@@ -144,7 +141,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
 
   context "when the channel is blank" do
     subject(:result) do
-      described_class.call(subscription:, channel_id: "", event_types:, templates:, notifications:, settings:)
+      described_class.call(subscription:, channel_id: "", event_types:, choices:, settings:)
     end
 
     it "fails and keeps the stored events" do
