@@ -384,9 +384,13 @@ en:
             %{since} UTC; live posts still work. shrkbot keeps trying every hour,
             and posts what it missed from the last 48 hours once Twitch answers.
       target_card:
-        change: Not this one?
         steam:
           external_id: Steam app %{id}
+      target_change_link:
+        label: Not this one?
+      target_source_link:
+        steam: Open on Steam
+        twitch: Open on Twitch
       twitch:
         categories_card:
           help: Leave it empty to post every category. Clips follow the same filter.

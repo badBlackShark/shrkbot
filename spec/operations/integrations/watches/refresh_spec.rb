@@ -5,14 +5,18 @@ require "rails_helper"
 RSpec.describe Ops::Integrations::Watches::Refresh do
   subject(:result) { described_class.call(watches: [watch, untouched], targets:) }
 
-  let!(:watch) { create(:integration_watch, external_id: "1145360", name: "Old", image_url: "https://example.com/old.jpg") }
+  let!(:watch) { create(:integration_watch, external_id: "1145360", name: "Old", image_url: "https://example.com/old.jpg", url: "https://example.com/old") }
   let!(:untouched) { create(:integration_watch, external_id: "440", name: "Team Fortress 2", image_url: "https://example.com/tf2.jpg") }
-  let(:targets) { [Integrations::Target.new(external_id: "1145360", name: "Hades", image_url: "https://example.com/new.jpg")] }
+  let(:targets) { [Integrations::Target.new(external_id: "1145360", name: "Hades", image_url: "https://example.com/new.jpg", url: "https://store.steampowered.com/app/1145360/")] }
 
-  it "writes the new name and image" do
+  it "writes the new name, image and link" do
     result
 
-    expect(watch.reload).to have_attributes(name: "Hades", image_url: "https://example.com/new.jpg")
+    expect(watch.reload).to have_attributes(
+      name: "Hades",
+      image_url: "https://example.com/new.jpg",
+      url: "https://store.steampowered.com/app/1145360/"
+    )
   end
 
   it "leaves a watch without a target alone" do
@@ -20,7 +24,7 @@ RSpec.describe Ops::Integrations::Watches::Refresh do
   end
 
   context "when nothing changed" do
-    let(:targets) { [Integrations::Target.new(external_id: "1145360", name: "Old", image_url: "https://example.com/old.jpg")] }
+    let(:targets) { [Integrations::Target.new(external_id: "1145360", name: "Old", image_url: "https://example.com/old.jpg", url: "https://example.com/old")] }
 
     it "does not touch updated_at" do
       expect { result }.not_to change { watch.reload.updated_at }
@@ -28,7 +32,7 @@ RSpec.describe Ops::Integrations::Watches::Refresh do
   end
 
   context "when the target has no image" do
-    let(:targets) { [Integrations::Target.new(external_id: "1145360", name: "Hades", image_url: nil)] }
+    let(:targets) { [Integrations::Target.new(external_id: "1145360", name: "Hades", image_url: nil, url: "https://store.steampowered.com/app/1145360/")] }
 
     it "clears the image" do
       result

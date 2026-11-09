@@ -10,7 +10,7 @@ RSpec.describe "Steam subscriptions", type: :request do
   let(:patch_notes) { "Integrations::Steam::PatchNotesPublished" }
   let(:announcements) { "Integrations::Steam::AnnouncementPublished" }
   let(:articles) { "Integrations::Steam::ArticlePublished" }
-  let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg") }
+  let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg", url: "https://store.steampowered.com/app/1145350/") }
   let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
   let!(:steam_plugin) { create(:plugin, key: "steam", name: "Steam") }
 
@@ -260,7 +260,7 @@ RSpec.describe "Steam subscriptions", type: :request do
   describe "GET /servers/:server_id/steam/subscriptions/:id/edit" do
     subject(:edit) { get edit_server_steam_subscription_path(guild.id, subscription) }
 
-    let(:watch) { create(:integration_watch, name: "Hades II", external_id: "1145350") }
+    let(:watch) { create(:integration_watch, name: "Hades II", external_id: "1145350", url: "https://store.steampowered.com/app/1145350/") }
     let!(:subscription) { create(:feed_subscription, server_configuration: config, watch:, channel_id: 777) }
 
     before { create(:feed_subscribed_event, subscription:, event_type: patch_notes, template: "Hot take: {title}") }
@@ -277,6 +277,14 @@ RSpec.describe "Steam subscriptions", type: :request do
 
       textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[choices][#{announcements}][template]"]))
       expect(textarea.text).to eq("")
+    end
+
+    it "links to the game's store page instead of offering to pick another" do
+      edit
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css(%(a[href="https://store.steampowered.com/app/1145350/"][target="_blank"]))).to be_present
+      expect(response.body).not_to include("Not this one?")
     end
 
     it "renders the form with the stored settings and a confirmed stop-following button" do

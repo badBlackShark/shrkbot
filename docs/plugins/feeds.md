@@ -88,8 +88,12 @@ are no preview routes for these pages.
   (`TargetLookup.by_external_id`, the watcher's `refresh`) rather than trusting anything
   the form carries. It must not go through `resolve`: that parses user input, and a
   Twitch user id is not a login.
+- **Target card.** `Components::Feeds::TargetCard` (picture, name, caption) heads both the
+  add page, with a "Not this one?" link, and the edit page, through `TargetBanner`, with a
+  link to the game's store page or the channel. The watch's `url` comes from the target on
+  follow and on each refresh.
 - **Ops.** `Ops::Feeds::Subscriptions::Create` checks the cap, finds or builds the shared
-  watch (refreshing its name and `image_url` from the target), refuses a game the server
+  watch (refreshing its name, `image_url` and `url` from the target), refuses a game the server
   already follows, validates the subscription with its events, then saves the watch and
   the first subscription in one transaction, so the daily orphan prune cannot take a
   fresh watch before its subscription exists. `Update` saves the settings, deletes
