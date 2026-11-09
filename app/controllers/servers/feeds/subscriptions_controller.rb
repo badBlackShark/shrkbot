@@ -23,7 +23,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   end
 
   def create
-    return head :not_found unless guild_channels?(subscription_params[:channel_id]) && guild_roles?(*role_ids)
+    return head :not_found unless guild_targets?
 
     lookup = ::Feeds::TargetLookup.by_external_id(watcher_class, subscription_params[:external_id])
     return render_lookup(error: lookup.error, status: :unprocessable_content) if lookup.error
@@ -57,7 +57,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   end
 
   def update
-    return head :not_found unless guild_channels?(subscription_params[:channel_id]) && guild_roles?(*role_ids)
+    return head :not_found unless guild_targets?
 
     result = Ops::Feeds::Subscriptions::Update.call(
       subscription: @subscription,
@@ -145,8 +145,18 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     source.event_types.select { |event_type| submitted[event_type] == "1" }
   end
 
+  def guild_targets?
+    guild_channels?(subscription_params[:channel_id], *channels.values) && guild_roles?(*role_ids)
+  end
+
   def type_choices
-    source.event_types.index_with { |event_type| {template: templates[event_type], notification: notifications[event_type]} }
+    source.event_types.index_with do |event_type|
+      {
+        template: templates[event_type],
+        notification: notifications[event_type],
+        channel_id: channels[event_type]
+      }
+    end
   end
 
   def role_ids
@@ -161,7 +171,11 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     subscription_params[:notifications].to_h
   end
 
+  def channels
+    subscription_params[:channels].to_h
+  end
+
   def subscription_params
-    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, *settings_params, {event_types: {}, templates: {}, notifications: {}}])
+    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, *settings_params, {event_types: {}, templates: {}, notifications: {}, channels: {}}])
   end
 end

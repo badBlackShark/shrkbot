@@ -303,12 +303,15 @@ is the only chance to add the button, so `RevisePostJob` retries.
   subscription, 1:1 (unique `subscription_id`). An optional `live_role_id`,
   `show_viewers` and `switched_away` (`summary` or `delete`, check-constrained).
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
-  wants, each with an optional `template` override and `subscribed_since`, the moment
-  that kind of post was followed (see Following since). Unique on
-  `[subscription_id, event_type]`.
+  wants, each with an optional `template` override, an optional `channel_id` and
+  `subscribed_since`, the moment that kind of post was followed (see Following since).
+  A null `channel_id` means the follow's channel; `Subscription#channel_for(event_type)`
+  resolves it (through `post_type`, so a stream update goes where the live post went).
+  Unique on `[subscription_id, event_type]`.
 - `feed_posts` (`Feeds::Post`): one row per story a subscription posted, holding
   the `story_key`. It is written before the message is sent, so it is the claim that
-  keeps a story from posting twice. `channel_id` and `message_id` are set after the send
+  keeps a story from posting twice. `channel_id` (the channel the post went to, which can
+  differ from the follow's) and `message_id` are set after the send
   (null while it is in flight, and on rows from before they were recorded).
   `retracted_at` is set when shrkbot deletes the message, which tells that deletion apart
   from a lost message. Unique on `[subscription_id, story_key]`.
@@ -372,7 +375,10 @@ removed by the orphan prune once nothing references it.
   `Components.create_with_subject` with `fallback: announcement.fallback`. The card
   carries untrusted post text, so nothing in it can ping. The `Post` is written first, as
   the claim, and released again only if the create raises; once the message exists the
-  claim is kept. When the conversion fails, the plain message is edited to
+  claim is kept. It posts to `subscription.channel_for(event.type)` and stores that
+  channel on the `Post`. Edits and retractions use the stored channel; a revive sends
+  a new message, so it goes to `channel_for` again and stores that.
+  When the conversion fails, the plain message is edited to
   `Announcement#fallback`: the subject cut so that the whole link still fits in 2000
   characters.
 

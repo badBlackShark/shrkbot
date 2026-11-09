@@ -83,6 +83,24 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
     end
   end
 
+  context "with a channel for one type" do
+    let(:choices) do
+      {
+        "Integrations::Steam::PatchNotesPublished" => {channel_id: "888"},
+        "Integrations::Steam::AnnouncementPublished" => {channel_id: ""}
+      }
+    end
+
+    it "stores it and nothing for the type left blank" do
+      stored = result.value.subscribed_events.to_h { |event| [event.event_type, event.channel_id] }
+
+      expect(stored).to eq(
+        "Integrations::Steam::PatchNotesPublished" => 888,
+        "Integrations::Steam::AnnouncementPublished" => nil
+      )
+    end
+  end
+
   context "without any event type" do
     let(:event_types) { [] }
 

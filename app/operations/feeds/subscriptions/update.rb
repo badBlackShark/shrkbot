@@ -23,6 +23,7 @@ module Ops
         def update_followed_events
           subscription.subscribed_events.each do |event|
             type_choices = choices.fetch(event.event_type, {})
+            event.channel_id = type_choices[:channel_id].presence
             event.template = ::Feeds::Templates.custom(type_choices[:template])
             event.notification_template = ::Feeds::Templates.notification(
               type_choices[:notification],

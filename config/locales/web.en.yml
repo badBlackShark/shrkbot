@@ -87,10 +87,7 @@ en:
         channel_placeholder: Choose a channel
         where_title: Where to post
       event_type_setting:
-        steam:
-          summary: Message and notification
-        twitch:
-          summary: Settings
+        summary: Settings
       event_types:
         announcement_published:
           help: The developer's other posts on Steam.
@@ -370,7 +367,6 @@ en:
           heading: Followed channels
         usage: "%{used} of %{max}"
       subscription_row:
-        badge_role: "%{type} · %{role}"
         channel_missing: channel deleted
         mention: "@%{role}"
         no_ping: no ping
@@ -448,6 +444,9 @@ en:
           featured_window: Only clips featured within 48 hours of being made get posted.
         viewers_toggle:
           label: Show the viewer count
+      type_channel_field:
+        label: Channel (optional)
+        placeholder: Same as "Where to post"
       volume_line:
         counts:
           announcement_published:

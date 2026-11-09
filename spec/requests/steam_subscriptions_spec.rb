@@ -93,7 +93,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     end
 
     context "when Steam resolves the game" do
-      it "renders the follow form with the default post types" do
+      it "renders the follow form with every post type off" do
         lookup
 
         expect(response.body).to include("Hades II", "Steam app 1145350", "Follow Hades II")
@@ -154,6 +154,29 @@ RSpec.describe "Steam subscriptions", type: :request do
       create_subscription
 
       expect(stored_notifications).to eq(patch_notes => "Out now: {title}", articles => nil)
+    end
+
+    context "with a channel for one post type" do
+      let(:channels) { {patch_notes => "777", articles => ""} }
+
+      before { attributes[:channels] = channels }
+
+      it "saves it on that type only" do
+        create_subscription
+
+        stored = config.feed_subscriptions.sole.subscribed_events.to_h { |event| [event.event_type, event.channel_id] }
+        expect(stored).to eq(patch_notes => 777, articles => nil)
+      end
+
+      context "when the channel is from another server" do
+        let(:channels) { {patch_notes => "999"} }
+
+        it "responds not found and writes nothing" do
+          expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
     end
 
     context "with blank text" do

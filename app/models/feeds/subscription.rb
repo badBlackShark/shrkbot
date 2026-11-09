@@ -16,12 +16,17 @@ module Feeds
     validates :channel_id, presence: true
     validates :watch_id, uniqueness: {scope: :server_configuration_id}
 
-    def follow(event_type, template: nil, notification: nil)
+    def follow(event_type, template: nil, notification: nil, channel_id: nil)
       subscribed_events.build(
         event_type:,
+        channel_id: channel_id.presence,
         template: Templates.custom(template),
         notification_template: Templates.notification(notification, source.default_notification(event_type))
       )
+    end
+
+    def channel_for(event_type)
+      subscribed_events.where(event_type: source.post_type(event_type)).pick(:channel_id) || channel_id
     end
 
     def source

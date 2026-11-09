@@ -54,7 +54,13 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   end
 
   it "shows the custom message field inside the disclosure" do
-    expect(html).to include('data-disclosure-target="details"', "Message and notification", "subscription[templates][#{event_type}]")
+    expect(html).to include('data-disclosure-target="details"', "Settings", "subscription[templates][#{event_type}]")
+  end
+
+  it "puts the type's channel before the message fields" do
+    names = Nokogiri::HTML.fragment(html).css("select, textarea").map { |field| field["name"] }
+
+    expect(names.first).to eq("subscription[channels][#{event_type}]")
   end
 
   it "scopes the role pill of its fields to itself" do
@@ -73,7 +79,7 @@ RSpec.describe Components::Feeds::EventTypeSetting do
 
       expect(details.at_css("summary").text).to include("Settings")
       expect(details.css("select, textarea").map { |field| field["name"] }).to eq(
-        ["subscription[highlights_role_id]", "subscription[templates][#{event_type}]", "subscription[notifications][#{event_type}]"]
+        ["subscription[channels][#{event_type}]", "subscription[highlights_role_id]", "subscription[templates][#{event_type}]", "subscription[notifications][#{event_type}]"]
       )
     end
 

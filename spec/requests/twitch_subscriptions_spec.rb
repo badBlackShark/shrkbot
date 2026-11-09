@@ -175,6 +175,29 @@ RSpec.describe "Twitch subscriptions", type: :request do
       end
     end
 
+    context "with a channel for one post type" do
+      let(:channels) { {live => "777", highlights => ""} }
+
+      before { attributes[:channels] = channels }
+
+      it "saves it on that type only" do
+        create_subscription
+
+        stored = config.feed_subscriptions.sole.subscribed_events.to_h { |event| [event.event_type, event.channel_id] }
+        expect(stored).to eq(live => 777, highlights => nil)
+      end
+
+      context "when the channel is from another server" do
+        let(:channels) { {live => "999"} }
+
+        it "responds not found and writes nothing" do
+          expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
     context "with a channel from another server" do
       let(:channel_id) { "999" }
 
@@ -252,13 +275,14 @@ RSpec.describe "Twitch subscriptions", type: :request do
     subject(:update) do
       patch(
         server_twitch_subscription_path(guild.id, subscription),
-        params: {subscription: {channel_id: "777", live_end_mode: "mark_ended", show_viewers:, categories:, event_types: {live => "1"}}},
+        params: {subscription: {channel_id: "777", live_end_mode: "mark_ended", show_viewers:, categories:, event_types: {live => "1"}, channels:}},
         **turbo
       )
     end
 
     let(:show_viewers) { "0" }
     let(:categories) { [""] }
+    let(:channels) { {live => ""} }
     let!(:subscription) { create(:feed_subscription, :twitch, server_configuration: config, channel_id: 555) }
 
     it "saves and re-renders the form as a turbo stream" do
@@ -268,6 +292,28 @@ RSpec.describe "Twitch subscriptions", type: :request do
       expect(response.body).to include("twitch-config")
       expect(subscription.reload).to have_attributes(channel_id: 777)
       expect(subscription.twitch_settings).to have_attributes(live_end_mode: "mark_ended", show_viewers: false)
+    end
+
+    context "with a post type channel of this server" do
+      let(:channels) { {live => "777"} }
+
+      it "stores it on that post type" do
+        update
+
+        expect(subscription.reload.subscribed_events.sole).to have_attributes(event_type: live, channel_id: 777)
+      end
+    end
+
+    context "with a post type channel from another server" do
+      let(:channels) { {live => "999"} }
+
+      it "responds not found and changes nothing" do
+        update
+
+        expect(response).to have_http_status(:not_found)
+        expect(subscription.reload).to have_attributes(channel_id: 555)
+        expect(subscription.subscribed_events).to be_empty
+      end
     end
 
     context "when every chosen category is cleared" do

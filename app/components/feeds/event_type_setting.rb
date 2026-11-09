@@ -48,10 +48,11 @@ class Components::Feeds::EventTypeSetting < Components::Base
           "text-text-secondary [&::-webkit-details-marker]:hidden",
         data: {action: "click->disclosure#toggle"}
       ) do
-        span { t(".#{@plugin_key}.summary") }
+        span { t(".summary") }
         render Components::Icon.new("caret-down", class: "dropdown-chevron size-3.5 flex-none text-text-muted")
       end
       div(class: "mt-3 flex flex-col gap-3") do
+        render Components::Feeds::TypeChannelField.new(subscription: @subscription, event_type: @event_type, event: @event)
         if @type_fields
           render(@type_fields.new(subscription: @subscription, event_type: @event_type)) { message_fields }
         else
