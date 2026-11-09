@@ -96,9 +96,7 @@ RSpec.describe "Steam subscriptions", type: :request do
         lookup
 
         expect(response.body).to include("Hades II", "Steam app 1145350", "Follow Hades II")
-        expect(checkbox(patch_notes)["checked"]).to be_present
-        expect(checkbox(announcements)["checked"]).to be_present
-        expect(checkbox(articles)["checked"]).to be_nil
+        expect([patch_notes, announcements, articles].map { |type| checkbox(type)["checked"] }).to all(be_nil)
       end
 
       it "loads the volume line lazily without calling Steam" do

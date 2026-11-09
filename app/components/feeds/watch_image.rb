@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 class Components::Feeds::WatchImage < Components::Base
-  SIZES = {md: "w-46", list: "w-30 sm:w-46"}.freeze
-  SHAPE = "aspect-[460/215] flex-none rounded"
+  SHAPES = {
+    steam: {shape: "aspect-[460/215] rounded", md: "w-46", list: "w-30 sm:w-46"},
+    twitch: {shape: "aspect-square rounded-full", md: "w-22", list: "w-14 sm:w-22"}
+  }.freeze
 
-  def initialize(url:, size: :md, loading: "lazy")
+  def initialize(url:, plugin_key:, size: :md, loading: "lazy")
     @url = url
+    @plugin_key = plugin_key
     @size = size
     @loading = loading
   end
@@ -21,6 +24,7 @@ class Components::Feeds::WatchImage < Components::Base
   private
 
   def css
-    "#{SIZES.fetch(@size)} #{SHAPE}"
+    shape = SHAPES.fetch(@plugin_key)
+    "#{shape.fetch(@size)} #{shape.fetch(:shape)} flex-none"
   end
 end

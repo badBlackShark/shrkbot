@@ -8,6 +8,7 @@ class Components::Feeds::Twitch::TypeFields < Components::Base
 
   def view_template
     render Components::Callout.new(variant: :warning) { t(".clip_warning") } if clips?
+    render Components::Callout.new(variant: :info) { t(".featured_window") } if featured?
     div do
       render Components::Feeds::RoleField.new(
         subscription: @subscription,
@@ -15,16 +16,19 @@ class Components::Feeds::Twitch::TypeFields < Components::Base
         selected: @subscription.settings.role_id_for(@event_type)
       )
     end
-    return unless live?
-
-    render Components::Feeds::Twitch::EndModeField.new(subscription: @subscription)
-    render Components::Feeds::Twitch::ViewersToggle.new(subscription: @subscription)
+    render Components::Feeds::Twitch::ViewersToggle.new(subscription: @subscription) if live?
+    yield
+    render Components::Feeds::Twitch::EndModeField.new(subscription: @subscription) if live?
   end
 
   private
 
   def clips?
     @event_type == ::Integrations::Twitch::ClipCreated.name
+  end
+
+  def featured?
+    @event_type == ::Integrations::Twitch::FeaturedClipPublished.name
   end
 
   def live?

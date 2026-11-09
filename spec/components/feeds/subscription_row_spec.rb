@@ -58,7 +58,7 @@ RSpec.describe Components::Feeds::SubscriptionRow do
     end
 
     it "names each role on its badge" do
-      expect(text).to include("Live · @Streams").and include("Highlights · @Clips")
+      expect(text).to include("Going live · @Streams").and include("New highlight · @Clips")
     end
 
     it "drops the shared ping from the meta line" do
@@ -73,7 +73,7 @@ RSpec.describe Components::Feeds::SubscriptionRow do
       end
 
       it "leaves that badge plain" do
-        expect(badges).to include("Live · @Streams", "Highlights")
+        expect(badges).to include("Going live · @Streams", "New highlight")
       end
     end
 
@@ -81,7 +81,7 @@ RSpec.describe Components::Feeds::SubscriptionRow do
       let(:role_names) { {1 => "Streams"} }
 
       it "says so on that badge" do
-        expect(badges).to include("Highlights · a role that was deleted")
+        expect(badges).to include("New highlight · a role that was deleted")
       end
     end
   end

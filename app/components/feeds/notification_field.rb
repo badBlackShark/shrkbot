@@ -8,9 +8,12 @@ class Components::Feeds::NotificationField < Components::Feeds::TemplateField
   end
 
   def label_row
-    div(class: "flex flex-col gap-1") do
+    div(class: "flex items-center justify-between gap-3") do
       label(for: field_id, class: "text-sm font-semibold") { t(".label") }
-      p(class: "text-sm text-text-secondary") { t(".help") }
+      render Components::ResetButton.new(
+        label: t(".reset"),
+        data: {action: "feed-preview#reset"}
+      )
     end
   end
 
@@ -23,7 +26,7 @@ class Components::Feeds::NotificationField < Components::Feeds::TemplateField
   end
 
   def token_names
-    source.notification_tokens
+    source.notification_tokens & source.tokens_for(@event_type)
   end
 
   def preview_label

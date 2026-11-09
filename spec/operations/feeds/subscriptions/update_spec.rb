@@ -121,13 +121,13 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
 
   context "when every post type is switched off" do
     let(:event_types) { [] }
-    let(:subscription) { create(:steam_feed_subscription, channel_id: 555, role_id: 777, body_length: "full", languages: %w[ru]) }
-    let(:settings) { {role_id: "777", body_length: "full", languages: %w[ru]} }
 
-    it "keeps the role, body length and languages" do
-      result
-
-      expect(subscription.reload.steam_settings).to have_attributes(role_id: 777, body_length: "full", languages: %w[ru])
+    it "fails and changes nothing" do
+      expect(result.errors).to eq(["Turn on at least one type of post."])
+      expect(subscription.reload).to have_attributes(channel_id: 555)
+      expect(subscription.subscribed_events.map(&:event_type)).to match_array(
+        %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::ArticlePublished]
+      )
     end
   end
 

@@ -69,15 +69,13 @@ RSpec.describe "Twitch subscriptions", type: :request do
     end
 
     context "when Twitch resolves the channel" do
-      it "renders the follow form with the five post types and the default ones on" do
+      it "renders the follow form with the five post types, all off" do
         lookup
 
-        expect(response.body).to include("SomeStreamer", "Twitch user 9001", "Follow SomeStreamer")
+        expect(response.body).to include("SomeStreamer", "Follow SomeStreamer")
         expect(response.body).not_to include("translation missing")
         expect([live, highlights, uploads, featured_clips, clips].map { |type| checkbox(type) }).to all(be_present)
-        expect(checkbox(live)["checked"]).to be_present
-        expect(checkbox(highlights)["checked"]).to be_present
-        expect(checkbox(clips)["checked"]).to be_nil
+        expect([live, highlights, uploads, featured_clips, clips].map { |type| checkbox(type)["checked"] }).to all(be_nil)
       end
 
       it "renders one role select per post type and the end mode only for live" do
@@ -227,7 +225,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
 
       page = Nokogiri::HTML(response.body)
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Twitch user #{subscription.watch.external_id}", "This deletes your settings for this channel.")
+      expect(response.body).to include("This deletes your settings for this channel.")
       expect(response.body).not_to include("translation missing")
       expect(page.at_css(%(select[name="subscription[live_role_id]"] option[selected]))["value"]).to eq("888")
       expect(page.at_css(%(input[name="subscription[live_end_mode]"]))["value"]).to eq("keep")

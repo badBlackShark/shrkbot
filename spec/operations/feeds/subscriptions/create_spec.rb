@@ -85,6 +85,16 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
     end
   end
 
+  context "without any event type" do
+    let(:event_types) { [] }
+
+    it "fails and saves nothing" do
+      expect(result.errors).to eq(["Turn on at least one type of post."])
+      expect(Integrations::Watch.where(external_id: "1145350")).not_to exist
+      expect(server_configuration.feed_subscriptions).to be_empty
+    end
+  end
+
   it "creates the watch with the game's name and image" do
     result
 

@@ -20,7 +20,7 @@ class Components::Feeds::CustomMessageField < Components::Feeds::TemplateField
   end
 
   def token_names
-    source.template_tokens
+    source.template_tokens & source.tokens_for(@event_type)
   end
 
   def preview_label

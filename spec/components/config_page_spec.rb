@@ -35,7 +35,7 @@ RSpec.describe Components::ConfigPage do
         icon: "bell",
         title: "Reminders",
         description: "Manage reminders.",
-        media: Components::Feeds::WatchImage.new(url: "https://example.test/game.jpg")
+        media: Components::Feeds::WatchImage.new(url: "https://example.test/game.jpg", plugin_key: :steam)
       )
     end
 

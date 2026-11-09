@@ -19,7 +19,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     existing = followed_subscription(lookup.target)
     return render_lookup(input: params[lookup_param], existing:) if existing
 
-    render_new(subscription: build_subscription(lookup.target, source.default_event_types), target: lookup.target)
+    render_new(subscription: build_subscription(lookup.target), target: lookup.target)
   end
 
   def create
@@ -100,7 +100,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     source_subscriptions.find_by(integration_watches: {external_id: target.external_id})
   end
 
-  def build_subscription(target, event_types, channel_id: nil, settings: {}, templates: {}, notifications: {})
+  def build_subscription(target, event_types = [], channel_id: nil, settings: {}, templates: {}, notifications: {})
     @server_configuration.feed_subscriptions.build(watch: unsaved_watch(target), channel_id:).tap do |subscription|
       subscription.build_settings(settings)
       event_types.each { |event_type| subscription.follow(event_type, template: templates[event_type], notification: notifications[event_type]) }

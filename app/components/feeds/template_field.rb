@@ -60,7 +60,7 @@ class Components::Feeds::TemplateField < Components::Base
   end
 
   def placeholders
-    token_names.index_with { |name| t("components.feeds.placeholders.#{name}") }
+    token_names.index_with { |name| t("components.feeds.placeholders.#{@plugin_key}.#{name}") }
   end
 
   def preview

@@ -34,8 +34,9 @@ source module (see Sources) and its own page.
 ## Sources
 
 A source is a module under `Feeds::` (`Feeds::Steam`) that answers `plugin_key`,
-`watchers`, `event_types` (in UI order), `default_event_types`, `template_tokens`,
-`notification_tokens` and `default_notification(event_type)`, plus the settings
+`watchers`, `event_types` (in UI order), `template_tokens`, `notification_tokens`,
+`tokens_for(event_type)` (the tokens that type can fill) and
+`default_notification(event_type)`, plus the settings
 contract: `settings_association` (the `Subscription` association that holds
 its provider settings, which the list finder preloads),
 `role_id_for(subscription, event_type)`, `accepts?(subscription, event)`,
@@ -76,7 +77,7 @@ are no preview routes for these pages.
   `Feeds::TargetLookup` calls the watcher's `resolve` and returns the target or one error
   (`invalid_reference`, `not_found`, `unavailable`). A game the server already follows
   links to its edit page; otherwise the follow form renders for the resolved target, with
-  Patch notes and Announcements on and Articles off (`Feeds::Steam.default_event_types`).
+  no post type selected; at least one must be turned on to follow.
   `create` resolves the game again from the hidden `external_id` rather than trusting
   anything the form carries.
 - **Ops.** `Ops::Feeds::Subscriptions::Create` checks the cap, finds or builds the shared

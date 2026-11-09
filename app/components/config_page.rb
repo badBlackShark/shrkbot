@@ -51,7 +51,7 @@ class Components::ConfigPage < Components::Base
           render Components::Badge.new(variant: :copper) { @header.badge } if @header.badge
           render @header.aside if @header.aside
         end
-        p(class: "mt-1 text-sm text-text-secondary") { @header.description }
+        p(class: "mt-1 text-sm text-text-secondary") { @header.description } if @header.description
       end
       enable_control if @toggle
     end

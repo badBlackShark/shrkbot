@@ -11,6 +11,12 @@ RSpec.describe Feeds::Steam do
     end
   end
 
+  describe ".tokens_for" do
+    it "is every notification token whatever the type" do
+      expect(described_class.tokens_for("Integrations::Steam::ArticlePublished")).to eq(%w[game author feed title])
+    end
+  end
+
   describe ".role_id_for" do
     subject(:role_id) { described_class.role_id_for(subscription, "Integrations::Steam::PatchNotesPublished") }
 

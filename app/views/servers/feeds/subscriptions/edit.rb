@@ -29,7 +29,7 @@ class Views::Servers::Feeds::Subscriptions::Edit < Views::Base
     Components::ConfigPageHeader.new(
       icon: plugin_icon(@plugin_key),
       title: @subscription.watch.name,
-      description: t("components.feeds.target_card.#{@plugin_key}.external_id", id: @subscription.watch.external_id),
+      description: ::Feeds::TargetCaption.call(@plugin_key, @subscription.watch.external_id),
       media:
     )
   end
@@ -38,6 +38,6 @@ class Views::Servers::Feeds::Subscriptions::Edit < Views::Base
     image_url = @subscription.watch.image_url
     return unless image_url
 
-    Components::Feeds::WatchImage.new(url: image_url, size: :list, loading: "eager")
+    Components::Feeds::WatchImage.new(url: image_url, plugin_key: @plugin_key, size: :list, loading: "eager")
   end
 end

@@ -15,7 +15,7 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   def view_template
     render Components::Card.new(enabled: true, lift: linked?, class: "relative flex flex-wrap items-center gap-4") do
-      render Components::Feeds::WatchImage.new(url: watch.image_url, size: :list)
+      render Components::Feeds::WatchImage.new(url: watch.image_url, plugin_key: @plugin_key, size: :list)
       div(class: "min-w-0 flex-1") do
         title
         meta

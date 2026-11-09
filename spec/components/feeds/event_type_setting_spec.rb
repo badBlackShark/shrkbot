@@ -20,6 +20,10 @@ RSpec.describe Components::Feeds::EventTypeSetting do
     expect(html).to start_with('<div class="group/type"')
   end
 
+  it "shows the type's help line" do
+    expect(html).to include("Posts the developer tagged as patch notes.")
+  end
+
   it "wires the toggle to sync the disclosure" do
     expect(html).to include('data-action="change->disclosure#sync"')
   end
@@ -71,6 +75,19 @@ RSpec.describe Components::Feeds::EventTypeSetting do
       expect(details.css("select, textarea").map { |field| field["name"] }).to eq(
         ["subscription[highlights_role_id]", "subscription[templates][#{event_type}]", "subscription[notifications][#{event_type}]"]
       )
+    end
+
+    it "shows no help line for the type" do
+      expect(html).not_to include("When the streamer saves part of a past stream")
+      expect(html).to include("New highlight")
+    end
+
+    context "with the live type" do
+      let(:event_type) { "Integrations::Twitch::StreamStarted" }
+
+      it "puts the notification text before the end mode" do
+        expect(html.index("subscription[notifications]")).to be < html.index("live_end_mode")
+      end
     end
   end
 end

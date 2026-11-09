@@ -8,6 +8,7 @@ module Ops
 
         def call
           return failure(::Feeds::Subscription.cap_message(source)) if ::Feeds::Subscription.at_cap?(server_configuration, source)
+          return failure(I18n.t("operations.feeds.subscriptions.no_event_types")) if event_types.empty?
 
           watch.assign_attributes(name: target.name, image_url: target.image_url)
           return failure(I18n.t("operations.feeds.subscriptions.already_followed", name: target.name)) if already_followed?

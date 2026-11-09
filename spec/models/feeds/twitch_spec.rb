@@ -29,17 +29,23 @@ RSpec.describe Feeds::Twitch do
     end
   end
 
-  describe ".default_event_types" do
-    it "is Live and Highlights" do
-      expect(described_class.default_event_types).to eq(
-        %w[Integrations::Twitch::StreamStarted Integrations::Twitch::HighlightPublished]
-      )
-    end
-  end
-
   describe ".template_tokens" do
     it "adds the title and the clipper" do
       expect(described_class.template_tokens).to eq(%w[streamer category title clipper])
+    end
+  end
+
+  describe ".tokens_for" do
+    {
+      "Integrations::Twitch::StreamStarted" => %w[streamer category title],
+      "Integrations::Twitch::HighlightPublished" => %w[streamer title],
+      "Integrations::Twitch::UploadPublished" => %w[streamer title],
+      "Integrations::Twitch::FeaturedClipPublished" => %w[streamer category title clipper],
+      "Integrations::Twitch::ClipCreated" => %w[streamer category title clipper]
+    }.each do |event_type, tokens|
+      it "is #{tokens.join(", ")} for #{event_type.demodulize}" do
+        expect(described_class.tokens_for(event_type)).to eq(tokens)
+      end
     end
   end
 
