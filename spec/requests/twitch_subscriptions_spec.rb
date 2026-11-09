@@ -185,6 +185,18 @@ RSpec.describe "Twitch subscriptions", type: :request do
       end
     end
 
+    context "when Twitch is down" do
+      before { allow(Integrations::Twitch::ChannelWatcher).to receive(:refresh).and_raise(Integrations::Unavailable) }
+
+      it "renders an empty lookup with the error, never the numeric id as a name, and writes nothing" do
+        expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("Twitch didn&#39;t answer.")
+        expect(response.body).not_to include('value="9001"')
+      end
+    end
+
     context "when the channel is left empty" do
       let(:channel_id) { "" }
 

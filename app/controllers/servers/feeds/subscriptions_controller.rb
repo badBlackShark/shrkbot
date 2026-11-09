@@ -26,7 +26,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     return head :not_found unless guild_channels?(subscription_params[:channel_id]) && guild_roles?(*role_ids)
 
     lookup = ::Feeds::TargetLookup.by_external_id(watcher_class, subscription_params[:external_id])
-    return render_lookup(input: subscription_params[:external_id], error: lookup.error, status: :unprocessable_content) if lookup.error
+    return render_lookup(error: lookup.error, status: :unprocessable_content) if lookup.error
 
     result = Ops::Feeds::Subscriptions::Create.call(
       server_configuration: @server_configuration,
