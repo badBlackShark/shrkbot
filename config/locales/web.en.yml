@@ -89,7 +89,6 @@ en:
       event_type_setting:
         channel_label: Channel (optional)
         channel_placeholder: Same as "Where to post"
-        summary: Settings
       event_types:
         announcement_published:
           help: The developer's other posts on Steam.
@@ -132,6 +131,8 @@ en:
       role_field:
         role_label: Role to ping (optional)
         role_placeholder: No ping
+      settings_disclosure:
+        summary: Settings
       steam:
         language_card:
           help: Leave empty to post every language. shrkbot can't tell the language

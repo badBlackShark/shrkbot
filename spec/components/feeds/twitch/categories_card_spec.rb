@@ -40,7 +40,13 @@ RSpec.describe Components::Feeds::Twitch::CategoriesCard do
     end
   end
 
-  it "ends with the switched-away choice" do
-    expect(document.at_css("input[name='subscription[switched_away]']")).to be_present
+  it "ends with the switched-away choice, folded into a closed settings disclosure remembered per channel" do
+    wrapper = document.at_css("[data-controller='disclosure']")
+    details = wrapper.at_css("details")
+
+    expect(wrapper["data-disclosure-key-value"]).to eq("feeds-switched-away-#{subscription.watch.external_id}")
+    expect(details["open"]).to be_nil
+    expect(details.at_css("summary").text).to include("Settings")
+    expect(details.at_css("input[name='subscription[switched_away]']")).to be_present
   end
 end
