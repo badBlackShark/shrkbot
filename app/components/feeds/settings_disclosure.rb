@@ -5,7 +5,7 @@ class Components::Feeds::SettingsDisclosure < Components::Base
     "text-text-secondary [&::-webkit-details-marker]:hidden"
 
   def view_template(&)
-    details(data: {disclosure_target: "details"}, class: "mt-2") do
+    details(data: {disclosure_target: "details"}) do
       summary(class: SUMMARY, data: {action: "click->disclosure#toggle"}) do
         span { t(".summary") }
         render Components::Icon.new("caret-down", class: "dropdown-chevron size-3.5 flex-none text-text-muted")

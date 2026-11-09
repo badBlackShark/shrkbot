@@ -18,7 +18,7 @@ class Components::Feeds::EventTypeSetting < Components::Base
         help: help_text,
         data: {action: "change->disclosure#sync", disclosure_target: "toggle"}
       )
-      message_disclosure
+      div(class: "mt-2") { settings_disclosure }
     end
   end
 
@@ -41,7 +41,7 @@ class Components::Feeds::EventTypeSetting < Components::Base
     @event.present? && !@event.marked_for_destruction?
   end
 
-  def message_disclosure
+  def settings_disclosure
     render Components::Feeds::SettingsDisclosure.new do
       div do
         render Components::Feeds::ChannelField.new(

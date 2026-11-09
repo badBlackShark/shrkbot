@@ -128,8 +128,9 @@ are no preview routes for these pages.
   per post type, so `EventTypesCard` and `EventTypeSetting` take an optional
   `type_fields:` component class, rendered inside each type's disclosure with
   `subscription:` and `event_type:` and a block that renders the text fields, which it
-  yields where they belong; the disclosure summary is one key
-  (`event_type_setting.summary`). `Twitch::TypeFields` adds the role field
+  yields where they belong; the disclosure is
+  `Feeds::SettingsDisclosure` (summary key `settings_disclosure.summary`), which the
+  categories card reuses for the switched-away choice. `Twitch::TypeFields` adds the role field
   for every type, a volume warning on All clips, the 48-hour note on Featured clips, the
   viewer toggle above Live's text fields and the end mode below them. The end mode and
   the switched-away choice are `Twitch::ModeField` subclasses: a `SegmentedControl` over

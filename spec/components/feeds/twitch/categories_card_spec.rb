@@ -44,6 +44,8 @@ RSpec.describe Components::Feeds::Twitch::CategoriesCard do
     wrapper = document.at_css("[data-controller='disclosure']")
     details = wrapper.at_css("details")
 
+    expect(wrapper.parent.element_children.last).to eq(wrapper)
+
     expect(wrapper["data-disclosure-key-value"]).to eq("feeds-switched-away-#{subscription.watch.external_id}")
     expect(details["open"]).to be_nil
     expect(details.at_css("summary").text).to include("Settings")
