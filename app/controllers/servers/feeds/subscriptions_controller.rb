@@ -146,36 +146,23 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   end
 
   def guild_targets?
-    guild_channels?(subscription_params[:channel_id], *channels.values) && guild_roles?(*role_ids)
+    guild_channels?(subscription_params[:channel_id], *type_choices.values.filter_map { |choices| choices[:channel_id] }) && guild_roles?(*role_ids)
   end
 
   def type_choices
-    source.event_types.index_with do |event_type|
-      {
-        template: templates[event_type],
-        notification: notifications[event_type],
-        channel_id: channels[event_type]
-      }
-    end
+    @type_choices ||= source.event_types.index_with { |event_type| submitted_choices(event_type) }
+  end
+
+  def submitted_choices(event_type)
+    choices = Hash.try_convert(subscription_params[:choices].to_h[event_type]) || {}
+    choices.symbolize_keys.slice(:template, :notification, :channel_id)
   end
 
   def role_ids
     settings.filter_map { |column, value| value if column.end_with?("role_id") }
   end
 
-  def templates
-    subscription_params[:templates].to_h
-  end
-
-  def notifications
-    subscription_params[:notifications].to_h
-  end
-
-  def channels
-    subscription_params[:channels].to_h
-  end
-
   def subscription_params
-    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, *settings_params, {event_types: {}, templates: {}, notifications: {}, channels: {}}])
+    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, *settings_params, {event_types: {}, choices: {}}])
   end
 end

@@ -52,7 +52,15 @@ class Components::Feeds::EventTypeSetting < Components::Base
         render Components::Icon.new("caret-down", class: "dropdown-chevron size-3.5 flex-none text-text-muted")
       end
       div(class: "mt-3 flex flex-col gap-3") do
-        render Components::Feeds::TypeChannelField.new(subscription: @subscription, event_type: @event_type, event: @event)
+        div do
+          render Components::Feeds::ChannelField.new(
+            subscription: @subscription,
+            name: "subscription[choices][#{@event_type}][channel_id]",
+            selected: @event&.channel_id,
+            label: t(".channel_label"),
+            placeholder: t(".channel_placeholder")
+          )
+        end
         if @type_fields
           render(@type_fields.new(subscription: @subscription, event_type: @event_type)) { message_fields }
         else

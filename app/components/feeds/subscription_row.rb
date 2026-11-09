@@ -95,7 +95,7 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   def channel_part(event_type)
     channel_id = subscribed_event(event_type).channel_id
-    return unless channel_id
+    return if channel_id.nil? || channel_id == @subscription.channel_id
 
     @channel_labels[channel_id] || t(".channel_missing")
   end

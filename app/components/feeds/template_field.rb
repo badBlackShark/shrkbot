@@ -33,7 +33,7 @@ class Components::Feeds::TemplateField < Components::Base
 
   def textarea_field
     render Components::TemplateTextarea.new(
-      name: "subscription[#{param}][#{@event_type}]",
+      name: "subscription[choices][#{@event_type}][#{param}]",
       id: field_id,
       value:,
       placeholder:,

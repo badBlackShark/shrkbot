@@ -69,7 +69,13 @@ Routes live under each source's resource (`resource :steam`) as `resources
 source's own `Components::Feeds::<Source>::SubscriptionFields`, composed from the shared
 `DestinationCard` and `EventTypesCard` plus the source's cards. The followed list reads
 roles through `Feeds::SubscriptionRoles` (`source.role_id_for`): one shared role shows as
-"pings @Role", roles that differ by type show on each badge. Real
+"pings @Role", roles that differ by type show on each badge, and a type's channel shows
+only when it differs from the follow's. The form posts one hash per post type,
+`subscription[choices][<type>]` with `template`, `notification` and `channel_id`; the
+controller reads them into `type_choices`, and `SubscribedEvent#apply` normalises them
+(blank text and the default notification store nothing) for both `Subscription#follow`
+and `Ops::Feeds::Subscriptions::Update`. The follow's channel picker and each type's
+are one `Components::Feeds::ChannelField`. Real
 servers only: the preview list renders no Add, Edit or Stop following controls, and there
 are no preview routes for these pages.
 
@@ -122,8 +128,8 @@ are no preview routes for these pages.
   per post type, so `EventTypesCard` and `EventTypeSetting` take an optional
   `type_fields:` component class, rendered inside each type's disclosure with
   `subscription:` and `event_type:` and a block that renders the text fields, which it
-  yields where they belong; the disclosure summary is keyed per source
-  (`event_type_setting.<plugin_key>.summary`). `Twitch::TypeFields` adds the role field
+  yields where they belong; the disclosure summary is one key
+  (`event_type_setting.summary`). `Twitch::TypeFields` adds the role field
   for every type, a volume warning on All clips, the 48-hour note on Featured clips, the
   viewer toggle above Live's text fields and the end mode below them. The end mode and
   the switched-away choice are `Twitch::ModeField` subclasses: a `SegmentedControl` over

@@ -87,6 +87,8 @@ en:
         channel_placeholder: Choose a channel
         where_title: Where to post
       event_type_setting:
+        channel_label: Channel (optional)
+        channel_placeholder: Same as "Where to post"
         summary: Settings
       event_types:
         announcement_published:
@@ -444,9 +446,6 @@ en:
           featured_window: Only clips featured within 48 hours of being made get posted.
         viewers_toggle:
           label: Show the viewer count
-      type_channel_field:
-        label: Channel (optional)
-        placeholder: Same as "Where to post"
       volume_line:
         counts:
           announcement_published:

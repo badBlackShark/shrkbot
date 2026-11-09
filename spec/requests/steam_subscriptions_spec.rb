@@ -124,8 +124,10 @@ RSpec.describe "Steam subscriptions", type: :request do
         body_length: "full",
         languages: %w[de en],
         event_types: {patch_notes => "1", announcements => "0", articles => "1"},
-        templates: {patch_notes => " Patch day: {title} ", articles => "  "},
-        notifications: {patch_notes => " Out now: {title} ", articles => "{game} · {feed}: {title}"}
+        choices: {
+          patch_notes => {template: " Patch day: {title} ", notification: " Out now: {title} "},
+          articles => {template: "  ", notification: "{game} · {feed}: {title}"}
+        }
       }
     end
 
@@ -159,7 +161,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     context "with a channel for one post type" do
       let(:channels) { {patch_notes => "777", articles => ""} }
 
-      before { attributes[:channels] = channels }
+      before { attributes[:choices] = attributes[:choices].deep_merge(channels.transform_values { |id| {channel_id: id} }) }
 
       it "saves it on that type only" do
         create_subscription
@@ -183,7 +185,7 @@ RSpec.describe "Steam subscriptions", type: :request do
       let(:attributes) do
         super().merge(
           event_types: {patch_notes => "1"},
-          templates: {patch_notes => "  "}
+          choices: {patch_notes => {template: "  "}}
         )
       end
 
@@ -198,7 +200,7 @@ RSpec.describe "Steam subscriptions", type: :request do
       let(:attributes) do
         super().merge(
           event_types: {"Other::Thing" => "1", patch_notes => "1"},
-          templates: {"Other::Thing" => "x"}
+          choices: {"Other::Thing" => {template: "x"}}
         )
       end
 
@@ -266,14 +268,14 @@ RSpec.describe "Steam subscriptions", type: :request do
     it "shows the stored template in its textarea" do
       edit
 
-      textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[templates][#{patch_notes}]"]))
+      textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[choices][#{patch_notes}][template]"]))
       expect(textarea.text).to eq("Hot take: {title}")
     end
 
     it "leaves the textarea empty for a post type without a custom template" do
       edit
 
-      textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[templates][#{announcements}]"]))
+      textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[choices][#{announcements}][template]"]))
       expect(textarea.text).to eq("")
     end
 
@@ -328,7 +330,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     subject(:update) do
       patch(
         server_steam_subscription_path(guild.id, subscription),
-        params: {subscription: {channel_id:, role_id: "", body_length: "full", languages:, event_types:, templates:, notifications:}},
+        params: {subscription: {channel_id:, role_id: "", body_length: "full", languages:, event_types:, choices:}},
         **headers
       )
     end
@@ -337,8 +339,12 @@ RSpec.describe "Steam subscriptions", type: :request do
     let(:channel_id) { "777" }
     let(:languages) { %w[de en] }
     let(:event_types) { {patch_notes => "1", announcements => "1"} }
-    let(:templates) { {patch_notes => "Patch day: {title}"} }
-    let(:notifications) { {patch_notes => "Out now: {title}", announcements => "{game} · Announcement: {title}"} }
+    let(:choices) do
+      {
+        patch_notes => {template: "Patch day: {title}", notification: "Out now: {title}"},
+        announcements => {notification: "{game} · Announcement: {title}"}
+      }
+    end
     let(:followed_since) { 3.days.ago.change(usec: 0) }
     let!(:subscription) { create(:feed_subscription, server_configuration: config, channel_id: 555) }
 
@@ -413,7 +419,7 @@ RSpec.describe "Steam subscriptions", type: :request do
 
       context "when a followed post type is unchecked with a draft message" do
         let(:event_types) { {announcements => "1"} }
-        let(:templates) { {patch_notes => "Draft survives: {title}"} }
+        let(:choices) { {patch_notes => {template: "Draft survives: {title}"}} }
 
         it "re-renders the draft in that type's textarea" do
           update

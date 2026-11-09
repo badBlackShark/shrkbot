@@ -112,8 +112,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
         switched_away: "delete",
         categories: ["", *category_values],
         event_types: {live => "1", highlights => "1", clips => "0"},
-        templates: {live => " Go watch "},
-        notifications: {}
+        choices: {live => {template: " Go watch "}}
       }
     end
 
@@ -178,7 +177,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
     context "with a channel for one post type" do
       let(:channels) { {live => "777", highlights => ""} }
 
-      before { attributes[:channels] = channels }
+      before { attributes[:choices] = attributes[:choices].deep_merge(channels.transform_values { |id| {channel_id: id} }) }
 
       it "saves it on that type only" do
         create_subscription
@@ -275,7 +274,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
     subject(:update) do
       patch(
         server_twitch_subscription_path(guild.id, subscription),
-        params: {subscription: {channel_id: "777", live_end_mode: "mark_ended", show_viewers:, categories:, event_types: {live => "1"}, channels:}},
+        params: {subscription: {channel_id: "777", live_end_mode: "mark_ended", show_viewers:, categories:, event_types: {live => "1"}, choices:}},
         **turbo
       )
     end
@@ -283,7 +282,19 @@ RSpec.describe "Twitch subscriptions", type: :request do
     let(:show_viewers) { "0" }
     let(:categories) { [""] }
     let(:channels) { {live => ""} }
+    let(:choices) { channels.transform_values { |id| {channel_id: id} } }
     let!(:subscription) { create(:feed_subscription, :twitch, server_configuration: config, channel_id: 555) }
+
+    context "with a forged value in place of a post type's choices" do
+      let(:choices) { {live => "forged"} }
+
+      it "treats the type as having no choices and saves" do
+        update
+
+        expect(response).to have_http_status(:ok)
+        expect(subscription.reload.subscribed_events.sole).to have_attributes(event_type: live, channel_id: nil)
+      end
+    end
 
     it "saves and re-renders the form as a turbo stream" do
       update

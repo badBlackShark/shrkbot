@@ -41,6 +41,17 @@ RSpec.describe Components::Feeds::SubscriptionRow do
       expect(badges).to include("All clips · #vods · @Clips", "Going live · @Streams")
     end
 
+    context "when a type's channel is the follow's own" do
+      before do
+        subscription.follow("Integrations::Twitch::HighlightPublished", channel_id: subscription.channel_id)
+        subscription.save!
+      end
+
+      it "shows the plain label" do
+        expect(badges).to include("New highlight")
+      end
+    end
+
     context "when that channel was deleted" do
       let(:channel_labels) { {555_000 => "#clips"} }
 
