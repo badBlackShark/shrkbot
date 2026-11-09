@@ -2,6 +2,13 @@
 en:
   accounts:
     deleted: shrkbot deleted your account and all data tied to it.
+  activerecord:
+    errors:
+      models:
+        feeds/twitch/settings:
+          attributes:
+            categories:
+              too_long: can have at most %{count} categories
   admin:
     bespoke_plugin_grants:
       granted: Plugin granted.
@@ -386,19 +393,26 @@ en:
         twitch:
           external_id: Twitch user %{id}
       twitch:
+        categories_card:
+          help: Leave it empty to post every category. Clips follow the same filter.
+            Highlights and uploads have no category, so they always post.
+          label: Only post while the stream is in (optional)
+          placeholder: Search Twitch categories
+          search_failed: Twitch didn't answer. Try again in a minute.
+          title: Categories
         end_mode_field:
+          descriptions:
+            delete: shrkbot deletes the post.
+            keep: The live post stays, marked with when the stream ended.
+            mark_ended: The post turns into a summary of the stream.
+            mark_ended_with_vod: The post turns into a summary of the stream, with
+              a link to the VOD.
           label: When the stream ends
           modes:
             delete: Delete
             keep: Keep live card
             mark_ended: Ended
             mark_ended_with_vod: Ended, with VOD
-        end_mode_panel:
-          delete: shrkbot deletes the post.
-          keep: The live post stays, marked with when the stream ended.
-          mark_ended: The post turns into a summary of the stream.
-          mark_ended_with_vod: The post turns into a summary of the stream, with a
-            link to the VOD.
           preview: Preview
         samples:
           clip_created:
@@ -421,6 +435,17 @@ en:
             category: ''
             clipper: ''
             title: Everything new in the 1.0 update
+        switched_away_field:
+          descriptions:
+            delete: shrkbot deletes the post and posts it again, without a ping, when
+              the stream comes back.
+            summary: The post turns grey and says where the stream went. It goes live
+              again when the stream comes back.
+          label: When the stream switches to another category
+          modes:
+            delete: Delete it
+            summary: Show it switched
+          preview: Preview
         type_fields:
           clip_warning: Big channels get dozens to hundreds of clips per stream, and
             each one is a post.

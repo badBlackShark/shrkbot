@@ -51,6 +51,22 @@ RSpec.describe Feeds::Twitch::Settings do
 
       it { is_expected.not_to be_valid }
     end
+
+    context "with exactly the maximum number of entries" do
+      let(:categories) { Array.new(described_class::MAX_CATEGORIES) { |index| {"id" => index.to_s, "name" => "Game #{index}"} } }
+
+      it { is_expected.to be_valid }
+    end
+
+    context "with more than the maximum number of entries" do
+      let(:categories) { Array.new(described_class::MAX_CATEGORIES + 1) { |index| {"id" => index.to_s, "name" => "Game #{index}"} } }
+
+      it "is invalid and says how many are allowed" do
+        settings.validate
+
+        expect(settings.errors[:categories]).to eq(["can have at most 100 categories"])
+      end
+    end
   end
 
   describe "#accepts_category?" do

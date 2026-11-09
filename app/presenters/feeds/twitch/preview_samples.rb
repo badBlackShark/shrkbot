@@ -11,6 +11,7 @@ module Feeds
       VIEWERS_HIDDEN = "group-has-[[data-viewers-toggle]:checked]/type:hidden"
       VIEWERS_WATCHING = 1234
       VIEWERS_PEAK = 2345
+      SWITCHED_TO = "Just Chatting"
       CLIP_LINE = "30 s · made 5 minutes ago"
 
       def card
@@ -28,14 +29,30 @@ module Feeds
         end
       end
 
+      def switched_card
+        {
+          eyebrow: "#{@watch_name} · Live on Twitch",
+          title: value(:title),
+          body: [
+            line("Switched to #{SWITCHED_TO}"),
+            line(STARTED)
+          ],
+          button: Announcement::LINK_LABEL
+        }
+      end
+
       private
+
+      def line(text, css = nil)
+        {text:, class: css}
+      end
 
       def watch_token
         "streamer"
       end
 
       def live_card_ended
-        live_card.merge(body: live_card[:body] + [{text: "Stream ended 5 minutes ago", class: nil}])
+        live_card.merge(body: live_card[:body] + [line("Stream ended 5 minutes ago")])
       end
 
       def ended_card(vod:)
@@ -43,9 +60,9 @@ module Feeds
           eyebrow: "#{@watch_name} · Was live on Twitch",
           title: value(:title),
           body: [
-            {text: "Streamed #{value(:category)} for #{::Duration.about(STREAM_LENGTH_SECONDS)}", class: nil},
-            {text: "At least #{VIEWERS_PEAK.to_fs(:delimited)} viewers at the peak · #{ENDED.downcase}", class: VIEWERS_SHOWN},
-            {text: ENDED, class: VIEWERS_HIDDEN}
+            line("Streamed #{value(:category)} for #{::Duration.about(STREAM_LENGTH_SECONDS)}"),
+            line("At least #{VIEWERS_PEAK.to_fs(:delimited)} viewers at the peak · #{ENDED.downcase}", VIEWERS_SHOWN),
+            line(ENDED, VIEWERS_HIDDEN)
           ],
           button: (EndedAnnouncement::VOD_LABEL if vod)
         }
@@ -56,9 +73,9 @@ module Feeds
           eyebrow: "#{@watch_name} · Live on Twitch",
           title: value(:title),
           body: [
-            {text: "Streaming #{value(:category)}", class: nil},
-            {text: "#{VIEWERS_WATCHING.to_fs(:delimited)} watching · #{STARTED.downcase}", class: VIEWERS_SHOWN},
-            {text: STARTED, class: VIEWERS_HIDDEN}
+            line("Streaming #{value(:category)}"),
+            line("#{VIEWERS_WATCHING.to_fs(:delimited)} watching · #{STARTED.downcase}", VIEWERS_SHOWN),
+            line(STARTED, VIEWERS_HIDDEN)
           ],
           button: Announcement::LINK_LABEL
         }

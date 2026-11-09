@@ -98,6 +98,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
     let(:channel_id) { "777" }
     let(:live_role_id) { "888" }
     let(:clips_role_id) { "" }
+    let(:category_values) { [Feeds::Twitch::CategoryValue.dump({"id" => "1", "name" => "Hades II"}), "garbage", "[1]"] }
     let(:attributes) do
       {
         external_id: "somestreamer",
@@ -109,6 +110,8 @@ RSpec.describe "Twitch subscriptions", type: :request do
         clips_role_id:,
         live_end_mode: "delete",
         show_viewers: "0",
+        switched_away: "delete",
+        categories: ["", *category_values],
         event_types: {live => "1", highlights => "1", clips => "0"},
         templates: {live => " Go watch "},
         notifications: {}
@@ -124,9 +127,42 @@ RSpec.describe "Twitch subscriptions", type: :request do
         live_role_id: 888,
         highlights_role_id: nil,
         live_end_mode: "delete",
-        show_viewers: false
+        show_viewers: false,
+        switched_away: "delete",
+        categories: [{"id" => "1", "name" => "Hades II"}]
       )
       expect(config.feed_subscriptions.sole.subscribed_events.map(&:event_type)).to match_array([live, highlights])
+    end
+
+    context "with more categories than the bound" do
+      let(:category_values) { Array.new(Feeds::Twitch::Settings::MAX_CATEGORIES + 1) { |index| Feeds::Twitch::CategoryValue.dump({"id" => index.to_s, "name" => "Game #{index}"}) } }
+
+      it "renders the form again with the reason and writes nothing" do
+        expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("Twitch settings categories can have at most 100 categories")
+      end
+    end
+
+    context "with a category whose id is not a string" do
+      let(:category_values) { [Feeds::Twitch::CategoryValue.dump({"id" => "1", "name" => "Hades II"}), '{"id":1,"name":"x"}'] }
+
+      it "drops it and saves the rest" do
+        create_subscription
+
+        expect(config.feed_subscriptions.sole.twitch_settings.categories).to eq([{"id" => "1", "name" => "Hades II"}])
+      end
+    end
+
+    context "with no categories" do
+      let(:category_values) { [] }
+
+      it "stores an empty list" do
+        create_subscription
+
+        expect(config.feed_subscriptions.sole.twitch_settings.categories).to eq([])
+      end
     end
 
     context "with a role from another server on a role column that is not live" do
@@ -182,7 +218,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
     let!(:subscription) { create(:feed_subscription, :twitch, server_configuration: config, channel_id: 777) }
 
     before do
-      subscription.settings.update!(live_role_id: 888, live_end_mode: "keep")
+      subscription.settings.update!(live_role_id: 888, live_end_mode: "keep", switched_away: "delete", categories: [{"id" => "1", "name" => "Hades II"}])
       create(:feed_subscribed_event, subscription:, event_type: live)
     end
 
@@ -195,6 +231,8 @@ RSpec.describe "Twitch subscriptions", type: :request do
       expect(response.body).not_to include("translation missing")
       expect(page.at_css(%(select[name="subscription[live_role_id]"] option[selected]))["value"]).to eq("888")
       expect(page.at_css(%(input[name="subscription[live_end_mode]"]))["value"]).to eq("keep")
+      expect(page.at_css(%(input[name="subscription[switched_away]"]))["value"]).to eq("delete")
+      expect(page.css(%(select[name="subscription[categories][]"] option[selected])).map(&:text)).to eq(["Hades II"])
       expect(checkbox(live)["checked"]).to be_present
     end
   end
@@ -203,12 +241,13 @@ RSpec.describe "Twitch subscriptions", type: :request do
     subject(:update) do
       patch(
         server_twitch_subscription_path(guild.id, subscription),
-        params: {subscription: {channel_id: "777", live_end_mode: "mark_ended", show_viewers:, event_types: {live => "1"}}},
+        params: {subscription: {channel_id: "777", live_end_mode: "mark_ended", show_viewers:, categories:, event_types: {live => "1"}}},
         **turbo
       )
     end
 
     let(:show_viewers) { "0" }
+    let(:categories) { [""] }
     let!(:subscription) { create(:feed_subscription, :twitch, server_configuration: config, channel_id: 555) }
 
     it "saves and re-renders the form as a turbo stream" do
@@ -218,6 +257,26 @@ RSpec.describe "Twitch subscriptions", type: :request do
       expect(response.body).to include("twitch-config")
       expect(subscription.reload).to have_attributes(channel_id: 777)
       expect(subscription.twitch_settings).to have_attributes(live_end_mode: "mark_ended", show_viewers: false)
+    end
+
+    context "when every chosen category is cleared" do
+      before { subscription.settings.update!(categories: [{"id" => "1", "name" => "Hades II"}]) }
+
+      it "stores an empty list" do
+        update
+
+        expect(subscription.reload.twitch_settings.categories).to eq([])
+      end
+    end
+
+    context "when categories are chosen" do
+      let(:categories) { ["", Feeds::Twitch::CategoryValue.dump({"id" => "2", "name" => "Just Chatting"})] }
+
+      it "replaces the stored list" do
+        update
+
+        expect(subscription.reload.twitch_settings.categories).to eq([{"id" => "2", "name" => "Just Chatting"}])
+      end
     end
 
     context "when the viewer count is switched on" do

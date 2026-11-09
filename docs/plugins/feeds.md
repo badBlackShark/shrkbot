@@ -124,6 +124,21 @@ are no preview routes for these pages.
   toggle on Live. The end mode is a `SegmentedControl` over one `Twitch::EndModePanel`
   per mode; the generic `option-panels` controller shows the panel matching the
   control's value (`lib/option_panels.js`).
+- **Twitch categories card.** `Twitch::CategoriesCard` (after "What to post") holds the
+  category filter and `Twitch::SwitchedAwayField`. The filter is a multiple `TomSelect`
+  whose `tom_select_search_url_value` points at
+  `Servers::Twitch::CategoriesController#index`; the controller's `searchUrl` mode loads
+  matches as the user types (`lib/category_options.js`). The endpoint returns
+  `Feeds::Twitch::CategorySearch` results as JSON (`503` with `[]` when Twitch fails).
+  The search caches per lowercased query for a day through `Feeds::CachedFetch`. Each
+  option's value is `Feeds::Twitch::CategoryValue.dump` (`{"id","name"}` as JSON, id
+  first), so saved and searched options match; the controller `parse`s the values and
+  drops any it can't read. A hidden empty `subscription[categories][]` goes first, so
+  clearing every chip still submits and empties the list. A follow holds at most
+  `Settings::MAX_CATEGORIES` (100) categories, enforced by the model and the
+  `feed_twitch_settings_categories_max` check constraint. The switched-away field is a
+  `SegmentedControl` over `Twitch::SwitchedAwayPanel` (the summary panel previews
+  `PreviewSamples#switched_card`; delete has no preview).
 - **Previews per source.** `TemplateField` takes its sample values and card from
   `Feeds::<Source>::PreviewSamples` (`tokens`, `value`, `card`). Twitch's also builds
   the end-mode cards (`end_mode_card`). The labels come from the renderers

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_08_205805) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_08_222654) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -112,6 +112,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_08_205805) do
     t.jsonb "categories", default: [], null: false
     t.string "switched_away", default: "summary", null: false
     t.index ["subscription_id"], name: "index_feed_twitch_settings_on_subscription_id", unique: true
+    t.check_constraint "jsonb_array_length(categories) <= 100", name: "feed_twitch_settings_categories_max"
     t.check_constraint "jsonb_typeof(categories) = 'array'::text", name: "feed_twitch_settings_categories_array"
     t.check_constraint "live_end_mode::text = ANY (ARRAY['keep'::character varying, 'delete'::character varying, 'mark_ended'::character varying, 'mark_ended_with_vod'::character varying]::text[])", name: "feed_twitch_settings_live_end_mode_check"
     t.check_constraint "switched_away::text = ANY (ARRAY['summary'::character varying, 'delete'::character varying]::text[])", name: "feed_twitch_settings_switched_away_check"
