@@ -23,6 +23,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     create(:server_role, server_configuration: config, discord_id: 888, name: "Gamers")
     allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     allow(Integrations::Steam::NewsWatcher).to receive(:resolve).with("1145350").and_return(target)
+    allow(Integrations::Steam::NewsWatcher).to receive(:refresh).with(["1145350"]).and_return([target])
     allow(Feeds::VolumeLookup).to receive(:call)
     get server_path(guild.id)
   end
@@ -207,7 +208,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     end
 
     context "when Steam is down" do
-      before { allow(Integrations::Steam::NewsWatcher).to receive(:resolve).and_raise(Integrations::Unavailable) }
+      before { allow(Integrations::Steam::NewsWatcher).to receive(:refresh).and_raise(Integrations::Unavailable) }
 
       it "renders the lookup with the error and writes nothing" do
         expect { create_subscription }.not_to change(Feeds::Subscription, :count)

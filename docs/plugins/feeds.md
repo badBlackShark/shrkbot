@@ -78,8 +78,10 @@ are no preview routes for these pages.
   (`invalid_reference`, `not_found`, `unavailable`). A game the server already follows
   links to its edit page; otherwise the follow form renders for the resolved target, with
   no post type selected; at least one must be turned on to follow.
-  `create` resolves the game again from the hidden `external_id` rather than trusting
-  anything the form carries.
+  `create` fetches the target again by the hidden `external_id`
+  (`TargetLookup.by_external_id`, the watcher's `refresh`) rather than trusting anything
+  the form carries. It must not go through `resolve`: that parses user input, and a
+  Twitch user id is not a login.
 - **Ops.** `Ops::Feeds::Subscriptions::Create` checks the cap, finds or builds the shared
   watch (refreshing its name and `image_url` from the target), refuses a game the server
   already follows, validates the subscription with its events, then saves the watch and

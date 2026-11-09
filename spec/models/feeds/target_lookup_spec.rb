@@ -29,4 +29,36 @@ RSpec.describe Feeds::TargetLookup do
       end
     end
   end
+
+  describe ".by_external_id" do
+    subject(:result) { described_class.by_external_id(watcher_class, "440") }
+
+    before { allow(watcher_class).to receive(:refresh).with(["440"]).and_return(refreshed) }
+
+    context "when the provider knows the id" do
+      let(:refreshed) { [target] }
+
+      it "returns the target and no error" do
+        expect(result).to have_attributes(target:, error: nil)
+      end
+    end
+
+    context "when the provider returns nothing for the id" do
+      let(:refreshed) { [] }
+
+      it "returns :not_found and no target" do
+        expect(result).to have_attributes(target: nil, error: :not_found)
+      end
+    end
+
+    context "when the provider is down" do
+      let(:refreshed) { [] }
+
+      before { allow(watcher_class).to receive(:refresh).and_raise(Integrations::Unavailable) }
+
+      it "returns :unavailable and no target" do
+        expect(result).to have_attributes(target: nil, error: :unavailable)
+      end
+    end
+  end
 end

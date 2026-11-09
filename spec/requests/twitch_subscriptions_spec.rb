@@ -25,6 +25,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
     create(:server_role, server_configuration: config, discord_id: 888, name: "Live pings")
     allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     allow(Integrations::Twitch::ChannelWatcher).to receive(:resolve).with("somestreamer").and_return(target)
+    allow(Integrations::Twitch::ChannelWatcher).to receive(:refresh).with(["9001"]).and_return([target])
     get server_path(guild.id)
   end
 
@@ -99,7 +100,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
     let(:category_values) { [Feeds::Twitch::CategoryValue.dump({"id" => "1", "name" => "Hades II"}), "garbage", "[1]"] }
     let(:attributes) do
       {
-        external_id: "somestreamer",
+        external_id: "9001",
         channel_id:,
         live_role_id:,
         highlights_role_id: "",
