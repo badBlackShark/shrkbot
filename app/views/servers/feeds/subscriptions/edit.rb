@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Views::Servers::Feeds::Subscriptions::Edit < Views::Base
-  include Components::PluginNav
-
   def initialize(plugin_key:, server_configuration:, user:, subscription:)
     @plugin_key = plugin_key
     @config = server_configuration
@@ -27,7 +25,6 @@ class Views::Servers::Feeds::Subscriptions::Edit < Views::Base
 
   def header
     Components::ConfigPageHeader.new(
-      icon: plugin_icon(@plugin_key),
       title: @subscription.watch.name,
       banner: Components::Feeds::TargetBanner.new(watch: @subscription.watch, plugin_key: @plugin_key)
     )

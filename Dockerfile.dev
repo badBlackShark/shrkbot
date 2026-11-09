@@ -37,7 +37,6 @@ RUN git config --system credential.https://github.com.helper \
   && git config --system url."https://github.com/".insteadOf "git@github.com:" \
   && git config --system --add safe.directory /app
 
-# Headless Chromium so the agent can screenshot rendered components
 RUN apt-get update && apt-get install -y --no-install-recommends \
       libnss3 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 libdrm2 \
       libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 \

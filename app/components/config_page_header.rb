@@ -2,7 +2,7 @@
 
 module Components
   ConfigPageHeader = Data.define(:icon, :title, :description, :badge, :banner, :aside) do
-    def initialize(icon:, title:, description: nil, badge: nil, banner: nil, aside: nil)
+    def initialize(title:, icon: nil, description: nil, badge: nil, banner: nil, aside: nil)
       super
     end
   end

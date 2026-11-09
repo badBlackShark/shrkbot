@@ -106,7 +106,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   end
 
   def unsaved_watch(target)
-    ::Integrations::Watch.new(watcher: watcher_class.name, external_id: target.external_id, name: target.name, image_url: target.image_url, url: target.url)
+    ::Integrations::Watch.new(watcher: watcher_class.name, external_id: target.external_id, name: target.name, image_url: target.image_url)
   end
 
   def render_lookup(input: nil, error: nil, existing: nil, status: :ok)

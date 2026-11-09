@@ -3,6 +3,14 @@
 require "rails_helper"
 
 RSpec.describe Integrations::Twitch::ChannelReference do
+  describe ".url" do
+    subject(:url) { described_class.url("shroud") }
+
+    it "is the channel's page on Twitch" do
+      expect(url).to eq("https://www.twitch.tv/shroud")
+    end
+  end
+
   describe ".parse" do
     {
       "bare login" => "shroud",

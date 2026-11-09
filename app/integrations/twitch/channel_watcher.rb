@@ -28,7 +28,7 @@ module Integrations
           external_id: user.id,
           name: user.display_name,
           image_url: user.profile_image_url,
-          url: "https://www.twitch.tv/#{user.login}"
+          url: ChannelReference.url(user.login)
         )
       end
       private_class_method :target
