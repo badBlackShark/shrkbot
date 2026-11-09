@@ -14,7 +14,6 @@ export default class extends Controller {
       maxOptions: null,
       plugins: this.plugins(),
       render: this.renderers(),
-      maxItems: this.maxItemsValue || null,
       create: this.createValue || false,
       persist: this.createValue ? false : undefined,
       ...this.remoteSearch()
@@ -25,6 +24,7 @@ export default class extends Controller {
     if (!this.searchUrlValue) return {}
     const url = this.searchUrlValue
     return {
+      maxItems: this.maxItemsValue || null,
       searchField: [],
       score: () => () => 1,
       loadThrottle: 300,
@@ -36,7 +36,7 @@ export default class extends Controller {
             this.searchFailed = !response.ok
             return response.ok ? response.json() : []
           })
-          .then((json) => callback(categoryOptions(json)))
+          .then((json) => callback(query === this.select.inputValue() ? categoryOptions(json) : []))
           .catch(() => {
             this.searchFailed = true
             callback()
