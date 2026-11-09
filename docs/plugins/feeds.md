@@ -118,13 +118,15 @@ are no preview routes for these pages.
   `show_viewers` as settings. `Components::Feeds::Twitch::SubscriptionFields` is the form
   (destination card, then the shared "What to post" card). Twitch's role pickers sit
   per post type, so `EventTypesCard` and `EventTypeSetting` take an optional
-  `type_fields:` component class, rendered inside each type's disclosure ahead of the
-  text fields with `subscription:` and `event_type:`; the disclosure summary is keyed per
-  source (`event_type_setting.<plugin_key>.summary`). `Twitch::TypeFields` adds the role
-  field for every type, a volume warning on All clips, and the end mode and viewer
-  toggle on Live. The end mode is a `SegmentedControl` over one `Twitch::EndModePanel`
-  per mode; the generic `option-panels` controller shows the panel matching the
-  control's value (`lib/option_panels.js`).
+  `type_fields:` component class, rendered inside each type's disclosure with
+  `subscription:` and `event_type:` and a block that renders the text fields, which it
+  yields where they belong; the disclosure summary is keyed per source
+  (`event_type_setting.<plugin_key>.summary`). `Twitch::TypeFields` adds the role field
+  for every type, a volume warning on All clips, the 48-hour note on Featured clips, the
+  viewer toggle above Live's text fields and the end mode below them. The end mode and
+  the switched-away choice are `Twitch::ModeField` subclasses: a `SegmentedControl` over
+  one `Twitch::ModePanel` per mode; the generic `option-panels` controller shows the
+  panel matching the control's value (`lib/option_panels.js`).
 - **Twitch categories card.** `Twitch::CategoriesCard` (after "What to post") holds the
   category filter and `Twitch::SwitchedAwayField`. The filter is a multiple `TomSelect`
   whose `tom_select_search_url_value` points at
@@ -137,9 +139,8 @@ are no preview routes for these pages.
   drops any it can't read. A hidden empty `subscription[categories][]` goes first, so
   clearing every chip still submits and empties the list. A follow holds at most
   `Settings::MAX_CATEGORIES` (100) categories, enforced by the model and the
-  `feed_twitch_settings_categories_max` check constraint. The switched-away field is a
-  `SegmentedControl` over `Twitch::SwitchedAwayPanel` (the summary panel previews
-  `PreviewSamples#switched_card`; delete has no preview).
+  `feed_twitch_settings_categories_max` check constraint. In the switched-away field the
+  summary panel previews `PreviewSamples#switched_card`; delete has no preview.
 - **Previews per source.** `TemplateField` takes its sample values and card from
   `Feeds::<Source>::PreviewSamples` (`tokens`, `value`, `card`). Twitch's also builds
   the end-mode cards (`end_mode_card`). The labels come from the renderers
@@ -159,7 +160,8 @@ are no preview routes for these pages.
 `Feeds::Twitch` is the second source: plugin key `:twitch`, watcher
 `Integrations::Twitch::ChannelWatcher`, five event types (`StreamStarted`, the live post,
 then `HighlightPublished`, `UploadPublished`, `FeaturedClipPublished` and `ClipCreated`,
-in the order the UI lists them). A new follow subscribes to Live and Highlights. Template
+in the order the UI lists them). A new follow starts with every type off, and saving
+needs at least one. Template
 tokens are `streamer`, `category`, `title` and `clipper`; a token a card has no value for
 (`clipper` on a live card, `category` on a video) renders empty
 (`Feeds::Announcement#blank_tokens`). Its settings live in `feed_twitch_settings`

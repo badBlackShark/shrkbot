@@ -7,12 +7,11 @@ module Ops
         receives :subscription, :channel_id, :event_types, :templates, :notifications, :settings
 
         def call
-          return failure(I18n.t("operations.feeds.subscriptions.no_event_types")) if event_types.empty?
-
           subscription.assign_attributes(channel_id:)
           subscription.settings.assign_attributes(settings)
           update_followed_events
           build_missing_events
+          return failure(I18n.t("operations.feeds.subscriptions.no_event_types"), value: subscription) if event_types.empty?
           return failure(subscription.errors.full_messages, value: subscription) unless subscription.valid?
 
           subscription.save!

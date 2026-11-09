@@ -361,6 +361,20 @@ RSpec.describe "Steam subscriptions", type: :request do
       expect(subscription.subscribed_events.find_by!(event_type: announcements).notification_template).to be_nil
     end
 
+    context "when every post type is unchecked" do
+      let(:event_types) { {patch_notes => "0", announcements => "0"} }
+
+      it "re-renders the form with the reason, keeping what was entered, and changes nothing" do
+        update
+
+        page = Nokogiri::HTML(response.body)
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("Turn on at least one type of post.", ">Patch day: {title}</textarea>")
+        expect(page.at_css(%(select[name="subscription[channel_id]"] option[selected]))["value"]).to eq("777")
+        expect(subscription.reload).to have_attributes(channel_id: 555)
+      end
+    end
+
     context "when the channel is cleared" do
       let(:channel_id) { "" }
 
