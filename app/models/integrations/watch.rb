@@ -9,7 +9,7 @@ module Integrations
 
     class_attribute :demand_sources, default: []
 
-    attribute :demanded_types, default: -> { Set.new }
+    attr_writer :demanded_types
 
     has_many :events, dependent: :delete_all
 
@@ -53,6 +53,10 @@ module Integrations
       demand_sources.map { |source| where(id: yield(source).select(:watch_id)) }.reduce(:or) || none
     end
     private_class_method :demand_matching
+
+    def demanded_types
+      @demanded_types ||= Set.new
+    end
 
     def broken?
       failing_since.present? && failing_since <= BROKEN_AFTER.ago
