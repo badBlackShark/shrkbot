@@ -54,6 +54,12 @@ RSpec.describe Integrations::PollJob do
 
       expect(received).to eq(first.id => Set[followed_type], second.id => Set.new)
     end
+
+    it "records the poll of the followed watch without a failure" do
+      perform
+
+      expect(first.reload).to have_attributes(polled_at: be_present, last_error: nil, failing_since: nil)
+    end
   end
 
   context "with a watch no active subscription wants" do
