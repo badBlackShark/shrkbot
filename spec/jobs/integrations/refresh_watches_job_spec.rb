@@ -8,7 +8,7 @@ RSpec.describe Integrations::RefreshWatchesJob do
   let!(:watch) { create(:integration_watch, external_id: "1145360", name: "Old") }
   let!(:other) { create(:integration_watch, watcher: "Integrations::Other::Watcher") }
   let!(:unreferenced) { create(:integration_watch, external_id: "570") }
-  let(:targets) { [Integrations::Target.new(external_id: "1145360", name: "Hades", image_url: nil)] }
+  let(:targets) { [Integrations::Target.new(external_id: "1145360", name: "Hades", image_url: nil, url: "https://store.steampowered.com/app/1145360/")] }
   let(:followed) { [watch, other] }
 
   before do

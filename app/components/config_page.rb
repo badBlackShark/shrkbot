@@ -43,8 +43,16 @@ class Components::ConfigPage < Components::Base
   end
 
   def page_header
+    if @header.banner
+      div(class: "mb-6") { render @header.banner }
+    else
+      default_page_header
+    end
+  end
+
+  def default_page_header
     div(class: "mb-6 flex items-start gap-4") do
-      div(class: "mt-2 flex-none") { header_visual }
+      div(class: "mt-2 flex-none") { render Components::PluginTile.new(icon: @header.icon, size: :lg) }
       div(class: "flex-1") do
         div(class: "flex flex-wrap items-center gap-3") do
           h1(class: "font-display text-2xl font-bold tracking-tight") { @header.title }
@@ -55,10 +63,6 @@ class Components::ConfigPage < Components::Base
       end
       enable_control if @toggle
     end
-  end
-
-  def header_visual
-    render(@header.media || Components::PluginTile.new(icon: @header.icon, size: :lg))
   end
 
   def enable_control
