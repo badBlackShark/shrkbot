@@ -18,13 +18,12 @@ class Components::Feeds::DestinationCard < Components::Base
   private
 
   def channel_field
-    render Components::FieldLabel.new { t(".channel_label") }
-    render Components::ChannelSelect.new(
+    render Components::Feeds::ChannelField.new(
+      subscription: @subscription,
       name: "subscription[channel_id]",
-      options: ChannelOptions.new(@subscription.server_configuration).options,
       selected: @subscription.channel_id,
+      label: t(".channel_label"),
       placeholder: t(".channel_placeholder"),
-      include_blank: true,
       required: true
     )
   end

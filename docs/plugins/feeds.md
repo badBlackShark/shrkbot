@@ -69,7 +69,13 @@ Routes live under each source's resource (`resource :steam`) as `resources
 source's own `Components::Feeds::<Source>::SubscriptionFields`, composed from the shared
 `DestinationCard` and `EventTypesCard` plus the source's cards. The followed list reads
 roles through `Feeds::SubscriptionRoles` (`source.role_id_for`): one shared role shows as
-"pings @Role", roles that differ by type show on each badge. Real
+"pings @Role", roles that differ by type show on each badge, and a type's channel shows
+only when it differs from the follow's. The form posts one hash per post type,
+`subscription[choices][<type>]` with `template`, `notification` and `channel_id`; the
+controller reads them into `type_choices`, and `SubscribedEvent#apply` normalises them
+(blank text and the default notification store nothing) for both `Subscription#follow`
+and `Ops::Feeds::Subscriptions::Update`. The follow's channel picker and each type's
+are one `Components::Feeds::ChannelField`. Real
 servers only: the preview list renders no Add, Edit or Stop following controls, and there
 are no preview routes for these pages.
 
@@ -82,8 +88,12 @@ are no preview routes for these pages.
   (`TargetLookup.by_external_id`, the watcher's `refresh`) rather than trusting anything
   the form carries. It must not go through `resolve`: that parses user input, and a
   Twitch user id is not a login.
+- **Target card.** `Components::Feeds::TargetCard` (picture, name, caption) heads both the
+  add page, with a "Not this one?" link, and the edit page, through `TargetBanner`, with a
+  link to the game's store page or the channel. The watch's `url` comes from the target on
+  follow and on each refresh.
 - **Ops.** `Ops::Feeds::Subscriptions::Create` checks the cap, finds or builds the shared
-  watch (refreshing its name and `image_url` from the target), refuses a game the server
+  watch (refreshing its name, `image_url` and `url` from the target), refuses a game the server
   already follows, validates the subscription with its events, then saves the watch and
   the first subscription in one transaction, so the daily orphan prune cannot take a
   fresh watch before its subscription exists. `Update` saves the settings, deletes
@@ -122,8 +132,9 @@ are no preview routes for these pages.
   per post type, so `EventTypesCard` and `EventTypeSetting` take an optional
   `type_fields:` component class, rendered inside each type's disclosure with
   `subscription:` and `event_type:` and a block that renders the text fields, which it
-  yields where they belong; the disclosure summary is keyed per source
-  (`event_type_setting.<plugin_key>.summary`). `Twitch::TypeFields` adds the role field
+  yields where they belong; the disclosure is
+  `Feeds::SettingsDisclosure` (summary key `settings_disclosure.summary`), which the
+  categories card reuses for the switched-away choice. `Twitch::TypeFields` adds the role field
   for every type, a volume warning on All clips, the 48-hour note on Featured clips, the
   viewer toggle above Live's text fields and the end mode below them. The end mode and
   the switched-away choice are `Twitch::ModeField` subclasses: a `SegmentedControl` over
@@ -303,12 +314,15 @@ is the only chance to add the button, so `RevisePostJob` retries.
   subscription, 1:1 (unique `subscription_id`). An optional `live_role_id`,
   `show_viewers` and `switched_away` (`summary` or `delete`, check-constrained).
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
-  wants, each with an optional `template` override and `subscribed_since`, the moment
-  that kind of post was followed (see Following since). Unique on
-  `[subscription_id, event_type]`.
+  wants, each with an optional `template` override, an optional `channel_id` and
+  `subscribed_since`, the moment that kind of post was followed (see Following since).
+  A null `channel_id` means the follow's channel; `Subscription#channel_for(event_type)`
+  resolves it (through `post_type`, so a stream update goes where the live post went).
+  Unique on `[subscription_id, event_type]`.
 - `feed_posts` (`Feeds::Post`): one row per story a subscription posted, holding
   the `story_key`. It is written before the message is sent, so it is the claim that
-  keeps a story from posting twice. `channel_id` and `message_id` are set after the send
+  keeps a story from posting twice. `channel_id` (the channel the post went to, which can
+  differ from the follow's) and `message_id` are set after the send
   (null while it is in flight, and on rows from before they were recorded).
   `retracted_at` is set when shrkbot deletes the message, which tells that deletion apart
   from a lost message. Unique on `[subscription_id, story_key]`.
@@ -372,7 +386,10 @@ removed by the orphan prune once nothing references it.
   `Components.create_with_subject` with `fallback: announcement.fallback`. The card
   carries untrusted post text, so nothing in it can ping. The `Post` is written first, as
   the claim, and released again only if the create raises; once the message exists the
-  claim is kept. When the conversion fails, the plain message is edited to
+  claim is kept. It posts to `subscription.channel_for(event.type)` and stores that
+  channel on the `Post`. Edits and retractions use the stored channel; a revive sends
+  a new message, so it goes to `channel_for` again and stores that.
+  When the conversion fails, the plain message is edited to
   `Announcement#fallback`: the subject cut so that the whole link still fits in 2000
   characters.
 

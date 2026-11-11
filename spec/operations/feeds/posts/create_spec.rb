@@ -59,6 +59,19 @@ RSpec.describe Ops::Feeds::Posts::Create do
     expect(subscription.posts.sole).to have_attributes(channel_id: 555_000, message_id: 777_000)
   end
 
+  context "with a channel of its own for the event's type" do
+    before do
+      subscription.subscribed_events.find_by!(event_type: event.type).update!(channel_id: 666_000)
+    end
+
+    it "posts there and remembers it" do
+      result
+
+      expect(Bot::Discord::Components).to have_received(:create_with_subject).with(hash_including(channel_id: 666_000))
+      expect(subscription.posts.sole).to have_attributes(channel_id: 666_000, message_id: 777_000)
+    end
+  end
+
   context "without a role" do
     let(:role_id) { nil }
 

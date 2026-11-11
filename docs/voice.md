@@ -292,6 +292,7 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Featured clips` / `All clips` with `When the streamer features a clip, within 48 hours of it being made.` / `Every clip viewers make.` | Labels kept, help lines deleted. | The labels carry the meaning. The 48-hour window moved to an info note inside the featured-clips settings, where it explains a behaviour rather than a toggle. |
 | `The game or category. Empty for highlights and uploads.` / `Who made the clip. Empty for other posts.` / `The post's title.` (shared by Steam and Twitch) | `The game or category.` / `Who made the clip.` / `The title of the stream, video or clip.` | Placeholders now list only the tokens a post type can fill, so the "empty for" caveats described tokens the reader no longer sees. The Twitch title hint named a post, which a stream is not. |
 | `Twitch user %{id}` (under the channel name) | No line. | The numeric id is never visible on Twitch, so it tells the reader nothing, and "Twitch channel" under a Twitch avatar would only restate the page. A caption earns its place only when it carries something, like Steam's app id. |
+| `Message and notification` (disclosure summary on a Steam post type) | `Settings` | The disclosure also holds the type's channel now, so naming two of its fields no longer described it. Twitch already said `Settings`; both sources share one key. |
 
 ## Kept on purpose
 

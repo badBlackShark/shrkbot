@@ -4,7 +4,7 @@ class Components::Feeds::CustomMessageField < Components::Feeds::TemplateField
   private
 
   def param
-    :templates
+    :template
   end
 
   def label_row

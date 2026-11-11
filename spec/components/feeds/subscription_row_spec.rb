@@ -6,12 +6,13 @@ RSpec.describe Components::Feeds::SubscriptionRow do
   include_context "component view context"
 
   subject(:document) do
-    html = described_class.new(subscription:, plugin_key:, channel_label: "#clips", role_names:).render_in(view_context)
+    html = described_class.new(subscription:, plugin_key:, channel_labels:, role_names:).render_in(view_context)
     Nokogiri::HTML5.fragment(html)
   end
 
   let(:plugin_key) { :twitch }
   let(:role_names) { {1 => "Streams"} }
+  let(:channel_labels) { {555_000 => "#clips"} }
   let(:failing_since) { 25.hours.ago }
   let(:watch) { create(:integration_watch, :twitch, failing_since:) }
   let(:subscription) { create(:feed_subscription, :twitch, watch:) }
@@ -23,6 +24,41 @@ RSpec.describe Components::Feeds::SubscriptionRow do
       "Twitch hasn't answered for this channel's videos and clips since",
       "UTC; live posts still work."
     )
+  end
+
+  context "when a followed type posts to a channel of its own" do
+    let(:channel_labels) { {555_000 => "#clips", 556 => "#vods"} }
+    let(:role_names) { {1 => "Streams", 2 => "Clips"} }
+
+    before do
+      subscription.settings.update!(clips_role_id: 2, live_role_id: 1)
+      subscription.follow("Integrations::Twitch::ClipCreated", channel_id: 556)
+      subscription.follow("Integrations::Twitch::StreamStarted")
+      subscription.save!
+    end
+
+    it "adds the channel to that badge only" do
+      expect(badges).to include("All clips · #vods · @Clips", "Going live · @Streams")
+    end
+
+    context "when a type's channel is the follow's own" do
+      before do
+        subscription.follow("Integrations::Twitch::HighlightPublished", channel_id: subscription.channel_id)
+        subscription.save!
+      end
+
+      it "shows the plain label" do
+        expect(badges).to include("New highlight")
+      end
+    end
+
+    context "when that channel was deleted" do
+      let(:channel_labels) { {555_000 => "#clips"} }
+
+      it "says so on the badge" do
+        expect(badges).to include("All clips · channel deleted · @Clips")
+      end
+    end
   end
 
   context "when every followed type pings the same role" do

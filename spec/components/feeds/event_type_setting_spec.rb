@@ -49,12 +49,32 @@ RSpec.describe Components::Feeds::EventTypeSetting do
 
     it "leaves the toggle off but keeps the draft text field" do
       expect(html).not_to match(/ checked[ >=]/)
-      expect(html).to include("subscription[templates][#{event_type}]")
+      expect(html).to include("subscription[choices][#{event_type}][template]")
     end
   end
 
   it "shows the custom message field inside the disclosure" do
-    expect(html).to include('data-disclosure-target="details"', "Message and notification", "subscription[templates][#{event_type}]")
+    expect(html).to include('data-disclosure-target="details"', "Settings", "subscription[choices][#{event_type}][template]")
+  end
+
+  it "puts the type's channel before the message fields" do
+    names = Nokogiri::HTML.fragment(html).css("select, textarea").map { |field| field["name"] }
+
+    expect(names.first).to eq("subscription[choices][#{event_type}][channel_id]")
+  end
+
+  context "with a channel of its own" do
+    let(:event) { subscription.subscribed_events.build(event_type:, channel_id: 111) }
+
+    before do
+      create(:server_channel, server_configuration: subscription.server_configuration, discord_id: 111, name: "clips")
+    end
+
+    it "selects it in the type's channel field" do
+      select = Nokogiri::HTML.fragment(html).at_css(%(select[name="subscription[choices][#{event_type}][channel_id]"]))
+
+      expect(select.at_css("option[selected]")["value"]).to eq("111")
+    end
   end
 
   it "scopes the role pill of its fields to itself" do
@@ -73,7 +93,7 @@ RSpec.describe Components::Feeds::EventTypeSetting do
 
       expect(details.at_css("summary").text).to include("Settings")
       expect(details.css("select, textarea").map { |field| field["name"] }).to eq(
-        ["subscription[highlights_role_id]", "subscription[templates][#{event_type}]", "subscription[notifications][#{event_type}]"]
+        ["subscription[choices][#{event_type}][channel_id]", "subscription[highlights_role_id]", "subscription[choices][#{event_type}][template]", "subscription[choices][#{event_type}][notification]"]
       )
     end
 
@@ -86,7 +106,7 @@ RSpec.describe Components::Feeds::EventTypeSetting do
       let(:event_type) { "Integrations::Twitch::StreamStarted" }
 
       it "puts the notification text before the end mode" do
-        expect(html.index("subscription[notifications]")).to be < html.index("live_end_mode")
+        expect(html.index("[notification]")).to be < html.index("live_end_mode")
       end
     end
   end

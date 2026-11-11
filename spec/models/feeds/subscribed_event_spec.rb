@@ -76,4 +76,62 @@ RSpec.describe Feeds::SubscribedEvent do
 
     it { is_expected.to be_valid }
   end
+
+  describe "#apply" do
+    subject(:apply) { subscribed_event.apply(**choices) }
+
+    let(:choices) { {} }
+
+    context "with custom text" do
+      let(:choices) { {template: " Patch day: {title} ", notification: " Out now: {title} "} }
+
+      it "keeps it stripped" do
+        apply
+
+        expect(subscribed_event).to have_attributes(template: "Patch day: {title}", notification_template: "Out now: {title}")
+      end
+    end
+
+    context "with blank text" do
+      let(:choices) { {template: "  ", notification: ""} }
+
+      it "stores nothing" do
+        apply
+
+        expect(subscribed_event).to have_attributes(template: nil, notification_template: nil)
+      end
+    end
+
+    context "with the default notification" do
+      let(:choices) { {notification: subscription.source.default_notification(event_type)} }
+
+      it "stores nothing" do
+        apply
+
+        expect(subscribed_event.notification_template).to be_nil
+      end
+    end
+
+    context "with a blank channel" do
+      let(:choices) { {channel_id: ""} }
+
+      before { subscribed_event.channel_id = 5 }
+
+      it "clears the channel" do
+        apply
+
+        expect(subscribed_event.channel_id).to be_nil
+      end
+    end
+
+    context "with a channel" do
+      let(:choices) { {channel_id: "777"} }
+
+      it "keeps it" do
+        apply
+
+        expect(subscribed_event.channel_id).to eq(777)
+      end
+    end
+  end
 end
