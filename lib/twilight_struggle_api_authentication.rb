@@ -12,13 +12,21 @@ class TwilightStruggleApiAuthentication
   end
 
   def call(env)
-    return @app.call(env) unless env["PATH_INFO"].to_s.start_with?(PREFIX)
+    path = routed_path(env)
+    return @app.call(env) unless path.start_with?(PREFIX)
     return unauthorized unless authorized?(env)
 
+    env["PATH_INFO"] = path
     @app.call(env)
   end
 
   private
+
+  # The router squeezes repeated slashes before it matches, so "/api//twilight-struggle/v1/…"
+  # reaches the API controllers without starting with PREFIX. Compare the path the router will see.
+  def routed_path(env)
+    ActionDispatch::Journey::Router::Utils.normalize_path(env["PATH_INFO"])
+  end
 
   def authorized?(env)
     token = env["HTTP_AUTHORIZATION"].to_s[/\ABearer (.+)\z/, 1]
