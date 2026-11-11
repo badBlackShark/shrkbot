@@ -61,6 +61,26 @@ RSpec.describe Finders::VisibleServers do
       expect(Bot::Discord::UserGuilds).to have_received(:call).twice
     end
 
+    context "when Discord rejects the token" do
+      before do
+        allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Unauthorized)
+      end
+
+      it "raises Unauthorized" do
+        expect { guilds }.to raise_error(Bot::Discord::UserGuilds::Unauthorized)
+      end
+
+      it "asks Discord only once within the TTL, so a replayed session cannot pile up rejected requests" do
+        3.times do
+          described_class.for("tok", discord_id)
+        rescue Bot::Discord::UserGuilds::Unauthorized
+          nil
+        end
+
+        expect(Bot::Discord::UserGuilds).to have_received(:call).once
+      end
+    end
+
     it "caches per token" do
       described_class.for("tok", discord_id)
       described_class.for("other", discord_id)
