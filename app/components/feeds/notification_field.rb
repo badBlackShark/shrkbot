@@ -4,7 +4,7 @@ class Components::Feeds::NotificationField < Components::Feeds::TemplateField
   private
 
   def param
-    :notifications
+    :notification
   end
 
   def label_row

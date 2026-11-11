@@ -15,11 +15,9 @@ class Views::Servers::Feeds::Subscriptions::New < Views::Base
   def view_template
     render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: @plugin_key) do
       render Components::Feeds::AddPage.new(server_configuration: @config, plugin_key: @plugin_key) do
-        render Components::Feeds::TargetCard.new(
-          target: @target,
-          plugin_key: @plugin_key,
-          change_href: ::Feeds::SubscriptionPaths.new_for(@config, @plugin_key)
-        )
+        render Components::Feeds::TargetCard.new(target: @target, plugin_key: @plugin_key) do
+          render Components::Feeds::TargetChangeLink.new(href: ::Feeds::SubscriptionPaths.new_for(@config, @plugin_key))
+        end
         follow_form
       end
     end

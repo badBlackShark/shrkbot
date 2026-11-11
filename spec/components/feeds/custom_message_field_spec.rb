@@ -14,7 +14,7 @@ RSpec.describe Components::Feeds::CustomMessageField do
   let(:event) { subscription.subscribed_events.build(event_type:, template:) }
 
   it "renders the textarea with the stored text and the hint as placeholder" do
-    expect(html).to include('name="subscription[templates][Integrations::Steam::PatchNotesPublished]"')
+    expect(html).to include('name="subscription[choices][Integrations::Steam::PatchNotesPublished][template]"')
     expect(html).to include(">Hot take: {game}</textarea>")
     expect(html).to include('placeholder="Shown above the card. Leave it empty to post the card alone."')
   end

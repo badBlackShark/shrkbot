@@ -38,6 +38,7 @@ ActiveRecordDoctor.configure do
       "twilight_struggle_posted_messages.discord_channel_id",
       "twilight_struggle_posted_messages.discord_message_id",
       "feed_subscriptions.channel_id",
+      "feed_subscribed_events.channel_id",
       "feed_posts.channel_id",
       "feed_posts.message_id",
       "feed_steam_settings.role_id",

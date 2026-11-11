@@ -18,7 +18,7 @@ class Components::Feeds::EventTypeSetting < Components::Base
         help: help_text,
         data: {action: "change->disclosure#sync", disclosure_target: "toggle"}
       )
-      message_disclosure
+      div(class: "mt-2") { settings_disclosure }
     end
   end
 
@@ -41,22 +41,21 @@ class Components::Feeds::EventTypeSetting < Components::Base
     @event.present? && !@event.marked_for_destruction?
   end
 
-  def message_disclosure
-    details(data: {disclosure_target: "details"}, class: "mt-2") do
-      summary(
-        class: "flex cursor-pointer list-none select-none items-center gap-1.5 text-sm font-medium " \
-          "text-text-secondary [&::-webkit-details-marker]:hidden",
-        data: {action: "click->disclosure#toggle"}
-      ) do
-        span { t(".#{@plugin_key}.summary") }
-        render Components::Icon.new("caret-down", class: "dropdown-chevron size-3.5 flex-none text-text-muted")
+  def settings_disclosure
+    render Components::Feeds::SettingsDisclosure.new do
+      div do
+        render Components::Feeds::ChannelField.new(
+          subscription: @subscription,
+          name: "subscription[choices][#{@event_type}][channel_id]",
+          selected: @event&.channel_id,
+          label: t(".channel_label"),
+          placeholder: t(".channel_placeholder")
+        )
       end
-      div(class: "mt-3 flex flex-col gap-3") do
-        if @type_fields
-          render(@type_fields.new(subscription: @subscription, event_type: @event_type)) { message_fields }
-        else
-          message_fields
-        end
+      if @type_fields
+        render(@type_fields.new(subscription: @subscription, event_type: @event_type)) { message_fields }
+      else
+        message_fields
       end
     end
   end

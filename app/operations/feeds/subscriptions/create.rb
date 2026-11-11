@@ -4,13 +4,13 @@ module Ops
   module Feeds
     module Subscriptions
       class Create < ApplicationOperation
-        receives :server_configuration, :watcher, :target, :channel_id, :event_types, :templates, :notifications, :settings
+        receives :server_configuration, :watcher, :target, :channel_id, :event_types, :choices, :settings
 
         def call
           return failure(::Feeds::Subscription.cap_message(source)) if ::Feeds::Subscription.at_cap?(server_configuration, source)
           return failure(I18n.t("operations.feeds.subscriptions.no_event_types")) if event_types.empty?
 
-          watch.assign_attributes(name: target.name, image_url: target.image_url)
+          watch.assign_attributes(name: target.name, image_url: target.image_url, url: target.url)
           return failure(I18n.t("operations.feeds.subscriptions.already_followed", name: target.name)) if already_followed?
           return failure(subscription.errors.full_messages, value: subscription) unless subscription.valid?
 
@@ -36,7 +36,7 @@ module Ops
         def subscription
           @subscription ||= server_configuration.feed_subscriptions.build(watch:, channel_id:).tap do |built|
             built.build_settings(settings)
-            event_types.uniq.each { |event_type| built.follow(event_type, template: templates[event_type], notification: notifications[event_type]) }
+            event_types.uniq.each { |event_type| built.follow(event_type, **choices.fetch(event_type, {})) }
           end
         end
       end

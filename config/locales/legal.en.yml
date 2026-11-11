@@ -194,8 +194,8 @@ en:
         - and are deleted with the tournament.'
       retention_twitch: 'Twitch: received events are deleted 14 days after they arrive.
         Text a server writes is deleted with the rest of its configuration. A followed
-        channel''s name and the link to its picture are kept while a server follows
-        it.'
+        channel''s name, the link to it and the link to its picture are kept while
+        a server follows it.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down. Kick and ban notes are
@@ -218,7 +218,7 @@ en:
         and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
         the Service and its database run. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: November 8th, 2026'
+      updated: 'Last updated: November 9th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

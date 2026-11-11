@@ -54,12 +54,13 @@ module Ops
         end
 
         def revive
+          channel_id = subscription.channel_for(event.type)
           message_id = ::Feeds::AnnouncementMessage.create(
-            channel_id: subscription.channel_id,
+            channel_id:,
             announcement:,
             allowed_mentions: {parse: []}
           )
-          post.update!(channel_id: subscription.channel_id, message_id:, retracted_at: nil)
+          post.update!(channel_id:, message_id:, retracted_at: nil)
           ok
         end
 

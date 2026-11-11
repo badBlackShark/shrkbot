@@ -66,6 +66,37 @@ RSpec.describe Feeds::Subscription do
     end
   end
 
+  describe "#channel_for" do
+    subject(:channel) { subscription.channel_for(event_type) }
+
+    let(:subscription) { create(:feed_subscription, :twitch, channel_id: 555_000) }
+    let(:event_type) { "Integrations::Twitch::ClipCreated" }
+    let(:own_channel) { nil }
+
+    before do
+      create(:feed_subscribed_event, subscription:, event_type: "Integrations::Twitch::ClipCreated", channel_id: own_channel)
+      create(:feed_subscribed_event, subscription:, event_type: "Integrations::Twitch::StreamStarted", channel_id: 666_000)
+    end
+
+    context "with a channel of its own" do
+      let(:event_type) { "Integrations::Twitch::StreamStarted" }
+
+      it { is_expected.to eq(666_000) }
+    end
+
+    context "without a channel of its own" do
+      it { is_expected.to eq(555_000) }
+    end
+
+    context "with an update to a live post" do
+      let(:event_type) { "Integrations::Twitch::StreamUpdated" }
+
+      it "goes where the live type goes" do
+        expect(channel).to eq(666_000)
+      end
+    end
+  end
+
   describe ".at_cap?" do
     subject(:at_cap) { described_class.at_cap?(server_configuration, Feeds::Steam) }
 

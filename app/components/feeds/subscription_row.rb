@@ -5,10 +5,10 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   TITLE = "font-display font-semibold"
 
-  def initialize(subscription:, plugin_key:, channel_label:, role_names:, edit_href: nil)
+  def initialize(subscription:, plugin_key:, channel_labels:, role_names:, edit_href: nil)
     @subscription = subscription
     @plugin_key = plugin_key
-    @channel_label = channel_label
+    @channel_labels = channel_labels
     @role_names = role_names
     @edit_href = edit_href
   end
@@ -69,8 +69,9 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def channel
-    if @channel_label
-      span(class: "font-mono text-xs") { @channel_label }
+    label = @channel_labels[@subscription.channel_id]
+    if label
+      span(class: "font-mono text-xs") { label }
     else
       plain t(".channel_missing")
     end
@@ -85,9 +86,27 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def badge_label(event_type)
-    label = t("components.feeds.event_types.#{::Feeds.event_key(event_type)}.label")
+    [type_label(event_type), channel_part(event_type), role_part(event_type)].compact.join(" · ")
+  end
+
+  def type_label(event_type)
+    t("components.feeds.event_types.#{::Feeds.event_key(event_type)}.label")
+  end
+
+  def channel_part(event_type)
+    channel_id = subscribed_event(event_type).channel_id
+    return if channel_id.nil? || channel_id == @subscription.channel_id
+
+    @channel_labels[channel_id] || t(".channel_missing")
+  end
+
+  def role_part(event_type)
     role_id = roles.for(event_type) unless roles.shared?
-    role_id ? t(".badge_role", type: label, role: role_text(role_id)) : label
+    role_text(role_id) if role_id
+  end
+
+  def subscribed_event(event_type)
+    @subscription.subscribed_events.find { |event| event.event_type == event_type }
   end
 
   def source

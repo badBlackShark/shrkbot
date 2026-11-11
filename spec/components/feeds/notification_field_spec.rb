@@ -14,7 +14,7 @@ RSpec.describe Components::Feeds::NotificationField do
   let(:event) { subscription.subscribed_events.build(event_type:, notification_template:) }
 
   it "prefills the source default when nothing is stored" do
-    expect(html).to include('name="subscription[notifications][Integrations::Steam::PatchNotesPublished]"')
+    expect(html).to include('name="subscription[choices][Integrations::Steam::PatchNotesPublished][notification]"')
     expect(html).to include(">{game} · Patch notes: {title}</textarea>")
   end
 

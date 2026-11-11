@@ -12,7 +12,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
   let(:uploads) { "Integrations::Twitch::UploadPublished" }
   let(:featured_clips) { "Integrations::Twitch::FeaturedClipPublished" }
   let(:clips) { "Integrations::Twitch::ClipCreated" }
-  let(:target) { Integrations::Target.new(external_id: "9001", name: "SomeStreamer", image_url: "https://static-cdn.jtvnw.net/profile.png") }
+  let(:target) { Integrations::Target.new(external_id: "9001", name: "SomeStreamer", image_url: "https://static-cdn.jtvnw.net/profile.png", url: "https://www.twitch.tv/somestreamer") }
   let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
   let!(:twitch_plugin) { create(:plugin, key: "twitch", name: "Twitch") }
 
@@ -25,6 +25,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
     create(:server_role, server_configuration: config, discord_id: 888, name: "Live pings")
     allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     allow(Integrations::Twitch::ChannelWatcher).to receive(:resolve).with("somestreamer").and_return(target)
+    allow(Integrations::Twitch::ChannelWatcher).to receive(:refresh).with(["9001"]).and_return([target])
     get server_path(guild.id)
   end
 
@@ -72,7 +73,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
       it "renders the follow form with the five post types, all off" do
         lookup
 
-        expect(response.body).to include("SomeStreamer", "Follow SomeStreamer")
+        expect(response.body).to include("SomeStreamer", "Follow SomeStreamer", "Not this one?")
         expect(response.body).not_to include("translation missing")
         expect([live, highlights, uploads, featured_clips, clips].map { |type| checkbox(type) }).to all(be_present)
         expect([live, highlights, uploads, featured_clips, clips].map { |type| checkbox(type)["checked"] }).to all(be_nil)
@@ -99,7 +100,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
     let(:category_values) { [Feeds::Twitch::CategoryValue.dump({"id" => "1", "name" => "Hades II"}), "garbage", "[1]"] }
     let(:attributes) do
       {
-        external_id: "somestreamer",
+        external_id: "9001",
         channel_id:,
         live_role_id:,
         highlights_role_id: "",
@@ -111,8 +112,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
         switched_away: "delete",
         categories: ["", *category_values],
         event_types: {live => "1", highlights => "1", clips => "0"},
-        templates: {live => " Go watch "},
-        notifications: {}
+        choices: {live => {template: " Go watch "}}
       }
     end
 
@@ -174,6 +174,29 @@ RSpec.describe "Twitch subscriptions", type: :request do
       end
     end
 
+    context "with a channel for one post type" do
+      let(:channels) { {live => "777", highlights => ""} }
+
+      before { attributes[:choices] = attributes[:choices].deep_merge(channels.transform_values { |id| {channel_id: id} }) }
+
+      it "saves it on that type only" do
+        create_subscription
+
+        stored = config.feed_subscriptions.sole.subscribed_events.to_h { |event| [event.event_type, event.channel_id] }
+        expect(stored).to eq(live => 777, highlights => nil)
+      end
+
+      context "when the channel is from another server" do
+        let(:channels) { {live => "999"} }
+
+        it "responds not found and writes nothing" do
+          expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
     context "with a channel from another server" do
       let(:channel_id) { "999" }
 
@@ -181,6 +204,18 @@ RSpec.describe "Twitch subscriptions", type: :request do
         expect { create_subscription }.not_to change(Feeds::Subscription, :count)
 
         expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context "when Twitch is down" do
+      before { allow(Integrations::Twitch::ChannelWatcher).to receive(:refresh).and_raise(Integrations::Unavailable) }
+
+      it "renders an empty lookup with the error, never the numeric id as a name, and writes nothing" do
+        expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("Twitch didn&#39;t answer.")
+        expect(response.body).not_to include('value="9001"')
       end
     end
 
@@ -216,6 +251,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
     let!(:subscription) { create(:feed_subscription, :twitch, server_configuration: config, channel_id: 777) }
 
     before do
+      subscription.watch.update!(url: "https://www.twitch.tv/somestreamer")
       subscription.settings.update!(live_role_id: 888, live_end_mode: "keep", switched_away: "delete", categories: [{"id" => "1", "name" => "Hades II"}])
       create(:feed_subscribed_event, subscription:, event_type: live)
     end
@@ -233,20 +269,41 @@ RSpec.describe "Twitch subscriptions", type: :request do
       expect(page.css(%(select[name="subscription[categories][]"] option[selected])).map(&:text)).to eq(["Hades II"])
       expect(checkbox(live)["checked"]).to be_present
     end
+
+    it "links out to the channel instead of offering to pick another" do
+      edit
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css(%(a[href="https://www.twitch.tv/somestreamer"][target="_blank"]))).to be_present
+      expect(response.body).not_to include("Not this one?")
+    end
   end
 
   describe "PATCH /servers/:server_id/twitch/subscriptions/:id" do
     subject(:update) do
       patch(
         server_twitch_subscription_path(guild.id, subscription),
-        params: {subscription: {channel_id: "777", live_end_mode: "mark_ended", show_viewers:, categories:, event_types: {live => "1"}}},
+        params: {subscription: {channel_id: "777", live_end_mode: "mark_ended", show_viewers:, categories:, event_types: {live => "1"}, choices:}},
         **turbo
       )
     end
 
     let(:show_viewers) { "0" }
     let(:categories) { [""] }
+    let(:channels) { {live => ""} }
+    let(:choices) { channels.transform_values { |id| {channel_id: id} } }
     let!(:subscription) { create(:feed_subscription, :twitch, server_configuration: config, channel_id: 555) }
+
+    context "with a forged value in place of a post type's choices" do
+      let(:choices) { {live => "forged"} }
+
+      it "treats the type as having no choices and saves" do
+        update
+
+        expect(response).to have_http_status(:ok)
+        expect(subscription.reload.subscribed_events.sole).to have_attributes(event_type: live, channel_id: nil)
+      end
+    end
 
     it "saves and re-renders the form as a turbo stream" do
       update
@@ -255,6 +312,28 @@ RSpec.describe "Twitch subscriptions", type: :request do
       expect(response.body).to include("twitch-config")
       expect(subscription.reload).to have_attributes(channel_id: 777)
       expect(subscription.twitch_settings).to have_attributes(live_end_mode: "mark_ended", show_viewers: false)
+    end
+
+    context "with a post type channel of this server" do
+      let(:channels) { {live => "777"} }
+
+      it "stores it on that post type" do
+        update
+
+        expect(subscription.reload.subscribed_events.sole).to have_attributes(event_type: live, channel_id: 777)
+      end
+    end
+
+    context "with a post type channel from another server" do
+      let(:channels) { {live => "999"} }
+
+      it "responds not found and changes nothing" do
+        update
+
+        expect(response).to have_http_status(:not_found)
+        expect(subscription.reload).to have_attributes(channel_id: 555)
+        expect(subscription.subscribed_events).to be_empty
+      end
     end
 
     context "when every chosen category is cleared" do
