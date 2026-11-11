@@ -23,25 +23,28 @@ RSpec.describe Components::ConfigPage do
     ).render_in(view_context) { "" }
   end
 
-  context "without header media" do
-    it "shows the plugin tile" do
-      expect(html).to include("chamfer-tile")
+  context "without a banner" do
+    it "shows the plugin tile and the title" do
+      expect(html).to include("chamfer-tile", "<h1")
     end
   end
 
-  context "with header media" do
+  context "with a banner" do
     let(:header) do
       Components::ConfigPageHeader.new(
         icon: "bell",
         title: "Reminders",
-        description: "Manage reminders.",
-        media: Components::Feeds::WatchImage.new(url: "https://example.test/game.jpg")
+        banner: Components::Feeds::TargetBanner.new(
+          watch: build(:integration_watch, name: "Hades II", image_url: "https://example.test/game.jpg"),
+          plugin_key: :steam
+        )
       )
     end
 
-    it "shows the media instead of the plugin tile" do
-      expect(html).to include("https://example.test/game.jpg")
+    it "shows the banner instead of the plugin tile and the title row" do
+      expect(html).to include("https://example.test/game.jpg", "Hades II")
       expect(html).not_to include("chamfer-tile")
+      expect(html).not_to include("Reminders</h1>")
     end
   end
 

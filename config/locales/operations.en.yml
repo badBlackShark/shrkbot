@@ -9,6 +9,7 @@ en:
             one to add another.
           twitch: This server follows %{max} channels, the most it can. Stop following
             one to add another.
+        no_event_types: Turn on at least one type of post.
     logging:
       moderation_dependency: can't be turned off or lose its channel while Server
         Shield is enabled

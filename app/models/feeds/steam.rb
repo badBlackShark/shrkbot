@@ -18,13 +18,6 @@ module Feeds
       ]
     end
 
-    def self.default_event_types
-      %w[
-        Integrations::Steam::PatchNotesPublished
-        Integrations::Steam::AnnouncementPublished
-      ]
-    end
-
     def self.post_type(event_type)
       event_type
     end
@@ -39,6 +32,10 @@ module Feeds
 
     def self.notification_tokens
       template_tokens + %w[title]
+    end
+
+    def self.tokens_for(_event_type)
+      notification_tokens
     end
 
     def self.default_notification(event_type)

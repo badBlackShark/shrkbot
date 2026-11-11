@@ -10,22 +10,20 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
       target:,
       channel_id:,
       event_types:,
-      templates:,
-      notifications:,
+      choices:,
       settings:
     )
   end
 
   let(:server_configuration) { create(:server_configuration) }
-  let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg") }
+  let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg", url: "https://store.steampowered.com/app/1145350/") }
   let(:channel_id) { "555" }
   let(:role_id) { "777" }
   let(:body_length) { "full" }
   let(:languages) { %w[de en] }
   let(:settings) { {role_id:, body_length:, languages:} }
   let(:event_types) { %w[Integrations::Steam::PatchNotesPublished Integrations::Steam::AnnouncementPublished] }
-  let(:templates) { {} }
-  let(:notifications) { {} }
+  let(:choices) { {} }
   let(:watch) { Integrations::Watch.find_by!(external_id: "1145350") }
 
   it "stores the subscription with its settings" do
@@ -50,10 +48,10 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   end
 
   context "with submitted templates" do
-    let(:templates) do
+    let(:choices) do
       {
-        "Integrations::Steam::PatchNotesPublished" => " Patch day: {title} ",
-        "Integrations::Steam::AnnouncementPublished" => "  "
+        "Integrations::Steam::PatchNotesPublished" => {template: " Patch day: {title} "},
+        "Integrations::Steam::AnnouncementPublished" => {template: "  "}
       }
     end
 
@@ -68,10 +66,10 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   end
 
   context "with submitted notification texts" do
-    let(:notifications) do
+    let(:choices) do
       {
-        "Integrations::Steam::PatchNotesPublished" => " Out now: {title} ",
-        "Integrations::Steam::AnnouncementPublished" => "{game} · Announcement: {title}"
+        "Integrations::Steam::PatchNotesPublished" => {notification: " Out now: {title} "},
+        "Integrations::Steam::AnnouncementPublished" => {notification: "{game} · Announcement: {title}"}
       }
     end
 
@@ -85,13 +83,42 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
     end
   end
 
+  context "with a channel for one type" do
+    let(:choices) do
+      {
+        "Integrations::Steam::PatchNotesPublished" => {channel_id: "888"},
+        "Integrations::Steam::AnnouncementPublished" => {channel_id: ""}
+      }
+    end
+
+    it "stores it and nothing for the type left blank" do
+      stored = result.value.subscribed_events.to_h { |event| [event.event_type, event.channel_id] }
+
+      expect(stored).to eq(
+        "Integrations::Steam::PatchNotesPublished" => 888,
+        "Integrations::Steam::AnnouncementPublished" => nil
+      )
+    end
+  end
+
+  context "without any event type" do
+    let(:event_types) { [] }
+
+    it "fails and saves nothing" do
+      expect(result.errors).to eq(["Turn on at least one type of post."])
+      expect(Integrations::Watch.where(external_id: "1145350")).not_to exist
+      expect(server_configuration.feed_subscriptions).to be_empty
+    end
+  end
+
   it "creates the watch with the game's name and image" do
     result
 
     expect(watch).to have_attributes(
       watcher: "Integrations::Steam::NewsWatcher",
       name: "Hades II",
-      image_url: "https://shared.akamai.steamstatic.com/hades.jpg"
+      image_url: "https://shared.akamai.steamstatic.com/hades.jpg",
+      url: "https://store.steampowered.com/app/1145350/"
     )
   end
 
@@ -111,7 +138,11 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
     it "reuses the watch and refreshes its name and image" do
       expect { result }.not_to change(Integrations::Watch, :count)
 
-      expect(existing_watch.reload).to have_attributes(name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg")
+      expect(existing_watch.reload).to have_attributes(
+        name: "Hades II",
+        image_url: "https://shared.akamai.steamstatic.com/hades.jpg",
+        url: "https://store.steampowered.com/app/1145350/"
+      )
       expect(result.value.watch).to eq(existing_watch)
     end
   end

@@ -15,6 +15,14 @@ module Feeds
       "Integrations::Twitch::ClipCreated" => "New clip from {streamer}: {title}"
     }.freeze
 
+    TOKENS = {
+      "Integrations::Twitch::StreamStarted" => %w[streamer category title],
+      "Integrations::Twitch::HighlightPublished" => %w[streamer title],
+      "Integrations::Twitch::UploadPublished" => %w[streamer title],
+      "Integrations::Twitch::FeaturedClipPublished" => %w[streamer category title clipper],
+      "Integrations::Twitch::ClipCreated" => %w[streamer category title clipper]
+    }.freeze
+
     def self.plugin_key
       :twitch
     end
@@ -33,10 +41,6 @@ module Feeds
       ]
     end
 
-    def self.default_event_types
-      %w[Integrations::Twitch::StreamStarted Integrations::Twitch::HighlightPublished]
-    end
-
     def self.post_type(event_type)
       POSTED_AS.fetch(event_type, event_type)
     end
@@ -46,7 +50,11 @@ module Feeds
     end
 
     def self.template_tokens
-      %w[streamer category title clipper]
+      TOKENS.values.flatten.uniq
+    end
+
+    def self.tokens_for(event_type)
+      TOKENS.fetch(event_type)
     end
 
     def self.notification_tokens

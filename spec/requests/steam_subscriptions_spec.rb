@@ -10,7 +10,7 @@ RSpec.describe "Steam subscriptions", type: :request do
   let(:patch_notes) { "Integrations::Steam::PatchNotesPublished" }
   let(:announcements) { "Integrations::Steam::AnnouncementPublished" }
   let(:articles) { "Integrations::Steam::ArticlePublished" }
-  let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg") }
+  let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg", url: "https://store.steampowered.com/app/1145350/") }
   let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
   let!(:steam_plugin) { create(:plugin, key: "steam", name: "Steam") }
 
@@ -23,6 +23,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     create(:server_role, server_configuration: config, discord_id: 888, name: "Gamers")
     allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     allow(Integrations::Steam::NewsWatcher).to receive(:resolve).with("1145350").and_return(target)
+    allow(Integrations::Steam::NewsWatcher).to receive(:refresh).with(["1145350"]).and_return([target])
     allow(Feeds::VolumeLookup).to receive(:call)
     get server_path(guild.id)
   end
@@ -92,13 +93,11 @@ RSpec.describe "Steam subscriptions", type: :request do
     end
 
     context "when Steam resolves the game" do
-      it "renders the follow form with the default post types" do
+      it "renders the follow form with every post type off" do
         lookup
 
         expect(response.body).to include("Hades II", "Steam app 1145350", "Follow Hades II")
-        expect(checkbox(patch_notes)["checked"]).to be_present
-        expect(checkbox(announcements)["checked"]).to be_present
-        expect(checkbox(articles)["checked"]).to be_nil
+        expect([patch_notes, announcements, articles].map { |type| checkbox(type)["checked"] }).to all(be_nil)
       end
 
       it "loads the volume line lazily without calling Steam" do
@@ -125,8 +124,10 @@ RSpec.describe "Steam subscriptions", type: :request do
         body_length: "full",
         languages: %w[de en],
         event_types: {patch_notes => "1", announcements => "0", articles => "1"},
-        templates: {patch_notes => " Patch day: {title} ", articles => "  "},
-        notifications: {patch_notes => " Out now: {title} ", articles => "{game} · {feed}: {title}"}
+        choices: {
+          patch_notes => {template: " Patch day: {title} ", notification: " Out now: {title} "},
+          articles => {template: "  ", notification: "{game} · {feed}: {title}"}
+        }
       }
     end
 
@@ -157,11 +158,34 @@ RSpec.describe "Steam subscriptions", type: :request do
       expect(stored_notifications).to eq(patch_notes => "Out now: {title}", articles => nil)
     end
 
+    context "with a channel for one post type" do
+      let(:channels) { {patch_notes => "777", articles => ""} }
+
+      before { attributes[:choices] = attributes[:choices].deep_merge(channels.transform_values { |id| {channel_id: id} }) }
+
+      it "saves it on that type only" do
+        create_subscription
+
+        stored = config.feed_subscriptions.sole.subscribed_events.to_h { |event| [event.event_type, event.channel_id] }
+        expect(stored).to eq(patch_notes => 777, articles => nil)
+      end
+
+      context "when the channel is from another server" do
+        let(:channels) { {patch_notes => "999"} }
+
+        it "responds not found and writes nothing" do
+          expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
     context "with blank text" do
       let(:attributes) do
         super().merge(
           event_types: {patch_notes => "1"},
-          templates: {patch_notes => "  "}
+          choices: {patch_notes => {template: "  "}}
         )
       end
 
@@ -176,7 +200,7 @@ RSpec.describe "Steam subscriptions", type: :request do
       let(:attributes) do
         super().merge(
           event_types: {"Other::Thing" => "1", patch_notes => "1"},
-          templates: {"Other::Thing" => "x"}
+          choices: {"Other::Thing" => {template: "x"}}
         )
       end
 
@@ -209,7 +233,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     end
 
     context "when Steam is down" do
-      before { allow(Integrations::Steam::NewsWatcher).to receive(:resolve).and_raise(Integrations::Unavailable) }
+      before { allow(Integrations::Steam::NewsWatcher).to receive(:refresh).and_raise(Integrations::Unavailable) }
 
       it "renders the lookup with the error and writes nothing" do
         expect { create_subscription }.not_to change(Feeds::Subscription, :count)
@@ -236,7 +260,7 @@ RSpec.describe "Steam subscriptions", type: :request do
   describe "GET /servers/:server_id/steam/subscriptions/:id/edit" do
     subject(:edit) { get edit_server_steam_subscription_path(guild.id, subscription) }
 
-    let(:watch) { create(:integration_watch, name: "Hades II", external_id: "1145350") }
+    let(:watch) { create(:integration_watch, name: "Hades II", external_id: "1145350", url: "https://store.steampowered.com/app/1145350/") }
     let!(:subscription) { create(:feed_subscription, server_configuration: config, watch:, channel_id: 777) }
 
     before { create(:feed_subscribed_event, subscription:, event_type: patch_notes, template: "Hot take: {title}") }
@@ -244,15 +268,23 @@ RSpec.describe "Steam subscriptions", type: :request do
     it "shows the stored template in its textarea" do
       edit
 
-      textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[templates][#{patch_notes}]"]))
+      textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[choices][#{patch_notes}][template]"]))
       expect(textarea.text).to eq("Hot take: {title}")
     end
 
     it "leaves the textarea empty for a post type without a custom template" do
       edit
 
-      textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[templates][#{announcements}]"]))
+      textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[choices][#{announcements}][template]"]))
       expect(textarea.text).to eq("")
+    end
+
+    it "links to the game's store page instead of offering to pick another" do
+      edit
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css(%(a[href="https://store.steampowered.com/app/1145350/"][target="_blank"]))).to be_present
+      expect(response.body).not_to include("Not this one?")
     end
 
     it "renders the form with the stored settings and a confirmed stop-following button" do
@@ -306,7 +338,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     subject(:update) do
       patch(
         server_steam_subscription_path(guild.id, subscription),
-        params: {subscription: {channel_id:, role_id: "", body_length: "full", languages:, event_types:, templates:, notifications:}},
+        params: {subscription: {channel_id:, role_id: "", body_length: "full", languages:, event_types:, choices:}},
         **headers
       )
     end
@@ -315,8 +347,12 @@ RSpec.describe "Steam subscriptions", type: :request do
     let(:channel_id) { "777" }
     let(:languages) { %w[de en] }
     let(:event_types) { {patch_notes => "1", announcements => "1"} }
-    let(:templates) { {patch_notes => "Patch day: {title}"} }
-    let(:notifications) { {patch_notes => "Out now: {title}", announcements => "{game} · Announcement: {title}"} }
+    let(:choices) do
+      {
+        patch_notes => {template: "Patch day: {title}", notification: "Out now: {title}"},
+        announcements => {notification: "{game} · Announcement: {title}"}
+      }
+    end
     let(:followed_since) { 3.days.ago.change(usec: 0) }
     let!(:subscription) { create(:feed_subscription, server_configuration: config, channel_id: 555) }
 
@@ -363,6 +399,20 @@ RSpec.describe "Steam subscriptions", type: :request do
       expect(subscription.subscribed_events.find_by!(event_type: announcements).notification_template).to be_nil
     end
 
+    context "when every post type is unchecked" do
+      let(:event_types) { {patch_notes => "0", announcements => "0"} }
+
+      it "re-renders the form with the reason, keeping what was entered, and changes nothing" do
+        update
+
+        page = Nokogiri::HTML(response.body)
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("Turn on at least one type of post.", ">Patch day: {title}</textarea>")
+        expect(page.at_css(%(select[name="subscription[channel_id]"] option[selected]))["value"]).to eq("777")
+        expect(subscription.reload).to have_attributes(channel_id: 555)
+      end
+    end
+
     context "when the channel is cleared" do
       let(:channel_id) { "" }
 
@@ -377,7 +427,7 @@ RSpec.describe "Steam subscriptions", type: :request do
 
       context "when a followed post type is unchecked with a draft message" do
         let(:event_types) { {announcements => "1"} }
-        let(:templates) { {patch_notes => "Draft survives: {title}"} }
+        let(:choices) { {patch_notes => {template: "Draft survives: {title}"}} }
 
         it "re-renders the draft in that type's textarea" do
           update

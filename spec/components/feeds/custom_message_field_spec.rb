@@ -14,7 +14,7 @@ RSpec.describe Components::Feeds::CustomMessageField do
   let(:event) { subscription.subscribed_events.build(event_type:, template:) }
 
   it "renders the textarea with the stored text and the hint as placeholder" do
-    expect(html).to include('name="subscription[templates][Integrations::Steam::PatchNotesPublished]"')
+    expect(html).to include('name="subscription[choices][Integrations::Steam::PatchNotesPublished][template]"')
     expect(html).to include(">Hot take: {game}</textarea>")
     expect(html).to include('placeholder="Shown above the card. Leave it empty to post the card alone."')
   end
@@ -30,6 +30,29 @@ RSpec.describe Components::Feeds::CustomMessageField do
 
   it "renders the preview output, the eyebrow and the sample tokens for the controller" do
     expect(html).to include('data-feed-preview-target="output"', "data-feed-preview-field", "Hades II", "Hades II · Patch notes", "Patch 1.4")
+  end
+
+  context "with Twitch" do
+    subject(:html) { described_class.new(subscription:, plugin_key: :twitch, event_type:, event: nil).render_in(view_context) }
+
+    let(:subscription) { build(:feed_subscription, :twitch) }
+    let(:chips) { html.scan(/data-clipboard-text-param="\{(\w+)\}"/).flatten }
+
+    context "with a highlight" do
+      let(:event_type) { "Integrations::Twitch::HighlightPublished" }
+
+      it "offers neither the category nor the clipper" do
+        expect(chips).to eq(%w[streamer title])
+      end
+    end
+
+    context "with a clip" do
+      let(:event_type) { "Integrations::Twitch::ClipCreated" }
+
+      it "offers the clipper" do
+        expect(chips).to eq(%w[streamer category title clipper])
+      end
+    end
   end
 
   context "when the type is not followed" do

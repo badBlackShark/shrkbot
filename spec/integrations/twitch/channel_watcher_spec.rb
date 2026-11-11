@@ -7,7 +7,7 @@ RSpec.describe Integrations::Twitch::ChannelWatcher do
 
   let(:users) { instance_double(Integrations::Twitch::Users) }
   let(:user) { Integrations::Twitch::User.new(id: "141981764", login: "twitchdev", display_name: "TwitchDev", profile_image_url: "https://example.test/a.png") }
-  let(:target) { Integrations::Target.new(external_id: "141981764", name: "TwitchDev", image_url: "https://example.test/a.png") }
+  let(:target) { Integrations::Target.new(external_id: "141981764", name: "TwitchDev", image_url: "https://example.test/a.png", url: "https://www.twitch.tv/twitchdev") }
 
   describe ".resolve" do
     subject(:resolved) { described_class.resolve("https://twitch.tv/TwitchDev", users:) }

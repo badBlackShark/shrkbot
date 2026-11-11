@@ -87,10 +87,8 @@ en:
         channel_placeholder: Choose a channel
         where_title: Where to post
       event_type_setting:
-        steam:
-          summary: Message and notification
-        twitch:
-          summary: Settings
+        channel_label: Channel (optional)
+        channel_placeholder: Same as "Where to post"
       event_types:
         announcement_published:
           help: The developer's other posts on Steam.
@@ -100,41 +98,41 @@ en:
             games this is most of the news.
           label: Articles
         clip_created:
-          help: Every clip viewers make.
           label: All clips
         featured_clip_published:
-          help: When the streamer features a clip, within 48 hours of it being made.
           label: Featured clips
         highlight_published:
-          help: When the streamer saves part of a past stream.
-          label: Highlights
+          label: New highlight
         patch_notes_published:
           help: Posts the developer tagged as patch notes.
           label: Patch notes
         stream_started:
-          help: When the channel goes live. The post updates while the stream runs.
-          label: Live
+          label: Going live
         upload_published:
-          help: When the streamer uploads a video to Twitch.
-          label: Uploads
+          label: New upload
       event_types_card:
         what_title: What to post
       notification_field:
-        help: What push notifications say. Leave it empty for the default.
-        label: Notification text
+        label: Push notification text
         preview: Push notification
+        reset: Reset to default
       placeholders:
-        author: Who wrote the post. Empty when Steam doesn't say.
-        category: The game or category. Empty for highlights and uploads.
-        clipper: Who made the clip. Empty for other posts.
-        feed: Where the post comes from, such as Community Announcements or a news
-          site.
-        game: The game's name on Steam.
-        streamer: The channel's name on Twitch.
-        title: The post's title.
+        steam:
+          author: Who wrote the post. Empty when Steam doesn't say.
+          feed: Where the post comes from, such as Community Announcements or a news
+            site.
+          game: The game's name on Steam.
+          title: The post's title.
+        twitch:
+          category: The game or category.
+          clipper: Who made the clip.
+          streamer: The channel's name on Twitch.
+          title: The title of the stream, video or clip.
       role_field:
         role_label: Role to ping (optional)
         role_placeholder: No ping
+      settings_disclosure:
+        summary: Settings
       steam:
         language_card:
           help: Leave empty to post every language. shrkbot can't tell the language
@@ -372,7 +370,6 @@ en:
           heading: Followed channels
         usage: "%{used} of %{max}"
       subscription_row:
-        badge_role: "%{type} · %{role}"
         channel_missing: channel deleted
         mention: "@%{role}"
         no_ping: no ping
@@ -387,11 +384,13 @@ en:
             %{since} UTC; live posts still work. shrkbot keeps trying every hour,
             and posts what it missed from the last 48 hours once Twitch answers.
       target_card:
-        change: Not this one?
         steam:
           external_id: Steam app %{id}
-        twitch:
-          external_id: Twitch user %{id}
+      target_change_link:
+        label: Not this one?
+      target_source_link:
+        steam: Open on Steam
+        twitch: Open on Twitch
       twitch:
         categories_card:
           help: Leave it empty to post every category. Clips follow the same filter.
@@ -449,8 +448,8 @@ en:
         type_fields:
           clip_warning: Big channels get dozens to hundreds of clips per stream, and
             each one is a post.
+          featured_window: Only clips featured within 48 hours of being made get posted.
         viewers_toggle:
-          help: On the live card, and as the peak on the ended card.
           label: Show the viewer count
       volume_line:
         counts:
@@ -740,10 +739,10 @@ en:
       label: Placeholders (click to copy)
     plugin_badges:
       beta: Beta
-      beta_hint: Works, but has not been tested widely yet. Report problems to @%{owner}
-        on Discord.
-      beta_hint_unknown: Works, but has not been tested widely yet. Report problems
-        to the bot owner on Discord.
+      beta_hint: You might experience some bugs. Please report them to @%{owner} on
+        Discord or via %{email}.
+      beta_hint_unknown: You might experience some bugs. Please report them to the
+        bot owner on Discord or via %{email}.
       new: New
     plugin_row:
       admin_only: Only a server admin can switch this plugin on or off.

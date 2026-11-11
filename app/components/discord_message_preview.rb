@@ -41,7 +41,7 @@ class Components::DiscordMessagePreview < Components::Base
           span(class: "text-[11px] text-[color:var(--discord-muted)]") { message[:timestamp] } if message[:timestamp]
         end
         message_text(message[:body_data]) if message[:body_data]
-        card(message[:card]) if message[:card]
+        card_with_button(message[:card]) if message[:card]
       end
     end
   end
@@ -61,8 +61,12 @@ class Components::DiscordMessagePreview < Components::Base
     div(class: "mt-2 max-w-lg rounded-lg border border-[color:var(--discord-code-bd)] bg-[var(--discord-code-bg)] p-3 text-[color:var(--discord-text)]") do
       card_header(card)
       card_body(card[:body])
-      card_button(card[:button]) if card[:button]
     end
+  end
+
+  def card_with_button(content)
+    card(content)
+    card_button(content[:button]) if content[:button]
   end
 
   def card_body(body)
@@ -73,7 +77,7 @@ class Components::DiscordMessagePreview < Components::Base
   end
 
   def card_button(label)
-    span(class: "mt-3 inline-flex items-center gap-1.5 rounded bg-[var(--discord-divider)] px-3 py-1.5 text-sm font-medium") do
+    span(class: "mt-2 inline-flex items-center gap-1.5 rounded bg-[var(--discord-divider)] px-3 py-1.5 text-sm font-medium") do
       plain label
       render Components::Icon.new("arrow-square-out", class: "size-3.5")
     end

@@ -51,6 +51,14 @@ RSpec.describe Components::DiscordMessagePreview do
     it "renders the title, body and link button under the message" do
       expect(html).to include("Patch 1.4", "Fixed things.", "Read the full post", "--discord-code-bg")
     end
+
+    it "puts the link button after the card, not inside it" do
+      card = Nokogiri::HTML5.fragment(html).css("div").find { |node| node["class"].to_s.include?("--discord-code-bg") }
+
+      expect(card.text).to include("Fixed things.")
+      expect(card.text).not_to include("Read the full post")
+      expect(html).to include("Read the full post")
+    end
   end
 
   context "with a card body given as lines" do

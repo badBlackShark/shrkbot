@@ -54,6 +54,12 @@ ignore_unused:
   # 1. Components::Feeds::Twitch::ModeField subclasses
   - components.feeds.twitch.end_mode_field.*
   - components.feeds.twitch.switched_away_field.*
+  # 1. Components::Feeds::TargetCard (caption key read only when the source has one)
+  - components.feeds.target_card.steam.external_id
+  # 1. Components::Feeds::EventTypeSetting (help key read only when it exists)
+  - components.feeds.event_types.announcement_published.help
+  - components.feeds.event_types.article_published.help
+  - components.feeds.event_types.patch_notes_published.help
   # 1. Views::Servers::SubPluginShow subclasses
   - views.servers.steam.show.title
   - views.servers.steam.show.description

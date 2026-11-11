@@ -19,14 +19,14 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     existing = followed_subscription(lookup.target)
     return render_lookup(input: params[lookup_param], existing:) if existing
 
-    render_new(subscription: build_subscription(lookup.target, source.default_event_types), target: lookup.target)
+    render_new(subscription: build_subscription(lookup.target), target: lookup.target)
   end
 
   def create
-    return head :not_found unless guild_channels?(subscription_params[:channel_id]) && guild_roles?(*role_ids)
+    return head :not_found unless guild_targets?
 
-    lookup = ::Feeds::TargetLookup.call(watcher_class, subscription_params[:external_id])
-    return render_lookup(input: subscription_params[:external_id], error: lookup.error, status: :unprocessable_content) if lookup.error
+    lookup = ::Feeds::TargetLookup.by_external_id(watcher_class, subscription_params[:external_id])
+    return render_lookup(error: lookup.error, status: :unprocessable_content) if lookup.error
 
     result = Ops::Feeds::Subscriptions::Create.call(
       server_configuration: @server_configuration,
@@ -35,13 +35,12 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
       channel_id: subscription_params[:channel_id],
       settings:,
       event_types:,
-      templates:,
-      notifications:
+      choices: type_choices
     )
     return redirect_to plugin_path, notice: t("servers.#{plugin_key}.followed", name: lookup.target.name) if result.success?
 
     render_new(
-      subscription: result.value || build_subscription(lookup.target, event_types, channel_id: subscription_params[:channel_id], settings:, templates:, notifications:),
+      subscription: result.value || build_subscription(lookup.target, event_types, channel_id: subscription_params[:channel_id], settings:, choices: type_choices),
       target: lookup.target,
       error: result.errors.to_sentence,
       status: :unprocessable_content
@@ -58,15 +57,14 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   end
 
   def update
-    return head :not_found unless guild_channels?(subscription_params[:channel_id]) && guild_roles?(*role_ids)
+    return head :not_found unless guild_targets?
 
     result = Ops::Feeds::Subscriptions::Update.call(
       subscription: @subscription,
       channel_id: subscription_params[:channel_id],
       settings:,
       event_types:,
-      templates:,
-      notifications:
+      choices: type_choices
     )
     @error = result.errors.to_sentence if result.failure?
     respond_with_save(result)
@@ -100,10 +98,10 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     source_subscriptions.find_by(integration_watches: {external_id: target.external_id})
   end
 
-  def build_subscription(target, event_types, channel_id: nil, settings: {}, templates: {}, notifications: {})
+  def build_subscription(target, event_types = [], channel_id: nil, settings: {}, choices: {})
     @server_configuration.feed_subscriptions.build(watch: unsaved_watch(target), channel_id:).tap do |subscription|
       subscription.build_settings(settings)
-      event_types.each { |event_type| subscription.follow(event_type, template: templates[event_type], notification: notifications[event_type]) }
+      event_types.each { |event_type| subscription.follow(event_type, **choices.fetch(event_type, {})) }
     end
   end
 
@@ -147,19 +145,24 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     source.event_types.select { |event_type| submitted[event_type] == "1" }
   end
 
+  def guild_targets?
+    guild_channels?(subscription_params[:channel_id], *type_choices.values.filter_map { |choices| choices[:channel_id] }) && guild_roles?(*role_ids)
+  end
+
+  def type_choices
+    @type_choices ||= source.event_types.index_with { |event_type| submitted_choices(event_type) }
+  end
+
+  def submitted_choices(event_type)
+    choices = Hash.try_convert(subscription_params[:choices].to_h[event_type]) || {}
+    choices.symbolize_keys.slice(:template, :notification, :channel_id)
+  end
+
   def role_ids
     settings.filter_map { |column, value| value if column.end_with?("role_id") }
   end
 
-  def templates
-    subscription_params[:templates].to_h
-  end
-
-  def notifications
-    subscription_params[:notifications].to_h
-  end
-
   def subscription_params
-    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, *settings_params, {event_types: {}, templates: {}, notifications: {}}])
+    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, *settings_params, {event_types: {}, choices: {}}])
   end
 end

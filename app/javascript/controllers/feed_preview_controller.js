@@ -29,6 +29,13 @@ export default class extends Controller {
     output.replaceChildren(...blocks)
   }
 
+  reset(event) {
+    const field = event.currentTarget.closest("[data-feed-preview-field]")
+    const input = this.templateTargets.find((template) => field.contains(template))
+    input.value = input.dataset.fallback
+    input.dispatchEvent(new Event("input", { bubbles: true }))
+  }
+
   outputFor(input) {
     const field = input.closest("[data-feed-preview-field]")
     return this.outputTargets.find((output) => field.contains(output))

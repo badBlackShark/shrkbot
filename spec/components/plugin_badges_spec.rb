@@ -40,14 +40,14 @@ RSpec.describe Components::PluginBadges do
     end
 
     it "names the owner in the tooltip" do
-      expect(html).to include("@shark")
+      expect(html).to include("@shark", SupportContact::EMAIL)
     end
 
     context "when the owner is unknown" do
       let(:owner) { nil }
 
       it "falls back to the generic hint" do
-        expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_badges.beta_hint_unknown")))
+        expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_badges.beta_hint_unknown", email: SupportContact::EMAIL)))
       end
     end
   end

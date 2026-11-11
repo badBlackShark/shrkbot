@@ -30,6 +30,7 @@ class Components::PluginBadges < Components::Base
 
   def beta_hint
     owner = Bot::Discord::OwnerUsername.call
-    owner ? t(".beta_hint", owner:) : t(".beta_hint_unknown")
+    email = SupportContact::EMAIL
+    owner ? t(".beta_hint", owner:, email:) : t(".beta_hint_unknown", email:)
   end
 end

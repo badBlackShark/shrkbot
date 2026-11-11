@@ -24,10 +24,6 @@ RSpec.describe Feeds do
       expect(event_types.map(&:constantize)).to be_present.and all(be < Integrations::Event)
     end
 
-    it "defaults each source to a subset of its own event types" do
-      expect(sources).to all(satisfy { |source| (source.default_event_types - source.event_types).empty? })
-    end
-
     it "gives every source template tokens" do
       expect(sources.map(&:template_tokens)).to all(be_present)
     end
@@ -41,7 +37,7 @@ RSpec.describe Feeds do
     end
 
     it "gives every source its settings contract" do
-      expect(sources).to all(respond_to(:settings_association, :role_id_for, :accepts?, :post_type, :announced_types))
+      expect(sources).to all(respond_to(:tokens_for, :settings_association, :role_id_for, :accepts?, :post_type, :announced_types))
     end
 
     it "gives every source an announcement builder" do

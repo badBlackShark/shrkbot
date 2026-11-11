@@ -14,7 +14,7 @@ RSpec.describe Components::Feeds::NotificationField do
   let(:event) { subscription.subscribed_events.build(event_type:, notification_template:) }
 
   it "prefills the source default when nothing is stored" do
-    expect(html).to include('name="subscription[notifications][Integrations::Steam::PatchNotesPublished]"')
+    expect(html).to include('name="subscription[choices][Integrations::Steam::PatchNotesPublished][notification]"')
     expect(html).to include(">{game} · Patch notes: {title}</textarea>")
   end
 
@@ -37,6 +37,37 @@ RSpec.describe Components::Feeds::NotificationField do
   it "offers the title chip beside game, author and feed" do
     chips = html.scan(/data-clipboard-text-param="\{(\w+)\}"/).flatten
     expect(chips).to eq(%w[game author feed title])
+  end
+
+  context "with Twitch" do
+    subject(:html) { described_class.new(subscription:, plugin_key: :twitch, event_type:, event: nil).render_in(view_context) }
+
+    let(:subscription) { build(:feed_subscription, :twitch) }
+    let(:chips) { html.scan(/data-clipboard-text-param="\{(\w+)\}"/).flatten }
+
+    context "with a highlight" do
+      let(:event_type) { "Integrations::Twitch::HighlightPublished" }
+
+      it "offers neither the category nor the clipper" do
+        expect(chips).to eq(%w[streamer title])
+      end
+    end
+
+    context "with a clip" do
+      let(:event_type) { "Integrations::Twitch::ClipCreated" }
+
+      it "offers the clipper" do
+        expect(chips).to eq(%w[streamer category title clipper])
+      end
+    end
+  end
+
+  it "labels the field and offers a reset to the default instead of a help line" do
+    button = Nokogiri::HTML5.fragment(html).at_css("button[data-action='feed-preview#reset']")
+
+    expect(html).to include("Push notification text")
+    expect(button["aria-label"]).to eq("Reset to default")
+    expect(html).not_to include("What push notifications say")
   end
 
   it "renders the preview output and the sample tokens for the controller" do
