@@ -89,7 +89,6 @@ en:
       event_type_setting:
         channel_label: Channel (optional)
         channel_placeholder: Same as "Where to post"
-        summary: Settings
       event_types:
         announcement_published:
           help: The developer's other posts on Steam.
@@ -132,6 +131,8 @@ en:
       role_field:
         role_label: Role to ping (optional)
         role_placeholder: No ping
+      settings_disclosure:
+        summary: Settings
       steam:
         language_card:
           help: Leave empty to post every language. shrkbot can't tell the language
@@ -383,9 +384,13 @@ en:
             %{since} UTC; live posts still work. shrkbot keeps trying every hour,
             and posts what it missed from the last 48 hours once Twitch answers.
       target_card:
-        change: Not this one?
         steam:
           external_id: Steam app %{id}
+      target_change_link:
+        label: Not this one?
+      target_source_link:
+        steam: Open on Steam
+        twitch: Open on Twitch
       twitch:
         categories_card:
           help: Leave it empty to post every category. Clips follow the same filter.

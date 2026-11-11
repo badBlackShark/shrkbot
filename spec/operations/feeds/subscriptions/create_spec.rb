@@ -16,7 +16,7 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
   end
 
   let(:server_configuration) { create(:server_configuration) }
-  let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg") }
+  let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg", url: "https://store.steampowered.com/app/1145350/") }
   let(:channel_id) { "555" }
   let(:role_id) { "777" }
   let(:body_length) { "full" }
@@ -117,7 +117,8 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
     expect(watch).to have_attributes(
       watcher: "Integrations::Steam::NewsWatcher",
       name: "Hades II",
-      image_url: "https://shared.akamai.steamstatic.com/hades.jpg"
+      image_url: "https://shared.akamai.steamstatic.com/hades.jpg",
+      url: "https://store.steampowered.com/app/1145350/"
     )
   end
 
@@ -137,7 +138,11 @@ RSpec.describe Ops::Feeds::Subscriptions::Create do
     it "reuses the watch and refreshes its name and image" do
       expect { result }.not_to change(Integrations::Watch, :count)
 
-      expect(existing_watch.reload).to have_attributes(name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg")
+      expect(existing_watch.reload).to have_attributes(
+        name: "Hades II",
+        image_url: "https://shared.akamai.steamstatic.com/hades.jpg",
+        url: "https://store.steampowered.com/app/1145350/"
+      )
       expect(result.value.watch).to eq(existing_watch)
     end
   end

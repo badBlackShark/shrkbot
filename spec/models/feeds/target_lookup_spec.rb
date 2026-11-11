@@ -6,7 +6,7 @@ RSpec.describe Feeds::TargetLookup do
   subject(:result) { described_class.call(watcher_class, "440") }
 
   let(:watcher_class) { class_double(Integrations::Steam::NewsWatcher) }
-  let(:target) { Integrations::Target.new(external_id: "440", name: "Team Fortress 2", image_url: nil) }
+  let(:target) { Integrations::Target.new(external_id: "440", name: "Team Fortress 2", image_url: nil, url: "https://store.steampowered.com/app/440/") }
 
   before { allow(watcher_class).to receive(:resolve).with("440").and_return(target) }
 

@@ -12,7 +12,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
   let(:uploads) { "Integrations::Twitch::UploadPublished" }
   let(:featured_clips) { "Integrations::Twitch::FeaturedClipPublished" }
   let(:clips) { "Integrations::Twitch::ClipCreated" }
-  let(:target) { Integrations::Target.new(external_id: "9001", name: "SomeStreamer", image_url: "https://static-cdn.jtvnw.net/profile.png") }
+  let(:target) { Integrations::Target.new(external_id: "9001", name: "SomeStreamer", image_url: "https://static-cdn.jtvnw.net/profile.png", url: "https://www.twitch.tv/somestreamer") }
   let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
   let!(:twitch_plugin) { create(:plugin, key: "twitch", name: "Twitch") }
 
@@ -73,7 +73,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
       it "renders the follow form with the five post types, all off" do
         lookup
 
-        expect(response.body).to include("SomeStreamer", "Follow SomeStreamer")
+        expect(response.body).to include("SomeStreamer", "Follow SomeStreamer", "Not this one?")
         expect(response.body).not_to include("translation missing")
         expect([live, highlights, uploads, featured_clips, clips].map { |type| checkbox(type) }).to all(be_present)
         expect([live, highlights, uploads, featured_clips, clips].map { |type| checkbox(type)["checked"] }).to all(be_nil)
@@ -251,6 +251,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
     let!(:subscription) { create(:feed_subscription, :twitch, server_configuration: config, channel_id: 777) }
 
     before do
+      subscription.watch.update!(url: "https://www.twitch.tv/somestreamer")
       subscription.settings.update!(live_role_id: 888, live_end_mode: "keep", switched_away: "delete", categories: [{"id" => "1", "name" => "Hades II"}])
       create(:feed_subscribed_event, subscription:, event_type: live)
     end
@@ -267,6 +268,14 @@ RSpec.describe "Twitch subscriptions", type: :request do
       expect(page.at_css(%(input[name="subscription[switched_away]"]))["value"]).to eq("delete")
       expect(page.css(%(select[name="subscription[categories][]"] option[selected])).map(&:text)).to eq(["Hades II"])
       expect(checkbox(live)["checked"]).to be_present
+    end
+
+    it "links out to the channel instead of offering to pick another" do
+      edit
+
+      page = Nokogiri::HTML(response.body)
+      expect(page.at_css(%(a[href="https://www.twitch.tv/somestreamer"][target="_blank"]))).to be_present
+      expect(response.body).not_to include("Not this one?")
     end
   end
 

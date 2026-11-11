@@ -24,7 +24,12 @@ module Integrations
       end
 
       def self.target(user)
-        Target.new(external_id: user.id, name: user.display_name, image_url: user.profile_image_url)
+        Target.new(
+          external_id: user.id,
+          name: user.display_name,
+          image_url: user.profile_image_url,
+          url: ChannelReference.url(user.login)
+        )
       end
       private_class_method :target
 

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Views::Servers::Feeds::Subscriptions::Edit < Views::Base
-  include Components::PluginNav
-
   def initialize(plugin_key:, server_configuration:, user:, subscription:)
     @plugin_key = plugin_key
     @config = server_configuration
@@ -27,17 +25,8 @@ class Views::Servers::Feeds::Subscriptions::Edit < Views::Base
 
   def header
     Components::ConfigPageHeader.new(
-      icon: plugin_icon(@plugin_key),
       title: @subscription.watch.name,
-      description: ::Feeds::TargetCaption.call(@plugin_key, @subscription.watch.external_id),
-      media:
+      banner: Components::Feeds::TargetBanner.new(watch: @subscription.watch, plugin_key: @plugin_key)
     )
-  end
-
-  def media
-    image_url = @subscription.watch.image_url
-    return unless image_url
-
-    Components::Feeds::WatchImage.new(url: image_url, plugin_key: @plugin_key, size: :list, loading: "eager")
   end
 end
