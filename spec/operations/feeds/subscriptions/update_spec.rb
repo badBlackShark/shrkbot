@@ -99,6 +99,28 @@ RSpec.describe Ops::Feeds::Subscriptions::Update do
     end
   end
 
+  context "with a channel for a kept type" do
+    let(:choices) { {"Integrations::Steam::PatchNotesPublished" => {channel_id: "888"}} }
+
+    it "sets it" do
+      result
+
+      expect(patch_notes.reload.channel_id).to eq(888)
+    end
+
+    context "when it was set before and comes back blank" do
+      let(:choices) { {"Integrations::Steam::PatchNotesPublished" => {channel_id: ""}} }
+
+      before { patch_notes.update!(channel_id: 888) }
+
+      it "clears it" do
+        result
+
+        expect(patch_notes.reload.channel_id).to be_nil
+      end
+    end
+  end
+
   it "adds a newly checked type with a fresh follow time" do
     result
 

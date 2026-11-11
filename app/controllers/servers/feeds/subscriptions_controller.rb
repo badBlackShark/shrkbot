@@ -23,7 +23,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   end
 
   def create
-    return head :not_found unless guild_channels?(subscription_params[:channel_id]) && guild_roles?(*role_ids)
+    return head :not_found unless guild_targets?
 
     lookup = ::Feeds::TargetLookup.by_external_id(watcher_class, subscription_params[:external_id])
     return render_lookup(error: lookup.error, status: :unprocessable_content) if lookup.error
@@ -57,7 +57,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   end
 
   def update
-    return head :not_found unless guild_channels?(subscription_params[:channel_id]) && guild_roles?(*role_ids)
+    return head :not_found unless guild_targets?
 
     result = Ops::Feeds::Subscriptions::Update.call(
       subscription: @subscription,
@@ -145,23 +145,24 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     source.event_types.select { |event_type| submitted[event_type] == "1" }
   end
 
+  def guild_targets?
+    guild_channels?(subscription_params[:channel_id], *type_choices.values.filter_map { |choices| choices[:channel_id] }) && guild_roles?(*role_ids)
+  end
+
   def type_choices
-    source.event_types.index_with { |event_type| {template: templates[event_type], notification: notifications[event_type]} }
+    @type_choices ||= source.event_types.index_with { |event_type| submitted_choices(event_type) }
+  end
+
+  def submitted_choices(event_type)
+    choices = Hash.try_convert(subscription_params[:choices].to_h[event_type]) || {}
+    choices.symbolize_keys.slice(:template, :notification, :channel_id)
   end
 
   def role_ids
     settings.filter_map { |column, value| value if column.end_with?("role_id") }
   end
 
-  def templates
-    subscription_params[:templates].to_h
-  end
-
-  def notifications
-    subscription_params[:notifications].to_h
-  end
-
   def subscription_params
-    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, *settings_params, {event_types: {}, templates: {}, notifications: {}}])
+    @subscription_params ||= params.expect(subscription: [:external_id, :channel_id, *settings_params, {event_types: {}, choices: {}}])
   end
 end

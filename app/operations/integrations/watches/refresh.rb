@@ -10,7 +10,7 @@ module Ops
           by_external_id = targets.index_by(&:external_id)
           watches.each do |watch|
             target = by_external_id[watch.external_id]
-            watch.update!(name: target.name, image_url: target.image_url) if target
+            watch.update!(name: target.name, image_url: target.image_url, url: target.url) if target
           end
           ok
         end

@@ -18,7 +18,7 @@ RSpec.describe Integrations::Steam::NewsWatcher do
     end
 
     it "looks the parsed app id up and describes it as a target" do
-      expect(target).to eq(Integrations::Target.new(external_id: "1145360", name: "Hades", image_url: "https://example.com/h.jpg"))
+      expect(target).to eq(Integrations::Target.new(external_id: "1145360", name: "Hades", image_url: "https://example.com/h.jpg", url: "https://store.steampowered.com/app/1145360/"))
     end
   end
 
@@ -33,7 +33,7 @@ RSpec.describe Integrations::Steam::NewsWatcher do
     end
 
     it "describes each store item as a target" do
-      expect(targets).to eq([Integrations::Target.new(external_id: "1145360", name: "Hades", image_url: "https://example.com/h.jpg")])
+      expect(targets).to eq([Integrations::Target.new(external_id: "1145360", name: "Hades", image_url: "https://example.com/h.jpg", url: "https://store.steampowered.com/app/1145360/")])
     end
   end
 

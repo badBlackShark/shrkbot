@@ -23,7 +23,7 @@ module Feeds
       end
 
       def url
-        "https://www.twitch.tv/#{event.login}"
+        Integrations::Twitch::ChannelReference.url(event.login)
       end
 
       def link_label

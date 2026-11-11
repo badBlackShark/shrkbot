@@ -157,6 +157,19 @@ RSpec.describe Ops::Feeds::Posts::Revise do
         expect(post.reload).to have_attributes(channel_id: 555_000, message_id: 888_000, retracted_at: nil)
       end
 
+      context "with a channel of its own for live posts" do
+        before do
+          subscription.subscribed_events.find_by!(event_type: "Integrations::Twitch::StreamStarted").update!(channel_id: 666_000)
+        end
+
+        it "posts the new message there and stores that channel" do
+          result
+
+          expect(Bot::Discord::Components).to have_received(:create_with_subject).with(hash_including(channel_id: 666_000))
+          expect(post.reload).to have_attributes(channel_id: 666_000, message_id: 888_000)
+        end
+      end
+
       context "when the server no longer follows Live" do
         before do
           subscription.subscribed_events.delete_all

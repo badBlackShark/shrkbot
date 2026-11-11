@@ -37,6 +37,17 @@ RUN git config --system credential.https://github.com.helper \
   && git config --system url."https://github.com/".insteadOf "git@github.com:" \
   && git config --system --add safe.directory /app
 
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      libnss3 libatk1.0-0t64 libatk-bridge2.0-0t64 libcups2t64 libdrm2 \
+      libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 \
+      libasound2t64 libatspi2.0-0t64 libpango-1.0-0 libcairo2 libxshmfence1 \
+      fonts-liberation \
+  && rm -rf /var/lib/apt/lists/*
+ENV PLAYWRIGHT_BROWSERS_PATH=/opt/ms-playwright
+RUN npm install -g playwright@1.48.2 \
+  && playwright install chromium \
+  && chmod -R a+rX /opt/ms-playwright
+
 # Create unprivileged user with passwordless sudo
 RUN useradd --create-home --shell /bin/bash dev \
   && echo 'dev ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/dev \

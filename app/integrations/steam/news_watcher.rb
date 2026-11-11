@@ -19,7 +19,12 @@ module Integrations
       end
 
       def self.target(item)
-        Target.new(external_id: item.app_id, name: item.name, image_url: item.header_image_url)
+        Target.new(
+          external_id: item.app_id,
+          name: item.name,
+          image_url: item.header_image_url,
+          url: "https://store.steampowered.com/app/#{item.app_id}/"
+        )
       end
       private_class_method :target
 

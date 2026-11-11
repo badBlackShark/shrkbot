@@ -22,12 +22,7 @@ module Ops
 
         def update_followed_events
           subscription.subscribed_events.each do |event|
-            type_choices = choices.fetch(event.event_type, {})
-            event.template = ::Feeds::Templates.custom(type_choices[:template])
-            event.notification_template = ::Feeds::Templates.notification(
-              type_choices[:notification],
-              subscription.source.default_notification(event.event_type)
-            )
+            event.apply(**choices.fetch(event.event_type, {}))
           end
           subscription.subscribed_events.each do |event|
             event.mark_for_destruction unless event_types.include?(event.event_type)
