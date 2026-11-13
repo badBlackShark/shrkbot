@@ -20,12 +20,15 @@ RSpec.describe Components::TwilightStruggle::PostDelayCard do
 
     it "shows it in minutes" do
       expect(html).to include('value="15"')
+      expect(Nokogiri::HTML5.fragment(html).at_css("option[selected]").text).to eq("minutes")
     end
   end
 
   context "when the destination sets no delay" do
     it "leaves the field empty so it inherits" do
-      expect(html).not_to include(" value=")
+      fragment = Nokogiri::HTML5.fragment(html)
+      expect(fragment.at_css("input[type=number]").key?("value")).to be(false)
+      expect(fragment.at_css("input[type=hidden]").key?("value")).to be(false)
     end
   end
 

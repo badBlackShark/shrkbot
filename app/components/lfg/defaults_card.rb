@@ -8,7 +8,7 @@ class Components::Lfg::DefaultsCard < Components::Base
   end
 
   def view_template
-    render Components::Card.new(padding: :none, class: "overflow-hidden") do
+    render Components::Card.new(padding: :none) do
       details(data: {controller: "disclosure", disclosure_key_value: "lfg-defaults"}) do
         summary_row
         body
@@ -77,26 +77,26 @@ class Components::Lfg::DefaultsCard < Components::Base
   end
 
   def cooldown_field
-    render Components::Lfg::NumberSettingField.new(
+    render Components::Lfg::DurationField.new(
       name: "lfg[cooldown_seconds]",
       value: @settings.cooldown_seconds,
       min: 0,
       max: 86_400,
       default: column_default("cooldown_seconds"),
-      unit: t(".cooldown.unit"),
+      base: :seconds,
       label: t(".cooldown.label"),
       help: t(".cooldown.help")
     )
   end
 
   def lifetime_field
-    render Components::Lfg::NumberSettingField.new(
+    render Components::Lfg::DurationField.new(
       name: "lfg[post_lifetime_minutes]",
       value: @settings.post_lifetime_minutes,
       min: 5,
       max: 10_080,
       default: column_default("post_lifetime_minutes"),
-      unit: t(".lifetime.unit"),
+      base: :minutes,
       label: t(".lifetime.label"),
       help: t(".lifetime.help")
     )

@@ -4,12 +4,12 @@ class Components::TwilightStruggle::PostDelayCard < Components::TwilightStruggle
   private
 
   def control
-    render Components::NumberStepper.new(
+    render Components::DurationStepper.new(
       name: "destination[post_delay_minutes]",
       value: own_minutes,
+      base: :minutes,
       min: 0,
       max: ::TwilightStruggle::Destination::MAX_POST_DELAY.in_minutes.to_i,
-      unit: t(".unit"),
       placeholder: inherited_minutes
     )
   end

@@ -300,6 +300,8 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `I offer shrkbot for free and for everyone, but I might charge a little fee for custom work that's only for you. Smaller things, and features everyone would get, are usually free, and I'll do my best to keep prices affordable.` | `Small things, and anything every server would get, are usually free. For bigger custom work I charge a small fee. Running it afterwards is free, unless it needs a paid API.` | Leads with what is free, states the fee once, and says what running costs. "I'll do my best" promised nothing. |
 | `Recommended default: %{value}` (under every stepper, e.g. `Recommended default: 300 seconds (5 minutes)`) | Deleted. A reset segment, tooltip `Reset to %{value}`, appears in the stepper while the value differs from the default. | The line made the reader compare two numbers by eye, and printed even when the value already was the default. The reset does the comparison and the action. |
 | `Recommended default: 100%` / `Recommended default: Off` | Deleted. | Same line on a slider and a toggle. Neither has a reset, and the help already says what each setting does. |
+| `seconds` / `minutes` (fixed unit after the LFG cooldown, LFG post lifetime and Twilight Struggle delay) | A unit select in the stepper (`seconds` / `minutes` / `hours`) that opens on the largest unit that fits, e.g. `5 minutes`, `6 hours`. | `300 seconds` and `360 minutes` made the reader convert; the value now reads the way people say it. |
+| `Reset to 300` (LFG cooldown) | `Reset to 5 minutes` | A bare number is ambiguous once the unit can change; the reset names it. |
 
 ## Kept on purpose
 

@@ -141,7 +141,7 @@ instead, so they leave no failed-execution row.
 
 **Posting can be delayed per destination.** `post_delay_seconds` is inherited down
 the tournament chain like the templates (empty = inherit, explicit 0 = none),
-stored in seconds and set in minutes in the form. The delay counts from the
+stored in seconds and set in minutes or hours in the form (submitted as minutes). The delay counts from the
 payload's `reported_at`, capped at the time shrkbot first received the game, so a
 timestamp from a fast clock never holds a result back longer than the delay. The cap
 is the game's `created_at`, not the current time, because the current time moves on
