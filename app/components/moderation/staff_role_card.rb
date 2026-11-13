@@ -65,11 +65,12 @@ class Components::Moderation::StaffRoleCard < Components::Base
   end
 
   def staff_permission_warning
+    unprivileged_ids = role_ids_without_manage_messages
     render Components::LiveWarning.new(
       fields: [FIELD],
       rule: "includes-any",
-      list: role_ids_without_manage_messages,
-      shown: role_ids_without_manage_messages.include?(@staff_role_id.to_s),
+      list: unprivileged_ids,
+      shown: unprivileged_ids.include?(@staff_role_id.to_s),
       class: "mt-3"
     ) do
       warning_text(t(".staff_permission_warning_bold"), t(".staff_permission_warning_body"))

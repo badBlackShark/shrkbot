@@ -103,19 +103,13 @@ class Components::Logging::ConfigForm < Components::Base
       fields: [CHANNEL_FIELD],
       rule: "includes-any",
       list: visible_channel_ids,
-      shown: visible_channel?,
+      shown: visible_channel_ids.include?(@settings.channel_id.to_s),
       class: "mt-3"
     ) { t(".channel.visible_warning") }
   end
 
-  def visible_channel?
-    return false unless @settings.channel_id
-
-    @config.server_channels.find_by(discord_id: @settings.channel_id)&.everyone_visible?
-  end
-
   def visible_channel_ids
-    @config.server_channels.text.select(&:everyone_visible?).map { |channel| channel.discord_id.to_s }
+    @visible_channel_ids ||= @config.server_channels.text.select(&:everyone_visible?).map { |channel| channel.discord_id.to_s }
   end
 
   def channels
