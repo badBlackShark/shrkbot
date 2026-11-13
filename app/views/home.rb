@@ -35,7 +35,6 @@ class Views::Home < Views::Base
       end
       p(class: "max-w-md text-lg leading-relaxed text-text-secondary") { t(".lede") }
       p(class: "max-w-md text-lg leading-relaxed text-text-secondary mt-6") do
-        plain t(".bespoke_plugins")
         plain t(".bespoke_plugins_pre")
         a(href: bespoke_plugins_path, class: "underline transition-colors hover:text-text-primary") { t(".bespoke_plugins_link") }
         plain t(".bespoke_plugins_post")
@@ -59,7 +58,7 @@ class Views::Home < Views::Base
       class: Components::Button.css(variant: :primary, size: :xl)
     ) do
       render Components::Icon.new("sign-in", class: "size-[18px]")
-      span { t(".add_to_server") }
+      span { t(".sign_in") }
     end
   end
 
@@ -90,7 +89,6 @@ class Views::Home < Views::Base
           plugin_cards(decorative: true)
         end
       end
-      p(class: "mt-6 text-xs text-text-muted") { t(".more_plugins") }
     end
   end
 

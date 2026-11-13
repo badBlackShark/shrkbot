@@ -20,7 +20,6 @@ class Components::Lfg::SetupGuideCard < Components::Base
       render Components::Icon.new("compass", class: "size-5 flex-none text-accent-soft-fg")
       div(class: "min-w-0 flex-1") do
         p(class: "text-sm font-semibold text-text-primary") { t(".title") }
-        p(class: "mt-0.5 text-xs text-text-muted") { t(".subtitle") }
       end
       render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
     end

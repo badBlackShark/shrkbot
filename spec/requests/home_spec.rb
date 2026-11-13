@@ -66,10 +66,10 @@ RSpec.describe "Home", type: :request do
     end
   end
 
-  it "renders the more-plugins line" do
+  it "labels both sign-in buttons the same" do
     home
 
-    expect(response.body).to include(I18n.t("views.home.more_plugins"))
+    expect(response.body.scan("Sign in with Discord").size).to eq(2)
   end
 
   it "offers the preview as the one way in that needs no Discord account" do

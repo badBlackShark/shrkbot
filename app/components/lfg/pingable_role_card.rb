@@ -30,7 +30,7 @@ class Components::Lfg::PingableRoleCard < Components::Base
     ) do
       div(class: "min-w-0 flex-1") do
         span(class: "truncate text-sm font-semibold") { role_name }
-        p(class: "mt-0.5 truncate text-xs text-text-muted") { subtitle }
+        p(class: "mt-0.5 truncate text-xs text-text-muted") { subtitle } if restriction_count.positive?
       end
       delete_button
       render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
@@ -76,7 +76,6 @@ class Components::Lfg::PingableRoleCard < Components::Base
       options: @context.role_options,
       selected: @data.required_role_ids,
       label: t(".required.label"),
-      help: t(".required.help"),
       placeholder: t(".required.placeholder")
     )
   end
@@ -87,7 +86,6 @@ class Components::Lfg::PingableRoleCard < Components::Base
       options: @context.role_options,
       selected: @data.excluded_role_ids,
       label: t(".excluded.label"),
-      help: t(".excluded.help"),
       placeholder: t(".excluded.placeholder")
     )
   end
@@ -102,7 +100,6 @@ class Components::Lfg::PingableRoleCard < Components::Base
         placeholder: t(".channel.placeholder"),
         multiple: true
       )
-      render Components::FieldHelp.new { t(".channel.help") }
     end
   end
 
@@ -111,8 +108,7 @@ class Components::Lfg::PingableRoleCard < Components::Base
       name: field(:min_membership_days),
       value: @data.min_membership_days,
       label: t(".min_days.label"),
-      help: t(".min_days.help"),
-      placeholder: t(".min_days.placeholder"),
+      placeholder: @context.default_min_membership_days.to_s,
       unit: t(".min_days.unit")
     )
   end
@@ -122,7 +118,11 @@ class Components::Lfg::PingableRoleCard < Components::Base
     option ? option.label : t(".unpicked")
   end
 
+  def restriction_count
+    @data.required_role_ids.size + @data.excluded_role_ids.size
+  end
+
   def subtitle
-    t(".summary", count: @data.required_role_ids.size + @data.excluded_role_ids.size)
+    t(".summary", count: restriction_count)
   end
 end

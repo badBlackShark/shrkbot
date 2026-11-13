@@ -14,7 +14,6 @@ RSpec.describe Components::Moderation::StaffRoleCard do
     described_class.new(
       server_configuration: config,
       staff_role_id: nil,
-      missing: false,
       permission_warning: false,
       staff_permission_warning: false
     ).render_in(view_context)
@@ -22,6 +21,10 @@ RSpec.describe Components::Moderation::StaffRoleCard do
 
   it "renders the staff role select with correct field name" do
     expect(html).to include('name="moderation[staff_role_id]"')
+  end
+
+  it "explains the staff role under the picker" do
+    expect(html).to include("Exempt from all checks and optionally pinged for alerts.")
   end
 
   it "renders the role name as an option" do
@@ -40,32 +43,11 @@ RSpec.describe Components::Moderation::StaffRoleCard do
     end
   end
 
-  context "when the role is missing" do
-    subject(:html) do
-      described_class.new(
-        server_configuration: config,
-        staff_role_id: 999,
-        missing: true,
-        permission_warning: false,
-        staff_permission_warning: false
-      ).render_in(view_context)
-    end
-
-    it "renders the missing warning" do
-      expect(html).to include("Required. Every sub-plugin stays off")
-    end
-
-    it "does not render the normal help text" do
-      expect(html).not_to include("Shared by every Moderation sub-plugin")
-    end
-  end
-
   context "when there is a permission warning" do
     subject(:html) do
       described_class.new(
         server_configuration: config,
         staff_role_id: 501,
-        missing: false,
         permission_warning: true,
         staff_permission_warning: false
       ).render_in(view_context)
@@ -85,14 +67,13 @@ RSpec.describe Components::Moderation::StaffRoleCard do
       described_class.new(
         server_configuration: config,
         staff_role_id: 501,
-        missing: false,
         permission_warning: false,
         staff_permission_warning: true
       ).render_in(view_context)
     end
 
     it "renders the staff permission warning bold text" do
-      expect(html).to include("This role can&#39;t see staff commands.")
+      expect(html).to include(CGI.escapeHTML(%(This role can't use "Report as scam".)))
     end
 
     it "renders the staff permission warning body" do

@@ -12,7 +12,6 @@ class Components::Moderation::OverviewForm < Components::Base
       render Components::Moderation::StaffRoleCard.new(
         server_configuration: @config,
         staff_role_id: @context.staff_role_id,
-        missing: !@context.staff_role_present?,
         permission_warning: @context.permission_warning?,
         staff_permission_warning: @context.staff_permission_warning?
       )

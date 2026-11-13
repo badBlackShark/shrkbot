@@ -12,7 +12,6 @@ RSpec.describe Components::Moderation::OverviewForm do
       staff_role_id: nil,
       ping_staff: true,
       new_account_age_days: 30,
-      staff_role_present?: false,
       permission_warning?: false,
       staff_permission_warning?: false,
       toggle_fields: {}

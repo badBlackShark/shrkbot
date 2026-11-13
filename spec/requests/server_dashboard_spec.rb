@@ -34,7 +34,7 @@ RSpec.describe "Server dashboard", type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.body).to include("Dev Refuge")
         expect(response.body).to include("2,481 members")
-        expect(response.body).to include("0 channels and 0 roles synced")
+        expect(response.body).not_to include("synced")
         expect(response.body).to include("Add another server")
       end
 
@@ -68,7 +68,7 @@ RSpec.describe "Server dashboard", type: :request do
 
         it "offers it in the switcher" do
           get_dashboard
-          expect(response.body).to include("Speedrun HQ")
+          expect(response.body).to include("Speedrun HQ").and include("0 plugins enabled")
         end
       end
 
@@ -92,7 +92,7 @@ RSpec.describe "Server dashboard", type: :request do
 
         it "disables the toggle for a plugin that isn't set up yet, explaining why" do
           get_dashboard
-          expect(response.body).to include("Complete setup before enabling this plugin")
+          expect(response.body).to include("Required settings missing")
         end
       end
 

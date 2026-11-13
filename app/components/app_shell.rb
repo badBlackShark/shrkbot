@@ -90,7 +90,7 @@ class Components::AppShell < Components::Base
       render Components::ServerAvatar.new(server:, size: :md)
       div(class: "min-w-0 flex-1") do
         p(class: "truncate text-sm font-semibold") { server.name }
-        p(class: "text-[11px] text-text-secondary") { t(".plugins_on", count: @plugin_counts[server.id].to_i) }
+        p(class: "text-[11px] text-text-secondary") { t(".plugins_enabled", count: @plugin_counts[server.id].to_i) }
       end
       render Components::Icon.new("check", class: "size-4 flex-none text-accent") if current
     end

@@ -27,10 +27,6 @@ module Moderation
       @config.moderation_settings&.new_account_age_days
     end
 
-    def staff_role_present?
-      staff_role_id.present?
-    end
-
     def permission_warning?
       # Mention-All-Roles detection lands here once bot permissions are stored
       false

@@ -10,7 +10,7 @@ class Components::SubPluginDirectory < Components::Base
   def view_template
     div do
       p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-text-muted") do
-        t(".eyebrow")
+        t(".eyebrow.#{@parent}")
       end
       div(class: "flex flex-col gap-3") do
         rows.each do |row|

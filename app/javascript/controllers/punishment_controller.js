@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["duration", "banWarning"]
+  static targets = ["duration"]
 
   connect() {
     this.update()
@@ -24,6 +24,5 @@ export default class extends Controller {
 
     const value = input.value
     if (this.hasDurationTarget) this.durationTarget.hidden = value !== "timeout"
-    if (this.hasBanWarningTarget) this.banWarningTarget.hidden = value !== "ban"
   }
 }
