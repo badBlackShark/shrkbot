@@ -7,7 +7,7 @@ class Components::Moderation::StaffPingCard < Components::Base
 
   def view_template
     render Components::Card.new do
-      render Components::SettingRow.new(label: t(".label"), help: t(".help")) do
+      render Components::SettingRow.new(label: t(".label")) do
         render Components::Toggle.new(
           name: "moderation[ping_staff]",
           checked: @ping_staff,

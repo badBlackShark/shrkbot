@@ -22,6 +22,12 @@ RSpec.describe Components::Logging::ConfigForm do
     expect(html).to include("No channels have synced yet")
   end
 
+  it "counts each event group as N of M on" do
+    counts = Nokogiri::HTML.fragment(html).css("[data-event-group-target=count]").map { |count| count.parent.text.squish }
+
+    expect(counts).to all(match(/\A\d+ of \d+ on\z/))
+  end
+
   it "wires the channel-warning Stimulus controller on the card" do
     expect(html).to include('data-controller="channel-warning"')
   end

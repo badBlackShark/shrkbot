@@ -18,8 +18,8 @@ en:
       dms_disabled: Error DMs disabled.
       dms_enabled: Error DMs enabled.
   assignable_roles:
-    above_bot: Above shrkbot - it ranks below this role.
-    managed: Managed by Discord - bots can't assign integration roles.
+    above_bot: This role is higher than shrkbot's highest role.
+    managed: This role is managed by Discord.
   authentication:
     login_required: Please sign in to continue.
   components:
@@ -46,9 +46,9 @@ en:
       admin_settings: Admin settings
       log_out: Log out
       notifications: Notifications
-      plugins_on:
-        one: "%{count} plugin on"
-        other: "%{count} plugins on"
+      plugins_enabled:
+        one: "%{count} plugin enabled"
+        other: "%{count} plugins enabled"
     bespoke_plugins_link:
       label: Bespoke Plugins
     channel_card:
@@ -135,8 +135,8 @@ en:
         summary: Settings
       steam:
         language_card:
-          help: Leave empty to post every language. shrkbot can't tell the language
-            of very short posts, so those always go through.
+          help: Posts whose language can't be detected, like very short ones, are
+            posted anyway.
           label: Post only these languages
           languages:
             af: Afrikaans
@@ -325,7 +325,7 @@ en:
               description: Up to about 3,500 characters.
               title: Full post
             preview:
-              description: About 500 characters, then a link to the full post.
+              description: About 500 characters.
               title: Preview
           length_title: Post length
         samples:
@@ -393,25 +393,19 @@ en:
         twitch: Open on Twitch
       twitch:
         categories_card:
-          help: Leave it empty to post every category. Clips follow the same filter.
-            Highlights and uploads have no category, so they always post.
-          label: Only post while the stream is in (optional)
-          placeholder: Search Twitch categories
+          help: Only filters Live and Clips, as Highlights and Uploads don't have
+            a category.
+          label: Only post when streaming one of these categories
+          placeholder: Every category
           search_failed: Twitch didn't answer. Try again in a minute.
           title: Categories
         end_mode_field:
-          descriptions:
-            delete: shrkbot deletes the post.
-            keep: The live post stays, marked with when the stream ended.
-            mark_ended: The post turns into a summary of the stream.
-            mark_ended_with_vod: The post turns into a summary of the stream, with
-              a link to the VOD.
           label: When the stream ends
           modes:
-            delete: Delete
-            keep: Keep live card
-            mark_ended: Ended
-            mark_ended_with_vod: Ended, with VOD
+            delete: Delete the post
+            keep: Leave as is
+            mark_ended: Summary
+            mark_ended_with_vod: Summary with VOD link
           preview: Preview
         samples:
           clip_created:
@@ -435,15 +429,10 @@ en:
             clipper: ''
             title: Everything new in the 1.0 update
         switched_away_field:
-          descriptions:
-            delete: shrkbot deletes the post and posts it again, without a ping, when
-              the stream comes back.
-            summary: The post turns grey and says where the stream went. It goes live
-              again when the stream comes back.
           label: When the stream switches to another category
           modes:
-            delete: Delete it
-            summary: Show it switched
+            delete: Delete the post
+            summary: Show the switch
           preview: Preview
         type_fields:
           clip_warning: Big channels get dozens to hundreds of clips per stream, and
@@ -469,67 +458,48 @@ en:
       terms: Terms of service
     lfg:
       channels_field:
-        help: Channels where members can post an LFG. Leave empty to allow every channel.
         label: Allowed channels
         none: No channels have synced yet. shrkbot needs to be in the server first.
         nudge: With no channels chosen, /lfg works in every channel. Consider scoping
           it to a few dedicated channels.
-        placeholder: Choose channels
+        placeholder: Every channel
       defaults_card:
         cooldown:
           default: 300 seconds (5 minutes)
           help: How long a member must wait between posts. Set to 0 to disable the
             cooldown.
-          label: Cooldown
+          label: Wait between posts
           unit: seconds
         excluded:
-          help: Members with any of these roles can't post. Leave empty to exclude
-            no one.
-          label: Excluded roles
-          placeholder: Choose roles
-        help: Server-wide Looking for Game settings. The per-role cards below add
-          extra restrictions on top of these.
+          label: Who can't post
+          placeholder: No one
         lifetime:
           default: 360 minutes (6 hours)
-          help: How long the "Looking for Game" post stays visible. For scheduled
-            posts, the clock starts with the session, not while it gathers interest.
+          help: How long a post stays up. For scheduled posts, the timer starts with
+            the session.
           label: Post lifetime
           unit: minutes
         min_days:
-          help: How long a member must have been in the server before they can post.
-            Leave blank for no minimum.
-          label: Minimum membership
-          placeholder: No minimum
+          label: Minimum membership time
           unit: days
         required:
-          help: Members need at least one of these roles to post at all. Leave empty
-            to allow everyone.
-          label: Required roles
-          placeholder: Choose roles
+          label: Who can post
+          placeholder: Everyone
         subtitle: Server-wide restrictions, allowed channels, cooldown and post lifetime
-        title: Defaults
+        title: Rules for every role
       pingable_role_card:
         channel:
-          help: Restrict this role to these channels, overriding the allowed channels
-            above. Leave empty to inherit the default.
           label: Channel override
-          placeholder: Inherit allowed channels
+          placeholder: Same as every role
         delete: Remove role
         excluded:
-          help: On top of the defaults above, members with any of these can't ping
-            this role. Leave empty for no extra exclusion.
-          label: Additional excluded roles
+          label: Also excludes
           placeholder: Choose roles
         min_days:
-          help: Overrides the default minimum membership for pinging this role. Leave
-            blank to inherit the default.
-          label: Minimum membership override
-          placeholder: Inherit default
+          label: Minimum membership time override
           unit: days
         required:
-          help: On top of the defaults above, members need at least one of these to
-            ping this role. Leave empty for no extra requirement.
-          label: Additional required roles
+          label: Also requires
           placeholder: Choose roles
         role:
           label: Role to ping
@@ -540,31 +510,26 @@ en:
         unpicked: Choose a role
       pingable_roles_card:
         add: Add role
-        help: The roles members can ping with /lfg, each with its own extra restrictions.
-          Only configured roles appear in the command.
+        help: Members can ping these roles with /lfg.
         label: Pingable roles
       setup_guide_card:
         non_mentionable:
-          body: In Server Settings, turn off "Allow anyone to @mention this role"
-            for every role you list below. shrkbot pings them for members, so you
-            can switch off general-purpose role pings entirely.
+          body: Turn off "Allow anyone to @mention this role" for the roles you set
+            up here, as shrkbot automatically pings them.
           title: Make your LFG roles non-mentionable
-        subtitle: Two optional but recommended Discord settings
         title: Recommended setup
         visibility:
           body: In Server Settings -> Integrations -> shrkbot, limit the /lfg command
-            to the channels and roles that should use it. That's your first line of
-            control over who posts.
+            to the channels and roles that should use it.
           title: Restrict who can run /lfg
     logging:
       config_form:
         channel:
-          help: Where moderation events are recorded.
           label: Channel
           visible_warning: Everyone can see this channel, so the moderation log would
             be public.
         events:
-          enabled_count: enabled
+          enabled_count: of %{total} on
           event:
             lfg:
               denied: Looking for Game request denied
@@ -575,7 +540,6 @@ en:
             roles:
               role_gained: Member gained a role
               role_lost: Member lost a role
-          help: Pick which events shrkbot writes to the log channel.
           label: Logged events
           plugin:
             lfg: Looking for Game
@@ -592,19 +556,13 @@ en:
         label: New account age
       image_scanning_form:
         consent:
-          body: Deletion is on by default, and detection is automated and imperfect.
-            Screenshots of scams - the kind well-meaning members post as warnings
-            - can be detected and deleted too, so tell your community not to post
-            scam screenshots. Staff are pinged on every action and can mark a decision
-            as wrong with one click in Discord.
-          title: Before you turn this on
+          body: Images are deleted automatically. Screenshots of scams that members
+            post as warnings can be caught too. Staff are alerted to every action
+            and can mark it as wrong.
+          title: Detection can be wrong
         custom_keywords:
-          keywords_help: Words or phrases that mark an image as a scam when they show
-            up in its text - on top of shrkbot's built-in scam rules. Close misspellings
-            count too, so one entry covers its variations. Short, common words trigger
-            easily; longer phrases make more precise rules. Keywords are matched like
-            all other text - case, punctuation and disguised characters ignored, digits
-            kept.
+          keywords_help: Extra words or phrases that mark an image as a scam; close
+            misspellings count. Longer phrases cause fewer false matches.
           keywords_label: Custom keywords
           min_hits_help: 1 is aggressive - a single matched word can delete an image.
             2 or more keeps one stray word from triggering. Up to as many keywords
@@ -631,22 +589,17 @@ en:
             channel.
           title: How image scanning works
         report_scam:
-          body: Anyone with the staff role can right-click any message with images
-            -> Apps -> shrkbot -> Report as scam. Works whether or not automated scanning
-            catches it.
+          body: 'Staff can report any message with images: right-click -> Apps ->
+            shrkbot -> "Report as scam".'
           title: Report a scam yourself
         response:
           action:
             delete: Delete the image
-            flag_only: Flag only
-            help: Flag only leaves the image up and pings staff to review it.
+            flag_only: Only alert staff
             label: When a scam is detected
           confirmed_punishment:
-            help: Sets the punishment for images a moderator has confirmed as scam
-              on this server, overriding the general punishment above. Leave on "Same
-              as above" to reuse it. Confirmations from other servers don't count.
             inherit: Same as above
-            label: If confirmed as a scam on this server
+            label: Punishment if confirmed by staff on this server
           punishment:
             label: Also punish the sender
       matching_explainer:
@@ -662,10 +615,6 @@ en:
         title: How text matching works
       punishment_control:
         ban: Ban
-        ban_warning: A ban is permanent until a mod lifts it, and shrkbot can't undo
-          it. Pick this only if you're confident your thresholds never catch real
-          members.
-        duration_help: Applies on top of the purge.
         duration_label: Duration
         kick: Kick
         none: None
@@ -673,54 +622,41 @@ en:
       spam_protection_form:
         detection:
           match_strictness:
-            help: How similar two messages must be to count as the same message. 100%
-              only catches exact copies; lower values also catch spam with small edits
-              - swapped words, extra characters - but can mistake similar real messages
-              for spam. Case, punctuation, digits and disguised characters are ignored
-              either way.
+            help: 100% matches exact copies only. Lower values also catch lightly
+              edited copies, but can catch real messages that look alike.
             label: Match strictness
             max_caption: identical
             min_caption: loosely similar
             recommended: 'Recommended default: 100%'
           symbol_only:
-            help: Messages with no matchable text - only emoji, punctuation or digits
-              - are ignored by default. When on, they all count as the same message,
-              so blasting any symbol noise across channels triggers.
-            label: Also match symbol-only messages
+            help: Messages like "???" or "123" all count as the same message.
+            label: Also match messages with only punctuation or numbers
             recommended: 'Recommended default: Off'
           trigger_threshold:
             channels_unit: different channels
-            label: Trigger threshold
+            label: Act when the same message appears in
             seconds_unit: seconds
             within: within
         response:
           action:
-            help: Notify only is a dry run - staff get the alert, nothing is deleted.
             label: When spam is detected
-            notify_only: Notify only
-            purge: Purge the messages
+            notify_only: Only alert staff
+            purge: Delete the messages
           punishment:
             label: Also punish the sender
       staff_ping_card:
-        help: Mention the staff role at the top of every moderation log entry. Turn
-          it off for a quieter log that staff can check on their own.
         label: Ping staff on alerts
       staff_role_card:
-        help: Shared by every Moderation sub-plugin, and exempt from spam detection.
-          Pick one before enabling any sub-plugin.
+        help: Exempt from all checks and optionally pinged for alerts.
         label: Staff role
-        missing_warning: Required. Every sub-plugin stays off until a staff role is
-          picked.
         permission_warning_body: shrkbot is missing the Mention All Roles permission
           in this server. Alerts still post to the log channel, but nobody gets pinged
           until it's restored.
         permission_warning_bold: Staff pings will fail.
         placeholder: Pick a role…
-        staff_permission_warning_body: It doesn't have the Manage Messages permission,
-          so its members won't see staff-only commands like Report as scam. Give the
-          role Manage Messages, or grant it access under Server Settings -> Integrations
-          -> shrkbot.
-        staff_permission_warning_bold: This role can't see staff commands.
+        staff_permission_warning_body: Give it Manage Messages, or allow it under
+          Server Settings -> Integrations -> shrkbot.
+        staff_permission_warning_bold: This role can't use "Report as scam".
     new_sparkle:
       label: New
     notification_bell:
@@ -748,7 +684,7 @@ en:
       admin_only: Only a server admin can switch this plugin on or off.
       bespoke: Bespoke
       configure: Configure
-      needs_setup_hint: Complete setup before enabling this plugin.
+      needs_setup_hint: Required settings missing
       not_manageable: You can't configure this plugin on this server.
       plugin:
         integrations:
@@ -794,20 +730,14 @@ en:
       sign_in: Sign in with Discord
     reminders:
       config_form:
-        callout:
-          after: "- there's nothing more to configure here."
-          before: Reminders are triggered by members using
         force_dm:
-          help: Deliver every reminder in DMs, ignoring channel preferences set by
-            members.
-          label: Force reminder delivery via DM
+          label: Always send reminders by DM
     roles:
       config_form:
         bot_at_bottom: shrkbot can only assign roles below its own, and its role sits
           at the very bottom. Move it up in Server Settings so shrkbot can assign
           roles.
         channel:
-          help: Each role set posts here unless it has its own channel override.
           label: Default channel for role menus
         sets:
           add: Add role set
@@ -815,26 +745,25 @@ en:
       role_set_card:
         channel:
           label: Channel override
-          no_default: no default set
           optional: "(optional)"
-          placeholder: Use plugin default (%{channel})
+          placeholder: Same as above
         delete: Delete role set
         mode:
-          multi: Multi
-          single: Single
+          multi: Several
+          single: One
         name:
           label: Set name
-        resync: Resync menu
+        repost: Repost
         roles:
           count:
             one: "%{count} role"
             other: "%{count} roles"
           label: Assignable roles
           placeholder: Choose roles members can pick
-          unassignable: Grayed-out roles can't be assigned. shrkbot can only assign
-            roles below its own highest role, and never Discord-managed ones.
+          unassignable: shrkbot can't assign roles above its highest one, or roles
+            managed by Discord.
         selection:
-          label: Selection type
+          label: Members can pick
         unnamed: Untitled role set
     save_bar:
       discard: Discard
@@ -853,7 +782,9 @@ en:
         🇫🇮."
       pre: 'shrkbot is '
     sub_plugin_directory:
-      eyebrow: Sub-plugins
+      eyebrow:
+        integrations: Sub-plugins
+        moderation: Protections
     sub_plugin_row:
       configure: Configure
       locked_reason:
@@ -988,21 +919,15 @@ en:
     welcomes:
       config_form:
         channel:
-          help: Where join and leave messages are posted.
           label: Channel
         join_message:
-          help: Sent when a member joins. Leave empty to send nothing.
-          info: is a Discord mention in join messages.
           label: Join message
           placeholder: Welcome {user}, you're member {membercount}!
         leave_message:
-          help: Sent when a member leaves. Leave empty to send nothing.
-          info: is a plain @username in leave messages.
           label: Leave message
           placeholder: "{user} has left the server."
         ping_on_join:
-          help: Off delivers silently - the mention badge still shows, but no sound
-            or push.
+          help: When off, the mention makes no sound and sends no push notification.
           label: Ping on join
         placeholders:
           displayname: Expands to the member's nickname on this server, or their display
@@ -1078,14 +1003,11 @@ en:
     accounts:
       show:
         button: Delete my account
-        confirm: shrkbot deletes your account and all data tied to it. This cannot
-          be undone.
-        confirm_button: Delete my account
+        confirm: This cannot be undone.
+        confirm_button: Delete account
         confirm_title: Delete your account?
-        danger_body: Permanently deletes your account and all data tied to it. Role
-          assignments and server settings belong to their servers and are not affected.
-          This cannot be undone.
         danger_title: Delete account
+        discord_id: 'Discord ID: %{id}'
         reminders:
           one: 1 pending reminder
           other: "%{count} pending reminders"
@@ -1139,20 +1061,16 @@ en:
       steps_eyebrow: How it works
       write: Email me
     home:
-      add_to_server: Sign in to add shrkbot to your servers
-      bespoke_plugins: shrkbot also supports bespoke plugins that do exactly what
-        you need, but only for your server.
-      bespoke_plugins_link: here
-      bespoke_plugins_post: " to find out more."
-      bespoke_plugins_pre: " Click "
+      bespoke_plugins_link: bespoke plugins
+      bespoke_plugins_post: " that do exactly what you need, exclusively for your
+        server."
+      bespoke_plugins_pre: 'shrkbot also supports '
       botname: shrkbot
-      lede: shrkbot is designed to help you where Discord doesn't. It respects your
-        members' privacy, and it gets out of your way when you don't need it. It is
-        highly configurable and geared towards technical users that feel like Discord
-        doesn't give them enough power.
-      more_plugins: More plugins are on the way.
+      lede: shrkbot is designed for people like you that want more power than Discord
+        gives them, while respecting your members' privacy.
       plugins_eyebrow: Example plugins
       preview: Preview features
+      sign_in: Sign in with Discord
       tagline: A mechanical helper.
       view_source: View on GitHub
     reauth:
@@ -1188,10 +1106,10 @@ en:
             follow: Follow %{name}
       image_scanning:
         show:
-          no_role_callout_body: Every Moderation sub-plugin needs the shared staff
+          no_role_callout_body: Every Server Shield sub-plugin needs the shared staff
             role - it's pinged on every alert. Set it on the
           no_role_callout_lead: Pick a staff role first.
-          no_role_callout_link: Moderation overview
+          no_role_callout_link: Server Shield overview
           no_role_callout_suffix: ", then enable image scanning here."
           role_locked_reason: Pick a staff role first.
           title: Scam Image Detection
@@ -1205,15 +1123,12 @@ en:
         members:
           one: "%{formatted} member"
           other: "%{formatted} members"
-        missing_body: You need Manage Server permissions and shrkbot must be present.
-          Invite it, then refresh.
-        missing_title: Don't see a server?
+        missing: Missing a server? You need the Manage Server permission there.
         plugins_enabled:
           one: "%{count} plugin enabled"
           other: "%{count} plugins enabled"
         preview: Preview features
         refresh: Refresh
-        subtitle: Pick a server to configure shrkbot.
         title: Your servers
       integrations:
         show:
@@ -1230,13 +1145,14 @@ en:
       moderation:
         show:
           gate_message: Enable the group to configure its sub-plugins and shared settings.
-          logging_subline_prefix: 'Alerts post to '
-          logging_subline_suffix: through the Logging plugin.
+          logging_subline_change: ". You can change this in "
+          logging_subline_link: Logging
+          logging_subline_prefix: 'Alerts go to '
           prereq_gate_cta: Set up Logging
           prereq_gate_message: Every alert, staff ping and one-click review lands
             in your log channel. Enable Logging and pick a log channel, then come
             back.
-          prereq_gate_title: Moderation needs the Logging plugin
+          prereq_gate_title: Server Shield needs the Logging plugin
           title: Server Shield
           toggle_locked_reason: Enable the Logging plugin first - alerts are delivered
             through your log channel.
@@ -1250,23 +1166,16 @@ en:
           title: Roles
       show:
         breadcrumb_servers: Servers
-        channels:
-          one: "%{count} channel"
-          other: "%{count} channels"
         members:
           one: "%{formatted} member"
           other: "%{formatted} members"
         plugins: Plugins
-        roles:
-          one: "%{count} role"
-          other: "%{count} roles"
-        synced: "%{channels} and %{roles} synced"
       spam_protection:
         show:
-          no_role_callout_body: Every Moderation sub-plugin needs the shared staff
+          no_role_callout_body: Every Server Shield sub-plugin needs the shared staff
             role - it's pinged on every alert. Set it on the
           no_role_callout_lead: Pick a staff role first.
-          no_role_callout_link: Moderation overview
+          no_role_callout_link: Server Shield overview
           no_role_callout_suffix: ", then enable spam protection here."
           role_locked_reason: Pick a staff role first.
           title: Cross-Channel Spam Guard

@@ -13,9 +13,8 @@ RSpec.describe Components::Moderation::StaffPingCard do
     expect(html).to include('name="moderation[ping_staff]"')
   end
 
-  it "renders the label and help text" do
+  it "renders the label" do
     expect(html).to include("Ping staff on alerts")
-    expect(html).to include("Mention the staff role")
   end
 
   context "when ping_staff is enabled" do

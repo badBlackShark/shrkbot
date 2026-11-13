@@ -63,8 +63,9 @@ class Views::Servers::Moderation::Show < Views::Servers::PluginConfigShow
       span do
         plain t(".logging_subline_prefix")
         code(class: "font-mono") { "##{@context.logging_channel_name}" }
-        plain " "
-        plain t(".logging_subline_suffix")
+        plain t(".logging_subline_change")
+        a(href: PluginPaths.for(@config, :logging), class: "underline transition-colors hover:text-text-primary") { t(".logging_subline_link") }
+        plain "."
       end
     end
   end

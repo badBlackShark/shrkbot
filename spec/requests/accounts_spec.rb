@@ -20,6 +20,11 @@ RSpec.describe "Accounts", type: :request do
         get account_path
         expect(response).to have_http_status(:ok)
       end
+
+      it "labels the Discord ID" do
+        get account_path
+        expect(response.body).to include("Discord ID: 12345")
+      end
     end
 
     describe "DELETE /account" do

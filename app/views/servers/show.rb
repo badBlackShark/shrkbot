@@ -32,7 +32,7 @@ class Views::Servers::Show < Views::Base
       avatar
       div do
         h1(class: "font-display text-2xl font-bold tracking-tight") { @server.name }
-        p(class: "text-sm text-text-secondary") { meta_line }
+        p(class: "text-sm text-text-secondary") { member_line } if @server.member_count
       end
     end
   end
@@ -41,16 +41,8 @@ class Views::Servers::Show < Views::Base
     render Components::ServerAvatar.new(server: @server, size: :xl)
   end
 
-  def meta_line
-    synced = t(
-      ".synced",
-      channels: t(".channels", count: @server_configuration.server_channels.count),
-      roles: t(".roles", count: @server_configuration.server_roles.count)
-    )
-    parts = []
-    parts << t(".members", count: @server.member_count, formatted: @server.member_count.to_fs(:delimited)) if @server.member_count
-    parts << synced
-    parts.join(" · ")
+  def member_line
+    t(".members", count: @server.member_count, formatted: @server.member_count.to_fs(:delimited))
   end
 
   def plugins_section

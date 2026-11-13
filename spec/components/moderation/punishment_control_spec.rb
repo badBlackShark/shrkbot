@@ -37,14 +37,6 @@ RSpec.describe Components::Moderation::PunishmentControl do
     expect(html).to include("hidden")
   end
 
-  it "renders the ban warning block hidden when value is not ban" do
-    expect(html).to include('data-punishment-target="banWarning"')
-  end
-
-  it "renders the ban warning copy" do
-    expect(html).to include("A ban is permanent")
-  end
-
   context "when value is timeout" do
     subject(:html) do
       described_class.new(

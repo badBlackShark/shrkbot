@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 class Components::Lfg::MinDaysField < Components::Base
-  def initialize(name:, value:, label:, help:, placeholder:, unit:)
+  def initialize(name:, value:, label:, unit:, placeholder: nil)
     @name = name
     @value = value
     @label = label
-    @help = help
     @placeholder = placeholder
     @unit = unit
   end
@@ -22,7 +21,6 @@ class Components::Lfg::MinDaysField < Components::Base
         placeholder: @placeholder,
         input_class: "w-28"
       )
-      render Components::FieldHelp.new { @help }
     end
   end
 end

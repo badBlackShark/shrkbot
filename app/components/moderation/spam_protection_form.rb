@@ -107,7 +107,6 @@ class Components::Moderation::SpamProtectionForm < Components::Base
           {value: "notify_only", label: t(".response.action.notify_only")}
         ]
       )
-      render Components::FieldHelp.new { t(".response.action.help") }
     end
   end
 

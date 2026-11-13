@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 class Components::Lfg::RoleGateField < Components::Base
-  def initialize(name:, options:, selected:, label:, help:, placeholder:)
+  def initialize(name:, options:, selected:, label:, placeholder:)
     @name = name
     @options = options
     @selected = selected
     @label = label
-    @help = help
     @placeholder = placeholder
   end
 
@@ -19,7 +18,6 @@ class Components::Lfg::RoleGateField < Components::Base
         selected: @selected,
         placeholder: @placeholder
       )
-      render Components::FieldHelp.new { @help }
     end
   end
 end

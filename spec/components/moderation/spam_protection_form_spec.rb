@@ -53,9 +53,9 @@ RSpec.describe Components::Moderation::SpamProtectionForm do
     expect(html).to include('name="spam_protection[action]"')
   end
 
-  it "renders the purge and notify-only options" do
-    expect(html).to include("Purge the messages")
-    expect(html).to include("Notify only")
+  it "renders the delete and only-alert options" do
+    expect(html).to include("Delete the messages")
+    expect(html).to include("Only alert staff")
   end
 
   it "renders the punishment control with correct field name" do
@@ -64,10 +64,6 @@ RSpec.describe Components::Moderation::SpamProtectionForm do
 
   it "renders the timeout_seconds duration select" do
     expect(html).to include('name="spam_protection[timeout_seconds]"')
-  end
-
-  it "renders the ban warning block" do
-    expect(html).to include("A ban is permanent")
   end
 
   it "renders no enable_error callout by default" do

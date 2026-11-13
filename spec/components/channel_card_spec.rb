@@ -30,6 +30,24 @@ RSpec.describe Components::ChannelCard do
     expect(html).not_to include("aria-required")
   end
 
+  context "without help" do
+    subject(:html) do
+      described_class.new(
+        name: "welcomes[channel_id]",
+        channels:,
+        selected:,
+        label: "Channel"
+      ).render_in(view_context)
+    end
+
+    let(:fragment) { Nokogiri::HTML.fragment(html) }
+
+    it "renders no help line and keeps the gap under the label" do
+      expect(fragment.css("p")).to be_empty
+      expect(fragment.at_css("label")["class"]).to include("mb-1.5")
+    end
+  end
+
   context "when required: true" do
     subject(:html) do
       described_class.new(
