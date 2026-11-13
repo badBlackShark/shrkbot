@@ -11,7 +11,10 @@ class Components::Feeds::ChannelField < Components::Base
   end
 
   def view_template
-    render Components::FieldLabel.new { @label }
+    render Components::FieldLabel.new do
+      plain @label
+      render Components::RequiredMarker.new if @required
+    end
     render Components::ChannelSelect.new(
       name: @name,
       options: ChannelOptions.new(@subscription.server_configuration).options,

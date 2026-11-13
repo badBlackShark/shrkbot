@@ -14,8 +14,8 @@ RSpec.describe Components::Roles::ConfigForm do
     create(:role_setting, server_configuration: config)
   end
 
-  it "renders the default channel card without a required marker" do
-    expect(html).not_to include("This setting is required to enable the plugin")
+  it "marks the default channel required" do
+    expect(html).to include("text-danger")
   end
 
   it "shows the none-message when no channels have synced" do

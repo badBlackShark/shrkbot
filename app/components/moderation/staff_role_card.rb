@@ -15,7 +15,7 @@ class Components::Moderation::StaffRoleCard < Components::Base
     render Components::Card.new do
       render Components::FieldLabel.new do
         plain t(".label")
-        span(class: "ml-1 text-xs font-semibold text-danger") { "*" }
+        render Components::RequiredMarker.new
       end
       render Components::TomSelect.new(
         name: "moderation[staff_role_id]",

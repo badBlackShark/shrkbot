@@ -234,7 +234,10 @@ duplicated class strings:
 - **`Components::PrereqGate`** / **`Components::SidebarGroup`** — see *Plugin groups*.
 - **`Components::FieldLabel`** / **`Components::FieldHelp`** — the shared label
   and help-text styling for a form field (`<label>` and `<p>` respectively); no
-  parameters, block content only.
+  parameters, block content only. Help goes under the control via `FieldHelp`,
+  never between label and control.
+- **`Components::RequiredMarker`** — the red asterisk after a required field's
+  label; the only required marker. Labels never say "(required)" or "(optional)".
 - **`Components::ConfigSections`** — the config-page section stack: renders the
   `<key>-config` div Turbo targets, the vertical `gap-5` rhythm, and the
   danger callout every plugin form was repeating (`enable_error:`).

@@ -81,7 +81,10 @@ class Components::Roles::RoleSetCard < Components::Base
   def top_fields
     div(class: "grid gap-5 sm:grid-cols-2") do
       div do
-        render Components::FieldLabel.new { t(".name.label") }
+        render Components::FieldLabel.new do
+          plain t(".name.label")
+          render Components::RequiredMarker.new
+        end
         input(
           type: "text",
           name: field(:name),
@@ -108,10 +111,7 @@ class Components::Roles::RoleSetCard < Components::Base
 
   def channel_override_field
     div do
-      render Components::FieldLabel.new do
-        plain t(".channel.label")
-        span(class: "font-normal text-text-muted") { " #{t(".channel.optional")}" }
-      end
+      render Components::FieldLabel.new { t(".channel.label") }
       render Components::ChannelSelect.new(
         name: field(:channel_override),
         options: @context.channels,
