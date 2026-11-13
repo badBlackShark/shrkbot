@@ -4,17 +4,28 @@ import { render as renderMarkdown } from "lib/discord_markdown_dom"
 
 const SAMPLE = { username: "newmember", displayname: "New Member", membercount: "1,234" }
 const TOKEN = /\{(user|username|displayname|membercount)\}/g
+const KINDS = ["join", "leave"]
 
 export default class extends Controller {
-  static targets = ["joinMessage", "leaveMessage", "joinOutput", "leaveOutput"]
+  static targets = ["joinMessage", "leaveMessage", "joinOutput", "leaveOutput", "joinReset", "leaveReset"]
 
   connect() {
     this.render()
   }
 
   render() {
-    this.paint(this.joinMessageTarget, this.joinOutputTarget, "join")
-    this.paint(this.leaveMessageTarget, this.leaveOutputTarget, "leave")
+    KINDS.forEach((kind) => {
+      const input = this[`${kind}MessageTarget`]
+      this.paint(input, this[`${kind}OutputTarget`], kind)
+      this[`${kind}ResetTarget`].hidden = input.value === input.dataset.default
+    })
+  }
+
+  reset({ params: { kind } }) {
+    const input = this[`${kind}MessageTarget`]
+    input.value = input.dataset.default
+    input.dispatchEvent(new Event("input", { bubbles: true }))
+    input.focus()
   }
 
   paint(input, output, kind) {

@@ -1,0 +1,6 @@
+---
+en:
+  welcomes:
+    default_message:
+      join: Welcome {user}, you're member {membercount}!
+      leave: "{user} has left the server."

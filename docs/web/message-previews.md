@@ -97,6 +97,17 @@ preview doesn't have:
   adding a highlighter is a heavier dependency than the rest of this feature
   justifies.
 
+## Template defaults
+
+A template with a default stores the default as its value: new records start with the text, and
+the box shows it as ordinary, editable text. An empty box means nothing is sent, so its
+placeholder and its preview both say "Nothing will be sent." A reset button on the label row
+restores the default and shows only while the text differs from it. Welcomes keeps its defaults
+in Active Record attribute defaults (`Welcomes::Settings`), so existing rows are never
+backfilled. Fields where empty falls back to something (Feeds push text, Twilight Struggle
+templates that inherit from a parent tournament) are not templates of this kind: empty there
+means "use the fallback", and the preview shows the fallback.
+
 ## Adding markdown rendering to a new preview surface
 
 Call `render(template, resolveText)` from `lib/discord_markdown_dom`, where
