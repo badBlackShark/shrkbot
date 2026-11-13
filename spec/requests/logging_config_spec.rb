@@ -114,7 +114,7 @@ RSpec.describe "Logging config", type: :request do
             params: {logging: {channel_id: 200, enabled: "1", actions: {}}},
             **turbo
           expect(response.body).to include("public")
-          expect(response.body).to include("channel-warning-visible-ids-value")
+          expect(response.body).to include("live-warning-list-value")
         end
 
         it "re-renders with an inline error when enabling without a channel" do

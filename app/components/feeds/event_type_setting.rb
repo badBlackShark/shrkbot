@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class Components::Feeds::EventTypeSetting < Components::Base
+  def self.toggle_name(event_type)
+    "subscription[event_types][#{event_type}]"
+  end
+
   def initialize(subscription:, plugin_key:, event_type:, event:, type_fields: nil)
     @subscription = subscription
     @plugin_key = plugin_key
@@ -12,7 +16,7 @@ class Components::Feeds::EventTypeSetting < Components::Base
   def view_template
     div(class: "group/type", data: {controller: "disclosure", disclosure_key_value:, feed_preview_scope: true}) do
       render Components::ToggleRow.new(
-        name: "subscription[event_types][#{@event_type}]",
+        name: self.class.toggle_name(@event_type),
         checked: followed?,
         label: t("components.feeds.event_types.#{key}.label"),
         help: help_text,

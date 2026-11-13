@@ -36,13 +36,6 @@ module Moderation
       false
     end
 
-    def staff_permission_warning?
-      return false unless staff_role_id
-
-      role = @config.server_roles.find_by(discord_id: staff_role_id)
-      role.present? && !role.manage_messages?
-    end
-
     def toggle_fields(key)
       send(:"#{key}_fields", @config.public_send(:"#{key}_settings"))
     end

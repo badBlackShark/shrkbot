@@ -13,8 +13,7 @@ class Components::Moderation::OverviewForm < Components::Base
         server_configuration: @config,
         staff_role_id: @context.staff_role_id,
         missing: !@context.staff_role_present?,
-        permission_warning: @context.permission_warning?,
-        staff_permission_warning: @context.staff_permission_warning?
+        permission_warning: @context.permission_warning?
       )
       render Components::Moderation::StaffPingCard.new(ping_staff: @context.ping_staff)
       render Components::Moderation::AccountAgeCard.new(
