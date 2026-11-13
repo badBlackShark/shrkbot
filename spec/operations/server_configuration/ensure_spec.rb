@@ -42,14 +42,14 @@ RSpec.describe Ops::ServerConfiguration::Ensure do
   context "when the server's welcome messages were saved empty" do
     let!(:existing) do
       create(:server_configuration, discord_id:).tap do |config|
-        config.create_welcome_settings!(join_message: nil, leave_message: "")
+        config.create_welcome_settings!.update_columns(join_message: nil, leave_message: nil)
       end
     end
 
     it "keeps them empty" do
       result
 
-      expect(existing.reload.welcome_settings).to have_attributes(join_message: nil, leave_message: "")
+      expect(existing.reload.welcome_settings).to have_attributes(join_message: nil, leave_message: nil)
     end
   end
 
