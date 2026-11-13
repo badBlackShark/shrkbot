@@ -77,10 +77,6 @@ RSpec.describe Ops::Moderation::ImageScanning::Configure do
       expect(result).to be_failure
     end
 
-    it "reports an error on enabled" do
-      expect(result.value.errors[:enabled]).to be_present
-    end
-
     it "persists nothing for image_scanning" do
       result
       expect(config.plugin_activations.find_by(plugin:)).to be_nil

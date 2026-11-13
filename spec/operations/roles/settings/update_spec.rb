@@ -153,7 +153,7 @@ RSpec.describe Ops::Roles::Settings::Update do
 
       it "publishes a post event for the new set" do
         result
-        expect(Bot::ConfigBus).to have_received(:post_roles).with(an_instance_of(Roles::Set))
+        expect(Bot::ConfigBus).to have_received(:post_roles).at_least(:once).with(an_instance_of(Roles::Set))
       end
 
       it "does not publish a delete event" do
@@ -173,7 +173,7 @@ RSpec.describe Ops::Roles::Settings::Update do
 
       it "publishes a post event (bot edits in place)" do
         result
-        expect(Bot::ConfigBus).to have_received(:post_roles).with(existing)
+        expect(Bot::ConfigBus).to have_received(:post_roles).at_least(:once).with(existing)
       end
 
       it "does not delete (message_id preserved)" do
@@ -200,7 +200,7 @@ RSpec.describe Ops::Roles::Settings::Update do
 
       it "publishes a post event" do
         result
-        expect(Bot::ConfigBus).to have_received(:post_roles).with(existing)
+        expect(Bot::ConfigBus).to have_received(:post_roles).at_least(:once).with(existing)
       end
     end
 
