@@ -3,8 +3,8 @@
 class Components::Badge < Components::Base
   VARIANTS = {
     success: {tone: "border-success-soft-bd bg-success-soft text-success", dot: "bg-success"},
-    warning: {tone: "border-warning-soft-bd bg-warning-soft text-warning", dot: "bg-warning"},
-    danger: {tone: "border-danger-soft-bd bg-danger-soft text-danger", dot: "bg-danger"},
+    warning: {tone: "border-warning-soft-bd bg-warning-soft text-warning-text", dot: "bg-warning"},
+    danger: {tone: "border-danger-soft-bd bg-danger-soft text-danger-text", dot: "bg-danger"},
     neutral: {tone: "border-border-default bg-surface-sunken text-text-secondary", dot: "bg-text-muted"},
     brand: {tone: "border-accent-soft-bd bg-accent-soft text-accent-soft-fg", dot: "bg-accent"},
     copper: {tone: "border-accent-2-soft-bd bg-accent-2-soft text-accent-2-text", dot: "bg-accent-2"},

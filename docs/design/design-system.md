@@ -16,7 +16,9 @@ for a raw `ink-*` or `brand-*` step for text or a surface: those ramps are now
 **fixed** (sand stays sand, teal stays teal in both themes), so a raw `ink-700`
 as body text is dark-on-cream in light and dark-on-espresso (invisible) in dark.
 Raw ramp steps are only for the rare element that must stay one literal colour in
-both themes. Check both themes when adding UI. Reduced motion is honoured
+both themes. Check both themes when adding UI.
+Small text needs 4.5:1. `text-text-muted` is the lightest text token that holds it on every surface;
+don't go lighter. Reduced motion is honoured
 throughout (keep it); keyboard and screen-reader passes are deferred but don't
 regress them.
 
@@ -307,11 +309,14 @@ semantic alias responds to the active theme with **no `dark:` variants anywhere*
 Use the **semantic** utilities for theme-responsive UI: `bg-surface-card` for card
 surfaces, `bg-surface-page` for the page, `bg-surface-sunken` for washes,
 `text-text-primary`/`-secondary`/`-muted`, `border-border-subtle`/`-default`/
-`-strong`, `bg-accent-fill` for solid teal buttons (white-text-safe — **not**
-`bg-brand-500`, which fails white-on-teal contrast), `bg-accent-soft` +
+`-strong`, `bg-accent-fill` for solid teal buttons (white text holds 4.5:1 in both themes, hover
+included — **not** `bg-brand-500`, which fails white-on-teal contrast), `bg-accent-soft` +
 `text-accent-soft-fg` for soft-tint chips/avatars, `text-accent` for a teal icon.
 Copper is `text-accent-2-text` / `bg-accent-2-soft` / `bg-accent-2-fill` and owns
 warmth/wayfinding (donate, OSS badge, the wordmark "bot") — **never** status.
+Status colours split by job: `warning`/`danger` (`text-`, `bg-`, `border-`) colour icons, dots and
+borders; text set in a status colour uses `text-warning-text` / `text-danger-text`, and solid
+danger buttons use `bg-danger-fill`. All hold 4.5:1 in both themes.
 Reach for a raw `brand-*`/`ink-*` step only when you genuinely need a fixed colour.
 
 Tailwind v4 must scan the Phlex `.rb` files or utilities used only in Ruby string

@@ -44,14 +44,18 @@
   --danger-soft: #f8e7e2;
   --success-soft-bd: color-mix(in srgb, var(--success) 34%, transparent);
   --warning-soft-bd: color-mix(in srgb, var(--warning) 34%, transparent);
+  --warning-text: #8a5a0c;
   --danger-soft-bd: color-mix(in srgb, var(--danger) 34%, transparent);
+  --danger-text: #b5391f;
+  --danger-fill: #cc4c38;
+  --danger-fill-hover: #b5391f;
 
   --success-solid: var(--success-soft);
   --danger-solid: var(--danger-soft);
 
   --text-primary: var(--ink-900);
   --text-secondary: var(--ink-600);
-  --text-muted: var(--ink-400);
+  --text-muted: #6f6454;
   --text-inverse: var(--ink-0);
   --text-link: var(--brand-700);
   --text-on-accent: #ffffff;
@@ -67,7 +71,7 @@
   --border-strong: var(--ink-300);
 
   --accent: var(--brand-500);
-  --accent-fill: var(--brand-600);
+  --accent-fill: #2a817a;
   --accent-fill-hover: var(--brand-700);
   --accent-hover: var(--brand-600);
   --accent-active: var(--brand-700);
@@ -116,7 +120,7 @@
 [data-theme="dark"] {
   --text-primary: #efe7db;
   --text-secondary: #b1a08a;
-  --text-muted: #7c6e5b;
+  --text-muted: #9a8b75;
   --text-inverse: #1a130d;
   --text-link: #6fb3aa;
   --text-on-accent: #ffffff;
@@ -133,7 +137,7 @@
 
   --accent: #46817a;
   --accent-fill: #2c736d;
-  --accent-fill-hover: #36877f;
+  --accent-fill-hover: #33827a;
   --accent-hover: #56938b;
   --accent-active: #2c6b65;
   --accent-soft: rgba(70, 129, 122, 0.12);
@@ -159,6 +163,8 @@
   --success-soft-bd: color-mix(in srgb, var(--success) 22%, transparent);
   --warning-soft-bd: color-mix(in srgb, var(--warning) 22%, transparent);
   --danger-soft-bd: color-mix(in srgb, var(--danger) 22%, transparent);
+  --warning-text: var(--warning);
+  --danger-text: #ee7360;
 
   --success-solid: color-mix(in srgb, var(--success) 14%, var(--surface-card));
   --danger-solid: color-mix(in srgb, var(--danger) 14%, var(--surface-card));

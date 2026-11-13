@@ -154,7 +154,7 @@ class Components::AppShell < Components::Base
         button_to(
           logout_path,
           method: :delete,
-          class: "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm text-danger transition-colors hover:bg-danger-soft"
+          class: "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm text-danger-text transition-colors hover:bg-danger-soft"
         ) do
           render Components::Icon.new("sign-out", class: "size-4")
           span { t(".log_out") }
