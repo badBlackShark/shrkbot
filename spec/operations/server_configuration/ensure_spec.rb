@@ -32,6 +32,27 @@ RSpec.describe Ops::ServerConfiguration::Ensure do
     expect(config.lfg_settings).to be_present
   end
 
+  it "gives a new server's welcome messages their default text" do
+    expect(result.value.welcome_settings).to have_attributes(
+      join_message: I18n.t("welcomes.default_message.join"),
+      leave_message: I18n.t("welcomes.default_message.leave")
+    )
+  end
+
+  context "when the server's welcome messages were saved empty" do
+    let!(:existing) do
+      create(:server_configuration, discord_id:).tap do |config|
+        config.create_welcome_settings!(join_message: nil, leave_message: "")
+      end
+    end
+
+    it "keeps them empty" do
+      result
+
+      expect(existing.reload.welcome_settings).to have_attributes(join_message: nil, leave_message: "")
+    end
+  end
+
   context "when a concurrent insert wins the race" do
     it "returns the already-created configuration instead of raising" do
       existing = create(:server_configuration, discord_id:)

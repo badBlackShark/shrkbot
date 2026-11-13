@@ -928,7 +928,7 @@ en:
         label: Posting delay
         unit: minutes
       template_card:
-        empty: Nothing would be posted.
+        empty: Nothing will be sent.
         preview: Live preview
         reset_to_default: Reset to default
         reset_to_parent: Reset to parent
@@ -1004,16 +1004,15 @@ en:
         channel:
           help: Where join and leave messages are posted.
           label: Channel
+        empty: Nothing will be sent.
         join_message:
           help: Sent when a member joins. Leave empty to send nothing.
           info: is a Discord mention in join messages.
           label: Join message
-          placeholder: Welcome {user}, you're member {membercount}!
         leave_message:
           help: Sent when a member leaves. Leave empty to send nothing.
           info: is a plain @username in leave messages.
           label: Leave message
-          placeholder: "{user} has left the server."
         ping_on_join:
           help: Off delivers silently - the mention badge still shows, but no sound
             or push.
@@ -1026,9 +1025,9 @@ en:
             on leave.
           username: Expands to the member's Discord username, without a mention.
         preview:
-          empty: This message is off.
           label: Live preview
           timestamp: Today
+        reset_to_default: Reset to default
         suppress_removal_messages:
           label: Skip leave messages for kicks and bans
   meta:

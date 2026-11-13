@@ -293,6 +293,9 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `The game or category. Empty for highlights and uploads.` / `Who made the clip. Empty for other posts.` / `The post's title.` (shared by Steam and Twitch) | `The game or category.` / `Who made the clip.` / `The title of the stream, video or clip.` | Placeholders now list only the tokens a post type can fill, so the "empty for" caveats described tokens the reader no longer sees. The Twitch title hint named a post, which a stream is not. |
 | `Twitch user %{id}` (under the channel name) | No line. | The numeric id is never visible on Twitch, so it tells the reader nothing, and "Twitch channel" under a Twitch avatar would only restate the page. A caption earns its place only when it carries something, like Steam's app id. |
 | `Message and notification` (disclosure summary on a Steam post type) | `Settings` | The disclosure also holds the type's channel now, so naming two of its fields no longer described it. Twitch already said `Settings`; both sources share one key. |
+| `Welcome {user}, you're member {membercount}!` / `{user} has left the server.` (placeholders in empty Welcomes boxes) | The same text as the box's real, editable default; empty box placeholder `Nothing will be sent.` | The placeholder looked like a message shrkbot would send, but an empty box sent nothing. Now the default is the value and the placeholder says what empty does. |
+| `This message is off.` (Welcomes preview) | `Nothing will be sent.` | "Off" names a toggle state, and the message has no toggle; it is empty. One sentence now serves the box and the preview. |
+| `Nothing would be posted.` (Twilight Struggle preview) | `Nothing will be sent.` | Same sentence as the Welcomes preview: one phrase for an empty message. |
 
 ## Kept on purpose
 

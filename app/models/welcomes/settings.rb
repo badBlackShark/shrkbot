@@ -4,6 +4,9 @@ module Welcomes
   class Settings < ApplicationRecord
     self.table_name = "welcome_settings"
 
+    attribute :join_message, default: -> { I18n.t("welcomes.default_message.join") }
+    attribute :leave_message, default: -> { I18n.t("welcomes.default_message.leave") }
+
     belongs_to :server_configuration
 
     def self.active_for(discord_id)
