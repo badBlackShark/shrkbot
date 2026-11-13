@@ -44,10 +44,9 @@ logs a warning and drops the event rather than raising.
 
 `Ops::ServerConfiguration::Plugins::Toggle` publishes the same
 `roles_post`/`roles_menu_remove` events via `Roles::MenuToggle` when the roles plugin's
-`enabled` changes, after the transaction commits. Settings ops go through Toggle too, so
-a roles settings save that changes `enabled` publishes the menus twice (Toggle, then the
-op's own `MenuSyncPlan`); both are idempotent. The menu-iff-enabled rule holds on both
-save paths. `Roles::MenuToggle` delegates to
+`enabled` changes, after the transaction commits. `Roles::Settings::Update` passes
+`publish_menu: false`: its own `MenuSyncPlan` already posts, removes and deletes every
+set for the save, so the menus are published once. `Roles::MenuToggle` delegates to
 `Roles::MenuSyncPlan` so delivery semantics are identical.
 
 `Roles::MenuReconcile` (a `:ready` event handler) sweeps guilds this shard serves

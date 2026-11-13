@@ -4,11 +4,11 @@ module Ops
   module PluginConfiguration
     private
 
-    def save_with_activation(settings)
+    def save_with_activation(settings, publish_menu: true)
       return failure(settings.errors.full_messages) unless settings.valid?
 
       transaction do
-        toggled = toggle_plugin
+        toggled = toggle_plugin(publish_menu:)
         if toggled.success?
           settings.save!
           yield if block_given?
@@ -17,11 +17,12 @@ module Ops
       end
     end
 
-    def toggle_plugin
+    def toggle_plugin(publish_menu: true)
       Ops::ServerConfiguration::Plugins::Toggle.call(
         server_configuration:,
         plugin: Plugin.find_by!(key: plugin_key),
-        enabled:
+        enabled:,
+        publish_menu:
       )
     end
 
