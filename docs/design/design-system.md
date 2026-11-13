@@ -130,7 +130,7 @@ picker on Welcomes/Logging) carries a danger `*` marker next to its label; the
 operation enforces the requirement server-side and the form re-renders with the
 inline error if it's missing. ConfigPage also has a plain, non-gated path for
 always-on plugins: pass no `gate:` and it drops the enable toggle and overlay,
-optionally rendering a copper `badge:` ("Global") next to the title instead —
+optionally rendering a copper `badge:` ("Always on") next to the title instead —
 Reminders is the one consumer.
 
 On config pages the app shell also renders a left **`Components::PluginSidebar`**
@@ -138,8 +138,8 @@ On config pages the app shell also renders a left **`Components::PluginSidebar`*
 layout). It lists the plugins that have a config page — resolved through the
 shared `Components::PluginNav` mixin (plugin→icon and plugin→config-path, shared
 with `PluginRow` so the two can't drift) — with a status dot, an active highlight
-(`aria-current="page"`), and a back-to-dashboard link. It's `hidden md:block`
-(the breadcrumb covers navigation on narrow screens). Catalog plugins join the
+(`aria-current="page"`). It's `hidden md:block`; the breadcrumb on every config
+page is the way back to the dashboard. Catalog plugins join the
 list automatically once they have config routes; Reminders isn't in the catalog
 (it has no activation to toggle) — `PluginCatalog::GLOBAL_KEYS` names it and
 `PluginStatus.rows` appends it as a locked, always-enabled row, which both the

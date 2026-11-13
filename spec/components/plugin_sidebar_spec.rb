@@ -9,28 +9,11 @@ RSpec.describe Components::PluginSidebar do
     described_class.new(server_configuration: config, active_key: :logging, access:).render_in(view_context)
   end
 
-  let(:config) { create(:server_configuration, discord_id: 900_000_001, name:) }
+  let(:config) { create(:server_configuration, discord_id: 900_000_001) }
   let(:user) { create(:user) }
   let(:access) { PluginAccess.new(user:, server_configuration: config, manages_server: true) }
 
-  context "when the server configuration has a name" do
-    let(:name) { "Dev Refuge" }
-
-    it "shows the server name in the back-link" do
-      expect(html).to include("Dev Refuge")
-    end
-  end
-
-  context "when the server configuration has no name" do
-    let(:name) { nil }
-
-    it "falls back to the generic dashboard label" do
-      expect(html).to include("Dashboard")
-    end
-  end
-
   context "when the user may not configure the plugins" do
-    let(:name) { "Dev Refuge" }
     let(:access) { PluginAccess.new(user:, server_configuration: config, manages_server: false) }
 
     it "renders the entries without links and says why" do
@@ -47,8 +30,6 @@ RSpec.describe Components::PluginSidebar do
   end
 
   context "with the moderation group" do
-    let(:name) { "Dev Refuge" }
-
     it "renders Server Shield as a disclosure group with its sub-plugin links" do
       expect(html).to include("Server Shield")
       expect(html).to include("Overview")
@@ -125,7 +106,6 @@ RSpec.describe Components::PluginSidebar do
   end
 
   context "with recently added plugins" do
-    let(:name) { "Dev Refuge" }
     let(:sparkles) { Nokogiri::HTML.fragment(html).css("span.sr-only").select { |node| node.text == "New" } }
 
     before do
@@ -167,7 +147,6 @@ RSpec.describe Components::PluginSidebar do
       described_class.new(server_configuration: config, active_key: :steam, access:).render_in(view_context)
     end
 
-    let(:name) { "Dev Refuge" }
     let(:groups) { Nokogiri::HTML.fragment(html).css("details").to_h { |group| [group.at_css("summary").text.strip, group] } }
 
     it "opens the Integrations group and leaves Server Shield closed" do

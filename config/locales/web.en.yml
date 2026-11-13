@@ -64,11 +64,6 @@ en:
       enabled: Enabled
     confirm_dialog:
       cancel: Cancel
-    cookie_notice:
-      dismiss: Oh, nice!
-      message: shrkbot only sets technical cookies to make the site work. No tracking,
-        analytics, or anything else from a third party. It will remember that you've
-        seen this, though - with a cookie, of course. :)
     copyable_tokens:
       copied: Copied!
       copy_failed: Copy failed
@@ -789,13 +784,10 @@ en:
       preview_locked: Preview doesn't save - add shrkbot to your server to turn plugins
         on there.
       status:
-        disabled: Disabled
-        enabled: Enabled
-        global: Global
+        always_on: Always on
         needs_setup: Needs setup
       toggle: Toggle %{plugin}
     plugin_sidebar:
-      dashboard: Dashboard
       locked: You can't configure this plugin on this server.
       overview: Overview
       plugins: Plugins
@@ -877,8 +869,6 @@ en:
         image_scanning: Pick a staff role first.
         spam_protection: Pick a staff role first.
       status:
-        disabled: Disabled
-        enabled: Enabled
         needs_setup: Needs setup
       toggle_label: Enable %{name}
     theme_toggle:
@@ -1278,7 +1268,7 @@ en:
             through your log channel.
       reminders:
         show:
-          badge: Global
+          badge: Always on
           description: Members set their own reminders with /remind. This plugin can't
             be turned off.
           title: Reminders

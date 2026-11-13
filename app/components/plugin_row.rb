@@ -3,12 +3,6 @@
 class Components::PluginRow < Components::Base
   include Components::PluginNav
 
-  STATUS_VARIANTS = {
-    enabled: :success,
-    needs_setup: :warning,
-    disabled: :neutral
-  }.freeze
-
   def initialize(server_configuration:, row:)
     @config = server_configuration
     @row = row
@@ -79,9 +73,9 @@ class Components::PluginRow < Components::Base
 
   def status_badge
     if @row.locked
-      render Components::Badge.new(variant: :copper) { t(".status.global") }
-    else
-      render Components::Badge.new(variant: STATUS_VARIANTS.fetch(status), dot: true) { t(".status.#{status}") }
+      render Components::Badge.new(variant: :copper) { t(".status.always_on") }
+    elsif !@row.configured
+      render Components::Badge.new(variant: :warning, dot: true) { t(".status.needs_setup") }
     end
   end
 
@@ -90,11 +84,6 @@ class Components::PluginRow < Components::Base
       render Components::Icon.new("puzzle-piece", weight: :fill, class: "size-3.5")
       plain t(".bespoke")
     end
-  end
-
-  def status
-    return :needs_setup unless @row.configured
-    @row.enabled ? :enabled : :disabled
   end
 
   def configure_link

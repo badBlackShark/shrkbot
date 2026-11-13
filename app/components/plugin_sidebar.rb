@@ -12,8 +12,6 @@ class Components::PluginSidebar < Components::Base
   def view_template
     aside(id: "plugin-sidebar", class: "sticky top-16 hidden h-[calc(100vh-4rem)] w-56 flex-none overflow-y-auto border-r border-border-default bg-surface-sunken md:block") do
       div(class: "p-4") do
-        back_link
-        div(class: "my-3 h-px bg-border-subtle")
         p(class: "mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins") }
         nav(class: "flex flex-col gap-0.5") do
           all_rows.each do |row|
@@ -84,16 +82,6 @@ class Components::PluginSidebar < Components::Base
     return :enabled if row.enabled
 
     row.configured ? :disabled : :needs_setup
-  end
-
-  def back_link
-    a(
-      href: PluginPaths.dashboard_for(@config.discord_id),
-      class: "group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-surface-card"
-    ) do
-      render Components::Icon.new("arrow-left", class: "size-4 flex-none text-text-muted")
-      span(class: "truncate text-sm font-medium text-text-secondary group-hover:text-text-primary") { @config.name || t(".dashboard") }
-    end
   end
 
   def nav_item(row)
