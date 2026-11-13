@@ -12,7 +12,7 @@ RSpec.describe Moderation::PunishmentNote do
     let(:timeout_until) { Time.at(1_700_000_000) }
 
     it "renders an absolute Discord timestamp" do
-      expect(line).to eq("User was timed out until <t:1700000000:f>.")
+      expect(line).to eq("The member was timed out until <t:1700000000:f>.")
     end
   end
 
@@ -20,7 +20,7 @@ RSpec.describe Moderation::PunishmentNote do
     let(:punishment) { "kick" }
 
     it "states the kick" do
-      expect(line).to eq("User was kicked.")
+      expect(line).to eq("The member was kicked.")
     end
   end
 
@@ -28,7 +28,7 @@ RSpec.describe Moderation::PunishmentNote do
     let(:punishment) { "ban" }
 
     it "states the ban" do
-      expect(line).to eq("User was banned.")
+      expect(line).to eq("The member was banned.")
     end
   end
 
