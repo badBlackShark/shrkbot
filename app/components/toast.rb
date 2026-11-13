@@ -3,7 +3,7 @@
 class Components::Toast < Components::Base
   LEVELS = {
     "alert" => {icon: "warning", tone: "border-danger/30 bg-danger-solid text-danger-text"},
-    "notice" => {icon: "check-circle", tone: "border-success/30 bg-success-solid text-success"}
+    "notice" => {icon: "check-circle", tone: "border-success/30 bg-success-solid text-success-text"}
   }.freeze
 
   def initialize(level:, message:)

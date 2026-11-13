@@ -45,6 +45,7 @@
   --success-soft-bd: color-mix(in srgb, var(--success) 34%, transparent);
   --warning-soft-bd: color-mix(in srgb, var(--warning) 34%, transparent);
   --warning-text: #8a5a0c;
+  --success-text: #227d4d;
   --danger-soft-bd: color-mix(in srgb, var(--danger) 34%, transparent);
   --danger-text: #b5391f;
   --danger-fill: #cc4c38;
@@ -164,6 +165,7 @@
   --warning-soft-bd: color-mix(in srgb, var(--warning) 22%, transparent);
   --danger-soft-bd: color-mix(in srgb, var(--danger) 22%, transparent);
   --warning-text: var(--warning);
+  --success-text: var(--success);
   --danger-text: #ee7360;
 
   --success-solid: color-mix(in srgb, var(--success) 14%, var(--surface-card));
