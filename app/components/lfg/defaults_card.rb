@@ -65,7 +65,7 @@ class Components::Lfg::DefaultsCard < Components::Base
   def min_days_field
     render Components::Lfg::MinDaysField.new(
       name: "lfg[default_min_membership_days]",
-      value: @settings.default_min_membership_days.to_i,
+      value: @settings.default_min_membership_days_or_zero,
       label: t(".min_days.label"),
       unit: t(".min_days.unit")
     )
