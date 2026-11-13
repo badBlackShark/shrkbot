@@ -14,20 +14,20 @@ RSpec.describe "Bespoke plugins page", type: :request do
   it "leads with the bespoke-plugin pitch" do
     bespoke_plugins
 
-    expect(response.body).to include("can do it all, even if it")
-    expect(response.body).to include("only for you")
-  end
-
-  it "sets the headline's brand mark in wordmark colours" do
-    bespoke_plugins
-
-    expect(response.body).to include('<span class="text-accent">shrk</span><span class="text-accent-2-text">bot</span> can do it all')
+    expect(response.body).to include("Bespoke plugins</h1>")
+    expect(response.body).to include("I can build it as a plugin that only your server gets.")
   end
 
   it "says custom work may carry a fee" do
     bespoke_plugins
 
-    expect(response.body).to include("might charge a little fee for custom work")
+    expect(response.body).to include("For bigger custom work I charge a small fee.")
+  end
+
+  it "links the example's site where the sentence names it" do
+    bespoke_plugins
+
+    expect(response.body).to match(%r{Posts game results from <a href="https://twilight-struggle\.com"[^>]*>twilight-struggle\.com</a> to Discord})
   end
 
   it "offers both contact routes" do

@@ -3,34 +3,71 @@
 class Views::BespokePlugins < Views::Base
   include Components::PluginNav
 
-  STEPS = %i[talk build run].freeze
-
   def initialize(user:)
     @user = user
   end
 
   def view_template
     render Components::PublicShell.new(user: @user) do
-      hero
-      steps
-      example
-      cost
+      div(class: "mx-auto max-w-3xl px-6 pb-16 pt-18") do
+        div(class: "flex max-w-160 flex-col gap-10") do
+          intro
+          example
+          cost
+          contact_actions
+        end
+      end
     end
   end
 
   private
 
-  def hero
-    section(class: "mx-auto max-w-3xl px-6 pb-14 pt-20") do
-      eyebrow(t(".eyebrow"))
-      h1(class: "mb-5 font-display text-4xl font-bold leading-tight tracking-tight") do
-        render Components::Wordmark.new
-        whitespace
-        plain t(".headline")
-      end
-      p(class: "mb-8 text-lg leading-relaxed text-text-secondary") { t(".lede") }
-      contact_actions
+  def intro
+    div(class: "flex flex-col gap-5") do
+      h1(class: "font-display text-4xl font-bold leading-tight tracking-tight") { t(".title") }
+      p(class: "text-lg leading-relaxed") { t(".lede") }
+      p(class: "leading-relaxed text-text-secondary") { t(".idea") }
     end
+  end
+
+  def example
+    section(class: "flex flex-col gap-3") do
+      heading(t(".example_heading"))
+      render Components::Card.new(class: "flex items-center gap-4") do
+        render Components::PluginTile.new(icon: plugin_icon(:twilight_struggle))
+        div(class: "min-w-0 flex-1") do
+          div(class: "flex flex-wrap items-center gap-2") do
+            span(class: "font-display font-semibold") { t("components.plugin_row.plugin.twilight_struggle.name") }
+            render Components::BespokeBadge.new
+          end
+          p(class: "mt-0.5 text-sm leading-[1.5] text-pretty text-text-secondary") do
+            example_body
+          end
+        end
+      end
+    end
+  end
+
+  def example_body
+    plain t(".example_body_pre")
+    a(
+      href: t(".example_url"),
+      target: "_blank",
+      rel: "noopener",
+      class: "underline transition-colors hover:text-text-primary"
+    ) { t(".example_body_link") }
+    plain t(".example_body_post")
+  end
+
+  def cost
+    section(class: "flex flex-col gap-3") do
+      heading(t(".cost_heading"))
+      p(class: "leading-relaxed text-text-secondary") { t(".cost_body") }
+    end
+  end
+
+  def heading(text)
+    h2(class: "font-display text-lg font-semibold") { text }
   end
 
   def contact_actions
@@ -51,55 +88,5 @@ class Views::BespokePlugins < Views::Base
         rel: "noopener"
       )
     end
-  end
-
-  def steps
-    section(class: "mx-auto max-w-3xl px-6 pb-14") do
-      eyebrow(t(".steps_eyebrow"))
-      div(class: "flex flex-col gap-4 sm:flex-row") do
-        STEPS.each_with_index { |key, index| step_card(key, index) }
-      end
-    end
-  end
-
-  def step_card(key, index)
-    render Components::Card.new(class: "flex-1") do
-      p(class: "mb-3 font-mono text-xs text-accent-2-text") { (index + 1).to_s.rjust(2, "0") }
-      p(class: "font-display text-sm font-semibold") { t(".steps.#{key}.title") }
-      p(class: "mt-1 text-sm leading-relaxed text-text-secondary") { t(".steps.#{key}.body") }
-    end
-  end
-
-  def example
-    section(class: "mx-auto max-w-3xl px-6 pb-14") do
-      eyebrow(t(".example_eyebrow"))
-      render Components::Card.new(padding: :lg) do
-        div(class: "flex items-start gap-4") do
-          render Components::PluginTile.new(icon: plugin_icon(:twilight_struggle))
-          div do
-            a(
-              href: t(".example_url"),
-              target: "_blank",
-              rel: "noopener",
-              class: "font-display text-sm font-semibold underline decoration-border-strong underline-offset-4 transition-colors hover:decoration-accent"
-            ) { t("components.plugin_row.plugin.twilight_struggle.name") }
-            p(class: "mt-1 text-sm leading-relaxed text-text-secondary") { t(".example_body") }
-          end
-        end
-      end
-    end
-  end
-
-  def cost
-    section(class: "mx-auto max-w-3xl px-6 pb-24") do
-      eyebrow(t(".cost_eyebrow"))
-      render Components::Callout.new(variant: :neutral) do
-        p(class: "leading-relaxed text-text-secondary") { t(".cost_body") }
-      end
-    end
-  end
-
-  def eyebrow(text)
-    p(class: "mb-5 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { text }
   end
 end

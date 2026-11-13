@@ -33,7 +33,7 @@ class Components::PluginRow < Components::Base
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { name }
           status_badge
-          bespoke_badge if @row.bespoke
+          render Components::BespokeBadge.new if @row.bespoke
           render Components::PluginBadges.new(key: @row.key)
         end
         p(class: "mt-0.5 text-sm leading-[1.5] text-pretty text-text-secondary") { t(".plugin.#{@row.key}.description") }
@@ -82,13 +82,6 @@ class Components::PluginRow < Components::Base
       render Components::Badge.new(variant: :copper) { t(".status.global") }
     else
       render Components::Badge.new(variant: STATUS_VARIANTS.fetch(status), dot: true) { t(".status.#{status}") }
-    end
-  end
-
-  def bespoke_badge
-    render Components::Badge.new(variant: :copper) do
-      render Components::Icon.new("puzzle-piece", weight: :fill, class: "size-3.5")
-      plain t(".bespoke")
     end
   end
 

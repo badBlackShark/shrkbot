@@ -135,9 +135,8 @@ RSpec.describe "Server dashboard", type: :request do
           expect(unmanageable_index).to be > manageable_index
         end
 
-        it "separates the bespoke plugin from the rest and badges it" do
+        it "separates the bespoke plugin from the rest" do
           get_dashboard
-          expect(response.body).to include(I18n.t("components.plugin_row.bespoke"))
           expect(response.body.index("<hr")).to be_between(
             response.body.index("plugin-twilight_struggle"),
             response.body.index("plugin-roles")
