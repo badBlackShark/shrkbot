@@ -15,6 +15,10 @@ RSpec.describe Components::PluginRow do
   let(:toggleable) { true }
   let(:bespoke) { false }
 
+  it "shows the catalog description" do
+    expect(html).to include(CGI.escapeHTML(PluginCatalog.description(:roles)))
+  end
+
   context "when the plugin was added recently" do
     before do
       allow(PluginCatalog).to receive_messages(recently_added?: true, beta?: false)

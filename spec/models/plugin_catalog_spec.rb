@@ -8,11 +8,14 @@ RSpec.describe PluginCatalog do
       expect(described_class.all).to eq(PluginCatalog::DEFINITIONS)
     end
 
-    it "has a sidebar name and description translation for every top-level plugin" do
+    it "excludes the global reminders plugin" do
+      expect(described_class.all.map(&:key)).not_to include(:reminders)
+    end
+
+    it "has a sidebar name translation for every top-level plugin" do
       top_level = described_class.all.reject { |definition| described_class.sub_plugin?(definition.key) }
       top_level.each do |definition|
         expect(I18n.exists?("components.plugin_row.plugin.#{definition.key}.name", :en)).to be(true)
-        expect(I18n.exists?("components.plugin_row.plugin.#{definition.key}.description", :en)).to be(true)
       end
     end
   end
@@ -24,6 +27,30 @@ RSpec.describe PluginCatalog do
 
     it "is nil for an unknown key" do
       expect(described_class.find(:nope)).to be_nil
+    end
+
+    it "is nil for a global plugin" do
+      expect(described_class.find(:reminders)).to be_nil
+    end
+  end
+
+  describe ".description" do
+    subject(:description) { described_class.description(key) }
+
+    context "with a catalog plugin" do
+      let(:key) { :logging }
+
+      it "returns the definition's description" do
+        expect(description).to eq("Records what's happening on your server.")
+      end
+    end
+
+    context "with a global plugin" do
+      let(:key) { :reminders }
+
+      it "returns the global plugin's description" do
+        expect(description).to eq("Members set their own reminders with /remind. This plugin can't be disabled.")
+      end
     end
   end
 

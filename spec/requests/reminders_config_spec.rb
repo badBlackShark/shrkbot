@@ -31,6 +31,11 @@ RSpec.describe "Reminders config", type: :request do
           expect(response.body).to include("/remind")
         end
 
+        it "describes the plugin in the header with its catalog text" do
+          get server_reminders_path(guild.id)
+          expect(response.body).to include(CGI.escapeHTML(PluginCatalog.description(:reminders)))
+        end
+
         it "shows the Global badge instead of an enable gate" do
           get server_reminders_path(guild.id)
           expect(response.body).to include("Global")

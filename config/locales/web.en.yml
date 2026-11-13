@@ -752,39 +752,25 @@ en:
       not_manageable: You can't configure this plugin on this server.
       plugin:
         integrations:
-          description: Posts news from the platforms you follow, like Steam, in the
-            channels you pick.
           name: Integrations
         lfg:
-          description: Let members find people to play with, on the fly or scheduled.
           name: Looking for Game
         logging:
-          description: Record moderation events to a channel of your choice.
           name: Logging
         moderation:
-          description: 'Your server''s aegis: automated moderation beyond Discord''s
-            AutoMod.'
           name: Server Shield
         reminders:
-          description: Members set their own reminders with /remind.
           locked: This plugin is always enabled to preserve DM functionality.
           name: Reminders
         roles:
-          description: Let members give themselves roles from a menu.
           name: Roles
         steam:
-          description: Posts new patch notes, announcements and press coverage of
-            the Steam games you follow.
           name: Steam
         twilight_struggle:
-          description: Post results from twilight-struggle.com as they are reported.
           name: Twilight Struggle
         twitch:
-          description: Announces when the Twitch channels you follow go live, and
-            posts their highlights, uploads, and clips.
           name: Twitch
         welcomes:
-          description: Greet new members and say goodbye when they leave.
           name: Welcomes
       preview_locked: Preview doesn't save - add shrkbot to your server to turn plugins
         on there.
@@ -1165,18 +1151,6 @@ en:
         highly configurable and geared towards technical users that feel like Discord
         doesn't give them enough power.
       more_plugins: More plugins are on the way.
-      plugins:
-        lfg: Let members rally a group with a role ping, instantly or scheduled. Others
-          join with one click.
-        logging: 'Record moderation events to a private staff channel: role changes,
-          joins, leaves.'
-        moderation: 'Automated moderation beyond Discord''s AutoMod: catch cross-channel
-          spam and unwanted images.'
-        reminders: Let members set personal reminders, delivered in the channel or
-          by DM.
-        roles: Let members self-assign roles from a tidy menu you post in a channel.
-        welcomes: Greet new members with a custom message, and say goodbye when they
-          leave.
       plugins_eyebrow: Example plugins
       preview: Preview features
       tagline: A mechanical helper.
@@ -1214,9 +1188,6 @@ en:
             follow: Follow %{name}
       image_scanning:
         show:
-          description: Reads the text inside posted images and checks it against known
-            scam patterns and previously confirmed scam images. Staff confirm or dismiss
-            every catch, and the bot remembers.
           no_role_callout_body: Every Moderation sub-plugin needs the shared staff
             role - it's pinged on every alert. Set it on the
           no_role_callout_lead: Pick a staff role first.
@@ -1246,25 +1217,18 @@ en:
         title: Your servers
       integrations:
         show:
-          description: Posts news from the platforms you follow, like Steam, in the
-            channels you pick.
           gate_message: Enable Integrations to post news from the sources you follow.
           title: Integrations
       lfg:
         show:
-          description: Let members find people to play with, on the fly or scheduled.
-            Only shrkbot pings - so you can turn off general-purpose role pings.
           gate_message: Enable the plugin to configure pingable roles and restrictions.
           title: Looking for Game
       logging:
         show:
-          description: Record moderation events to a channel of your choice.
           gate_message: Enable the plugin to choose a channel and pick events.
           title: Logging
       moderation:
         show:
-          description: 'Your server''s aegis: automated moderation beyond Discord''s
-            AutoMod.'
           gate_message: Enable the group to configure its sub-plugins and shared settings.
           logging_subline_prefix: 'Alerts post to '
           logging_subline_suffix: through the Logging plugin.
@@ -1279,13 +1243,9 @@ en:
       reminders:
         show:
           badge: Global
-          description: Members set their own reminders with /remind. This plugin can't
-            be turned off.
           title: Reminders
       roles:
         show:
-          description: Let members give themselves roles from a menu you post in a
-            channel.
           gate_message: Enable the plugin to configure role sets.
           title: Roles
       show:
@@ -1303,9 +1263,6 @@ en:
         synced: "%{channels} and %{roles} synced"
       spam_protection:
         show:
-          description: Detects the same message blasted across multiple channels within
-            seconds and purges it before it spreads. Matching is fingerprint-based
-            - message content is never stored.
           no_role_callout_body: Every Moderation sub-plugin needs the shared staff
             role - it's pinged on every alert. Set it on the
           no_role_callout_lead: Pick a staff role first.
@@ -1315,8 +1272,6 @@ en:
           title: Cross-Channel Spam Guard
       steam:
         show:
-          description: Posts new patch notes, announcements and press coverage of
-            the Steam games you follow.
           title: Steam
       sub_plugin_show:
         group_locked_reason: Turn %{parent} on first.
@@ -1337,8 +1292,6 @@ en:
             title: Twilight Struggle
             tournaments: Tournaments
         show:
-          description: Tournaments pushed to shrkbot by twilight-struggle.com. Subscribe
-            to the ones you want posted in this server.
           empty_archived: Nothing has been archived.
           empty_body: twilight-struggle.com has not sent any tournaments yet. They
             appear here as soon as it does.
@@ -1348,11 +1301,8 @@ en:
           toggle_admin_only: Only a server admin can switch this plugin on or off.
       twitch:
         show:
-          description: Announces when the Twitch channels you follow go live, and
-            posts their highlights, uploads, and clips.
           title: Twitch
       welcomes:
         show:
-          description: Greet new members and say goodbye when they leave.
           gate_message: Enable the plugin to configure messages.
           title: Welcomes
