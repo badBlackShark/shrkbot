@@ -32,7 +32,7 @@ class Views::Servers::PluginConfigShow < Views::Base
     Components::ConfigPageHeader.new(
       icon:,
       title: t(".title"),
-      description: t(".description"),
+      description: PluginCatalog.description(plugin_key),
       badge:
     )
   end

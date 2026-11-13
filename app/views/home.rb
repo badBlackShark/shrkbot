@@ -117,7 +117,7 @@ class Views::Home < Views::Base
         render Components::Icon.new(plugin_icon(key), class: "size-5")
       end
       p(class: "font-display text-sm font-semibold") { t("components.plugin_row.plugin.#{key}.name") }
-      p(class: "mt-1 text-sm leading-relaxed text-text-secondary") { t(".plugins.#{key}") }
+      p(class: "mt-1 text-sm leading-relaxed text-text-secondary") { PluginCatalog.description(key) }
     end
   end
 end

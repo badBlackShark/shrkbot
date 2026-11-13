@@ -23,6 +23,14 @@ RSpec.describe "Home", type: :request do
     expect(response.body).to match(%r{<a href="/bespoke-plugins"[^>]*>#{I18n.t("views.home.bespoke_plugins_link")}</a>})
   end
 
+  it "describes each plugin card with its catalog text" do
+    home
+
+    %i[roles welcomes logging moderation reminders lfg].each do |key|
+      expect(response.body).to include(CGI.escapeHTML(PluginCatalog.description(key)))
+    end
+  end
+
   it "uses the brand display type for the wordmark" do
     home
 

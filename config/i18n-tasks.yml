@@ -62,27 +62,20 @@ ignore_unused:
   - components.feeds.event_types.patch_notes_published.help
   # 1. Views::Servers::SubPluginShow subclasses
   - views.servers.steam.show.title
-  - views.servers.steam.show.description
   - views.servers.twitch.show.title
-  - views.servers.twitch.show.description
   # 1. Views::Servers::PluginConfigShow subclasses
   - views.servers.logging.show.*
   - views.servers.roles.show.*
   - views.servers.welcomes.show.*
   - views.servers.lfg.show.title
-  - views.servers.lfg.show.description
   - views.servers.lfg.show.gate_message
   - views.servers.reminders.show.title
-  - views.servers.reminders.show.description
   - views.servers.reminders.show.badge
   - views.servers.moderation.show.title
-  - views.servers.moderation.show.description
   - views.servers.moderation.show.gate_message
   - views.servers.integrations.show.title
-  - views.servers.integrations.show.description
   - views.servers.integrations.show.gate_message
   - views.servers.twilight_struggle.show.title
-  - views.servers.twilight_struggle.show.description
   - views.servers.twilight_struggle.show.gate_message
   # 1. Components::TwilightStruggle::SettingCardBase subclasses
   - components.twilight_struggle.player_display_card.label

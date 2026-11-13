@@ -49,20 +49,24 @@ class PluginCatalog
   NEW_FOR = 30.days
 
   DEFINITIONS = [
-    Definition.new(key: :logging, name: "Logging", description: "Writes moderation actions to a log channel.", channel_setting: :logging_settings),
-    Definition.new(key: :roles, name: "Roles", description: "Self-assignable roles.", channel_setting: :role_setting),
-    Definition.new(key: :welcomes, name: "Welcomes", description: "Join and leave messages.", channel_setting: :welcome_settings),
-    Definition.new(key: :moderation, name: "Server Shield", description: "Your server's aegis: automated moderation beyond Discord's AutoMod.", requires_plugin: :logging, prerequisite: ->(c) { c.logging_settings&.channel_id.present? }),
-    Definition.new(key: :spam_protection, name: "Cross-Channel Spam Guard", description: "Detects the same message blasted across multiple channels within seconds and purges it before it spreads. Matching is fingerprint-based — message content is never stored.", parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
-    Definition.new(key: :image_scanning, name: "Scam Image Detection", description: "Reads the text inside posted images and checks it against known scam patterns and previously confirmed scam images. Staff confirm or dismiss every catch, and the bot remembers.", parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
-    Definition.new(key: :lfg, name: "Looking for Game", description: "Let members find people to play with both on the fly and scheduled in the future. Only shrkbot will ping, allowing you to turn off generally available role pings."),
-    Definition.new(key: :integrations, name: "Integrations", description: "Posts news from the platforms you follow, like Steam, in the channels you pick."),
+    Definition.new(key: :logging, name: "Logging", description: "Records what's happening on your server.", channel_setting: :logging_settings),
+    Definition.new(key: :roles, name: "Roles", description: "Let members give themselves roles from a menu.", channel_setting: :role_setting),
+    Definition.new(key: :welcomes, name: "Welcomes", description: "Greet new members and say goodbye when they leave.", channel_setting: :welcome_settings),
+    Definition.new(key: :moderation, name: "Server Shield", description: "Automated moderation that goes further than Discord's AutoMod.", requires_plugin: :logging, prerequisite: ->(c) { c.logging_settings&.channel_id.present? }),
+    Definition.new(key: :spam_protection, name: "Cross-Channel Spam Guard", description: "Detects messages spammed across multiple channels without storing message content.", parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
+    Definition.new(key: :image_scanning, name: "Scam Image Detection", description: "Reads the text inside posted images and checks it against known scam patterns and previously confirmed scam images.", parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
+    Definition.new(key: :lfg, name: "Looking for Game", description: "Let members find people to play with, on the fly or scheduled."),
+    Definition.new(key: :integrations, name: "Integrations", description: "Posts updates from other platforms to your server."),
     Definition.new(key: :steam, name: "Steam", description: "Posts new patch notes, announcements, and press coverage of the Steam games you follow.", parent: :integrations),
     Definition.new(key: :twitch, name: "Twitch", description: "Announces when the Twitch channels you follow go live, and posts their highlights, uploads, and clips.", parent: :integrations, beta: true),
-    Definition.new(key: :twilight_struggle, name: "Twilight Struggle", description: "Posts results from twilight-struggle.com as they are reported. Subscribe to a tournament, pick its channel, and write the message however you like.", bespoke: true)
+    Definition.new(key: :twilight_struggle, name: "Twilight Struggle", description: "Post results from twilight-struggle.com as they are reported.", bespoke: true)
   ].freeze
 
-  GLOBAL_KEYS = [:reminders].freeze
+  GLOBALS = [
+    Definition.new(key: :reminders, name: "Reminders", description: "Members set their own reminders with /remind. This plugin can't be disabled.")
+  ].freeze
+
+  GLOBAL_KEYS = GLOBALS.map(&:key).freeze
 
   def self.all
     DEFINITIONS
@@ -70,6 +74,10 @@ class PluginCatalog
 
   def self.find(key)
     DEFINITIONS.find { |definition| definition.key == key }
+  end
+
+  def self.description(key)
+    [*DEFINITIONS, *GLOBALS].find { |definition| definition.key == key }.description
   end
 
   def self.recently_added?(key)
