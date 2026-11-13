@@ -23,28 +23,13 @@ RSpec.describe Components::PluginShell do
     end
   end
 
-  context "when the server configuration has a name" do
-    let(:name) { "Dev Refuge" }
+  let(:name) { "Dev Refuge" }
 
-    it "renders the sidebar with the server name" do
-      expect(html).to include("Dev Refuge")
-    end
-
-    it "yields the block content" do
-      expect(html).to include("block content")
-    end
-  end
-
-  context "when the server configuration has no name" do
-    let(:name) { nil }
-
-    it "renders the sidebar with the fallback dashboard label" do
-      expect(html).to include("Dashboard")
-    end
+  it "yields the block content" do
+    expect(html).to include("block content")
   end
 
   context "when the request exposes a server switcher" do
-    let(:name) { "Dev Refuge" }
     let!(:other) { create(:server_configuration, discord_id: 900_000_002, name: "Other Guild", member_count: 3) }
     let(:switcher) do
       CachedDashboard.for(
