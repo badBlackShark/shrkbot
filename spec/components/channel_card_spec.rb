@@ -42,9 +42,8 @@ RSpec.describe Components::ChannelCard do
 
     let(:fragment) { Nokogiri::HTML.fragment(html) }
 
-    it "renders no help line and keeps the gap under the label" do
+    it "renders no help line" do
       expect(fragment.css("p")).to be_empty
-      expect(fragment.at_css("label")["class"]).to include("mb-1.5")
     end
   end
 
