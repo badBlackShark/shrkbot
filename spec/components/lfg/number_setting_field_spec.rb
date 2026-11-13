@@ -9,7 +9,7 @@ RSpec.describe Components::Lfg::NumberSettingField do
       value: 120,
       min: 0,
       max: 86_400,
-      default: "300 seconds, which is 5 minutes",
+      default: 300,
       unit: "seconds",
       label: "Cooldown",
       help: "How long a member must wait between posts."
@@ -24,7 +24,7 @@ RSpec.describe Components::Lfg::NumberSettingField do
     expect(html).to include('value="120"')
   end
 
-  it "explains the recommended default in human terms" do
-    expect(html).to include("300 seconds, which is 5 minutes")
+  it "offers a reset to its default" do
+    expect(html).to include("Reset to 300")
   end
 end
