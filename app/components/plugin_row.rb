@@ -36,7 +36,7 @@ class Components::PluginRow < Components::Base
           bespoke_badge if @row.bespoke
           render Components::PluginBadges.new(key: @row.key)
         end
-        p(class: "mt-0.5 text-sm leading-[1.5] text-pretty text-text-secondary") { t(".plugin.#{@row.key}.description") }
+        p(class: "mt-0.5 text-sm leading-[1.5] text-pretty text-text-secondary") { PluginCatalog.description(@row.key) }
       end
     end
   end

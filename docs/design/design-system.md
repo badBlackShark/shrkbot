@@ -140,8 +140,8 @@ shared `Components::PluginNav` mixin (plugin→icon and plugin→config-path, sh
 with `PluginRow` so the two can't drift) — with a status dot, an active highlight
 (`aria-current="page"`), and a back-to-dashboard link. It's `hidden md:block`
 (the breadcrumb covers navigation on narrow screens). Catalog plugins join the
-list automatically once they have config routes; Reminders isn't in the catalog
-(it has no activation to toggle) — `PluginCatalog::GLOBAL_KEYS` names it and
+list automatically once they have config routes; Reminders has no activation to toggle, so it sits in `PluginCatalog::GLOBALS`, outside
+`DEFINITIONS` — `PluginCatalog::GLOBAL_KEYS` names it and
 `PluginStatus.rows` appends it as a locked, always-enabled row, which both the
 dashboard and the sidebar render.
 With a plugin sidebar the footer renders inside the scrolling main pane, so a

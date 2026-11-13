@@ -77,10 +77,15 @@ source of plugin metadata. `db:seed` syncs the `Plugin` table from it.
 Definition.new(
   key: :welcomes,
   name: "Welcomes",
-  description: "Join and leave messages.",   # user-facing; reused on the website
+  description: "Greet new members and say goodbye when they leave.",
   channel_setting: :welcome_settings          # the assoc holding channel_id; nil if not channel-backed
 )
 ```
+
+`description` is the plugin's only description: the dashboard row, the config page header, the home
+page and the sub-plugin rows all read it, so no locale file carries a copy. A plugin with no activation to
+toggle (Reminders) goes in `PluginCatalog::GLOBALS` instead: `PluginCatalog.description` finds it, `all`
+and `find` do not.
 
 A `channel_setting` makes the plugin **channel-backed**: it can't be enabled until that
 channel is set. `Ops::ServerConfiguration::Plugins::Toggle` enforces this and a `PluginActivation` validation
