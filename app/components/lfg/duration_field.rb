@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-class Components::Lfg::NumberSettingField < Components::Base
-  def initialize(name:, value:, min:, max:, default:, unit:, label:, help:)
+class Components::Lfg::DurationField < Components::Base
+  def initialize(name:, value:, min:, max:, default:, base:, label:, help:)
     @name = name
     @value = value
     @min = min
     @max = max
     @default = default
-    @unit = unit
+    @base = base
     @label = label
     @help = help
   end
@@ -16,13 +16,13 @@ class Components::Lfg::NumberSettingField < Components::Base
     div do
       label(class: "block text-sm font-semibold") { @label }
       p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { @help }
-      render Components::NumberStepper.new(
+      render Components::DurationStepper.new(
         name: @name,
         value: @value,
         min: @min,
         max: @max,
         default: @default,
-        unit: @unit
+        base: @base
       )
     end
   end
