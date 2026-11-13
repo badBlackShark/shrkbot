@@ -14,7 +14,7 @@ module Ops
           setting = server_configuration.role_setting
           @old_default_channel_id = setting.channel_id
           setting.channel_id = channel_id.presence
-          result = save_with_activation(setting) { reconcile_sets(setting) }
+          result = save_with_activation(setting, publish_menu: false) { reconcile_sets(setting) }
           plan.publish if result.success?
           result
         rescue ActiveRecord::RecordInvalid => error

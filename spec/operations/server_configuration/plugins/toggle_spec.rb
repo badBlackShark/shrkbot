@@ -62,6 +62,21 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     end
   end
 
+  context "enabling logging with a channel assigned in memory but not saved" do
+    let(:plugin) { logging }
+    let(:enabled) { true }
+
+    before do
+      server.create_logging_settings!
+      server.logging_settings.channel_id = 999
+    end
+
+    it "succeeds on the submitted value" do
+      expect(result.success?).to be(true)
+      expect(server.plugin_activations.find_by(plugin:).reload.enabled).to be(true)
+    end
+  end
+
   context "enabling a sub-plugin while its parent is off" do
     let(:plugin) { create(:plugin, key: "steam", name: "Steam") }
     let(:enabled) { true }

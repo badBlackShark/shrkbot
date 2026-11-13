@@ -7,6 +7,7 @@ module Ops
         self.transactional = false
 
         receives :server_configuration, :plugin, :enabled
+        receives :publish_menu, default: true
 
         def call
           activation = find_or_build_activation
@@ -73,7 +74,7 @@ module Ops
           resume_feeds if activation.enabled?
           ActiveRecord.after_all_transactions_commit do
             Bot::ConfigBus.sync_commands(server_configuration)
-            publish_roles_menu(activation) if plugin.key == :roles
+            publish_roles_menu(activation) if publish_menu && plugin.key == :roles
           end
         end
 
