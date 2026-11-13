@@ -27,7 +27,7 @@ RSpec.describe "Bespoke plugins page", type: :request do
   it "links the example's site where the sentence names it" do
     bespoke_plugins
 
-    expect(response.body).to match(%r{Posts game results from <a href="https://twilight-struggle.com"[^>]*>twilight-struggle.com</a> to Discord})
+    expect(response.body).to match(%r{Posts game results from <a href="https://twilight-struggle\.com"[^>]*>twilight-struggle\.com</a> to Discord})
   end
 
   it "offers both contact routes" do
