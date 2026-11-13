@@ -22,7 +22,12 @@ RSpec.describe Components::Logging::ConfigForm do
     expect(html).to include("No channels have synced yet")
   end
 
-  it "wires the channel-warning Stimulus controller on the card" do
-    expect(html).to include('data-controller="channel-warning"')
+  describe "the public-channel warning" do
+    let(:warning) { Nokogiri::HTML5.fragment(html).at_css("[data-controller=live-warning]") }
+
+    it "watches the channel field for a public pick" do
+      expect(JSON.parse(warning["data-live-warning-fields-value"])).to eq(["logging[channel_id]"])
+      expect(warning["data-live-warning-rule-value"]).to eq("includes-any")
+    end
   end
 end
