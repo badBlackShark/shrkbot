@@ -168,7 +168,8 @@ renders a warning `Callout` that the `live-warning` Stimulus controller shows or
 `change` in the surrounding form. It takes the watched field names (`fields:`), a rule
 (`includes-any`: a picked value is in `list:`; `excludes-all`: something is picked and none of
 it is in `list:`; `exactly-one`: exactly one watched toggle is on), and `shown:`, the answer for
-the saved values so the first paint is right. Warnings about server state (a deleted channel, a
+the saved values so the first paint is right. The Ruby `shown:` and the JS rule must state the same
+predicate, so derive `shown:` from the same `list:` where possible. Warnings about server state (a deleted channel, a
 missing bot permission) stay plain `Callout`s.
 
 The header is a `Components::ConfigPageHeader` value: icon, title, description,

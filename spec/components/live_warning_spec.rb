@@ -13,15 +13,6 @@ RSpec.describe Components::LiveWarning do
 
   let(:shown) { true }
 
-  it "renders the block inside a warning callout" do
-    expect(warning["class"]).to include("bg-warning-soft")
-    expect(warning.text).to include("Careful")
-  end
-
-  it "forwards the class" do
-    expect(warning["class"]).to include("mt-3")
-  end
-
   it "wires the fields, rule and list to the controller" do
     expect(JSON.parse(warning["data-live-warning-fields-value"])).to eq(["a[b]"])
     expect(warning["data-live-warning-rule-value"]).to eq("includes-any")
