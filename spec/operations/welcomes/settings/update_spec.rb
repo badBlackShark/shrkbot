@@ -37,7 +37,7 @@ RSpec.describe Ops::Welcomes::Settings::Update do
 
     it "fails with an error on the enabled field and persists nothing" do
       expect(result).to be_failure
-      expect(result.value.errors[:enabled]).to be_present
+      expect(result.errors).to eq(["Welcomes can't be enabled until its required settings are configured."])
       expect(config.welcome_settings.reload.channel_id).to be_nil
       expect(config.plugin_activations.reload).to be_empty
     end

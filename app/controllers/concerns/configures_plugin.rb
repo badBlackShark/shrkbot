@@ -23,11 +23,8 @@ module ConfiguresPlugin
     )
   end
 
-  def respond_with_configuration(result, error_keys: [:enabled])
-    activation = result.value
-    @enabled = activation.enabled?
-    @enable_error = error_keys.filter_map { |key| activation.errors[key].first }.first
-    @enable_error ||= result.errors.to_sentence.presence if result.failure?
+  def respond_with_configuration(result)
+    @enable_error = result.errors.to_sentence.presence if result.failure?
     respond_with_save(result)
   end
 

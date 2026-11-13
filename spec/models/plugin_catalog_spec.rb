@@ -156,6 +156,16 @@ RSpec.describe PluginCatalog do
     end
   end
 
+  describe ".dependents_of" do
+    it "lists the plugins that require the logging plugin" do
+      expect(described_class.dependents_of(:logging).map(&:key)).to eq([:moderation])
+    end
+
+    it "lists a parent's sub-plugins" do
+      expect(described_class.dependents_of(:moderation).map(&:key)).to eq([:spam_protection, :image_scanning])
+    end
+  end
+
   describe ".sub_plugin?" do
     it "returns true for :spam_protection" do
       expect(described_class.sub_plugin?(:spam_protection)).to be(true)
@@ -245,7 +255,7 @@ RSpec.describe PluginCatalog do
 
     context "when not channel-backed" do
       it "has no prerequisites" do
-        expect(definition(channel_setting: nil).prerequisites_met?(Object.new)).to be(true)
+        expect(definition(channel_setting: nil).prerequisites_met?(double(enabled_plugin_keys: Set[]))).to be(true)
       end
     end
 
@@ -253,13 +263,13 @@ RSpec.describe PluginCatalog do
       subject(:check) { definition(channel_setting: :logging_settings).prerequisites_met?(config) }
 
       context "without a channel" do
-        let(:config) { double(logging_settings: nil) }
+        let(:config) { double(logging_settings: nil, enabled_plugin_keys: Set[]) }
 
         it { is_expected.to be(false) }
       end
 
       context "with a channel" do
-        let(:config) { double(logging_settings: double(channel_id: 5)) }
+        let(:config) { double(logging_settings: double(channel_id: 5), enabled_plugin_keys: Set[]) }
 
         it { is_expected.to be(true) }
       end
@@ -314,17 +324,45 @@ RSpec.describe PluginCatalog do
 
       context "when predicate returns false" do
         let(:predicate) { ->(_c) { false } }
-        let(:config) { double }
+        let(:config) { double(enabled_plugin_keys: Set[]) }
 
         it { is_expected.to be(false) }
       end
 
       context "when predicate returns true" do
         let(:predicate) { ->(_c) { true } }
-        let(:config) { double }
+        let(:config) { double(enabled_plugin_keys: Set[]) }
 
         it { is_expected.to be(true) }
       end
+    end
+  end
+
+  describe "Definition#blockers" do
+    subject(:blockers) { definition.blockers(config, enabled_keys: Set[]) }
+
+    let(:config) { create(:server_configuration) }
+    let(:definition) do
+      PluginCatalog::Definition.new(
+        key: :x,
+        name: "X",
+        description: "",
+        bespoke: true,
+        parent: :moderation,
+        requires_plugin: :logging,
+        channel_setting: :logging_settings,
+        prerequisite: ->(_c) { false }
+      )
+    end
+
+    it "lists every unmet reason in a fixed order" do
+      expect(blockers).to eq([:not_granted, :parent_disabled, :requires_plugin, :channel_missing, :prerequisite])
+    end
+
+    context "with a plain definition" do
+      let(:definition) { PluginCatalog::Definition.new(key: :x, name: "X", description: "") }
+
+      it { is_expected.to eq([]) }
     end
   end
 

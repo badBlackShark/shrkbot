@@ -24,39 +24,12 @@ RSpec.describe Ops::Moderation::Configure do
   context "when enabling without logging ready (no logging plugin enabled)" do
     it "fails with an error on the enabled field" do
       expect(result).to be_failure
-      expect(result.value.errors[:enabled]).to be_present
+      expect(result.errors).to eq(["Server Shield needs the Logging plugin on, with a log channel set."])
     end
 
     it "persists no activation" do
       result
       expect(config.plugin_activations.reload).to be_empty
-    end
-  end
-
-  context "when enabling with logging plugin enabled but no channel set" do
-    let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
-
-    before do
-      config.create_logging_settings!(channel_id: nil)
-      create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false).update_column(:enabled, true)
-    end
-
-    it "fails with an error on the enabled field" do
-      expect(result).to be_failure
-      expect(result.value.errors[:enabled]).to be_present
-    end
-  end
-
-  context "when enabling with logging plugin enabled but no logging setting record" do
-    let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
-
-    before do
-      create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false).update_column(:enabled, true)
-    end
-
-    it "fails with an error on the enabled field" do
-      expect(result).to be_failure
-      expect(result.value.errors[:enabled]).to be_present
     end
   end
 
@@ -107,16 +80,16 @@ RSpec.describe Ops::Moderation::Configure do
     let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
 
     before do
+      settings.update!(staff_role_id: 111_222_333)
       create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false).update_column(:enabled, true)
     end
 
-    it "fails with an error on staff_role_id" do
+    it "fails naming the sub-plugin" do
       expect(result).to be_failure
-      expect(result.value.errors[:staff_role_id]).to be_present
+      expect(result.errors).to eq(["Cross-Channel Spam Guard is on and depends on these settings. Turn Cross-Channel Spam Guard off first."])
     end
 
     it "does not save the cleared staff_role_id" do
-      settings.update!(staff_role_id: 111_222_333)
       result
       expect(config.moderation_settings.reload.staff_role_id).to eq(111_222_333)
     end
@@ -209,7 +182,7 @@ RSpec.describe Ops::Moderation::Configure do
 
     it "fails with an error on the field rather than raising" do
       expect(result).to be_failure
-      expect(result.value.errors[:new_account_age_days]).to be_present
+      expect(result.errors).to eq(["New account age days must be less than or equal to 365"])
     end
 
     it "persists nothing" do

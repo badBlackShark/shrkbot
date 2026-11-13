@@ -34,7 +34,7 @@ RSpec.describe Ops::Logging::Settings::Update do
 
     it "fails with an error on the enabled field and persists nothing" do
       expect(result).to be_failure
-      expect(result.value.errors[:enabled]).to be_present
+      expect(result.errors).to eq(["Logging can't be enabled until its required settings are configured."])
       expect(config.plugin_activations.reload).to be_empty
     end
   end
@@ -59,28 +59,13 @@ RSpec.describe Ops::Logging::Settings::Update do
       create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: true)
     end
 
-    context "when disabling logging" do
-      let(:enabled) { "0" }
-      let(:channel_id) { 200 }
-
-      it "fails with an error on enabled" do
-        expect(result).to be_failure
-        expect(result.value.errors[:enabled]).to be_present
-      end
-
-      it "leaves logging enabled" do
-        result
-        expect(config.plugin_activations.find_by(plugin:).enabled).to be(true)
-      end
-    end
-
     context "when clearing the logging channel while keeping enabled" do
       let(:enabled) { "1" }
       let(:channel_id) { "" }
 
-      it "fails with an error on enabled" do
+      it "fails and keeps the stored channel" do
         expect(result).to be_failure
-        expect(result.value.errors[:enabled]).to be_present
+        expect(settings.reload.channel_id).to eq(200)
       end
     end
   end

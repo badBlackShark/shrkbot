@@ -14,19 +14,11 @@ module Ops
           setting = server_configuration.role_setting
           @old_default_channel_id = setting.channel_id
           setting.channel_id = channel_id.presence
-          activation = staged_activation
-
-          return failure(messages(setting, activation), value: activation) unless setting.valid? && activation.valid?
-
-          transaction do
-            setting.save!
-            reconcile_sets(setting)
-            save_activation!(activation)
-          end
-          plan.publish
-          ok(activation)
+          result = save_with_activation(setting) { reconcile_sets(setting) }
+          plan.publish if result.success?
+          result
         rescue ActiveRecord::RecordInvalid => error
-          failure([error.record.errors.full_messages.to_sentence], value: activation)
+          failure([error.record.errors.full_messages.to_sentence])
         end
 
         private

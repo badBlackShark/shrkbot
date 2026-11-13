@@ -14,13 +14,18 @@ class PluginCatalog
       !channel_setting.nil?
     end
 
-    def prerequisites_met?(server_configuration, enabled_keys: nil)
-      return false unless granted?(server_configuration)
-      return false unless required_plugins_enabled?(server_configuration, enabled_keys)
-      return false unless channel_met?(server_configuration)
-      return false unless prerequisite.nil? || prerequisite.call(server_configuration)
+    def blockers(server_configuration, enabled_keys: server_configuration.enabled_plugin_keys)
+      [
+        (:not_granted unless granted?(server_configuration)),
+        (:parent_disabled unless enabled_or_none?(parent, enabled_keys)),
+        (:requires_plugin unless enabled_or_none?(requires_plugin, enabled_keys)),
+        (:channel_missing unless channel_met?(server_configuration)),
+        (:prerequisite unless prerequisite_met?(server_configuration))
+      ].compact
+    end
 
-      true
+    def prerequisites_met?(server_configuration, enabled_keys: server_configuration.enabled_plugin_keys)
+      blockers(server_configuration, enabled_keys:).empty?
     end
 
     private
@@ -31,12 +36,12 @@ class PluginCatalog
       ::BespokePluginGrant.exists?(server_configuration:, plugin_key: key)
     end
 
-    def required_plugins_enabled?(server_configuration, enabled_keys)
-      required = [requires_plugin, parent].compact
-      return true if required.empty?
+    def enabled_or_none?(required_key, enabled_keys)
+      required_key.nil? || enabled_keys.include?(required_key)
+    end
 
-      keys = enabled_keys || server_configuration.enabled_plugin_keys
-      required.all? { |key| keys.include?(key) }
+    def prerequisite_met?(server_configuration)
+      prerequisite.nil? || prerequisite.call(server_configuration)
     end
 
     def channel_met?(server_configuration)
@@ -86,6 +91,10 @@ class PluginCatalog
 
   def self.bespoke
     DEFINITIONS.select(&:bespoke)
+  end
+
+  def self.dependents_of(key)
+    all.select { |definition| definition.requires_plugin == key || definition.parent == key }
   end
 
   def self.visible_for(server_configuration)

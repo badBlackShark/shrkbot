@@ -5,7 +5,6 @@ module Ops
     module SpamProtection
       class Configure < ApplicationOperation
         include Ops::PluginConfiguration
-        include Ops::Moderation::SubPluginConfiguration
 
         receives :server_configuration,
           :channel_threshold,
@@ -28,14 +27,7 @@ module Ops
             punishment:,
             timeout_seconds:
           )
-          activation = staged_activation
-
-          return staff_role_guard_failure(activation) if enabling? && staff_role_missing?
-          return failure(messages(settings, activation), value: activation) unless settings.valid? && activation.valid?
-
-          settings.save!
-          save_activation!(activation)
-          ok(activation)
+          save_with_activation(settings)
         end
 
         private

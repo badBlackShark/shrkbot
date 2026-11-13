@@ -10,13 +10,6 @@ en:
           twitch: This server follows %{max} channels, the most it can. Stop following
             one to add another.
         no_event_types: Turn on at least one type of post.
-    logging:
-      moderation_dependency: can't be turned off or lose its channel while Server
-        Shield is enabled
-    moderation:
-      logging_required: requires the Logging plugin enabled with a log channel set
-      staff_role_in_use: A staff role is required while a sub-plugin is enabled.
-      staff_role_required: requires a staff role set on the Server Shield overview
     plugin_activation:
       requires_settings: requires the plugin's settings to be configured first
     reminders:
@@ -31,9 +24,18 @@ en:
         preview_protected: Could not delete this server - it is a preview, not a real
           Discord guild.
       plugins:
+        requires:
+          image_scanning: "%{plugin} needs a staff role. Set one on the Server Shield
+            overview."
+          moderation: Server Shield needs the Logging plugin on, with a log channel
+            set.
+          spam_protection: "%{plugin} needs a staff role. Set one on the Server Shield
+            overview."
         requires_parent: "%{plugin} is part of %{parent}. Turn %{parent} on first."
         requires_settings: "%{plugin} can't be enabled until its required settings
           are configured."
+        still_needed: "%{dependent} is on and depends on these settings. Turn %{dependent}
+          off first."
     twilight_struggle:
       destinations:
         post_delay_invalid: Posting delay must be a whole number of minutes between

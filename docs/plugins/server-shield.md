@@ -8,8 +8,9 @@ logging plugin and a configured log channel) plus two sub-plugins,
 `spam_protection` (Cross-Channel Spam Guard) and `image_scanning` (Scam Image
 Detection). Both sub-plugins additionally require a staff role to be configured.
 The relationships are declared on the `PluginCatalog::Definition`s (`parent`,
-`requires_plugin`, `prerequisite`), so every enable path — the generic toggle, the
-sidebar UI, and the Configure operations — agrees. See
+`requires_plugin`, `prerequisite`), and `Ops::ServerConfiguration::Plugins::Toggle`, the
+one path that changes an activation, enforces them in both directions: Logging cannot
+turn off and the staff role cannot be cleared while something depends on them. See
 [Plugins](overview.md) for the catalog model and
 [Design system](../design/design-system.md) § Plugin groups for the UI shell.
 

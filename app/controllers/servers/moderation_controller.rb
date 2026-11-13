@@ -25,7 +25,7 @@ class Servers::ModerationController < ApplicationController
       ping_staff: moderation_params[:ping_staff],
       new_account_age_days: moderation_params[:new_account_age_days]
     )
-    respond_with_configuration(result, error_keys: [:enabled, :staff_role_id, :new_account_age_days])
+    respond_with_configuration(result)
   end
 
   private

@@ -28,10 +28,7 @@ class Servers::LfgController < ApplicationController
       allowed_channel_ids: Array(lfg_params[:allowed_channel_ids]),
       pingable_roles: submitted_pingable_roles
     )
-    respond_with_configuration(
-      result,
-      error_keys: [:enabled, :cooldown_seconds, :post_lifetime_minutes, :default_min_membership_days]
-    )
+    respond_with_configuration(result)
   end
 
   private
