@@ -78,11 +78,11 @@ RSpec.describe Components::PluginRow do
     let(:bespoke) { true }
 
     it "marks it with a badge" do
-      expect(html).to include(I18n.t("components.plugin_row.bespoke"))
+      expect(html).to include(I18n.t("components.bespoke_badge.label"))
     end
   end
 
   it "leaves the badge off a plugin every server can have" do
-    expect(html).not_to include(I18n.t("components.plugin_row.bespoke"))
+    expect(html).not_to include(I18n.t("components.bespoke_badge.label"))
   end
 end

@@ -220,6 +220,8 @@ duplicated class strings:
   neither applies. New rolls up to a parent from a new sub-plugin; Beta does not.
   **`Components::NewSparkle`** is the sidebar's icon-only New marker, with
   screen-reader text, on an item and on a group's own line.
+- **`Components::BespokeBadge`** — the copper Bespoke pill (filled puzzle-piece icon)
+  on a bespoke plugin's dashboard row and on the bespoke plugins page.
 - **`Components::PluginTile`** — the chamfered identity tile (icon on teal when
   `enabled:`, muted sand otherwise). `size:` (`:sm`/`:md`/`:lg`).
 - **`Components::Callout`** — tinted bordered notice. `variant:` (`:info`/

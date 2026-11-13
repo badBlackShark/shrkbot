@@ -49,6 +49,8 @@ en:
       plugins_on:
         one: "%{count} plugin on"
         other: "%{count} plugins on"
+    bespoke_badge:
+      label: Bespoke
     bespoke_plugins_link:
       label: Bespoke Plugins
     channel_card:
@@ -746,7 +748,6 @@ en:
       new: New
     plugin_row:
       admin_only: Only a server admin can switch this plugin on or off.
-      bespoke: Bespoke
       configure: Configure
       needs_setup_hint: Complete setup before enabling this plugin.
       not_manageable: You can't configure this plugin on this server.
@@ -1120,37 +1121,21 @@ en:
           title: Owner settings
     bespoke_plugins:
       ask_in_server: Ask me on Discord
-      cost_body: I offer shrkbot for free and for everyone, but I might charge a little
-        fee for custom work that's only for you. Smaller things, and features everyone
-        would get, are usually free, and I'll do my best to keep prices affordable.
-      cost_eyebrow: What it costs
-      example_body: Game results posted on twilight-struggle.com get posted straight
-        to Discord, in whichever servers, channels, and message formats each server
-        picks.
-      example_eyebrow: One that already exists
+      cost_body: Small things, and anything every server would get, are usually free.
+        For bigger custom work I charge a small fee. Running it afterwards is free,
+        unless it needs a paid API.
+      cost_heading: What it costs
+      example_body_link: twilight-struggle.com
+      example_body_post: " to Discord, in the channel and format each server picks."
+      example_body_pre: 'Posts game results from '
+      example_heading: An example
       example_url: https://twilight-struggle.com
-      eyebrow: Bespoke plugins
-      headline: can do it all, even if it's only for you
-      lede: If you're enjoying the general usefulness of shrkbot but have an idea
-        that needs custom work - or you plain don't want another bot in your ecosystem
-        - I can build a bespoke plugin just for you. No other server will ever see
-        it exists, but for you it lives right alongside the functionality you know
-        and love.
-      steps:
-        build:
-          body: It gets built and tested like everything else in shrkbot, and switched
-            on for your server alone.
-          title: I build it
-        run:
-          body: Keeping your feature running is free, barring external API costs.
-            If you want more functionality down the line, we can talk about it again
-            :)
-          title: I ship and maintain it
-        talk:
-          body: Let me know what your general idea is, and we'll figure out together
-            if and how shrkbot can work for you.
-          title: Talk to me!
-      steps_eyebrow: How it works
+      idea: Tell me your idea and I'll tell you if it fits. If it does, I build it,
+        switch it on for your server, and keep it running.
+      lede: Need something shrkbot doesn't do, or don't want another bot on your server?
+        I can build it as a plugin that only your server gets. It sits in your dashboard
+        next to the regular plugins, and no other server sees it.
+      title: Bespoke plugins
       write: Email me
     home:
       add_to_server: Sign in to add shrkbot to your servers
