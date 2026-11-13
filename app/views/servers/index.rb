@@ -112,7 +112,7 @@ class Views::Servers::Index < Views::Base
   end
 
   def error_banner
-    div(class: "mb-6 rounded-md border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning") { t(".error") }
+    div(class: "mb-6 rounded-md border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning-text") { t(".error") }
   end
 
   def generic_invite_url

@@ -37,6 +37,6 @@ class Components::ChannelCard < Components::Base
   private
 
   def required_marker
-    span(class: "ml-1 text-xs font-semibold text-danger", title: t(".required")) { "*" }
+    span(class: "ml-1 text-xs font-semibold text-danger-text", title: t(".required")) { "*" }
   end
 end

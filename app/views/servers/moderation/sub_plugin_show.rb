@@ -26,7 +26,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
 
     render Components::Callout.new(variant: :warning) do
       span do
-        b(class: "text-warning") { t(".no_role_callout_lead") }
+        b(class: "text-warning-text") { t(".no_role_callout_lead") }
         plain " "
         plain t(".no_role_callout_body")
         plain " "

@@ -42,9 +42,14 @@
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
   --color-warning-soft-bd: var(--warning-soft-bd);
+  --color-warning-text: var(--warning-text);
+  --color-success-text: var(--success-text);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-danger-soft-bd: var(--danger-soft-bd);
+  --color-danger-text: var(--danger-text);
+  --color-danger-fill: var(--danger-fill);
+  --color-danger-fill-hover: var(--danger-fill-hover);
   --color-success-solid: var(--success-solid);
   --color-danger-solid: var(--danger-solid);
 

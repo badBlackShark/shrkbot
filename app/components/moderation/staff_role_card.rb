@@ -15,7 +15,7 @@ class Components::Moderation::StaffRoleCard < Components::Base
     render Components::Card.new do
       render Components::FieldLabel.new do
         plain t(".label")
-        span(class: "ml-1 text-xs font-semibold text-danger") { "*" }
+        span(class: "ml-1 text-xs font-semibold text-danger-text") { "*" }
       end
       render Components::TomSelect.new(
         name: "moderation[staff_role_id]",
@@ -54,7 +54,7 @@ class Components::Moderation::StaffRoleCard < Components::Base
   end
 
   def missing_warning
-    p(class: "mt-1.5 flex items-center gap-1 text-xs font-medium text-warning") do
+    p(class: "mt-1.5 flex items-center gap-1 text-xs font-medium text-warning-text") do
       render Components::Icon.new("warning", class: "size-3.5")
       span { t(".missing_warning") }
     end
@@ -65,7 +65,7 @@ class Components::Moderation::StaffRoleCard < Components::Base
       render Components::Callout.new(variant: :warning) do
         plain ""
         span do
-          b(class: "text-warning") { bold }
+          b(class: "text-warning-text") { bold }
           whitespace
           plain body
         end

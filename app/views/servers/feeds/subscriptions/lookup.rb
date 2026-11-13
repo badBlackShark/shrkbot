@@ -55,7 +55,7 @@ class Views::Servers::Feeds::Subscriptions::Lookup < Views::Base
     if @existing
       existing_message
     elsif @error
-      p(id: ERROR_ID, class: "text-sm text-danger") { t(".#{@plugin_key}.errors.#{@error}") }
+      p(id: ERROR_ID, class: "text-sm text-danger-text") { t(".#{@plugin_key}.errors.#{@error}") }
     end
   end
 
