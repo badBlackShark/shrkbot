@@ -64,9 +64,12 @@ ignore_unused:
   - views.servers.steam.show.title
   - views.servers.twitch.show.title
   # 1. Views::Servers::PluginConfigShow subclasses
-  - views.servers.logging.show.*
-  - views.servers.roles.show.*
-  - views.servers.welcomes.show.*
+  - views.servers.logging.show.title
+  - views.servers.logging.show.gate_message
+  - views.servers.roles.show.title
+  - views.servers.roles.show.gate_message
+  - views.servers.welcomes.show.title
+  - views.servers.welcomes.show.gate_message
   - views.servers.lfg.show.title
   - views.servers.lfg.show.gate_message
   - views.servers.reminders.show.title

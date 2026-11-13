@@ -8,6 +8,10 @@ RSpec.describe PluginCatalog do
       expect(described_class.all).to eq(PluginCatalog::DEFINITIONS)
     end
 
+    it "excludes the global reminders plugin" do
+      expect(described_class.all.map(&:key)).not_to include(:reminders)
+    end
+
     it "has a sidebar name translation for every top-level plugin" do
       top_level = described_class.all.reject { |definition| described_class.sub_plugin?(definition.key) }
       top_level.each do |definition|
