@@ -44,7 +44,7 @@ RSpec.describe "Image scanning config", type: :request do
 
           it "renders the sensitivity options and consent callout" do
             get server_image_scanning_path(guild.id)
-            expect(response.body).to include("Before you turn this on")
+            expect(response.body).to include("Detection can be wrong")
             expect(response.body).to include("Relaxed")
             expect(response.body).to include("Standard")
             expect(response.body).to include("Strict")

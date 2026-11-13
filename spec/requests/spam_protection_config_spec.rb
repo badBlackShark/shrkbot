@@ -44,7 +44,7 @@ RSpec.describe "Spam protection config", type: :request do
 
           it "renders the detection and response controls" do
             get server_spam_protection_path(guild.id)
-            expect(response.body).to include("Trigger threshold")
+            expect(response.body).to include("Act when the same message appears in")
             expect(response.body).to include("Match strictness")
             expect(response.body).to include("When spam is detected")
           end

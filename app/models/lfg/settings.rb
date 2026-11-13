@@ -21,5 +21,9 @@ module Lfg
       numericality: {only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 3_650},
       allow_nil: true
     limits_snowflake_arrays :default_required_role_ids, :default_excluded_role_ids, :allowed_channel_ids
+
+    def default_min_membership_days_or_zero
+      default_min_membership_days.to_i
+    end
   end
 end

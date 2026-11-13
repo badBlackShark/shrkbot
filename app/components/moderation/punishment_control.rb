@@ -34,7 +34,6 @@ class Components::Moderation::PunishmentControl < Components::Base
         ]
       )
       duration_block
-      ban_warning
     end
   end
 
@@ -54,20 +53,6 @@ class Components::Moderation::PunishmentControl < Components::Base
         options: duration_options,
         selected: @timeout_seconds
       )
-      render Components::FieldHelp.new do
-        t("components.moderation.punishment_control.duration_help")
-      end
-    end
-  end
-
-  def ban_warning
-    div(
-      data: {punishment_target: "banWarning"},
-      hidden: @value != "ban"
-    ) do
-      render Components::Callout.new(variant: :danger, class: "mt-3") do
-        t("components.moderation.punishment_control.ban_warning")
-      end
     end
   end
 

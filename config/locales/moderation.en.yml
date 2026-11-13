@@ -71,10 +71,10 @@ en:
         reversed_ban: Unbanned %{user}.
         reversed_timeout: Timeout cleared for %{user}.
     punishment_note:
-      ban: User was banned.
-      kick: User was kicked.
+      ban: The member was banned.
+      kick: The member was kicked.
       none: No further action was taken.
-      timeout: User was timed out until %{until}.
+      timeout: The member was timed out until %{until}.
     spam_protection:
       notification:
         body: "%{author} posted the same message in %{count} channels within %{window}
@@ -87,10 +87,10 @@ en:
           meta: Deleted as part of the incident above.
           title: Cross-channel spam follow-up removed
         meta:
-          notify_only: Notify-only - no messages were deleted.
+          notify_only: This is only an alert, no messages were deleted.
           purge: Messages were deleted.
         title:
           notify_only: Cross-channel spam detected
-          purge: Cross-channel spam purged
+          purge: Cross-channel spam deleted
       punishment:
         reason: Cross-channel spam

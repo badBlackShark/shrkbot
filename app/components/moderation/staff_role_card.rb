@@ -3,10 +3,9 @@
 class Components::Moderation::StaffRoleCard < Components::Base
   DEFAULT_COLOR = "#99aab5"
 
-  def initialize(server_configuration:, staff_role_id:, missing:, permission_warning:, staff_permission_warning:)
+  def initialize(server_configuration:, staff_role_id:, permission_warning:, staff_permission_warning:)
     @config = server_configuration
     @staff_role_id = staff_role_id
-    @missing = missing
     @permission_warning = permission_warning
     @staff_permission_warning = staff_permission_warning
   end
@@ -28,8 +27,7 @@ class Components::Moderation::StaffRoleCard < Components::Base
           tom_select_placeholder_value: t(".placeholder")
         }
       )
-      missing_warning if @missing
-      render Components::FieldHelp.new { t(".help") } unless @missing
+      render Components::FieldHelp.new { t(".help") }
       warning_callout(t(".permission_warning_bold"), t(".permission_warning_body")) if @permission_warning
       warning_callout(t(".staff_permission_warning_bold"), t(".staff_permission_warning_body")) if @staff_permission_warning
     end
@@ -51,13 +49,6 @@ class Components::Moderation::StaffRoleCard < Components::Base
     return DEFAULT_COLOR if color.zero?
 
     "#%06x" % (color & 0xFFFFFF)
-  end
-
-  def missing_warning
-    p(class: "mt-1.5 flex items-center gap-1 text-xs font-medium text-warning") do
-      render Components::Icon.new("warning", class: "size-3.5")
-      span { t(".missing_warning") }
-    end
   end
 
   def warning_callout(bold, body)

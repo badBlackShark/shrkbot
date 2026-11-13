@@ -186,7 +186,7 @@ it is off. In the sidebar every parent with sub-plugins renders as
 **`Components::SidebarGroup`**: a native `<details>` disclosure (persisted per user,
 auto-expanded on an active child) whose parent row is a chevron toggle and whose
 sub-items are plain nav links on an indent rail. The parent's overview lists the
-sub-plugins with `Components::SubPluginDirectory` and `Components::SubPluginRow`;
+sub-plugins with `Components::SubPluginDirectory` (its heading comes from `sub_plugin_directory.eyebrow.<parent>`) and `Components::SubPluginRow`;
 the row's `toggle_fields` (input name => value, arrays as one input per element)
 render as hidden inputs so its toggle submits the sub-plugin's full form, through
 the stub forms `Components::SubPluginToggleForms` renders after the page's own form

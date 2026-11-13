@@ -22,7 +22,6 @@ class Components::Logging::ConfigForm < Components::Base
       channels:,
       selected: @settings.channel_id,
       label: t(".channel.label"),
-      help: t(".channel.help"),
       required: true,
       data: {
         controller: "channel-warning",
@@ -36,7 +35,6 @@ class Components::Logging::ConfigForm < Components::Base
     render Components::Card.new(padding: :none, class: "overflow-hidden") do
       div(class: "border-b border-border-subtle px-5 py-4") do
         p(class: "text-sm font-semibold") { t(".events.label") }
-        p(class: "mt-0.5 text-sm text-text-secondary") { t(".events.help") }
       end
       LoggableEventCatalog.grouped_by_plugin.each do |plugin, definitions|
         event_group(plugin, definitions)
@@ -69,9 +67,9 @@ class Components::Logging::ConfigForm < Components::Base
 
   def event_count(enabled, total)
     span(class: "ml-auto whitespace-nowrap text-xs text-text-muted") do
-      span(data: {event_group_target: "count"}) { "#{enabled}/#{total}" }
+      span(data: {event_group_target: "count"}) { enabled.to_s }
       whitespace
-      plain t(".events.enabled_count")
+      plain t(".events.enabled_count", total:)
     end
   end
 

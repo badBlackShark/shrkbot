@@ -24,11 +24,10 @@ RSpec.describe "Reminders config", type: :request do
       end
 
       describe "GET /servers/:server_id/reminders" do
-        it "renders the config page with the force-DM toggle and callout" do
+        it "renders the config page with the force-DM toggle" do
           get server_reminders_path(guild.id)
           expect(response).to have_http_status(:ok)
-          expect(response.body).to include("Force reminder delivery via DM")
-          expect(response.body).to include("/remind")
+          expect(response.body).to include("Always send reminders by DM")
         end
 
         it "describes the plugin in the header with its catalog text" do

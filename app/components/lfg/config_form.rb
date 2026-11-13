@@ -18,7 +18,11 @@ class Components::Lfg::ConfigForm < Components::Base
   private
 
   def card_context
-    @card_context ||= Components::Lfg::PingableRoleFormContext.new(role_options:, channels:)
+    @card_context ||= Components::Lfg::PingableRoleFormContext.new(
+      role_options:,
+      channels:,
+      default_min_membership_days: @settings.default_min_membership_days_or_zero
+    )
   end
 
   def role_options

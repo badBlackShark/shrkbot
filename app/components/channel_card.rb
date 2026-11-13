@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Components::ChannelCard < Components::Base
-  def initialize(name:, channels:, selected:, label:, help:, required: false, **attrs)
+  def initialize(name:, channels:, selected:, label:, help: nil, required: false, **attrs)
     @name = name
     @channels = channels
     @selected = selected
@@ -13,11 +13,11 @@ class Components::ChannelCard < Components::Base
 
   def view_template(&block)
     render Components::Card.new(**@attrs) do
-      label(class: "block text-sm font-semibold") do
+      label(class: label_class) do
         plain @label
         required_marker if @required
       end
-      p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { @help }
+      p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { @help } if @help
       if @channels.empty?
         p(class: "text-sm text-text-secondary") { t(".none") }
       else
@@ -35,6 +35,10 @@ class Components::ChannelCard < Components::Base
   end
 
   private
+
+  def label_class
+    @help ? "block text-sm font-semibold" : "mb-1.5 block text-sm font-semibold"
+  end
 
   def required_marker
     span(class: "ml-1 text-xs font-semibold text-danger", title: t(".required")) { "*" }

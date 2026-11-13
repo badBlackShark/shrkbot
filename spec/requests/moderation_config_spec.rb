@@ -47,9 +47,9 @@ RSpec.describe "Moderation config", type: :request do
             expect(response.body).to include("Server Shield")
           end
 
-          it "renders the sub-plugin directory" do
+          it "lists the protections" do
             get server_moderation_path(guild.id)
-            expect(response.body).to include("Sub-plugins")
+            expect(response.body).to include("Protections")
             expect(response.body).to include("Cross-Channel Spam Guard")
             expect(response.body).to include("Scam Image Detection")
           end
@@ -75,9 +75,12 @@ RSpec.describe "Moderation config", type: :request do
               create(:server_channel, server_configuration: config, discord_id: 111, name: "mod-log")
             end
 
-            it "renders the logging subline with the channel name" do
+            it "renders the logging subline with the channel name and a link to change it" do
               get server_moderation_path(guild.id)
-              expect(response.body).to include("#mod-log")
+              subline = Nokogiri::HTML(response.body).css("p").find { |paragraph| paragraph.text.include?("#mod-log") }
+              link = subline.at_css("a")
+              expect(link["href"]).to eq(server_logging_path(guild.id))
+              expect(link.text).to eq("Logging")
             end
           end
         end
@@ -100,7 +103,7 @@ RSpec.describe "Moderation config", type: :request do
           it "renders the page with the prereq gate" do
             get server_moderation_path(guild.id)
             expect(response).to have_http_status(:ok)
-            expect(response.body).to include("Moderation needs the Logging plugin")
+            expect(response.body).to include("Server Shield needs the Logging plugin")
             expect(response.body).to include("Set up Logging")
           end
         end

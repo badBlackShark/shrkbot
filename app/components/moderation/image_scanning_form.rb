@@ -131,7 +131,6 @@ class Components::Moderation::ImageScanningForm < Components::Base
           {value: "none", label: t(".response.action.flag_only")}
         ]
       )
-      render Components::FieldHelp.new { t(".response.action.help") }
     end
   end
 
@@ -155,7 +154,6 @@ class Components::Moderation::ImageScanningForm < Components::Base
         timeout_seconds: @settings.confirmed_timeout_seconds,
         none_label: t(".response.confirmed_punishment.inherit")
       )
-      render Components::FieldHelp.new { t(".response.confirmed_punishment.help") }
     end
   end
 

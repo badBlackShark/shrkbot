@@ -27,7 +27,7 @@ class Views::Accounts::Show < Views::Base
         div do
           p(class: "font-semibold") { @user.display_name }
           p(class: "text-sm text-text-secondary") { @user.username }
-          p(class: "text-sm text-text-secondary") { @user.discord_id.to_s }
+          p(class: "text-sm text-text-secondary") { t(".discord_id", id: @user.discord_id) }
         end
       end
       p(class: "text-sm text-text-secondary") { t(".reminders", count: @reminder_count) }
@@ -36,8 +36,7 @@ class Views::Accounts::Show < Views::Base
 
   def danger_card
     render Components::Card.new do
-      h2(class: "mb-2 font-semibold") { t(".danger_title") }
-      p(class: "mb-4 text-sm text-text-secondary") { t(".danger_body") }
+      h2(class: "mb-4 font-semibold") { t(".danger_title") }
       button_to(
         account_path,
         method: :delete,

@@ -61,7 +61,7 @@ class Components::Roles::RoleSetCard < Components::Base
 
     render Components::IconButton.new(
       icon: "arrows-clockwise",
-      label: t(".resync"),
+      label: t(".repost"),
       tone: :accent,
       data: {
         action: "role-sets#repost",
@@ -116,7 +116,7 @@ class Components::Roles::RoleSetCard < Components::Base
         name: field(:channel_override),
         options: @context.channels,
         selected: @data.channel_override,
-        placeholder: t(".channel.placeholder", channel: default_channel_label),
+        placeholder: t(".channel.placeholder"),
         include_blank: true
       )
     end
@@ -131,16 +131,14 @@ class Components::Roles::RoleSetCard < Components::Base
         selected: @data.selected_role_ids,
         placeholder: t(".roles.placeholder")
       )
-      unassignable_callout
+      unassignable_help
     end
   end
 
-  def unassignable_callout
+  def unassignable_help
     return unless @context.any_unassignable
 
-    div(class: "mt-2.5") do
-      render Components::Callout.new(variant: :warning) { t(".roles.unassignable") }
-    end
+    render Components::FieldHelp.new { t(".roles.unassignable") }
   end
 
   def subtitle
@@ -151,9 +149,5 @@ class Components::Roles::RoleSetCard < Components::Base
 
   def channel_label
     @context.channels_by_id[(@data.channel_override || @context.default_channel_id).to_i]
-  end
-
-  def default_channel_label
-    @context.channels_by_id[@context.default_channel_id.to_i] || t(".channel.no_default")
   end
 end

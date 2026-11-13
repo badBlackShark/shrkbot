@@ -14,7 +14,7 @@ RSpec.describe Components::Feeds::Twitch::SwitchedAwayField do
 
   it "offers both modes in order" do
     expect(document.css("button[data-segmented-target=option]").map { |button| [button["data-value"], button.text] }).to eq(
-      [["summary", "Show it switched"], ["delete", "Delete it"]]
+      [["summary", "Show the switch"], ["delete", "Delete the post"]]
     )
   end
 
@@ -26,12 +26,11 @@ RSpec.describe Components::Feeds::Twitch::SwitchedAwayField do
   end
 
   it "shows only the selected mode's panel" do
-    expect(panels.transform_values { |panel| panel.key?("hidden") }).to eq("summary" => true, "delete" => false)
+    expect(panels.transform_values { |panel| panel.key?("hidden") }).to eq("summary" => true)
   end
 
-  it "previews the switched card for the summary only" do
+  it "previews the switched card and renders no panel for delete" do
     expect(panels["summary"].text).to include("Preview", "Switched to Just Chatting")
-    expect(panels["delete"].text).to include("posts it again, without a ping")
-    expect(panels["delete"].text).not_to include("Preview")
+    expect(panels).not_to have_key("delete")
   end
 end

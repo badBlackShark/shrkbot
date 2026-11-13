@@ -12,7 +12,7 @@ class Views::Servers::Index < Views::Base
   def view_template
     render Components::AppShell.new(user: @user) do
       div(class: "mx-auto max-w-4xl px-6 py-10") do
-        render Components::PageHeading.new(title: t(".title"), subtitle: t(".subtitle"))
+        render Components::PageHeading.new(title: t(".title"))
         error_banner if @error
 
         if @present.empty? && @absent.empty?
@@ -83,13 +83,9 @@ class Views::Servers::Index < Views::Base
   end
 
   def missing_server_prompt
-    render Components::Card.new(dashed: true, padding: :lg, class: "mt-8 text-center") do
-      p(class: "text-sm font-semibold") { t(".missing_title") }
-      p(class: "mx-auto mt-1 max-w-md text-sm text-text-secondary") { t(".missing_body") }
-      div(class: "mt-4 flex flex-wrap justify-center gap-3") do
-        invite_button(generic_invite_url)
-        preview_button
-      end
+    div(class: "mt-8 flex flex-col items-center gap-3 text-center") do
+      p(class: "text-sm text-text-secondary") { t(".missing") }
+      preview_button
     end
   end
 

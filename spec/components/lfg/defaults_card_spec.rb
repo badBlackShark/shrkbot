@@ -11,15 +11,24 @@ RSpec.describe Components::Lfg::DefaultsCard do
   let(:role_options) { [Components::TomSelect::Option.for(value: 222, label: "Member")] }
   let(:channels) { [] }
 
-  it "renders the required and excluded role selects" do
-    expect(html).to include("Required roles")
-    expect(html).to include("Excluded roles")
+  it "renders the who-can-post and who-can't-post role selects" do
+    expect(html).to include("Who can post")
+    expect(html).to include(CGI.escapeHTML("Who can't post"))
     expect(html).to include(">Member<")
   end
 
   it "renders the min-days input with its stored value" do
     expect(html).to include('name="lfg[default_min_membership_days]"')
     expect(html).to include('value="5"')
+  end
+
+  context "when no minimum is stored" do
+    let(:settings) { create(:lfg_settings, server_configuration: config, default_min_membership_days: nil) }
+
+    it "shows 0 days" do
+      input = Nokogiri::HTML.fragment(html).at_css("input[name='lfg[default_min_membership_days]']")
+      expect(input["value"]).to eq("0")
+    end
   end
 
   it "fuses the channels, cooldown, and lifetime settings into the card" do

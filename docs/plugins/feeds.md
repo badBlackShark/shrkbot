@@ -138,7 +138,7 @@ are no preview routes for these pages.
   for every type, a volume warning on All clips, the 48-hour note on Featured clips, the
   viewer toggle above Live's text fields and the end mode below them. The end mode and
   the switched-away choice are `Twitch::ModeField` subclasses: a `SegmentedControl` over
-  one `Twitch::ModePanel` per mode; the generic `option-panels` controller shows the
+  one `Twitch::ModePanel` per mode that has a preview card (Delete has none); the generic `option-panels` controller shows the
   panel matching the control's value (`lib/option_panels.js`).
 - **Twitch categories card.** `Twitch::CategoriesCard` (after "What to post") holds the
   category filter and `Twitch::SwitchedAwayField`. The filter is a multiple `TomSelect`
