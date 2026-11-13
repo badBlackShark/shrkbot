@@ -8,6 +8,7 @@ RSpec.describe Components::NumberStepper do
   subject(:html) { described_class.new(**options).render_in(view_context) }
 
   let(:options) { {name: "spam_protection[channel_threshold]", value: 4, min: 2, default: 4, unit: "channels"} }
+  let(:fragment) { Nokogiri::HTML5.fragment(html) }
 
   it "renders a number input with the correct name and value" do
     expect(html).to include('name="spam_protection[channel_threshold]"')
@@ -31,8 +32,6 @@ RSpec.describe Components::NumberStepper do
   it "renders the unit label when provided" do
     expect(html).to include("channels")
   end
-
-  let(:fragment) { Nokogiri::HTML5.fragment(html) }
 
   context "when the value equals the default" do
     it "renders the reset hidden so it does not flash" do
