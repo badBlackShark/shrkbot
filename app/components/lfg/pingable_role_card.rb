@@ -58,7 +58,10 @@ class Components::Lfg::PingableRoleCard < Components::Base
 
   def role_field
     div do
-      render Components::FieldLabel.new { t(".role.label") }
+      render Components::FieldLabel.new do
+        plain t(".role.label")
+        render Components::RequiredMarker.new
+      end
       render Components::TomSelect.new(
         name: field(:role_id),
         options: @context.role_options,

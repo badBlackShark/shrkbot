@@ -10,7 +10,7 @@ RSpec.describe Components::Feeds::RoleField do
   let(:subscription) { build(:feed_subscription, :twitch) }
 
   it "renders a single-choice role select under the given name, with a no-ping placeholder" do
-    expect(html).to include("Role to ping (optional)", 'name="subscription[live_role_id]"', "No ping")
+    expect(html).to include("Role to ping", 'name="subscription[live_role_id]"', "No ping")
     expect(html).not_to include("multiple")
   end
 

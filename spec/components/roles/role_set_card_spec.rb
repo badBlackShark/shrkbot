@@ -60,5 +60,16 @@ RSpec.describe Components::Roles::RoleSetCard do
     it "omits the repost button" do
       expect(html).not_to include('data-action="role-sets#repost"')
     end
+
+    it "marks the set name required" do
+      label = Nokogiri::HTML5.fragment(html).css("label").find { |node| node.text.include?("Set name") }
+      expect(label.at_css("span.text-danger").text).to eq("*")
+    end
+
+    it "leaves the channel override unmarked" do
+      label = Nokogiri::HTML5.fragment(html).css("label").find { |node| node.text.include?("Channel override") }
+      expect(label.text).not_to include("optional")
+      expect(label.at_css("span.text-danger")).to be_nil
+    end
   end
 end

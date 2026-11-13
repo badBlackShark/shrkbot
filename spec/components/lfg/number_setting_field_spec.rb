@@ -24,6 +24,10 @@ RSpec.describe Components::Lfg::NumberSettingField do
     expect(html).to include('value="120"')
   end
 
+  it "puts the help under the stepper" do
+    expect(html.index("How long a member must wait")).to be > html.index('name="lfg[cooldown_seconds]"')
+  end
+
   it "explains the recommended default in human terms" do
     expect(html).to include("300 seconds, which is 5 minutes")
   end

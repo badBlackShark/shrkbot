@@ -15,7 +15,8 @@ RSpec.describe Components::Welcomes::ConfigForm do
   end
 
   it "renders the channel card with the required marker" do
-    expect(html).to include("This setting is required to enable the plugin")
+    label = Nokogiri::HTML5.fragment(html).css("label").find { |node| node.text.include?("Channel") }
+    expect(label.at_css("span.text-danger").text).to eq("*")
   end
 
   it "shows the none-message when no channels have synced" do
