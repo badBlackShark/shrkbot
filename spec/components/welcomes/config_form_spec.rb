@@ -10,8 +10,12 @@ RSpec.describe Components::Welcomes::ConfigForm do
   let(:view_context) { ApplicationController.new.view_context }
   let(:config) { create(:server_configuration) }
 
+  let(:settings_attributes) { {} }
+  let(:default_join) { I18n.t("welcomes.default_message.join") }
+  let(:default_leave) { I18n.t("welcomes.default_message.leave") }
+
   before do
-    config.create_welcome_settings!
+    config.create_welcome_settings!(**settings_attributes)
   end
 
   it "renders the channel card with the required marker" do
@@ -42,6 +46,54 @@ RSpec.describe Components::Welcomes::ConfigForm do
 
   it "heads the placeholders with the copy hint" do
     expect(html).to include("Placeholders (click to copy)")
+  end
+
+  describe "the messages" do
+    let(:page) { Nokogiri::HTML5.fragment(html) }
+
+    def textarea(kind)
+      page.at_css("textarea[name='welcomes[#{kind}_message]']")
+    end
+
+    def reset(kind)
+      page.at_css("[data-welcome-preview-target=#{kind}Reset]")
+    end
+
+    it "fills each box with its default text" do
+      expect([textarea("join").text, textarea("leave").text]).to eq([default_join, default_leave])
+    end
+
+    it "hides both resets" do
+      expect([reset("join").key?("hidden"), reset("leave").key?("hidden")]).to eq([true, true])
+    end
+
+    it "gives each reset its kind" do
+      button = reset("join").at_css("button")
+
+      expect(button["data-action"]).to eq("welcome-preview#reset")
+      expect(button["data-welcome-preview-kind-param"]).to eq("join")
+    end
+
+    context "when the join message differs from its default" do
+      let(:settings_attributes) { {join_message: "Hi {user}"} }
+
+      it "shows the join reset only" do
+        expect([reset("join").key?("hidden"), reset("leave").key?("hidden")]).to eq([false, true])
+      end
+    end
+
+    context "when a message is empty" do
+      let(:settings_attributes) { {join_message: nil} }
+
+      it "says nothing will be sent in the box and the preview" do
+        expect(textarea("join")["placeholder"]).to eq("Nothing will be sent.")
+        expect(page.at_css("[data-welcome-preview-target=joinOutput]")["data-empty-hint"]).to eq("Nothing will be sent.")
+      end
+
+      it "shows the join reset" do
+        expect(reset("join").key?("hidden")).to be(false)
+      end
+    end
   end
 
   def card_containing(field)
