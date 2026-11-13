@@ -192,8 +192,9 @@ render as hidden inputs so its toggle submits the sub-plugin's full form, throug
 the stub forms `Components::SubPluginToggleForms` renders after the page's own form
 (forms cannot nest). A
 sub-plugin can't be enabled until its group prerequisite is met — that requirement
-lives in `PluginCatalog::Definition#prerequisite`, so every enable path (the generic
-toggle, the sidebar/row UI, and the Configure ops) agrees.
+lives in `PluginCatalog::Definition#prerequisite`, and
+`Ops::ServerConfiguration::Plugins::Toggle`, which every enable path goes through,
+enforces it.
 
 ## Core components
 

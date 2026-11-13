@@ -97,7 +97,7 @@ RSpec.describe "Welcomes config", type: :request do
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :welcomes)).to be(false)
           expect(response.body).to include("welcomes-config")
-          expect(response.body).to include("settings to be configured")
+          expect(response.body).to include("required settings are configured")
         end
 
         it "saves messages without enabling and reports success" do

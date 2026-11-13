@@ -42,10 +42,11 @@ Delivery is fire-and-forget. On the subscriber side, failing Results are logged
 (they are not silently dropped). If `REDIS_URL` is not set, `Bot::ConfigBus.publish`
 logs a warning and drops the event rather than raising.
 
-The dashboard's instant plugin toggle (`Ops::ServerConfiguration::Plugins::Toggle`)
-publishes the same `roles_post`/`roles_menu_remove` events via `Roles::MenuToggle`
-when the roles plugin is toggled, so the menu-iff-enabled rule holds on both save
-paths (config-page Save and dashboard toggle). `Roles::MenuToggle` delegates to
+`Ops::ServerConfiguration::Plugins::Toggle` publishes the same
+`roles_post`/`roles_menu_remove` events via `Roles::MenuToggle` when the roles plugin's
+`enabled` changes, after the transaction commits. `Roles::Settings::Update` passes
+`publish_menu: false`: its own `MenuSyncPlan` already posts, removes and deletes every
+set for the save, so the menus are published once. `Roles::MenuToggle` delegates to
 `Roles::MenuSyncPlan` so delivery semantics are identical.
 
 `Roles::MenuReconcile` (a `:ready` event handler) sweeps guilds this shard serves

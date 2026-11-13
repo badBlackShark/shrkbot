@@ -70,10 +70,6 @@ RSpec.describe Ops::Moderation::SpamProtection::Configure do
       expect(result).to be_failure
     end
 
-    it "reports an error on enabled" do
-      expect(result.value.errors[:enabled]).to be_present
-    end
-
     it "persists nothing for spam_protection" do
       result
       expect(config.plugin_activations.find_by(plugin:)).to be_nil
@@ -101,13 +97,6 @@ RSpec.describe Ops::Moderation::SpamProtection::Configure do
     it "does not enable the activation" do
       result
       expect(config.plugin_activations.find_by(plugin:)&.enabled).to be_falsey
-    end
-  end
-
-  context "when enabling with no moderation settings record at all" do
-    it "fails the staff-role guard" do
-      expect(result).to be_failure
-      expect(result.value.errors[:enabled]).to be_present
     end
   end
 

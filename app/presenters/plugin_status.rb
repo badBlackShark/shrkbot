@@ -29,7 +29,7 @@ class PluginStatus
     Row.new(
       key: plugin.key,
       enabled: activation&.enabled? || false,
-      configured: definition.prerequisites_met?(server_configuration, enabled_keys: server_configuration.enabled_plugin_keys),
+      configured: definition.prerequisites_met?(server_configuration),
       manageable: access.manage?(plugin.key),
       toggleable: access.toggle?(plugin.key),
       bespoke: definition.bespoke

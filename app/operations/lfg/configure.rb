@@ -27,18 +27,9 @@ module Ops
           default_excluded_role_ids:,
           allowed_channel_ids:
         )
-        activation = staged_activation
-
-        return failure(messages(settings, activation), value: activation) unless settings.valid? && activation.valid?
-
-        transaction do
-          settings.save!
-          reconcile_pingable_roles(settings)
-          save_activation!(activation)
-        end
-        ok(activation)
+        save_with_activation(settings) { reconcile_pingable_roles(settings) }
       rescue ActiveRecord::RecordInvalid => error
-        failure([error.record.errors.full_messages.to_sentence], value: activation)
+        failure([error.record.errors.full_messages.to_sentence])
       end
 
       private

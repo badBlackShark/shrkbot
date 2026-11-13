@@ -137,7 +137,7 @@ RSpec.describe "Moderation config", type: :request do
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.moderation_settings.reload.staff_role_id).to eq(500)
-          expect(response.body).to include("A staff role is required while a sub-plugin is enabled.")
+          expect(response.body).to include("Cross-Channel Spam Guard is on and depends on these settings. Turn Cross-Channel Spam Guard off first.")
         end
 
         it "falls back to a redirect without Turbo" do

@@ -23,13 +23,7 @@ module Ops
             ping_on_join:,
             suppress_removal_messages:
           )
-          activation = staged_activation
-
-          return failure(messages(settings, activation), value: activation) unless settings.valid? && activation.valid?
-
-          settings.save!
-          save_activation!(activation)
-          ok(activation)
+          save_with_activation(settings)
         end
 
         private

@@ -52,7 +52,7 @@ server is first seen.
 
 A **channel-backed** plugin (its `channel_setting` is set) can't be enabled until
 that channel is configured. This is enforced in two places:
-`Ops::ServerConfiguration::Plugins::Toggle` gives the friendly failure, and a
+`Ops::ServerConfiguration::Plugins::Toggle` gives the friendly failure, refuses a change that would leave an enabled dependent unmet (Logging off while Server Shield is on), and a
 `PluginActivation` validation backstops any write that skips the op.
 
 A **bespoke** plugin (`Definition#bespoke`) is hand-activated by the bot owner per
@@ -60,5 +60,4 @@ server rather than self-serve. `bespoke_plugin_grants` (guild ↔ plugin key, ca
 off `ServerConfiguration`) records the grant; `PluginCatalog.visible_for` is the filter
 the dashboard/sidebar uses to hide ungranted bespoke plugins entirely, and
 `Bot::GuildCommandSet` requires a grant before registering a bespoke plugin's guild
-commands. `prerequisites_met?` gates on the grant first, so the enable path is
-backstopped the same way as the other prerequisite checks.
+commands. `Definition#blockers` checks the grant first.

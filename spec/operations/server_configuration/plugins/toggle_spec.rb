@@ -9,6 +9,14 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
   let(:logging) { create(:plugin, key: "logging", name: "Logging") }
   let(:roles) { create(:plugin, key: "roles", name: "Roles") }
   let(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
+  let(:moderation) { create(:plugin, key: "moderation", name: "Server Shield") }
+  let(:spam_protection) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
+
+  def activate(plugin)
+    create(:plugin_activation, server_configuration: server, plugin:, enabled: false).tap do |activation|
+      activation.update_column(:enabled, true)
+    end
+  end
 
   before do
     allow(Bot::ConfigBus).to receive(:sync_commands)
@@ -51,6 +59,21 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     it "returns an unsaved, disabled activation" do
       expect(result.value.enabled?).to be(false)
       expect(result.value.persisted?).to be(false)
+    end
+  end
+
+  context "enabling logging with a channel assigned in memory but not saved" do
+    let(:plugin) { logging }
+    let(:enabled) { true }
+
+    before do
+      server.create_logging_settings!
+      server.logging_settings.channel_id = 999
+    end
+
+    it "succeeds on the submitted value" do
+      expect(result.success?).to be(true)
+      expect(server.plugin_activations.find_by(plugin:).reload.enabled).to be(true)
     end
   end
 
@@ -153,7 +176,173 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     end
   end
 
-  context "sync_commands is published on every successful toggle" do
+  context "enabling a bespoke plugin without a grant" do
+    let(:plugin) { create(:plugin, key: "twilight_struggle", name: "Twilight Struggle") }
+    let(:enabled) { true }
+
+    it "is refused with the generic settings message" do
+      expect(result.errors).to eq(["Twilight Struggle can't be enabled until its required settings are configured."])
+    end
+  end
+
+  context "enabling Server Shield while Logging is off" do
+    let(:plugin) { moderation }
+    let(:enabled) { true }
+
+    before do
+      logging
+      server.create_logging_settings!(channel_id: 999)
+    end
+
+    it "names the Logging requirement" do
+      expect(result.errors).to eq(["Server Shield needs the Logging plugin on, with a log channel set."])
+    end
+  end
+
+  context "enabling a sub-plugin without a staff role" do
+    let(:plugin) { spam_protection }
+    let(:enabled) { true }
+
+    before do
+      activate(moderation)
+      server.create_moderation_settings!
+    end
+
+    it "names the staff role requirement" do
+      expect(result.errors).to eq(["Cross-Channel Spam Guard needs a staff role. Set one on the Server Shield overview."])
+    end
+  end
+
+  context "while Server Shield is on" do
+    let(:plugin) { logging }
+    let(:enabled) { false }
+
+    before do
+      server.create_logging_settings!(channel_id: 999)
+      activate(logging)
+      activate(moderation)
+    end
+
+    it "refuses to turn Logging off and leaves it on" do
+      expect(result.errors).to eq(["Server Shield is on and depends on these settings. Turn Server Shield off first."])
+      expect(server.plugin_activations.find_by(plugin: logging).reload.enabled).to be(true)
+    end
+
+    context "when the log channel is cleared in memory and Logging is saved as enabled" do
+      let(:enabled) { true }
+
+      before { server.logging_settings.channel_id = nil }
+
+      it "refuses" do
+        expect(result.errors).to eq(["Logging can't be enabled until its required settings are configured."])
+      end
+    end
+  end
+
+  context "while a Server Shield sub-plugin is on" do
+    let(:plugin) { moderation }
+    let(:enabled) { true }
+    let(:dependent_message) { ["Cross-Channel Spam Guard is on and depends on these settings. Turn Cross-Channel Spam Guard off first."] }
+
+    before do
+      server.create_logging_settings!(channel_id: 999)
+      server.create_moderation_settings!(staff_role_id: 5)
+      activate(logging)
+      activate(spam_protection)
+    end
+
+    context "when Server Shield is on and the staff role is cleared in memory" do
+      before do
+        activate(moderation)
+        server.moderation_settings.staff_role_id = nil
+      end
+
+      it "refuses to keep Server Shield on" do
+        expect(result.errors).to eq(dependent_message)
+      end
+    end
+
+    context "when Server Shield is off and the staff role is cleared in memory" do
+      let(:enabled) { false }
+
+      before do
+        activate(moderation).update_column(:enabled, false)
+        server.moderation_settings.staff_role_id = nil
+      end
+
+      it "refuses" do
+        expect(result.errors).to eq(dependent_message)
+      end
+    end
+
+    context "when Server Shield turns off with the staff role kept" do
+      let(:enabled) { false }
+
+      before { activate(moderation) }
+
+      it "succeeds, because a parent may turn off with children on" do
+        expect(result.success?).to be(true)
+        expect(result.value.enabled).to be(false)
+      end
+    end
+  end
+
+  context "when a plugin is saved as enabled again" do
+    let(:enabled) { true }
+
+    before do
+      allow(Bot::ConfigBus).to receive(:post_roles)
+    end
+
+    context "with Logging" do
+      let(:plugin) { logging }
+
+      before do
+        server.create_logging_settings!(channel_id: 999)
+        activate(logging)
+      end
+
+      it "publishes no command sync" do
+        result
+        expect(Bot::ConfigBus).not_to have_received(:sync_commands)
+      end
+    end
+
+    context "with Roles" do
+      let(:plugin) { roles }
+
+      before do
+        create(:role_set, role_setting: create(:role_setting, server_configuration: server))
+        activate(roles)
+      end
+
+      it "posts no menus" do
+        result
+        expect(Bot::ConfigBus).not_to have_received(:post_roles)
+      end
+    end
+  end
+
+  context "when the caller's transaction rolls back" do
+    subject(:result) do
+      ActiveRecord::Base.transaction do
+        described_class.call(server_configuration: server, plugin:, enabled:)
+        raise ActiveRecord::Rollback
+      end
+    end
+
+    let(:plugin) { logging }
+    let(:enabled) { true }
+
+    before { server.create_logging_settings!(channel_id: 999) }
+
+    it "publishes no command sync" do
+      result
+      expect(Bot::ConfigBus).not_to have_received(:sync_commands)
+    end
+  end
+
+  context "sync_commands is published when enabled changes" do
     before do
       allow(Bot::ConfigBus).to receive(:post_roles)
       allow(Bot::ConfigBus).to receive(:remove_roles_menu)
