@@ -20,7 +20,7 @@ class Components::Feeds::Steam::SubscriptionFields < Components::Base
       end
       render(Components::Feeds::EventTypesCard.new(subscription: @subscription, plugin_key: :steam)) do
         volume_frame
-        render Components::Callout.new(variant: :warning) { t(".what_note") }
+        render Components::Feeds::Steam::UpdateTypesNote.new(subscription: @subscription)
       end
       render Components::Feeds::Steam::LanguageCard.new(subscription: @subscription)
       render Components::Feeds::Steam::LengthCard.new(subscription: @subscription)

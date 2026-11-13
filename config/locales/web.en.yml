@@ -348,9 +348,10 @@ en:
             title: 'Patch 1.4: Controller fixes'
         subscription_fields:
           volume_loading: Checking recent posts…
-          what_note: Some developers don't tag their patch notes, so shrkbot posts
-            them as announcements. To get every update, keep both "Patch notes" and
-            "Announcements" on.
+        update_types_note:
+          text: Some developers don't tag their patch notes, so shrkbot posts them
+            as announcements. To get every update, keep both "Patch notes" and "Announcements"
+            on.
       stop_following_button:
         confirm_button: Stop following
         confirm_title: Stop following %{name}?

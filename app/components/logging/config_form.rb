@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Components::Logging::ConfigForm < Components::Base
+  CHANNEL_FIELD = "logging[channel_id]"
+
   def initialize(server_configuration:, enable_error: nil)
     @config = server_configuration
     @settings = server_configuration.logging_settings
@@ -18,17 +20,12 @@ class Components::Logging::ConfigForm < Components::Base
 
   def channel_card
     render Components::ChannelCard.new(
-      name: "logging[channel_id]",
+      name: CHANNEL_FIELD,
       channels:,
       selected: @settings.channel_id,
       label: t(".channel.label"),
       help: t(".channel.help"),
-      required: true,
-      data: {
-        controller: "channel-warning",
-        action: "change->channel-warning#update",
-        channel_warning_visible_ids_value: visible_channel_ids.to_json
-      }
+      required: true
     ) { visibility_warning }
   end
 
@@ -102,23 +99,17 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def visibility_warning
-    render Components::Callout.new(
-      variant: :warning,
-      class: "mt-3 #{"hidden" unless visible_channel?}",
-      data: {channel_warning_target: "warning"}
-    ) do
-      plain t(".channel.visible_warning")
-    end
-  end
-
-  def visible_channel?
-    return false unless @settings.channel_id
-
-    @config.server_channels.find_by(discord_id: @settings.channel_id)&.everyone_visible?
+    render Components::LiveWarning.new(
+      fields: [CHANNEL_FIELD],
+      rule: "includes-any",
+      list: visible_channel_ids,
+      shown: visible_channel_ids.include?(@settings.channel_id.to_s),
+      class: "mt-3"
+    ) { t(".channel.visible_warning") }
   end
 
   def visible_channel_ids
-    @config.server_channels.text.select(&:everyone_visible?).map { |channel| channel.discord_id.to_s }
+    @visible_channel_ids ||= @config.server_channels.text.select(&:everyone_visible?).map { |channel| channel.discord_id.to_s }
   end
 
   def channels
