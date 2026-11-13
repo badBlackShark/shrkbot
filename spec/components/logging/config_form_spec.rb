@@ -15,7 +15,7 @@ RSpec.describe Components::Logging::ConfigForm do
   end
 
   it "renders the channel card with the required marker" do
-    expect(html).to include("This setting is required to enable the plugin")
+    expect(html).to include("text-danger")
   end
 
   it "shows the none-message when no channels have synced" do

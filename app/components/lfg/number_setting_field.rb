@@ -14,8 +14,7 @@ class Components::Lfg::NumberSettingField < Components::Base
 
   def view_template
     div do
-      label(class: "block text-sm font-semibold") { @label }
-      p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { @help }
+      render Components::FieldLabel.new { @label }
       render Components::NumberStepper.new(
         name: @name,
         value: @value,
@@ -24,6 +23,7 @@ class Components::Lfg::NumberSettingField < Components::Base
         default: @default,
         unit: @unit
       )
+      render Components::FieldHelp.new { @help }
     end
   end
 end

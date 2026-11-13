@@ -15,6 +15,10 @@ RSpec.describe Components::Lfg::ChannelsField do
     expect(html).to include("multiple")
   end
 
+  it "puts the help under the select" do
+    expect(html.index("Channels where members can post")).to be > html.index("<select")
+  end
+
   context "when nothing is selected" do
     let(:selected) { [] }
 
