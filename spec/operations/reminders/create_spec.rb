@@ -11,6 +11,10 @@ RSpec.describe Ops::Reminders::Create do
   let(:message) { "ping me" }
   let(:duration) { "1h" }
 
+  before do
+    ActiveJob::Base.queue_adapter.enqueued_jobs.clear
+  end
+
   it "creates a reminder and schedules delivery for the parsed time" do
     expect {
       result
@@ -19,6 +23,20 @@ RSpec.describe Ops::Reminders::Create do
     expect(result.success?).to be(true)
     expect(result.value.remind_at).to be_within(1.minute).of(1.hour.from_now)
     expect(result.value.message).to eq("ping me")
+  end
+
+  context "when called inside an open transaction" do
+    subject(:call_in_transaction) do
+      ActiveRecord::Base.transaction do
+        described_class.call(user_id:, channel_id:, server_id:, message:, duration:)
+        deliver_jobs.size
+      end
+    end
+
+    it "holds the delivery job until the transaction commits" do
+      expect(call_in_transaction).to eq(0)
+      expect(deliver_jobs.size).to eq(1)
+    end
   end
 
   context "with a message containing mentions" do
@@ -60,5 +78,9 @@ RSpec.describe Ops::Reminders::Create do
 
       expect(result.failure?).to be(true)
     end
+  end
+
+  def deliver_jobs
+    ActiveJob::Base.queue_adapter.enqueued_jobs.select { |job| job["job_class"] == "Reminders::DeliverJob" }
   end
 end
