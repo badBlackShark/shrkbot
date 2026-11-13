@@ -1,13 +1,18 @@
 # frozen_string_literal: true
 
 class Components::ResetButton < Components::Base
-  BUTTON = "inline-flex size-8 items-center justify-center rounded-control border border-border-default " \
-    "text-text-secondary transition-colors hover:bg-surface-sunken focus:outline-none " \
-    "focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+  BASE = "inline-flex items-center justify-center text-text-secondary transition-colors " \
+    "hover:bg-surface-sunken focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
 
-  def initialize(label:, data:)
+  SHAPES = {
+    standalone: "size-8 rounded-control border border-border-default",
+    segment: "w-8 rounded-r-[7px] border-l border-border-default hover:text-text-primary"
+  }.freeze
+
+  def initialize(label:, data:, shape: :standalone)
     @label = label
     @data = data
+    @shape = SHAPES.fetch(shape)
   end
 
   def view_template
@@ -15,7 +20,7 @@ class Components::ResetButton < Components::Base
       button(
         type: "button",
         aria_label: @label,
-        class: BUTTON,
+        class: "#{BASE} #{@shape}",
         data: @data
       ) do
         render Components::Icon.new("arrow-counter-clockwise", class: "size-4")

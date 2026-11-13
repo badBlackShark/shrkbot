@@ -1,8 +1,9 @@
 import { Controller } from "@hotwired/stimulus"
+import { syncReset } from "lib/number_stepper"
 
 export default class extends Controller {
-  static targets = ["input"]
-  static values = { min: Number, max: Number }
+  static targets = ["input", "reset"]
+  static values = { min: Number, max: Number, default: Number }
 
   increment() {
     const current = parseInt(this.inputTarget.value, 10) || 0
@@ -17,6 +18,16 @@ export default class extends Controller {
     const next = current - 1
     this.inputTarget.value = Math.max(next, this.minValue)
     this.#dispatch()
+  }
+
+  reset() {
+    this.inputTarget.value = this.defaultValue
+    this.inputTarget.focus()
+    this.#dispatch()
+  }
+
+  sync() {
+    syncReset(this.resetTarget, this.inputTarget.value, this.defaultValue)
   }
 
   #dispatch() {

@@ -38,8 +38,4 @@ RSpec.describe Components::Lfg::MinDaysField do
   it "keeps the blank-means-no-minimum hint on the input" do
     expect(html).to include('placeholder="No minimum"')
   end
-
-  it "omits the recommended-default subscript, since blank is the default" do
-    expect(html).not_to include("Recommended default")
-  end
 end

@@ -82,7 +82,7 @@ class Components::Lfg::DefaultsCard < Components::Base
       value: @settings.cooldown_seconds,
       min: 0,
       max: 86_400,
-      default: t(".cooldown.default"),
+      default: 300,
       unit: t(".cooldown.unit"),
       label: t(".cooldown.label"),
       help: t(".cooldown.help")
@@ -95,7 +95,7 @@ class Components::Lfg::DefaultsCard < Components::Base
       value: @settings.post_lifetime_minutes,
       min: 5,
       max: 10_080,
-      default: t(".lifetime.default"),
+      default: 360,
       unit: t(".lifetime.unit"),
       label: t(".lifetime.label"),
       help: t(".lifetime.help")

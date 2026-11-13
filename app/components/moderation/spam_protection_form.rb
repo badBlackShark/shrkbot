@@ -67,7 +67,6 @@ class Components::Moderation::SpamProtectionForm < Components::Base
         max: 100
       )
       render Components::FieldHelp.new { t(".detection.match_strictness.help") }
-      p(class: "text-xs text-text-muted mt-1") { t(".detection.match_strictness.recommended") }
     end
   end
 
@@ -83,7 +82,6 @@ class Components::Moderation::SpamProtectionForm < Components::Base
         )
       end
       p(class: "text-xs text-text-muted mt-1.5 max-w-md") { t(".detection.symbol_only.help") }
-      p(class: "text-xs text-text-muted mt-1") { t(".detection.symbol_only.recommended") }
     end
   end
 
