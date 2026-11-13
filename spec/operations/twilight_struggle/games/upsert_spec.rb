@@ -173,6 +173,21 @@ RSpec.describe Ops::TwilightStruggle::Games::Upsert do
           1
         )
       end
+
+      context "when the caller's transaction is still open" do
+        subject(:post_jobs_before_commit) do
+          ActiveRecord::Base.transaction do
+            result
+            post_jobs.size
+          end
+        end
+
+        before { ActiveJob::Base.queue_adapter.enqueued_jobs.clear }
+
+        it "holds the post job back until the game is committed, so the worker can load the game" do
+          expect(post_jobs_before_commit).to eq(0)
+        end
+      end
     end
 
     context "when a server subscribes to an ancestor tournament" do

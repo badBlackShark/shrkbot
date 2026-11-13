@@ -56,3 +56,12 @@ leading `::`:
 It bites one level deeper every time the namespace deepens, and it fails as a
 confusing `NoMethodError` on a module rather than a `NameError`. `Finders::` has the
 same problem — see [finders.md](finders.md). The rule is general: namespaces follow paths, and inside a namespace that shadows a top-level module (`Components::Integrations`, `Servers::Steam`, `Views::Servers::Integrations`), refer to that module with a leading `::` (`::Integrations::Steam::NewsWatcher`).
+
+## Enqueueing jobs
+
+An operation may call `perform_later` inside its transaction. `ApplicationJob` sets
+`enqueue_after_transaction_commit`, so the job reaches the queue when the outermost
+transaction commits and is dropped if it rolls back. A worker never picks up a job whose
+records are not committed yet, even with the queue in its own database. Do not wrap a bare
+enqueue in `ActiveRecord.after_all_transactions_commit`; keep that block for work that is
+more than an enqueue, such as `Events::Record` handing events to `Events::Dispatch`.

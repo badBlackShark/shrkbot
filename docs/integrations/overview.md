@@ -353,7 +353,10 @@ in `ActiveRecord.after_all_transactions_commit`, so a handler never runs before 
 event row is visible. Dispatch sorts the events by `occurred_at`, builds one job per
 handler, enqueues them all with `ActiveJob.perform_all_later` (one transaction, so a
 batch is enqueued whole or not at all) and then stamps `dispatched_at`. A failed
-dispatch leaves the stamp unset. Handlers that serialize per key (`limits_concurrency`)
+dispatch leaves the stamp unset. That holds only outside a transaction: inside one,
+`ApplicationJob` defers the enqueue to the commit and the stamp would land first, so
+Dispatch is non-transactional and both callers (`Record`'s after-commit block and the
+recurring sweeper) call it with no transaction open. Handlers that serialize per key (`limits_concurrency`)
 then process a poll's events oldest first.
 
 **An event with no handler is not stamped.** An empty handler list means nobody is
