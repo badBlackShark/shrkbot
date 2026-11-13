@@ -293,6 +293,8 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `The game or category. Empty for highlights and uploads.` / `Who made the clip. Empty for other posts.` / `The post's title.` (shared by Steam and Twitch) | `The game or category.` / `Who made the clip.` / `The title of the stream, video or clip.` | Placeholders now list only the tokens a post type can fill, so the "empty for" caveats described tokens the reader no longer sees. The Twitch title hint named a post, which a stream is not. |
 | `Twitch user %{id}` (under the channel name) | No line. | The numeric id is never visible on Twitch, so it tells the reader nothing, and "Twitch channel" under a Twitch avatar would only restate the page. A caption earns its place only when it carries something, like Steam's app id. |
 | `Message and notification` (disclosure summary on a Steam post type) | `Settings` | The disclosure also holds the type's channel now, so naming two of its fields no longer described it. Twitch already said `Settings`; both sources share one key. |
+| `Recommended default: %{value}` (under every stepper, e.g. `Recommended default: 300 seconds (5 minutes)`) | Deleted. A reset segment, tooltip `Reset to %{value}`, appears in the stepper while the value differs from the default. | The line made the reader compare two numbers by eye, and printed even when the value already was the default. The reset does the comparison and the action. |
+| `Recommended default: 100%` / `Recommended default: Off` | Deleted. | Same line on a slider and a toggle. Neither has a reset, and the help already says what each setting does. |
 
 ## Kept on purpose
 

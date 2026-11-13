@@ -224,9 +224,14 @@ duplicated class strings:
   `enabled:`, muted sand otherwise). `size:` (`:sm`/`:md`/`:lg`).
 - **`Components::Callout`** — tinted bordered notice. `variant:` (`:info`/
   `:neutral`/`:warning`/`:danger`/`:success`) sets colour + default icon.
-- **`Components::NumberStepper`** — integer field with −/+ buttons, `min:`-clamped,
-  a `unit:` label and a "Recommended default: n" subscript. No UI cap (`max:` is
-  optional, for the dynamic keyword-count limit); submits as a plain number field.
+- **`Components::NumberStepper`** — integer field as one joined 32px control
+  `[- | n | +]` with hairlines between segments, `min:`-clamped, and a `unit:` label
+  outside the group. An optional `default:` adds a reset segment
+  (`Components::ResetButton` `shape: :segment`, tooltip "Reset to n") shown only
+  while the value differs, and only when the default lies within `min..max`; no
+  default, no reset. `Components::ResetButton` takes `shape:` (`:standalone` bordered
+  square, `:segment` inside a joined control). No UI cap (`max:` is optional, for the
+  dynamic keyword-count limit); submits as a plain number field.
 - **`Components::RangeSlider`** — native `<input type="range">` styled with tokens;
   shows a percent readout but submits a hidden `0.75`–`1.0` float (converted once).
 - **`Components::RadioCardGroup`** — stacked radio options as bordered cards with a

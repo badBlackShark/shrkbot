@@ -28,12 +28,38 @@ RSpec.describe Components::NumberStepper do
     expect(html).to include('data-number-stepper-target="input"')
   end
 
-  it "shows the recommended default subscript" do
-    expect(html).to include("Recommended default: 4")
-  end
-
   it "renders the unit label when provided" do
     expect(html).to include("channels")
+  end
+
+  let(:fragment) { Nokogiri::HTML5.fragment(html) }
+
+  context "when the value equals the default" do
+    it "renders the reset hidden so it does not flash" do
+      expect(fragment.at_css("[data-number-stepper-target=reset]")).to have_attribute("hidden")
+    end
+  end
+
+  context "when the value differs from the default" do
+    let(:options) { {name: "spam_protection[channel_threshold]", value: 6, min: 2, default: 4} }
+
+    it "renders a visible reset wired to the controller" do
+      reset = fragment.at_css("[data-number-stepper-target=reset]")
+
+      expect(reset).not_to have_attribute("hidden")
+      expect(reset.at_css("button")["aria-label"]).to eq("Reset to 4")
+      expect(reset.at_css("button")["data-action"]).to eq("click->number-stepper#reset")
+      expect(fragment.at_css("[data-controller]")["data-number-stepper-default-value"]).to eq("4")
+      expect(fragment.at_css("input")["data-action"]).to eq("input->number-stepper#sync")
+    end
+  end
+
+  context "when the default is above max" do
+    let(:options) { {name: "image_scanning[custom_keyword_min_hits]", value: 1, min: 1, max: 1, default: 2} }
+
+    it "renders no reset" do
+      expect(fragment.at_css("[data-number-stepper-target=reset]")).to be_nil
+    end
   end
 
   context "when max is provided" do
@@ -55,8 +81,10 @@ RSpec.describe Components::NumberStepper do
   context "when default is omitted" do
     let(:options) { {name: "lfg[default_min_membership_days]", value: nil, min: 0} }
 
-    it "omits the recommended default subscript" do
-      expect(html).not_to include("Recommended default")
+    it "renders no reset" do
+      expect(fragment.at_css("[data-number-stepper-target=reset]")).to be_nil
+      expect(html).not_to include("data-number-stepper-default-value")
+      expect(fragment.at_css("input")["data-action"]).to be_nil
     end
   end
 

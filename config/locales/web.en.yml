@@ -477,7 +477,6 @@ en:
         placeholder: Choose channels
       defaults_card:
         cooldown:
-          default: 300 seconds (5 minutes)
           help: How long a member must wait between posts. Set to 0 to disable the
             cooldown.
           label: Cooldown
@@ -490,7 +489,6 @@ en:
         help: Server-wide Looking for Game settings. The per-role cards below add
           extra restrictions on top of these.
         lifetime:
-          default: 360 minutes (6 hours)
           help: How long the "Looking for Game" post stays visible. For scheduled
             posts, the clock starts with the session, not while it gathers interest.
           label: Post lifetime
@@ -681,13 +679,11 @@ en:
             label: Match strictness
             max_caption: identical
             min_caption: loosely similar
-            recommended: 'Recommended default: 100%'
           symbol_only:
             help: Messages with no matchable text - only emoji, punctuation or digits
               - are ignored by default. When on, they all count as the same message,
               so blasting any symbol noise across channels triggers.
             label: Also match symbol-only messages
-            recommended: 'Recommended default: Off'
           trigger_threshold:
             channels_unit: different channels
             label: Trigger threshold
@@ -734,7 +730,7 @@ en:
       this_server: This server
       title: Notifications
     number_stepper:
-      recommended_default: 'Recommended default: %{value}'
+      reset: Reset to %{value}
     placeholder_section:
       label: Placeholders (click to copy)
     plugin_badges:
