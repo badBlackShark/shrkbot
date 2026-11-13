@@ -3,12 +3,6 @@
 class Components::SubPluginRow < Components::Base
   include Components::PluginNav
 
-  STATUS_VARIANTS = {
-    enabled: :success,
-    needs_setup: :warning,
-    disabled: :neutral
-  }.freeze
-
   def self.toggle_form_id(key)
     "#{key}-overview-toggle-form"
   end
@@ -39,14 +33,9 @@ class Components::SubPluginRow < Components::Base
   private
 
   def status_badge
-    render Components::Badge.new(variant: STATUS_VARIANTS.fetch(status), dot: true) do
-      t(".status.#{status}")
-    end
-  end
+    return if @row.configured
 
-  def status
-    return :needs_setup unless @row.configured
-    @row.enabled ? :enabled : :disabled
+    render Components::Badge.new(variant: :warning, dot: true) { t(".status.needs_setup") }
   end
 
   def needs_setup?

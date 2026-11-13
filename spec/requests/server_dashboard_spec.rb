@@ -83,11 +83,11 @@ RSpec.describe "Server dashboard", type: :request do
           logging
         end
 
-        it "shows enabled, needs-setup and disabled badges" do
+        it "shows a badge only on the plugin that needs setup" do
           get_dashboard
-          expect(response.body).to include("Enabled")
           expect(response.body).to include("Needs setup")
-          expect(response.body).to include(">Disabled<")
+          expect(response.body).not_to include(">Enabled<")
+          expect(response.body).not_to include(">Disabled<")
         end
 
         it "disables the toggle for a plugin that isn't set up yet, explaining why" do
@@ -99,7 +99,7 @@ RSpec.describe "Server dashboard", type: :request do
       it "shows reminders as an always-on plugin row" do
         get_dashboard
         expect(response.body).to include("Reminders")
-        expect(response.body).to include("Global")
+        expect(response.body).to include("Always on")
         expect(response.body).to include("always enabled to preserve DM functionality")
         expect(response.body).to include("disabled")
       end
