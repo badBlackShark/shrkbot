@@ -25,9 +25,7 @@ module Ops
           private
 
           def schedule_close(offline_at)
-            ActiveRecord.after_all_transactions_commit do
-              ::Integrations::Twitch::CloseSessionJob.set(wait: ::Integrations::Twitch::Session::GRACE).perform_later(watch, offline_at)
-            end
+            ::Integrations::Twitch::CloseSessionJob.set(wait: ::Integrations::Twitch::Session::GRACE).perform_later(watch, offline_at)
           end
         end
       end
