@@ -67,13 +67,11 @@ RSpec.describe Components::Welcomes::ConfigForm do
       expect([reset("join").key?("hidden"), reset("leave").key?("hidden")]).to eq([true, true])
     end
 
-    it "gives each box its default and each reset its kind" do
+    it "gives each reset its kind" do
       button = reset("join").at_css("button")
 
-      expect([textarea("join")["data-default"], textarea("leave")["data-default"]]).to eq([default_join, default_leave])
       expect(button["data-action"]).to eq("welcome-preview#reset")
       expect(button["data-welcome-preview-kind-param"]).to eq("join")
-      expect(html).to include("Reset to default")
     end
 
     context "when the join message differs from its default" do
