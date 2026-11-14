@@ -265,7 +265,11 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
       end
 
       it "leaves the posted message as it was" do
+        allow(Rails.logger).to receive(:info)
         result
+        expect(Rails.logger).to have_received(:info) do |&block|
+          expect(block.call).to include("template for this result is empty")
+        end
         expect(Bot::Discord::Components).not_to have_received(:edit_content)
         expect(Bot::Discord::Components).not_to have_received(:create_message)
       end

@@ -252,6 +252,27 @@ RSpec.describe TwilightStruggle::EffectiveConfig do
     end
   end
 
+  describe "#source_of" do
+    let(:parent) { create(:twilight_struggle_tournament) }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+    before do
+      create(:twilight_struggle_destination, tournament: parent, server_configuration:, post_delay_seconds: 30)
+    end
+
+    it "names the tournament whose destination sets the attribute" do
+      create(:twilight_struggle_destination, tournament:, server_configuration:, post_delay_seconds: nil)
+
+      expect(config.source_of(:post_delay_seconds)).to eq(parent)
+    end
+
+    it "counts a zero as set" do
+      create(:twilight_struggle_destination, tournament:, server_configuration:, post_delay_seconds: 0)
+
+      expect(config.source_of(:post_delay_seconds)).to eq(tournament)
+    end
+  end
+
   describe "EffectiveConfig.new(nil, server_configuration)" do
     subject(:config) { described_class.new(nil, server_configuration) }
 

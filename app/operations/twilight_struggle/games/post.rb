@@ -12,7 +12,6 @@ module Ops
         def call
           return skipped("no channel is configured for it or any tournament above it") if config.channel_id.blank?
           return skipped("the Twilight Struggle plugin is disabled") unless plugin_enabled?
-
           return skipped("its template for this result is empty") if template.blank?
 
           deliver

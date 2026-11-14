@@ -36,7 +36,7 @@ module TwilightStruggle
     end
 
     def source_of(attribute)
-      chain.find { |destination| destination.public_send(attribute).present? }&.tournament
+      chain.find { |destination| !destination.public_send(attribute).nil? }&.tournament
     end
 
     private

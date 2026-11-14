@@ -30,16 +30,12 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
   end
 
   def reset_button
-    span(
-      class: "flex",
+    render Components::ResetSlot.new(
+      label: reset_label,
       hidden: @value == @inherited,
-      data: {twilight_struggle_preview_target: "#{@kind}Reset"}
-    ) do
-      render Components::ResetButton.new(
-        label: reset_label,
-        data: {action: "twilight-struggle-preview#reset", twilight_struggle_preview_kind_param: @kind}
-      )
-    end
+      slot_data: {twilight_struggle_preview_target: "#{@kind}Reset"},
+      data: {action: "twilight-struggle-preview#reset", twilight_struggle_preview_kind_param: @kind}
+    )
   end
 
   def reset_label
