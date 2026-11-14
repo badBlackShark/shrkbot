@@ -148,49 +148,27 @@ RSpec.describe Moderation::SpamProtection::Settings do
       end
     end
 
-    context "when only moderation is enabled" do
-      let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
-      let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
-
-      before do
-        server.create_logging_settings!(channel_id: 999)
-        create(:plugin_activation, server_configuration: server, plugin: logging_plugin, enabled: true)
-        create(:plugin_activation, server_configuration: server, plugin: moderation_plugin, enabled: true)
-      end
-
-      it "returns nil" do
-        expect(active_setting).to be_nil
-      end
-    end
-
-    context "when only spam_protection is enabled (moderation not enabled)" do
-      let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
+    context "when spam_protection is enabled" do
       let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
 
       before do
-        create(:plugin_activation, server_configuration: server, plugin: moderation_plugin, enabled: false)
-        create(:plugin_activation, server_configuration: server, plugin: spam_plugin, enabled: false).update_column(:enabled, true)
-      end
-
-      it "returns nil" do
-        expect(active_setting).to be_nil
-      end
-    end
-
-    context "when both moderation and spam_protection are enabled" do
-      let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
-      let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
-      let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
-
-      before do
-        server.create_logging_settings!(channel_id: 999)
-        create(:plugin_activation, server_configuration: server, plugin: logging_plugin, enabled: true)
-        create(:plugin_activation, server_configuration: server, plugin: moderation_plugin, enabled: true)
         create(:plugin_activation, server_configuration: server, plugin: spam_plugin, enabled: false).update_column(:enabled, true)
       end
 
       it "returns the spam protection settings" do
         expect(active_setting).to eq(spam_settings)
+      end
+    end
+
+    context "when spam_protection is disabled" do
+      let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
+
+      before do
+        create(:plugin_activation, server_configuration: server, plugin: spam_plugin, enabled: false)
+      end
+
+      it "returns nil" do
+        expect(active_setting).to be_nil
       end
     end
   end

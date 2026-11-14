@@ -9,7 +9,7 @@ module Ops
         def call
           owner.update!(**entry[:settings]) if entry[:settings]
           build_records(owner, entry[:records] || {})
-          activation.update!(enabled: entry[:enabled])
+          activation.update!(enabled: entry[:enabled]) if entry[:plugin]
           ok(owner)
         end
 

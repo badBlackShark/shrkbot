@@ -119,8 +119,9 @@ A new plugin isn't done until it demos. Add an entry to the `plugins:` list in
 - `plugin` is the `PluginCatalog` key.
 - `settings_association` is the association name on `ServerConfiguration` for
   that plugin's settings row (`Ensure` already created it — `ApplyPlugin` only
-  updates). A plugin without a settings row (Integrations) leaves it out, and its
-  `records` hang off the `ServerConfiguration` itself.
+  updates). A plugin without a settings row (Steam) leaves it out, and its
+  `records` hang off the `ServerConfiguration` itself. An entry without `plugin`
+  (Server Shield's shared settings) only updates its settings row.
 - `settings` is applied straight onto that row with `update!`, when present.
 - `records`, if present, is a hash of association name → array of attribute
   hashes, applied on the settings row (or the server configuration). Any
@@ -147,8 +148,7 @@ A new plugin isn't done until it demos. Add an entry to the `plugins:` list in
 ```
 
 Order plugins so prerequisites land before dependents — `logging` before
-`moderation`, `moderation` before its `spam_protection`/`image_scanning`
-sub-plugins — because `ApplyPlugin` flips each activation immediately after
+the Server Shield settings entry, which comes before `spam_protection`/`image_scanning` — because `ApplyPlugin` flips each activation immediately after
 applying that plugin's settings, and `PluginActivation`'s own validation checks
 `PluginCatalog::Definition#prerequisites_met?` against the current DB state.
 

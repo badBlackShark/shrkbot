@@ -7,40 +7,26 @@ RSpec.describe Ops::Moderation::Settings::Update do
     described_class.call(
       server_configuration: config,
       staff_role_id:,
-      enabled:,
       ping_staff:,
       new_account_age_days:
     )
   end
 
   let(:config) { create(:server_configuration) }
-  let!(:plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
   let!(:settings) { config.create_moderation_settings! }
   let(:staff_role_id) { 111_222_333 }
-  let(:enabled) { "1" }
   let(:ping_staff) { "1" }
   let(:new_account_age_days) { 30 }
 
-  context "when enabling without logging ready (no logging plugin enabled)" do
-    it "fails with an error on the enabled field" do
-      expect(result).to be_failure
-      expect(result.errors).to eq(["Server Shield needs the Logging plugin on, with a log channel set."])
-    end
-
-    it "persists no activation" do
-      result
-      expect(config.plugin_activations.reload).to be_empty
+  def enable_protection(plugin)
+    logging_plugin = create(:plugin, key: "logging", name: "Logging")
+    config.create_logging_settings!(channel_id: 999)
+    [logging_plugin, plugin].each do |enabled_plugin|
+      create(:plugin_activation, server_configuration: config, plugin: enabled_plugin, enabled: false).update_column(:enabled, true)
     end
   end
 
-  context "when enabling with logging ready" do
-    let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
-
-    before do
-      config.create_logging_settings!(channel_id: 999)
-      create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: true)
-    end
-
+  context "when saving the staff role" do
     it "succeeds" do
       expect(result).to be_success
     end
@@ -48,40 +34,16 @@ RSpec.describe Ops::Moderation::Settings::Update do
     it "saves the staff_role_id" do
       result
       expect(config.moderation_settings.reload.staff_role_id).to eq(111_222_333)
-    end
-
-    it "enables the moderation activation" do
-      result
-      expect(config.plugin_activations.find_by(plugin:).enabled).to be(true)
-    end
-  end
-
-  context "when saving staff_role_id without enabling (enabled 0)" do
-    let(:enabled) { "0" }
-
-    it "succeeds" do
-      expect(result).to be_success
-    end
-
-    it "saves the staff_role_id" do
-      result
-      expect(config.moderation_settings.reload.staff_role_id).to eq(111_222_333)
-    end
-
-    it "does not enable the activation" do
-      result
-      expect(config.plugin_activations.find_by(plugin:)&.enabled).to be_falsey
     end
   end
 
   context "when clearing staff_role_id while a sub-plugin is enabled" do
     let(:staff_role_id) { nil }
-    let(:enabled) { "0" }
     let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
 
     before do
       settings.update!(staff_role_id: 111_222_333)
-      create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false).update_column(:enabled, true)
+      enable_protection(spam_plugin)
     end
 
     it "fails naming the sub-plugin" do
@@ -97,7 +59,6 @@ RSpec.describe Ops::Moderation::Settings::Update do
 
   context "when clearing staff_role_id with no sub-plugin enabled" do
     let(:staff_role_id) { nil }
-    let(:enabled) { "0" }
 
     it "succeeds" do
       expect(result).to be_success
@@ -110,12 +71,25 @@ RSpec.describe Ops::Moderation::Settings::Update do
     end
   end
 
-  context "when setting a staff_role_id while a sub-plugin is enabled" do
-    let(:enabled) { "0" }
+  context "when a protection is missing something this save does not touch" do
     let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
 
     before do
-      create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false).update_column(:enabled, true)
+      settings.update!(staff_role_id: 111_222_333)
+      enable_protection(spam_plugin)
+      config.logging_settings.update!(channel_id: nil)
+    end
+
+    it "refuses the save" do
+      expect(result.errors).to eq(["Cross-Channel Spam Guard is on and depends on these settings. Turn Cross-Channel Spam Guard off first."])
+    end
+  end
+
+  context "when setting a staff_role_id while a sub-plugin is enabled" do
+    let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
+
+    before do
+      enable_protection(spam_plugin)
     end
 
     it "succeeds" do
@@ -129,7 +103,6 @@ RSpec.describe Ops::Moderation::Settings::Update do
   end
 
   context "when saving ping_staff: '0'" do
-    let(:enabled) { "0" }
     let(:ping_staff) { "0" }
 
     it "succeeds" do
@@ -143,7 +116,6 @@ RSpec.describe Ops::Moderation::Settings::Update do
   end
 
   context "when saving ping_staff: '1'" do
-    let(:enabled) { "0" }
     let(:ping_staff) { "1" }
 
     before { settings.update!(ping_staff: false) }
@@ -155,7 +127,6 @@ RSpec.describe Ops::Moderation::Settings::Update do
   end
 
   context "when setting new_account_age_days to a custom value" do
-    let(:enabled) { "0" }
     let(:new_account_age_days) { 90 }
 
     it "persists the new value" do
@@ -165,7 +136,6 @@ RSpec.describe Ops::Moderation::Settings::Update do
   end
 
   context "when new_account_age_days is blank" do
-    let(:enabled) { "0" }
     let(:new_account_age_days) { nil }
 
     before { settings.update!(new_account_age_days: 45) }
@@ -177,7 +147,6 @@ RSpec.describe Ops::Moderation::Settings::Update do
   end
 
   context "when new_account_age_days is out of range" do
-    let(:enabled) { "0" }
     let(:new_account_age_days) { 500 }
 
     it "fails with an error on the field rather than raising" do

@@ -17,6 +17,14 @@ RSpec.describe PluginPaths do
         end
       end
 
+      context "with a group key" do
+        let(:key) { :moderation }
+
+        it "builds the group page path" do
+          expect(path).to eq("/servers/900000001/moderation")
+        end
+      end
+
       context "with a global plugin key" do
         let(:key) { :reminders }
 
@@ -50,6 +58,14 @@ RSpec.describe PluginPaths do
 
         it "builds the preview config page path" do
           expect(path).to eq("/preview/roles")
+        end
+      end
+
+      context "with a group key" do
+        let(:key) { :integrations }
+
+        it "builds the preview group page path" do
+          expect(path).to eq("/preview/integrations")
         end
       end
 

@@ -48,7 +48,7 @@ RSpec.describe PreviewData do
   end
 
   describe ".plugins" do
-    subject(:plugin_keys) { described_class.plugins.map { |entry| entry[:plugin].to_sym } }
+    subject(:plugin_keys) { described_class.plugins.filter_map { |entry| entry[:plugin]&.to_sym } }
 
     it "has demo data for every non-bespoke plugin catalog definition, so a new plugin can't ship without it" do
       non_bespoke_keys = PluginCatalog.all.reject(&:bespoke).map(&:key)
