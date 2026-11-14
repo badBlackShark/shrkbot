@@ -9,9 +9,11 @@ class Components::SubPluginToggleForms < Components::Base
   end
 
   def view_template
+    return if @config.preview?
+
     PluginCatalog.visible_sub_plugin_keys(@parent, @config).each do |key|
       form_with(
-        url: PluginPaths.for(@config, key),
+        url: server_plugin_path(@config.discord_id, key),
         method: :patch,
         id: Components::SubPluginRow.toggle_form_id(key),
         class: "hidden"

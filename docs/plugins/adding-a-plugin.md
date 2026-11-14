@@ -92,7 +92,7 @@ before a child can enable. Example: the moderation group's sub-plugins set
 `parent: :moderation`, and `:moderation` sets `requires_plugin: :logging`. A
 sub-plugin's page subclasses `Views::Servers::SubPluginShow`, and its parent's overview
 renders `Components::SubPluginDirectory` (rows from `SubPluginStatus.rows`) plus
-`Components::SubPluginToggleForms`, so the row toggles work from the overview. Integrations
+`Components::SubPluginToggleForms`, so the row toggles post to `Servers::PluginsController` from the overview. Integrations
 (`:integrations` with `:steam`) is the minimal example; Server Shield adds its own
 settings on top.
 

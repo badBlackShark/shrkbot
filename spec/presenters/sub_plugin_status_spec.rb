@@ -4,10 +4,9 @@ require "rails_helper"
 
 RSpec.describe SubPluginStatus do
   describe ".rows" do
-    subject(:rows) { described_class.rows(server_configuration, parent: :moderation, &block) }
+    subject(:rows) { described_class.rows(server_configuration, parent: :moderation) }
 
     let(:server_configuration) { create(:server_configuration) }
-    let(:block) { nil }
     let(:staff_role_id) { 701 }
 
     let(:moderation) { create(:plugin, key: "moderation", name: "Server Shield") }
@@ -54,18 +53,6 @@ RSpec.describe SubPluginStatus do
           have_attributes(key: :steam, configured: true, enabled: false),
           have_attributes(key: :twitch, configured: true, enabled: false)
         )
-      end
-    end
-
-    it "has no toggle fields without a block" do
-      expect(rows.map(&:toggle_fields)).to eq([{}, {}])
-    end
-
-    context "with a block" do
-      let(:block) { ->(key) { {"#{key}[x]" => "1"} } }
-
-      it "uses what the block returns as the toggle fields" do
-        expect(rows.map(&:toggle_fields)).to eq([{"spam_protection[x]" => "1"}, {"image_scanning[x]" => "1"}])
       end
     end
   end

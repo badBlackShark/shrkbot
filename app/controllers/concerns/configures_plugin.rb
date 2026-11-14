@@ -36,11 +36,6 @@ module ConfiguresPlugin
     end
   end
 
-  def redirect_to_overview(result)
-    parent = PluginCatalog.find(plugin_key).parent
-    redirect_to PluginPaths.for(@server_configuration, parent), status: :see_other, **flash_for(result)
-  end
-
   def configuration_url
     url_for(action: :show)
   end

@@ -187,10 +187,10 @@ it is off. In the sidebar every parent with sub-plugins renders as
 auto-expanded on an active child) whose parent row is a chevron toggle and whose
 sub-items are plain nav links on an indent rail. The parent's overview lists the
 sub-plugins with `Components::SubPluginDirectory` and `Components::SubPluginRow`;
-the row's `toggle_fields` (input name => value, arrays as one input per element)
-render as hidden inputs so its toggle submits the sub-plugin's full form, through
-the stub forms `Components::SubPluginToggleForms` renders after the page's own form
-(forms cannot nest). A
+the row's toggle posts only `enabled` to `Servers::PluginsController#update` (the
+dashboard's toggle endpoint), through the stub forms `Components::SubPluginToggleForms`
+renders after the page's own form (forms cannot nest), and the controller redirects a
+sub-plugin back to its parent's overview. A
 sub-plugin can't be enabled until its group prerequisite is met — that requirement
 lives in `PluginCatalog::Definition#prerequisite`, and
 `Ops::ServerConfiguration::Plugins::Toggle`, which every enable path goes through,

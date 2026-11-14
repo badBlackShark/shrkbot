@@ -256,6 +256,71 @@ RSpec.describe "Server dashboard", type: :request do
         patch server_plugin_path(guild.id, "roles"), params: {enabled: true}
         expect(response).to redirect_to(server_path(guild.id))
       end
+
+      context "with a Server Shield sub-plugin key" do
+        subject(:toggle) { patch server_plugin_path(guild.id, "spam_protection"), params: {enabled: "1"}, **turbo }
+
+        let(:moderation) { create(:plugin, key: "moderation", name: "Server Shield") }
+        let!(:spam_protection) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
+        let(:staff_role_id) { 701 }
+
+        before do
+          config.create_moderation_settings!(staff_role_id:)
+          create(:plugin_activation, server_configuration: config, plugin: moderation, enabled: false).update_column(:enabled, true)
+        end
+
+        it "redirects a Turbo submit to the Server Shield overview with the outcome" do
+          toggle
+
+          expect(response).to have_http_status(:see_other)
+          expect(response).to redirect_to(server_moderation_path(guild.id))
+          expect(flash[:notice]).to eq("Cross-Channel Spam Guard enabled.")
+          expect(config.enabled_plugin_keys).to include(:spam_protection)
+        end
+
+        context "when no staff role is set" do
+          let(:staff_role_id) { nil }
+
+          it "refuses and says which setting is missing" do
+            toggle
+
+            expect(response).to redirect_to(server_moderation_path(guild.id))
+            expect(flash[:alert]).to eq("Cross-Channel Spam Guard needs a staff role. Set one on the Server Shield overview.")
+            expect(config.enabled_plugin_keys).not_to include(:spam_protection)
+          end
+        end
+
+        context "when Server Shield is disabled" do
+          before { config.plugin_activations.find_by!(plugin: moderation).update_column(:enabled, false) }
+
+          it "refuses and sends the alert to the Server Shield overview" do
+            toggle
+
+            expect(response).to have_http_status(:see_other)
+            expect(response).to redirect_to(server_moderation_path(guild.id))
+            expect(flash[:alert]).to be_present
+            expect(config.enabled_plugin_keys).not_to include(:spam_protection)
+          end
+        end
+      end
+
+      context "with an Integrations sub-plugin key" do
+        subject(:toggle) { patch server_plugin_path(guild.id, "steam"), params: {enabled: "1"} }
+
+        let(:integrations) { create(:plugin, key: "integrations", name: "Integrations") }
+        let!(:steam) { create(:plugin, key: "steam", name: "Steam") }
+
+        before do
+          create(:plugin_activation, server_configuration: config, plugin: integrations, enabled: true)
+        end
+
+        it "redirects to the Integrations page" do
+          toggle
+
+          expect(response).to redirect_to(server_integrations_path(guild.id))
+          expect(flash[:notice]).to eq("Steam enabled.")
+        end
+      end
     end
 
     describe "toggling a server the user no longer manages" do

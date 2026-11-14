@@ -6,13 +6,7 @@ RSpec.describe Components::SubPluginRow do
   include_context "component view context"
 
   let(:config) { create(:server_configuration, discord_id: 900_000_001) }
-
-  let(:toggle_fields) do
-    {
-      "spam_protection[channel_threshold]" => 3,
-      "image_scanning[custom_keywords][]" => ["free nitro", "gift"]
-    }
-  end
+  let(:fragment) { Nokogiri::HTML.fragment(html) }
 
   let(:row_attrs) do
     {
@@ -20,8 +14,7 @@ RSpec.describe Components::SubPluginRow do
       name: "Cross-Channel Spam Guard",
       description: "Purges the same message posted across several channels within seconds.",
       enabled: true,
-      configured: true,
-      toggle_fields:
+      configured: true
     }
   end
 
@@ -63,18 +56,12 @@ RSpec.describe Components::SubPluginRow do
       expect(html).not_to include("<form")
     end
 
-    it "hidden fields carry the stub form id" do
-      expect(html).to include('form="spam_protection-overview-toggle-form"')
+    it "submits the toggle through the stub form" do
+      expect(fragment.at_css("input[type=checkbox][name=enabled]")["form"]).to eq("spam_protection-overview-toggle-form")
     end
 
-    it "includes a from_overview hidden field" do
-      expect(html).to include('name="from_overview"')
-    end
-
-    it "renders each toggle field as a hidden input on the stub form" do
-      expect(html).to include('name="spam_protection[channel_threshold]" value="3" form="spam_protection-overview-toggle-form"')
-      expect(html).to include('name="image_scanning[custom_keywords][]" value="free nitro" form="spam_protection-overview-toggle-form"')
-      expect(html).to include('name="image_scanning[custom_keywords][]" value="gift" form="spam_protection-overview-toggle-form"')
+    it "sends nothing but the enabled flag" do
+      expect(fragment.css("input[form]").map { |input| input["name"] }.uniq).to eq(["enabled"])
     end
   end
 
@@ -100,47 +87,6 @@ RSpec.describe Components::SubPluginRow do
     end
   end
 
-  context "for image_scanning when enabled and configured" do
-    subject(:html) do
-      described_class.new(**with_row(key: :image_scanning, name: "Scam Image Detection", enabled: true, configured: true, toggle_fields: {})).render_in(view_context)
-    end
-
-    it "links the Configure button to the image_scanning path" do
-      expect(html).to include("image_scanning")
-      expect(html).to include("Configure")
-    end
-
-    it "does not render an inline form tag" do
-      expect(html).not_to include("<form")
-    end
-
-    it "hidden fields carry the image_scanning stub form id" do
-      expect(html).to include('form="image_scanning-overview-toggle-form"')
-    end
-
-    it "includes a from_overview hidden field" do
-      expect(html).to include('name="from_overview"')
-    end
-  end
-
-  context "for image_scanning when needs setup (not configured, group enabled)" do
-    subject(:html) do
-      described_class.new(**with_row(key: :image_scanning, name: "Scam Image Detection", enabled: false, configured: false, toggle_fields: {})).render_in(view_context)
-    end
-
-    it "renders the Needs setup badge" do
-      expect(html).to include("Needs setup")
-    end
-
-    it "renders the inline warning hint" do
-      expect(html).to include("Pick a staff role first.")
-    end
-
-    it "renders the toggle as disabled" do
-      expect(html).to include("disabled")
-    end
-  end
-
   context "for spam_protection when disabled but configured" do
     subject(:html) do
       described_class.new(**with_row(enabled: false, configured: true)).render_in(view_context)
@@ -150,8 +96,8 @@ RSpec.describe Components::SubPluginRow do
       expect(html).to include("Disabled")
     end
 
-    it "renders hidden settings fields (not locked)" do
-      expect(html).to include('name="spam_protection[channel_threshold]"')
+    it "leaves the toggle interactive" do
+      expect(fragment.css("input[type=checkbox][disabled]")).to be_empty
     end
 
     it "does not render the needs-setup warning" do
@@ -159,13 +105,15 @@ RSpec.describe Components::SubPluginRow do
     end
   end
 
-  context "when toggle_fields is empty (no settings record yet)" do
-    subject(:html) do
-      described_class.new(**with_row(enabled: false, configured: true, toggle_fields: {})).render_in(view_context)
+  context "when the server configuration is a preview" do
+    let(:config) { create(:server_configuration, :preview) }
+
+    it "locks the toggle" do
+      expect(fragment.css("input[type=checkbox][disabled]")).not_to be_empty
     end
 
-    it "renders without hidden fields" do
-      expect(html).not_to include('name="spam_protection[channel_threshold]"')
+    it "says why in the tooltip" do
+      expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_row.preview_locked")))
     end
   end
 end
