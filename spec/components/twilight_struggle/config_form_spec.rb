@@ -48,7 +48,7 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
     end
   end
 
-  describe "an emptied box" do
+  describe "the template placeholders" do
     it "says nothing will be sent" do
       placeholders = fragment.css("textarea[name^='destination[template_']").map { |box| box["placeholder"] }
       expect(placeholders).to eq(["Nothing will be sent."] * 3)
