@@ -37,6 +37,16 @@ RSpec.describe "Steam subscriptions", type: :request do
 
     let(:input) { "1145350" }
 
+    context "with a conflicting plugin key in the query" do
+      subject(:lookup) { get plugin_path, params: {plugin_key: "twitch"} }
+
+      it "resolves the nested route to Steam" do
+        lookup
+
+        expect(response.body).to include("Paste a link to the game")
+      end
+    end
+
     context "without an input" do
       let(:input) { nil }
 
@@ -240,6 +250,18 @@ RSpec.describe "Steam subscriptions", type: :request do
 
         expect(response).to have_http_status(:unprocessable_content)
         expect(response.body).to include("Steam didn&#39;t answer.")
+      end
+    end
+
+    context "when every post type is unchecked" do
+      let(:attributes) { super().merge(event_types: {patch_notes => "0", announcements => "0", articles => "0"}) }
+
+      it "renders the form again with the reason and keeps the submitted channel" do
+        expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("Follow Hades II", "Turn on at least one type of post")
+        expect(Nokogiri::HTML(response.body).at_css(%(select[name="subscription[channel_id]"] option[selected]))["value"]).to eq("777")
       end
     end
 

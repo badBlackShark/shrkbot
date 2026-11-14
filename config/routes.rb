@@ -39,12 +39,12 @@ Rails.application.routes.draw do
       resource :moderation, only: [:show, :update], controller: "moderation"
       resource :lfg, only: [:show, :update], controller: "lfg"
       resource :integrations, only: [:show, :update], controller: "integrations"
-      resource :steam, only: [:show, :update], controller: "steam" do
-        resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], module: :steam
+      resource :steam, only: [:show, :update], controller: "feeds", defaults: {plugin_key: "steam"} do
+        resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], controller: "feeds/subscriptions"
         resource :volume, only: :show, module: :steam
       end
-      resource :twitch, only: [:show, :update], controller: "twitch" do
-        resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], module: :twitch
+      resource :twitch, only: [:show, :update], controller: "feeds", defaults: {plugin_key: "twitch"} do
+        resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], controller: "feeds/subscriptions"
         resources :categories, only: :index, module: :twitch
       end
       resource :twilight_struggle, only: [:show, :update], controller: "twilight_struggle" do
@@ -72,8 +72,8 @@ Rails.application.routes.draw do
     resource :moderation, only: [:show, :update], controller: "moderation"
     resource :lfg, only: [:show, :update], controller: "lfg"
     resource :integrations, only: [:show, :update], controller: "integrations"
-    resource :steam, only: [:show, :update], controller: "steam"
-    resource :twitch, only: [:show, :update], controller: "twitch"
+    resource :steam, only: [:show, :update], controller: "feeds", defaults: {plugin_key: "steam"}
+    resource :twitch, only: [:show, :update], controller: "feeds", defaults: {plugin_key: "twitch"}
     resource :spam_protection, only: [:show, :update], controller: "spam_protection"
     resource :image_scanning, only: [:show, :update], controller: "image_scanning"
   end

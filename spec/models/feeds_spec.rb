@@ -43,6 +43,19 @@ RSpec.describe Feeds do
     it "gives every source an announcement builder" do
       expect(sources).to all(respond_to(:announcement, :retract?, :revive?))
     end
+
+    it "gives Steam the app lookup and casts its languages to an array" do
+      settings = Feeds::Steam.settings_from(ActionController::Parameters.new(role_id: "1", body_length: "300", languages: "english").permit!)
+
+      expect([Feeds::Steam.lookup_param, settings[:languages]]).to eq([:app, ["english"]])
+    end
+
+    it "gives Twitch categories as values and drops unpermitted settings" do
+      category = {"id" => "509658", "name" => "Just Chatting"}
+      params = ActionController::Parameters.new(show_viewers: "1", admin: "1", categories: [Feeds::Twitch::CategoryValue.dump(category)]).permit!
+
+      expect(Feeds::Twitch.settings_from(params)).to eq({show_viewers: "1", categories: [category]})
+    end
   end
 
   describe ".source" do
