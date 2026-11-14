@@ -10,14 +10,6 @@ module Feeds
       event_types
     end
 
-    def self.notification_tokens
-      template_tokens
-    end
-
-    def self.tokens_for(_event_type)
-      notification_tokens
-    end
-
     def self.retract?(_subscription, _event)
       false
     end

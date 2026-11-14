@@ -8,10 +8,6 @@ RSpec.describe Feeds::Source do
       def self.event_types
         %w[Integrations::Steam::PatchNotesPublished]
       end
-
-      def self.template_tokens
-        %w[game]
-      end
     end
   end
   let(:subscription) { instance_double(Feeds::Subscription) }
@@ -30,30 +26,6 @@ RSpec.describe Feeds::Source do
 
     it "announces exactly the followable types" do
       expect(announced_types).to eq(%w[Integrations::Steam::PatchNotesPublished])
-    end
-  end
-
-  describe ".notification_tokens" do
-    subject(:notification_tokens) { source.notification_tokens }
-
-    it "offers the template tokens in the push text" do
-      expect(notification_tokens).to eq(%w[game])
-    end
-  end
-
-  describe ".tokens_for" do
-    subject(:tokens) { titled_source.tokens_for("Integrations::Steam::PatchNotesPublished") }
-
-    let(:titled_source) do
-      Class.new(source) do
-        def self.notification_tokens
-          %w[game title]
-        end
-      end
-    end
-
-    it "gives every type the source's notification tokens, overrides included" do
-      expect(tokens).to eq(%w[game title])
     end
   end
 

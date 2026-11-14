@@ -27,19 +27,11 @@ class Components::Feeds::Twitch::CategoriesCard < Components::Base
         )
         render Components::FieldHelp.new { t(".help") }
       end
-      switched_away
+      render Components::Feeds::Twitch::SwitchedAwayField.new(subscription: @subscription)
     end
   end
 
   private
-
-  def switched_away
-    div(data: {controller: "disclosure", disclosure_key_value: "feeds-switched-away-#{@subscription.watch.external_id}"}) do
-      render Components::Feeds::SettingsDisclosure.new do
-        render Components::Feeds::Twitch::SwitchedAwayField.new(subscription: @subscription)
-      end
-    end
-  end
 
   def options
     @options ||= @subscription.settings.categories.map do |category|

@@ -1,18 +1,14 @@
 # frozen_string_literal: true
 
-class Components::Feeds::EventTypesCard < Components::Base
+class Components::Feeds::EventTypeList < Components::Base
   def initialize(subscription:, plugin_key:, type_fields: nil)
     @subscription = subscription
     @plugin_key = plugin_key
     @type_fields = type_fields
   end
 
-  def view_template(&)
-    render Components::Card.new(class: "flex flex-col gap-4") do
-      h2(class: "font-semibold") { t(".what_title") }
-      yield if block_given?
-      ::Feeds.source(@plugin_key).event_types.each { |event_type| event_type_row(event_type) }
-    end
+  def view_template
+    ::Feeds.source(@plugin_key).event_types.each { |event_type| event_type_row(event_type) }
   end
 
   private

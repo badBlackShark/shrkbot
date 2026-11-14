@@ -23,6 +23,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
     create(:plugin_activation, server_configuration: config, plugin: twitch_plugin, enabled: true)
     create(:server_channel, server_configuration: config, discord_id: 777, name: "streams")
     create(:server_role, server_configuration: config, discord_id: 888, name: "Live pings")
+    create(:server_role, server_configuration: config, discord_id: 555, name: "Follow pings")
     allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     allow(Integrations::Twitch::ChannelWatcher).to receive(:resolve).with("somestreamer").and_return(target)
     allow(Integrations::Twitch::ChannelWatcher).to receive(:refresh).with(["9001"]).and_return([target])
@@ -79,11 +80,12 @@ RSpec.describe "Twitch subscriptions", type: :request do
         expect([live, highlights, uploads, featured_clips, clips].map { |type| checkbox(type)["checked"] }).to all(be_nil)
       end
 
-      it "renders one role select per post type and the end mode only for live" do
+      it "renders one role select for the follow and one per post type and the end mode only for live" do
         lookup
 
         page = Nokogiri::HTML(response.body)
         columns = %w[
+          role_id
           live_role_id
           highlights_role_id
           uploads_role_id
@@ -109,6 +111,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
       {
         external_id: "9001",
         channel_id:,
+        role_id: "555",
         live_role_id:,
         highlights_role_id: "",
         uploads_role_id: "",
@@ -129,6 +132,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
       expect(response).to redirect_to(list_path)
       expect(flash[:notice]).to eq("Now following SomeStreamer.")
       expect(config.feed_subscriptions.sole.twitch_settings).to have_attributes(
+        role_id: 555,
         live_role_id: 888,
         highlights_role_id: nil,
         live_end_mode: "delete",

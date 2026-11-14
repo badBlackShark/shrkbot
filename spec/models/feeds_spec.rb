@@ -29,7 +29,7 @@ RSpec.describe Feeds do
     end
 
     it "gives every source notification tokens with the title and a default text per event type" do
-      expect(sources).to all(satisfy { |source| source.notification_tokens.include?("title") && source.event_types.all? { |type| source.default_notification(type).present? } })
+      expect(sources).to all(satisfy { |source| source.template_tokens.include?("title") && source.event_types.all? { |type| source.default_notification(type).present? } })
     end
 
     it "gives every source a follow-cap message" do

@@ -19,6 +19,10 @@ module Feeds
       validate :categories_count
 
       def role_id_for(event_type)
+        role_override_for(event_type) || role_id
+      end
+
+      def role_override_for(event_type)
         public_send(Twitch.fetch_post_type(event_type).role_column)
       end
 

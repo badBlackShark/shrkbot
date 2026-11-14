@@ -25,10 +25,6 @@ class Components::Feeds::NotificationField < Components::Feeds::TemplateField
     super.merge(fallback: source.default_notification(@event_type))
   end
 
-  def token_names
-    source.notification_tokens & source.tokens_for(@event_type)
-  end
-
   def preview_label
     t(".preview")
   end

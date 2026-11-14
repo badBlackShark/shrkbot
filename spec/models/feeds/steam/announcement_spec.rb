@@ -175,11 +175,11 @@ RSpec.describe Feeds::Steam::Announcement do
       end
     end
 
-    context "with a stored template that still has the removed title token" do
+    context "with a template that uses the title token" do
       let(:template) { "{title}" }
 
-      it "leaves it literal in the lead line" do
-        expect(lead).to eq(Bot::Discord::Components.text("<@&4242> {title}"))
+      it "fills it in the lead line" do
+        expect(lead).to eq(Bot::Discord::Components.text("<@&4242> Smissmas 2026"))
       end
     end
 

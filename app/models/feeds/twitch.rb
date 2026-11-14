@@ -105,7 +105,7 @@ module Feeds
     end
 
     def self.scalar_settings
-      [*POST_TYPES.map(&:role_column), :live_end_mode, :show_viewers, :switched_away]
+      [:role_id, *POST_TYPES.map(&:role_column), :live_end_mode, :show_viewers, :switched_away]
     end
     private_class_method :scalar_settings
 

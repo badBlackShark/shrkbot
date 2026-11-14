@@ -59,12 +59,6 @@ RSpec.describe Feeds::Twitch do
     end
   end
 
-  describe ".notification_tokens" do
-    it "is the template tokens, which already include the title" do
-      expect(described_class.notification_tokens).to eq(described_class.template_tokens)
-    end
-  end
-
   describe ".default_notification" do
     subject(:default_notification) { described_class.default_notification("Integrations::Twitch::StreamSampled") }
 

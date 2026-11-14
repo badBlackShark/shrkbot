@@ -2,6 +2,12 @@
 
 module Feeds
   class Steam < Source
+    TOKENS = {
+      "Integrations::Steam::PatchNotesPublished" => %w[game feed title],
+      "Integrations::Steam::AnnouncementPublished" => %w[game author feed title],
+      "Integrations::Steam::ArticlePublished" => %w[game author feed title]
+    }.freeze
+
     def self.plugin_key
       :steam
     end
@@ -11,19 +17,15 @@ module Feeds
     end
 
     def self.event_types
-      %w[
-        Integrations::Steam::PatchNotesPublished
-        Integrations::Steam::AnnouncementPublished
-        Integrations::Steam::ArticlePublished
-      ]
+      TOKENS.keys
     end
 
     def self.template_tokens
-      %w[game author feed]
+      TOKENS.values.flatten.uniq
     end
 
-    def self.notification_tokens
-      template_tokens + %w[title]
+    def self.tokens_for(event_type)
+      TOKENS.fetch(event_type)
     end
 
     def self.default_notification(event_type)

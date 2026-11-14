@@ -5,14 +5,18 @@ require "rails_helper"
 RSpec.describe Feeds::Steam do
   let(:subscription) { create(:feed_subscription) }
 
-  describe ".notification_tokens" do
-    it "adds the title to the template tokens" do
-      expect(described_class.notification_tokens).to eq(%w[game author feed title])
+  describe ".template_tokens" do
+    it "offers the title beside the type tokens" do
+      expect(described_class.template_tokens).to eq(%w[game feed title author])
     end
   end
 
   describe ".tokens_for" do
-    it "is every notification token whatever the type" do
+    it "has no author on patch notes" do
+      expect(described_class.tokens_for("Integrations::Steam::PatchNotesPublished")).to eq(%w[game feed title])
+    end
+
+    it "has the author on articles" do
       expect(described_class.tokens_for("Integrations::Steam::ArticlePublished")).to eq(%w[game author feed title])
     end
   end

@@ -19,10 +19,6 @@ class Components::Feeds::CustomMessageField < Components::Feeds::TemplateField
     t(".placeholder")
   end
 
-  def token_names
-    source.template_tokens & source.tokens_for(@event_type)
-  end
-
   def preview_label
     t(".preview")
   end

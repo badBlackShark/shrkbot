@@ -11,12 +11,17 @@ function input(scope) {
   return { closest: () => scope }
 }
 
-const inScope = { id: "in" }
-const other = { id: "other" }
-const outside = { id: "outside" }
+const inScope = { id: "in", value: "7" }
+const emptyInScope = { id: "empty", value: "" }
+const other = { id: "other", value: "1" }
+const outside = { id: "outside", value: "2" }
 
-test("prefers the select inside the input's scope", () => {
+test("prefers the scoped select when it has a value", () => {
   assert.equal(roleSelectFor(input(scoped(inScope)), [other, inScope]), inScope)
+})
+
+test("falls back to the first select when the scoped one is empty", () => {
+  assert.equal(roleSelectFor(input(scoped(emptyInScope)), [other, emptyInScope]), other)
 })
 
 test("falls back to the first select when the scope holds none", () => {

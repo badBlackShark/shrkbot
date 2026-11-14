@@ -36,14 +36,15 @@ shared Feeds controllers (see Config UI).
 ## Sources
 
 A source is a class under `Feeds::` (`Feeds::Steam`) that inherits `Feeds::Source` and
-answers `plugin_key`, `watchers`, `event_types` (in UI order), `template_tokens` and
+answers `plugin_key`, `watchers`, `event_types` (in UI order), `template_tokens` (every
+token any type fills, blanked when a post has no value), `tokens_for(event_type)` (the
+tokens that type can fill, in the placeholder list and the preview) and
 `default_notification(event_type)`, plus the settings contract: `settings_association`
 (the `Subscription` association that holds its provider settings, which the list finder
 preloads), `role_id_for(subscription, event_type)` and `accepts?(subscription, event)`.
-`Feeds::Source` gives six more a default, and a source overrides only where it differs:
+`Feeds::Source` gives four more a default, and a source overrides only where it differs:
 `post_type(event_type)` (the event type itself), `announced_types` (`event_types`),
-`notification_tokens` (`template_tokens`; Steam adds `title`), `tokens_for(event_type)`
-(the tokens that type can fill; `notification_tokens`), `retract?(subscription, event)`
+`retract?(subscription, event)`
 (true when the post is deleted instead of edited; false, Twitch for `StreamEnded` in
 `delete` mode and for a switched-away stream in `delete` mode) and
 `revive?(subscription, event)` (true when a post shrkbot deleted may be sent again; false,
@@ -80,7 +81,8 @@ subscriptions controller asks the source for `lookup_param`, `settings_params` a
 so a new role column needs no extra code. The views are
 `Views::Servers::Feeds::Subscriptions::*`, keyed by plugin, and the form renders the
 source's own `Components::Feeds::<Source>::SubscriptionFields`, composed from the shared
-`DestinationCard` and `EventTypesCard` plus the source's cards. The followed list reads
+`DestinationCard` (channel and role to ping) and `EventTypeList` (one `EventTypeSetting`
+card per post type) plus the source's cards. The followed list reads
 roles through `Feeds::SubscriptionRoles` (`source.role_id_for`): one shared role shows as
 "pings @Role", roles that differ by type show on each badge, and a type's channel shows
 only when it differs from the follow's. The form posts one hash per post type,
@@ -126,35 +128,35 @@ are no preview routes for these pages.
 - **Images.** The pages load each game's header image straight from Steam, so the CSP
   `img_src` lists the two Steam image hosts and the privacy policy says Steam sees the
   viewer's IP address. A watch without an `image_url` shows a neutral placeholder.
-- **Custom messages.** Each post type has a collapsed "Custom message" disclosure
-  (`Components::Feeds::EventTypeSetting`, opens with the toggle through
-  `disclosure#sync`) holding the optional lead-line text (empty by default, no reset), a
-  placeholder list and a live preview (`feed-preview` controller,
-  `lib/feed_template.js`). `Feeds::Templates.custom` stores `nil` when the text is
-  blank, and any text is allowed. Turning a post type off drops its event row, so its custom message goes too.
-- **Volume line.** Under "What to post" a lazy Turbo frame (`feed-volume`) loads
+- **Custom messages.** Each post type is a card (`Components::Feeds::EventTypeSetting`):
+  name, help, chevron and toggle in the header; the body holds the channel override
+  (`OverrideFields`), the placeholder list once (`MessageFields`, from `tokens_for`), the
+  message and the push notification text with live previews (`feed-preview`,
+  `lib/feed_template.js`). Turning the type on opens the card, the chevron folds it
+  (`type-card` controller, open state remembered in `localStorage`); border and chevron
+  follow the toggle in CSS. `Feeds::Templates.custom` stores `nil` when the text is
+  blank, and any text is allowed. Turning a post type off drops its event row, so its
+  custom message goes too.
+- **Volume line.** Between the top card and the post type cards a lazy Turbo frame (`feed-volume`) loads
   `Servers::Steam::VolumesController#show`, which shows how many of the last 20 news
   items were each post type (`Integrations::Steam::NewsWatcher.volume`,
   `Feeds::VolumeLookup`). The follow and edit pages and saving never call Steam. When Steam
   fails the lookup returns `nil` and the frame stays empty.
 
 - **Twitch pages.** `Feeds::Twitch` answers `channel` as the lookup param and permits
-  the five role columns, `live_end_mode`, `show_viewers`, `switched_away` and
-  `categories`. `Components::Feeds::Twitch::SubscriptionFields` is the form
-  (destination card, then the shared "What to post" card). Twitch's role pickers sit
-  per post type, so `EventTypesCard` and `EventTypeSetting` take an optional
-  `type_fields:` component class, rendered inside each type's disclosure with
-  `subscription:` and `event_type:` and a block that renders the text fields, which it
-  yields where they belong; the disclosure is
-  `Feeds::SettingsDisclosure` (summary key `settings_disclosure.summary`), which the
-  categories card reuses for the switched-away choice. `Twitch::TypeFields` adds the role field
-  for every type, a volume warning on All clips, the 48-hour note on Featured clips, the
-  viewer toggle above Live's text fields and the end mode below them. The end mode and
-  the switched-away choice are `Twitch::ModeField` subclasses: a `SegmentedControl` over
-  one `Twitch::ModePanel` per mode; the generic `option-panels` controller shows the
-  panel matching the control's value (`lib/option_panels.js`).
-- **Twitch categories card.** `Twitch::CategoriesCard` (after "What to post") holds the
-  category filter and `Twitch::SwitchedAwayField`. The filter is a multiple `TomSelect`
+  `role_id` plus the five role columns, `live_end_mode`, `show_viewers`, `switched_away`
+  and `categories`. `Components::Feeds::Twitch::SubscriptionFields` is the form
+  (destination card, post type cards, categories card). `EventTypeList` and
+  `EventTypeSetting` take an optional `type_fields:` component class, rendered in each
+  card's body with `subscription:`, `event_type:` and `event:` and a block for the text
+  fields. `Twitch::TypeFields` puts the role override beside the channel override (it
+  passes it into `OverrideFields`), the viewer toggle above Live's text fields and the end
+  mode below them. The clip-volume and 48-hour sentences are those types' card help. The
+  end mode and the switched-away choice are `Twitch::ModeField` subclasses: a
+  `SegmentedControl` over one `Twitch::ModePanel` per mode; the generic `option-panels`
+  controller shows the panel matching the control's value (`lib/option_panels.js`).
+- **Twitch categories card.** `Twitch::CategoriesCard` (after the post type cards) holds the
+  category filter and `Twitch::SwitchedAwayField`, the card's last field, always shown. The filter is a multiple `TomSelect`
   whose `tom_select_search_url_value` points at
   `Servers::Twitch::CategoriesController#index`; the controller's `searchUrl` mode loads
   matches as the user types (`lib/category_options.js`). The endpoint returns
@@ -162,7 +164,8 @@ are no preview routes for these pages.
   The search caches per lowercased query for a day through `Feeds::CachedFetch`. Each
   option's value is `Feeds::Twitch::CategoryValue.dump` (`{"id","name"}` as JSON, id
   first), so saved and searched options match; the controller `parse`s the values and
-  drops any it can't read. A hidden empty `subscription[categories][]` goes first, so
+  drops any it can't read. The search clears its text after each pick
+  (`clearAfterSelect`). A hidden empty `subscription[categories][]` goes first, so
   clearing every chip still submits and empties the list. A follow holds at most
   `Settings::MAX_CATEGORIES` (100) categories, enforced by the model and the
   `feed_twitch_settings_categories_max` check constraint. In the switched-away field the
@@ -175,9 +178,8 @@ are no preview routes for these pages.
   copies of the renderers' text, so a renderer change needs the matching sample change.
   The preview card shows text and an optional button only, so it has no accent bar,
   profile picture or thumbnail. A role pill comes from the role
-  select in the field's own `data-feed-preview-scope` (the type's disclosure) and falls
-  back to the first role select on the page, which is Steam's single one
-  (`lib/role_scope.js`).
+  select in the field's own `data-feed-preview-scope` (the type's card) when it has a
+  value, else the top card's role select (`lib/role_scope.js`).
 - **Twitch images.** Channel profile pictures load straight from Twitch, so the CSP
   `img_src` lists `static-cdn.jtvnw.net` and the privacy policy says Twitch sees the
   viewer's IP address.
@@ -192,10 +194,11 @@ needs at least one. Template
 tokens are `streamer`, `category`, `title` and `clipper`; a token a card has no value for
 (`clipper` on a live card, `category` on a video) renders empty
 (`Feeds::Announcement#blank_tokens`). Its settings live in `feed_twitch_settings`
-(`Feeds::Twitch::Settings`, `twitch_settings` on the subscription): one role column per
-post type (`live_role_id`, `highlights_role_id`, `uploads_role_id`,
-`featured_clips_role_id`, `clips_role_id`), `show_viewers` (true by default) and
-`live_end_mode` (see below). `role_id_for` maps an event type to its role column.
+(`Feeds::Twitch::Settings`, `twitch_settings` on the subscription): a follow-wide
+`role_id` plus one override column per post type (`live_role_id`, `highlights_role_id`,
+`uploads_role_id`, `featured_clips_role_id`, `clips_role_id`), `show_viewers` (true by
+default) and `live_end_mode` (see below). `Settings#role_id_for` is the override or
+`role_id`; `#role_override_for` is the column alone (the form's override select).
 `Feeds::Twitch::POST_TYPES` holds one `Feeds::Twitch::PostType` per post type, in UI
 order: event type, default notification, tokens, role column and eyebrow label.
 `event_types`, `template_tokens`, `tokens_for`, `default_notification`,
@@ -333,7 +336,8 @@ is the only chance to add the button, so `RevisePostJob` retries.
   language). Check constraints limit `body_length` to its two values and `languages` to
   the model's codes. The row outlives a pause: switching every post type off keeps it.
 - `feed_twitch_settings` (`Feeds::Twitch::Settings`): the Twitch-only settings of a
-  subscription, 1:1 (unique `subscription_id`). An optional `live_role_id`,
+  subscription, 1:1 (unique `subscription_id`). An optional `role_id` and one optional override
+  role column per post type,
   `show_viewers` and `switched_away` (`summary` or `delete`, check-constrained).
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
   wants, each with an optional `template` override, an optional `channel_id` and
@@ -495,8 +499,9 @@ falls back to the default. Steam's default is built from `TYPE_LABELS`, the same
 as the card eyebrow. A migration copied existing custom messages into the notification
 text, so existing pushes did not change. The custom message is optional and empty by
 default. It is the subscribed event's `template` filled by `TemplateText`, with the
-tokens `game`, `author` and `feed`. It never touches the subject. A stored template that still has
-`{title}` or `{url}` from before those tokens were removed renders them literally.
+same tokens as the notification
+text, `title` included. It never touches the subject. A stored template that still has
+`{url}` from before that token was removed renders it literally.
 
 The **fallback** content, used when the card conversion fails, keeps the custom message
 line: role and message, then the notification text, then the link.

@@ -243,6 +243,11 @@ duplicated class strings:
 - **`Components::ConfigSections`** — the config-page section stack: renders the
   `<key>-config` div Turbo targets, the vertical `gap-5` rhythm, and the
   danger callout every plugin form was repeating (`enable_error:`).
+- **Toggle cards that open** (`Components::Feeds::EventTypeSetting`) — an option with its own settings is a card: a
+  `SettingRow` header with a chevron and the toggle at the card edge. Turning it on opens the card; the chevron, shown
+  only while on, folds it. The accent border and the chevron follow the checkbox through CSS
+  (`has-[[data-type-toggle]:checked]`); the `type-card` controller owns only open and closed, remembered in
+  `localStorage`. Never put settings behind a loose "Settings" disclosure.
 - **`Components::SettingRow`** — one labelled setting: `label:` + optional
   `help:` on the left, the control yielded as a block on the right. The *only*
   row treatment — `ToggleRow` is this plus a `Toggle`, and the Server Shield
