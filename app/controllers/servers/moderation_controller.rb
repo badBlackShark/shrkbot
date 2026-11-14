@@ -18,7 +18,7 @@ class Servers::ModerationController < ApplicationController
   def update
     return head :not_found unless guild_roles?(moderation_params[:staff_role_id])
 
-    result = Ops::Moderation::Configure.call(
+    result = Ops::Moderation::Settings::Update.call(
       server_configuration: @server_configuration,
       staff_role_id: moderation_params[:staff_role_id],
       enabled: moderation_params[:enabled],

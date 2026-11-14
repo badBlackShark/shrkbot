@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Ops::Lfg::Configure do
+RSpec.describe Ops::Lfg::Settings::Update do
   subject(:result) do
     described_class.call(
       server_configuration: config,
