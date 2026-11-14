@@ -38,7 +38,7 @@ Rails.application.routes.draw do
       resource :reminders, only: [:show, :update]
       resource :moderation, only: [:show, :update], controller: "moderation"
       resource :lfg, only: [:show, :update], controller: "lfg"
-      resource :integrations, only: [:show, :update], controller: "integrations"
+      resource :integrations, only: :show, controller: "integrations"
       resource :steam, only: [:show, :update], controller: "steam" do
         resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], module: :steam
         resource :volume, only: :show, module: :steam
@@ -71,7 +71,7 @@ Rails.application.routes.draw do
     resource :reminders, only: [:show, :update]
     resource :moderation, only: [:show, :update], controller: "moderation"
     resource :lfg, only: [:show, :update], controller: "lfg"
-    resource :integrations, only: [:show, :update], controller: "integrations"
+    resource :integrations, only: :show, controller: "integrations"
     resource :steam, only: [:show, :update], controller: "steam"
     resource :twitch, only: [:show, :update], controller: "twitch"
     resource :spam_protection, only: [:show, :update], controller: "spam_protection"

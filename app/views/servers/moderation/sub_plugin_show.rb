@@ -8,31 +8,47 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
 
   private
 
-  def toggle_locked?
-    super || !@context.staff_role_present?
-  end
-
-  def toggle_reason
-    super || (t(".role_locked_reason") unless @context.staff_role_present?)
-  end
-
   def body
-    no_role_callout
     render form
   end
 
-  def no_role_callout
-    return unless group_enabled? && !@context.staff_role_present?
+  def gate
+    return if fix_locations.empty?
 
-    render Components::Callout.new(variant: :warning) do
-      span do
-        b(class: "text-warning") { t(".no_role_callout_lead") }
-        plain " "
-        plain t(".no_role_callout_body")
-        plain " "
-        a(href: parent_path, class: "underline") { t(".no_role_callout_link") }
-        plain t(".no_role_callout_suffix")
-      end
-    end
+    {
+      type: :prereq,
+      title: t("views.servers.moderation.sub_plugin_show.prerequisites.title", plugin: definition.name),
+      steps: fix_locations.map { |key| prerequisite_step(key) }
+    }
+  end
+
+  def toggle
+    return super if enabled? || fix_locations.empty?
+
+    super.merge(locked: true, reason: t("components.plugin_row.needs_setup_hint"))
+  end
+
+  def fix_locations
+    @fix_locations ||= unmet_fix_locations
+  end
+
+  def unmet_fix_locations
+    blockers = definition.blockers(@config)
+    [
+      (definition.requires_plugin if blockers.include?(:requires_plugin)),
+      (definition.parent if blockers.include?(:prerequisite))
+    ].compact
+  end
+
+  def prerequisite_step(key)
+    Components::PrereqGate::Step.new(
+      message: t("views.servers.moderation.sub_plugin_show.prerequisites.#{key}.message"),
+      cta_label: t("views.servers.moderation.sub_plugin_show.prerequisites.#{key}.cta"),
+      cta_href: PluginPaths.for(@config, key)
+    )
+  end
+
+  def definition
+    PluginCatalog.find(plugin_key)
   end
 end

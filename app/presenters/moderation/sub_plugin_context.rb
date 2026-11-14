@@ -7,10 +7,6 @@ module Moderation
       @plugin_key = plugin_key
     end
 
-    def staff_role_present?
-      @config.moderation_settings&.staff_role_id.present?
-    end
-
     def settings
       if @plugin_key == :spam_protection
         @config.spam_protection_settings

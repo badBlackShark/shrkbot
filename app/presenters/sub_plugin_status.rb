@@ -11,7 +11,7 @@ class SubPluginStatus
         name: definition.name,
         description: definition.description,
         enabled: enabled_keys.include?(key),
-        configured: definition.prerequisites_met?(server_configuration, enabled_keys: enabled_keys | [parent])
+        configured: definition.prerequisites_met?(server_configuration, enabled_keys:)
       )
     end
   end

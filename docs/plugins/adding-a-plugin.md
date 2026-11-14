@@ -86,26 +86,31 @@ A `channel_setting` makes the plugin **channel-backed**: it can't be enabled unt
 channel is set. `Ops::ServerConfiguration::Plugins::Toggle` enforces this and a `PluginActivation` validation
 backstops it. `key` is read back as a symbol; branch on `:welcomes` in code.
 
-`requires_plugin:` names another plugin that must be enabled first (a hard dependency).
-`parent:` marks the plugin as a member of a plugin group; the parent must be enabled
-before a child can enable. Example: the moderation group's sub-plugins set
-`parent: :moderation`, and `:moderation` sets `requires_plugin: :logging`. A
-sub-plugin's page subclasses `Views::Servers::SubPluginShow`, and its parent's overview
-renders `Components::SubPluginDirectory` (rows from `SubPluginStatus.rows`) plus
-`Components::SubPluginToggleForms`, so the row toggles post to `Servers::PluginsController` from the overview. Integrations
-(`:integrations` with `:steam`) is the minimal example; Server Shield adds its own
-settings on top.
+`requires_plugin:` names another plugin that must be enabled and set up (its own
+prerequisites met) before this one can enable.
+`parent:` marks the plugin as a member of a `PluginCatalog::GROUPS` group (a `Group` is
+just a key and a name). A group is not a plugin: it has no activation and no toggle, its
+dashboard row has no toggle or badge and is lit while any member is on, and its overview
+page subclasses `Views::Servers::GroupShow`. A member's `prerequisite` is typically a
+shared group setting, linked from the member page's step list. Example: the Server
+Shield protections set `parent: :moderation` and `requires_plugin: :logging`, with a
+staff-role `prerequisite`. A member's page subclasses `Views::Servers::SubPluginShow`, and
+its group's overview renders `Components::SubPluginDirectory` (rows from
+`SubPluginStatus.rows`) plus `Components::SubPluginToggleForms`, so the row toggles post to
+`Servers::PluginsController` from the overview. Integrations (`:integrations` with
+`:steam`) is the minimal example; Server Shield adds its own settings on top.
 
 `Definition#blockers` returns every unmet reason in the order `:not_granted`,
-`:parent_disabled`, `:requires_plugin`, `:channel_missing`, `:prerequisite`;
+`:requires_plugin`, `:channel_missing`, `:prerequisite`;
 `prerequisites_met?` is `blockers.empty?`. `Ops::ServerConfiguration::Plugins::Toggle` is
 the only writer of `PluginActivation#enabled` (except `Ensure` creating disabled rows
-and preview seeding, see `docs/web/preview.md`). It refuses an enable with the first
-blocker's message (`requires_parent`, else
-`operations.server_configuration.plugins.requires.<key>` when present - add the key to
-`ignore_unused` group 7 - else `requires_settings`), and refuses any change that leaves
-an enabled plugin from `PluginCatalog.dependents_of(key)` with a blocker other than
-`:parent_disabled` (`still_needed`). A settings op (`Ops::<Plugin>::Settings::Update`) assigns its settings,
+and preview seeding, see `docs/web/preview.md`). It refuses an enable while any blocker
+remains (`operations.server_configuration.plugins.requires.<key>` when present - add the
+key to `ignore_unused` group 7 - else `requires_settings`), and refuses any change that
+leaves an enabled plugin from `PluginCatalog.dependents_of(key)` with a blocker
+(`PluginCatalog.unmet_dependent`, message `still_needed`). `Ops::Moderation::Settings::Update`
+asks the same question about the group's shared settings. A settings op
+(`Ops::<Plugin>::Settings::Update`) assigns its settings,
 then calls `save_with_activation`, so Toggle checks the submitted values before anything saves. The
 `PluginActivation` validation stays as the backstop.
 

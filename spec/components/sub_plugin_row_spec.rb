@@ -21,8 +21,7 @@ RSpec.describe Components::SubPluginRow do
   let(:base_attrs) do
     {
       server_configuration: config,
-      row: SubPluginStatus::Row.new(**row_attrs),
-      group_enabled: true
+      row: SubPluginStatus::Row.new(**row_attrs)
     }
   end
 
@@ -65,7 +64,7 @@ RSpec.describe Components::SubPluginRow do
     end
   end
 
-  context "when needs setup (not configured, group enabled)" do
+  context "when needs setup (not configured, not enabled)" do
     subject(:html) do
       described_class.new(**with_row(enabled: false, configured: false)).render_in(view_context)
     end
@@ -74,16 +73,22 @@ RSpec.describe Components::SubPluginRow do
       expect(html).to include("Needs setup")
     end
 
-    it "renders an inline warning hint" do
-      expect(html).to include("Pick a staff role first.")
-    end
-
-    it "renders the toggle as disabled" do
-      expect(html).to include("disabled")
+    it "renders the toggle as disabled with the dashboard hint" do
+      expect(html).to include("disabled").and include(CGI.escapeHTML(I18n.t("components.plugin_row.needs_setup_hint")))
     end
 
     it "still renders the Configure link" do
       expect(html).to include("Configure")
+    end
+  end
+
+  context "when enabled but its setup was lost" do
+    subject(:html) do
+      described_class.new(**with_row(enabled: true, configured: false)).render_in(view_context)
+    end
+
+    it "leaves the toggle interactive so it can be turned off" do
+      expect(fragment.css("input[type=checkbox][disabled]")).to be_empty
     end
   end
 
@@ -98,10 +103,6 @@ RSpec.describe Components::SubPluginRow do
 
     it "leaves the toggle interactive" do
       expect(fragment.css("input[type=checkbox][disabled]")).to be_empty
-    end
-
-    it "does not render the needs-setup warning" do
-      expect(html).not_to include("Pick a staff role first.")
     end
   end
 

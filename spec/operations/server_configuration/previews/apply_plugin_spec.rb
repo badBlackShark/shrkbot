@@ -94,9 +94,8 @@ RSpec.describe Ops::ServerConfiguration::Previews::ApplyPlugin do
   end
 
   context "with a plugin that has no settings row" do
-    let!(:plugin) { create(:plugin, key: "integrations", name: "Integrations") }
-    let!(:source_plugin) { create(:plugin, key: "steam", name: "Steam") }
-    let(:entry) { {plugin: "integrations", enabled: true} }
+    let!(:plugin) { create(:plugin, key: "steam", name: "Steam") }
+    let(:entry) { {plugin: "steam", enabled: true} }
 
     it "flips the plugin activation without a settings association" do
       result
@@ -105,7 +104,6 @@ RSpec.describe Ops::ServerConfiguration::Previews::ApplyPlugin do
     end
 
     context "with records that hang off the server configuration" do
-      let(:integrations_entry) { {plugin: "integrations", enabled: true} }
       let(:entry) do
         {
           plugin: "steam",
@@ -128,8 +126,6 @@ RSpec.describe Ops::ServerConfiguration::Previews::ApplyPlugin do
           }
         }
       end
-
-      before { described_class.call(server_configuration:, entry: integrations_entry) }
 
       it "builds the subscription with its nested events on the server configuration" do
         result
@@ -170,6 +166,24 @@ RSpec.describe Ops::ServerConfiguration::Previews::ApplyPlugin do
         expect(server_configuration.feed_subscriptions.count).to eq(1)
         expect(Integrations::Watch.where(external_id: "440").count).to eq(1)
       end
+    end
+  end
+  context "with shared settings and no plugin" do
+    let(:entry) do
+      {
+        settings_association: :moderation_settings,
+        settings: {staff_role_id: 201}
+      }
+    end
+
+    it "updates the settings row" do
+      result
+
+      expect(server_configuration.moderation_settings.staff_role_id).to eq(201)
+    end
+
+    it "leaves the activations alone" do
+      expect { result }.not_to change { server_configuration.plugin_activations.reload.map(&:enabled) }
     end
   end
 end

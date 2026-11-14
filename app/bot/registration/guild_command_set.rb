@@ -37,11 +37,9 @@ module Bot
     def include_guild?(reg)
       return true if reg.plugin.nil?
 
-      definition = PluginCatalog.find(reg.plugin)
-      return false unless bespoke_granted?(definition)
+      return false unless bespoke_granted?(PluginCatalog.find(reg.plugin))
 
-      parent_key = definition&.parent
-      enabled_keys.include?(reg.plugin) && (parent_key.nil? || enabled_keys.include?(parent_key))
+      enabled_keys.include?(reg.plugin)
     end
 
     def bespoke_granted?(definition)

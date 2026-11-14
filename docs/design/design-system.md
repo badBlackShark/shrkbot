@@ -170,31 +170,29 @@ beside the title, e.g. the Twilight Struggle tournament switcher.
 
 ### Plugin groups
 
-A plugin *group* (a parent plus sub-plugins) is derived from `PluginCatalog`: any
-definition with `parent:` set is a sub-plugin, and its parent is the group. Server
-Shield (`:moderation`) is the current one. The pages are
-`Views::Servers::PluginConfigShow` subclasses; its `toggle`, `gate` and
-`parent_crumb` hooks carry the group chrome, and `parent_crumb` defaults to the
-catalog parent. A sub-plugin page subclasses `Views::Servers::SubPluginShow`
-(supplying `plugin_key`, `icon` and `body`, plus its copy: `prereq_gate_*`,
-`group_locked_reason`). It locks the header toggle with a reason
-inside a `Tooltip` and shows **`Components::PrereqGate`** while the parent is off
--- a variant of the gate whose card names the blocking dependency and deep-links to
-where it's fixed instead of offering an Enable button -- and no gate once the parent
-is on. A parent page that is not a sub-plugin uses the standard `EnableGate` while
-it is off. In the sidebar every parent with sub-plugins renders as
+A plugin *group* is a `PluginCatalog::Group` (key and name): the parent of every
+definition with `parent:` set. A group is not a plugin, so it has no activation and no
+toggle. Server Shield (`:moderation`) and Integrations (`:integrations`) are the current
+ones. A group's page subclasses `Views::Servers::GroupShow` (no header toggle, no gate,
+plus the stub forms for its rows). Its dashboard row has no toggle or status badge, and
+its tile and sidebar icon are lit while any member is on. A member page subclasses
+`Views::Servers::SubPluginShow` (supplying `plugin_key`, `icon` and `body`) and links
+the group back through `parent_crumb`. Where a member has unmet prerequisites, its
+page shows **`Components::PrereqGate`**: one card with a `Step` per unmet
+prerequisite, each deep-linking to where it is fixed (`:requires_plugin` to that
+plugin, `:prerequisite` to the group page), and the header toggle stays locked with the
+dashboard's needs-setup hint. In the sidebar every group renders as
 **`Components::SidebarGroup`**: a native `<details>` disclosure (persisted per user,
-auto-expanded on an active child) whose parent row is a chevron toggle and whose
-sub-items are plain nav links on an indent rail. The parent's overview lists the
-sub-plugins with `Components::SubPluginDirectory` and `Components::SubPluginRow`;
+auto-expanded on an active member) whose group row is a chevron toggle and whose
+sub-items are plain nav links on an indent rail. The group's overview lists the
+members with `Components::SubPluginDirectory` and `Components::SubPluginRow`;
 the row's toggle posts only `enabled` to `Servers::PluginsController#update` (the
 dashboard's toggle endpoint), through the stub forms `Components::SubPluginToggleForms`
 renders after the page's own form (forms cannot nest), and the controller redirects a
-sub-plugin back to its parent's overview. A
-sub-plugin can't be enabled until its group prerequisite is met — that requirement
-lives in `PluginCatalog::Definition#prerequisite`, and
-`Ops::ServerConfiguration::Plugins::Toggle`, which every enable path goes through,
-enforces it.
+member back to its group's overview. A member can't be enabled until its prerequisites
+are met — that requirement lives in `PluginCatalog::Definition#requires_plugin` and
+`#prerequisite`, and `Ops::ServerConfiguration::Plugins::Toggle`, which every enable
+path goes through, enforces it.
 
 ## Core components
 
@@ -232,7 +230,7 @@ duplicated class strings:
   shows a percent readout but submits a hidden `0.75`–`1.0` float (converted once).
 - **`Components::RadioCardGroup`** — stacked radio options as bordered cards with a
   title + one-line description; native radios, so selection is reactive with no JS.
-- **`Components::PrereqGate`** / **`Components::SidebarGroup`** — see *Plugin groups*.
+- **`Components::PrereqGate`** (a title plus one `Step` per unmet prerequisite) / **`Components::SidebarGroup`** — see *Plugin groups*.
 - **`Components::FieldLabel`** / **`Components::FieldHelp`** — the shared label
   and help-text styling for a form field (`<label>` and `<p>` respectively); no
   parameters, block content only.

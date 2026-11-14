@@ -29,31 +29,20 @@ module Ops
         def enabling_refusal(activation)
           return unless activation.enabled?
 
-          blocker = definition.blockers(server_configuration).first
-          requirement_message(blocker) if blocker
+          requirement_message if definition.blockers(server_configuration).any?
         end
 
-        def requirement_message(blocker)
-          if blocker == :parent_disabled
-            I18n.t("operations.server_configuration.plugins.requires_parent", plugin: plugin.name, parent: PluginCatalog.find(definition.parent).name)
-          else
-            I18n.t(
-              "operations.server_configuration.plugins.requires.#{plugin.key}",
-              plugin: plugin.name,
-              default: I18n.t("operations.server_configuration.plugins.requires_settings", plugin: plugin.name)
-            )
-          end
+        def requirement_message
+          I18n.t(
+            "operations.server_configuration.plugins.requires.#{plugin.key}",
+            plugin: plugin.name,
+            default: I18n.t("operations.server_configuration.plugins.requires_settings", plugin: plugin.name)
+          )
         end
 
         def dependent_refusal(activation)
-          enabled_keys = prospective_keys(activation)
-          dependent = PluginCatalog.dependents_of(plugin.key).find { |candidate| still_needs?(candidate, enabled_keys) }
+          dependent = PluginCatalog.unmet_dependent(plugin.key, server_configuration, enabled_keys: prospective_keys(activation))
           I18n.t("operations.server_configuration.plugins.still_needed", dependent: dependent.name) if dependent
-        end
-
-        def still_needs?(dependent, enabled_keys)
-          enabled_keys.include?(dependent.key) &&
-            (dependent.blockers(server_configuration, enabled_keys:) - [:parent_disabled]).any?
         end
 
         def prospective_keys(activation)

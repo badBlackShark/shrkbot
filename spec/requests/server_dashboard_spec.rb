@@ -48,8 +48,17 @@ RSpec.describe "Server dashboard", type: :request do
         expect(response.body).not_to include("<hr")
       end
 
+      it "renders the group rows without a toggle, linking to their pages" do
+        get_dashboard
+
+        page = Nokogiri::HTML(response.body)
+        %w[moderation integrations].each do |key|
+          expect(page.css("#plugin-#{key} input[type=checkbox]")).to be_empty
+          expect(page.at_css("#plugin-#{key} a[href='#{public_send("server_#{key}_path", guild.id)}']")).to be_present
+        end
+      end
+
       it "lists moderation but not its sub-plugins on the dashboard" do
-        create(:plugin, key: "moderation", name: "Server Shield")
         create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard")
         create(:plugin, key: "image_scanning", name: "Scam Image Detection")
         get_dashboard
@@ -250,6 +259,12 @@ RSpec.describe "Server dashboard", type: :request do
         expect(flash[:alert]).to be_present
       end
 
+      it "answers a group key as an unknown plugin" do
+        patch server_plugin_path(guild.id, "moderation"), params: {enabled: true}, **turbo
+        expect(response).to redirect_to(server_path(guild.id))
+        expect(flash[:alert]).to eq(I18n.t("servers.unknown_plugin"))
+      end
+
       it "falls back to a redirect without Turbo" do
         config.create_role_setting!(channel_id: 7)
         roles
@@ -260,13 +275,13 @@ RSpec.describe "Server dashboard", type: :request do
       context "with a Server Shield sub-plugin key" do
         subject(:toggle) { patch server_plugin_path(guild.id, "spam_protection"), params: {enabled: "1"}, **turbo }
 
-        let(:moderation) { create(:plugin, key: "moderation", name: "Server Shield") }
         let!(:spam_protection) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
         let(:staff_role_id) { 701 }
 
         before do
           config.create_moderation_settings!(staff_role_id:)
-          create(:plugin_activation, server_configuration: config, plugin: moderation, enabled: false).update_column(:enabled, true)
+          config.create_logging_settings!(channel_id: 999)
+          create(:plugin_activation, server_configuration: config, plugin: logging, enabled: false).update_column(:enabled, true)
         end
 
         it "redirects a Turbo submit to the Server Shield overview with the outcome" do
@@ -285,20 +300,7 @@ RSpec.describe "Server dashboard", type: :request do
             toggle
 
             expect(response).to redirect_to(server_moderation_path(guild.id))
-            expect(flash[:alert]).to eq("Cross-Channel Spam Guard needs a staff role. Set one on the Server Shield overview.")
-            expect(config.enabled_plugin_keys).not_to include(:spam_protection)
-          end
-        end
-
-        context "when Server Shield is disabled" do
-          before { config.plugin_activations.find_by!(plugin: moderation).update_column(:enabled, false) }
-
-          it "refuses and sends the alert to the Server Shield overview" do
-            toggle
-
-            expect(response).to have_http_status(:see_other)
-            expect(response).to redirect_to(server_moderation_path(guild.id))
-            expect(flash[:alert]).to be_present
+            expect(flash[:alert]).to eq("Cross-Channel Spam Guard needs Logging enabled, and a staff role set on the Server Shield overview.")
             expect(config.enabled_plugin_keys).not_to include(:spam_protection)
           end
         end
@@ -307,12 +309,7 @@ RSpec.describe "Server dashboard", type: :request do
       context "with an Integrations sub-plugin key" do
         subject(:toggle) { patch server_plugin_path(guild.id, "steam"), params: {enabled: "1"} }
 
-        let(:integrations) { create(:plugin, key: "integrations", name: "Integrations") }
         let!(:steam) { create(:plugin, key: "steam", name: "Steam") }
-
-        before do
-          create(:plugin_activation, server_configuration: config, plugin: integrations, enabled: true)
-        end
 
         it "redirects to the Integrations page" do
           toggle

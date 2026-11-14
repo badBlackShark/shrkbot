@@ -13,10 +13,9 @@ class Components::SubPluginRow < Components::Base
     "#{key}-overview-toggle-form"
   end
 
-  def initialize(server_configuration:, row:, group_enabled:)
+  def initialize(server_configuration:, row:)
     @config = server_configuration
     @row = row
-    @group_enabled = group_enabled
   end
 
   def view_template
@@ -29,7 +28,6 @@ class Components::SubPluginRow < Components::Base
           render Components::PluginBadges.new(key: @row.key)
         end
         p(class: "mt-0.5 text-sm text-text-secondary") { @row.description }
-        needs_setup_inline_warning if needs_setup?
       end
       configure_link
       toggle_control
@@ -50,14 +48,7 @@ class Components::SubPluginRow < Components::Base
   end
 
   def needs_setup?
-    !@row.configured && @group_enabled
-  end
-
-  def needs_setup_inline_warning
-    p(class: "mt-1 flex items-center gap-1 text-xs font-medium text-warning") do
-      render Components::Icon.new("warning", class: "size-3.5")
-      span { t(".needs_setup_hint.#{@row.key}") }
-    end
+    !@row.configured && !@row.enabled
   end
 
   def configure_link
@@ -78,7 +69,7 @@ class Components::SubPluginRow < Components::Base
     if @config.preview?
       locked_toggle(t("components.plugin_row.preview_locked"))
     elsif needs_setup?
-      locked_toggle(t(".locked_reason.#{@row.key}"))
+      locked_toggle(t("components.plugin_row.needs_setup_hint"))
     else
       enabled_toggle
     end

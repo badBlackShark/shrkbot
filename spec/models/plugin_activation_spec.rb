@@ -34,7 +34,7 @@ RSpec.describe PluginActivation do
     subject(:enabled_for) { described_class.enabled_for(:steam) }
 
     let(:steam) { create(:plugin, key: "steam") }
-    let!(:integrations_activation) { create(:plugin_activation, server_configuration: server, plugin: create(:plugin, key: "integrations"), enabled: true) }
+    let!(:other_activation) { create(:plugin_activation, server_configuration: server, plugin: create(:plugin, key: "twitch"), enabled: true) }
     let!(:enabled) { create(:plugin_activation, server_configuration: server, plugin: steam, enabled: true) }
 
     before do

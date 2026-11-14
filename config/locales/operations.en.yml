@@ -25,13 +25,10 @@ en:
           Discord guild.
       plugins:
         requires:
-          image_scanning: "%{plugin} needs a staff role. Set one on the Server Shield
-            overview."
-          moderation: Server Shield needs the Logging plugin on, with a log channel
-            set.
-          spam_protection: "%{plugin} needs a staff role. Set one on the Server Shield
-            overview."
-        requires_parent: "%{plugin} is part of %{parent}. Turn %{parent} on first."
+          image_scanning: "%{plugin} needs Logging enabled, and a staff role set on
+            the Server Shield overview."
+          spam_protection: "%{plugin} needs Logging enabled, and a staff role set
+            on the Server Shield overview."
         requires_settings: "%{plugin} can't be enabled until its required settings
           are configured."
         still_needed: "%{dependent} is on and depends on these settings. Turn %{dependent}

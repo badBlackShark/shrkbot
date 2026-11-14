@@ -13,17 +13,12 @@ data:
     - ["operations.*", "config/locales/operations.%{locale}.yml"]
     - "config/locales/web.%{locale}.yml"
 
-# Relative keys in the abstract show views (SubPluginShow, PluginConfigShow),
+# Relative keys in the abstract show views (Moderation::SubPluginShow, PluginConfigShow),
 # in Components::TwilightStruggle::SettingCardBase and in
 # Components::Feeds::Twitch::ModeField resolve at runtime
 # against the SUBCLASS scope (e.g. logging/welcomes show),
 # which the static file-path scoping above cannot see.
 ignore_missing:
-  - views.servers.moderation.sub_plugin_show.role_locked_reason
-  - views.servers.moderation.sub_plugin_show.no_role_callout_lead
-  - views.servers.moderation.sub_plugin_show.no_role_callout_body
-  - views.servers.moderation.sub_plugin_show.no_role_callout_link
-  - views.servers.moderation.sub_plugin_show.no_role_callout_suffix
   - views.servers.plugin_config_show.*
   - components.twilight_struggle.setting_card_base.label
   - components.twilight_struggle.setting_card_base.help
@@ -78,10 +73,8 @@ ignore_unused:
   - views.servers.reminders.show.badge
   - views.servers.moderation.show.title
   - views.servers.moderation.show.description
-  - views.servers.moderation.show.gate_message
   - views.servers.integrations.show.title
   - views.servers.integrations.show.description
-  - views.servers.integrations.show.gate_message
   - views.servers.twilight_struggle.show.title
   - views.servers.twilight_struggle.show.description
   - views.servers.twilight_struggle.show.gate_message
@@ -105,9 +98,13 @@ ignore_unused:
   - servers.plugin_enabled
   - servers.plugin_disabled
   # 7. Ops::ServerConfiguration::Plugins::Toggle#requirement_message
-  - operations.server_configuration.plugins.requires.moderation
   - operations.server_configuration.plugins.requires.spam_protection
   - operations.server_configuration.plugins.requires.image_scanning
+  # 7. Views::Servers::Moderation::SubPluginShow#prerequisite_step
+  - views.servers.moderation.sub_plugin_show.prerequisites.logging.message
+  - views.servers.moderation.sub_plugin_show.prerequisites.logging.cta
+  - views.servers.moderation.sub_plugin_show.prerequisites.moderation.message
+  - views.servers.moderation.sub_plugin_show.prerequisites.moderation.cta
 
 search:
   paths:

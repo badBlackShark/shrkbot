@@ -10,14 +10,11 @@ RSpec.describe "Twitch config", type: :request do
   it_behaves_like "a config page that requires sign-in"
 
   context "when signed in" do
-    let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
     let!(:twitch_plugin) { create(:plugin, key: "twitch", name: "Twitch") }
-    let(:integrations_enabled) { true }
 
     before do
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
-      create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: integrations_enabled)
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     end
 
@@ -44,19 +41,6 @@ RSpec.describe "Twitch config", type: :request do
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
           expect(response.body).to include(%(id="twitch-config"))
           expect(config.enabled_plugin_keys).to include(:twitch)
-        end
-
-        context "when Integrations is off" do
-          let(:integrations_enabled) { false }
-          let(:replaced) { Nokogiri::HTML.fragment(response.body).at_css("template").inner_html }
-
-          it "refuses with the reason rendered inside the Twitch section" do
-            toggle
-
-            expect(response).to have_http_status(:unprocessable_content)
-            expect(Nokogiri::HTML.fragment(replaced).at_css("#twitch-config").text).to include("Twitch is part of Integrations. Turn Integrations on first.")
-            expect(config.enabled_plugin_keys).not_to include(:twitch)
-          end
         end
       end
     end

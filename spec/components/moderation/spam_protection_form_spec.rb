@@ -10,8 +10,7 @@ RSpec.describe Components::Moderation::SpamProtectionForm do
   let(:context) do
     instance_double(
       Moderation::SubPluginContext,
-      settings:,
-      staff_role_present?: true
+      settings:
     )
   end
 

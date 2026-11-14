@@ -9,7 +9,6 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
   let(:logging) { create(:plugin, key: "logging", name: "Logging") }
   let(:roles) { create(:plugin, key: "roles", name: "Roles") }
   let(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
-  let(:moderation) { create(:plugin, key: "moderation", name: "Server Shield") }
   let(:spam_protection) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
 
   def activate(plugin)
@@ -77,14 +76,12 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     end
   end
 
-  context "enabling a sub-plugin while its parent is off" do
+  context "enabling Steam, which belongs to a group with no switch" do
     let(:plugin) { create(:plugin, key: "steam", name: "Steam") }
     let(:enabled) { true }
 
-    before { create(:plugin, key: "integrations", name: "Integrations") }
-
-    it "names the parent to turn on" do
-      expect(result.errors.first).to eq("Steam is part of Integrations. Turn Integrations on first.")
+    it "succeeds" do
+      expect(result.success?).to be(true)
     end
   end
 
@@ -185,46 +182,64 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     end
   end
 
-  context "enabling Server Shield while Logging is off" do
-    let(:plugin) { moderation }
+  context "enabling a protection while Logging is off" do
+    let(:plugin) { spam_protection }
     let(:enabled) { true }
 
     before do
       logging
       server.create_logging_settings!(channel_id: 999)
+      server.create_moderation_settings!(staff_role_id: 5)
     end
 
-    it "names the Logging requirement" do
-      expect(result.errors).to eq(["Server Shield needs the Logging plugin on, with a log channel set."])
+    it "names every requirement" do
+      expect(result.errors).to eq(["Cross-Channel Spam Guard needs Logging enabled, and a staff role set on the Server Shield overview."])
     end
   end
 
-  context "enabling a sub-plugin without a staff role" do
+  context "enabling a protection while Logging is on without a channel" do
     let(:plugin) { spam_protection }
     let(:enabled) { true }
 
     before do
-      activate(moderation)
-      server.create_moderation_settings!
+      server.create_logging_settings!
+      server.create_moderation_settings!(staff_role_id: 5)
+      activate(logging)
     end
 
-    it "names the staff role requirement" do
-      expect(result.errors).to eq(["Cross-Channel Spam Guard needs a staff role. Set one on the Server Shield overview."])
+    it "is refused" do
+      expect(result.errors).to eq(["Cross-Channel Spam Guard needs Logging enabled, and a staff role set on the Server Shield overview."])
     end
   end
 
-  context "while Server Shield is on" do
+  context "enabling a protection without a staff role" do
+    let(:plugin) { spam_protection }
+    let(:enabled) { true }
+
+    before do
+      server.create_logging_settings!(channel_id: 999)
+      server.create_moderation_settings!
+      activate(logging)
+    end
+
+    it "is refused" do
+      expect(result.errors).to eq(["Cross-Channel Spam Guard needs Logging enabled, and a staff role set on the Server Shield overview."])
+    end
+  end
+
+  context "while a protection is on" do
     let(:plugin) { logging }
     let(:enabled) { false }
 
     before do
       server.create_logging_settings!(channel_id: 999)
+      server.create_moderation_settings!(staff_role_id: 5)
       activate(logging)
-      activate(moderation)
+      activate(spam_protection)
     end
 
     it "refuses to turn Logging off and leaves it on" do
-      expect(result.errors).to eq(["Server Shield is on and depends on these settings. Turn Server Shield off first."])
+      expect(result.errors).to eq(["Cross-Channel Spam Guard is on and depends on these settings. Turn Cross-Channel Spam Guard off first."])
       expect(server.plugin_activations.find_by(plugin: logging).reload.enabled).to be(true)
     end
 
@@ -235,54 +250,6 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
 
       it "refuses" do
         expect(result.errors).to eq(["Logging can't be enabled until its required settings are configured."])
-      end
-    end
-  end
-
-  context "while a Server Shield sub-plugin is on" do
-    let(:plugin) { moderation }
-    let(:enabled) { true }
-    let(:dependent_message) { ["Cross-Channel Spam Guard is on and depends on these settings. Turn Cross-Channel Spam Guard off first."] }
-
-    before do
-      server.create_logging_settings!(channel_id: 999)
-      server.create_moderation_settings!(staff_role_id: 5)
-      activate(logging)
-      activate(spam_protection)
-    end
-
-    context "when Server Shield is on and the staff role is cleared in memory" do
-      before do
-        activate(moderation)
-        server.moderation_settings.staff_role_id = nil
-      end
-
-      it "refuses to keep Server Shield on" do
-        expect(result.errors).to eq(dependent_message)
-      end
-    end
-
-    context "when Server Shield is off and the staff role is cleared in memory" do
-      let(:enabled) { false }
-
-      before do
-        activate(moderation).update_column(:enabled, false)
-        server.moderation_settings.staff_role_id = nil
-      end
-
-      it "refuses" do
-        expect(result.errors).to eq(dependent_message)
-      end
-    end
-
-    context "when Server Shield turns off with the staff role kept" do
-      let(:enabled) { false }
-
-      before { activate(moderation) }
-
-      it "succeeds, because a parent may turn off with children on" do
-        expect(result.success?).to be(true)
-        expect(result.value.enabled).to be(false)
       end
     end
   end
@@ -451,23 +418,23 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
   end
 
   context "feeds follow times" do
-    let(:plugin) { integrations }
+    let(:plugin) { steam }
     let(:enabled) { true }
-    let(:integrations) { create(:plugin, key: "integrations", name: "Integrations") }
+    let(:steam) { create(:plugin, key: "steam", name: "Steam") }
     let(:subscription) { create(:feed_subscription, server_configuration: server) }
     let!(:subscribed_event) { create(:feed_subscribed_event, subscription:, subscribed_since: 1.day.ago) }
 
-    context "when enabling integrations" do
+    context "when enabling Steam" do
       it "resets the follow time" do
         expect { result }.to change { subscribed_event.reload.subscribed_since }
       end
     end
 
-    context "when disabling integrations" do
+    context "when disabling Steam" do
       let(:enabled) { false }
 
       before do
-        create(:plugin_activation, server_configuration: server, plugin: integrations, enabled: true)
+        create(:plugin_activation, server_configuration: server, plugin: steam, enabled: true)
       end
 
       it "leaves the follow time alone" do
@@ -475,9 +442,9 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
       end
     end
 
-    context "when integrations is already enabled and saved as enabled again" do
+    context "when Steam is already enabled and saved as enabled again" do
       before do
-        create(:plugin_activation, server_configuration: server, plugin: integrations, enabled: true)
+        create(:plugin_activation, server_configuration: server, plugin: steam, enabled: true)
       end
 
       it "leaves the follow time alone" do
