@@ -5,15 +5,18 @@ class Components::SegmentedControl < Components::Base
   INACTIVE = "border-border-default text-text-secondary font-medium"
   BASE = "flex-1 h-10 rounded-control border-[1.5px] text-sm transition-colors"
 
-  def initialize(name:, value:, options:, input_data: {})
+  def initialize(name:, value:, options:, label: nil, input_data: {})
     @name = name
     @value = value.to_s
     @options = options
+    @label = label
     @input_data = input_data
   end
 
   def view_template
     div(
+      role: ("group" if @label),
+      aria_label: @label,
       class: "flex gap-2",
       data: {controller: "segmented", segmented_active_class: ACTIVE, segmented_inactive_class: INACTIVE}
     ) do

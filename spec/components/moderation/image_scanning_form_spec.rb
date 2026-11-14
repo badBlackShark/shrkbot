@@ -29,14 +29,19 @@ RSpec.describe Components::Moderation::ImageScanningForm do
     expect(html).to include("Before you turn this on")
   end
 
-  it "renders the sensitivity radio card group with correct field name" do
-    expect(html).to include('name="image_scanning[sensitivity]"')
+  context "when the saved sensitivity is strict" do
+    let(:settings) { create(:image_scanning_settings, server_configuration: config, sensitivity: "strict") }
+
+    it "submits it from the segmented control" do
+      expect(html).to include('<input type="hidden" name="image_scanning[sensitivity]" value="strict"')
+    end
   end
 
   it "renders all three sensitivity options" do
     expect(html).to include("Relaxed")
-    expect(html).to include("Standard")
+    expect(html).to include("Standard (recommended)")
     expect(html).to include("Strict")
+    expect(html).to include("Stricter catches more scams and more innocent images.")
   end
 
   it "renders the custom keywords select with correct field name" do
@@ -49,6 +54,12 @@ RSpec.describe Components::Moderation::ImageScanningForm do
 
   it "renders the min_hits stepper with correct field name" do
     expect(html).to include('name="image_scanning[custom_keyword_min_hits]"')
+  end
+
+  it "labels the min_hits stepper unit and resets to the column default" do
+    default = ::Moderation::ImageScanning::Settings.column_defaults.fetch("custom_keyword_min_hits")
+    expect(html).to include("matching keywords")
+    expect(html).to include(%(data-number-stepper-default-value="#{default}"))
   end
 
   it "renders the action segmented control with correct field name" do
