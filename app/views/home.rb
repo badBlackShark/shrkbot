@@ -5,10 +5,13 @@ class Views::Home < Views::Base
   include Phlex::Rails::Helpers::ImageTag
   include Components::PluginNav
 
+  PLUGINS = %i[roles welcomes logging moderation reminders lfg steam twitch].freeze
+  private_constant :PLUGINS
+
   def view_template
     render Components::PublicShell.new do
       hero
-      plugin_showcase
+      plugin_grid
     end
   end
 
@@ -74,20 +77,11 @@ class Views::Home < Views::Base
     end
   end
 
-  def plugin_showcase
+  def plugin_grid
     section(class: "mx-auto max-w-4xl px-6 pb-20") do
-      p(class: "mb-5 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins_eyebrow") }
-      div(
-        class: "plugin-marquee",
-        data: {
-          controller: "marquee",
-          action: "wheel->marquee#scroll:!passive"
-        }
-      ) do
-        div(class: "plugin-marquee-track") do
-          plugin_cards
-          plugin_cards(decorative: true)
-        end
+      h2(class: "mb-5 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { t(".plugins_eyebrow") }
+      div(class: "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4") do
+        PLUGINS.each { |key| plugin_card(key) }
       end
     end
   end
@@ -103,14 +97,8 @@ class Views::Home < Views::Base
     )
   end
 
-  def plugin_cards(decorative: false)
-    div(class: "flex", aria_hidden: decorative ? "true" : nil) do
-      %i[roles welcomes logging moderation reminders lfg].each { |key| plugin_card(key) }
-    end
-  end
-
   def plugin_card(key)
-    render Components::Card.new(class: "mr-4 w-72 flex-none") do
+    render Components::Card.new(href: PluginPaths.preview_for(key), lift: true) do
       div(class: "mb-3 flex size-10 items-center justify-center rounded-control bg-accent-soft text-accent-soft-fg") do
         render Components::Icon.new(plugin_icon(key), class: "size-5")
       end

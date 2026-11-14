@@ -375,6 +375,7 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Delete the post` (Twitch, when the stream switches category) | `Delete until it switches back` | The post comes back when the category does, and the label has to say so. |
 | `Several` (badge on a collapsed role set) | `Pick several` / `Pick one` | The segment label has no noun beside a set name. The badge has its own keys; the segmented control keeps "One" and "Several". |
 | `people like you that want more power than Discord` (home) | `people like you who want more power than Discord` | People take "who". |
+| `Example plugins` (home, above a moving strip of six plugins) | `Plugins` | The grid now shows every public plugin, so the list is no longer a sample and "Example" undersold it. |
 
 ## Kept on purpose
 

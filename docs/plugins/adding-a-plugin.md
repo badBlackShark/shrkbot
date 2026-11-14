@@ -87,6 +87,11 @@ page and the sub-plugin rows all read it, so no locale file carries a copy. A pl
 toggle (Reminders) goes in `PluginCatalog::GLOBALS` instead: `PluginCatalog.description` finds it, `all`
 and `find` do not.
 
+A public plugin also gets a card on the home page: add its key to `PLUGINS` in `app/views/home.rb`. The
+card shows the catalog name and description and links to the plugin's preview page. Bespoke plugins get
+no card. The grid holds 12 cards; past that, group instead of adding a row (Integrations becomes one card
+for Steam and Twitch).
+
 A `channel_setting` makes the plugin **channel-backed**: it can't be enabled until that
 channel is set. `Ops::ServerConfiguration::Plugins::Toggle` enforces this and a `PluginActivation` validation
 backstops it. `key` is read back as a symbol; branch on `:welcomes` in code.
