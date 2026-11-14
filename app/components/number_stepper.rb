@@ -2,7 +2,9 @@
 
 class Components::NumberStepper < Components::Base
   DECREMENT_CORNER = "rounded-l-[7px]"
-  INCREMENT_CORNER = "rounded-r-[7px] [&:has(+:not([hidden]))]:rounded-r-none"
+  SEGMENT = "border-l border-border-default text-text-secondary transition-colors " \
+    "hover:bg-surface-sunken hover:text-text-primary"
+  TRAILING_CORNER = "rounded-r-[7px] [&:has(+:not([hidden]))]:rounded-r-none"
 
   def initialize(name:, value:, min:, default: nil, unit: nil, max: nil, placeholder: nil, input_class: "w-11")
     @name = name
@@ -28,10 +30,11 @@ class Components::NumberStepper < Components::Base
   private
 
   def group
-    div(class: "inline-flex h-8 items-stretch rounded-control border border-border-default bg-surface-card has-[input:focus]:border-accent") do
+    div(class: "inline-flex h-8 items-stretch rounded-control border border-border-default bg-surface-card has-[input:focus]:border-accent has-[.ts-wrapper.focus]:border-accent") do
       decrement_button
       number_input
       increment_button
+      unit_segment
       reset_segment if resettable?
     end
   end
@@ -49,12 +52,27 @@ class Components::NumberStepper < Components::Base
     @default.between?(@min, @max || @default)
   end
 
+  def unit_segment
+  end
+
+  def shown_attributes
+    {name: @name, value: @value, min: @min, max: @max, placeholder: @placeholder}
+  end
+
+  def syncs?
+    resettable?
+  end
+
+  def reset_label
+    t(".reset", value: @default)
+  end
+
   def decrement_button
     stepper_button("minus", "decrement", DECREMENT_CORNER)
   end
 
   def increment_button
-    stepper_button("plus", "increment", INCREMENT_CORNER)
+    stepper_button("plus", "increment", TRAILING_CORNER)
   end
 
   def stepper_button(icon, method, corner)
@@ -70,20 +88,16 @@ class Components::NumberStepper < Components::Base
   def number_input
     input(
       type: "number",
-      name: @name,
-      value: @value,
-      min: @min,
-      max: @max,
       step: 1,
-      placeholder: @placeholder,
       class: "#{@input_class} h-full border-x border-border-default bg-transparent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none px-1 text-center font-mono text-sm text-text-primary focus:outline-none",
-      data: input_data
+      data: input_data,
+      **shown_attributes
     )
   end
 
   def input_data
     data = {number_stepper_target: "input"}
-    data[:action] = "input->number-stepper#sync" if resettable?
+    data[:action] = "input->number-stepper#sync" if syncs?
     data
   end
 
@@ -94,7 +108,7 @@ class Components::NumberStepper < Components::Base
       data: {number_stepper_target: "reset"}
     ) do
       render Components::ResetButton.new(
-        label: t(".reset", value: @default),
+        label: reset_label,
         data: {action: "click->number-stepper#reset"},
         shape: :segment
       )

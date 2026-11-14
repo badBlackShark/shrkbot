@@ -5,7 +5,7 @@ import { categoryOptions } from "lib/category_options"
 import { noResultsHtml } from "lib/no_results"
 
 export default class extends Controller {
-  static values = { placeholder: String, prefix: String, colorDots: Boolean, lockIcon: String, create: Boolean, searchUrl: String, searchFailed: String, maxItems: Number }
+  static values = { placeholder: String, prefix: String, colorDots: Boolean, lockIcon: String, create: Boolean, searchUrl: String, searchFailed: String, maxItems: Number, fixed: Boolean }
 
   connect() {
     this.select = new TomSelect(this.element, {
@@ -16,8 +16,19 @@ export default class extends Controller {
       render: this.renderers(),
       create: this.createValue || false,
       persist: this.createValue ? false : undefined,
-      ...this.remoteSearch()
+      ...this.remoteSearch(),
+      ...this.fixedOptions()
     })
+    this.labelFocusNode()
+  }
+
+  fixedOptions() {
+    return this.fixedValue ? { controlInput: null } : {}
+  }
+
+  labelFocusNode() {
+    const label = this.element.getAttribute("aria-label")
+    if (label) this.select.focus_node.setAttribute("aria-label", label)
   }
 
   remoteSearch() {
@@ -46,6 +57,7 @@ export default class extends Controller {
   }
 
   plugins() {
+    if (this.fixedValue) return []
     if (this.createValue || this.searchUrlValue) return ["remove_button"]
     const removal = this.element.multiple ? "remove_button" : "clear_button"
     return ["dropdown_input", removal]

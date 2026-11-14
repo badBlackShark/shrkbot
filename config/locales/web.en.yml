@@ -72,6 +72,22 @@ en:
     copyable_tokens:
       copied: Copied!
       copy_failed: Copy failed
+    duration_stepper:
+      amount:
+        hours:
+          one: "%{count} hour"
+          other: "%{count} hours"
+        minutes:
+          one: "%{count} minute"
+          other: "%{count} minutes"
+        seconds:
+          one: "%{count} second"
+          other: "%{count} seconds"
+      unit_label: Unit
+      units:
+        hours: hours
+        minutes: minutes
+        seconds: seconds
     feeds:
       add_page:
         steam:
@@ -480,7 +496,6 @@ en:
           help: How long a member must wait between posts. Set to 0 to disable the
             cooldown.
           label: Cooldown
-          unit: seconds
         excluded:
           help: Members with any of these roles can't post. Leave empty to exclude
             no one.
@@ -492,7 +507,6 @@ en:
           help: How long the "Looking for Game" post stays visible. For scheduled
             posts, the clock starts with the session, not while it gathers interest.
           label: Post lifetime
-          unit: minutes
         min_days:
           help: How long a member must have been in the server before they can post.
             Leave blank for no minimum.
@@ -922,7 +936,6 @@ en:
           other: "%{parent} uses a %{count}-minute delay. Leave the field empty to
             use the same here."
         label: Posting delay
-        unit: minutes
       template_card:
         empty: Nothing would be posted.
         preview: Live preview

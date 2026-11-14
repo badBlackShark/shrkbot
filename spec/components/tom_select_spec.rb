@@ -47,6 +47,16 @@ RSpec.describe Components::TomSelect do
     expect(html).to include('data-tom-select-prefix-value="#"')
   end
 
+  it "labels the select for assistive tech when given an aria label" do
+    html = described_class.new(name: "x", options: [], aria_label: "Unit").call
+    expect(html).to include('aria-label="Unit"')
+  end
+
+  it "leaves the select unlabelled without an aria label" do
+    html = described_class.new(name: "x", options: []).call
+    expect(html).not_to include("aria-label")
+  end
+
   it "renders a multi-select when asked" do
     html = described_class.new(name: "x", options: [], multiple: true).call
     expect(html).to include("multiple")
