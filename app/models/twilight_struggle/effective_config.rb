@@ -8,19 +8,19 @@ module TwilightStruggle
     end
 
     def channel_id
-      first_present(:discord_channel_id)
+      first_set(:discord_channel_id)
     end
 
     def template_win
-      first_present(:template_win) || I18n.t("twilight_struggle.default_template.win")
+      first_set(:template_win) || I18n.t("twilight_struggle.default_template.win")
     end
 
     def template_tie
-      first_present(:template_tie) || I18n.t("twilight_struggle.default_template.tie")
+      first_set(:template_tie) || I18n.t("twilight_struggle.default_template.tie")
     end
 
     def template_video
-      first_present(:template_video) || I18n.t("twilight_struggle.default_template.video")
+      first_set(:template_video) || I18n.t("twilight_struggle.default_template.video")
     end
 
     def player_display
@@ -28,7 +28,7 @@ module TwilightStruggle
     end
 
     def post_delay
-      (first_present(:post_delay_seconds) || 0).seconds
+      (first_set(:post_delay_seconds) || 0).seconds
     end
 
     def inherited_from
@@ -41,8 +41,8 @@ module TwilightStruggle
 
     private
 
-    def first_present(attribute)
-      chain.filter_map { |destination| destination.public_send(attribute).presence }.first
+    def first_set(attribute)
+      chain.filter_map { |destination| destination.public_send(attribute) }.first
     end
 
     def chain

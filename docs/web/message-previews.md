@@ -104,9 +104,11 @@ the box shows it as ordinary, editable text. An empty box means nothing is sent,
 placeholder and its preview both say "Nothing will be sent." A reset button on the label row
 restores the default and shows only while the text differs from it. Welcomes keeps its defaults
 in Active Record attribute defaults (`Welcomes::Settings`), so existing rows are never
-backfilled. Fields where empty falls back to something (Feeds push text, Twilight Struggle
-templates that inherit from a parent tournament) are not templates of this kind: empty there
-means "use the fallback", and the preview shows the fallback.
+backfilled. Twilight Struggle templates work the same way, except that their default is what the
+template inherits (a parent tournament's template, else the built-in one) and the reset
+brings back inheriting rather than a copy of the text. Feeds push text is not a template
+of this kind: a push notification cannot be empty, so an empty box falls back to the
+default and the preview shows it.
 
 ## Adding markdown rendering to a new preview surface
 

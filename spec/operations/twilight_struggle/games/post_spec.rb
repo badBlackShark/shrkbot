@@ -242,6 +242,46 @@ RSpec.describe Ops::TwilightStruggle::Games::Post do
     end
   end
 
+  context "when the template for this result is empty" do
+    let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, discord_channel_id: 555, template_win: "") }
+
+    it "posts nothing" do
+      result
+      expect(Bot::Discord::Components).not_to have_received(:create_message)
+      expect(game.reload.posted_messages).to be_empty
+    end
+
+    it "logs the empty template as the reason" do
+      allow(Rails.logger).to receive(:info)
+      result
+      expect(Rails.logger).to have_received(:info) do |&block|
+        expect(block.call).to include("template for this result is empty")
+      end
+    end
+
+    context "when this game was already posted" do
+      let!(:posted_message) do
+        create(:twilight_struggle_posted_message, game:, server_configuration:, discord_channel_id: 111, discord_message_id: 222)
+      end
+
+      it "leaves the posted message as it was" do
+        result
+        expect(Bot::Discord::Components).not_to have_received(:edit_content)
+        expect(Bot::Discord::Components).not_to have_received(:create_message)
+      end
+    end
+
+    context "when the game has a video and only the video template is empty" do
+      let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, discord_channel_id: 555, template_win: nil, template_video: "") }
+      let(:video_urls) { ["https://example.com/1"] }
+
+      it "posts nothing rather than falling back to the win template" do
+        result
+        expect(Bot::Discord::Components).not_to have_received(:create_message)
+      end
+    end
+  end
+
   context "template selection" do
     let!(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, discord_channel_id: 555) }
 

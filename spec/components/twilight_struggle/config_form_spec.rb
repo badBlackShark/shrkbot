@@ -9,6 +9,7 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
   let(:server_configuration) { create(:server_configuration) }
   let(:tournament) { create(:twilight_struggle_tournament) }
   let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:) }
+  let(:fragment) { Nokogiri::HTML5.fragment(html) }
 
   before do
     create(:server_channel, server_configuration:, discord_id: 4200, name: "Tournaments", channel_type: ServerChannel::CATEGORY_TYPE)
@@ -33,13 +34,49 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
     it "puts that in the box instead of the default" do
       expect(html).to include("{winning_name} took it</textarea>")
     end
+  end
 
-    it "keeps the default as the placeholder, as the hint you get back by clearing the box" do
-      expect(html).to include(%(placeholder="#{I18n.t("twilight_struggle.default_template.win")}"))
+  context "when the destination posts nothing for decided games" do
+    let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, template_win: "") }
+
+    it "leaves that box empty instead of pre-filling it" do
+      expect(fragment.at_css("textarea[name='destination[template_win]']").text).to eq("")
+    end
+
+    it "offers the reset" do
+      expect(fragment.at_css("[data-twilight-struggle-preview-target=winReset]").key?("hidden")).to be(false)
+    end
+  end
+
+  describe "an emptied box" do
+    it "says nothing will be sent" do
+      placeholders = fragment.css("textarea[name^='destination[template_']").map { |box| box["placeholder"] }
+      expect(placeholders).to eq(["Nothing will be sent."] * 3)
     end
   end
 
   describe "the reset button" do
+    it "brings back the inherited text" do
+      box = fragment.at_css("textarea[name='destination[template_win]']")
+      button = fragment.at_css("[data-twilight-struggle-preview-target=winReset] button")
+      expect(box["data-default"]).to eq(I18n.t("twilight_struggle.default_template.win"))
+      expect(button["data-twilight-struggle-preview-kind-param"]).to eq("win")
+    end
+
+    it "hides while each box holds what it inherits" do
+      resets = %w[winReset tieReset videoReset].map { |target| fragment.at_css("[data-twilight-struggle-preview-target=#{target}]") }
+      expect(resets.map { |reset| reset.key?("hidden") }).to eq([true, true, true])
+    end
+
+    context "when the destination has its own wording" do
+      let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, template_win: "{winning_name} took it") }
+
+      it "shows only that template's reset" do
+        expect(fragment.at_css("[data-twilight-struggle-preview-target=winReset]").key?("hidden")).to be(false)
+        expect(fragment.at_css("[data-twilight-struggle-preview-target=tieReset]").key?("hidden")).to be(true)
+      end
+    end
+
     it "offers resetting each template back to the default" do
       expect(html.scan(I18n.t("components.twilight_struggle.template_card.reset_to_default")).size).to eq(6)
     end
