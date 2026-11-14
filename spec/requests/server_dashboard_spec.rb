@@ -289,6 +289,19 @@ RSpec.describe "Server dashboard", type: :request do
             expect(config.enabled_plugin_keys).not_to include(:spam_protection)
           end
         end
+
+        context "when Server Shield is disabled" do
+          before { config.plugin_activations.find_by!(plugin: moderation).update_column(:enabled, false) }
+
+          it "refuses and sends the alert to the Server Shield overview" do
+            toggle
+
+            expect(response).to have_http_status(:see_other)
+            expect(response).to redirect_to(server_moderation_path(guild.id))
+            expect(flash[:alert]).to be_present
+            expect(config.enabled_plugin_keys).not_to include(:spam_protection)
+          end
+        end
       end
 
       context "with an Integrations sub-plugin key" do

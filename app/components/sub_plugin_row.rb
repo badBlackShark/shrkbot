@@ -76,7 +76,7 @@ class Components::SubPluginRow < Components::Base
 
   def toggle_control
     if @config.preview?
-      locked_toggle(t(".preview_locked"))
+      locked_toggle(t("components.plugin_row.preview_locked"))
     elsif needs_setup?
       locked_toggle(t(".locked_reason.#{@row.key}"))
     else
