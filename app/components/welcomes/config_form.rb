@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 class Components::Welcomes::ConfigForm < Components::Base
-  FIELD = "w-full resize-none rounded-control border-[1.5px] border-border-strong bg-surface-card px-3 py-2 " \
-    "text-sm text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
-    "focus:ring-3 focus:ring-[var(--focus-ring)]"
   PLACEHOLDERS = %w[user username displayname membercount].freeze
 
   def initialize(server_configuration:, enable_error: nil)
@@ -36,82 +33,17 @@ class Components::Welcomes::ConfigForm < Components::Base
   def message_card
     render Components::Card.new(padding: :none) do
       div(class: "flex divide-x divide-border-subtle py-5") do
-        message_column(:join) do
-          ping_toggle
-        end
-        message_column(:leave) do
-          suppress_removal_toggle
+        %i[join leave].each do |kind|
+          render Components::Welcomes::MessageColumn.new(kind:, settings: @settings) do
+            send(:"#{kind}_toggle")
+          end
         end
       end
       placeholder_help
     end
   end
 
-  def message_column(kind)
-    div(class: "flex min-w-0 flex-1 flex-col gap-4 px-5") do
-      message_group(kind)
-      yield
-    end
-  end
-
-  def message_group(kind)
-    div(class: "flex flex-col gap-2") do
-      message_heading(kind)
-      message_field(kind)
-      info_line(kind)
-    end
-  end
-
-  def message_heading(kind)
-    div(class: "flex min-h-8 items-center justify-between gap-3") do
-      div do
-        label(for: field_id(kind), class: "block text-sm font-semibold") { t(".#{kind}_message.label") }
-        p(class: "mt-0.5 text-sm text-text-secondary") { t(".#{kind}_message.help") }
-      end
-      reset_button(kind)
-    end
-  end
-
-  def reset_button(kind)
-    span(
-      class: "flex",
-      hidden: message(kind) == default_message(kind),
-      data: {welcome_preview_target: "#{kind}Reset"}
-    ) do
-      render Components::ResetButton.new(
-        label: t(".reset_to_default"),
-        data: {action: "welcome-preview#reset", welcome_preview_kind_param: kind}
-      )
-    end
-  end
-
-  def message_field(kind)
-    textarea(
-      name: "welcomes[#{kind}_message]",
-      id: field_id(kind),
-      rows: 4,
-      class: FIELD,
-      placeholder: t(".empty"),
-      data: {
-        welcome_preview_target: "#{kind}Message",
-        action: "input->welcome-preview#render",
-        default: default_message(kind)
-      }
-    ) { message(kind) }
-  end
-
-  def info_line(kind)
-    p(class: "flex items-start gap-1 text-xs text-text-secondary") do
-      render Components::Icon.new("info", class: "mt-0.5 size-3 flex-none text-accent")
-      span do
-        code(class: "font-mono") { "{user}" }
-        whitespace
-        plain t(".#{kind}_message.info")
-      end
-    end
-  end
-
-  def ping_toggle
+  def join_toggle
     render Components::ToggleRow.new(
       name: "welcomes[ping_on_join]",
       checked: @settings.ping_on_join,
@@ -120,7 +52,7 @@ class Components::Welcomes::ConfigForm < Components::Base
     )
   end
 
-  def suppress_removal_toggle
+  def leave_toggle
     render Components::ToggleRow.new(
       name: "welcomes[suppress_removal_messages]",
       checked: @settings.suppress_removal_messages,
@@ -149,18 +81,6 @@ class Components::Welcomes::ConfigForm < Components::Base
         {body_data: preview_body_data(:leave)}
       ]
     )
-  end
-
-  def message(kind)
-    @settings.public_send(:"#{kind}_message")
-  end
-
-  def default_message(kind)
-    ::Welcomes::Settings.column_defaults.fetch("#{kind}_message")
-  end
-
-  def field_id(kind)
-    "welcomes_#{kind}_message"
   end
 
   def preview_body_data(kind)
