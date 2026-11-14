@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 class Components::SubPluginDirectory < Components::Base
-  def initialize(server_configuration:, parent:, toggle_fields: ->(_key) { {} })
+  def initialize(server_configuration:, parent:)
     @config = server_configuration
     @parent = parent
-    @toggle_fields = toggle_fields
   end
 
   def view_template
@@ -27,7 +26,7 @@ class Components::SubPluginDirectory < Components::Base
   private
 
   def rows
-    SubPluginStatus.rows(@config, parent: @parent, enabled_keys:) { |key| @toggle_fields.call(key) }
+    SubPluginStatus.rows(@config, parent: @parent, enabled_keys:)
   end
 
   def group_enabled

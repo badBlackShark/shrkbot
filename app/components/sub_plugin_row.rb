@@ -75,48 +75,37 @@ class Components::SubPluginRow < Components::Base
   end
 
   def toggle_control
-    if needs_setup?
-      locked_toggle
+    if @config.preview?
+      locked_toggle(t(".preview_locked"))
+    elsif needs_setup?
+      locked_toggle(t(".locked_reason.#{@row.key}"))
     else
       enabled_toggle
     end
   end
 
-  def locked_toggle
-    render Components::Tooltip.new(text: t(".locked_reason.#{@row.key}")) do
+  def locked_toggle(reason)
+    render Components::Tooltip.new(text: reason) do
       render Components::Toggle.new(
-        name: "#{@row.key}[enabled]",
+        name: :enabled,
         checked: @row.enabled,
-        label: t(".toggle_label", name: @row.name),
+        label: toggle_label,
         disabled: true
       )
     end
   end
 
   def enabled_toggle
-    input(
-      type: "hidden",
-      name: "from_overview",
-      value: "1",
-      form: stub_form_id
-    )
-    toggle_hidden_fields
     render Components::Toggle.new(
-      name: "#{@row.key}[enabled]",
+      name: :enabled,
       checked: @row.enabled,
-      label: t(".toggle_label", name: @row.name),
+      label: toggle_label,
       submit_on_change: true,
-      form: stub_form_id
+      form: self.class.toggle_form_id(@row.key)
     )
   end
 
-  def toggle_hidden_fields
-    @row.toggle_fields.each do |name, value|
-      (value.is_a?(Array) ? value : [value]).each { |item| input(type: "hidden", name:, value: item, form: stub_form_id) }
-    end
-  end
-
-  def stub_form_id
-    self.class.toggle_form_id(@row.key)
+  def toggle_label
+    t(".toggle_label", name: @row.name)
   end
 end

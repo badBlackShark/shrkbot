@@ -876,6 +876,8 @@ en:
       needs_setup_hint:
         image_scanning: Pick a staff role first.
         spam_protection: Pick a staff role first.
+      preview_locked: Preview doesn't save - add shrkbot to your server to turn plugins
+        on there.
       status:
         disabled: Disabled
         enabled: Enabled

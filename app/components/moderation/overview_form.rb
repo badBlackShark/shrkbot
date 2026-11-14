@@ -20,11 +20,7 @@ class Components::Moderation::OverviewForm < Components::Base
       render Components::Moderation::AccountAgeCard.new(
         new_account_age_days: @context.new_account_age_days
       )
-      render Components::SubPluginDirectory.new(
-        server_configuration: @config,
-        parent: :moderation,
-        toggle_fields: @context.method(:toggle_fields)
-      )
+      render Components::SubPluginDirectory.new(server_configuration: @config, parent: :moderation)
       render Components::Moderation::MatchingExplainer.new
     end
   end
