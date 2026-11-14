@@ -8,14 +8,12 @@ RSpec.describe "Twitch category search", type: :request do
   subject(:search) { get server_twitch_categories_path(guild.id), params: {query: "hades"}, as: :json }
 
   let(:plugin_path) { server_twitch_categories_path(guild.id) }
-  let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
   let!(:twitch_plugin) { create(:plugin, key: "twitch", name: "Twitch") }
   let(:results) { [{"id" => "1", "name" => "Hades II"}] }
 
   before do
     post "/auth/discord/callback"
     create(:server_configuration, discord_id: guild.id)
-    create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: true)
     create(:plugin_activation, server_configuration: config, plugin: twitch_plugin, enabled: true)
     allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     allow(Feeds::Twitch::CategorySearch).to receive(:call).with("hades").and_return(results)

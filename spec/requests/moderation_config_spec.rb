@@ -11,7 +11,6 @@ RSpec.describe "Moderation config", type: :request do
 
   context "when signed in" do
     let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
-    let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
     let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
 
     before do
@@ -32,12 +31,10 @@ RSpec.describe "Moderation config", type: :request do
       end
 
       describe "GET /servers/:server_id/moderation" do
-        context "when logging is ready and group is enabled" do
+        context "when logging is ready" do
           before do
             config.logging_settings.update!(channel_id: 111)
             create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
-              .update_column(:enabled, true)
-            create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
               .update_column(:enabled, true)
           end
 
@@ -47,9 +44,9 @@ RSpec.describe "Moderation config", type: :request do
             expect(response.body).to include("Server Shield")
           end
 
-          it "renders the sub-plugin directory" do
+          it "renders the protections directory" do
             get server_moderation_path(guild.id)
-            expect(response.body).to include("Sub-plugins")
+            expect(response.body).to include("Protections")
             expect(response.body).to include("Cross-Channel Spam Guard")
             expect(response.body).to include("Scam Image Detection")
           end
@@ -82,26 +79,18 @@ RSpec.describe "Moderation config", type: :request do
           end
         end
 
-        context "when group is disabled but logging is ready" do
-          before do
-            config.logging_settings.update!(channel_id: 111)
-            create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
-              .update_column(:enabled, true)
-          end
+        it "renders no enable toggle" do
+          get server_moderation_path(guild.id)
 
-          it "renders the page with the enable gate" do
-            get server_moderation_path(guild.id)
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to include("Server Shield")
-          end
+          expect(response.body).not_to include('name="moderation[enabled]"')
         end
 
         context "when logging is not ready" do
-          it "renders the page with the prereq gate" do
+          it "keeps the shared settings editable" do
             get server_moderation_path(guild.id)
             expect(response).to have_http_status(:ok)
-            expect(response.body).to include("Moderation needs the Logging plugin")
-            expect(response.body).to include("Set up Logging")
+            expect(response.body).not_to include("inert")
+            expect(response.body).not_to include("Moderation needs the Logging plugin")
           end
         end
       end
@@ -111,14 +100,12 @@ RSpec.describe "Moderation config", type: :request do
           config.logging_settings.update!(channel_id: 111)
           create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
             .update_column(:enabled, true)
-          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-            .update_column(:enabled, true)
           create(:server_role, server_configuration: config, discord_id: 500, name: "Moderator")
         end
 
         it "saves the staff role and returns turbo stream on success" do
           patch server_moderation_path(guild.id),
-            params: {moderation: {staff_role_id: 500, enabled: "1"}},
+            params: {moderation: {staff_role_id: 500}},
             **turbo
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
           expect(config.moderation_settings.reload.staff_role_id).to eq(500)
@@ -133,7 +120,7 @@ RSpec.describe "Moderation config", type: :request do
           config.moderation_settings.update!(staff_role_id: 500)
 
           patch server_moderation_path(guild.id),
-            params: {moderation: {staff_role_id: "", enabled: "1"}},
+            params: {moderation: {staff_role_id: ""}},
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.moderation_settings.reload.staff_role_id).to eq(500)
@@ -142,20 +129,20 @@ RSpec.describe "Moderation config", type: :request do
 
         it "falls back to a redirect without Turbo" do
           patch server_moderation_path(guild.id),
-            params: {moderation: {staff_role_id: 500, enabled: "1"}}
+            params: {moderation: {staff_role_id: 500}}
           expect(response).to redirect_to(server_moderation_path(guild.id))
         end
 
         it "rejects a staff role from another server with 404" do
           patch server_moderation_path(guild.id),
-            params: {moderation: {staff_role_id: 424_242, enabled: "1"}},
+            params: {moderation: {staff_role_id: 424_242}},
             **turbo
           expect(response).to have_http_status(:not_found)
         end
 
         it "sets ping_staff to false when param is '0'" do
           patch server_moderation_path(guild.id),
-            params: {moderation: {staff_role_id: 500, enabled: "1", ping_staff: "0"}},
+            params: {moderation: {staff_role_id: 500, ping_staff: "0"}},
             **turbo
           expect(config.moderation_settings.reload.ping_staff).to be(false)
         end

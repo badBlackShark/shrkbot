@@ -19,7 +19,7 @@ class Components::PluginRow < Components::Base
       identity
       div(class: "ml-auto flex flex-none items-center gap-3") do
         configure_link
-        toggle
+        toggle unless @row.group
       end
     end
   end
@@ -32,7 +32,7 @@ class Components::PluginRow < Components::Base
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { name }
-          status_badge
+          status_badge unless @row.group
           bespoke_badge if @row.bespoke
           render Components::PluginBadges.new(key: @row.key)
         end

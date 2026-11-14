@@ -102,7 +102,7 @@ re-verifies against live Discord on every server-scoped request.
 ## Abstract Phlex base views take no stubs
 
 Abstract base views (`Views::Servers::PluginConfigShow`,
-`Views::Servers::SubPluginShow`, `Views::Servers::Moderation::SubPluginShow`) deliberately omit
+`Views::Servers::GroupShow`, `Views::Servers::SubPluginShow`, `Views::Servers::Moderation::SubPluginShow`) deliberately omit
 `AbstractMethodError` stubs for their subclass hooks, unlike the ops and bot base
 classes.
 
