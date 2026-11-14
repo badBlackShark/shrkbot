@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Views::Servers::Integrations::Show < Views::Servers::PluginConfigShow
+class Views::Servers::Integrations::Show < Views::Servers::GroupShow
   private
 
   def plugin_key
@@ -9,12 +9,5 @@ class Views::Servers::Integrations::Show < Views::Servers::PluginConfigShow
 
   def body
     render Components::Integrations::Overview.new(server_configuration: @config)
-  end
-
-  def after_config_page
-    render Components::SubPluginToggleForms.new(
-      server_configuration: @config,
-      parent: :integrations
-    )
   end
 end

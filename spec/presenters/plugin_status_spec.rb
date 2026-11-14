@@ -41,7 +41,32 @@ RSpec.describe PluginStatus do
     end
 
     it "mirrors the policy's toggle decision on every catalog and global row" do
-      expect(rows.map(&:toggleable)).to eq(rows.map { |row| access.toggle?(row.key) })
+      plugin_rows = rows.reject(&:group)
+
+      expect(plugin_rows.map(&:toggleable)).to eq(plugin_rows.map { |row| access.toggle?(row.key) })
+    end
+
+    describe "group rows" do
+      let(:group_rows) { rows.select(&:group) }
+
+      it "lists each group, with no toggle" do
+        expect(group_rows.map(&:key)).to contain_exactly(:moderation, :integrations)
+        expect(group_rows.map(&:toggleable)).to all(be(false))
+      end
+
+      it "leaves a group unlit while none of its members is on" do
+        expect(group_rows.map(&:enabled)).to all(be(false))
+      end
+
+      context "when one member is on" do
+        before do
+          create(:plugin_activation, server_configuration:, plugin: create(:plugin, key: "steam")).update_column(:enabled, true)
+        end
+
+        it "lights only that member's group" do
+          expect(group_rows.to_h { |row| [row.key, row.enabled] }).to eq(moderation: false, integrations: true)
+        end
+      end
     end
 
     it "sorts the fully manageable set alphabetically by translated plugin name" do

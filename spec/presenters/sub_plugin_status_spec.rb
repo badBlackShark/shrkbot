@@ -9,12 +9,13 @@ RSpec.describe SubPluginStatus do
     let(:server_configuration) { create(:server_configuration) }
     let(:staff_role_id) { 701 }
 
-    let(:moderation) { create(:plugin, key: "moderation", name: "Server Shield") }
+    let(:logging) { create(:plugin, key: "logging", name: "Logging") }
     let(:spam_protection) { create(:plugin, key: "spam_protection", name: "Spam") }
 
     before do
       server_configuration.create_moderation_settings!(staff_role_id:)
-      create(:plugin_activation, server_configuration:, plugin: moderation).update_column(:enabled, true)
+      server_configuration.create_logging_settings!(channel_id: 11)
+      create(:plugin_activation, server_configuration:, plugin: logging).update_column(:enabled, true)
       create(:plugin_activation, server_configuration:, plugin: spam_protection).update_column(:enabled, true)
     end
 
@@ -42,17 +43,6 @@ RSpec.describe SubPluginStatus do
 
       it "marks the sub-plugins as not configured" do
         expect(rows.map(&:configured)).to eq([false, false])
-      end
-    end
-
-    context "when the parent is off and the only requirement is the parent" do
-      subject(:rows) { described_class.rows(server_configuration, parent: :integrations) }
-
-      it "does not flag the sub-plugins as needing setup" do
-        expect(rows).to contain_exactly(
-          have_attributes(key: :steam, configured: true, enabled: false),
-          have_attributes(key: :twitch, configured: true, enabled: false)
-        )
       end
     end
   end

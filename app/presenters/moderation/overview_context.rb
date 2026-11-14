@@ -6,10 +6,6 @@ module Moderation
       @config = server_configuration
     end
 
-    def group_enabled?
-      enabled_keys.include?(:moderation)
-    end
-
     def logging_ready?
       enabled_keys.include?(:logging) &&
         PluginCatalog.find(:logging).prerequisites_met?(@config, enabled_keys:)

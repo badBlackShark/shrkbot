@@ -35,6 +35,19 @@ RSpec.describe Components::PluginRow do
     end
   end
 
+  context "for a group row" do
+    let(:row) { PluginStatus::Row.new(key: :moderation, enabled: true, configured: true, toggleable: false, group: true) }
+
+    it "renders no toggle and no status badge" do
+      expect(html).not_to include("checkbox")
+      expect(html).not_to include("Enabled")
+    end
+
+    it "links to the group page" do
+      expect(html).to include(%(href="/servers/900000001/moderation"))
+    end
+  end
+
   context "when the user may not configure the plugin" do
     let(:manageable) { false }
 

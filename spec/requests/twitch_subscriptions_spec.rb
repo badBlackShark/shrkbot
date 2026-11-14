@@ -13,13 +13,11 @@ RSpec.describe "Twitch subscriptions", type: :request do
   let(:featured_clips) { "Integrations::Twitch::FeaturedClipPublished" }
   let(:clips) { "Integrations::Twitch::ClipCreated" }
   let(:target) { Integrations::Target.new(external_id: "9001", name: "SomeStreamer", image_url: "https://static-cdn.jtvnw.net/profile.png", url: "https://www.twitch.tv/somestreamer") }
-  let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
   let!(:twitch_plugin) { create(:plugin, key: "twitch", name: "Twitch") }
 
   before do
     post "/auth/discord/callback"
     create(:server_configuration, discord_id: guild.id)
-    create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: true)
     create(:plugin_activation, server_configuration: config, plugin: twitch_plugin, enabled: true)
     create(:server_channel, server_configuration: config, discord_id: 777, name: "streams")
     create(:server_role, server_configuration: config, discord_id: 888, name: "Live pings")

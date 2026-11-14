@@ -70,7 +70,6 @@ RSpec.describe Components::PluginSidebar do
 
     context "when a sub-plugin is configured but disabled (disabled status)" do
       let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
-      let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
       let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
 
       before do
@@ -78,12 +77,8 @@ RSpec.describe Components::PluginSidebar do
         config.create_moderation_settings!(staff_role_id: 555)
         config.create_spam_protection_settings!
         config.create_image_scanning_settings!
-        # logging enabled so moderation prereqs pass; spam_protection activation NOT enabled
         create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
           .update_column(:enabled, true)
-        create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-          .update_column(:enabled, true)
-        # spam_protection activation exists and is disabled — configured but not enabled
         create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)
       end
 
@@ -98,7 +93,6 @@ RSpec.describe Components::PluginSidebar do
 
     context "when a sub-plugin is enabled (enabled status)" do
       let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
-      let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
       let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
 
       before do
@@ -107,8 +101,6 @@ RSpec.describe Components::PluginSidebar do
         config.create_spam_protection_settings!
         config.create_image_scanning_settings!
         create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
-          .update_column(:enabled, true)
-        create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
           .update_column(:enabled, true)
         create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)
           .update_column(:enabled, true)

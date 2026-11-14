@@ -41,7 +41,7 @@ class Components::PluginSidebar < Components::Base
 
   def group(row)
     render Components::SidebarGroup.new(
-      label: PluginCatalog.find(row.key).name,
+      label: PluginCatalog.group(row.key).name,
       icon: plugin_icon(row.key),
       open: group_active?(row.key),
       items: group_items(row.key),

@@ -137,21 +137,6 @@ RSpec.describe Moderation::OverviewContext do
     end
   end
 
-  describe "#group_enabled?" do
-    context "when moderation plugin activation is enabled" do
-      before do
-        create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-          .update_column(:enabled, true)
-      end
-
-      it { expect(context.group_enabled?).to be(true) }
-    end
-
-    context "when moderation plugin is not activated" do
-      it { expect(context.group_enabled?).to be(false) }
-    end
-  end
-
   describe "#logging_channel_name" do
     context "when logging_settings is absent" do
       before { config.logging_settings.destroy! }

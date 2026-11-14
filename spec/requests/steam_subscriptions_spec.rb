@@ -11,13 +11,11 @@ RSpec.describe "Steam subscriptions", type: :request do
   let(:announcements) { "Integrations::Steam::AnnouncementPublished" }
   let(:articles) { "Integrations::Steam::ArticlePublished" }
   let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg", url: "https://store.steampowered.com/app/1145350/") }
-  let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
   let!(:steam_plugin) { create(:plugin, key: "steam", name: "Steam") }
 
   before do
     post "/auth/discord/callback"
     create(:server_configuration, discord_id: guild.id)
-    create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: true)
     create(:plugin_activation, server_configuration: config, plugin: steam_plugin, enabled: true)
     create(:server_channel, server_configuration: config, discord_id: 777, name: "news")
     create(:server_role, server_configuration: config, discord_id: 888, name: "Gamers")

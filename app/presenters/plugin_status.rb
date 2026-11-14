@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class PluginStatus
-  Row = Data.define(:key, :enabled, :configured, :locked, :manageable, :toggleable, :bespoke) do
-    def initialize(key:, enabled:, configured:, locked: false, manageable: true, toggleable: true, bespoke: false)
+  Row = Data.define(:key, :enabled, :configured, :locked, :manageable, :toggleable, :bespoke, :group) do
+    def initialize(key:, enabled:, configured:, locked: false, manageable: true, toggleable: true, bespoke: false, group: false)
       super
     end
   end
@@ -10,7 +10,8 @@ class PluginStatus
   def self.rows(server_configuration, access:)
     activations = server_configuration.plugin_activations.includes(:plugin).index_by { |activation| activation.plugin.key }
     enabled_keys = server_configuration.enabled_plugin_keys
-    catalog_rows = PluginCatalog.visible_for(server_configuration).map do |definition|
+    visible = PluginCatalog.visible_for(server_configuration)
+    catalog_rows = visible.map do |definition|
       Row.new(
         key: definition.key,
         enabled: activations[definition.key]&.enabled? || false,
@@ -20,7 +21,7 @@ class PluginStatus
         bespoke: definition.bespoke
       )
     end
-    display_order(catalog_rows + global_rows(access))
+    display_order(catalog_rows + group_rows(enabled_keys, visible, server_configuration, access) + global_rows(access))
   end
 
   def self.row(server_configuration, plugin, access:)
@@ -35,6 +36,20 @@ class PluginStatus
       bespoke: definition.bespoke
     )
   end
+
+  def self.group_rows(enabled_keys, visible, server_configuration, access)
+    PluginCatalog::GROUPS.map do |group|
+      Row.new(
+        key: group.key,
+        enabled: enabled_keys.intersect?(PluginCatalog.visible_sub_plugin_keys(group.key, server_configuration, visible:)),
+        configured: true,
+        manageable: access.manage?(group.key),
+        toggleable: false,
+        group: true
+      )
+    end
+  end
+  private_class_method :group_rows
 
   def self.global_rows(access)
     PluginCatalog::GLOBAL_KEYS.map do |key|
