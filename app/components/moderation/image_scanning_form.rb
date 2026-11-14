@@ -40,28 +40,17 @@ class Components::Moderation::ImageScanningForm < Components::Base
   def sensitivity_card
     render Components::Card.new do
       render Components::FieldLabel.new { t(".detection.sensitivity.label") }
-      render Components::RadioCardGroup.new(
+      render Components::SegmentedControl.new(
         name: "image_scanning[sensitivity]",
         value: @settings.sensitivity,
         label: t(".detection.sensitivity.label"),
         options: [
-          {
-            value: "relaxed",
-            title: t(".detection.sensitivity.relaxed_title"),
-            description: t(".detection.sensitivity.relaxed_description")
-          },
-          {
-            value: "standard",
-            title: t(".detection.sensitivity.standard_title"),
-            description: t(".detection.sensitivity.standard_description")
-          },
-          {
-            value: "strict",
-            title: t(".detection.sensitivity.strict_title"),
-            description: t(".detection.sensitivity.strict_description")
-          }
+          {value: "relaxed", label: t(".detection.sensitivity.relaxed")},
+          {value: "standard", label: t(".detection.sensitivity.standard")},
+          {value: "strict", label: t(".detection.sensitivity.strict")}
         ]
       )
+      render Components::FieldHelp.new { t(".detection.sensitivity.help") }
     end
   end
 
@@ -92,21 +81,15 @@ class Components::Moderation::ImageScanningForm < Components::Base
     keyword_count = @settings.custom_keywords.size
     max = keyword_count.positive? ? keyword_count : nil
 
-    div do
-      render Components::FieldLabel.new { t(".custom_keywords.min_hits_label") }
-      div(class: "flex items-start gap-2.5") do
-        render Components::NumberStepper.new(
-          name: "image_scanning[custom_keyword_min_hits]",
-          value: @settings.custom_keyword_min_hits,
-          min: 1,
-          default: 2,
-          max:
-        )
-        span(class: "text-sm text-text-secondary h-10 inline-flex items-center") do
-          t(".custom_keywords.min_hits_suffix")
-        end
-      end
-      render Components::FieldHelp.new { t(".custom_keywords.min_hits_help") }
+    render Components::InlineField.new(label: t(".custom_keywords.min_hits_label")) do
+      render Components::NumberStepper.new(
+        name: "image_scanning[custom_keyword_min_hits]",
+        value: @settings.custom_keyword_min_hits,
+        min: 1,
+        max:,
+        default: ::Moderation::ImageScanning::Settings.column_defaults.fetch("custom_keyword_min_hits"),
+        unit: t(".custom_keywords.min_hits_unit")
+      )
     end
   end
 
