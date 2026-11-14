@@ -38,7 +38,7 @@ class Components::Toggle < Components::Base
   private
 
   def switch
-    input(type: "hidden", name: @name, value: "0", autocomplete: "off", form: @form) if @name && !@disabled
+    input(type: "hidden", name: @name, value: hidden_value, autocomplete: "off", form: @form) if @name
     label(class: "inline-flex items-center #{@disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}", aria_label: @label) do
       input(
         type: "checkbox",
@@ -53,6 +53,10 @@ class Components::Toggle < Components::Base
       )
       div(class: "#{SIZES.fetch(@size)} #{COMMON}")
     end
+  end
+
+  def hidden_value
+    (@disabled && @checked) ? "1" : "0"
   end
 
   def switch_data

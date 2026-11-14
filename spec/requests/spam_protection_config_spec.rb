@@ -93,6 +93,21 @@ RSpec.describe "Spam protection config", type: :request do
             get server_spam_protection_path(guild.id)
             expect(response.body).to include("Set up a log channel so shrkbot has a place to post alerts.")
             expect(response.body).not_to include("Pick a staff role on the Server Shield overview.")
+            expect(response.body).not_to include("Enable Logging so shrkbot has a place to post alerts.")
+          end
+        end
+
+        context "when a log channel is set but Logging is disabled" do
+          before do
+            config.moderation_settings.update!(staff_role_id: 500)
+            config.logging_settings.update!(channel_id: 111)
+            create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
+          end
+
+          it "tells the reader to enable Logging, not to set up a channel" do
+            get server_spam_protection_path(guild.id)
+            expect(response.body).to include("Enable Logging so shrkbot has a place to post alerts.")
+            expect(response.body).not_to include("Set up a log channel so shrkbot has a place to post alerts.")
           end
         end
       end
@@ -132,6 +147,24 @@ RSpec.describe "Spam protection config", type: :request do
             expect(response).to have_http_status(:ok)
             expect(config.spam_protection_settings.reload.channel_threshold).to eq(4)
             expect(response.body).to include("Saved. Cross-Channel Spam Guard is still disabled.")
+          end
+        end
+
+        context "when a forged request enables the plugin with prerequisites unmet" do
+          before do
+            config.moderation_settings.update!(staff_role_id: nil)
+            config.logging_settings.update!(channel_id: nil)
+            create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)
+          end
+
+          it "refuses with 422 and leaves the plugin disabled" do
+            patch server_spam_protection_path(guild.id),
+              params: {spam_protection: {channel_threshold: 3, window_seconds: 10, similarity: 0.9,
+                                         match_symbol_only_messages: "0", action: "purge", punishment: "none",
+                                         timeout_seconds: 3600, enabled: "1"}},
+              **turbo
+            expect(response).to have_http_status(:unprocessable_content)
+            expect(config.plugin_activations.find_by(plugin: spam_plugin).reload.enabled).to be(false)
           end
         end
 

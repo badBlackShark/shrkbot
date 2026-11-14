@@ -70,7 +70,7 @@ RSpec.describe "Logging config", type: :request do
             get server_path(guild.id)
           end
 
-          it "renders the matrix without the disabled overlay gating it" do
+          it "renders the matrix" do
             get server_logging_path(guild.id)
             expect(response).to have_http_status(:ok)
             expect(response.body).to include("Member gained a role")

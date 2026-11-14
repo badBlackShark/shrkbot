@@ -31,7 +31,7 @@ RSpec.describe "Reminders config", type: :request do
           expect(response.body).to include("/remind")
         end
 
-        it "shows the Global badge instead of an enable gate" do
+        it "shows the Global badge" do
           get server_reminders_path(guild.id)
           expect(response.body).to include("Global")
         end

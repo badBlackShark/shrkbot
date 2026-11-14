@@ -7,6 +7,10 @@ RSpec.describe Components::PrerequisiteSteps do
     described_class.new(**options).call
   end
 
+  def icon_shape(name)
+    PhosphorIcons::Icon.new(name, style: :regular).to_svg[/<path[^>]*>/]
+  end
+
   let(:options) do
     {
       title: "Logging required",
@@ -45,8 +49,7 @@ RSpec.describe Components::PrerequisiteSteps do
   end
 
   it "renders the CTA as a secondary button with a trailing arrow icon" do
-    arrow_svg = PhosphorIcons::Icon.new("arrow-right", style: :regular, class: "size-4").to_svg
-    expect(html).to include(arrow_svg)
+    expect(html).to include(icon_shape("arrow-right"))
   end
 
   context "with a custom icon" do
@@ -58,9 +61,9 @@ RSpec.describe Components::PrerequisiteSteps do
       }
     end
 
-    it "uses the specified icon" do
-      shield_svg = PhosphorIcons::Icon.new("shield", style: :regular, class: "mt-0.5 size-[18px] flex-none text-accent").to_svg
-      expect(html).to include(shield_svg)
+    it "uses the specified icon instead of the default" do
+      expect(html).to include(icon_shape("shield"))
+      expect(html).not_to include(icon_shape("lock"))
     end
   end
 end

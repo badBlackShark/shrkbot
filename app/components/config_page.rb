@@ -77,7 +77,6 @@ class Components::ConfigPage < Components::Base
     span(class: "text-sm font-medium text-text-secondary") do
       @toggle[:enabled] ? t(".enabled") : t(".disabled")
     end
-    input(type: "hidden", name: @toggle[:field], value: @toggle[:enabled] ? "1" : "0")
     render Components::Tooltip.new(text: @toggle[:reason]) do
       render Components::Toggle.new(
         name: @toggle[:field],

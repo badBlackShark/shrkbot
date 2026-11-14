@@ -101,8 +101,9 @@ RSpec.describe Components::ConfigPage do
       expect(html).not_to include("disabled")
     end
 
-    it "renders both state labels so the label follows the switch" do
-      expect(html).to include("Enabled").and include("Disabled")
+    it "renders both state labels, each shown only for its switch state" do
+      expect(html).to match(/<span class="hidden [^"]*group-has-\[:checked\]\/enable:inline">Enabled<\/span>/)
+      expect(html).to match(/<span class="[^"]*group-has-\[:checked\]\/enable:hidden">Disabled<\/span>/)
     end
   end
 

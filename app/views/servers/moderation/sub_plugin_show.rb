@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
-  STEP_PAGES = {logging: :logging, staff_role: :moderation}.freeze
+  STEP_PAGES = {logging_channel: :logging, logging_disabled: :logging, staff_role: :moderation}.freeze
 
   def initialize(server_configuration:, user:, context:)
     super(server_configuration:, user:)
@@ -36,9 +36,13 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
   def unmet_fix_locations
     blockers = definition.blockers(@config)
     [
-      (definition.requires_plugin if blockers.include?(:requires_plugin)),
+      (logging_step if blockers.include?(:requires_plugin)),
       (:staff_role if blockers.include?(:prerequisite))
     ].compact
+  end
+
+  def logging_step
+    @config.logging_settings&.channel_id.present? ? :logging_disabled : :logging_channel
   end
 
   def prerequisite_step(key)

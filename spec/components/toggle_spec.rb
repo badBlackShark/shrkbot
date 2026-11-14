@@ -36,6 +36,15 @@ RSpec.describe Components::Toggle do
     end
   end
 
+  context "when locked (disabled) with a name" do
+    it "submits the current state through the hidden field" do
+      on = Components::Toggle.new(name: "foo[enabled]", checked: true, label: "Toggle foo", disabled: true).call
+      off = Components::Toggle.new(name: "foo[enabled]", checked: false, label: "Toggle foo", disabled: true).call
+      expect(on).to include('<input type="hidden" name="foo[enabled]" value="1"')
+      expect(off).to include('<input type="hidden" name="foo[enabled]" value="0"')
+    end
+  end
+
   context "at the mini size" do
     subject(:html) { Components::Toggle.new(name: "logging[all][roles]", checked: false, label: "Toggle all Roles events", size: :mini).call }
 

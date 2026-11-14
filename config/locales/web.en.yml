@@ -1239,9 +1239,12 @@ en:
           title: Server Shield
         sub_plugin_show:
           prerequisites:
-            logging:
+            logging_channel:
               cta: Open Logging
               message: Set up a log channel so shrkbot has a place to post alerts.
+            logging_disabled:
+              cta: Open Logging
+              message: Enable Logging so shrkbot has a place to post alerts.
             staff_role:
               cta: Open Server Shield
               message: Pick a staff role on the Server Shield overview.
