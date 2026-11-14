@@ -49,6 +49,16 @@ RSpec.describe Feeds::Twitch do
     end
   end
 
+  describe ".fetch_post_type" do
+    it "returns the post type for a known event type" do
+      expect(described_class.fetch_post_type("Integrations::Twitch::ClipCreated").role_column).to eq(:clips_role_id)
+    end
+
+    it "raises for an event type that is not a post type" do
+      expect { described_class.fetch_post_type("Integrations::Twitch::StreamSampled") }.to raise_error(KeyError)
+    end
+  end
+
   describe ".notification_tokens" do
     it "is the template tokens, which already include the title" do
       expect(described_class.notification_tokens).to eq(described_class.template_tokens)
