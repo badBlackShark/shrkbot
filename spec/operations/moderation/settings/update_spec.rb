@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Ops::Moderation::Configure do
+RSpec.describe Ops::Moderation::Settings::Update do
   subject(:result) do
     described_class.call(
       server_configuration: config,

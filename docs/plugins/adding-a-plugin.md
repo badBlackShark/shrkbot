@@ -107,8 +107,8 @@ blocker's message (`requires_parent`, `requires_channel`, else
 breaks an enabled dependent from `PluginCatalog.dependents_of(key)`
 (`PluginCatalog.dependents_broken_by`, message `still_needed.<key>`); a dependent that was
 already blocked before the save does not block it, so a plugin that lost a prerequisite
-elsewhere can still be saved. A settings op assigns its settings, then calls
-`save_with_activation`, so Toggle checks the submitted values before anything saves. The
+elsewhere can still be saved. A settings op (`Ops::<Plugin>::Settings::Update`) assigns its settings,
+then calls `save_with_activation`, so Toggle checks the submitted values before anything saves. The
 `PluginActivation` validation stays as the backstop.
 
 `bespoke: true` marks a plugin as bot-owner-granted: it's hidden from every server's

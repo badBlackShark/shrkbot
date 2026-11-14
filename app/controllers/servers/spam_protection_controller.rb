@@ -15,7 +15,7 @@ class Servers::SpamProtectionController < ApplicationController
   end
 
   def update
-    result = Ops::Moderation::SpamProtection::Configure.call(
+    result = Ops::Moderation::SpamProtection::Settings::Update.call(
       server_configuration: @server_configuration,
       channel_threshold: spam_protection_params[:channel_threshold],
       window_seconds: spam_protection_params[:window_seconds],
