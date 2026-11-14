@@ -1059,6 +1059,7 @@ en:
     roles:
       failed: Couldn't save the role settings.
       saved: Role settings saved.
+    saved_while_disabled: Saved. %{plugin} is still disabled.
     spam_protection:
       saved: Cross-Channel Spam Guard settings saved.
     steam:

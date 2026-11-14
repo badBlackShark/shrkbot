@@ -63,6 +63,13 @@ RSpec.describe "Spam protection config", type: :request do
           end
         end
 
+        it "keeps the settings editable" do
+          get server_spam_protection_path(guild.id)
+          expect(response.body).to include("Trigger threshold")
+          expect(response.body).not_to include("inert")
+          expect(response.body).to include('name="spam_protection[enabled]" value="0"')
+        end
+
         context "when only the staff role is missing" do
           before do
             config.logging_settings.update!(channel_id: 111)
@@ -107,7 +114,25 @@ RSpec.describe "Spam protection config", type: :request do
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
           expect(response.body).to include('target="plugin-sidebar"')
           expect(response.body).to include("spam_protection-config")
-          expect(response.body).to include("saved")
+          expect(response.body).to include("Saved. Cross-Channel Spam Guard is still disabled.")
+        end
+
+        context "when prerequisites are missing" do
+          before do
+            config.moderation_settings.update!(staff_role_id: nil)
+            config.logging_settings.update!(channel_id: nil)
+          end
+
+          it "still saves the settings and says the plugin is disabled" do
+            patch server_spam_protection_path(guild.id),
+              params: {spam_protection: {channel_threshold: 4, window_seconds: 10, similarity: 0.9,
+                                         match_symbol_only_messages: "0", action: "purge", punishment: "none",
+                                         timeout_seconds: 3600, enabled: "0"}},
+              **turbo
+            expect(response).to have_http_status(:ok)
+            expect(config.spam_protection_settings.reload.channel_threshold).to eq(4)
+            expect(response.body).to include("Saved. Cross-Channel Spam Guard is still disabled.")
+          end
         end
 
         it "surfaces the validation message when a value exceeds its maximum" do

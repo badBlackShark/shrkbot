@@ -306,6 +306,7 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `%{plugin} can't be enabled until its required settings are configured.` (shown for a missing channel) | `%{plugin} needs a channel.` | A missing channel got the generic settings message. It now names the one thing to set. |
 | `Turn Logging on and pick a log channel. Every alert lands there.` (protection prerequisite step) | `Set up a log channel so shrkbot has a place to post alerts.` | `Every alert lands there` restated the destination without saying why the step exists; the new line gives the reason in the instruction itself. |
 | `%{plugin} is disabled` / `Enable the plugin to configure messages.` (and the Logging, Roles, Looking for Game, Twilight Struggle variants) / `Enable %{plugin}` button | Deleted. The settings stay editable and the header toggle's `Enabled`/`Disabled` label is the only state signal. | The overlay made admins switch a plugin on before they could see or set what it would do. |
+| `Welcomes settings saved.` (saving a plugin that stays disabled) | `Saved. %{plugin} is still disabled.` | A disabled plugin's form saves now, so the toast tells the reader the change does nothing until the plugin is enabled. |
 
 ## Kept on purpose
 

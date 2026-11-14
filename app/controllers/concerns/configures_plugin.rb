@@ -29,7 +29,7 @@ module ConfiguresPlugin
   end
 
   def respond_with_save(result)
-    @toast = {level: "notice", message: saved_message} if result.success?
+    @toast = {level: "notice", message: saved_message(result.value)} if result.success?
     respond_to do |format|
       format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
       format.html { redirect_to configuration_url, **flash_for(result) }
@@ -41,12 +41,18 @@ module ConfiguresPlugin
   end
 
   def flash_for(result)
-    return {notice: saved_message} if result.success?
+    return {notice: saved_message(result.value)} if result.success?
 
     {alert: result.errors.to_sentence}
   end
 
-  def saved_message
+  def saved_message(saved)
+    return t("servers.saved_while_disabled", plugin: PluginCatalog.find(plugin_key).name) if left_disabled?(saved)
+
     t("servers.#{plugin_key}.saved")
+  end
+
+  def left_disabled?(saved)
+    saved.is_a?(PluginActivation) && !saved.enabled? && !saved.saved_change_to_enabled?
   end
 end

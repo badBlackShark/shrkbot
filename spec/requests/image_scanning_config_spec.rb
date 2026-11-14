@@ -103,7 +103,7 @@ RSpec.describe "Image scanning config", type: :request do
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
           expect(response.body).to include('target="plugin-sidebar"')
           expect(response.body).to include("image_scanning-config")
-          expect(response.body).to include("saved")
+          expect(response.body).to include("Saved. Scam Image Detection is still disabled.")
         end
 
         it "returns 422 when enabling with no staff role" do
