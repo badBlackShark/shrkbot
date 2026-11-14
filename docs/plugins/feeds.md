@@ -35,17 +35,19 @@ shared Feeds controllers (see Config UI).
 
 ## Sources
 
-A source is a module under `Feeds::` (`Feeds::Steam`) that answers `plugin_key`,
-`watchers`, `event_types` (in UI order), `template_tokens`, `notification_tokens`,
-`tokens_for(event_type)` (the tokens that type can fill) and
-`default_notification(event_type)`, plus the settings
-contract: `settings_association` (the `Subscription` association that holds
-its provider settings, which the list finder preloads),
-`role_id_for(subscription, event_type)`, `accepts?(subscription, event)`,
-`post_type(event_type)`, `announced_types`, `retract?(subscription, event)` (true when the post is deleted instead of
-edited; Steam never, Twitch for `StreamEnded` in `delete` mode and for a switched-away
-stream in `delete` mode) and `revive?(subscription, event)` (true when a post shrkbot
-deleted may be sent again; Steam never, Twitch for a live event in a chosen category). Each source
+A source is a class under `Feeds::` (`Feeds::Steam`) that inherits `Feeds::Source` and
+answers `plugin_key`, `watchers`, `event_types` (in UI order), `template_tokens` and
+`default_notification(event_type)`, plus the settings contract: `settings_association`
+(the `Subscription` association that holds its provider settings, which the list finder
+preloads), `role_id_for(subscription, event_type)` and `accepts?(subscription, event)`.
+`Feeds::Source` gives six more a default, and a source overrides only where it differs:
+`post_type(event_type)` (the event type itself), `announced_types` (`event_types`),
+`notification_tokens` (`template_tokens`; Steam adds `title`), `tokens_for(event_type)`
+(the tokens that type can fill; `notification_tokens`), `retract?(subscription, event)`
+(true when the post is deleted instead of edited; false, Twitch for `StreamEnded` in
+`delete` mode and for a switched-away stream in `delete` mode) and
+`revive?(subscription, event)` (true when a post shrkbot deleted may be sent again; false,
+Twitch for a live event in a chosen category). Each source
 with settings adds its own `has_one` on `Feeds::Subscription` (`steam_settings`), so the
 foreign key and the guild purge follow the subscription. `Subscription#settings` reads
 that row and `#build_settings` builds it; the row is built once, with the subscription,
@@ -55,9 +57,9 @@ until they split per source with Twitch.
 A source also answers `announcement(event:, subscription:)`: it builds the source's
 renderer and does the I/O that renderer needs (Steam: the padded thumbnail via
 `Feeds::Steam::Thumbnail`; Twitch: `Feeds::Twitch::LiveImage`).
-`Feeds.sources` lists them; a new source adds a module and one entry there. The
-contract is duck-typed with no base class: a shared mixin is extracted when two sources
-share code. `spec/models/feeds_spec.rb` enforces the contract.
+`Feeds.sources` lists them; a new source adds a class and one entry there. The base holds
+defaults only: a method every source answers differently has no stub there, and
+`spec/models/feeds_spec.rb` enforces the contract.
 For the follow form a source also answers `lookup_param` (the lookup page's query param),
 `settings_params` (the permit list for its settings) and `settings_from(permitted)` (the
 settings hash that `Subscription#build_settings` and `Ops::Feeds::Subscriptions::Update`
@@ -168,7 +170,8 @@ are no preview routes for these pages.
 - **Previews per source.** `TemplateField` takes its sample values and card from
   `Feeds::<Source>::PreviewSamples` (`tokens`, `value`, `card`). Twitch's also builds
   the end-mode cards (`end_mode_card`). The labels come from the renderers
-  (`EndedAnnouncement::VOD_LABEL`, `ClipAnnouncement::LABELS`); the body lines are
+  (`EndedAnnouncement::VOD_LABEL`) and the post type's `label` in
+  `Feeds::Twitch::POST_TYPES`; the body lines are
   copies of the renderers' text, so a renderer change needs the matching sample change.
   The preview card shows text and an optional button only, so it has no accent bar,
   profile picture or thumbnail. A role pill comes from the role
@@ -193,6 +196,12 @@ tokens are `streamer`, `category`, `title` and `clipper`; a token a card has no 
 post type (`live_role_id`, `highlights_role_id`, `uploads_role_id`,
 `featured_clips_role_id`, `clips_role_id`), `show_viewers` (true by default) and
 `live_end_mode` (see below). `role_id_for` maps an event type to its role column.
+`Feeds::Twitch::POST_TYPES` holds one `Feeds::Twitch::PostType` per post type, in UI
+order: event type, default notification, tokens, role column and eyebrow label.
+`event_types`, `template_tokens`, `tokens_for`, `default_notification`,
+`Settings#role_id_for`, the follow form's role select and permit list, and every card's
+eyebrow read it (`fetch_post_type`). `POSTED_AS` is a different axis: it maps the events
+that are not posts onto a post type.
 `categories` (jsonb array of `{id, name}`, name kept so the UI needs no API call) limits
 a follow to chosen categories; empty means every category. `accepts?` checks the
 category id for streams and clips; videos have none and always pass. A stream that
@@ -237,7 +246,9 @@ a day, shared with the Live card's box art; a failed lookup is cached as nil for
 minutes.
 
 Both cards subclass `Feeds::Twitch::MediaAnnouncement`, which holds what they share
-(accent, profile header, eyebrow from the subclass's `LABELS`, thumbnail image, link).
+(accent, thumbnail image, link). `Feeds::Twitch::ProfileHeader`, shared with the Live and
+ended cards, adds the profile picture and the eyebrow, `<name> · <label>` from the post
+type's row; the ended card overrides the eyebrow.
 
 A clip that is both new and featured posts once. `ClipCreated` is secondary, so
 `StoryPick` prefers the featured copy. A clip featured after it already posted as new

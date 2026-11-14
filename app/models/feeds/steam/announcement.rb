@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Steam
+  class Steam
     class Announcement < Feeds::Announcement
       TEXT_LIMIT = 4000
       LINK_LABEL = "Read the full post"

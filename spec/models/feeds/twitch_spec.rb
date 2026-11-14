@@ -55,6 +55,14 @@ RSpec.describe Feeds::Twitch do
     end
   end
 
+  describe ".default_notification" do
+    subject(:default_notification) { described_class.default_notification("Integrations::Twitch::StreamSampled") }
+
+    it "has no default text for an event that is not a post type" do
+      expect(default_notification).to be_nil
+    end
+  end
+
   describe ".announcement" do
     subject(:announcement) { described_class.announcement(event:, subscription:) }
 

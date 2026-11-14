@@ -1,27 +1,51 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch < Source
     POSTED_AS = {
       "Integrations::Twitch::StreamUpdated" => "Integrations::Twitch::StreamStarted",
       "Integrations::Twitch::StreamSampled" => "Integrations::Twitch::StreamStarted",
       "Integrations::Twitch::StreamEnded" => "Integrations::Twitch::StreamStarted"
     }.freeze
-    NOTIFICATIONS = {
-      "Integrations::Twitch::StreamStarted" => "{streamer} is live: {title}",
-      "Integrations::Twitch::HighlightPublished" => "{streamer} posted a highlight: {title}",
-      "Integrations::Twitch::UploadPublished" => "{streamer} uploaded a video: {title}",
-      "Integrations::Twitch::FeaturedClipPublished" => "New featured clip from {streamer}: {title}",
-      "Integrations::Twitch::ClipCreated" => "New clip from {streamer}: {title}"
-    }.freeze
+    PostType = Data.define(:event_type, :notification, :tokens, :role_column, :label)
 
-    TOKENS = {
-      "Integrations::Twitch::StreamStarted" => %w[streamer category title],
-      "Integrations::Twitch::HighlightPublished" => %w[streamer title],
-      "Integrations::Twitch::UploadPublished" => %w[streamer title],
-      "Integrations::Twitch::FeaturedClipPublished" => %w[streamer category title clipper],
-      "Integrations::Twitch::ClipCreated" => %w[streamer category title clipper]
-    }.freeze
+    POST_TYPES = [
+      PostType.new(
+        event_type: "Integrations::Twitch::StreamStarted",
+        notification: "{streamer} is live: {title}",
+        tokens: %w[streamer category title],
+        role_column: :live_role_id,
+        label: "Live on Twitch"
+      ),
+      PostType.new(
+        event_type: "Integrations::Twitch::HighlightPublished",
+        notification: "{streamer} posted a highlight: {title}",
+        tokens: %w[streamer title],
+        role_column: :highlights_role_id,
+        label: "New highlight on Twitch"
+      ),
+      PostType.new(
+        event_type: "Integrations::Twitch::UploadPublished",
+        notification: "{streamer} uploaded a video: {title}",
+        tokens: %w[streamer title],
+        role_column: :uploads_role_id,
+        label: "New upload on Twitch"
+      ),
+      PostType.new(
+        event_type: "Integrations::Twitch::FeaturedClipPublished",
+        notification: "New featured clip from {streamer}: {title}",
+        tokens: %w[streamer category title clipper],
+        role_column: :featured_clips_role_id,
+        label: "Featured clip on Twitch"
+      ),
+      PostType.new(
+        event_type: "Integrations::Twitch::ClipCreated",
+        notification: "New clip from {streamer}: {title}",
+        tokens: %w[streamer category title clipper],
+        role_column: :clips_role_id,
+        label: "New clip on Twitch"
+      )
+    ].freeze
 
     def self.plugin_key
       :twitch
@@ -32,13 +56,7 @@ module Feeds
     end
 
     def self.event_types
-      %w[
-        Integrations::Twitch::StreamStarted
-        Integrations::Twitch::HighlightPublished
-        Integrations::Twitch::UploadPublished
-        Integrations::Twitch::FeaturedClipPublished
-        Integrations::Twitch::ClipCreated
-      ]
+      POST_TYPES.map(&:event_type)
     end
 
     def self.post_type(event_type)
@@ -50,20 +68,25 @@ module Feeds
     end
 
     def self.template_tokens
-      TOKENS.values.flatten.uniq
+      POST_TYPES.flat_map(&:tokens).uniq
     end
 
     def self.tokens_for(event_type)
-      TOKENS.fetch(event_type)
-    end
-
-    def self.notification_tokens
-      template_tokens
+      fetch_post_type(event_type).tokens
     end
 
     def self.default_notification(event_type)
-      NOTIFICATIONS[event_type]
+      find_post_type(event_type)&.notification
     end
+
+    def self.fetch_post_type(event_type)
+      find_post_type(event_type) || raise(KeyError, "no Twitch post type for #{event_type.inspect}")
+    end
+
+    def self.find_post_type(event_type)
+      POST_TYPES.find { |type| type.event_type == event_type }
+    end
+    private_class_method :find_post_type
 
     def self.settings_association
       :twitch_settings
@@ -82,7 +105,7 @@ module Feeds
     end
 
     def self.scalar_settings
-      [*Settings::ROLE_COLUMNS.values, :live_end_mode, :show_viewers, :switched_away]
+      [*POST_TYPES.map(&:role_column), :live_end_mode, :show_viewers, :switched_away]
     end
     private_class_method :scalar_settings
 

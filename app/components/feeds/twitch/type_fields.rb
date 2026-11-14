@@ -12,7 +12,7 @@ class Components::Feeds::Twitch::TypeFields < Components::Base
     div do
       render Components::Feeds::RoleField.new(
         subscription: @subscription,
-        name: "subscription[#{::Feeds::Twitch::Settings::ROLE_COLUMNS.fetch(@event_type)}]",
+        name: "subscription[#{::Feeds::Twitch.fetch_post_type(@event_type).role_column}]",
         selected: @subscription.settings.role_id_for(@event_type)
       )
     end

@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     class VideoAnnouncement < MediaAnnouncement
       LINK_LABEL = "Watch on Twitch"
-      LABELS = {
-        "Integrations::Twitch::HighlightPublished" => "New highlight on Twitch",
-        "Integrations::Twitch::UploadPublished" => "New upload on Twitch"
-      }.freeze
 
       private
 
