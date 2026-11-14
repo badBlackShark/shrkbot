@@ -373,8 +373,8 @@ both the `mousedown` and the `click` must land on the backdrop.
 
 Use flexbox for layout. Reach for CSS grid only when a layout genuinely can't be
 done with flex — in practice that's a responsive multi-column **card grid** with
-equal tracks (e.g. the server picker's `grid-cols-1 sm:grid-cols-2
-lg:grid-cols-3`), where the flex equivalent needs fragile `calc()` basis values.
+equal tracks (the server picker's `grid-cols-1 sm:grid-cols-2
+lg:grid-cols-3` and the home page's plugin grid), where the flex equivalent needs fragile `calc()` basis values.
 Never use grid to centre a single item (`flex items-center justify-center`, not
 `grid place-items-center`) or to stack/overlap elements (`relative` + `absolute
 inset-0`).
