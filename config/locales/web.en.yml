@@ -660,6 +660,8 @@ en:
         row_spam: Spam protection also ignores digits - message 1, message 2, message
           3 count as the same message.
         title: How text matching works
+      overview_form:
+        protections: Protections
       punishment_control:
         ban: Ban
         ban_warning: A ban is permanent until a mod lifts it, and shrkbot can't undo
@@ -866,16 +868,8 @@ en:
       post: " by badBlackShark in Germany 🇩🇪, hosted in Finland
         🇫🇮."
       pre: 'shrkbot is '
-    sub_plugin_directory:
-      eyebrow: Sub-plugins
     sub_plugin_row:
       configure: Configure
-      locked_reason:
-        image_scanning: Pick a staff role first.
-        spam_protection: Pick a staff role first.
-      needs_setup_hint:
-        image_scanning: Pick a staff role first.
-        spam_protection: Pick a staff role first.
       status:
         disabled: Disabled
         enabled: Enabled
@@ -1043,8 +1037,6 @@ en:
   servers:
     image_scanning:
       saved: Scam Image Detection settings saved.
-    integrations:
-      saved: Integrations settings saved.
     lfg:
       saved: Looking for Game settings saved.
     logging:
@@ -1217,12 +1209,6 @@ en:
           description: Reads the text inside posted images and checks it against known
             scam patterns and previously confirmed scam images. Staff confirm or dismiss
             every catch, and the bot remembers.
-          no_role_callout_body: Every Moderation sub-plugin needs the shared staff
-            role - it's pinged on every alert. Set it on the
-          no_role_callout_lead: Pick a staff role first.
-          no_role_callout_link: Moderation overview
-          no_role_callout_suffix: ", then enable image scanning here."
-          role_locked_reason: Pick a staff role first.
           title: Scam Image Detection
       index:
         empty_body: You need Manage Server permissions and shrkbot must be present.
@@ -1248,7 +1234,6 @@ en:
         show:
           description: Posts news from the platforms you follow, like Steam, in the
             channels you pick.
-          gate_message: Enable Integrations to post news from the sources you follow.
           title: Integrations
       lfg:
         show:
@@ -1265,17 +1250,18 @@ en:
         show:
           description: 'Your server''s aegis: automated moderation beyond Discord''s
             AutoMod.'
-          gate_message: Enable the group to configure its sub-plugins and shared settings.
           logging_subline_prefix: 'Alerts post to '
           logging_subline_suffix: through the Logging plugin.
-          prereq_gate_cta: Set up Logging
-          prereq_gate_message: Every alert, staff ping and one-click review lands
-            in your log channel. Enable Logging and pick a log channel, then come
-            back.
-          prereq_gate_title: Moderation needs the Logging plugin
           title: Server Shield
-          toggle_locked_reason: Enable the Logging plugin first - alerts are delivered
-            through your log channel.
+        sub_plugin_show:
+          prerequisites:
+            logging:
+              cta: Open Logging
+              message: Turn Logging on and pick a log channel. Every alert lands there.
+            moderation:
+              cta: Open Server Shield
+              message: Pick a staff role on the Server Shield overview.
+            title: Before you enable %{plugin}
       reminders:
         show:
           badge: Global
@@ -1306,24 +1292,12 @@ en:
           description: Detects the same message blasted across multiple channels within
             seconds and purges it before it spreads. Matching is fingerprint-based
             - message content is never stored.
-          no_role_callout_body: Every Moderation sub-plugin needs the shared staff
-            role - it's pinged on every alert. Set it on the
-          no_role_callout_lead: Pick a staff role first.
-          no_role_callout_link: Moderation overview
-          no_role_callout_suffix: ", then enable spam protection here."
-          role_locked_reason: Pick a staff role first.
           title: Cross-Channel Spam Guard
       steam:
         show:
           description: Posts new patch notes, announcements and press coverage of
             the Steam games you follow.
           title: Steam
-      sub_plugin_show:
-        group_locked_reason: Turn %{parent} on first.
-        prereq_gate_cta: Go to %{parent}
-        prereq_gate_message: "%{plugin} is part of %{parent}. Turn %{parent} on to
-          configure this page."
-        prereq_gate_title: "%{parent} is off"
       twilight_struggle:
         destinations:
           edit:

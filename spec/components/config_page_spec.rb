@@ -186,9 +186,13 @@ RSpec.describe Components::ConfigPage do
           type: :prereq,
           icon: "scroll",
           title: "Needs Logging",
-          message: "Set up Logging first.",
-          cta_label: "Set up Logging",
-          cta_href: "/servers/900000001/logging"
+          steps: [
+            Components::PrereqGate::Step.new(
+              message: "Set up Logging first.",
+              cta_label: "Set up Logging",
+              cta_href: "/servers/900000001/logging"
+            )
+          ]
         }
       ).render_in(view_context) { "" }
     end
