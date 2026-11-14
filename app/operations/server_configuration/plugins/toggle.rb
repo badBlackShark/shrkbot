@@ -35,8 +35,6 @@ module Ops
 
         def requirement_message(blocker)
           case blocker
-          when :parent_disabled
-            plugins_t("requires_parent", parent: PluginCatalog.find(definition.parent).name)
           when :channel_missing
             plugins_t("requires_channel")
           else

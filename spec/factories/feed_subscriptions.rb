@@ -14,14 +14,12 @@ FactoryBot.define do
       after(:create) do |subscription|
         Prosopite.pause do
           source = Feeds.sources.find { |candidate| candidate.watchers.include?(subscription.watch.watcher) } || Feeds::Steam
-          ["integrations", source.plugin_key.to_s].each do |key|
-            create(
-              :plugin_activation,
-              server_configuration: subscription.server_configuration,
-              plugin: create(:plugin, key:),
-              enabled: true
-            )
-          end
+          create(
+            :plugin_activation,
+            server_configuration: subscription.server_configuration,
+            plugin: create(:plugin, key: source.plugin_key.to_s),
+            enabled: true
+          )
         end
       end
     end

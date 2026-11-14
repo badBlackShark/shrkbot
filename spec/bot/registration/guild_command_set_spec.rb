@@ -7,7 +7,6 @@ RSpec.describe Bot::GuildCommandSet do
   let(:server) { create(:server_configuration) }
   let(:discord_id) { server.discord_id }
 
-  let(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
   let(:image_scanning_plugin) { create(:plugin, key: "image_scanning", name: "Scam Image Detection") }
 
   def make_command(name:, plugin_key: nil, context: :guild)
@@ -54,34 +53,15 @@ RSpec.describe Bot::GuildCommandSet do
       end
     end
 
-    context "plugin command with the full moderation chain enabled" do
+    context "plugin command with its plugin enabled" do
       let(:commands) { [image_scanning_cmd] }
-      let(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
-
-      let(:moderation_activation) do
-        PluginActivation.find_by!(server_configuration: server, plugin: moderation_plugin)
-      end
 
       before do
-        create(:logging_settings, server_configuration: server)
-        create(:plugin_activation, server_configuration: server, plugin: logging_plugin, enabled: true)
-        create(:moderation_settings, server_configuration: server, staff_role_id: 888)
-        create(:plugin_activation, server_configuration: server, plugin: moderation_plugin, enabled: true)
-        create(:plugin_activation, server_configuration: server, plugin: image_scanning_plugin, enabled: true)
+        create(:plugin_activation, server_configuration: server, plugin: image_scanning_plugin, enabled: false).update_column(:enabled, true)
       end
 
-      it "is included" do
+      it "is included without any group state" do
         expect(payloads.map { |p| p[:name] }).to include(:report_scam)
-      end
-
-      context "when the parent is later disabled" do
-        before do
-          moderation_activation.update!(enabled: false)
-        end
-
-        it "is excluded" do
-          expect(payloads).to be_empty
-        end
       end
     end
 

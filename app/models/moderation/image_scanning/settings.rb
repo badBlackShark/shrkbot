@@ -24,7 +24,7 @@ module Moderation
       validate :min_hits_within_keyword_count
 
       def self.active_for(discord_id)
-        active_group_settings(discord_id, :image_scanning) { |config| config.image_scanning_settings }
+        active_settings(discord_id, :image_scanning) { |config| config.image_scanning_settings }
       end
 
       private

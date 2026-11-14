@@ -44,7 +44,7 @@ Declared with `register_in`:
   settings op must change its activation through that helper or its commands never
   appear). A
   command's `plugin :key` macro ties it to a `PluginCatalog` key; it only registers
-  in guilds where that plugin (and its parent, if any) is enabled. Plugin-less guild
+  in guilds where that plugin is enabled. Plugin-less guild
   commands register in every guild. Guild commands cannot appear in DMs.
 - `:global` — registered once globally in production via `Bot::CommandRegistrar#define_global`.
   In development, global commands are folded into every guild's bulk-overwrite set for

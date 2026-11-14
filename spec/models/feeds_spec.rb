@@ -3,8 +3,8 @@
 require "rails_helper"
 
 RSpec.describe Feeds do
-  it "is a plugin in the catalog" do
-    expect(PluginCatalog.find(:integrations)).to be_present
+  it "is a group in the catalog" do
+    expect(PluginCatalog.group(:integrations)).to be_present
   end
 
   describe ".sources" do

@@ -3,14 +3,15 @@
 The moderation plugin group — cross-channel spam guard and scam-image detection —
 and the invariants that constrain how harshly it is allowed to act.
 
-Server Shield is a plugin *group*: the `moderation` parent (which requires the
-logging plugin and a configured log channel) plus two sub-plugins,
-`spam_protection` (Cross-Channel Spam Guard) and `image_scanning` (Scam Image
-Detection). Both sub-plugins additionally require a staff role to be configured.
+Server Shield is a plugin *group* with no switch: the `moderation` `PluginCatalog::Group`
+holds the shared settings page, and two protections, `spam_protection` (Cross-Channel
+Spam Guard) and `image_scanning` (Scam Image Detection), each turn on from their own
+page. Each protection requires Logging enabled (with its log channel) and a staff role.
 The relationships are declared on the `PluginCatalog::Definition`s (`parent`,
 `requires_plugin`, `prerequisite`), and `Ops::ServerConfiguration::Plugins::Toggle`, the
-one path that changes an activation, enforces them in both directions: Logging cannot
-turn off and the staff role cannot be cleared while something depends on them. See
+one path that changes an activation, enforces them: Logging cannot turn off while a
+protection is on. `Ops::Moderation::Settings::Update` refuses clearing the staff role the
+same way, through `PluginCatalog.unmet_dependent`. See
 [Plugins](overview.md) for the catalog model and
 [Design system](../design/design-system.md) § Plugin groups for the UI shell.
 

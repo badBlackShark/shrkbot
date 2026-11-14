@@ -17,8 +17,7 @@ class PluginCatalog
     def blockers(server_configuration, enabled_keys: server_configuration.enabled_plugin_keys)
       [
         (:not_granted unless granted?(server_configuration)),
-        (:parent_disabled unless enabled_or_none?(parent, enabled_keys)),
-        (:requires_plugin unless enabled_or_none?(requires_plugin, enabled_keys)),
+        (:requires_plugin unless required_plugin_ready?(server_configuration, enabled_keys)),
         (:channel_missing unless channel_met?(server_configuration)),
         (:prerequisite unless prerequisite_met?(server_configuration))
       ].compact
@@ -36,8 +35,9 @@ class PluginCatalog
       ::BespokePluginGrant.exists?(server_configuration:, plugin_key: key)
     end
 
-    def enabled_or_none?(required_key, enabled_keys)
-      required_key.nil? || enabled_keys.include?(required_key)
+    def required_plugin_ready?(server_configuration, enabled_keys)
+      requires_plugin.nil? ||
+        (enabled_keys.include?(requires_plugin) && PluginCatalog.find(requires_plugin).prerequisites_met?(server_configuration, enabled_keys:))
     end
 
     def prerequisite_met?(server_configuration)
@@ -51,20 +51,25 @@ class PluginCatalog
     end
   end
 
+  Group = Data.define(:key, :name)
+
   NEW_FOR = 30.days
 
   DEFINITIONS = [
     Definition.new(key: :logging, name: "Logging", description: "Writes moderation actions to a log channel.", channel_setting: :logging_settings),
     Definition.new(key: :roles, name: "Roles", description: "Self-assignable roles.", channel_setting: :role_setting),
     Definition.new(key: :welcomes, name: "Welcomes", description: "Join and leave messages.", channel_setting: :welcome_settings),
-    Definition.new(key: :moderation, name: "Server Shield", description: "Your server's aegis: automated moderation beyond Discord's AutoMod.", requires_plugin: :logging, prerequisite: ->(c) { c.logging_settings&.channel_id.present? }),
-    Definition.new(key: :spam_protection, name: "Cross-Channel Spam Guard", description: "Detects the same message blasted across multiple channels within seconds and purges it before it spreads. Matching is fingerprint-based — message content is never stored.", parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
-    Definition.new(key: :image_scanning, name: "Scam Image Detection", description: "Reads the text inside posted images and checks it against known scam patterns and previously confirmed scam images. Staff confirm or dismiss every catch, and the bot remembers.", parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
+    Definition.new(key: :spam_protection, name: "Cross-Channel Spam Guard", description: "Detects the same message blasted across multiple channels within seconds and purges it before it spreads. Matching is fingerprint-based — message content is never stored.", requires_plugin: :logging, parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
+    Definition.new(key: :image_scanning, name: "Scam Image Detection", description: "Reads the text inside posted images and checks it against known scam patterns and previously confirmed scam images. Staff confirm or dismiss every catch, and the bot remembers.", requires_plugin: :logging, parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
     Definition.new(key: :lfg, name: "Looking for Game", description: "Let members find people to play with both on the fly and scheduled in the future. Only shrkbot will ping, allowing you to turn off generally available role pings."),
-    Definition.new(key: :integrations, name: "Integrations", description: "Posts news from the platforms you follow, like Steam, in the channels you pick."),
     Definition.new(key: :steam, name: "Steam", description: "Posts new patch notes, announcements, and press coverage of the Steam games you follow.", parent: :integrations),
     Definition.new(key: :twitch, name: "Twitch", description: "Announces when the Twitch channels you follow go live, and posts their highlights, uploads, and clips.", parent: :integrations, beta: true),
     Definition.new(key: :twilight_struggle, name: "Twilight Struggle", description: "Posts results from twilight-struggle.com as they are reported. Subscribe to a tournament, pick its channel, and write the message however you like.", bespoke: true)
+  ].freeze
+
+  GROUPS = [
+    Group.new(key: :moderation, name: "Server Shield"),
+    Group.new(key: :integrations, name: "Integrations")
   ].freeze
 
   GLOBAL_KEYS = [:reminders].freeze
@@ -75,6 +80,10 @@ class PluginCatalog
 
   def self.find(key)
     DEFINITIONS.find { |definition| definition.key == key }
+  end
+
+  def self.group(key)
+    GROUPS.find { |group| group.key == key }
   end
 
   def self.recently_added?(key)
@@ -100,7 +109,7 @@ class PluginCatalog
   def self.dependents_broken_by(key, server_configuration, enabled_keys:)
     blocked = dependents_of(key)
       .select { |dependent| enabled_keys.include?(dependent.key) }
-      .to_h { |dependent| [dependent, dependent.blockers(server_configuration, enabled_keys:) - [:parent_disabled]] }
+      .to_h { |dependent| [dependent, dependent.blockers(server_configuration, enabled_keys:)] }
       .reject { |_dependent, blockers| blockers.empty? }
     return [] if blocked.empty?
 

@@ -50,13 +50,14 @@ RSpec.describe Ops::Logging::Settings::Update do
     end
   end
 
-  context "when moderation is enabled and logging would become unavailable" do
-    let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
+  context "when a Server Shield protection is on and logging would become unavailable" do
+    let!(:protection_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
 
     before do
       config.logging_settings.update!(channel_id: 200)
+      config.create_moderation_settings!(staff_role_id: 5)
       create(:plugin_activation, server_configuration: config, plugin:, enabled: true)
-      create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: true)
+      create(:plugin_activation, server_configuration: config, plugin: protection_plugin, enabled: false).update_column(:enabled, true)
     end
 
     context "when clearing the logging channel while keeping enabled" do

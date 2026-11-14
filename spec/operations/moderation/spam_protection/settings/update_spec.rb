@@ -29,17 +29,15 @@ RSpec.describe Ops::Moderation::SpamProtection::Settings::Update do
   let(:timeout_seconds) { 3600 }
   let(:enabled) { "1" }
 
-  def setup_moderation_group_enabled
+  def setup_protection_prerequisites
     logging_plugin = create(:plugin, key: "logging", name: "Logging")
-    moderation_plugin = create(:plugin, key: "moderation", name: "Server Shield")
     config.create_logging_settings!(channel_id: 999)
     config.create_moderation_settings!.tap { |s| s.update!(staff_role_id: 777_888_999) }
     create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: true)
-    create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: true)
   end
 
-  context "when moderation group is enabled and staff_role_id is set (happy path)" do
-    before { setup_moderation_group_enabled }
+  context "when logging is ready and staff_role_id is set (happy path)" do
+    before { setup_protection_prerequisites }
 
     it "succeeds" do
       expect(result).to be_success
@@ -59,11 +57,9 @@ RSpec.describe Ops::Moderation::SpamProtection::Settings::Update do
   context "when enabling while staff_role_id is blank" do
     before do
       logging_plugin = create(:plugin, key: "logging", name: "Logging")
-      moderation_plugin = create(:plugin, key: "moderation", name: "Server Shield")
       config.create_logging_settings!(channel_id: 999)
       config.create_moderation_settings!
       create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: true)
-      create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: true)
     end
 
     it "fails" do
@@ -88,7 +84,7 @@ RSpec.describe Ops::Moderation::SpamProtection::Settings::Update do
   context "when saving settings without enabling" do
     let(:enabled) { "0" }
 
-    before { setup_moderation_group_enabled }
+    before { setup_protection_prerequisites }
 
     it "succeeds" do
       expect(result).to be_success

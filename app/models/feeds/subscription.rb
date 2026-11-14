@@ -68,8 +68,6 @@ module Feeds
       Feeds.sources.map { |source|
         base.for_source(source).where(
           server_configuration_id: PluginActivation.enabled_for(source.plugin_key).select(:server_configuration_id)
-        ).where(
-          server_configuration_id: PluginActivation.enabled_for(PluginCatalog.find(source.plugin_key).parent).select(:server_configuration_id)
         )
       }.reduce(:or)
     end

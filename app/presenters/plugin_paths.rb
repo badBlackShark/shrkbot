@@ -20,7 +20,7 @@ class PluginPaths
   end
 
   private_class_method def self.known?(key)
-    PluginCatalog.find(key).present? || PluginCatalog::GLOBAL_KEYS.include?(key.to_sym)
+    PluginCatalog.find(key).present? || PluginCatalog.group(key.to_sym).present? || PluginCatalog::GLOBAL_KEYS.include?(key.to_sym)
   end
 
   private_class_method def self.bespoke?(key)

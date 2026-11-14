@@ -9,11 +9,11 @@ doc keep the Feeds name; the provider layer is `Integrations::` (see `docs/integ
 
 ## Pages
 
-Two catalog entries make the plugin group: `:integrations` (the parent) and `:steam`
-(`parent: :integrations`). A new source is another sub-plugin entry, its `Feeds::`
+One catalog group, `:integrations`, gathers the source plugins (`:steam`, `parent: :integrations`).
+A new source is another plugin entry, its `Feeds::`
 source module (see Sources) and its own page.
 
-- **Integrations** (`Servers::IntegrationsController`): the overview. It renders
+- **Integrations** (`Servers::IntegrationsController`): the overview, with no switch. It renders
   `Components::SubPluginDirectory` with one row per sub-plugin
   (`SubPluginStatus.rows(config, parent: :integrations)`), and `Components::SubPluginToggleForms`
   after the page so a row's toggle can submit from the overview. A row toggle posts `enabled`
@@ -26,9 +26,7 @@ source module (see Sources) and its own page.
   channel and role lookups once for all rows. A row shows the game's header image, the
   channel, the pinged role, the followed event types, and a warning when the watch is
   broken (`Integrations::Watch#broken?`).
-- Turning Integrations off or on goes through `Ops::ServerConfiguration::Plugins::Toggle`
-  like any plugin. A sub-plugin cannot be turned on while Integrations is off.
-- Demo data: `config/preview_data.yml` enables both and follows two games, each through a
+- Demo data: `config/preview_data.yml` enables Steam and follows two games, each through a
   shared `Integrations::Watch`, see [../web/preview.md](../web/preview.md).
 
 ## Sources
@@ -332,8 +330,8 @@ is the only chance to add the button, so `RevisePostJob` retries.
 
 ## `Subscription.active`
 
-A subscription is **active** when its server is real (not a preview) and has both the
-`integrations` plugin and the source's sub-plugin enabled. Each source in
+A subscription is **active** when its server is real (not a preview) and has the
+source's plugin enabled. Each source in
 `Feeds.sources` names its watcher classes and its sub-plugin key (`Feeds::Steam`:
 `Integrations::Steam::NewsWatcher`, `:steam`), so a new source is one module and one
 entry there. `Feeds::Subscription` is registered as a demand source in
@@ -442,8 +440,7 @@ ignores it when ranking, so a copy the subscription could never have received ca
 displace one it could.
 
 `Ops::Feeds::SubscribedEvents::Resume` resets it to now for the server's subscriptions
-when `integrations` is enabled again (all of them) or a source plugin is (the subscriptions on
-that source's watches). Off means off: re-enabling must not post what was published
+when a source plugin is enabled again (the subscriptions on that source's watches). Off means off: re-enabling must not post what was published
 while it was off. Editing a subscription does not reset it.
 
 It replaces priming. A watch stores whatever is fresh and not yet stored, and the gate decides

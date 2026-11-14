@@ -38,6 +38,6 @@ class PluginAccess
   end
 
   def configurable_keys
-    @configurable_keys ||= (PluginCatalog.visible_for(@server_configuration).map(&:key) + PluginCatalog::GLOBAL_KEYS).to_set
+    @configurable_keys ||= (PluginCatalog.visible_for(@server_configuration).map(&:key) + PluginCatalog::GROUPS.map(&:key) + PluginCatalog::GLOBAL_KEYS).to_set
   end
 end
