@@ -1007,12 +1007,8 @@ en:
           label: Channel
         empty: Nothing will be sent.
         join_message:
-          help: Sent when a member joins. Leave empty to send nothing.
-          info: is a Discord mention in join messages.
           label: Join message
         leave_message:
-          help: Sent when a member leaves. Leave empty to send nothing.
-          info: is a plain @username in leave messages.
           label: Leave message
         ping_on_join:
           help: Off delivers silently - the mention badge still shows, but no sound
