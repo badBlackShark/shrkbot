@@ -15,8 +15,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   def view_template
     render Components::ConfigSections.new(key: "welcomes", enable_error: @enable_error, data: {controller: "welcome-preview"}) do
       channel_card
-      message_cards
-      placeholder_help
+      message_card
       preview
     end
   end
@@ -34,28 +33,37 @@ class Components::Welcomes::ConfigForm < Components::Base
     )
   end
 
-  def message_cards
-    div(class: "grid gap-5 sm:grid-cols-2") do
-      message_card(:join) do
-        ping_toggle
+  def message_card
+    render Components::Card.new(padding: :none) do
+      div(class: "flex divide-x divide-border-subtle py-5") do
+        message_column(:join) do
+          ping_toggle
+        end
+        message_column(:leave) do
+          suppress_removal_toggle
+        end
       end
-      message_card(:leave) do
-        suppress_removal_toggle
-      end
+      placeholder_help
     end
   end
 
-  def message_card(kind, &toggle)
-    render Components::Card.new do
+  def message_column(kind)
+    div(class: "flex min-w-0 flex-1 flex-col gap-4 px-5") do
+      message_group(kind)
+      yield
+    end
+  end
+
+  def message_group(kind)
+    div(class: "flex flex-col gap-2") do
       message_heading(kind)
       message_field(kind)
       info_line(kind)
-      toggle_section(&toggle)
     end
   end
 
   def message_heading(kind)
-    div(class: "mb-2 flex items-start justify-between gap-3") do
+    div(class: "flex min-h-8 items-center justify-between gap-3") do
       div do
         label(for: field_id(kind), class: "block text-sm font-semibold") { t(".#{kind}_message.label") }
         p(class: "mt-0.5 text-sm text-text-secondary") { t(".#{kind}_message.help") }
@@ -81,7 +89,7 @@ class Components::Welcomes::ConfigForm < Components::Base
     textarea(
       name: "welcomes[#{kind}_message]",
       id: field_id(kind),
-      rows: 3,
+      rows: 4,
       class: FIELD,
       placeholder: t(".empty"),
       data: {
@@ -92,12 +100,8 @@ class Components::Welcomes::ConfigForm < Components::Base
     ) { message(kind) }
   end
 
-  def toggle_section(&toggle)
-    div(class: "mt-4 border-t border-border-subtle pt-4", &toggle)
-  end
-
   def info_line(kind)
-    p(class: "mt-1.5 flex items-start gap-1 text-xs text-text-secondary") do
+    p(class: "flex items-start gap-1 text-xs text-text-secondary") do
       render Components::Icon.new("info", class: "mt-0.5 size-3 flex-none text-accent")
       span do
         code(class: "font-mono") { "{user}" }
@@ -125,7 +129,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def placeholder_help
-    render Components::Card.new do
+    div(class: "border-t border-border-subtle px-5 pb-5 pt-4") do
       render Components::PlaceholderSection.new do
         render Components::PlaceholderChips.new(tokens: placeholders)
       end
