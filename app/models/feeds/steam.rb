@@ -46,6 +46,18 @@ module Feeds
       :steam_settings
     end
 
+    def self.lookup_param
+      :app
+    end
+
+    def self.settings_params
+      [:role_id, :body_length, {languages: []}]
+    end
+
+    def self.settings_from(permitted)
+      {role_id: permitted[:role_id], body_length: permitted[:body_length], languages: Array(permitted[:languages])}
+    end
+
     def self.role_id_for(subscription, _event_type)
       subscription.settings.role_id
     end
