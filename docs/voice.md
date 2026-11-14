@@ -307,6 +307,7 @@ later.
 | `Your server's aegis: automated moderation beyond Discord's AutoMod.` | Colon reveal, and a word some readers will look up. | The personality is the point, and no plainer wording carried it. Deliberate. |
 | `...for you it lives right alongside the functionality you know and love.` | Stock phrase. | The bespoke-plugins page is written in the developer's own voice, first person throughout. It is the one page where personality outranks the rules. |
 | `♥` in the site footer | ASCII over glyphs. | One glyph, one place, load-bearing for the line it sits in. |
+| `{the inherited template}` as the placeholder of an emptied Twilight Struggle box, and in its preview | `Nothing will be sent.` in the box and the preview | The placeholder looked like the text that would be posted, and it was: empty meant "inherit". Now empty posts nothing, says so, and the reset brings the inherited text back. |
 
 ## Standing rule
 

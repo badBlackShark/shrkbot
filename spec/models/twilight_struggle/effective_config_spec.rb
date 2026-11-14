@@ -113,11 +113,25 @@ RSpec.describe TwilightStruggle::EffectiveConfig do
 
       before do
         create(:twilight_struggle_destination, tournament: parent, server_configuration:, template_win: "parent template")
-        create(:twilight_struggle_destination, tournament:, server_configuration:, template_win: "")
+        create(:twilight_struggle_destination, tournament:, server_configuration:, template_win: nil)
       end
 
       it "falls through to the parent's template" do
         expect(config.template_win).to eq("parent template")
+      end
+    end
+
+    context "when this server's destination posts nothing but the parent's has a template" do
+      let(:parent) { create(:twilight_struggle_tournament) }
+      let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+      before do
+        create(:twilight_struggle_destination, tournament: parent, server_configuration:, template_win: "parent template")
+        create(:twilight_struggle_destination, tournament:, server_configuration:, template_win: "")
+      end
+
+      it "returns the empty template instead of the parent's" do
+        expect(config.template_win).to eq("")
       end
     end
 

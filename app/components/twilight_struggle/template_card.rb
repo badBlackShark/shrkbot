@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 class Components::TwilightStruggle::TemplateCard < Components::Base
-  def initialize(kind:, value:, placeholder:, channel:, inherits_from_parent: false)
+  def initialize(kind:, value:, inherited:, channel:, inherits_from_parent: false)
     @kind = kind
     @value = value
-    @placeholder = placeholder
+    @inherited = inherited
     @channel = channel
     @inherits_from_parent = inherits_from_parent
   end
@@ -30,10 +30,16 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
   end
 
   def reset_button
-    render Components::ResetButton.new(
-      label: reset_label,
-      data: {action: "twilight-struggle-preview#reset", twilight_struggle_preview_kind_param: @kind}
-    )
+    span(
+      class: "flex",
+      hidden: @value == @inherited,
+      data: {twilight_struggle_preview_target: "#{@kind}Reset"}
+    ) do
+      render Components::ResetButton.new(
+        label: reset_label,
+        data: {action: "twilight-struggle-preview#reset", twilight_struggle_preview_kind_param: @kind}
+      )
+    end
   end
 
   def reset_label
@@ -44,8 +50,8 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
     render Components::TemplateTextarea.new(
       name: "destination[template_#{@kind}]",
       value: @value,
-      placeholder: @placeholder,
-      data: {twilight_struggle_preview_target: "#{@kind}Template"}
+      placeholder: t(".empty"),
+      data: {twilight_struggle_preview_target: "#{@kind}Template", default: @inherited}
     )
   end
 
