@@ -26,14 +26,6 @@ RSpec.describe Components::Welcomes::ConfigForm do
     expect(html).to include("No channels have synced yet")
   end
 
-  it "nests the ping-on-join toggle in the join message card" do
-    expect(card_containing("welcomes[join_message]")).to include('name="welcomes[ping_on_join]"')
-  end
-
-  it "nests the suppress-removal-messages toggle in the leave message card" do
-    expect(card_containing("welcomes[leave_message]")).to include('name="welcomes[suppress_removal_messages]"')
-  end
-
   it "renders every placeholder as a copy button" do
     described_class::PLACEHOLDERS.each do |name|
       expect(html).to include(%(data-clipboard-text-param="{#{name}}"))
@@ -48,6 +40,12 @@ RSpec.describe Components::Welcomes::ConfigForm do
     expect(html).to include("Placeholders (click to copy)")
   end
 
+  it "puts both messages and the placeholders in one card" do
+    expect(card_containing("welcomes[join_message]"))
+      .to include('name="welcomes[leave_message]"')
+      .and include('data-clipboard-text-param="{user}"')
+  end
+
   describe "the messages" do
     let(:page) { Nokogiri::HTML5.fragment(html) }
 
@@ -57,6 +55,18 @@ RSpec.describe Components::Welcomes::ConfigForm do
 
     def reset(kind)
       page.at_css("[data-welcome-preview-target=#{kind}Reset]")
+    end
+
+    def toggles_beside(kind)
+      textarea(kind).ancestors
+        .find { |node| node.at_css("input[type=checkbox]") }
+        .css("input[type=checkbox]")
+        .map { |input| input["name"] }
+    end
+
+    it "puts each toggle under its own message" do
+      expect([toggles_beside("join"), toggles_beside("leave")])
+        .to eq([["welcomes[ping_on_join]"], ["welcomes[suppress_removal_messages]"]])
     end
 
     it "fills each box with its default text" do
