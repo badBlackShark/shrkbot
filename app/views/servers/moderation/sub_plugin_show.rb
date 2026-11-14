@@ -42,7 +42,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
   end
 
   def logging_step
-    @config.logging_settings&.channel_id.present? ? :logging_disabled : :logging_channel
+    @config.logging_settings.channel_id.present? ? :logging_disabled : :logging_channel
   end
 
   def prerequisite_step(key)
