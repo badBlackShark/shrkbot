@@ -14,7 +14,8 @@ class Servers::PluginsController < ApplicationController
       enabled: params[:enabled]
     )
     @toast = feedback(result)
-    return redirect_to_parent if PluginCatalog.sub_plugin?(plugin_key)
+    parent = PluginCatalog.find(plugin_key)&.parent
+    return redirect_to_parent(parent) if parent
 
     @row = PluginStatus.row(@server_configuration, @plugin, access: plugin_access)
 
@@ -30,9 +31,9 @@ class Servers::PluginsController < ApplicationController
     params[:key].to_sym
   end
 
-  def redirect_to_parent
+  def redirect_to_parent(parent)
     redirect_to(
-      PluginPaths.for(@server_configuration, PluginCatalog.find(plugin_key).parent),
+      PluginPaths.for(@server_configuration, parent),
       status: :see_other,
       flash: {@toast.fetch(:level) => @toast.fetch(:message)}
     )

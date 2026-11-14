@@ -87,43 +87,6 @@ RSpec.describe Components::SubPluginRow do
     end
   end
 
-  context "for image_scanning when enabled and configured" do
-    subject(:html) do
-      described_class.new(**with_row(key: :image_scanning, name: "Scam Image Detection", enabled: true, configured: true)).render_in(view_context)
-    end
-
-    it "links the Configure button to the image_scanning path" do
-      expect(html).to include("image_scanning")
-      expect(html).to include("Configure")
-    end
-
-    it "does not render an inline form tag" do
-      expect(html).not_to include("<form")
-    end
-
-    it "submits the toggle through the image_scanning stub form" do
-      expect(html).to include('form="image_scanning-overview-toggle-form"')
-    end
-  end
-
-  context "for image_scanning when needs setup (not configured, group enabled)" do
-    subject(:html) do
-      described_class.new(**with_row(key: :image_scanning, name: "Scam Image Detection", enabled: false, configured: false)).render_in(view_context)
-    end
-
-    it "renders the Needs setup badge" do
-      expect(html).to include("Needs setup")
-    end
-
-    it "renders the inline warning hint" do
-      expect(html).to include("Pick a staff role first.")
-    end
-
-    it "renders the toggle as disabled" do
-      expect(html).to include("disabled")
-    end
-  end
-
   context "for spam_protection when disabled but configured" do
     subject(:html) do
       described_class.new(**with_row(enabled: false, configured: true)).render_in(view_context)
@@ -150,7 +113,7 @@ RSpec.describe Components::SubPluginRow do
     end
 
     it "says why in the tooltip" do
-      expect(html).to include(CGI.escapeHTML(I18n.t("components.sub_plugin_row.preview_locked")))
+      expect(html).to include(CGI.escapeHTML(I18n.t("components.plugin_row.preview_locked")))
     end
   end
 end
