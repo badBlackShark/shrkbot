@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     class TitleHistory
       Entry = Data.define(:title, :category, :seconds)
       MIN_SECONDS = 5.minutes.to_i

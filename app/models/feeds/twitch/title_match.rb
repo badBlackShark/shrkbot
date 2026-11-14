@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     module TitleMatch
       ROMAN = %w[ii iii iv v vi vii viii ix x xi xii xiii xiv xv xvi xvii xviii xix xx]
         .each_with_index.to_h { |numeral, index| [numeral, (index + 2).to_s] }.freeze

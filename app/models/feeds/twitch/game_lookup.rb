@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     module GameLookup
       def self.find(category_id)
         return unless category_id

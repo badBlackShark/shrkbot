@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     module Vod
       TTL = 1.day
       RECENT_ARCHIVES = 20

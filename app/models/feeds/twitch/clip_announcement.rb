@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     class ClipAnnouncement < MediaAnnouncement
       LINK_LABEL = "Watch the clip"
-      LABELS = {
-        "Integrations::Twitch::FeaturedClipPublished" => "Featured clip on Twitch",
-        "Integrations::Twitch::ClipCreated" => "New clip on Twitch"
-      }.freeze
 
       def initialize(event:, subscription:, category: nil)
         super(event:, subscription:)

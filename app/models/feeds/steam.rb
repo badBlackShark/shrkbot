@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Steam
+  class Steam < Source
     def self.plugin_key
       :steam
     end
@@ -18,24 +18,12 @@ module Feeds
       ]
     end
 
-    def self.post_type(event_type)
-      event_type
-    end
-
-    def self.announced_types
-      event_types
-    end
-
     def self.template_tokens
       %w[game author feed]
     end
 
     def self.notification_tokens
       template_tokens + %w[title]
-    end
-
-    def self.tokens_for(_event_type)
-      notification_tokens
     end
 
     def self.default_notification(event_type)
@@ -64,14 +52,6 @@ module Feeds
 
     def self.accepts?(subscription, event)
       subscription.settings.accepts_language?(event.language)
-    end
-
-    def self.retract?(_subscription, _event)
-      false
-    end
-
-    def self.revive?(_subscription, _event)
-      false
     end
 
     def self.announcement(event:, subscription:)

@@ -83,7 +83,14 @@ RSpec.describe "Twitch subscriptions", type: :request do
         lookup
 
         page = Nokogiri::HTML(response.body)
-        names = Feeds::Twitch::Settings::ROLE_COLUMNS.values.map { |column| %(select[name="subscription[#{column}]"]) }
+        columns = %w[
+          live_role_id
+          highlights_role_id
+          uploads_role_id
+          featured_clips_role_id
+          clips_role_id
+        ]
+        names = columns.map { |column| %(select[name="subscription[#{column}]"]) }
         expect(names.map { |selector| page.css(selector).size }).to all(eq(1))
         expect(page.css(%(input[name="subscription[live_end_mode]"]))).to be_one
         expect(page.css(%(input[type=checkbox][name="subscription[show_viewers]"]))).to be_one

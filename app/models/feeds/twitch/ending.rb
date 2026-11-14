@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     module Ending
       def self.announcement(event:, subscription:)
         case subscription.settings.live_end_mode

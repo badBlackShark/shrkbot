@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     class EndedAnnouncement < Feeds::Announcement
       include ProfileHeader
 

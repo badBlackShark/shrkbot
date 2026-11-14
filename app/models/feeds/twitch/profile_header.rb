@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     module ProfileHeader
       private
 
@@ -10,6 +10,10 @@ module Feeds
         return header_texts unless profile
 
         [Bot::Discord::Components.section(header_texts, accessory: Bot::Discord::Components.thumbnail(profile))]
+      end
+
+      def eyebrow
+        Bot::Discord::Components.text("-# #{event.display_name} · #{Twitch.fetch_post_type(post_type).label}")
       end
     end
   end
