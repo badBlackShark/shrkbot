@@ -15,7 +15,7 @@ class Components::SegmentedControl < Components::Base
 
   def view_template
     div(
-      role: "group",
+      role: ("group" if @label),
       aria_label: @label,
       class: "flex gap-2",
       data: {controller: "segmented", segmented_active_class: ACTIVE, segmented_inactive_class: INACTIVE}

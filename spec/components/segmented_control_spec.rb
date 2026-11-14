@@ -13,6 +13,10 @@ RSpec.describe Components::SegmentedControl do
     expect(html).to match(/<input type="hidden"[^>]*autocomplete="off"/)
   end
 
+  it "adds no group role without a label" do
+    expect(html).not_to include("role=")
+  end
+
   context "with a label" do
     let(:label) { "Sensitivity" }
 

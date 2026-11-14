@@ -22,8 +22,13 @@ RSpec.describe Components::Moderation::AccountAgeCard do
     expect(html).to include('value="30"')
   end
 
-  it "renders no reset segment because the stepper is right-anchored" do
-    expect(Nokogiri::HTML.fragment(html).at_css("[data-number-stepper-target=reset]")).to be_nil
+  it "resets to the column default" do
+    default = ::Moderation::Settings.column_defaults.fetch("new_account_age_days")
+    expect(html).to include(%(data-number-stepper-default-value="#{default}"))
+  end
+
+  it "renders the reset segment because the field is left-anchored" do
+    expect(Nokogiri::HTML.fragment(html).at_css("[data-number-stepper-target=reset]")).to be_present
   end
 
   context "with a custom value" do

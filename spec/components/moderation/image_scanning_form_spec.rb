@@ -56,6 +56,12 @@ RSpec.describe Components::Moderation::ImageScanningForm do
     expect(html).to include('name="image_scanning[custom_keyword_min_hits]"')
   end
 
+  it "labels the min_hits stepper unit and resets to the column default" do
+    default = ::Moderation::ImageScanning::Settings.column_defaults.fetch("custom_keyword_min_hits")
+    expect(html).to include("matching keywords")
+    expect(html).to include(%(data-number-stepper-default-value="#{default}"))
+  end
+
   it "renders the action segmented control with correct field name" do
     expect(html).to include('name="image_scanning[action]"')
   end
