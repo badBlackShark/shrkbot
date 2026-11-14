@@ -143,9 +143,8 @@ RSpec.describe "Steam config", type: :request do
       end
 
       describe "PATCH /servers/:server_id/steam" do
-        subject(:toggle) { patch plugin_path, params: {steam: {enabled: "1"}}.merge(extra_params), **headers }
+        subject(:toggle) { patch plugin_path, params: {steam: {enabled: "1"}}, **headers }
 
-        let(:extra_params) { {} }
         let(:headers) { turbo }
 
         it "enables Steam when Integrations is on" do
@@ -176,18 +175,6 @@ RSpec.describe "Steam config", type: :request do
               expect(response).to redirect_to(plugin_path)
               expect(flash[:alert]).to be_present
             end
-          end
-        end
-
-        context "when toggled from the overview" do
-          let(:extra_params) { {from_overview: "1"} }
-          let(:headers) { {} }
-
-          it "redirects to the Integrations page" do
-            toggle
-
-            expect(response).to redirect_to(server_integrations_path(guild.id))
-            expect(flash[:notice]).to eq("Steam settings saved.")
           end
         end
       end

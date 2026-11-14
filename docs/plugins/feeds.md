@@ -16,9 +16,9 @@ source module (see Sources) and its own page.
 - **Integrations** (`Servers::IntegrationsController`): the overview. It renders
   `Components::SubPluginDirectory` with one row per sub-plugin
   (`SubPluginStatus.rows(config, parent: :integrations)`), and `Components::SubPluginToggleForms`
-  after the page so a row's toggle can submit from the overview. A row toggle posts the
-  sub-plugin's own `PATCH` with `from_overview=1` and the controller redirects back to
-  the Integrations page.
+  after the page so a row's toggle can submit from the overview. A row toggle posts `enabled`
+  to `Servers::PluginsController#update`, which redirects a sub-plugin back to the
+  Integrations page.
 - **Steam** (`Servers::SteamController`, a `Views::Servers::SubPluginShow`):
   lists the games the server follows, with Add, Edit and Stop following (see Config UI).
   `Finders::Feeds::SourceSubscriptions` returns the server's subscriptions on that

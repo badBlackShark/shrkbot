@@ -95,7 +95,9 @@ re-verifies against live Discord on every server-scoped request.
   plus a toast, and (for the config forms) failure re-renders the form region with
   inline errors — just more `turbo_stream.*` lines with different components and
   targets. (These response templates are ERB; the Phlex-for-views convention is
-  about page/component views — the stream wrapper is a thin format template.)
+  about page/component views — the stream wrapper is a thin format template.) `Servers::PluginsController#update`
+  streams only for dashboard rows; a sub-plugin key (toggled on its group's overview)
+  gets a 303 redirect to that overview with the toast as a flash.
 
 ## Abstract Phlex base views take no stubs
 

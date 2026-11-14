@@ -58,17 +58,6 @@ RSpec.describe "Twitch config", type: :request do
             expect(config.enabled_plugin_keys).not_to include(:twitch)
           end
         end
-
-        context "when toggled from the overview" do
-          subject(:toggle) { patch plugin_path, params: {twitch: {enabled: "1"}, from_overview: "1"} }
-
-          it "redirects to the Integrations page" do
-            toggle
-
-            expect(response).to redirect_to(server_integrations_path(guild.id))
-            expect(flash[:notice]).to eq(I18n.t("servers.twitch.saved"))
-          end
-        end
       end
     end
   end

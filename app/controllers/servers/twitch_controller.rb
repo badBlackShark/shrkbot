@@ -13,8 +13,6 @@ class Servers::TwitchController < ApplicationController
 
   def update
     result = toggle_plugin(twitch_params[:enabled])
-    return redirect_to_overview(result) if params[:from_overview]
-
     respond_with_configuration(result)
   end
 

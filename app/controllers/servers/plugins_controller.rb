@@ -13,8 +13,10 @@ class Servers::PluginsController < ApplicationController
       plugin: @plugin,
       enabled: params[:enabled]
     )
-    @row = PluginStatus.row(@server_configuration, @plugin, access: plugin_access)
     @toast = feedback(result)
+    return redirect_to_parent if PluginCatalog.sub_plugin?(plugin_key)
+
+    @row = PluginStatus.row(@server_configuration, @plugin, access: plugin_access)
 
     respond_to do |format|
       format.turbo_stream
@@ -26,6 +28,14 @@ class Servers::PluginsController < ApplicationController
 
   def plugin_key
     params[:key].to_sym
+  end
+
+  def redirect_to_parent
+    redirect_to(
+      PluginPaths.for(@server_configuration, PluginCatalog.find(plugin_key).parent),
+      status: :see_other,
+      flash: {@toast.fetch(:level) => @toast.fetch(:message)}
+    )
   end
 
   def feedback(result)

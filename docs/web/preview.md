@@ -50,9 +50,10 @@ The UI never gives a visitor a control that would hit that guard:
   submit button disabled on a preview page, and swaps its message for the
   preview explanation. Discard still works - it reloads the page client-side
   and touches no route.
-- `Components::PluginRow`'s dashboard toggle POSTs on change, so on a preview
-  row it renders in the same disabled-with-tooltip state used elsewhere for a
-  toggle the visitor isn't allowed to flip.
+- `Components::PluginRow`'s dashboard toggle and `Components::SubPluginRow`'s
+  overview toggle POST on change, so on a preview row they render in the same
+  disabled-with-tooltip state used elsewhere for a toggle the visitor isn't
+  allowed to flip. `Components::SubPluginToggleForms` renders no stub forms there.
 - Every other control - text fields, dropdowns, switches inside a form -
   stays interactive, because only saving is blocked.
 
