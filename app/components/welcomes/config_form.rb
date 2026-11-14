@@ -65,16 +65,12 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def reset_button(kind)
-    span(
-      class: "flex",
+    render Components::ResetSlot.new(
+      label: t(".reset_to_default"),
       hidden: message(kind) == default_message(kind),
-      data: {welcome_preview_target: "#{kind}Reset"}
-    ) do
-      render Components::ResetButton.new(
-        label: t(".reset_to_default"),
-        data: {action: "welcome-preview#reset", welcome_preview_kind_param: kind}
-      )
-    end
+      slot_data: {welcome_preview_target: "#{kind}Reset"},
+      data: {action: "welcome-preview#reset", welcome_preview_kind_param: kind}
+    )
   end
 
   def message_field(kind)

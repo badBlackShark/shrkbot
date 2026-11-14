@@ -113,11 +113,25 @@ RSpec.describe TwilightStruggle::EffectiveConfig do
 
       before do
         create(:twilight_struggle_destination, tournament: parent, server_configuration:, template_win: "parent template")
-        create(:twilight_struggle_destination, tournament:, server_configuration:, template_win: "")
+        create(:twilight_struggle_destination, tournament:, server_configuration:, template_win: nil)
       end
 
       it "falls through to the parent's template" do
         expect(config.template_win).to eq("parent template")
+      end
+    end
+
+    context "when this server's destination posts nothing but the parent's has a template" do
+      let(:parent) { create(:twilight_struggle_tournament) }
+      let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+      before do
+        create(:twilight_struggle_destination, tournament: parent, server_configuration:, template_win: "parent template")
+        create(:twilight_struggle_destination, tournament:, server_configuration:, template_win: "")
+      end
+
+      it "returns the empty template instead of the parent's" do
+        expect(config.template_win).to eq("")
       end
     end
 
@@ -235,6 +249,27 @@ RSpec.describe TwilightStruggle::EffectiveConfig do
 
     it "is nil when this server subscribes nowhere in the chain" do
       expect(config.inherited_from).to be_nil
+    end
+  end
+
+  describe "#source_of" do
+    let(:parent) { create(:twilight_struggle_tournament) }
+    let(:tournament) { create(:twilight_struggle_tournament, parent:) }
+
+    before do
+      create(:twilight_struggle_destination, tournament: parent, server_configuration:, post_delay_seconds: 30)
+    end
+
+    it "names the tournament whose destination sets the attribute" do
+      create(:twilight_struggle_destination, tournament:, server_configuration:, post_delay_seconds: nil)
+
+      expect(config.source_of(:post_delay_seconds)).to eq(parent)
+    end
+
+    it "counts a zero as set" do
+      create(:twilight_struggle_destination, tournament:, server_configuration:, post_delay_seconds: 0)
+
+      expect(config.source_of(:post_delay_seconds)).to eq(tournament)
     end
   end
 

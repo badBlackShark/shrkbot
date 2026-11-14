@@ -89,10 +89,15 @@ header toggle *is* the subscription — subscribe and unsubscribe are their own
 `subscriptions` resource, since `destinations#destroy` no longer destroys.
 
 **Pre-filled templates keep inheriting.** The form ships the inherited text in the
-field, so you edit one word instead of retyping, and `Destinations::Update` stores
+field, so you edit one word instead of retyping, and `Destinations::Save` stores
 `nil` when the submitted text is byte-identical to what it would have inherited.
 Both halves are load-bearing: pre-fill alone freezes a copy on first save and
-silently stops a bracket tracking its league.
+silently stops a bracket tracking its league. Typing the inherited wording back by
+hand is therefore the same as a reset. A template column has three states: `nil`
+inherits, `""` posts nothing for that kind of result, any other text overrides. An
+empty or whitespace-only box saves `""`. `Games::Post` skips a result whose template
+is empty, including an edit of a result it already posted (the old message stays),
+and an empty video template never falls back to the win or tie template.
 
 **The plugin's enable toggle is the per-server kill switch.**
 `Ops::TwilightStruggle::Games::Post` needs an enabled plugin *and* a channel. There

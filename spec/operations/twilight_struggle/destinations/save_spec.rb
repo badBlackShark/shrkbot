@@ -38,9 +38,18 @@ RSpec.describe Ops::TwilightStruggle::Destinations::Save do
     expect(destination.reload.template_win).to eq("{winning_player} won")
   end
 
-  it "leaves a blank template nil so it inherits" do
+  it "stores an emptied template as empty, so that result posts nothing" do
     result
-    expect(destination.reload.template_tie).to be_nil
+    expect(destination.reload.template_tie).to eq("")
+  end
+
+  context "when a template is only whitespace" do
+    let(:attributes) { super().merge(template_tie: "  \n ") }
+
+    it "stores it as empty" do
+      result
+      expect(destination.reload.template_tie).to eq("")
+    end
   end
 
   it "never touches the tournament" do
