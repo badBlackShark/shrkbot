@@ -63,7 +63,7 @@ RSpec.describe "Image scanning config", type: :request do
             get server_image_scanning_path(guild.id)
             expect(response).to have_http_status(:ok)
             expect(response.body).to include("Before you enable")
-            expect(response.body).to include("Turn Logging on and pick a log channel. Every alert lands there.")
+            expect(response.body).to include("Set up a log channel so shrkbot has a place to post alerts.")
             expect(response.body).to include("Pick a staff role on the Server Shield overview.")
             expect(response.body).to include("Complete setup before enabling this plugin.")
           end
@@ -79,7 +79,7 @@ RSpec.describe "Image scanning config", type: :request do
           it "lists the staff role step only" do
             get server_image_scanning_path(guild.id)
             expect(response.body).to include("Pick a staff role on the Server Shield overview.")
-            expect(response.body).not_to include("Turn Logging on and pick a log channel.")
+            expect(response.body).not_to include("Set up a log channel so shrkbot has a place to post alerts.")
           end
         end
       end

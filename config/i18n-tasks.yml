@@ -107,8 +107,8 @@ ignore_unused:
   # 7. Views::Servers::Moderation::SubPluginShow#prerequisite_step
   - views.servers.moderation.sub_plugin_show.prerequisites.logging.message
   - views.servers.moderation.sub_plugin_show.prerequisites.logging.cta
-  - views.servers.moderation.sub_plugin_show.prerequisites.moderation.message
-  - views.servers.moderation.sub_plugin_show.prerequisites.moderation.cta
+  - views.servers.moderation.sub_plugin_show.prerequisites.staff_role.message
+  - views.servers.moderation.sub_plugin_show.prerequisites.staff_role.cta
 
 search:
   paths:

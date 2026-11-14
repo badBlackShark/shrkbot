@@ -262,6 +262,7 @@ RSpec.describe "Server dashboard", type: :request do
         patch server_plugin_path(guild.id, "moderation"), params: {enabled: true}, **turbo
         expect(response).to redirect_to(server_path(guild.id))
         expect(flash[:alert]).to eq(I18n.t("servers.unknown_plugin"))
+        expect(config.plugin_activations).to be_empty
       end
 
       it "falls back to a redirect without Turbo" do

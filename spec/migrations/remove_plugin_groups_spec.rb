@@ -59,6 +59,18 @@ RSpec.describe RemovePluginGroups, skip_prosopite: true do
     end
   end
 
+  context "when Integrations was on" do
+    let!(:integrations) { activate("integrations", enabled: true) }
+    let!(:steam) { activate("steam", enabled: true) }
+    let!(:twitch) { activate("twitch", enabled: true) }
+
+    it "keeps Twitch and Steam on" do
+      migrate
+
+      expect([steam.reload.enabled, twitch.reload.enabled]).to eq([true, true])
+    end
+  end
+
   context "when another server had the group on" do
     let(:other_server) { create(:server_configuration) }
     let!(:moderation) { activate("moderation", enabled: false) }

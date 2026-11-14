@@ -180,6 +180,16 @@ RSpec.describe PluginCatalog do
     end
   end
 
+  describe ".group?" do
+    it "is true for a group key, as a symbol or a string" do
+      expect([described_class.group?(:moderation), described_class.group?("integrations")]).to all(be(true))
+    end
+
+    it "is false for a plugin key" do
+      expect(described_class.group?(:logging)).to be(false)
+    end
+  end
+
   describe ".dependents_broken_by" do
     subject(:broken) { described_class.dependents_broken_by(key, server, enabled_keys:) }
 

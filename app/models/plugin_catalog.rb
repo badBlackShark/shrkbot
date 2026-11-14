@@ -86,6 +86,14 @@ class PluginCatalog
     GROUPS.find { |group| group.key == key }
   end
 
+  def self.group_keys
+    GROUPS.map(&:key)
+  end
+
+  def self.group?(key)
+    group_keys.include?(key.to_sym)
+  end
+
   def self.recently_added?(key)
     [key, *sub_plugin_keys(key)].any? { |candidate| find(candidate)&.recently_added? }
   end

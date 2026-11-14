@@ -1242,8 +1242,8 @@ en:
           prerequisites:
             logging:
               cta: Open Logging
-              message: Turn Logging on and pick a log channel. Every alert lands there.
-            moderation:
+              message: Set up a log channel so shrkbot has a place to post alerts.
+            staff_role:
               cta: Open Server Shield
               message: Pick a staff role on the Server Shield overview.
             title: Before you enable %{plugin}

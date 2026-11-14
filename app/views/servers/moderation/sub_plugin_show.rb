@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
+  STEP_PAGES = {logging: :logging, staff_role: :moderation}.freeze
+
   def initialize(server_configuration:, user:, context:)
     super(server_configuration:, user:)
     @context = context
@@ -36,7 +38,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
     blockers = definition.blockers(@config)
     [
       (definition.requires_plugin if blockers.include?(:requires_plugin)),
-      (definition.parent if blockers.include?(:prerequisite))
+      (:staff_role if blockers.include?(:prerequisite))
     ].compact
   end
 
@@ -44,7 +46,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
     Components::PrereqGate::Step.new(
       message: t("views.servers.moderation.sub_plugin_show.prerequisites.#{key}.message"),
       cta_label: t("views.servers.moderation.sub_plugin_show.prerequisites.#{key}.cta"),
-      cta_href: PluginPaths.for(@config, key)
+      cta_href: PluginPaths.for(@config, STEP_PAGES.fetch(key))
     )
   end
 

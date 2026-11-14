@@ -57,7 +57,7 @@ RSpec.describe "Spam protection config", type: :request do
             get server_spam_protection_path(guild.id)
             expect(response).to have_http_status(:ok)
             expect(response.body).to include("Before you enable")
-            expect(response.body).to include("Turn Logging on and pick a log channel. Every alert lands there.")
+            expect(response.body).to include("Set up a log channel so shrkbot has a place to post alerts.")
             expect(response.body).to include("Pick a staff role on the Server Shield overview.")
             expect(response.body).to include("Complete setup before enabling this plugin.")
           end
@@ -73,7 +73,19 @@ RSpec.describe "Spam protection config", type: :request do
           it "lists the staff role step only" do
             get server_spam_protection_path(guild.id)
             expect(response.body).to include("Pick a staff role on the Server Shield overview.")
-            expect(response.body).not_to include("Turn Logging on and pick a log channel.")
+            expect(response.body).not_to include("Set up a log channel so shrkbot has a place to post alerts.")
+          end
+        end
+
+        context "when only Logging is missing" do
+          before do
+            config.moderation_settings.update!(staff_role_id: 500)
+          end
+
+          it "lists the Logging step only" do
+            get server_spam_protection_path(guild.id)
+            expect(response.body).to include("Set up a log channel so shrkbot has a place to post alerts.")
+            expect(response.body).not_to include("Pick a staff role on the Server Shield overview.")
           end
         end
       end
