@@ -14,7 +14,7 @@ class Servers::PluginsController < ApplicationController
       enabled: params[:enabled]
     )
     @toast = feedback(result)
-    parent = PluginCatalog.find(plugin_key)&.parent
+    parent = PluginCatalog.find(plugin_key).parent
     return redirect_to_parent(parent) if parent
 
     @row = PluginStatus.row(@server_configuration, @plugin, access: plugin_access)
