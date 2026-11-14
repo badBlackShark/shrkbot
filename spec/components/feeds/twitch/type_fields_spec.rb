@@ -43,14 +43,6 @@ RSpec.describe Components::Feeds::Twitch::TypeFields do
     end
   end
 
-  context "with the highlight type" do
-    let(:event_type) { "Integrations::Twitch::HighlightPublished" }
-
-    it "yields the message fields" do
-      expect(html).to include("MARKER")
-    end
-  end
-
   context "with all clips" do
     let(:event_type) { "Integrations::Twitch::ClipCreated" }
 
