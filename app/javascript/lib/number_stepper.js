@@ -14,3 +14,7 @@ export function unitBounds(min, max, factor) {
 export function shownPlaceholder(total, factor) {
   return String(Number((total / factor).toFixed(2)))
 }
+
+export function resetAmount(defaultValue, factor) {
+  return defaultValue / factor
+}

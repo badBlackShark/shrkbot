@@ -6,7 +6,7 @@ class Components::ResetButton < Components::Base
 
   SHAPES = {
     standalone: "size-8 rounded-control border border-border-default",
-    segment: "w-8 rounded-r-[7px] border-l border-border-default hover:text-text-primary"
+    segment: "w-8 rounded-r-[7px] #{Components::NumberStepper::SEGMENT}"
   }.freeze
 
   def initialize(label:, data:, shape: :standalone)

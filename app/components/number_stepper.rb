@@ -2,6 +2,8 @@
 
 class Components::NumberStepper < Components::Base
   DECREMENT_CORNER = "rounded-l-[7px]"
+  SEGMENT = "border-l border-border-default text-text-secondary transition-colors " \
+    "hover:bg-surface-sunken hover:text-text-primary"
   TRAILING_CORNER = "rounded-r-[7px] [&:has(+:not([hidden]))]:rounded-r-none"
 
   def initialize(name:, value:, min:, default: nil, unit: nil, max: nil, placeholder: nil, input_class: "w-11")

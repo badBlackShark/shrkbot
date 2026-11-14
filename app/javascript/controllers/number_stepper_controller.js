@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { baseValue, shownPlaceholder, syncReset, unitBounds } from "lib/number_stepper"
+import { baseValue, resetAmount, shownPlaceholder, syncReset, unitBounds } from "lib/number_stepper"
 
 export default class extends Controller {
   static targets = ["input", "reset", "unit", "field"]
@@ -22,7 +22,7 @@ export default class extends Controller {
       this.unitTarget.tomselect.setValue(String(this.defaultUnitValue), true)
       this.#rescale()
     }
-    this.inputTarget.value = this.defaultValue / this.#factor
+    this.inputTarget.value = resetAmount(this.defaultValue, this.#factor)
     this.inputTarget.focus()
     this.#dispatch()
   }

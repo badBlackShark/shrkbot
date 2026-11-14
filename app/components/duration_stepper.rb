@@ -2,8 +2,7 @@
 
 class Components::DurationStepper < Components::NumberStepper
   UNIT_SECONDS = {seconds: 1, minutes: 60, hours: 3_600}.freeze
-  UNIT_SEGMENT = "ts-segment relative flex border-l border-border-default text-text-secondary transition-colors " \
-    "hover:bg-surface-sunken hover:text-text-primary #{TRAILING_CORNER}"
+  UNIT_SEGMENT = "ts-segment relative flex #{SEGMENT} #{TRAILING_CORNER}"
 
   def initialize(name:, value:, base:, min:, max:, default: nil, placeholder: nil)
     super(name:, value:, min:, max:, default:, placeholder:)
@@ -63,8 +62,10 @@ class Components::DurationStepper < Components::NumberStepper
   end
 
   def units
-    base_seconds = UNIT_SECONDS.fetch(@base)
-    UNIT_SECONDS.filter_map { |key, seconds| [key, seconds / base_seconds] if seconds >= base_seconds }.to_h
+    @units ||= begin
+      base_seconds = UNIT_SECONDS.fetch(@base)
+      UNIT_SECONDS.filter_map { |key, seconds| [key, seconds / base_seconds] if seconds >= base_seconds }.to_h
+    end
   end
 
   def unit_for(total)
