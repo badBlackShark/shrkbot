@@ -584,10 +584,8 @@ en:
     moderation:
       account_age_card:
         days_unit: days
-        help: How recently a Discord account must have been created to count as new.
-          New accounts draw extra scrutiny across every Moderation sub-plugin. Anywhere
-          from 1 to 365 days.
-        label: New account age
+        help: New accounts are judged more strictly.
+        label: Treat accounts as new for
       image_scanning_form:
         consent:
           body: Deletion is on by default, and detection is automated and imperfect.
@@ -604,23 +602,15 @@ en:
             all other text - case, punctuation and disguised characters ignored, digits
             kept.
           keywords_label: Custom keywords
-          min_hits_help: 1 is aggressive - a single matched word can delete an image.
-            2 or more keeps one stray word from triggering. Up to as many keywords
-            as you've set.
           min_hits_label: Require at least
-          min_hits_suffix: matching keywords before shrkbot acts
+          min_hits_unit: matching keywords
         detection:
           sensitivity:
+            help: Stricter catches more scams and more innocent images.
             label: Sensitivity
-            relaxed_description: Acts only on unmistakable scams. Fewest false positives;
-              more scams slip through.
-            relaxed_title: Relaxed
-            standard_description: Catches most scam images with occasional false positives.
-              Recommended.
-            standard_title: Standard
-            strict_description: Also acts on borderline matches. Expect false positives
-              - best with an active staff team.
-            strict_title: Strict
+            relaxed: Relaxed
+            standard: Standard (recommended)
+            strict: Strict
         explainer:
           line_fingerprint: Confirmed scams are remembered by image fingerprint, across
             every server shrkbot is in.

@@ -14,8 +14,8 @@ RSpec.describe Components::Moderation::AccountAgeCard do
   end
 
   it "renders the label and help text" do
-    expect(html).to include("New account age")
-    expect(html).to include("How recently a Discord account")
+    expect(html).to include("Treat accounts as new for")
+    expect(html).to include("New accounts are judged more strictly.")
   end
 
   it "renders the configured value" do

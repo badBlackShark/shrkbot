@@ -245,11 +245,18 @@ duplicated class strings:
   danger callout every plugin form was repeating (`enable_error:`).
 - **`Components::SettingRow`** — one labelled setting: `label:` + optional
   `help:` on the left, the control yielded as a block on the right. The *only*
-  row treatment — `ToggleRow` is this plus a `Toggle`, and the Server Shield
-  cards are this plus a stepper or a toggle. The visible label is a `<p>`, not a
+  row treatment — `ToggleRow` is this plus a `Toggle`, and the staff-ping
+  card is this plus a toggle. The visible label is a `<p>`, not a
   `<label>`: the accessible name belongs on the control (`Components::Toggle`
   carries its own `aria-label`), and a second `<label>` with no `for` only
   duplicates it.
+- **`Components::InlineField`** — a setting read as one sentence: `label:` (a
+  `<span>`, same reason as `SettingRow`) followed by the control yielded as a
+  block, wrapping on narrow widths. Help goes below it as a `FieldHelp`. Used
+  where the label leads into the value ("Treat accounts as new for [30] days").
+- **`Components::SegmentedControl`** — one-of-N buttons over a hidden input. Pass
+  `label:` when the visible label is a `FieldLabel` (no `for`): it names the
+  `role="group"` for screen readers.
 
 `Components::Icon` wraps Phosphor; names not in Phosphor (the `megaphone-slash`
 sub-plugin glyph) are served from its `CUSTOM_GLYPHS` map of inline SVGs. `steam` is
