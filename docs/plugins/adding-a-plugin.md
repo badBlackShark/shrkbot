@@ -105,8 +105,8 @@ blocker's message (`requires_parent`, else
 `operations.server_configuration.plugins.requires.<key>` when present - add the key to
 `ignore_unused` group 7 - else `requires_settings`), and refuses any change that leaves
 an enabled plugin from `PluginCatalog.dependents_of(key)` with a blocker other than
-`:parent_disabled` (`still_needed`). A settings op assigns its settings, then calls
-`save_with_activation`, so Toggle checks the submitted values before anything saves. The
+`:parent_disabled` (`still_needed`). A settings op (`Ops::<Plugin>::Settings::Update`) assigns its settings,
+then calls `save_with_activation`, so Toggle checks the submitted values before anything saves. The
 `PluginActivation` validation stays as the backstop.
 
 `bespoke: true` marks a plugin as bot-owner-granted: it's hidden from every server's

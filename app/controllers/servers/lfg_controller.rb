@@ -17,7 +17,7 @@ class Servers::LfgController < ApplicationController
   def update
     return head :not_found unless guild_roles?(submitted_role_ids) && guild_channels?(submitted_channel_ids)
 
-    result = Ops::Lfg::Configure.call(
+    result = Ops::Lfg::Settings::Update.call(
       server_configuration: @server_configuration,
       enabled: lfg_params[:enabled],
       cooldown_seconds: lfg_params[:cooldown_seconds],

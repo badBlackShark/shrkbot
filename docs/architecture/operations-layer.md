@@ -24,8 +24,10 @@ The namespace is how you find an operation, so it follows rules rather than tast
 - **The verb is CRUD**: `Create`, `Update`, `Destroy` (plus the domain verbs that
   genuinely aren't CRUD — `Sync`, `Reconcile`, `Ensure`). A bespoke verb like
   `Configure` reads as a *different* thing from the CRUD name, which is how three
-  plugins ended up with the real behaviour in `Ops::<Plugin>::Configure` and an
-  uncalled draft under `Ops::<Plugin>::Settings::Update`.
+  plugins once kept their real behaviour in a `Configure` op beside an uncalled
+  draft under `Settings::Update`. Every plugin settings form saves through
+  `Ops::<Plugin>::Settings::Update`; a sub-plugin nests under its parent
+  (`Ops::Moderation::SpamProtection::Settings::Update`).
 - **One namespace per table.** `Ops::ServerConfiguration::Channels` and
   `::ServerChannels` both wrote `server_channels`; the op is named for the model it
   mutates, so `ServerChannels` won and the other directory went away.

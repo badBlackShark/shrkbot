@@ -15,7 +15,7 @@ class Servers::ImageScanningController < ApplicationController
   end
 
   def update
-    result = Ops::Moderation::ImageScanning::Configure.call(
+    result = Ops::Moderation::ImageScanning::Settings::Update.call(
       server_configuration: @server_configuration,
       sensitivity: image_scanning_params[:sensitivity],
       action: image_scanning_params[:action],
