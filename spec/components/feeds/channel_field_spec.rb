@@ -41,7 +41,7 @@ RSpec.describe Components::Feeds::ChannelField do
 
   it "is optional by default" do
     expect(select["aria-required"]).to be_nil
-    expect(fragment.at_css("label span.text-danger")).to be_nil
+    expect(fragment.at_css("label span.text-danger-text")).to be_nil
   end
 
   context "when required" do
@@ -52,7 +52,7 @@ RSpec.describe Components::Feeds::ChannelField do
     end
 
     it "marks the label with the required marker" do
-      expect(fragment.at_css("label span.text-danger").text).to eq("*")
+      expect(fragment.at_css("label span.text-danger-text").text).to eq("*")
     end
   end
 end

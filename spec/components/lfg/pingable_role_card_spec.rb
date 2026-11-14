@@ -46,7 +46,7 @@ RSpec.describe Components::Lfg::PingableRoleCard do
 
     it "marks the role to ping required" do
       label = Nokogiri::HTML5.fragment(html).css("label").find { |node| node.text.include?("Role to ping") }
-      expect(label.at_css("span.text-danger").text).to eq("*")
+      expect(label.at_css("span.text-danger-text").text).to eq("*")
     end
 
     it "renders the additional required and excluded role fields" do

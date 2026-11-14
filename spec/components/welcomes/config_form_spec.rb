@@ -16,7 +16,7 @@ RSpec.describe Components::Welcomes::ConfigForm do
 
   it "renders the channel card with the required marker" do
     label = Nokogiri::HTML5.fragment(html).css("label").find { |node| node.text.include?("Channel") }
-    expect(label.at_css("span.text-danger").text).to eq("*")
+    expect(label.at_css("span.text-danger-text").text).to eq("*")
   end
 
   it "shows the none-message when no channels have synced" do

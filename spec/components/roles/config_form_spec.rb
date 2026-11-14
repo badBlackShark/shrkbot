@@ -17,7 +17,7 @@ RSpec.describe Components::Roles::ConfigForm do
 
   it "marks the default channel label required" do
     label = Nokogiri::HTML5.fragment(html).css("label").find { |node| node.text.include?("Default channel for role menus") }
-    expect(label.at_css("span.text-danger").text).to eq("*")
+    expect(label.at_css("span.text-danger-text").text).to eq("*")
   end
 
   it "requires the default channel select" do
