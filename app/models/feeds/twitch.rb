@@ -69,6 +69,23 @@ module Feeds
       :twitch_settings
     end
 
+    def self.lookup_param
+      :channel
+    end
+
+    def self.settings_params
+      [*scalar_settings, {categories: []}]
+    end
+
+    def self.settings_from(permitted)
+      permitted.slice(*scalar_settings).to_h.symbolize_keys.merge(categories: CategoryValue.parse_all(permitted[:categories]))
+    end
+
+    def self.scalar_settings
+      [*Settings::ROLE_COLUMNS.values, :live_end_mode, :show_viewers, :switched_away]
+    end
+    private_class_method :scalar_settings
+
     def self.role_id_for(subscription, event_type)
       subscription.settings.role_id_for(event_type)
     end

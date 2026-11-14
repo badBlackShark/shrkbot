@@ -11,7 +11,8 @@ doc keep the Feeds name; the provider layer is `Integrations::` (see `docs/integ
 
 Two catalog entries make the plugin group: `:integrations` (the parent) and `:steam`
 (`parent: :integrations`). A new source is another sub-plugin entry, its `Feeds::`
-source module (see Sources) and its own page.
+source module (see Sources) and its `resource` in `config/routes.rb` pointing at the
+shared Feeds controllers (see Config UI).
 
 - **Integrations** (`Servers::IntegrationsController`): the overview. It renders
   `Components::SubPluginDirectory` with one row per sub-plugin
@@ -19,7 +20,8 @@ source module (see Sources) and its own page.
   after the page so a row's toggle can submit from the overview. A row toggle posts `enabled`
   to `Servers::PluginsController#update`, which redirects a sub-plugin back to the
   Integrations page.
-- **Steam** (`Servers::SteamController`, a `Views::Servers::SubPluginShow`):
+- **Steam** (`Servers::FeedsController` with `plugin_key: :steam`, rendering the shared
+  `Views::Servers::Feeds::Show`, a `Views::Servers::SubPluginShow`):
   lists the games the server follows, with Add, Edit and Stop following (see Config UI).
   `Finders::Feeds::SourceSubscriptions` returns the server's subscriptions on that
   source, ordered by game name, and `Components::Feeds::SubscriptionList` builds the
@@ -56,15 +58,24 @@ renderer and does the I/O that renderer needs (Steam: the padded thumbnail via
 `Feeds.sources` lists them; a new source adds a module and one entry there. The
 contract is duck-typed with no base class: a shared mixin is extracted when two sources
 share code. `spec/models/feeds_spec.rb` enforces the contract.
+For the follow form a source also answers `lookup_param` (the lookup page's query param),
+`settings_params` (the permit list for its settings) and `settings_from(permitted)` (the
+settings hash that `Subscription#build_settings` and `Ops::Feeds::Subscriptions::Update`
+take).
 
 ## Config UI
 
-Routes live under each source's resource (`resource :steam`) as `resources
-:subscriptions` (`new`, `create`, `edit`, `update`, `destroy`). The abstract
-`Servers::Feeds::SubscriptionsController` holds the actions, and a source's subclass
-(`Servers::Steam::SubscriptionsController`) supplies its hooks: `plugin_key`,
-`lookup_param`, `settings_params` and `settings`. The base checks every `*role_id` key in
-`settings` against the server's roles, so a new role column needs no extra hook. The views are
+Each source's `resource` (`resource :steam`) routes to `Servers::FeedsController` (show,
+update) with `defaults: {plugin_key: "steam"}`, and its `resources :subscriptions` (`new`,
+`create`, `edit`, `update`, `destroy`) to `Servers::Feeds::SubscriptionsController`, which
+inherits the default. Both read `params[:plugin_key]`: a route default beats a query param of
+the same name, and `Feeds.source` raises for an unknown key. `FeedsController` overrides
+`configuration_url` because `url_for(action: :show)` ignores non-path defaults and picks the
+first source's route. `Views::Servers::Feeds::Show` reads `views.servers.<key>.show.*` by
+explicit key, since a relative `t` would resolve to `views.servers.feeds.show`. The
+subscriptions controller asks the source for `lookup_param`, `settings_params` and
+`settings_from`, and checks every `*role_id` key in the settings against the server's roles,
+so a new role column needs no extra code. The views are
 `Views::Servers::Feeds::Subscriptions::*`, keyed by plugin, and the form renders the
 source's own `Components::Feeds::<Source>::SubscriptionFields`, composed from the shared
 `DestinationCard` and `EventTypesCard` plus the source's cards. The followed list reads
@@ -125,9 +136,9 @@ are no preview routes for these pages.
   `Feeds::VolumeLookup`). The follow and edit pages and saving never call Steam. When Steam
   fails the lookup returns `nil` and the frame stays empty.
 
-- **Twitch pages.** `Servers::Twitch::SubscriptionsController` mirrors Steam's, with
-  `channel` as the lookup param and the five role columns plus `live_end_mode` and
-  `show_viewers` as settings. `Components::Feeds::Twitch::SubscriptionFields` is the form
+- **Twitch pages.** `Feeds::Twitch` answers `channel` as the lookup param and permits
+  the five role columns, `live_end_mode`, `show_viewers`, `switched_away` and
+  `categories`. `Components::Feeds::Twitch::SubscriptionFields` is the form
   (destination card, then the shared "What to post" card). Twitch's role pickers sit
   per post type, so `EventTypesCard` and `EventTypeSetting` take an optional
   `type_fields:` component class, rendered inside each type's disclosure with

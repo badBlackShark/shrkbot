@@ -47,6 +47,12 @@ RSpec.describe "Steam config", type: :request do
             expect(response.body).not_to include("Part of")
             expect(response.body).to include("No games yet")
           end
+
+          it "keeps the route's plugin key over a query parameter" do
+            get plugin_path, params: {plugin_key: "twitch"}
+
+            expect(response.body).to include("No games yet")
+          end
         end
 
         context "when the server follows games" do

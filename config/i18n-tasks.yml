@@ -61,7 +61,7 @@ ignore_unused:
   - components.feeds.event_types.announcement_published.help
   - components.feeds.event_types.article_published.help
   - components.feeds.event_types.patch_notes_published.help
-  # 1. Views::Servers::SubPluginShow subclasses
+  # 7. Views::Servers::Feeds::Show#header
   - views.servers.steam.show.title
   - views.servers.steam.show.description
   - views.servers.twitch.show.title
