@@ -1,7 +1,7 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
 
-const { baseValue, shownPlaceholder, syncReset, unitBounds } = await import("lib/number_stepper")
+const { baseValue, resetAmount, shownPlaceholder, syncReset, unitBounds } = await import("lib/number_stepper")
 
 test("hides the reset when the value equals the default", () => {
   const reset = { hidden: false }
@@ -58,4 +58,9 @@ test("keeps an open upper bound open", () => {
 test("shows a placeholder that does not fit with two decimals", () => {
   assert.equal(shownPlaceholder(15, 60), "0.25")
   assert.equal(shownPlaceholder(30, 1), "30")
+})
+
+test("shows the default in the reset unit", () => {
+  assert.equal(resetAmount(300, 60), 5)
+  assert.equal(resetAmount(300, 1), 300)
 })

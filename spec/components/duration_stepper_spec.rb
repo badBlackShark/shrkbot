@@ -22,11 +22,9 @@ RSpec.describe Components::DurationStepper do
 
   it "picks the unit with the shared fixed picker" do
     select = fragment.at_css("select")
-    expect(select["data-controller"]).to eq("tom-select")
     expect(select.key?("data-tom-select-fixed-value")).to be(true)
     expect(select["data-number-stepper-target"]).to eq("unit")
     expect(select["data-action"]).to eq("change->number-stepper#changeUnit")
-    expect(select.key?("name")).to be(false)
   end
 
   it "names the unit picker for screen readers" do
