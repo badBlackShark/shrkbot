@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     class PreviewSamples < Feeds::PreviewSamples
       STARTED = "Started 2 hours ago"
       ENDED = "Ended 5 minutes ago"
@@ -16,7 +16,7 @@ module Feeds
 
       def card
         return live_card if @event_type == ::Integrations::Twitch::StreamStarted.name
-        return clip_card if ClipAnnouncement::LABELS.key?(@event_type)
+        return clip_card if @event_type.constantize < ::Integrations::Twitch::ClipEvent
 
         video_card
       end
@@ -31,7 +31,7 @@ module Feeds
 
       def switched_card
         {
-          eyebrow: "#{@watch_name} · Live on Twitch",
+          eyebrow:,
           title: value(:title),
           body: [
             line("Switched to #{SWITCHED_TO}"),
@@ -49,6 +49,10 @@ module Feeds
 
       def watch_token
         "streamer"
+      end
+
+      def eyebrow
+        "#{@watch_name} · #{Twitch.fetch_post_type(@event_type).label}"
       end
 
       def live_card_ended
@@ -70,7 +74,7 @@ module Feeds
 
       def live_card
         {
-          eyebrow: "#{@watch_name} · Live on Twitch",
+          eyebrow:,
           title: value(:title),
           body: [
             line("Streaming #{value(:category)}"),
@@ -83,7 +87,7 @@ module Feeds
 
       def clip_card
         {
-          eyebrow: "#{@watch_name} · #{ClipAnnouncement::LABELS.fetch(@event_type)}",
+          eyebrow:,
           title: value(:title),
           body: "Clipped by #{value(:clipper)} from #{value(:category)}\n#{CLIP_LINE}",
           button: ClipAnnouncement::LINK_LABEL
@@ -92,7 +96,7 @@ module Feeds
 
       def video_card
         {
-          eyebrow: "#{@watch_name} · #{VideoAnnouncement::LABELS.fetch(@event_type)}",
+          eyebrow:,
           title: value(:title),
           body: ::Duration.about(VIDEO_LENGTH_SECONDS).upcase_first,
           button: VideoAnnouncement::LINK_LABEL

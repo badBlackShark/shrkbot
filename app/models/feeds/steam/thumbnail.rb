@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Steam
+  class Steam
     class Thumbnail
       FILENAME = "thumbnail.webp"
 
