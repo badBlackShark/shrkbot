@@ -12,6 +12,6 @@ RSpec.describe Components::InlineField do
   end
 
   it "labels the setting with a span, leaving the accessible name to the control" do
-    expect(html).not_to include("<label")
+    expect(html).to match(%r{<span[^>]*>Treat accounts as new for</span>})
   end
 end
