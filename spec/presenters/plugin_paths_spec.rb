@@ -9,6 +9,14 @@ RSpec.describe PluginPaths do
     it "builds the preview config page path without a server configuration" do
       expect(path).to eq("/preview/steam")
     end
+
+    context "with a bespoke plugin key" do
+      subject(:path) { described_class.preview_for(:twilight_struggle) }
+
+      it "raises, since there is no preview route for a bespoke plugin" do
+        expect { path }.to raise_error(ArgumentError, /bespoke/)
+      end
+    end
   end
 
   describe ".for" do
