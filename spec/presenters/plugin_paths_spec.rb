@@ -3,6 +3,14 @@
 require "rails_helper"
 
 RSpec.describe PluginPaths do
+  describe ".preview_for" do
+    subject(:path) { described_class.preview_for(:steam) }
+
+    it "builds the preview config page path without a server configuration" do
+      expect(path).to eq("/preview/steam")
+    end
+  end
+
   describe ".for" do
     subject(:path) { described_class.for(server_configuration, key) }
 

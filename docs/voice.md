@@ -360,6 +360,7 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | Dialog body `shrkbot deletes your account and all data tied to it. This cannot be undone.` / button `Delete my account` | `This cannot be undone.` / `Delete account` | The title already asks "Delete your account?"; the body keeps only the consequence, and the button matches the card title. |
 | `User was banned.` / `User was kicked.` / `User was timed out until %{until}.` (Discord alerts) | `The member was banned.` / `The member was kicked.` / `The member was timed out until %{until}.` | Member, not user. The scam alert beside it already said "The member was kicked". |
 | `Notify-only - no messages were deleted.` / `Cross-channel spam purged` (Discord alerts) | `This is only an alert, no messages were deleted.` / `Cross-channel spam deleted` | The alert says what the setting did without quoting a label that may change. Delete, never purge. |
+| `Example plugins` (home, above a moving strip of six plugins) | `Plugins` | The grid now shows every plugin a server can enable, so the list is no longer a sample and "Example" undersold it. |
 
 ## Kept on purpose
 

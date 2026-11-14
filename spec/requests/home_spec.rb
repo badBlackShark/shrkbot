@@ -26,7 +26,7 @@ RSpec.describe "Home", type: :request do
   it "describes each plugin card with its catalog text" do
     home
 
-    %i[roles welcomes logging moderation reminders lfg].each do |key|
+    %i[roles welcomes logging moderation reminders lfg steam twitch].each do |key|
       expect(response.body).to include(CGI.escapeHTML(PluginCatalog.description(key)))
     end
   end
@@ -58,11 +58,11 @@ RSpec.describe "Home", type: :request do
     expect(response.body).to include("/releases/tag/3.1.0")
   end
 
-  it "renders the four plugin cards" do
+  it "links every public plugin card to its preview page" do
     home
 
-    %w[Roles Welcomes Logging Reminders].each do |name|
-      expect(response.body).to include(name)
+    %w[roles welcomes logging moderation reminders lfg steam twitch].each do |key|
+      expect(response.body).to include(%(href="/preview/#{key}"))
     end
   end
 
@@ -77,12 +77,6 @@ RSpec.describe "Home", type: :request do
 
     expect(response.body).to include('href="/preview"')
     expect(response.body).to include(I18n.t("views.home.preview"))
-  end
-
-  it "renders the marquee wrapper" do
-    home
-
-    expect(response.body).to include("plugin-marquee")
   end
 
   it "renders the footer link" do

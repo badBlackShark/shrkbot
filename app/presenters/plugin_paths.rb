@@ -9,14 +9,15 @@ class PluginPaths
   def self.for(server_configuration, key)
     raise ArgumentError, "unknown plugin key #{key.inspect}" unless known?(key)
 
-    helpers = Rails.application.routes.url_helpers
-    if server_configuration.preview?
-      raise ArgumentError, "no preview route for bespoke plugin #{key.inspect}" if bespoke?(key)
+    return preview_for(key) if server_configuration.preview?
 
-      helpers.public_send("preview_#{key}_path")
-    else
-      helpers.public_send("server_#{key}_path", server_configuration.discord_id)
-    end
+    Rails.application.routes.url_helpers.public_send("server_#{key}_path", server_configuration.discord_id)
+  end
+
+  def self.preview_for(key)
+    raise ArgumentError, "no preview route for bespoke plugin #{key.inspect}" if bespoke?(key)
+
+    Rails.application.routes.url_helpers.public_send("preview_#{key}_path")
   end
 
   private_class_method def self.known?(key)
