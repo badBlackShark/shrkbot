@@ -7,10 +7,6 @@ class Views::Servers::GroupShow < Views::Servers::PluginConfigShow
     nil
   end
 
-  def gate
-    nil
-  end
-
   def after_config_page
     render Components::SubPluginToggleForms.new(
       server_configuration: @config,

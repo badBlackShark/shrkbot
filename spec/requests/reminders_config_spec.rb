@@ -34,7 +34,6 @@ RSpec.describe "Reminders config", type: :request do
         it "shows the Global badge instead of an enable gate" do
           get server_reminders_path(guild.id)
           expect(response.body).to include("Global")
-          expect(response.body).not_to include("enable-gate")
         end
 
         it "renders the save bar wired to the form" do

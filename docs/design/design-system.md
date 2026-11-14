@@ -103,12 +103,12 @@ toast; a config-form failure re-renders the form region with inline errors — j
 more `turbo_stream.*` lines. The one config-form control still unbuilt (the
 segmented control) ships with the Roles page that consumes it.
 
-## Config pages (the gated layout)
+## Config pages
 
 A plugin config page is assembled by **`Components::ConfigPage`**, not by the
-per-plugin form. ConfigPage owns the single gated `form_with` and renders, in
+per-plugin form. ConfigPage owns the single `form_with` and renders, in
 order: a header (`PluginTile` + title + description + an inline **enable
-`Toggle`**), an `EnableGate` wrapping the body, and the global `SaveBar`. The
+`Toggle`**), the body, and the global `SaveBar`. The
 per-plugin `Components::<Plugin>::ConfigForm` is **body-only** — it renders just
 the cards, with no form tag and no enable control of its own — and its root `div`
 carries the `#<plugin>-config` id that the Turbo Stream replaces on a failed save,
@@ -118,20 +118,22 @@ ConfigPage, fields in the body form.
 Pass `channel_lost: true` to `ConfigPage` when the plugin is enabled but its
 configured channel is gone (`enabled && setting.channel_id.nil?`). ConfigPage
 renders a warning `Callout` banner above the form body so the owner sees the prompt
-to pick a replacement channel. The banner only renders in the non-gated path (plugin
-enabled); a disabled plugin shows the `EnableGate` overlay instead.
+to pick a replacement channel.
 
 The enable toggle is **staged, not instant**: flipping it stages an `enabled`
 field in the same batch as the rest of the form, and nothing persists until Save —
-unlike the dashboard's standalone plugin toggle. The `enable-gate` Stimulus
-controller reveals or re-veils the body client-side as the toggle flips.
-`Components::EnableGate` is the full-page overlay (translucent blurred scrim +
-centred card with a lock icon and an "Enable …" button) shown over the body while
-the plugin is off. A setting the plugin can't be enabled without (the channel
+unlike the dashboard's standalone plugin toggle. There is no overlay: a disabled plugin's body stays fully
+editable, and the Enabled/Disabled label beside the toggle is a CSS
+`group-has-[:checked]` pair, so it follows the staged toggle with no JS. Saving a
+disabled plugin succeeds and toasts "Saved. X is still disabled."
+(`ConfiguresPlugin#saved_message`). A locked toggle submits its current state
+through a hidden field. `prerequisites:` takes a `Components::PrerequisiteSteps`
+callout rendered above the editable body (a protection with unmet prerequisites;
+the Twilight Struggle tournament page while the plugin is off). A setting the plugin can't be enabled without (the channel
 picker on Welcomes/Logging) carries a danger `*` marker next to its label; the
 operation enforces the requirement server-side and the form re-renders with the
-inline error if it's missing. ConfigPage also has a plain, non-gated path for
-always-on plugins: pass no `gate:` and it drops the enable toggle and overlay,
+inline error if it's missing. ConfigPage also has a plain path for
+always-on plugins: pass no `toggle:` and it drops the enable toggle,
 optionally rendering a copper `badge:` ("Global") next to the title instead —
 Reminders is the one consumer.
 
@@ -154,7 +156,7 @@ when their panel carries the `dropdown-menu` class and
 
 `Components::SaveBar` is the commit affordance: a fixed bottom bar, hidden until
 the form differs from its initial state. The `save-bar` Stimulus controller (on
-the form alongside `enable-gate`) snapshots the form on connect and compares on
+the form) snapshots the form on connect and compares on
 every `input`/`change`, revealing or hiding the bar. Its Save button is a plain
 `type="submit"` — there's no JS save path; Discard reloads the saved state via a
 Turbo visit. A dirty form **blocks navigation**: `turbo:before-visit` is
@@ -175,12 +177,12 @@ beside the title, e.g. the Twilight Struggle tournament switcher.
 A plugin *group* is a `PluginCatalog::Group` (key and name): the parent of every
 definition with `parent:` set. A group is not a plugin, so it has no activation and no
 toggle. Server Shield (`:moderation`) and Integrations (`:integrations`) are the current
-ones. A group's page subclasses `Views::Servers::GroupShow` (no header toggle, no gate,
+ones. A group's page subclasses `Views::Servers::GroupShow` (no header toggle,
 plus the stub forms for its rows). Its dashboard row has no toggle or status badge, and
 its tile and sidebar icon are lit while any member is on. A member page subclasses
 `Views::Servers::SubPluginShow` (supplying `plugin_key`, `icon` and `body`) and links
 the group back through `parent_crumb`. Where a member has unmet prerequisites, its
-page shows **`Components::PrereqGate`**: one card with a `Step` per unmet
+page shows **`Components::PrerequisiteSteps`**: one callout above the editable form with a `Step` per unmet
 prerequisite, each deep-linking to where it is fixed (`:requires_plugin` to that
 plugin, `:prerequisite` to the group page), and the header toggle stays locked with the
 dashboard's needs-setup hint. In the sidebar every group renders as
@@ -234,7 +236,7 @@ duplicated class strings:
   shows a percent readout but submits a hidden `0.75`–`1.0` float (converted once).
 - **`Components::RadioCardGroup`** — stacked radio options as bordered cards with a
   title + one-line description; native radios, so selection is reactive with no JS.
-- **`Components::PrereqGate`** (a title plus one `Step` per unmet prerequisite) / **`Components::SidebarGroup`** — see *Plugin groups*.
+- **`Components::PrerequisiteSteps`** (a title plus one `Step` per unmet prerequisite) / **`Components::SidebarGroup`** — see *Plugin groups*.
 - **`Components::FieldLabel`** / **`Components::FieldHelp`** — the shared label
   and help-text styling for a form field (`<label>` and `<p>` respectively); no
   parameters, block content only.

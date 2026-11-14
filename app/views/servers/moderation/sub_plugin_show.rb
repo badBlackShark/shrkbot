@@ -14,14 +14,13 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
     render form
   end
 
-  def gate
+  def prerequisites
     return if fix_locations.empty?
 
-    {
-      type: :prereq,
+    Components::PrerequisiteSteps.new(
       title: t("views.servers.moderation.sub_plugin_show.prerequisites.title", plugin: definition.name),
       steps: fix_locations.map { |key| prerequisite_step(key) }
-    }
+    )
   end
 
   def toggle
@@ -43,7 +42,7 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
   end
 
   def prerequisite_step(key)
-    Components::PrereqGate::Step.new(
+    Components::PrerequisiteSteps::Step.new(
       message: t("views.servers.moderation.sub_plugin_show.prerequisites.#{key}.message"),
       cta_label: t("views.servers.moderation.sub_plugin_show.prerequisites.#{key}.cta"),
       cta_href: PluginPaths.for(@config, STEP_PAGES.fetch(key))

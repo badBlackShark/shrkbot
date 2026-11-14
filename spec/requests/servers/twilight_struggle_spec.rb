@@ -218,10 +218,10 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           )
         end
 
-        it "gates the settings behind the overlay while the plugin is off" do
+        it "lists what to fix above an editable form while the plugin is off" do
           get edit_server_twilight_struggle_destination_path(guild.id, tournament)
-          expect(response.body).to include(I18n.t("views.servers.twilight_struggle.destinations.edit.prereq_gate_title"))
-          expect(response.body).to include("opacity-45")
+          expect(response.body).to include(I18n.t("views.servers.twilight_struggle.destinations.edit.prerequisites.title"))
+          expect(response.body).not_to include("inert")
         end
 
         context "when the plugin is enabled for the server" do
@@ -229,9 +229,9 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
             create(:plugin_activation, server_configuration: config, plugin: Plugin.find_by(key: "twilight_struggle"), enabled: true)
           end
 
-          it "lifts the overlay" do
+          it "shows no prerequisite steps" do
             get edit_server_twilight_struggle_destination_path(guild.id, tournament)
-            expect(response.body).not_to include("opacity-45")
+            expect(response.body).not_to include(I18n.t("views.servers.twilight_struggle.destinations.edit.prerequisites.title"))
           end
         end
 

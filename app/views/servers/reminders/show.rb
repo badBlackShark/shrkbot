@@ -15,10 +15,6 @@ class Views::Servers::Reminders::Show < Views::Servers::PluginConfigShow
     nil
   end
 
-  def gate
-    nil
-  end
-
   def body
     render Components::Reminders::ConfigForm.new(server_configuration: @config)
   end

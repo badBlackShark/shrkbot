@@ -47,8 +47,7 @@ only matter when it's on:
   like `{user}` and `{membercount}`. Authors need to know which placeholders exist and,
   ideally, preview the result.
 - **Logging** — a log channel plus a matrix of **per-event toggles** (e.g. "role gained,"
-  "role lost"), grouped by plugin, all off by default. The whole matrix is inert when the
-  Logging plugin is off.
+  "role lost"), grouped by plugin, all off by default.
 
 Plus:
 - **Server-level setting:** force reminder delivery via DM (boolean).
@@ -75,9 +74,8 @@ Flow: login → server picker → server dashboard → a plugin page → tweak s
    region. This frames every authenticated screen.
 2. **Plugin config page template** — header (plugin name, one-line description, the enable
    toggle) over a settings body.
-3. **The enable-gate** — when a plugin is off, its settings are visibly inert (not hidden)
-   with an obvious "enable to configure" affordance. Used on every plugin page; for Logging it
-   also gates the whole event-toggle matrix.
+3. **Disabled plugins** — when a plugin is off, its settings stay fully editable; the header
+   toggle and its Enabled/Disabled label are the only state signal.
 4. **Setting row** — label + control + help text + room for an inline, non-blocking **warning**
    (e.g. "this log channel is visible to @everyone").
 5. **Controls** — a switch/toggle (plugin enable, logging events, booleans); single and

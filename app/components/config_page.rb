@@ -3,12 +3,12 @@
 class Components::ConfigPage < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
-  def initialize(header:, server_configuration:, url:, toggle: nil, gate: nil, channel_lost: false, parent_crumb: nil)
+  def initialize(header:, server_configuration:, url:, toggle: nil, prerequisites: nil, channel_lost: false, parent_crumb: nil)
     @header = header
     @server_configuration = server_configuration
     @url = url
     @toggle = toggle
-    @gate = gate
+    @prerequisites = prerequisites
     @channel_lost = channel_lost
     @parent_crumb = parent_crumb
   end
@@ -34,10 +34,8 @@ class Components::ConfigPage < Components::Base
   end
 
   def form_data
-    controllers = ["save-bar"]
-    controllers.unshift("enable-gate") if gate_type == :enable
     {
-      controller: controllers.join(" "),
+      controller: "save-bar",
       action: "input->save-bar#check change->save-bar#check turbo:submit-end->save-bar#saved"
     }
   end
@@ -66,7 +64,7 @@ class Components::ConfigPage < Components::Base
   end
 
   def enable_control
-    div(class: "flex flex-none items-center gap-2.5 pt-1") do
+    div(class: "group/enable flex flex-none items-center gap-2.5 pt-1") do
       if @toggle[:locked]
         locked_enable_control
       else
@@ -79,6 +77,7 @@ class Components::ConfigPage < Components::Base
     span(class: "text-sm font-medium text-text-secondary") do
       @toggle[:enabled] ? t(".enabled") : t(".disabled")
     end
+    input(type: "hidden", name: @toggle[:field], value: @toggle[:enabled] ? "1" : "0")
     render Components::Tooltip.new(text: @toggle[:reason]) do
       render Components::Toggle.new(
         name: @toggle[:field],
@@ -90,15 +89,12 @@ class Components::ConfigPage < Components::Base
   end
 
   def interactive_enable_control
-    span(
-      class: "text-sm font-medium text-text-secondary",
-      data: enable_gate_type? ? {enable_gate_target: "label", on: t(".enabled"), off: t(".disabled")} : {}
-    ) { @toggle[:enabled] ? t(".enabled") : t(".disabled") }
+    span(class: "hidden text-sm font-medium text-text-secondary group-has-[:checked]/enable:inline") { t(".enabled") }
+    span(class: "text-sm font-medium text-text-secondary group-has-[:checked]/enable:hidden") { t(".disabled") }
     render Components::Toggle.new(
       name: @toggle[:field],
       checked: @toggle[:enabled],
-      label: toggle_label,
-      data: enable_gate_type? ? {enable_gate_target: "toggle", action: "change->enable-gate#update"} : {}
+      label: toggle_label
     )
   end
 
@@ -106,27 +102,10 @@ class Components::ConfigPage < Components::Base
     @toggle[:label] || t(".enable", plugin: @header.title)
   end
 
-  def body(&block)
-    case gate_type
-    when :prereq
-      render Components::PrereqGate.new(**@gate.except(:type)) do
-        channel_lost_banner
-        yield
-      end
-    when :enable
-      render Components::EnableGate.new(
-        enabled: @toggle[:enabled],
-        title: t(".disabled_title", plugin: @header.title),
-        message: @gate[:message],
-        enable_label: t(".enable", plugin: @header.title)
-      ) do
-        channel_lost_banner
-        yield
-      end
-    else
-      channel_lost_banner
-      yield
-    end
+  def body
+    render @prerequisites if @prerequisites
+    channel_lost_banner
+    yield
   end
 
   def channel_lost_banner
@@ -135,13 +114,5 @@ class Components::ConfigPage < Components::Base
     div(class: "mb-5") do
       render Components::Callout.new(variant: :warning) { t(".channel_lost", plugin: @header.title) }
     end
-  end
-
-  def gate_type
-    @gate&.fetch(:type)
-  end
-
-  def enable_gate_type?
-    gate_type == :enable
   end
 end

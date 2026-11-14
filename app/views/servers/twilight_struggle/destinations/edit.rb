@@ -19,7 +19,7 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
           enabled: @destination.active? && @destination.persisted?,
           label: t(".subscribe", tournament: tournament.name)
         },
-        gate:,
+        prerequisites:,
         parent_crumb: {label: t(".tournaments"), href: server_twilight_struggle_path(server_configuration.discord_id)}
       ) do
         render Components::TwilightStruggle::ConfigForm.new(destination: @destination)
@@ -42,21 +42,20 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
     @destination.tournament
   end
 
-  def gate
+  def prerequisites
     return if @enabled
 
-    {
-      type: :prereq,
+    Components::PrerequisiteSteps.new(
       icon: "trophy",
-      title: t(".prereq_gate_title"),
+      title: t(".prerequisites.title"),
       steps: [
-        Components::PrereqGate::Step.new(
-          message: t(".prereq_gate_message"),
-          cta_label: t(".prereq_gate_cta"),
+        Components::PrerequisiteSteps::Step.new(
+          message: t(".prerequisites.message"),
+          cta_label: t(".prerequisites.cta"),
           cta_href: server_twilight_struggle_path(server_configuration.discord_id)
         )
       ]
-    }
+    )
   end
 
   def switcher

@@ -61,7 +61,6 @@ en:
       channel_lost: The channel you configured for %{plugin} was deleted. Choose a
         new channel below to keep it working.
       disabled: Disabled
-      disabled_title: "%{plugin} is disabled"
       enable: Enable %{plugin}
       enabled: Enabled
     confirm_dialog:
@@ -1225,12 +1224,10 @@ en:
         show:
           description: Let members find people to play with, on the fly or scheduled.
             Only shrkbot pings - so you can turn off general-purpose role pings.
-          gate_message: Enable the plugin to configure pingable roles and restrictions.
           title: Looking for Game
       logging:
         show:
           description: Record moderation events to a channel of your choice.
-          gate_message: Enable the plugin to choose a channel and pick events.
           title: Logging
       moderation:
         show:
@@ -1258,7 +1255,6 @@ en:
         show:
           description: Let members give themselves roles from a menu you post in a
             channel.
-          gate_message: Enable the plugin to configure role sets.
           title: Roles
       show:
         breadcrumb_servers: Servers
@@ -1289,10 +1285,11 @@ en:
           edit:
             description: Where this server posts this tournament's results and how
               they read. You can set all of it up before subscribing.
-            prereq_gate_cta: Open Twilight Struggle
-            prereq_gate_message: Twilight Struggle is switched off for this server,
-              so nothing is posted anywhere yet.
-            prereq_gate_title: The plugin is disabled
+            prerequisites:
+              cta: Open Twilight Struggle
+              message: Twilight Struggle is switched off for this server, so nothing
+                is posted anywhere yet.
+              title: The plugin is disabled
             subscribe: Post %{tournament} results in this server
             title: Twilight Struggle
             tournaments: Tournaments
@@ -1303,7 +1300,6 @@ en:
           empty_body: twilight-struggle.com has not sent any tournaments yet. They
             appear here as soon as it does.
           empty_title: No tournaments yet
-          gate_message: Enable Twilight Struggle to subscribe this server to tournaments.
           title: Twilight Struggle
           toggle_admin_only: Only a server admin can switch this plugin on or off.
       twitch:
@@ -1314,5 +1310,4 @@ en:
       welcomes:
         show:
           description: Greet new members and say goodbye when they leave.
-          gate_message: Enable the plugin to configure messages.
           title: Welcomes

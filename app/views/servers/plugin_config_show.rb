@@ -16,7 +16,7 @@ class Views::Servers::PluginConfigShow < Views::Base
         server_configuration: @config,
         url:,
         toggle:,
-        gate:,
+        prerequisites:,
         channel_lost: channel_lost?,
         parent_crumb:
       ) do
@@ -49,8 +49,8 @@ class Views::Servers::PluginConfigShow < Views::Base
     {field: "#{plugin_key}[enabled]", enabled: enabled?}
   end
 
-  def gate
-    {type: :enable, message: t(".gate_message")}
+  def prerequisites
+    nil
   end
 
   def enabled?

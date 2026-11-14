@@ -10,8 +10,4 @@ class Views::Servers::SubPluginShow < Views::Servers::PluginConfigShow
   def enabled_keys
     @enabled_keys ||= @config.enabled_plugin_keys
   end
-
-  def gate
-    nil
-  end
 end

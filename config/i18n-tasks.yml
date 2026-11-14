@@ -67,7 +67,6 @@ ignore_unused:
   - views.servers.welcomes.show.*
   - views.servers.lfg.show.title
   - views.servers.lfg.show.description
-  - views.servers.lfg.show.gate_message
   - views.servers.reminders.show.title
   - views.servers.reminders.show.description
   - views.servers.reminders.show.badge
@@ -77,7 +76,6 @@ ignore_unused:
   - views.servers.integrations.show.description
   - views.servers.twilight_struggle.show.title
   - views.servers.twilight_struggle.show.description
-  - views.servers.twilight_struggle.show.gate_message
   # 1. Components::TwilightStruggle::SettingCardBase subclasses
   - components.twilight_struggle.player_display_card.label
   - components.twilight_struggle.player_display_card.help

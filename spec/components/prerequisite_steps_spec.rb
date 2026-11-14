@@ -2,9 +2,9 @@
 
 require "rails_helper"
 
-RSpec.describe Components::PrereqGate do
+RSpec.describe Components::PrerequisiteSteps do
   subject(:html) do
-    described_class.new(**options).call { "body-content" }
+    described_class.new(**options).call
   end
 
   let(:options) do
@@ -49,18 +49,6 @@ RSpec.describe Components::PrereqGate do
     expect(html).to include(arrow_svg)
   end
 
-  it "renders the body content as inert" do
-    expect(html).to include("body-content").and include("inert")
-  end
-
-  it "renders the body at reduced opacity" do
-    expect(html).to include("opacity-45")
-  end
-
-  it "renders no enable button" do
-    expect(html).not_to include("enable-gate#enable")
-  end
-
   context "with a custom icon" do
     let(:options) do
       {
@@ -71,7 +59,7 @@ RSpec.describe Components::PrereqGate do
     end
 
     it "uses the specified icon" do
-      shield_svg = PhosphorIcons::Icon.new("shield", style: :regular, class: "mx-auto block size-5 text-text-muted").to_svg
+      shield_svg = PhosphorIcons::Icon.new("shield", style: :regular, class: "mt-0.5 size-[18px] flex-none text-accent").to_svg
       expect(html).to include(shield_svg)
     end
   end
