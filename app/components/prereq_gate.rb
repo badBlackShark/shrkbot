@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class Components::PrereqGate < Components::Base
-  def initialize(title:, message:, cta_label:, cta_href:, icon: "lock")
+  Step = Data.define(:message, :cta_label, :cta_href)
+
+  def initialize(title:, steps:, icon: "lock")
     @title = title
-    @message = message
-    @cta_label = cta_label
-    @cta_href = cta_href
+    @steps = steps
     @icon = icon
   end
 
@@ -26,14 +26,20 @@ class Components::PrereqGate < Components::Base
       div(class: "max-w-xs rounded-card border border-border-default bg-surface-card px-6 py-5 text-center shadow-md") do
         render Components::Icon.new(@icon, class: "mx-auto block size-5 text-text-muted")
         p(class: "mt-2 text-sm font-semibold text-text-primary") { @title }
-        p(class: "mb-4 mt-1 text-xs text-text-secondary") { @message }
-        render Components::Button.new(
-          variant: :secondary,
-          href: @cta_href,
-          label: @cta_label,
-          trailing_icon: "arrow-right"
-        )
+        @steps.each_with_index { |step, index| step_block(step, index) }
       end
+    end
+  end
+
+  def step_block(step, index)
+    div(class: index.zero? ? "mt-1" : "mt-4") do
+      p(class: "mb-4 text-xs text-text-secondary") { step.message }
+      render Components::Button.new(
+        variant: :secondary,
+        href: step.cta_href,
+        label: step.cta_label,
+        trailing_icon: "arrow-right"
+      )
     end
   end
 end

@@ -109,13 +109,7 @@ class Components::ConfigPage < Components::Base
   def body(&block)
     case gate_type
     when :prereq
-      render Components::PrereqGate.new(
-        title: @gate[:title],
-        message: @gate[:message],
-        cta_label: @gate[:cta_label],
-        cta_href: @gate[:cta_href],
-        icon: @gate[:icon] || "lock"
-      ) do
+      render Components::PrereqGate.new(**@gate.except(:type)) do
         channel_lost_banner
         yield
       end

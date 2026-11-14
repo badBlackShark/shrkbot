@@ -49,9 +49,13 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
       type: :prereq,
       icon: "trophy",
       title: t(".prereq_gate_title"),
-      message: t(".prereq_gate_message"),
-      cta_label: t(".prereq_gate_cta"),
-      cta_href: server_twilight_struggle_path(server_configuration.discord_id)
+      steps: [
+        Components::PrereqGate::Step.new(
+          message: t(".prereq_gate_message"),
+          cta_label: t(".prereq_gate_cta"),
+          cta_href: server_twilight_struggle_path(server_configuration.discord_id)
+        )
+      ]
     }
   end
 
