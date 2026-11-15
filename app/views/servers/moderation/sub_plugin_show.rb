@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
-  STEP_PAGES = {logging_channel: :logging, logging_disabled: :logging, staff_role: :moderation}.freeze
-
   def initialize(server_configuration:, user:, context:)
     super(server_configuration:, user:)
     @context = context
@@ -15,42 +13,37 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
   end
 
   def prerequisites
-    return if fix_locations.empty?
+    return if unmet_steps.empty?
 
     Components::PrerequisiteSteps.new(
-      title: t("views.servers.moderation.sub_plugin_show.prerequisites.title", plugin: definition.name),
-      steps: fix_locations.map { |key| prerequisite_step(key) }
+      title: prerequisites_title,
+      steps: unmet_steps
     )
   end
 
+  def prerequisites_title
+    return t("views.servers.moderation.sub_plugin_show.prerequisites.title_enabled") if enabled?
+
+    t("views.servers.moderation.sub_plugin_show.prerequisites.title", plugin: definition.name)
+  end
+
   def toggle
-    return super if enabled? || fix_locations.empty?
+    return super if enabled? || unmet_steps.empty?
 
     super.merge(locked: true, reason: t("components.plugin_row.needs_setup_hint"))
   end
 
-  def fix_locations
-    @fix_locations ||= unmet_fix_locations
+  def unmet_steps
+    @unmet_steps ||= build_unmet_steps
   end
 
-  def unmet_fix_locations
+  def build_unmet_steps
     blockers = definition.blockers(@config)
+    steps = ::Moderation::SetupSteps.new(@config)
     [
-      (logging_step if blockers.include?(:requires_plugin)),
-      (:staff_role if blockers.include?(:prerequisite))
+      (steps.logging if blockers.include?(:requires_plugin)),
+      (steps.staff_role if blockers.include?(:prerequisite))
     ].compact
-  end
-
-  def logging_step
-    @config.logging_settings.channel_id.present? ? :logging_disabled : :logging_channel
-  end
-
-  def prerequisite_step(key)
-    Components::PrerequisiteSteps::Step.new(
-      message: t("views.servers.moderation.sub_plugin_show.prerequisites.#{key}.message"),
-      cta_label: t("views.servers.moderation.sub_plugin_show.prerequisites.#{key}.cta"),
-      cta_href: PluginPaths.for(@config, STEP_PAGES.fetch(key))
-    )
   end
 
   def definition

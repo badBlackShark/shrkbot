@@ -102,7 +102,7 @@ ignore_unused:
   - operations.server_configuration.plugins.still_needed.logging.other
   - operations.server_configuration.plugins.still_needed.moderation.one
   - operations.server_configuration.plugins.still_needed.moderation.other
-  # 7. Views::Servers::Moderation::SubPluginShow#prerequisite_step
+  # 7. Moderation::SetupSteps#step
   - views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.message
   - views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.cta
   - views.servers.moderation.sub_plugin_show.prerequisites.logging_disabled.message

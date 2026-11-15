@@ -61,13 +61,44 @@ RSpec.describe "Spam protection config", type: :request do
             expect(response.body).to include("Pick a staff role on the Server Shield overview.")
             expect(response.body).to include(I18n.t("components.plugin_row.needs_setup_hint"))
           end
+
+          it "points each step at its page" do
+            get server_spam_protection_path(guild.id)
+            step_links = Nokogiri::HTML(response.body).css("a").to_h { |link| [link.text.strip, link["href"]] }
+
+            expect(step_links).to include(
+              I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.cta") => server_logging_path(guild.id),
+              I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.staff_role.cta") => server_moderation_path(guild.id)
+            )
+          end
         end
 
         it "keeps the settings editable" do
           get server_spam_protection_path(guild.id)
-          expect(response.body).to include("Trigger threshold")
+          expect(response.body).to include(I18n.t("components.moderation.spam_protection_form.detection.trigger_threshold.label"))
           expect(response.body).not_to include("inert")
           expect(response.body).to include('name="spam_protection[enabled]" value="0"')
+        end
+
+        context "when the plugin is enabled and a prerequisite is gone" do
+          before do
+            create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)
+              .update_column(:enabled, true)
+          end
+
+          it "titles the callout by what is missing, not by enabling" do
+            get server_spam_protection_path(guild.id)
+            expect(response.body).to include(I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.title_enabled"))
+            expect(response.body).not_to include("Before you enable")
+          end
+        end
+
+        context "when the plugin is disabled and a prerequisite is missing" do
+          it "titles the callout by enabling" do
+            get server_spam_protection_path(guild.id)
+            expect(response.body).to include("Before you enable Cross-Channel Spam Guard")
+            expect(response.body).not_to include(I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.title_enabled"))
+          end
         end
 
         context "when only the staff role is missing" do
@@ -129,7 +160,7 @@ RSpec.describe "Spam protection config", type: :request do
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
           expect(response.body).to include('target="plugin-sidebar"')
           expect(response.body).to include("spam_protection-config")
-          expect(response.body).to include("Saved. Cross-Channel Spam Guard is still disabled.")
+          expect(response.body).to include("Saved. Cross-Channel Spam Guard is still disabled.").and include(%(data-toast-sticky-value="true"))
         end
 
         context "when prerequisites are missing" do
@@ -146,7 +177,25 @@ RSpec.describe "Spam protection config", type: :request do
               **turbo
             expect(response).to have_http_status(:ok)
             expect(config.spam_protection_settings.reload.channel_threshold).to eq(4)
-            expect(response.body).to include("Saved. Cross-Channel Spam Guard is still disabled.")
+            expect(response.body).to include("Saved. Cross-Channel Spam Guard is still disabled.").and include(%(data-toast-sticky-value="true"))
+          end
+        end
+
+        context "when the plugin is enabled and Logging lost its channel" do
+          before do
+            config.logging_settings.update_columns(channel_id: nil)
+            create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)
+              .update_column(:enabled, true)
+          end
+
+          it "saves a changed threshold" do
+            patch server_spam_protection_path(guild.id),
+              params: {spam_protection: {channel_threshold: 5, window_seconds: 10, similarity: 0.9,
+                                         match_symbol_only_messages: "0", action: "purge", punishment: "none",
+                                         timeout_seconds: 3600, enabled: "1"}},
+              **turbo
+            expect(response).to have_http_status(:ok)
+            expect(config.spam_protection_settings.reload.channel_threshold).to eq(5)
           end
         end
 

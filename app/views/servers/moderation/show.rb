@@ -12,6 +12,15 @@ class Views::Servers::Moderation::Show < Views::Servers::GroupShow
     :moderation
   end
 
+  def prerequisites
+    return if @context.logging_ready?
+
+    Components::PrerequisiteSteps.new(
+      title: t(".prerequisites_title"),
+      steps: [::Moderation::SetupSteps.new(@config).logging]
+    )
+  end
+
   def body
     logging_subline
     render Components::Moderation::OverviewForm.new(

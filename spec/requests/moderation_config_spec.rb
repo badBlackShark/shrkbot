@@ -38,6 +38,11 @@ RSpec.describe "Moderation config", type: :request do
               .update_column(:enabled, true)
           end
 
+          it "shows no Logging callout" do
+            get server_moderation_path(guild.id)
+            expect(response.body).not_to include(I18n.t("views.servers.moderation.show.prerequisites_title"))
+          end
+
           it "renders the overview page with the Server Shield title" do
             get server_moderation_path(guild.id)
             expect(response).to have_http_status(:ok)
@@ -91,6 +96,30 @@ RSpec.describe "Moderation config", type: :request do
             expect(response).to have_http_status(:ok)
             expect(response.body).not_to include("inert")
             expect(response.body).not_to include("Moderation needs the Logging plugin")
+          end
+
+          context "when the log channel is missing" do
+            it "tells the reader protections need Logging and links its channel step" do
+              get server_moderation_path(guild.id)
+              link_labels = Nokogiri::HTML(response.body).css("a[href='#{server_logging_path(guild.id)}']").map { |link| link.text.strip }
+
+              expect(response.body).to include(I18n.t("views.servers.moderation.show.prerequisites_title"))
+              expect(response.body).to include(I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.message"))
+              expect(link_labels).to include(I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.cta"))
+            end
+          end
+
+          context "when a log channel is set but Logging is disabled" do
+            before do
+              config.logging_settings.update!(channel_id: 111)
+              create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
+            end
+
+            it "tells the reader to enable Logging" do
+              get server_moderation_path(guild.id)
+
+              expect(response.body).to include(I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.logging_disabled.message"))
+            end
           end
         end
       end
