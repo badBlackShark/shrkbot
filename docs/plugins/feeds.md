@@ -11,7 +11,7 @@ doc keep the Feeds name; the provider layer is `Integrations::` (see `docs/integ
 
 Two catalog entries make the plugin group: `:integrations` (the parent) and `:steam`
 (`parent: :integrations`). A new source is another sub-plugin entry, its `Feeds::`
-source module (see Sources) and its `resource` in `config/routes.rb` pointing at the
+source class (see Sources) and its `resource` in `config/routes.rb` pointing at the
 shared Feeds controllers (see Config UI).
 
 - **Integrations** (`Servers::IntegrationsController`): the overview. It renders
@@ -357,7 +357,7 @@ is the only chance to add the button, so `RevisePostJob` retries.
 A subscription is **active** when its server is real (not a preview) and has both the
 `integrations` plugin and the source's sub-plugin enabled. Each source in
 `Feeds.sources` names its watcher classes and its sub-plugin key (`Feeds::Steam`:
-`Integrations::Steam::NewsWatcher`, `:steam`), so a new source is one module and one
+`Integrations::Steam::NewsWatcher`, `:steam`), so a new source is one class and one
 entry there. `Feeds::Subscription` is registered as a demand source in
 `config/initializers/integrations.rb`, and a watch is polled only while an active
 subscription points at it.
