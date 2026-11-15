@@ -39,8 +39,8 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
   def template_card(kind)
     render Components::TwilightStruggle::TemplateCard.new(
       kind:,
-      value: @destination.public_send(:"template_#{kind}").presence || inherited_template(kind),
-      placeholder: inherited_template(kind),
+      value: @destination.public_send(:"template_#{kind}") || inherited_template(kind),
+      inherited: inherited_template(kind),
       channel: channel_label,
       inherits_from_parent: inherited.inherited_from.present?
     )

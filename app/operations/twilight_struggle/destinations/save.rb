@@ -38,14 +38,13 @@ module Ops
           }
         end
 
-        # The form arrives pre-filled with whatever the destination would inherit,
-        # so text that came back untouched is not an override — storing it would
-        # freeze a copy and stop it tracking the tournament above.
         def override(kind, submitted)
-          submitted = submitted.presence
-          return nil if submitted == inherited.public_send(:"template_#{kind}")
+          return nil if submitted.nil?
 
-          submitted
+          text = submitted.blank? ? "" : submitted
+          return nil if text == inherited.public_send(:"template_#{kind}")
+
+          text
         end
 
         def inherited

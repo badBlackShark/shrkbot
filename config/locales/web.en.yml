@@ -838,7 +838,7 @@ en:
             use the same here."
         label: Posting delay
       template_card:
-        empty: Nothing would be posted.
+        empty: Nothing will be sent.
         preview: Live preview
         reset_to_default: Reset to default
         reset_to_parent: Reset to parent
@@ -913,12 +913,11 @@ en:
       config_form:
         channel:
           label: Channel
+        empty: Nothing will be sent.
         join_message:
           label: Join message
-          placeholder: Welcome {user}, you're member {membercount}!
         leave_message:
           label: Leave message
-          placeholder: "{user} has left the server."
         ping_on_join:
           help: When off, the mention makes no sound and sends no push notification.
           label: Ping on join
@@ -930,9 +929,9 @@ en:
             on leave.
           username: Expands to the member's Discord username, without a mention.
         preview:
-          empty: This message is off.
           label: Live preview
           timestamp: Today
+        reset_to_default: Reset to default
         suppress_removal_messages:
           label: Skip leave messages for kicks and bans
   meta:

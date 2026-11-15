@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 class Components::Welcomes::ConfigForm < Components::Base
-  FIELD = "w-full resize-none rounded-control border-[1.5px] border-border-strong bg-surface-card px-3 py-2 " \
-    "text-sm text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
-    "focus:ring-3 focus:ring-[var(--focus-ring)]"
   PLACEHOLDERS = %w[user username displayname membercount].freeze
 
   def initialize(server_configuration:, enable_error: nil)
@@ -15,8 +12,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   def view_template
     render Components::ConfigSections.new(key: "welcomes", enable_error: @enable_error, data: {controller: "welcome-preview"}) do
       channel_card
-      message_cards
-      placeholder_help
+      message_card
       preview
     end
   end
@@ -33,33 +29,18 @@ class Components::Welcomes::ConfigForm < Components::Base
     )
   end
 
-  def message_cards
-    div(class: "grid gap-5 sm:grid-cols-2") do
-      message_card(:join_message, @settings.join_message) do
-        ping_toggle
+  def message_card
+    render Components::Card.new(padding: :none) do
+      div(class: "flex divide-x divide-border-subtle py-5") do
+        render Components::Welcomes::MessageColumn.new(kind: :join, settings: @settings) do
+          ping_toggle
+        end
+        render Components::Welcomes::MessageColumn.new(kind: :leave, settings: @settings) do
+          suppress_removal_toggle
+        end
       end
-      message_card(:leave_message, @settings.leave_message) do
-        suppress_removal_toggle
-      end
+      placeholder_help
     end
-  end
-
-  def message_card(name, value, &toggle)
-    render Components::Card.new do
-      render Components::FieldLabel.new { t(".#{name}.label") }
-      textarea(
-        name: "welcomes[#{name}]",
-        rows: 3,
-        class: FIELD,
-        placeholder: t(".#{name}.placeholder"),
-        data: {welcome_preview_target: camel(name), action: "input->welcome-preview#render"}
-      ) { value }
-      toggle_section(&toggle)
-    end
-  end
-
-  def toggle_section(&toggle)
-    div(class: "mt-4 border-t border-border-subtle pt-4", &toggle)
   end
 
   def ping_toggle
@@ -80,7 +61,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def placeholder_help
-    render Components::Card.new do
+    div(class: "border-t border-border-subtle px-5 pb-5 pt-4") do
       render Components::PlaceholderSection.new do
         render Components::PlaceholderChips.new(tokens: placeholders)
       end
@@ -103,7 +84,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def preview_body_data(kind)
-    {welcome_preview_target: "#{kind}Output", empty_hint: t(".preview.empty")}
+    {welcome_preview_target: "#{kind}Output", empty_hint: t(".empty")}
   end
 
   def preview_channel
@@ -118,9 +99,5 @@ class Components::Welcomes::ConfigForm < Components::Base
 
   def channel_options
     @channel_options ||= ChannelOptions.new(@config)
-  end
-
-  def camel(name)
-    name.to_s.camelize(:lower)
   end
 end
