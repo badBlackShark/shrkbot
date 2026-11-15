@@ -1,4 +1,4 @@
-function submitted(value, factor) {
+export function baseValue(value, factor) {
   const text = String(value).trim()
   if (text === "") return ""
 
@@ -10,12 +10,8 @@ function submitted(value, factor) {
 }
 
 export function syncReset(reset, value, defaultValue, factor = 1) {
-  const stored = submitted(value, factor)
+  const stored = baseValue(value, factor)
   reset.hidden = stored !== "" && Number(stored) === defaultValue
-}
-
-export function baseValue(value, factor) {
-  return submitted(value, factor)
 }
 
 export function unitBounds(min, max, factor) {
