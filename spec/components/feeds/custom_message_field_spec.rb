@@ -27,6 +27,18 @@ RSpec.describe Components::Feeds::CustomMessageField do
     expect(html).to include('data-feed-preview-target="output"', "data-feed-preview-field", "Hades II", "Hades II · Patch notes", "Patch 1.4")
   end
 
+  describe "the preview tokens" do
+    let(:tokens) { JSON.parse(Nokogiri::HTML.fragment(html).at_css("textarea")["data-tokens"]) }
+
+    it "blanks a token the type does not have, as the post does" do
+      expect(tokens).to include("author" => "")
+    end
+
+    it "keeps the sample of a token the type has" do
+      expect(tokens).to include("title" => "Patch 1.4: Controller fixes")
+    end
+  end
+
   context "when the type is not followed" do
     let(:event) { nil }
 

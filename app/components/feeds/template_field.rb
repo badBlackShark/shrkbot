@@ -41,7 +41,7 @@ class Components::Feeds::TemplateField < Components::Base
   end
 
   def textarea_data
-    {feed_preview_target: "template", action: "input->feed-preview#render", tokens: samples.tokens(token_names).to_json}
+    {feed_preview_target: "template", action: "input->feed-preview#render", tokens: preview_tokens.to_json}
   end
 
   def placeholder
@@ -50,6 +50,10 @@ class Components::Feeds::TemplateField < Components::Base
 
   def samples
     @samples ||= source::PreviewSamples.new(watch_name: @subscription.watch.name, event_type: @event_type)
+  end
+
+  def preview_tokens
+    source.template_tokens.index_with { "" }.merge(samples.tokens(token_names))
   end
 
   def token_names
