@@ -11,7 +11,7 @@ The relationships are declared on the `PluginCatalog::Definition`s (`parent`,
 `requires_plugin`, `prerequisite`), and `Ops::ServerConfiguration::Plugins::Toggle`, the
 one path that changes an activation, enforces them: Logging cannot turn off while a
 protection is on. `Ops::Moderation::Settings::Update` refuses clearing the staff role the
-same way, through `PluginCatalog.unmet_dependent`. See
+same way, through `Toggle.dependent_refusal`. See
 [Plugins](overview.md) for the catalog model and
 [Design system](../design/design-system.md) § Plugin groups for the UI shell.
 

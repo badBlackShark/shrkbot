@@ -20,6 +20,17 @@ module Ops
           ok(activation)
         end
 
+        def self.dependent_refusal(key, server_configuration, enabled_keys: server_configuration.enabled_plugin_keys)
+          broken = PluginCatalog.dependents_broken_by(key, server_configuration, enabled_keys:)
+          return if broken.empty?
+
+          I18n.t(
+            "operations.server_configuration.plugins.still_needed.#{key}",
+            count: broken.size,
+            dependents: broken.map(&:name).to_sentence
+          )
+        end
+
         private
 
         def find_or_build_activation
@@ -43,14 +54,7 @@ module Ops
         end
 
         def dependent_refusal(activation)
-          broken = PluginCatalog.dependents_broken_by(
-            plugin.key,
-            server_configuration,
-            enabled_keys: prospective_keys(activation)
-          )
-          return if broken.empty?
-
-          plugins_t("still_needed.#{plugin.key}", count: broken.size, dependents: broken.map(&:name).to_sentence)
+          self.class.dependent_refusal(plugin.key, server_configuration, enabled_keys: prospective_keys(activation))
         end
 
         def plugins_t(key, **options)

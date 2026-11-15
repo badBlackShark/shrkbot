@@ -196,10 +196,18 @@ RSpec.describe PluginCatalog do
     let(:server) { create(:server_configuration) }
     let(:key) { :logging }
     let(:enabled_keys) { [:logging, :spam_protection] }
+    let(:logging) { create(:plugin, key: "logging", name: "Logging") }
+    let(:spam_protection) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
+
+    def activate(plugin)
+      create(:plugin_activation, server_configuration: server, plugin:, enabled: false).update_column(:enabled, true)
+    end
 
     before do
       server.create_logging_settings!(channel_id: 999)
       server.create_moderation_settings!(staff_role_id: 5)
+      activate(logging) if enabled_keys.include?(:logging)
+      activate(spam_protection) if enabled_keys.include?(:spam_protection)
     end
 
     context "when the log channel was cleared in memory only" do

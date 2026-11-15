@@ -18,10 +18,10 @@ RSpec.describe Ops::Moderation::Settings::Update do
   let(:ping_staff) { "1" }
   let(:new_account_age_days) { 30 }
 
-  def enable_protection(plugin)
+  def enable_protection(*plugins)
     logging_plugin = create(:plugin, key: "logging", name: "Logging")
     config.create_logging_settings!(channel_id: 999)
-    [logging_plugin, plugin].each do |enabled_plugin|
+    [logging_plugin, *plugins].each do |enabled_plugin|
       create(:plugin_activation, server_configuration: config, plugin: enabled_plugin, enabled: false).update_column(:enabled, true)
     end
   end
@@ -57,6 +57,21 @@ RSpec.describe Ops::Moderation::Settings::Update do
     end
   end
 
+  context "when clearing staff_role_id while both protections are enabled" do
+    let(:staff_role_id) { nil }
+    let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
+    let!(:image_plugin) { create(:plugin, key: "image_scanning", name: "Scam Image Detection") }
+
+    before do
+      settings.update!(staff_role_id: 111_222_333)
+      enable_protection(spam_plugin, image_plugin)
+    end
+
+    it "fails naming both protections" do
+      expect(result.errors).to eq(["Cross-Channel Spam Guard and Scam Image Detection need a staff role. Disable them first."])
+    end
+  end
+
   context "when clearing staff_role_id with no sub-plugin enabled" do
     let(:staff_role_id) { nil }
 
@@ -71,7 +86,7 @@ RSpec.describe Ops::Moderation::Settings::Update do
     end
   end
 
-  context "when a protection is missing something this save does not touch" do
+  context "when a protection already lacks its log channel and an unrelated setting changes" do
     let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
 
     before do
@@ -80,8 +95,8 @@ RSpec.describe Ops::Moderation::Settings::Update do
       config.logging_settings.update!(channel_id: nil)
     end
 
-    it "refuses the save" do
-      expect(result.errors).to eq(["Cross-Channel Spam Guard is on and depends on these settings. Turn Cross-Channel Spam Guard off first."])
+    it "saves, because the save does not break the protection" do
+      expect(result).to be_success
     end
   end
 

@@ -51,13 +51,6 @@ class Components::SubPluginRow < Components::Base
     !@row.configured && !@row.enabled
   end
 
-  def needs_setup_inline_warning
-    p(class: "mt-1 flex items-center gap-1 text-xs font-medium text-warning-text") do
-      render Components::Icon.new("warning", class: "size-3.5")
-      span { t(".needs_setup_hint.#{@row.key}") }
-    end
-  end
-
   def configure_link
     render Components::Button.new(
       variant: :secondary,

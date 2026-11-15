@@ -66,6 +66,10 @@ RSpec.describe PluginStatus do
         it "lights only that member's group" do
           expect(group_rows.to_h { |row| [row.key, row.enabled] }).to eq(moderation: false, integrations: true)
         end
+
+        it "counts the enabled members against every visible member" do
+          expect(group_rows.to_h { |row| [row.key, [row.enabled_members, row.members]] }).to eq(moderation: [0, 2], integrations: [1, 2])
+        end
       end
     end
 

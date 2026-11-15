@@ -78,10 +78,11 @@ RSpec.describe RemovePluginGroups, skip_prosopite: true do
     let!(:other_moderation) { activate("moderation", enabled: true, server: other_server) }
     let!(:other_protection) { activate("spam_protection", enabled: true, server: other_server) }
 
-    it "keeps that server's protection on" do
+    it "keeps that server's protection on and turns this server's off" do
       migrate
 
       expect(other_protection.reload.enabled).to be(true)
+      expect(protection.reload.enabled).to be(false)
     end
   end
 

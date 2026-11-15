@@ -32,7 +32,7 @@ class Components::PluginRow < Components::Base
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { name }
-          status_badge unless @row.group
+          @row.group ? group_count : status_badge
           render Components::BespokeBadge.new if @row.bespoke
           render Components::PluginBadges.new(key: @row.key)
         end
@@ -83,6 +83,10 @@ class Components::PluginRow < Components::Base
     else
       render Components::Badge.new(variant: STATUS_VARIANTS.fetch(status), dot: true) { t(".status.#{status}") }
     end
+  end
+
+  def group_count
+    render Components::Badge.new(variant: :neutral) { t(".group_count", enabled: @row.enabled_members, total: @row.members) }
   end
 
   def status

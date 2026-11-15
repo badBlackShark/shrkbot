@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class PluginStatus
-  Row = Data.define(:key, :enabled, :configured, :locked, :manageable, :toggleable, :bespoke, :group) do
-    def initialize(key:, enabled:, configured:, locked: false, manageable: true, toggleable: true, bespoke: false, group: false)
+  Row = Data.define(:key, :enabled, :configured, :locked, :manageable, :toggleable, :bespoke, :group, :enabled_members, :members) do
+    def initialize(key:, enabled:, configured:, locked: false, manageable: true, toggleable: true, bespoke: false, group: false, enabled_members: nil, members: nil)
       super
     end
   end
@@ -39,13 +39,17 @@ class PluginStatus
 
   def self.group_rows(enabled_keys, visible, server_configuration, access)
     PluginCatalog::GROUPS.map do |group|
+      member_keys = PluginCatalog.visible_sub_plugin_keys(group.key, server_configuration, visible:)
+      enabled_members = enabled_keys.count { |key| member_keys.include?(key) }
       Row.new(
         key: group.key,
-        enabled: enabled_keys.intersect?(PluginCatalog.visible_sub_plugin_keys(group.key, server_configuration, visible:)),
+        enabled: enabled_members.positive?,
         configured: true,
         manageable: access.manage?(group.key),
         toggleable: false,
-        group: true
+        group: true,
+        enabled_members:,
+        members: member_keys.size
       )
     end
   end
