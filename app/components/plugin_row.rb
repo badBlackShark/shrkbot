@@ -86,7 +86,7 @@ class Components::PluginRow < Components::Base
   end
 
   def group_count
-    render Components::Badge.new(variant: :neutral) { t(".group_count", enabled: @row.enabled_members, total: @row.members) }
+    render Components::Badge.new(variant: :neutral) { t(".group_count", enabled: @row.members.enabled, total: @row.members.total) }
   end
 
   def status

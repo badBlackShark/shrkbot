@@ -17,6 +17,18 @@ RSpec.describe PluginCatalog do
     end
   end
 
+  describe "required plugins" do
+    let(:required_keys) { described_class.all.filter_map(&:requires_plugin).uniq }
+
+    it "has a refusal message for every plugin another plugin requires" do
+      required_keys.each do |key|
+        %w[one other].each do |form|
+          expect(I18n.exists?("operations.server_configuration.plugins.still_needed.#{key}.#{form}", :en)).to be(true), "missing #{key}.#{form}"
+        end
+      end
+    end
+  end
+
   describe ".find" do
     it "looks a definition up by key" do
       expect(described_class.find(:logging).name).to eq("Logging")

@@ -36,7 +36,7 @@ RSpec.describe Components::PluginRow do
   end
 
   context "for a group row" do
-    let(:row) { PluginStatus::Row.new(key: :moderation, enabled: true, configured: true, toggleable: false, group: true, enabled_members: 1, members: 2) }
+    let(:row) { PluginStatus::Row.new(key: :moderation, enabled: true, configured: true, toggleable: false, members: PluginStatus::Members.new(enabled: 1, total: 2)) }
 
     it "shows how many members are enabled" do
       expect(html).to include("1 of 2 enabled")
@@ -49,6 +49,14 @@ RSpec.describe Components::PluginRow do
 
     it "links to the group page" do
       expect(html).to include(%(href="/servers/900000001/moderation"))
+    end
+  end
+
+  context "for a group row with every member disabled" do
+    let(:row) { PluginStatus::Row.new(key: :moderation, enabled: false, configured: true, toggleable: false, members: PluginStatus::Members.new(enabled: 0, total: 2)) }
+
+    it "shows none of the members enabled" do
+      expect(html).to include("0 of 2 enabled")
     end
   end
 
