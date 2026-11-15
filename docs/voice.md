@@ -301,6 +301,7 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Welcome {user}, you're member {membercount}!` / `{user} has left the server.` (placeholders in empty Welcomes boxes) | The same text as the box's real, editable default; empty box placeholder `Nothing will be sent.` | The placeholder looked like a message shrkbot would send, but an empty box sent nothing. Now the default is the value and the placeholder says what empty does. |
 | `This message is off.` (Welcomes preview) | `Nothing will be sent.` | "Off" names a toggle state, and the message has no toggle; it is empty. One sentence now serves the box and the preview. |
 | `Nothing would be posted.` (Twilight Struggle preview) | `Nothing will be sent.` | Same sentence as the Welcomes preview: one phrase for an empty message. |
+| `{the inherited template}` as the placeholder of an emptied Twilight Struggle box, and in its preview | `Nothing will be sent.` in the box and the preview | The placeholder looked like the text that would be posted, and it was: empty meant "inherit". Now empty posts nothing, says so, and the reset brings the inherited text back. |
 
 ## Kept on purpose
 
@@ -311,7 +312,6 @@ later.
 | --- | --- | --- |
 | `Your server's aegis: automated moderation beyond Discord's AutoMod.` | Colon reveal, and a word some readers will look up. | The personality is the point, and no plainer wording carried it. Deliberate. |
 | `♥` in the site footer | ASCII over glyphs. | One glyph, one place, load-bearing for the line it sits in. |
-| `{the inherited template}` as the placeholder of an emptied Twilight Struggle box, and in its preview | `Nothing will be sent.` in the box and the preview | The placeholder looked like the text that would be posted, and it was: empty meant "inherit". Now empty posts nothing, says so, and the reset brings the inherited text back. |
 
 ## Standing rule
 
