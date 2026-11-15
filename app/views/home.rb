@@ -102,7 +102,10 @@ class Views::Home < Views::Base
       div(class: "mb-3 flex size-10 items-center justify-center rounded-control bg-accent-soft text-accent-soft-fg") do
         render Components::Icon.new(plugin_icon(key), class: "size-5")
       end
-      p(class: "font-display text-sm font-semibold") { t("components.plugin_row.plugin.#{key}.name") }
+      div(class: "flex flex-wrap items-center gap-2") do
+        p(class: "font-display text-sm font-semibold") { t("components.plugin_row.plugin.#{key}.name") }
+        render Components::PluginBadges.new(key:)
+      end
       p(class: "mt-1 text-sm leading-relaxed text-text-secondary") { PluginCatalog.description(key) }
     end
   end

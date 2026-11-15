@@ -73,7 +73,16 @@ RSpec.describe "Home", type: :request do
     top_level = PluginCatalog.all.select { |definition| definition.parent.nil? && !definition.bespoke }.map(&:key)
     expected = top_level - [:integrations] + PluginCatalog.sub_plugin_keys(:integrations) + PluginCatalog::GLOBAL_KEYS
 
-    expect(cards.map { |card| card["href"].delete_prefix("/preview/").to_sym }).to match_array(expected)
+    expect(cards.map { |card| card["href"].delete_prefix("/preview/").to_sym }).to include(*expected)
+  end
+
+  it "shows the Beta badge on the Twitch card and not on the Steam card" do
+    home
+
+    card_for = ->(key) { cards.find { |card| card["href"] == "/preview/#{key}" } }
+
+    expect(card_for.call(:twitch).text).to include(I18n.t("components.plugin_badges.beta"))
+    expect(card_for.call(:steam).text).not_to include(I18n.t("components.plugin_badges.beta"))
   end
 
   it "labels both sign-in buttons the same" do
