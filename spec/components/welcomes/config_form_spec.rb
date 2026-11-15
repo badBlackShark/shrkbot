@@ -63,6 +63,10 @@ RSpec.describe Components::Welcomes::ConfigForm do
       expect([textarea("join").text, textarea("leave").text]).to eq([default_join, default_leave])
     end
 
+    it "carries each default on its box for the reset to copy" do
+      expect([textarea("join")["data-default"], textarea("leave")["data-default"]]).to eq([default_join, default_leave])
+    end
+
     it "hides both resets" do
       expect([reset("join").key?("hidden"), reset("leave").key?("hidden")]).to eq([true, true])
     end
