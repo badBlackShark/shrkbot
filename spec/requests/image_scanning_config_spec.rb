@@ -65,7 +65,7 @@ RSpec.describe "Image scanning config", type: :request do
             expect(response.body).to include("Before you enable")
             expect(response.body).to include("Set up a log channel so shrkbot has a place to post alerts.")
             expect(response.body).to include("Pick a staff role on the Server Shield overview.")
-            expect(response.body).to include("Complete setup before enabling this plugin.")
+            expect(response.body).to include(I18n.t("components.plugin_row.needs_setup_hint"))
           end
         end
 

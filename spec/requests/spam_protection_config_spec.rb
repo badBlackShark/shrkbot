@@ -46,7 +46,7 @@ RSpec.describe "Spam protection config", type: :request do
 
           it "renders the detection and response controls" do
             get server_spam_protection_path(guild.id)
-            expect(response.body).to include("Trigger threshold")
+            expect(response.body).to include(I18n.t("components.moderation.spam_protection_form.detection.trigger_threshold.label"))
             expect(response.body).to include("Match strictness")
             expect(response.body).to include("When spam is detected")
           end
@@ -59,7 +59,7 @@ RSpec.describe "Spam protection config", type: :request do
             expect(response.body).to include("Before you enable")
             expect(response.body).to include("Set up a log channel so shrkbot has a place to post alerts.")
             expect(response.body).to include("Pick a staff role on the Server Shield overview.")
-            expect(response.body).to include("Complete setup before enabling this plugin.")
+            expect(response.body).to include(I18n.t("components.plugin_row.needs_setup_hint"))
           end
         end
 
