@@ -20,6 +20,7 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   let(:card) { document.element_children.first }
   let(:body) { card.at_css("[data-type-card-target=body]") }
   let(:chevron) { card.at_css("button[data-type-card-target=chevron]") }
+  let(:header) { card.at_css("[data-action='click->type-card#flip']") }
 
   it "is the card, controlled by type-card and scoped to its own type" do
     expect(card["data-controller"]).to eq("type-card")
@@ -37,6 +38,11 @@ RSpec.describe Components::Feeds::EventTypeSetting do
     expect(toggle.attributes.keys).to include("data-type-toggle", "checked")
     expect(toggle["data-type-card-target"]).to eq("toggle")
     expect(toggle["data-action"]).to eq("change->type-card#sync")
+  end
+
+  it "folds from anywhere in the header, and not from the settings below it" do
+    expect(header.at_css("button[data-type-card-target=chevron]")).to be_present
+    expect(header.at_css("[data-type-card-target=body]")).to be_nil
   end
 
   it "offers the chevron whether or not the type is on" do

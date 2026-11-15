@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 class Components::Feeds::EventTypeSetting < Components::Base
-  CARD = "px-5 py-4 has-[[data-type-toggle]:checked]:border-accent-soft-bd"
+  CARD = "has-[[data-type-toggle]:checked]:border-accent-soft-bd"
+  HEADER = "cursor-pointer select-none px-5 py-4"
   CHEVRON = "group/chevron flex size-8 flex-none items-center justify-center rounded-control text-text-secondary " \
     "transition-colors hover:bg-surface-sunken hover:text-text-primary focus:outline-none " \
     "focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
@@ -16,15 +17,21 @@ class Components::Feeds::EventTypeSetting < Components::Base
 
   def view_template
     render Components::Card.new(padding: :none, class: CARD, data: card_data) do
-      render(Components::SettingRow.new(label:, help: help_text)) do
-        chevron
-        toggle
-      end
+      header
       body
     end
   end
 
   private
+
+  def header
+    div(class: HEADER, data: {action: "click->type-card#flip"}) do
+      render(Components::SettingRow.new(label:, help: help_text)) do
+        chevron
+        toggle
+      end
+    end
+  end
 
   def card_data
     {controller: "type-card", type_card_key_value: storage_key, feed_preview_scope: true}
@@ -62,7 +69,7 @@ class Components::Feeds::EventTypeSetting < Components::Base
       aria_label: t(".settings_label", type: label),
       aria_expanded: "false",
       aria_controls: body_id,
-      data: {type_card_target: "chevron", action: "type-card#flip"}
+      data: {type_card_target: "chevron"}
     ) do
       render Components::Icon.new("caret-down", class: "size-4 motion-safe:transition-transform group-aria-expanded/chevron:rotate-180")
     end
@@ -78,7 +85,7 @@ class Components::Feeds::EventTypeSetting < Components::Base
   end
 
   def body
-    div(id: body_id, hidden: true, class: "mt-4 flex flex-col gap-4 pb-1", data: {type_card_target: "body"}) do
+    div(id: body_id, hidden: true, class: "flex flex-col gap-4 px-5 pb-5", data: {type_card_target: "body"}) do
       if @type_fields
         render(type_fields) { message_fields }
       else

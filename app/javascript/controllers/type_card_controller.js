@@ -12,7 +12,9 @@ export default class extends Controller {
     this.#set(this.toggleTarget.checked)
   }
 
-  flip() {
+  flip(event) {
+    if (event.target.closest("label")) return
+
     this.#set(this.bodyTarget.hidden)
   }
 

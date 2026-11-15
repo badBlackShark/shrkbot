@@ -278,7 +278,9 @@ duplicated class strings:
   danger callout every plugin form was repeating (`enable_error:`).
 - **Toggle cards that open** (`Components::Feeds::EventTypeSetting`) — an option with its own settings is a card: a
   `SettingRow` header with a chevron and the toggle at the card edge. Turning it on opens the card and turning it off folds
-  it; the chevron opens and folds it in either state, so the settings of a type that is off can be read. The
+  it; a click anywhere on the header
+  row, apart from the toggle, opens and folds it in either state, so the settings of a type that is off can be read.
+  The chevron is the button a keyboard reaches. The
   accent border follows the checkbox through CSS (`has-[[data-type-toggle]:checked]`); the `type-card`
   controller owns only open and closed, remembered in
   `localStorage`. Never put settings behind a loose "Settings" disclosure.
