@@ -28,13 +28,6 @@ module Moderation
       false
     end
 
-    def staff_permission_warning?
-      return false unless staff_role_id
-
-      role = @config.server_roles.find_by(discord_id: staff_role_id)
-      role.present? && !role.manage_messages?
-    end
-
     def logging_channel_name
       return unless @config.logging_settings&.channel_id
 

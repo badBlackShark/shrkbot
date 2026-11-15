@@ -5,6 +5,7 @@ class Components::Feeds::EventTypeList < Components::Base
     @subscription = subscription
     @plugin_key = plugin_key
     @type_fields = type_fields
+    @footer = footer
   end
 
   def view_template

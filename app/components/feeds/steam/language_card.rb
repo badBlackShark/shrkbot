@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class Components::Feeds::Steam::LanguageCard < Components::Base
+  ENGLISH = "en"
+  FIELD = "subscription[languages][]"
+
   def initialize(subscription:)
     @subscription = subscription
   end
@@ -8,23 +11,37 @@ class Components::Feeds::Steam::LanguageCard < Components::Base
   def view_template
     render Components::Card.new(class: "flex flex-col gap-4") do
       h2(class: "font-semibold") { t(".title") }
-      render Components::Callout.new(variant: :warning) { t(".note") }
       div do
         render Components::FieldLabel.new { t(".label") }
-        input(type: "hidden", name: "subscription[languages][]", value: "")
+        input(type: "hidden", name: FIELD, value: "")
         render Components::TomSelect.new(
-          name: "subscription[languages][]",
+          name: FIELD,
           options:,
           selected: @subscription.settings.languages,
           multiple: true,
           controller_data: {tom_select_placeholder_value: t(".placeholder")}
         )
         render Components::FieldHelp.new { t(".help") }
+        language_warning
       end
     end
   end
 
   private
+
+  def language_warning
+    render Components::LiveWarning.new(
+      fields: [FIELD],
+      rule: "excludes-all",
+      list: [ENGLISH],
+      shown: english_left_out?
+    ) { t(".note") }
+  end
+
+  def english_left_out?
+    languages = @subscription.settings.languages
+    languages.any? && languages.exclude?(ENGLISH)
+  end
 
   def options
     ::Integrations::Language::CODES

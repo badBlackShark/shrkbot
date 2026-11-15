@@ -6,6 +6,10 @@ class Components::Feeds::EventTypeSetting < Components::Base
     "transition-colors hover:bg-surface-sunken hover:text-text-primary focus:outline-none " \
     "focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] group-has-[[data-type-toggle]:checked]/type:flex"
 
+  def self.toggle_name(event_type)
+    "subscription[event_types][#{event_type}]"
+  end
+
   def initialize(subscription:, plugin_key:, event_type:, event:, type_fields: nil)
     @subscription = subscription
     @plugin_key = plugin_key
@@ -70,7 +74,7 @@ class Components::Feeds::EventTypeSetting < Components::Base
 
   def toggle
     render Components::Toggle.new(
-      name: "subscription[event_types][#{@event_type}]",
+      name: self.class.toggle_name(@event_type),
       checked: followed?,
       label:,
       data: {type_toggle: true, type_card_target: "toggle", action: "change->type-card#sync"}

@@ -2,12 +2,12 @@
 
 class Components::Moderation::StaffRoleCard < Components::Base
   DEFAULT_COLOR = "#99aab5"
+  FIELD = "moderation[staff_role_id]"
 
-  def initialize(server_configuration:, staff_role_id:, permission_warning:, staff_permission_warning:)
+  def initialize(server_configuration:, staff_role_id:, permission_warning:)
     @config = server_configuration
     @staff_role_id = staff_role_id
     @permission_warning = permission_warning
-    @staff_permission_warning = staff_permission_warning
   end
 
   def view_template
@@ -17,7 +17,7 @@ class Components::Moderation::StaffRoleCard < Components::Base
         render Components::RequiredMarker.new
       end
       render Components::TomSelect.new(
-        name: "moderation[staff_role_id]",
+        name: FIELD,
         options: role_options,
         selected: @staff_role_id,
         multiple: false,
@@ -30,14 +30,18 @@ class Components::Moderation::StaffRoleCard < Components::Base
       )
       render Components::FieldHelp.new { t(".help") }
       warning_callout(t(".permission_warning_bold"), t(".permission_warning_body")) if @permission_warning
-      warning_callout(t(".staff_permission_warning_bold"), t(".staff_permission_warning_body")) if @staff_permission_warning
+      staff_permission_warning
     end
   end
 
   private
 
+  def roles
+    @roles ||= @config.server_roles.order(:position).to_a
+  end
+
   def role_options
-    @config.server_roles.order(:position).map do |role|
+    roles.map do |role|
       Components::TomSelect::Option.for(
         value: role.discord_id,
         label: role.name,
@@ -52,16 +56,34 @@ class Components::Moderation::StaffRoleCard < Components::Base
     "#%06x" % (color & 0xFFFFFF)
   end
 
+  def staff_permission_warning
+    unprivileged_ids = role_ids_without_manage_messages
+    render Components::LiveWarning.new(
+      fields: [FIELD],
+      rule: "includes-any",
+      list: unprivileged_ids,
+      shown: unprivileged_ids.include?(@staff_role_id.to_s),
+      class: "mt-3"
+    ) do
+      warning_text(t(".staff_permission_warning_bold"), t(".staff_permission_warning_body"))
+    end
+  end
+
+  def role_ids_without_manage_messages
+    @role_ids_without_manage_messages ||= roles.reject(&:manage_messages?).map { |role| role.discord_id.to_s }
+  end
+
   def warning_callout(bold, body)
     div(class: "mt-3") do
-      render Components::Callout.new(variant: :warning) do
-        plain ""
-        span do
-          b(class: "text-warning-text") { bold }
-          whitespace
-          plain body
-        end
-      end
+      render Components::Callout.new(variant: :warning) { warning_text(bold, body) }
+    end
+  end
+
+  def warning_text(bold, body)
+    span do
+      b(class: "text-warning-text") { bold }
+      whitespace
+      plain body
     end
   end
 end

@@ -167,6 +167,18 @@ save — config controllers return **422** (not 200) when a save fails validatio
 which is both the correct status and the signal (`turbo:submit-end` reports
 `success: false`) that tells the bar to stay dirty.
 
+A warning that depends on a field's value reacts to the form, not to the last save: a member who
+saves and leaves never sees a warning that only appears after saving. `Components::LiveWarning`
+renders a warning `Callout` that the `live-warning` Stimulus controller shows or hides on every
+`change` in the surrounding form. It takes the watched field names (`fields:`), a rule
+(`includes-any`: a picked value is in `list:`; `excludes-all`: something is picked and none of
+it is in `list:`; `exactly-one`: exactly one watched toggle is on), and `shown:`, the answer for
+the saved values so the first paint is right. The Ruby `shown:` and the JS rule must state the same
+predicate, so derive `shown:` from the same `list:` where possible. Warnings about server state (a deleted channel, a
+missing bot permission) stay plain `Callout`s. A live warning goes below the control it watches, so
+it appearing never pushes that control away from the cursor. It announces itself through a
+`role="status"` region that is always in the page, with the `hidden` callout inside it.
+
 The header is a `Components::ConfigPageHeader` value: icon, title, description,
 and optionally `badge`, `media` and `aside`. The leading visual is the `PluginTile`
 unless `media` is set (Steam News' edit page passes the game's header image, and

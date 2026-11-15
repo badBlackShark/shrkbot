@@ -292,6 +292,14 @@ RSpec.describe "Steam subscriptions", type: :request do
       expect(textarea.text).to eq("Hot take: {title}")
     end
 
+    it "puts the update-types warning below the post type cards" do
+      edit
+
+      warning = Nokogiri::HTML(response.body).at_css("[data-controller=live-warning][data-live-warning-rule-value=exactly-one]")
+      following_toggles = warning.xpath(%(following::input[@type="checkbox"][starts-with(@name, "subscription[event_types]")]))
+      expect(following_toggles).to be_empty
+    end
+
     it "leaves the textarea empty for a post type without a custom template" do
       edit
 
