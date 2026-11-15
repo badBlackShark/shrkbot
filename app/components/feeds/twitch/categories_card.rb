@@ -8,7 +8,7 @@ class Components::Feeds::Twitch::CategoriesCard < Components::Base
   end
 
   def view_template
-    render Components::Card.new(class: "flex flex-col gap-4") do
+    render Components::Card.new(class: "group/categories flex flex-col gap-4") do
       h2(class: "font-semibold") { t(".title") }
       div do
         render Components::FieldLabel.new { t(".label") }
@@ -27,7 +27,9 @@ class Components::Feeds::Twitch::CategoriesCard < Components::Base
         )
         render Components::FieldHelp.new { t(".help") }
       end
-      render Components::Feeds::Twitch::SwitchedAwayField.new(subscription: @subscription)
+      div(class: "hidden group-has-[option:checked]/categories:block") do
+        render Components::Feeds::Twitch::SwitchedAwayField.new(subscription: @subscription)
+      end
     end
   end
 

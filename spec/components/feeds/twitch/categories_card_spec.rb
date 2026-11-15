@@ -44,4 +44,11 @@ RSpec.describe Components::Feeds::Twitch::CategoriesCard do
     expect(document.element_children.first.element_children.last.at_css("input[name='subscription[switched_away]']")).to be_present
     expect(document.at_css("details")).to be_nil
   end
+
+  it "hides the switched-away choice until a category is picked" do
+    wrapper = document.at_css("input[name='subscription[switched_away]']").ancestors("div").find { |div| div["class"].to_s.include?("hidden") }
+
+    expect(wrapper["class"]).to include("hidden", "group-has-[option:checked]/categories:block")
+    expect(document.element_children.first["class"]).to include("group/categories")
+  end
 end
