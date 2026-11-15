@@ -15,7 +15,7 @@ en:
         body: "%{author} posted an image in %{channel}. [Jump to message](%{jump_url})."
         kick_note: The member was kicked; a kick can't be undone.
         meta:
-          flagged: Flagged for review - no automatic action taken.
+          flagged: This is only an alert, the image was not deleted.
           removed: The message was deleted automatically.
         prior_verdict:
           confirmed: Staff here have already confirmed this image as a scam.
@@ -58,7 +58,8 @@ en:
           body: "%{reporter} reported an image posted by %{author} in %{channel} as
             a scam. The bot will remember it."
           meta:
-            kept: The message was left in place - automatic removal is turned off.
+            kept: The message was left in place - Scam Image Detection is set to "Only
+              alert staff".
             removed: The message was deleted.
           title: Image reported as a scam
         none: That message has no images to report.

@@ -14,7 +14,7 @@ RSpec.describe Components::Feeds::Twitch::SwitchedAwayField do
 
   it "offers both modes in order" do
     expect(document.css("button[data-segmented-target=option]").map { |button| [button["data-value"], button.text] }).to eq(
-      [["summary", "Show the switch"], ["delete", "Delete the post"]]
+      [["summary", "Show the switch"], ["delete", "Delete until it switches back"]]
     )
   end
 

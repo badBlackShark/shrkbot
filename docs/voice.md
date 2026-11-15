@@ -366,6 +366,15 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | Dialog body `shrkbot deletes your account and all data tied to it. This cannot be undone.` / button `Delete my account` | `This cannot be undone.` / `Delete account` | The title already asks "Delete your account?"; the body keeps only the consequence, and the button matches the card title. |
 | `User was banned.` / `User was kicked.` / `User was timed out until %{until}.` (Discord alerts) | `The member was banned.` / `The member was kicked.` / `The member was timed out until %{until}.` | Member, not user. The scam alert beside it already said "The member was kicked". |
 | `Notify-only - no messages were deleted.` / `Cross-channel spam purged` (Discord alerts) | `This is only an alert, no messages were deleted.` / `Cross-channel spam deleted` | The alert says what the setting did without quoting a label that may change. Delete, never purge. |
+| `Only a server admin can switch this plugin on or off.` (plugin row, Twilight Struggle page) | `Only a server admin can enable or disable this plugin.` | Plugins are enabled and disabled; on and off are for options inside them. |
+| `Preview doesn't save - add shrkbot to your server to turn plugins on there.` | `Preview doesn't save - add shrkbot to your server to enable plugins there.` | Same vocabulary rule. |
+| `Flagged for review - no automatic action taken.` (Discord scam-image alert) | `This is only an alert, the image was not deleted.` | Matches the "Only alert staff" mode the site names, and says what happened to the image. |
+| `The message was left in place - automatic removal is turned off.` (Discord scam-image report log) | `The message was left in place - Scam Image Detection is set to "Only alert staff".` | Names the setting the reader can find on the site instead of describing it. |
+| `Server-wide restrictions, allowed channels, cooldown and post lifetime` (LFG) | `Server-wide restrictions, allowed channels, wait between posts, and post lifetime` | The field is labelled "Wait between posts"; the subtitle now uses the same words. |
+| `How long a member must wait between posts. Set to 0 to disable the cooldown.` (LFG) | `Set to 0 for no wait.` | The label already says what the field is; the help only needs the zero case. |
+| `Delete the post` (Twitch, when the stream switches category) | `Delete until it switches back` | The post comes back when the category does, and the label has to say so. |
+| `Several` (badge on a collapsed role set) | `Pick several` / `Pick one` | The segment label has no noun beside a set name. The badge has its own keys; the segmented control keeps "One" and "Several". |
+| `people like you that want more power than Discord` (home) | `people like you who want more power than Discord` | People take "who". |
 
 ## Kept on purpose
 

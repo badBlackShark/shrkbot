@@ -433,7 +433,7 @@ en:
         switched_away_field:
           label: When the stream switches to another category
           modes:
-            delete: Delete the post
+            delete: Delete until it switches back
             summary: Show the switch
           preview: Preview
         type_fields:
@@ -468,8 +468,7 @@ en:
       defaults_card:
         cooldown:
           default: 300 seconds (5 minutes)
-          help: How long a member must wait between posts. Set to 0 to disable the
-            cooldown.
+          help: Set to 0 for no wait.
           label: Wait between posts
           unit: seconds
         excluded:
@@ -487,7 +486,8 @@ en:
         required:
           label: Who can post
           placeholder: Everyone
-        subtitle: Server-wide restrictions, allowed channels, cooldown and post lifetime
+        subtitle: Server-wide restrictions, allowed channels, wait between posts,
+          and post lifetime
         title: Rules for every role
       pingable_role_card:
         channel:
@@ -683,7 +683,7 @@ en:
         bot owner on Discord or via %{email}.
       new: New
     plugin_row:
-      admin_only: Only a server admin can switch this plugin on or off.
+      admin_only: Only a server admin can enable or disable this plugin.
       configure: Configure
       needs_setup_hint: Required settings missing
       not_manageable: You can't configure this plugin on this server.
@@ -709,8 +709,8 @@ en:
           name: Twitch
         welcomes:
           name: Welcomes
-      preview_locked: Preview doesn't save - add shrkbot to your server to turn plugins
-        on there.
+      preview_locked: Preview doesn't save - add shrkbot to your server to enable
+        plugins there.
       status:
         disabled: Disabled
         enabled: Enabled
@@ -744,6 +744,9 @@ en:
           add: Add role set
           label: Role sets
       role_set_card:
+        badge:
+          multi: Pick several
+          single: Pick one
         channel:
           label: Channel override
           optional: "(optional)"
@@ -1051,7 +1054,7 @@ en:
         server."
       bespoke_plugins_pre: 'shrkbot also supports '
       botname: shrkbot
-      lede: shrkbot is designed for people like you that want more power than Discord
+      lede: shrkbot is designed for people like you who want more power than Discord
         gives them, while respecting your members' privacy.
       plugins_eyebrow: Example plugins
       preview: Preview features
@@ -1192,7 +1195,7 @@ en:
           empty_title: No tournaments yet
           gate_message: Enable Twilight Struggle to subscribe this server to tournaments.
           title: Twilight Struggle
-          toggle_admin_only: Only a server admin can switch this plugin on or off.
+          toggle_admin_only: Only a server admin can enable or disable this plugin.
       twitch:
         show:
           title: Twitch

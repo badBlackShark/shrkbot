@@ -25,6 +25,10 @@ RSpec.describe Components::Moderation::ImageScanningForm do
     expect(html).to include('id="image_scanning-config"')
   end
 
+  it "places the report-a-scam callout after the settings cards" do
+    expect(html.index("Report a scam yourself")).to be > html.index('name="image_scanning[confirmed_punishment]"')
+  end
+
   it "renders the consent callout" do
     expect(html).to include("Detection can be wrong")
   end

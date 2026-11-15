@@ -9,10 +9,10 @@ class Components::Moderation::ImageScanningForm < Components::Base
   def view_template
     render Components::ConfigSections.new(key: "image_scanning", enable_error: @enable_error) do
       consent_callout
-      report_scam_callout
       sensitivity_card
       custom_keywords_card
       response_card
+      report_scam_callout
       image_explainer
     end
   end

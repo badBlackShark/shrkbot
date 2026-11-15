@@ -37,7 +37,7 @@ class Components::Roles::RoleSetCard < Components::Base
       div(class: "min-w-0 flex-1") do
         div(class: "flex items-center gap-2") do
           span(class: "truncate text-sm font-semibold") { @data.name.presence || t(".unnamed") }
-          render Components::Badge.new(variant: :brand, shape: :pill) { t(".mode.#{@data.selection_mode}") }
+          render Components::Badge.new(variant: :brand, shape: :pill) { t(".badge.#{@data.selection_mode}") }
         end
         p(class: "mt-0.5 truncate text-xs text-text-muted") { subtitle }
       end
