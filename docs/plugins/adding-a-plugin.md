@@ -99,7 +99,7 @@ backstops it. `key` is read back as a symbol; branch on `:welcomes` in code.
 `requires_plugin:` names another plugin that must be enabled and set up (its own
 prerequisites met) before this one can enable.
 `parent:` marks the plugin as a member of a `PluginCatalog::GROUPS` group (a `Group` is
-just a key and a name). A group is not a plugin: it has no activation and no toggle, its
+a key, a name and a description). A group is not a plugin: it has no activation and no toggle, its
 dashboard row has no toggle or badge and is lit while any member is on, and its overview
 page subclasses `Views::Servers::GroupShow`. A member's `prerequisite` is typically a
 shared group setting, linked from the member page's step list. Example: the Server

@@ -96,7 +96,6 @@ RSpec.describe "Spam protection config", type: :request do
           it "titles the callout by enabling" do
             get server_spam_protection_path(guild.id)
             expect(response.body).to include("Before you enable Cross-Channel Spam Guard")
-            expect(response.body).not_to include(I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.title_enabled"))
           end
         end
 

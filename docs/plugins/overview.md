@@ -36,7 +36,7 @@ and validations (e.g. the @everyone-visibility check on a logging channel).
 ## Plugin catalog and activation
 
 `PluginCatalog` (`app/models/plugin_catalog.rb`) is the single source of plugin
-metadata — a frozen list of `Definition`s (key, name, description, channel_setting) plus the `GROUPS` that gather members under one page (key and name).
+metadata — a frozen list of `Definition`s (key, name, description, channel_setting) plus the `GROUPS` that gather members under one page (key, name and description).
 Don't hardcode the plugin list anywhere else. It drives the
 `db:seed` of the `Plugin` table, prerequisite checks, and the channel-backed registry.
 

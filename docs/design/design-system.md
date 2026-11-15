@@ -187,7 +187,7 @@ beside the title, e.g. the Twilight Struggle tournament switcher.
 
 ### Plugin groups
 
-A plugin *group* is a `PluginCatalog::Group` (key and name): the parent of every
+A plugin *group* is a `PluginCatalog::Group` (key, name and description): the parent of every
 definition with `parent:` set. A group is not a plugin, so it has no activation and no
 toggle. Server Shield (`:moderation`) and Integrations (`:integrations`) are the current
 ones. A group's page subclasses `Views::Servers::GroupShow` (no header toggle,
