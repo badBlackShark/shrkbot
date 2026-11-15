@@ -5,7 +5,9 @@ require "rails_helper"
 RSpec.describe Components::Feeds::Steam::UpdateTypesNote do
   include_context "component view context"
 
-  subject(:note) { Nokogiri::HTML5.fragment(described_class.new(subscription:).render_in(view_context)).at_css("[data-controller=live-warning]") }
+  subject(:region) { Nokogiri::HTML5.fragment(described_class.new(subscription:).render_in(view_context)).at_css("[data-controller=live-warning]") }
+
+  let(:note) { region.at_css("[data-live-warning-target=callout]") }
 
   let(:subscription) { build(:steam_feed_subscription) }
   let(:followed) { ["Integrations::Steam::PatchNotesPublished"] }
@@ -13,13 +15,13 @@ RSpec.describe Components::Feeds::Steam::UpdateTypesNote do
   before { followed.each { |type| subscription.subscribed_events.build(event_type: type) } }
 
   it "watches both update-type toggles for exactly one being on" do
-    expect(JSON.parse(note["data-live-warning-fields-value"])).to eq(
+    expect(JSON.parse(region["data-live-warning-fields-value"])).to eq(
       [
         "subscription[event_types][Integrations::Steam::PatchNotesPublished]",
         "subscription[event_types][Integrations::Steam::AnnouncementPublished]"
       ]
     )
-    expect(note["data-live-warning-rule-value"]).to eq("exactly-one")
+    expect(region["data-live-warning-rule-value"]).to eq("exactly-one")
   end
 
   it "shows when only patch notes are followed" do

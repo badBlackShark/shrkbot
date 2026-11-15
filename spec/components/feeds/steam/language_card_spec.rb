@@ -24,12 +24,22 @@ RSpec.describe Components::Feeds::Steam::LanguageCard do
   end
 
   describe "the English note" do
-    let(:note) { document.at_css("[data-controller=live-warning]") }
+    let(:region) { document.at_css("[data-controller=live-warning]") }
+    let(:note) { region.at_css("[data-live-warning-target=callout]") }
+
+    it "sits below the language select and its help" do
+      help = document.at_css("select[name='subscription[languages][]']").ancestors("div").first.at_css("p")
+      expect(document.to_html.index("data-controller=\"live-warning\"")).to be > document.to_html.index(help.text)
+    end
+
+    it "announces itself through a status region" do
+      expect(region["role"]).to eq("status")
+    end
 
     it "watches the language field for a pick without English" do
-      expect(JSON.parse(note["data-live-warning-fields-value"])).to eq(["subscription[languages][]"])
-      expect(note["data-live-warning-rule-value"]).to eq("excludes-all")
-      expect(JSON.parse(note["data-live-warning-list-value"])).to eq(["en"])
+      expect(JSON.parse(region["data-live-warning-fields-value"])).to eq(["subscription[languages][]"])
+      expect(region["data-live-warning-rule-value"]).to eq("excludes-all")
+      expect(JSON.parse(region["data-live-warning-list-value"])).to eq(["en"])
     end
 
     it "shows for languages without English" do

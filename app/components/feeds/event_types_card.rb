@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 class Components::Feeds::EventTypesCard < Components::Base
-  def initialize(subscription:, plugin_key:, type_fields: nil)
+  def initialize(subscription:, plugin_key:, type_fields: nil, footer: nil)
     @subscription = subscription
     @plugin_key = plugin_key
     @type_fields = type_fields
+    @footer = footer
   end
 
   def view_template(&)
@@ -12,6 +13,7 @@ class Components::Feeds::EventTypesCard < Components::Base
       h2(class: "font-semibold") { t(".what_title") }
       yield if block_given?
       ::Feeds.source(@plugin_key).event_types.each { |event_type| event_type_row(event_type) }
+      render @footer if @footer
     end
   end
 

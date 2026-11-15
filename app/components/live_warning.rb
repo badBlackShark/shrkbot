@@ -10,7 +10,9 @@ class Components::LiveWarning < Components::Base
   end
 
   def view_template(&)
-    render Components::Callout.new(variant: :warning, hidden: !@shown, data: wiring, **@attrs, &)
+    div(role: "status", data: wiring) do
+      render Components::Callout.new(variant: :warning, hidden: !@shown, data: {live_warning_target: "callout"}, **@attrs, &)
+    end
   end
 
   private

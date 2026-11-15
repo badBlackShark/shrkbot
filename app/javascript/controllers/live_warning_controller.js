@@ -3,6 +3,7 @@ import { warningApplies, watchedValues } from "lib/live_warning"
 
 // Tom Select mirrors a pick onto the underlying <select> and fires a bubbling change.
 export default class extends Controller {
+  static targets = ["callout"]
   static values = { fields: Array, rule: String, list: Array }
 
   connect() {
@@ -17,6 +18,6 @@ export default class extends Controller {
 
   update = () => {
     const values = watchedValues(this.form, this.fieldsValue)
-    this.element.hidden = !warningApplies(this.ruleValue, values, this.listValue)
+    this.calloutTarget.hidden = !warningApplies(this.ruleValue, values, this.listValue)
   }
 }

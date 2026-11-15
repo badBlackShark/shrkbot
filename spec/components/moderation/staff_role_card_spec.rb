@@ -86,14 +86,14 @@ RSpec.describe Components::Moderation::StaffRoleCard do
     end
 
     it "is hidden while no role is saved" do
-      expect(warning.key?("hidden")).to be(true)
+      expect(warning.at_css("[data-live-warning-target=callout]").key?("hidden")).to be(true)
     end
 
     context "when the saved role lacks Manage Messages" do
       let(:staff_role_id) { 501 }
 
       it "shows the warning text" do
-        expect(warning.key?("hidden")).to be(false)
+        expect(warning.at_css("[data-live-warning-target=callout]").key?("hidden")).to be(false)
         expect(warning.text).to include("This role can't see staff commands.")
       end
     end
@@ -102,7 +102,7 @@ RSpec.describe Components::Moderation::StaffRoleCard do
       let(:staff_role_id) { 502 }
 
       it "is hidden" do
-        expect(warning.key?("hidden")).to be(true)
+        expect(warning.at_css("[data-live-warning-target=callout]").key?("hidden")).to be(true)
       end
     end
 
@@ -110,7 +110,7 @@ RSpec.describe Components::Moderation::StaffRoleCard do
       let(:staff_role_id) { 999 }
 
       it "is hidden" do
-        expect(warning.key?("hidden")).to be(true)
+        expect(warning.at_css("[data-live-warning-target=callout]").key?("hidden")).to be(true)
       end
     end
   end

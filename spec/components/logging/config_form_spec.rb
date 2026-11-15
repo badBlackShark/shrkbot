@@ -38,7 +38,7 @@ RSpec.describe Components::Logging::ConfigForm do
       end
 
       it "renders the warning" do
-        expect(warning.key?("hidden")).to be(false)
+        expect(warning.at_css("[data-live-warning-target=callout]").key?("hidden")).to be(false)
       end
     end
 
@@ -51,7 +51,7 @@ RSpec.describe Components::Logging::ConfigForm do
       end
 
       it "hides the warning" do
-        expect(warning.key?("hidden")).to be(true)
+        expect(warning.at_css("[data-live-warning-target=callout]").key?("hidden")).to be(true)
       end
     end
   end

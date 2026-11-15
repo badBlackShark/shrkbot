@@ -11,6 +11,8 @@ RSpec.describe Components::LiveWarning do
     ).at_css("[data-controller=live-warning]")
   end
 
+  let(:callout) { warning.at_css("[data-live-warning-target=callout]") }
+
   let(:shown) { true }
 
   it "wires the fields, rule and list to the controller" do
@@ -19,15 +21,22 @@ RSpec.describe Components::LiveWarning do
     expect(JSON.parse(warning["data-live-warning-list-value"])).to eq(["1", "2"])
   end
 
-  it "is visible when shown" do
+  it "is a polite status region" do
+    expect(warning["role"]).to eq("status")
     expect(warning.key?("hidden")).to be(false)
+  end
+
+  it "shows the callout when shown" do
+    expect(callout.key?("hidden")).to be(false)
+    expect(callout.text).to include("Careful")
   end
 
   context "when not shown" do
     let(:shown) { false }
 
-    it "is hidden" do
-      expect(warning.key?("hidden")).to be(true)
+    it "hides the callout inside the region, not the region" do
+      expect(callout.key?("hidden")).to be(true)
+      expect(warning.key?("hidden")).to be(false)
     end
   end
 end
