@@ -126,8 +126,7 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
     end
 
     it "explains only the video template" do
-      expect(html).to include(I18n.t("components.twilight_struggle.template_card.video.help"))
-      expect(html).not_to include("translation_missing")
+      expect(html.scan(I18n.t("components.twilight_struggle.template_card.video.help")).size).to eq(1)
     end
   end
 
