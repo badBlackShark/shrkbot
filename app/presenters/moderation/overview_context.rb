@@ -12,7 +12,7 @@ module Moderation
 
     def logging_ready?
       enabled_keys.include?(:logging) &&
-        @config.logging_settings&.channel_id.present?
+        PluginCatalog.find(:logging).prerequisites_met?(@config, enabled_keys:)
     end
 
     def staff_role_id

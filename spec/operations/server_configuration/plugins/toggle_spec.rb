@@ -11,6 +11,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
   let(:welcomes) { create(:plugin, key: "welcomes", name: "Welcomes") }
   let(:moderation) { create(:plugin, key: "moderation", name: "Server Shield") }
   let(:spam_protection) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
+  let(:image_scanning) { create(:plugin, key: "image_scanning", name: "Scam Image Detection") }
 
   def activate(plugin)
     create(:plugin_activation, server_configuration: server, plugin:, enabled: false).tap do |activation|
@@ -52,7 +53,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
 
     it "is refused until the channel is configured" do
       expect(result.failure?).to be(true)
-      expect(result.errors.first).to match(/required settings/)
+      expect(result.errors).to eq(["Logging needs a channel."])
       expect(server.plugin_activations).to be_empty
     end
 
@@ -120,7 +121,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
 
     it "is refused until the channel is configured" do
       expect(result.failure?).to be(true)
-      expect(result.errors.first).to match(/required settings/)
+      expect(result.errors).to eq(["Roles needs a channel."])
     end
   end
 
@@ -143,7 +144,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
 
     it "is refused until the channel is configured" do
       expect(result.failure?).to be(true)
-      expect(result.errors.first).to match(/required settings/)
+      expect(result.errors).to eq(["Welcomes needs a channel."])
     end
   end
 
@@ -216,6 +217,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
   context "while Server Shield is on" do
     let(:plugin) { logging }
     let(:enabled) { false }
+    let(:shield_message) { "Server Shield needs Logging enabled, with a log channel. Disable Server Shield first." }
 
     before do
       server.create_logging_settings!(channel_id: 999)
@@ -224,7 +226,7 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     end
 
     it "refuses to turn Logging off and leaves it on" do
-      expect(result.errors).to eq(["Server Shield is on and depends on these settings. Turn Server Shield off first."])
+      expect(result.errors).to eq([shield_message])
       expect(server.plugin_activations.find_by(plugin: logging).reload.enabled).to be(true)
     end
 
@@ -233,8 +235,8 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
 
       before { server.logging_settings.channel_id = nil }
 
-      it "refuses" do
-        expect(result.errors).to eq(["Logging can't be enabled until its required settings are configured."])
+      it "refuses to leave Server Shield without its log channel" do
+        expect(result.errors).to eq([shield_message])
       end
     end
   end
@@ -242,13 +244,14 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
   context "while a Server Shield sub-plugin is on" do
     let(:plugin) { moderation }
     let(:enabled) { true }
-    let(:dependent_message) { ["Cross-Channel Spam Guard is on and depends on these settings. Turn Cross-Channel Spam Guard off first."] }
+    let(:dependent_message) { ["Cross-Channel Spam Guard and Scam Image Detection need a staff role. Disable them first."] }
 
     before do
       server.create_logging_settings!(channel_id: 999)
       server.create_moderation_settings!(staff_role_id: 5)
       activate(logging)
       activate(spam_protection)
+      activate(image_scanning)
     end
 
     context "when Server Shield is on and the staff role is cleared in memory" do
@@ -284,6 +287,38 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
         expect(result.success?).to be(true)
         expect(result.value.enabled).to be(false)
       end
+    end
+  end
+
+  context "when Logging is already enabled and was already blocked" do
+    let(:plugin) { logging }
+    let(:enabled) { true }
+
+    before do
+      server.create_logging_settings!(channel_id: 999)
+      activate(logging)
+      server.logging_settings.update_columns(channel_id: nil)
+    end
+
+    it "saves, so a lost channel never locks the plugin" do
+      expect(result.success?).to be(true)
+      expect(server.plugin_activations.find_by(plugin:).reload.enabled).to be(true)
+    end
+  end
+
+  context "when Server Shield was already blocked before enabling Logging" do
+    let(:plugin) { logging }
+    let(:enabled) { true }
+
+    before do
+      server.create_logging_settings!(channel_id: 999)
+      activate(logging)
+      activate(moderation)
+      server.logging_settings.update_columns(channel_id: nil)
+    end
+
+    it "does not block the save" do
+      expect(result.success?).to be(true)
     end
   end
 

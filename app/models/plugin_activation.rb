@@ -5,7 +5,7 @@ class PluginActivation < ApplicationRecord
   belongs_to :plugin
 
   validates :plugin_id, uniqueness: {scope: :server_configuration_id}
-  validate :enabling_requires_prerequisites
+  validate :enabling_requires_prerequisites, if: :will_save_change_to_enabled?
 
   scope :enabled_for, ->(key) { joins(:plugin).where(enabled: true, plugins: {key: key.to_s}) }
 

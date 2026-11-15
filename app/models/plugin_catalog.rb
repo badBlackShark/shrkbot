@@ -97,6 +97,18 @@ class PluginCatalog
     all.select { |definition| definition.requires_plugin == key || definition.parent == key }
   end
 
+  def self.dependents_broken_by(key, server_configuration, enabled_keys:)
+    blocked = dependents_of(key)
+      .select { |dependent| enabled_keys.include?(dependent.key) }
+      .to_h { |dependent| [dependent, dependent.blockers(server_configuration, enabled_keys:) - [:parent_disabled]] }
+      .reject { |_dependent, blockers| blockers.empty? }
+    return [] if blocked.empty?
+
+    saved = ::ServerConfiguration.find(server_configuration.id)
+    saved_keys = saved.enabled_plugin_keys
+    blocked.select { |dependent, blockers| (blockers - dependent.blockers(saved, enabled_keys: saved_keys)).any? }.keys
+  end
+
   def self.visible_for(server_configuration)
     granted = BespokePluginGrant.granted_keys(server_configuration)
     DEFINITIONS.reject { |definition| definition.bespoke && !granted.include?(definition.key) }

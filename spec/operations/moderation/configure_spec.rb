@@ -86,7 +86,7 @@ RSpec.describe Ops::Moderation::Configure do
 
     it "fails naming the sub-plugin" do
       expect(result).to be_failure
-      expect(result.errors).to eq(["Cross-Channel Spam Guard is on and depends on these settings. Turn Cross-Channel Spam Guard off first."])
+      expect(result.errors).to eq(["Cross-Channel Spam Guard needs a staff role. Disable Cross-Channel Spam Guard first."])
     end
 
     it "does not save the cleared staff_role_id" do

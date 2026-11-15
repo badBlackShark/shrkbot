@@ -124,7 +124,7 @@ RSpec.describe "Logging config", type: :request do
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :logging)).to be(false)
           expect(response.body).to include("logging-config")
-          expect(response.body).to include("required settings are configured")
+          expect(response.body).to include("needs a channel.")
         end
 
         it "falls back to a redirect without Turbo" do

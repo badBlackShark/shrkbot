@@ -166,6 +166,46 @@ RSpec.describe PluginCatalog do
     end
   end
 
+  describe ".dependents_broken_by" do
+    subject(:broken) { described_class.dependents_broken_by(:logging, server, enabled_keys:) }
+
+    let(:server) { create(:server_configuration) }
+    let(:enabled_keys) { [:logging, :moderation] }
+
+    before do
+      server.create_logging_settings!(channel_id: 999)
+    end
+
+    context "when the log channel was cleared in memory only" do
+      before { server.logging_settings.channel_id = nil }
+
+      it "returns the newly blocked dependent" do
+        expect(broken.map(&:key)).to eq([:moderation])
+      end
+    end
+
+    context "when the log channel was already missing in the database" do
+      before do
+        server.logging_settings.update_columns(channel_id: nil)
+        server.reload
+      end
+
+      it "returns nothing" do
+        expect(broken).to be_empty
+      end
+    end
+
+    context "when the blocked dependent is not enabled" do
+      let(:enabled_keys) { [:logging] }
+
+      before { server.logging_settings.channel_id = nil }
+
+      it "returns nothing" do
+        expect(broken).to be_empty
+      end
+    end
+  end
+
   describe ".sub_plugin?" do
     it "returns true for :spam_protection" do
       expect(described_class.sub_plugin?(:spam_protection)).to be(true)

@@ -31,11 +31,19 @@ en:
             set.
           spam_protection: "%{plugin} needs a staff role. Set one on the Server Shield
             overview."
+        requires_channel: "%{plugin} needs a channel."
         requires_parent: "%{plugin} is part of %{parent}. Turn %{parent} on first."
         requires_settings: "%{plugin} can't be enabled until its required settings
           are configured."
-        still_needed: "%{dependent} is on and depends on these settings. Turn %{dependent}
-          off first."
+        still_needed:
+          logging:
+            one: "%{dependents} needs Logging enabled, with a log channel. Disable
+              %{dependents} first."
+            other: "%{dependents} need Logging enabled, with a log channel. Disable
+              them first."
+          moderation:
+            one: "%{dependents} needs a staff role. Disable %{dependents} first."
+            other: "%{dependents} need a staff role. Disable them first."
     twilight_struggle:
       destinations:
         post_delay_invalid: Posting delay must be a whole number of minutes between

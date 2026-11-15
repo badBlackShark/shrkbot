@@ -100,12 +100,14 @@ settings on top.
 `:parent_disabled`, `:requires_plugin`, `:channel_missing`, `:prerequisite`;
 `prerequisites_met?` is `blockers.empty?`. `Ops::ServerConfiguration::Plugins::Toggle` is
 the only writer of `PluginActivation#enabled` (except `Ensure` creating disabled rows
-and preview seeding, see `docs/web/preview.md`). It refuses an enable with the first
-blocker's message (`requires_parent`, else
+and preview seeding, see `docs/web/preview.md`). It refuses an enable only on a real off-to-on change, with the first
+blocker's message (`requires_parent`, `requires_channel`, else
 `operations.server_configuration.plugins.requires.<key>` when present - add the key to
-`ignore_unused` group 7 - else `requires_settings`), and refuses any change that leaves
-an enabled plugin from `PluginCatalog.dependents_of(key)` with a blocker other than
-`:parent_disabled` (`still_needed`). A settings op assigns its settings, then calls
+`ignore_unused` group 7 - else `requires_settings`). It also refuses a save that newly
+breaks an enabled dependent from `PluginCatalog.dependents_of(key)`
+(`PluginCatalog.dependents_broken_by`, message `still_needed.<key>`); a dependent that was
+already blocked before the save does not block it, so a plugin that lost a prerequisite
+elsewhere can still be saved. A settings op assigns its settings, then calls
 `save_with_activation`, so Toggle checks the submitted values before anything saves. The
 `PluginActivation` validation stays as the backstop.
 

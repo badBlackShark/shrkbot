@@ -27,33 +27,36 @@ module Ops
         end
 
         def enabling_refusal(activation)
-          return unless activation.enabled?
+          return unless activation.enabled? && activation.enabled_changed?
 
           blocker = definition.blockers(server_configuration).first
           requirement_message(blocker) if blocker
         end
 
         def requirement_message(blocker)
-          if blocker == :parent_disabled
-            I18n.t("operations.server_configuration.plugins.requires_parent", plugin: plugin.name, parent: PluginCatalog.find(definition.parent).name)
+          case blocker
+          when :parent_disabled
+            plugins_t("requires_parent", parent: PluginCatalog.find(definition.parent).name)
+          when :channel_missing
+            plugins_t("requires_channel")
           else
-            I18n.t(
-              "operations.server_configuration.plugins.requires.#{plugin.key}",
-              plugin: plugin.name,
-              default: I18n.t("operations.server_configuration.plugins.requires_settings", plugin: plugin.name)
-            )
+            plugins_t("requires.#{plugin.key}", default: plugins_t("requires_settings"))
           end
         end
 
         def dependent_refusal(activation)
-          enabled_keys = prospective_keys(activation)
-          dependent = PluginCatalog.dependents_of(plugin.key).find { |candidate| still_needs?(candidate, enabled_keys) }
-          I18n.t("operations.server_configuration.plugins.still_needed", dependent: dependent.name) if dependent
+          broken = PluginCatalog.dependents_broken_by(
+            plugin.key,
+            server_configuration,
+            enabled_keys: prospective_keys(activation)
+          )
+          return if broken.empty?
+
+          plugins_t("still_needed.#{plugin.key}", count: broken.size, dependents: broken.map(&:name).to_sentence)
         end
 
-        def still_needs?(dependent, enabled_keys)
-          enabled_keys.include?(dependent.key) &&
-            (dependent.blockers(server_configuration, enabled_keys:) - [:parent_disabled]).any?
+        def plugins_t(key, **options)
+          I18n.t("operations.server_configuration.plugins.#{key}", plugin: plugin.name, **options)
         end
 
         def prospective_keys(activation)

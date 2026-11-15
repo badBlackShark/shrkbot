@@ -232,7 +232,7 @@ RSpec.describe "Server dashboard", type: :request do
       it "refuses to enable a plugin missing its prerequisites" do
         logging
         patch server_plugin_path(guild.id, "logging"), params: {enabled: true}, **turbo
-        expect(response.body).to match(/required settings/)
+        expect(response.body).to include("Logging needs a channel.")
         expect(config.plugin_activations).to be_empty
       end
 

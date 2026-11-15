@@ -302,6 +302,8 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `requires a staff role set on the Server Shield overview` | `%{plugin} needs a staff role. Set one on the Server Shield overview.` | Same fragment fault. The requirement and the fix now get one sentence each. |
 | `A staff role is required while a sub-plugin is enabled.` / `can't be turned off or lose its channel while Server Shield is enabled` | `%{dependent} is on and depends on these settings. Turn %{dependent} off first.` | Neither named the plugin that blocked the change, so the reader could not find the way out. One sentence now covers every plugin that another plugin depends on. |
 | `requires the plugin's settings to be configured first` (config page) | `%{plugin} can't be enabled until its required settings are configured.` | The config page showed the model's fragment, and the dashboard showed a full sentence for the same refusal. Both now come from Toggle. |
+| `%{dependent} is on and depends on these settings. Turn %{dependent} off first.` | `%{dependents} needs Logging enabled, with a log channel. Disable %{dependents} first.` / `%{dependents} needs a staff role. Disable %{dependents} first.` (plural: `need ... Disable them first.`) | "These settings" pointed at nothing, the message named one dependent when several could be blocked, and it said on/off for a plugin. Now it names the missing thing and every dependent it breaks. |
+| `%{plugin} can't be enabled until its required settings are configured.` (shown for a missing channel) | `%{plugin} needs a channel.` | A missing channel got the generic settings message. It now names the one thing to set. |
 
 ## Kept on purpose
 

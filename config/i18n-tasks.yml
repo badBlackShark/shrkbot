@@ -108,6 +108,10 @@ ignore_unused:
   - operations.server_configuration.plugins.requires.moderation
   - operations.server_configuration.plugins.requires.spam_protection
   - operations.server_configuration.plugins.requires.image_scanning
+  - operations.server_configuration.plugins.still_needed.logging.one
+  - operations.server_configuration.plugins.still_needed.logging.other
+  - operations.server_configuration.plugins.still_needed.moderation.one
+  - operations.server_configuration.plugins.still_needed.moderation.other
 
 search:
   paths:

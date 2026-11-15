@@ -34,7 +34,7 @@ RSpec.describe Ops::Logging::Settings::Update do
 
     it "fails with an error on the enabled field and persists nothing" do
       expect(result).to be_failure
-      expect(result.errors).to eq(["Logging can't be enabled until its required settings are configured."])
+      expect(result.errors).to eq(["Logging needs a channel."])
       expect(config.plugin_activations.reload).to be_empty
     end
   end
