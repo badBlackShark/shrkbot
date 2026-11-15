@@ -81,15 +81,15 @@ en:
           title: Add a channel
       custom_message_field:
         label: Message (optional)
-        placeholder: Shown above the card. Leave it empty to post the card alone.
+        placeholder: Shown above the card.
         preview: Preview
       destination_card:
         channel_label: Channel (required)
         channel_placeholder: Choose a channel
-        where_title: Where to post
+        role_label: Role to ping
+        role_placeholder: No ping
       event_type_setting:
-        channel_label: Channel (optional)
-        channel_placeholder: Same as "Where to post"
+        settings_label: "%{type} settings"
       event_types:
         announcement_published:
           help: The developer's other posts on Steam.
@@ -99,8 +99,11 @@ en:
             games this is most of the news.
           label: Articles
         clip_created:
+          help: Big channels get dozens to hundreds of clips per stream, and each
+            one is a post.
           label: All clips
         featured_clip_published:
+          help: Only clips featured within 48 hours of being made get posted.
           label: Featured clips
         highlight_published:
           label: New highlight
@@ -111,12 +114,13 @@ en:
           label: Going live
         upload_published:
           label: New upload
-      event_types_card:
-        what_title: What to post
       notification_field:
         label: Push notification text
         preview: Push notification
         reset: Reset to default
+      override_fields:
+        channel_label: Channel override
+        channel_placeholder: Same as above
       placeholders:
         steam:
           author: Who wrote the post. Empty when Steam doesn't say.
@@ -129,11 +133,6 @@ en:
           clipper: Who made the clip.
           streamer: The channel's name on Twitch.
           title: The title of the stream, video or clip.
-      role_field:
-        role_label: Role to ping (optional)
-        role_placeholder: No ping
-      settings_disclosure:
-        summary: Settings
       steam:
         language_card:
           help: Leave empty to post every language. shrkbot can't tell the language
@@ -341,7 +340,6 @@ en:
             feed: PC Gamer
             title: Our review of the 1.0 release
           patch_notes_published:
-            author: ''
             body: |-
               Fixed controller vibration on Steam Deck.
               Rebalanced the second boss.
@@ -447,9 +445,9 @@ en:
             summary: Show it switched
           preview: Preview
         type_fields:
-          clip_warning: Big channels get dozens to hundreds of clips per stream, and
-            each one is a post.
-          featured_window: Only clips featured within 48 hours of being made get posted.
+          no_ping: No ping
+          role_label: Role override
+          role_placeholder: Same as above
         viewers_toggle:
           label: Show the viewer count
       volume_line:
@@ -1283,8 +1281,6 @@ en:
           title: Cross-Channel Spam Guard
       steam:
         show:
-          description: Posts new patch notes, announcements and press coverage of
-            the Steam games you follow.
           title: Steam
       twilight_struggle:
         destinations:
@@ -1310,8 +1306,6 @@ en:
           toggle_admin_only: Only a server admin can switch this plugin on or off.
       twitch:
         show:
-          description: Announces when the Twitch channels you follow go live, and
-            posts their highlights, uploads, and clips.
           title: Twitch
       welcomes:
         show:

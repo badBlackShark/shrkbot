@@ -12,7 +12,6 @@ class Components::Feeds::TemplateField < Components::Base
     div(class: "flex flex-col gap-3", data: {feed_preview_field: true}) do
       label_row
       textarea_field
-      placeholder_help
       preview
     end
   end
@@ -42,7 +41,7 @@ class Components::Feeds::TemplateField < Components::Base
   end
 
   def textarea_data
-    {feed_preview_target: "template", action: "input->feed-preview#render", tokens: samples.tokens(token_names).to_json}
+    {feed_preview_target: "template", action: "input->feed-preview#render", tokens: preview_tokens.to_json}
   end
 
   def placeholder
@@ -53,14 +52,12 @@ class Components::Feeds::TemplateField < Components::Base
     @samples ||= source::PreviewSamples.new(watch_name: @subscription.watch.name, event_type: @event_type)
   end
 
-  def placeholder_help
-    render Components::PlaceholderSection.new do
-      render Components::PlaceholderChips.new(tokens: placeholders)
-    end
+  def preview_tokens
+    source.template_tokens.index_with { "" }.merge(samples.tokens(token_names))
   end
 
-  def placeholders
-    token_names.index_with { |name| t("components.feeds.placeholders.#{@plugin_key}.#{name}") }
+  def token_names
+    source.tokens_for(@event_type)
   end
 
   def preview

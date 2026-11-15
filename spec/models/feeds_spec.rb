@@ -29,7 +29,7 @@ RSpec.describe Feeds do
     end
 
     it "gives every source notification tokens with the title and a default text per event type" do
-      expect(sources).to all(satisfy { |source| source.notification_tokens.include?("title") && source.event_types.all? { |type| source.default_notification(type).present? } })
+      expect(sources).to all(satisfy { |source| source.template_tokens.include?("title") && source.event_types.all? { |type| source.default_notification(type).present? } })
     end
 
     it "gives every source a follow-cap message" do
@@ -42,6 +42,34 @@ RSpec.describe Feeds do
 
     it "gives every source an announcement builder" do
       expect(sources).to all(respond_to(:announcement, :retract?, :revive?))
+    end
+    it "gives every source its web form contract" do
+      expect(sources).to all(respond_to(:lookup_param, :settings_params, :settings_from))
+    end
+  end
+
+  describe "Steam settings_from" do
+    subject(:settings) { Feeds::Steam.settings_from(params) }
+
+    let(:params) { ActionController::Parameters.new(role_id: "1", body_length: "300", languages: "english").permit! }
+
+    it "casts the languages to an array" do
+      expect(settings[:languages]).to eq(["english"])
+    end
+
+    it "looks apps up by the app param" do
+      expect(Feeds::Steam.lookup_param).to eq(:app)
+    end
+  end
+
+  describe "Twitch settings_from" do
+    subject(:settings) { Feeds::Twitch.settings_from(params) }
+
+    let(:category) { {"id" => "509658", "name" => "Just Chatting"} }
+    let(:params) { ActionController::Parameters.new(show_viewers: "1", admin: "1", categories: [Feeds::Twitch::CategoryValue.dump(category)]).permit! }
+
+    it "gives categories as values and drops unpermitted settings" do
+      expect(settings).to eq({show_viewers: "1", categories: [category]})
     end
   end
 

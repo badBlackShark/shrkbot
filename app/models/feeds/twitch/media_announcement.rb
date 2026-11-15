@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     class MediaAnnouncement < Feeds::Announcement
       include ProfileHeader
 
@@ -25,10 +25,6 @@ module Feeds
 
       def header_texts
         [eyebrow, heading, details]
-      end
-
-      def eyebrow
-        Bot::Discord::Components.text("-# #{event.display_name} · #{self.class::LABELS.fetch(event.type)}")
       end
 
       def image

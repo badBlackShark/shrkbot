@@ -46,7 +46,8 @@ ActiveRecordDoctor.configure do
       "feed_twitch_settings.highlights_role_id",
       "feed_twitch_settings.uploads_role_id",
       "feed_twitch_settings.featured_clips_role_id",
-      "feed_twitch_settings.clips_role_id"
+      "feed_twitch_settings.clips_role_id",
+      "feed_twitch_settings.role_id"
     ]
 
   # The unique index on external_id is partial (WHERE external_id IS NOT NULL) because

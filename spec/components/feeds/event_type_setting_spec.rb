@@ -16,24 +16,35 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   let(:event_type) { "Integrations::Steam::PatchNotesPublished" }
   let(:event) { subscription.subscribed_events.build(event_type:) }
 
-  it "scopes the viewer-count preview switch to its own type" do
-    expect(html).to start_with('<div class="group/type"')
+  let(:document) { Nokogiri::HTML.fragment(html) }
+  let(:card) { document.element_children.first }
+  let(:body) { card.at_css("[data-type-card-target=body]") }
+  let(:chevron) { card.at_css("button[data-type-card-target=chevron]") }
+
+  it "is the card, controlled by type-card and scoped to its own type" do
+    expect(card["data-controller"]).to eq("type-card")
+    expect(card["class"]).to include("group/type")
+    expect(card).to have_attribute("data-feed-preview-scope")
+    expect(card["data-type-card-key-value"]).to eq("feeds-message-1145350-patch_notes_published")
   end
 
   it "shows the type's help line" do
     expect(html).to include("Posts the developer tagged as patch notes.")
   end
 
-  it "wires the toggle to sync the disclosure" do
-    expect(html).to include('data-action="change->disclosure#sync"')
+  it "wires the checked toggle to open and close the card" do
+    toggle = card.at_css("input[type=checkbox]")
+
+    expect(toggle.attributes.keys).to include("data-type-toggle", "checked")
+    expect(toggle["data-type-card-target"]).to eq("toggle")
+    expect(toggle["data-action"]).to eq("change->type-card#sync")
   end
 
-  it "keys the remembered disclosure by game and type" do
-    expect(html).to include('data-disclosure-key-value="feeds-message-1145350-patch_notes_published"')
-  end
-
-  it "lets the disclosure read the toggle, which is on for a followed type" do
-    expect(html).to include('data-disclosure-target="toggle"').and match(/ checked[ >=]/)
+  it "hides the body behind the chevron" do
+    expect(body).to have_attribute("hidden")
+    expect(chevron["aria-controls"]).to eq(body["id"])
+    expect(chevron["aria-expanded"]).to eq("false")
+    expect(chevron["aria-label"]).to eq("Patch notes settings")
   end
 
   context "when the type is not followed" do
@@ -53,14 +64,16 @@ RSpec.describe Components::Feeds::EventTypeSetting do
     end
   end
 
-  it "shows the custom message field inside the disclosure" do
-    expect(html).to include('data-disclosure-target="details"', "Settings", "subscription[choices][#{event_type}][template]")
+  it "orders the body: channel override, message, push text" do
+    expect(body.css("select, textarea").map { |field| field["name"] }).to eq(
+      ["subscription[choices][#{event_type}][channel_id]", "subscription[choices][#{event_type}][template]", "subscription[choices][#{event_type}][notification]"]
+    )
+    expect(body.text).to include("Channel override")
+    expect(body.to_html).to include("Same as above")
   end
 
-  it "puts the type's channel before the message fields" do
-    names = Nokogiri::HTML.fragment(html).css("select, textarea").map { |field| field["name"] }
-
-    expect(names.first).to eq("subscription[choices][#{event_type}][channel_id]")
+  it "lists the placeholders once" do
+    expect(html.scan(/data-clipboard-text-param="\{(\w+)\}"/).flatten).to eq(%w[game feed title])
   end
 
   context "with a channel of its own" do
@@ -77,22 +90,14 @@ RSpec.describe Components::Feeds::EventTypeSetting do
     end
   end
 
-  it "scopes the role pill of its fields to itself" do
-    root = Nokogiri::HTML.fragment(html).at_css("[data-controller=disclosure]")
-    expect(root.attributes).to have_key("data-feed-preview-scope")
-  end
-
   context "with a source that has per-type fields" do
     let(:plugin_key) { :twitch }
     let(:event_type) { "Integrations::Twitch::HighlightPublished" }
     let(:subscription) { build(:feed_subscription, :twitch) }
     let(:extra) { {type_fields: Components::Feeds::Twitch::TypeFields} }
 
-    it "renders them inside the disclosure before the text fields, under a settings summary" do
-      details = Nokogiri::HTML.fragment(html).at_css("[data-disclosure-target=details]")
-
-      expect(details.at_css("summary").text).to include("Settings")
-      expect(details.css("select, textarea").map { |field| field["name"] }).to eq(
+    it "renders them in the body before the text fields" do
+      expect(body.css("select, textarea").map { |field| field["name"] }).to eq(
         ["subscription[choices][#{event_type}][channel_id]", "subscription[highlights_role_id]", "subscription[choices][#{event_type}][template]", "subscription[choices][#{event_type}][notification]"]
       )
     end
@@ -107,6 +112,24 @@ RSpec.describe Components::Feeds::EventTypeSetting do
 
       it "puts the notification text before the end mode" do
         expect(html.index("[notification]")).to be < html.index("live_end_mode")
+      end
+    end
+
+    context "with all clips" do
+      let(:event_type) { "Integrations::Twitch::ClipCreated" }
+
+      it "puts the volume warning in the header, outside the body" do
+        expect(body.text).not_to include("dozens to hundreds of clips")
+        expect(html).to include("Big channels get dozens to hundreds of clips per stream, and each one is a post.")
+      end
+    end
+
+    context "with featured clips" do
+      let(:event_type) { "Integrations::Twitch::FeaturedClipPublished" }
+
+      it "puts the 48-hour note in the header, outside the body" do
+        expect(body.text).not_to include("48 hours")
+        expect(html).to include("Only clips featured within 48 hours of being made get posted.")
       end
     end
   end

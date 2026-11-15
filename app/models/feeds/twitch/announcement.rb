@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     class Announcement < Feeds::Announcement
       include ProfileHeader
 
@@ -40,10 +40,6 @@ module Feeds
 
       def header_texts
         [eyebrow, heading, details]
-      end
-
-      def eyebrow
-        Bot::Discord::Components.text("-# #{event.display_name} · Live on Twitch")
       end
 
       def details

@@ -5,12 +5,11 @@ class Components::Feeds::DestinationCard < Components::Base
     @subscription = subscription
   end
 
-  def view_template(&)
+  def view_template
     render Components::Card.new do
-      h2(class: "mb-3 font-semibold") { t(".where_title") }
       div(class: "flex flex-wrap gap-4") do
         div(class: "flex-1 basis-64") { channel_field }
-        yield if block_given?
+        div(class: "flex-1 basis-64") { role_field }
       end
     end
   end
@@ -25,6 +24,16 @@ class Components::Feeds::DestinationCard < Components::Base
       label: t(".channel_label"),
       placeholder: t(".channel_placeholder"),
       required: true
+    )
+  end
+
+  def role_field
+    render Components::Feeds::RoleField.new(
+      subscription: @subscription,
+      name: "subscription[role_id]",
+      selected: @subscription.settings.role_id,
+      label: t(".role_label"),
+      placeholder: t(".role_placeholder")
     )
   end
 end

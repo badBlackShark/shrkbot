@@ -25,6 +25,7 @@ export default class extends Controller {
     const url = this.searchUrlValue
     return {
       maxItems: this.maxItemsValue || null,
+      clearAfterSelect: true,
       searchField: [],
       score: () => () => 1,
       loadThrottle: 300,

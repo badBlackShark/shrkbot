@@ -30,6 +30,19 @@ RSpec.describe "Twitch config", type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to include("No channels yet")
         end
+
+        context "with the page header" do
+          subject(:twitch_page) { get plugin_path }
+
+          let(:heading) { Nokogiri::HTML(response.body).at_css("h1").text.strip }
+
+          it "carries Twitch's own title and description" do
+            twitch_page
+
+            expect(heading).to eq("Twitch")
+            expect(response.body).to include("Announces when the Twitch channels you follow go live, and posts their highlights, uploads, and clips.")
+          end
+        end
       end
 
       describe "PATCH /servers/:server_id/twitch" do
@@ -41,6 +54,16 @@ RSpec.describe "Twitch config", type: :request do
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
           expect(response.body).to include(%(id="twitch-config"))
           expect(config.enabled_plugin_keys).to include(:twitch)
+        end
+
+        context "without a Turbo Stream" do
+          subject(:toggle) { patch plugin_path, params: {twitch: {enabled: "1"}} }
+
+          it "redirects back to the Twitch page, not the first feed source's" do
+            toggle
+
+            expect(response).to redirect_to(plugin_path)
+          end
         end
       end
     end

@@ -16,12 +16,7 @@ RSpec.describe Components::Feeds::CustomMessageField do
   it "renders the textarea with the stored text and the hint as placeholder" do
     expect(html).to include('name="subscription[choices][Integrations::Steam::PatchNotesPublished][template]"')
     expect(html).to include(">Hot take: {game}</textarea>")
-    expect(html).to include('placeholder="Shown above the card. Leave it empty to post the card alone."')
-  end
-
-  it "renders one copy chip per token, and only game, author and feed" do
-    chips = html.scan(/data-clipboard-text-param="\{(\w+)\}"/).flatten
-    expect(chips).to eq(%w[game author feed])
+    expect(html).to include('placeholder="Shown above the card."')
   end
 
   it "offers no role placeholder" do
@@ -32,26 +27,15 @@ RSpec.describe Components::Feeds::CustomMessageField do
     expect(html).to include('data-feed-preview-target="output"', "data-feed-preview-field", "Hades II", "Hades II · Patch notes", "Patch 1.4")
   end
 
-  context "with Twitch" do
-    subject(:html) { described_class.new(subscription:, plugin_key: :twitch, event_type:, event: nil).render_in(view_context) }
+  describe "the preview tokens" do
+    let(:tokens) { JSON.parse(Nokogiri::HTML.fragment(html).at_css("textarea")["data-tokens"]) }
 
-    let(:subscription) { build(:feed_subscription, :twitch) }
-    let(:chips) { html.scan(/data-clipboard-text-param="\{(\w+)\}"/).flatten }
-
-    context "with a highlight" do
-      let(:event_type) { "Integrations::Twitch::HighlightPublished" }
-
-      it "offers neither the category nor the clipper" do
-        expect(chips).to eq(%w[streamer title])
-      end
+    it "blanks a token the type does not have, as the post does" do
+      expect(tokens).to include("author" => "")
     end
 
-    context "with a clip" do
-      let(:event_type) { "Integrations::Twitch::ClipCreated" }
-
-      it "offers the clipper" do
-        expect(chips).to eq(%w[streamer category title clipper])
-      end
+    it "keeps the sample of a token the type has" do
+      expect(tokens).to include("title" => "Patch 1.4: Controller fixes")
     end
   end
 
