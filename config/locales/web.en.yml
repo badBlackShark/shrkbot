@@ -53,6 +53,8 @@ en:
       label: Bespoke
     bespoke_plugins_link:
       label: Bespoke Plugins
+    breadcrumb:
+      label: Breadcrumb
     channel_card:
       none: No channels have synced yet. shrkbot needs to be in the server first.
       placeholder: Choose a channel
