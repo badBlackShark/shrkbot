@@ -1,21 +1,27 @@
 # frozen_string_literal: true
 
 class Components::TwilightStruggle::SettingCardBase < Components::Base
+  HELP = "mt-0.5 text-sm text-text-secondary"
+
   def initialize(destination:, inherited:)
     @destination = destination
     @inherited = inherited
   end
 
   def view_template
-    render Components::Card.new do
+    render Components::Card.new(class: "group/setting") do
       p(class: "text-sm font-semibold") { t(".label") }
-      p(class: "mb-3 mt-0.5 text-sm text-text-secondary") { t(".help") }
-      control
+      help
+      div(class: "mt-3") { control }
       inherit_note
     end
   end
 
   private
+
+  def help
+    p(class: HELP) { t(".help") }
+  end
 
   def parent
     @inherited.inherited_from
@@ -28,7 +34,7 @@ class Components::TwilightStruggle::SettingCardBase < Components::Base
   def inherit_note
     return unless parent
 
-    p(class: "mt-2 text-xs text-text-secondary") { inherit_note_text }
+    render Components::TwilightStruggle::InheritNote.new { inherit_note_text }
   end
 
   def inherit_note_text

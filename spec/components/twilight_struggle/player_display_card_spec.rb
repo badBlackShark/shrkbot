@@ -25,6 +25,15 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
       expect(html).not_to include("uses")
     end
 
+    it "shows the tag note only while a tag option is pressed" do
+      note = Nokogiri::HTML5.fragment(html).css("p").find { |line| line.text == "Missing tags fall back to player names. Tags don't ping." }
+      expect(note["class"].split).to include(
+        "hidden",
+        "group-has-[[data-value=tag][aria-pressed=true]]/setting:block",
+        "group-has-[[data-value=name\\_and\\_tag][aria-pressed=true]]/setting:block"
+      )
+    end
+
     context "when name and tag is selected" do
       let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, player_display: "name_and_tag") }
 

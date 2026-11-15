@@ -25,15 +25,18 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
       name: "destination[discord_channel_id]",
       channels:,
       selected: @destination.discord_channel_id,
-      label: t(".channel.label"),
-      help: channel_help
-    )
+      label: t(".channel.label")
+    ) do
+      channel_note
+    end
   end
 
-  def channel_help
-    return t(".channel.help_inherited", channel: inherited_channel_label) if inherited_channel_label
+  def channel_note
+    return unless inherited_channel_label
 
-    t(".channel.help")
+    render Components::TwilightStruggle::InheritNote.new do
+      t(".channel.inherits_from", parent: inherited.source_of(:discord_channel_id).name, channel: inherited_channel_label)
+    end
   end
 
   def template_card(kind)

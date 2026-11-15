@@ -7,7 +7,7 @@ class Components::TwilightStruggle::TournamentSwitcher < Components::Base
   end
 
   def view_template
-    return current_only if others.empty?
+    return if others.empty?
 
     details(class: "group relative", data: {controller: "dropdown"}) do
       summary(
@@ -16,7 +16,7 @@ class Components::TwilightStruggle::TournamentSwitcher < Components::Base
           "bg-surface-card px-3 text-sm font-semibold transition-colors hover:bg-surface-sunken " \
           "[&::-webkit-details-marker]:hidden"
       ) do
-        span(class: "whitespace-nowrap") { @current.tournament.name }
+        span(class: "whitespace-nowrap") { t(".label") }
         render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 text-text-muted")
       end
       menu
@@ -25,17 +25,12 @@ class Components::TwilightStruggle::TournamentSwitcher < Components::Base
 
   private
 
-  def current_only
-    render Components::Badge.new(variant: :copper) { @current.tournament.name }
-  end
-
   def menu
     div(
       data: {dropdown_target: "menu"},
       class: "dropdown-menu absolute right-0 top-10 z-40 w-72 overflow-hidden rounded-lg border " \
         "border-border-default bg-surface-card py-1.5 shadow-lg"
     ) do
-      p(class: "px-3 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-widest text-eyebrow") { t(".label") }
       others.each { |destination| row(destination) }
     end
   end

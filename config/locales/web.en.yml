@@ -787,24 +787,18 @@ en:
         archived: Archived
       config_form:
         archive:
-          help: Hides it from this server's list. It is not an off switch - a result
-            that still arrives is still posted here.
+          help: Hides this tournament from the list. Results will still be posted;
+            unsubscribe to stop.
           label: Archive this tournament
         channel:
-          help: Where results for this tournament are posted. With no channel, nothing
-            is posted.
-          help_inherited: Where results for this tournament are posted. Leave empty
-            to use %{channel}, inherited from the tournament above.
+          inherits_from: "%{parent} posts in %{channel}."
           label: Results channel
       destination_actions:
         configure: Configure
         subscribe: Subscribe
         unsubscribe: Unsubscribe
       player_display_card:
-        help: How players appear in posted results. Tag only keeps a player's real
-          name out of the channel, but falls back to it for anyone who isn't on this
-          server or whose Discord ID twilight-struggle.com doesn't send. Tags never
-          notify anyone.
+        help: Missing tags fall back to player names. Tags don't ping.
         inherit: Inherit
         inherits_default: No parent tournament sets this, so it defaults to "%{setting}".
         inherits_from: '%{parent} uses "%{setting}".'
@@ -813,16 +807,12 @@ en:
         name_and_tag: Name and tag
         tag: Tag only
       post_delay_card:
-        help: How long shrkbot waits after a result is reported before posting it,
-          so it can't spoil a stream that's still running. Edits to a result that
-          is already posted show up immediately. Changing the delay doesn't affect
-          results that are already waiting.
+        help: Wait this long after a result is reported before posting, to avoid spoiling
+          live streams.
         inherits_default: No parent tournament sets a delay, so results post immediately.
         inherits_from:
-          one: "%{parent} uses a %{count}-minute delay. Leave the field empty to use
-            the same here."
-          other: "%{parent} uses a %{count}-minute delay. Leave the field empty to
-            use the same here."
+          one: "%{parent} uses a %{count}-minute delay."
+          other: "%{parent} uses a %{count}-minute delay."
         label: Posting delay
       template_card:
         empty: Nothing will be sent.
@@ -830,15 +820,13 @@ en:
         reset_to_default: Reset to default
         reset_to_parent: Reset to parent
         tie:
-          help: Used when the game ended in a tie.
           label: Tie
         video:
-          help: Used whenever the result comes with a video, ahead of the other two.
-            Keep it spoiler-free - no winner, turn or method.
-          label: Game with a video
+          help: If a result comes with a video, this template is used over the other
+            two. Keeping it spoiler-free is highly recommended.
+          label: Result with a video
         win:
-          help: Used when one player won.
-          label: Decided game
+          label: A player won
       token_help_card:
         groups:
           game: Game
@@ -846,45 +834,40 @@ en:
           usa: USA
           ussr: USSR
           winner: Winner
+        tie_note: All following placeholders are empty on a tie.
         tokens:
-          game_id: The game's code on twilight-struggle.com, such as G372.
-          losing_flag: The losing player's flag. Empty on a tie.
-          losing_name: The losing player's name, without their flag. Empty on a tie.
-          losing_player: The losing player's name and flag. Empty on a tie.
-          losing_rating_after: The losing player's rating after the game. Empty on
-            a tie.
-          losing_rating_before: The losing player's rating before the game. Empty
-            on a tie.
-          losing_rating_change: The losing player's rating change, signed, such as
-            -12. Empty on a tie.
-          losing_side: USA or USSR, whichever lost. Empty on a tie.
+          game_id: The game's code on twilight-struggle.com, e.g. G372.
+          losing_flag: The losing player's flag.
+          losing_name: The losing player's name, without their flag.
+          losing_player: The losing player's name and flag.
+          losing_rating_after: The losing player's rating after the game.
+          losing_rating_before: The losing player's rating before the game.
+          losing_rating_change: The losing player's rating change, signed, e.g. -12.
+          losing_side: USA or USSR, whichever lost.
           tournament_name: The tournament's name.
-          turn: The turn the game ended on, such as Turn 7. Turn 11 reads Final Scoring.
+          turn: The turn the game ended on, e.g. Turn 7. Turn 11 reads Final Scoring.
           usa_flag: The USA player's flag.
           usa_name: The USA player's name, without their flag.
           usa_player: The USA player's name and flag.
           usa_rating_after: The USA player's rating after the game.
           usa_rating_before: The USA player's rating before the game.
-          usa_rating_change: The USA player's rating change, signed, such as +12.
+          usa_rating_change: The USA player's rating change, signed, e.g. +12.
           ussr_flag: The USSR player's flag.
           ussr_name: The USSR player's name, without their flag.
           ussr_player: The USSR player's name and flag.
           ussr_rating_after: The USSR player's rating after the game.
           ussr_rating_before: The USSR player's rating before the game.
-          ussr_rating_change: The USSR player's rating change, signed, such as +12.
-          videos: The video links, separated by spaces. Discord builds the embed.
-          winning_flag: The winning player's flag. Empty on a tie.
-          winning_method: How the game ended, such as VP Track (+20).
-          winning_name: The winning player's name, without their flag. Empty on a
-            tie.
-          winning_player: The winning player's name and flag. Empty on a tie.
-          winning_rating_after: The winning player's rating after the game. Empty
-            on a tie.
-          winning_rating_before: The winning player's rating before the game. Empty
-            on a tie.
-          winning_rating_change: The winning player's rating change, signed, such
-            as +12. Empty on a tie.
-          winning_side: USA or USSR, whichever won. Empty on a tie.
+          ussr_rating_change: The USSR player's rating change, signed, e.g. +12.
+          videos: The video links, separated by spaces.
+          winning_flag: The winning player's flag.
+          winning_method: How the game ended, e.g. VP Track (+20).
+          winning_name: The winning player's name, without their flag.
+          winning_player: The winning player's name and flag.
+          winning_rating_after: The winning player's rating after the game.
+          winning_rating_before: The winning player's rating before the game.
+          winning_rating_change: The winning player's rating change, signed, e.g.
+            +12.
+          winning_side: USA or USSR, whichever won.
       tournament_row:
         archived: Archived
         closed: Closed
@@ -1137,16 +1120,11 @@ en:
       twilight_struggle:
         destinations:
           edit:
-            description: Where this server posts this tournament's results and how
-              they read. You can set all of it up before subscribing.
             prerequisites:
               cta: Open Twilight Struggle
-              message: Twilight Struggle is switched off for this server, so nothing
-                is posted anywhere yet.
-              title: The plugin is disabled
+              message: Nothing is posted until you enable it.
+              title: Twilight Struggle is disabled
             subscribe: Post %{tournament} results in this server
-            title: Twilight Struggle
-            tournaments: Tournaments
         show:
           empty_archived: Nothing has been archived.
           empty_body: twilight-struggle.com has not sent any tournaments yet. They

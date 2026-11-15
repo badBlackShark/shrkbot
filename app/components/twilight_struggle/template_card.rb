@@ -23,10 +23,16 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
     div(class: "mb-2 flex items-start justify-between gap-3") do
       div do
         label(class: "block text-sm font-semibold") { t(".#{@kind}.label") }
-        p(class: "mt-0.5 text-sm text-text-secondary") { t(".#{@kind}.help") }
+        help
       end
       reset_button
     end
+  end
+
+  def help
+    return unless @kind == :video
+
+    p(class: "mt-0.5 text-sm text-text-secondary") { t(".video.help") }
   end
 
   def reset_button
@@ -46,6 +52,7 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
     render Components::TemplateTextarea.new(
       name: "destination[template_#{@kind}]",
       value: @value,
+      rows: 4,
       placeholder: t(".empty"),
       data: {twilight_struggle_preview_target: "#{@kind}Template", default: @inherited}
     )

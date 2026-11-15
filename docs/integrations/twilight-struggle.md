@@ -66,7 +66,7 @@ walks that one server's destinations up the tournament lineage to resolve the
 channel, the three templates, and the ping setting.
 `EffectiveConfig.new(tournament.parent)` is nil-safe and is the idiom for "what
 this tournament would inherit if it set nothing" — the config UI uses it for the
-template pre-fill and the ping help line.
+template pre-fill and for the notes that name what a field inherits.
 
 **Posted messages key on (game, `server_configuration`), never on the destination.**
 The effective destination can be an *ancestor* tournament's row, so keying on it

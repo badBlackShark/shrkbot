@@ -218,6 +218,19 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           )
         end
 
+        context "the page heading" do
+          subject(:page) do
+            get edit_server_twilight_struggle_destination_path(guild.id, tournament)
+            Nokogiri::HTML5(response.body)
+          end
+
+          it "names the tournament, with Twilight Struggle before it in the breadcrumb" do
+            crumbs = page.css("nav").find { |nav| nav.text.include?("OTSL 2026") }.css("a, span").map { |crumb| crumb.text.strip }
+            expect(page.css("h1").map { |heading| heading.text.strip }).to eq(["OTSL 2026"])
+            expect(crumbs.last(2)).to eq(["Twilight Struggle", "OTSL 2026"])
+          end
+        end
+
         it "lists what to fix above an editable form while the plugin is off" do
           get edit_server_twilight_struggle_destination_path(guild.id, tournament)
           expect(response.body).to include(I18n.t("views.servers.twilight_struggle.destinations.edit.prerequisites.title"))

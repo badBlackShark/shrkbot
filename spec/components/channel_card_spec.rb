@@ -8,8 +8,7 @@ RSpec.describe Components::ChannelCard do
       name: "welcomes[channel_id]",
       channels:,
       selected:,
-      label: "Channel",
-      help: "Pick a channel."
+      label: "Channel"
     ).render_in(view_context)
   end
 
@@ -17,8 +16,8 @@ RSpec.describe Components::ChannelCard do
   let(:channels) { [Components::TomSelect::Option.for(value: 111, label: "general")] }
   let(:selected) { nil }
 
-  it "renders the label and help text" do
-    expect(html).to include("Channel").and include("Pick a channel.")
+  it "renders the label" do
+    expect(html).to include("Channel")
   end
 
   it "renders the channel select when channels are present" do
@@ -30,23 +29,6 @@ RSpec.describe Components::ChannelCard do
     expect(html).not_to include("aria-required")
   end
 
-  context "without help" do
-    subject(:html) do
-      described_class.new(
-        name: "welcomes[channel_id]",
-        channels:,
-        selected:,
-        label: "Channel"
-      ).render_in(view_context)
-    end
-
-    let(:fragment) { Nokogiri::HTML.fragment(html) }
-
-    it "renders no help line" do
-      expect(fragment.css("p")).to be_empty
-    end
-  end
-
   context "when required: true" do
     subject(:html) do
       described_class.new(
@@ -54,7 +36,6 @@ RSpec.describe Components::ChannelCard do
         channels:,
         selected:,
         label: "Channel",
-        help: "Pick a channel.",
         required: true
       ).render_in(view_context)
     end
@@ -83,8 +64,7 @@ RSpec.describe Components::ChannelCard do
         name: "welcomes[channel_id]",
         channels:,
         selected:,
-        label: "Channel",
-        help: "Pick a channel."
+        label: "Channel"
       ).render_in(view_context) { "trailing content" }
     end
 
@@ -100,7 +80,6 @@ RSpec.describe Components::ChannelCard do
         channels:,
         selected:,
         label: "Channel",
-        help: "Pick a channel.",
         data: {controller: "my-controller"}
       ).render_in(view_context)
     end
