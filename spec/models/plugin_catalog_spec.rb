@@ -49,7 +49,7 @@ RSpec.describe PluginCatalog do
       let(:key) { :reminders }
 
       it "returns the global plugin's description" do
-        expect(description).to eq("Members set their own reminders with /remind. This plugin can't be disabled.")
+        expect(description).to eq("Members set their own reminders with /remind.")
       end
     end
   end

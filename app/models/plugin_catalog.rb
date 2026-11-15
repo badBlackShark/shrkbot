@@ -63,7 +63,7 @@ class PluginCatalog
   ].freeze
 
   GLOBALS = [
-    Definition.new(key: :reminders, name: "Reminders", description: "Members set their own reminders with /remind. This plugin can't be disabled.")
+    Definition.new(key: :reminders, name: "Reminders", description: "Members set their own reminders with /remind.")
   ].freeze
 
   GLOBAL_KEYS = GLOBALS.map(&:key).freeze

@@ -309,6 +309,7 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Greet new members with a custom message, and say goodbye when they leave.` (home) | `Greet new members and say goodbye when they leave.` | The dashboard wording, now everywhere. |
 | `Tournaments pushed to shrkbot by twilight-struggle.com. Subscribe to the ones you want posted in this server.` (page header) / `Posts results from twilight-struggle.com as they are reported. Subscribe to a tournament, pick its channel, and write the message however you like.` (admin) | `Post results from twilight-struggle.com as they are reported.` | The dashboard wording, now everywhere. The header was instructions for the list below it, which the subscribe buttons and empty state already give. |
 | `Posts new patch notes, announcements and press coverage of the Steam games you follow.` (Steam page header) | `Posts new patch notes, announcements, and press coverage of the Steam games you follow.` | The earlier serial-comma fix reached only the catalog copy. The page header now reads the catalog. |
+| `Members set their own reminders with /remind. This plugin can't be disabled.` (catalog description) | `Members set their own reminders with /remind.` | Said three times on one dashboard row: the sentence, the badge and the locked toggle. It also told signed-out visitors on the home page about a control they cannot see. |
 
 ## Kept on purpose
 
@@ -317,7 +318,6 @@ later.
 
 | Copy | Rule it breaks | Why it stays |
 | --- | --- | --- |
-| `Your server's aegis: automated moderation beyond Discord's AutoMod.` | Colon reveal, and a word some readers will look up. | The personality is the point, and no plainer wording carried it. Deliberate. |
 | `...for you it lives right alongside the functionality you know and love.` | Stock phrase. | The bespoke-plugins page is written in the developer's own voice, first person throughout. It is the one page where personality outranks the rules. |
 | `♥` in the site footer | ASCII over glyphs. | One glyph, one place, load-bearing for the line it sits in. |
 
