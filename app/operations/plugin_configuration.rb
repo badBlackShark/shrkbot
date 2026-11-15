@@ -4,31 +4,30 @@ module Ops
   module PluginConfiguration
     private
 
-    def enabling?
-      truthy?(enabled)
-    end
+    def save_with_activation(settings, publish_menu: true)
+      return failure(settings.errors.full_messages) unless settings.valid?
 
-    def staged_activation
-      activation = server_configuration.plugin_activations.find_or_initialize_by(plugin: Plugin.find_by!(key: plugin_key))
-      activation.enabled = enabled
-      activation
-    end
-
-    def save_activation!(activation)
-      activation.save!
-      return unless activation.saved_change_to_enabled?
-
-      ActiveRecord.after_all_transactions_commit do
-        Bot::ConfigBus.sync_commands(server_configuration)
+      transaction do
+        toggled = toggle_plugin(publish_menu:)
+        if toggled.success?
+          settings.save!
+          yield if block_given?
+        end
+        toggled
       end
+    end
+
+    def toggle_plugin(publish_menu: true)
+      Ops::ServerConfiguration::Plugins::Toggle.call(
+        server_configuration:,
+        plugin: Plugin.find_by!(key: plugin_key),
+        enabled:,
+        publish_menu:
+      )
     end
 
     def plugin_key
       raise AbstractMethodError, "#{self.class} must implement #plugin_key"
-    end
-
-    def messages(*records)
-      records.flat_map { |record| record.errors.full_messages }
     end
   end
 end

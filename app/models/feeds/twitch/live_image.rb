@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     class LiveImage
       PREVIEW_TTL = 1.minute
 

@@ -10,8 +10,6 @@ RSpec.describe Moderation::OverviewContext do
   before do
     config.create_logging_settings!
     config.create_moderation_settings!
-    config.create_spam_protection_settings!
-    config.create_image_scanning_settings!
   end
 
   subject(:context) { described_class.new(config) }
@@ -127,33 +125,6 @@ RSpec.describe Moderation::OverviewContext do
     end
   end
 
-  describe "#staff_role_present?" do
-    context "when staff_role_id is set" do
-      before { config.moderation_settings.update!(staff_role_id: 555) }
-
-      it { expect(context.staff_role_present?).to be(true) }
-    end
-
-    context "when no staff_role_id" do
-      it { expect(context.staff_role_present?).to be(false) }
-    end
-  end
-
-  describe "#group_enabled?" do
-    context "when moderation plugin activation is enabled" do
-      before do
-        create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-          .update_column(:enabled, true)
-      end
-
-      it { expect(context.group_enabled?).to be(true) }
-    end
-
-    context "when moderation plugin is not activated" do
-      it { expect(context.group_enabled?).to be(false) }
-    end
-  end
-
   describe "#logging_channel_name" do
     context "when logging_settings is absent" do
       before { config.logging_settings.destroy! }
@@ -185,97 +156,6 @@ RSpec.describe Moderation::OverviewContext do
 
       it "returns the channel name" do
         expect(context.logging_channel_name).to eq("mod-log")
-      end
-    end
-  end
-
-  describe "#staff_permission_warning?" do
-    subject(:staff_permission_warning) { context.staff_permission_warning? }
-
-    context "when no staff role configured" do
-      it { is_expected.to be(false) }
-    end
-
-    context "when staff_role_id is set but role absent from server_roles" do
-      before { config.moderation_settings.update!(staff_role_id: 999) }
-
-      it { is_expected.to be(false) }
-    end
-
-    context "when configured role has MANAGE_MESSAGES" do
-      before do
-        create(:server_role, server_configuration: config, discord_id: 700, permissions: 8192)
-        config.moderation_settings.update!(staff_role_id: 700)
-      end
-
-      it { is_expected.to be(false) }
-    end
-
-    context "when configured role has no relevant permissions" do
-      before do
-        create(:server_role, server_configuration: config, discord_id: 701, permissions: 0)
-        config.moderation_settings.update!(staff_role_id: 701)
-      end
-
-      it { is_expected.to be(true) }
-    end
-  end
-
-  describe "#toggle_fields" do
-    PluginCatalog.sub_plugin_keys(:moderation).each do |key|
-      it "has fields for the #{key} sub-plugin" do
-        expect(context.toggle_fields(key)).to be_present
-      end
-    end
-
-    context "with spam protection settings" do
-      subject(:fields) { context.toggle_fields(:spam_protection) }
-
-      before { config.spam_protection_settings.update!(channel_threshold: 4, match_symbol_only_messages: symbol_only) }
-
-      context "when symbol-only messages are matched" do
-        let(:symbol_only) { true }
-
-        it "carries every setting as a toggle field" do
-          settings = config.spam_protection_settings
-          expect(fields).to eq(
-            "spam_protection[channel_threshold]" => 4,
-            "spam_protection[window_seconds]" => settings.window_seconds,
-            "spam_protection[similarity]" => settings.similarity,
-            "spam_protection[match_symbol_only_messages]" => "1",
-            "spam_protection[action]" => settings.action,
-            "spam_protection[punishment]" => settings.punishment,
-            "spam_protection[timeout_seconds]" => settings.timeout_seconds
-          )
-        end
-      end
-
-      context "when symbol-only messages are not matched" do
-        let(:symbol_only) { false }
-
-        it "encodes the boolean as 0" do
-          expect(fields).to include("spam_protection[match_symbol_only_messages]" => "0")
-        end
-      end
-    end
-
-    context "with image scanning keywords" do
-      subject(:fields) { context.toggle_fields(:image_scanning) }
-
-      before { config.image_scanning_settings.update!(custom_keywords: ["free nitro", "gift"]) }
-
-      it "carries every setting as a toggle field, the keywords as one array field" do
-        settings = config.image_scanning_settings
-        expect(fields).to eq(
-          "image_scanning[sensitivity]" => settings.sensitivity,
-          "image_scanning[action]" => settings.action,
-          "image_scanning[punishment]" => settings.punishment,
-          "image_scanning[timeout_seconds]" => settings.timeout_seconds,
-          "image_scanning[confirmed_punishment]" => settings.confirmed_punishment,
-          "image_scanning[confirmed_timeout_seconds]" => settings.confirmed_timeout_seconds,
-          "image_scanning[custom_keyword_min_hits]" => settings.custom_keyword_min_hits,
-          "image_scanning[custom_keywords][]" => ["free nitro", "gift"]
-        )
       end
     end
   end

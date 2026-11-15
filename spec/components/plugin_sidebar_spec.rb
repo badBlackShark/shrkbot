@@ -9,28 +9,11 @@ RSpec.describe Components::PluginSidebar do
     described_class.new(server_configuration: config, active_key: :logging, access:).render_in(view_context)
   end
 
-  let(:config) { create(:server_configuration, discord_id: 900_000_001, name:) }
+  let(:config) { create(:server_configuration, discord_id: 900_000_001) }
   let(:user) { create(:user) }
   let(:access) { PluginAccess.new(user:, server_configuration: config, manages_server: true) }
 
-  context "when the server configuration has a name" do
-    let(:name) { "Dev Refuge" }
-
-    it "shows the server name in the back-link" do
-      expect(html).to include("Dev Refuge")
-    end
-  end
-
-  context "when the server configuration has no name" do
-    let(:name) { nil }
-
-    it "falls back to the generic dashboard label" do
-      expect(html).to include("Dashboard")
-    end
-  end
-
   context "when the user may not configure the plugins" do
-    let(:name) { "Dev Refuge" }
     let(:access) { PluginAccess.new(user:, server_configuration: config, manages_server: false) }
 
     it "renders the entries without links and says why" do
@@ -47,8 +30,6 @@ RSpec.describe Components::PluginSidebar do
   end
 
   context "with the moderation group" do
-    let(:name) { "Dev Refuge" }
-
     it "renders Server Shield as a disclosure group with its sub-plugin links" do
       expect(html).to include("Server Shield")
       expect(html).to include("Overview")
@@ -70,7 +51,6 @@ RSpec.describe Components::PluginSidebar do
 
     context "when a sub-plugin is configured but disabled (disabled status)" do
       let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
-      let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
       let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
 
       before do
@@ -78,12 +58,8 @@ RSpec.describe Components::PluginSidebar do
         config.create_moderation_settings!(staff_role_id: 555)
         config.create_spam_protection_settings!
         config.create_image_scanning_settings!
-        # logging enabled so moderation prereqs pass; spam_protection activation NOT enabled
         create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
           .update_column(:enabled, true)
-        create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-          .update_column(:enabled, true)
-        # spam_protection activation exists and is disabled — configured but not enabled
         create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)
       end
 
@@ -98,7 +74,6 @@ RSpec.describe Components::PluginSidebar do
 
     context "when a sub-plugin is enabled (enabled status)" do
       let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
-      let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
       let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
 
       before do
@@ -107,8 +82,6 @@ RSpec.describe Components::PluginSidebar do
         config.create_spam_protection_settings!
         config.create_image_scanning_settings!
         create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
-          .update_column(:enabled, true)
-        create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
           .update_column(:enabled, true)
         create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)
           .update_column(:enabled, true)
@@ -125,7 +98,6 @@ RSpec.describe Components::PluginSidebar do
   end
 
   context "with recently added plugins" do
-    let(:name) { "Dev Refuge" }
     let(:sparkles) { Nokogiri::HTML.fragment(html).css("span.sr-only").select { |node| node.text == "New" } }
 
     before do
@@ -167,7 +139,6 @@ RSpec.describe Components::PluginSidebar do
       described_class.new(server_configuration: config, active_key: :steam, access:).render_in(view_context)
     end
 
-    let(:name) { "Dev Refuge" }
     let(:groups) { Nokogiri::HTML.fragment(html).css("details").to_h { |group| [group.at_css("summary").text.strip, group] } }
 
     it "opens the Integrations group and leaves Server Shield closed" do

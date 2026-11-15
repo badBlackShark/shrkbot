@@ -89,10 +89,15 @@ header toggle *is* the subscription — subscribe and unsubscribe are their own
 `subscriptions` resource, since `destinations#destroy` no longer destroys.
 
 **Pre-filled templates keep inheriting.** The form ships the inherited text in the
-field, so you edit one word instead of retyping, and `Destinations::Update` stores
+field, so you edit one word instead of retyping, and `Destinations::Save` stores
 `nil` when the submitted text is byte-identical to what it would have inherited.
 Both halves are load-bearing: pre-fill alone freezes a copy on first save and
-silently stops a bracket tracking its league.
+silently stops a bracket tracking its league. Typing the inherited wording back by
+hand is therefore the same as a reset. A template column has three states: `nil`
+inherits, `""` posts nothing for that kind of result, any other text overrides. An
+empty or whitespace-only box saves `""`. `Games::Post` skips a result whose template
+is empty, including an edit of a result it already posted (the old message stays),
+and an empty video template never falls back to the win or tie template.
 
 **The plugin's enable toggle is the per-server kill switch.**
 `Ops::TwilightStruggle::Games::Post` needs an enabled plugin *and* a channel. There
@@ -141,14 +146,15 @@ instead, so they leave no failed-execution row.
 
 **Posting can be delayed per destination.** `post_delay_seconds` is inherited down
 the tournament chain like the templates (empty = inherit, explicit 0 = none),
-stored in seconds and set in minutes in the form. The delay counts from the
-payload's `reported_at`, capped at the time shrkbot first received the game, so a
-timestamp from a fast clock never holds a result back longer than the delay. The cap
-is the game's `created_at`, not the current time, because the current time moves on
-every rerun and the cap would never be reached. `PostJob` asks `TwilightStruggle::PostSchedule` how long
-is left and re-enqueues itself with that wait, recomputing it on every run, so
-settings changes apply when the job next runs. A message that is already posted
-is edited immediately.
+stored in seconds and set in minutes or hours in the form (submitted as minutes).
+The delay counts from the payload's `reported_at`, capped at the time shrkbot
+first received the game, so a timestamp from a fast clock never holds a result
+back longer than the delay. The cap is the game's `created_at`, not the current
+time, because the current time moves on every rerun and the cap would never be
+reached. `PostJob` asks `TwilightStruggle::PostSchedule` how long is left and
+re-enqueues itself with that wait, recomputing it on every run, so settings
+changes apply when the job next runs. A message that is already posted is edited
+immediately.
 
 **Fan-out is one `PostJob` per subscribing server**, never one job that loops. A
 `discard_on NoPermission` triggered by a single misconfigured server would

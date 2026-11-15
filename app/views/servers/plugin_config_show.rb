@@ -16,7 +16,7 @@ class Views::Servers::PluginConfigShow < Views::Base
         server_configuration: @config,
         url:,
         toggle:,
-        gate:,
+        prerequisites:,
         channel_lost: channel_lost?,
         parent_crumb:
       ) do
@@ -32,7 +32,7 @@ class Views::Servers::PluginConfigShow < Views::Base
     Components::ConfigPageHeader.new(
       icon:,
       title: t(".title"),
-      description: t(".description"),
+      description: PluginCatalog.description(plugin_key),
       badge:
     )
   end
@@ -49,8 +49,8 @@ class Views::Servers::PluginConfigShow < Views::Base
     {field: "#{plugin_key}[enabled]", enabled: enabled?}
   end
 
-  def gate
-    {type: :enable, message: t(".gate_message")}
+  def prerequisites
+    nil
   end
 
   def enabled?
@@ -62,15 +62,8 @@ class Views::Servers::PluginConfigShow < Views::Base
   end
 
   def parent_crumb
-    {label: PluginCatalog.find(parent_key).name, href: parent_path} if parent_key
-  end
-
-  def parent_path
-    PluginPaths.for(@config, parent_key)
-  end
-
-  def parent_key
-    PluginCatalog.find(plugin_key)&.parent
+    group = PluginCatalog.group(PluginCatalog.find(plugin_key)&.parent)
+    {label: group.name, href: PluginPaths.for(@config, group.key)} if group
   end
 
   def after_config_page

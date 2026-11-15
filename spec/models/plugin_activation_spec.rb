@@ -24,6 +24,18 @@ RSpec.describe PluginActivation do
     it { is_expected.to be_valid }
   end
 
+  context "saving an enabled plugin that lost its channel, enabled unchanged" do
+    let(:enabled) { true }
+
+    before do
+      server.create_welcome_settings!(channel_id: 5)
+      activation.save!
+      server.welcome_settings.update_columns(channel_id: nil)
+    end
+
+    it { is_expected.to be_valid }
+  end
+
   context "disabling, regardless of settings" do
     let(:enabled) { false }
 
@@ -34,7 +46,7 @@ RSpec.describe PluginActivation do
     subject(:enabled_for) { described_class.enabled_for(:steam) }
 
     let(:steam) { create(:plugin, key: "steam") }
-    let!(:integrations_activation) { create(:plugin_activation, server_configuration: server, plugin: create(:plugin, key: "integrations"), enabled: true) }
+    let!(:other_activation) { create(:plugin_activation, server_configuration: server, plugin: create(:plugin, key: "twitch"), enabled: true) }
     let!(:enabled) { create(:plugin_activation, server_configuration: server, plugin: steam, enabled: true) }
 
     before do

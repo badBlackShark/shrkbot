@@ -15,7 +15,7 @@ class Servers::ImageScanningController < ApplicationController
   end
 
   def update
-    result = Ops::Moderation::ImageScanning::Configure.call(
+    result = Ops::Moderation::ImageScanning::Settings::Update.call(
       server_configuration: @server_configuration,
       sensitivity: image_scanning_params[:sensitivity],
       action: image_scanning_params[:action],
@@ -27,8 +27,6 @@ class Servers::ImageScanningController < ApplicationController
       custom_keywords: image_scanning_params[:custom_keywords],
       enabled: image_scanning_params[:enabled]
     )
-    return redirect_to_overview(result) if params[:from_overview]
-
     respond_with_configuration(result)
   end
 

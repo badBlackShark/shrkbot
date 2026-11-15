@@ -33,22 +33,6 @@ RSpec.describe Ops::Feeds::SubscribedEvents::Resume do
     travel_to(now)
   end
 
-  context "when the integrations plugin is the one enabled" do
-    let(:plugin_key) { :integrations }
-
-    it "resets every follow time of the server" do
-      result
-
-      expect(Feeds::SubscribedEvent.where(id: [steam_follow, other_watcher_follow]).pluck(:subscribed_since)).to all(eq(now))
-    end
-
-    it "leaves other servers alone" do
-      result
-
-      expect(foreign_follow.reload.subscribed_since).to eq(long_ago)
-    end
-  end
-
   context "when a source plugin is the one enabled" do
     let(:plugin_key) { :steam }
 
@@ -87,16 +71,6 @@ RSpec.describe Ops::Feeds::SubscribedEvents::Resume do
 
   context "when an unrelated plugin is the one enabled" do
     let(:plugin_key) { :logging }
-
-    it "changes nothing" do
-      result
-
-      expect(Feeds::SubscribedEvent.pluck(:subscribed_since)).to all(eq(long_ago))
-    end
-  end
-
-  context "when another group plugin is the one enabled" do
-    let(:plugin_key) { :moderation }
 
     it "changes nothing" do
       result

@@ -19,8 +19,10 @@ class Views::Servers::TwilightStruggle::Show < Views::Servers::PluginConfigShow
   end
 
   def body
-    render Components::TwilightStruggle::ArchiveFilter.new(server_configuration: @config, archived: @archived)
-    @subscriptions.empty? ? empty : list
+    div(class: "flex flex-col gap-5") do
+      render Components::TwilightStruggle::ArchiveFilter.new(server_configuration: @config, archived: @archived)
+      @subscriptions.empty? ? empty : list
+    end
   end
 
   def empty

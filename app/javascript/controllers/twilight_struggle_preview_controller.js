@@ -42,6 +42,7 @@ export default class extends Controller {
   static targets = [
     "winTemplate", "tieTemplate", "videoTemplate",
     "winOutput", "tieOutput", "videoOutput",
+    "winReset", "tieReset", "videoReset",
     "display",
   ]
 
@@ -51,18 +52,21 @@ export default class extends Controller {
 
   render() {
     for (const kind of Object.keys(GAMES)) {
-      this.paint(this[`${kind}TemplateTarget`], this[`${kind}OutputTarget`], GAMES[kind])
+      const input = this[`${kind}TemplateTarget`]
+      this.paint(input, this[`${kind}OutputTarget`], GAMES[kind])
+      this[`${kind}ResetTarget`].hidden = input.value === input.dataset.default
     }
   }
 
   reset({ params: { kind } }) {
     const input = this[`${kind}TemplateTarget`]
-    input.value = input.placeholder
+    input.value = input.dataset.default
     input.dispatchEvent(new Event("input", { bubbles: true }))
+    input.focus()
   }
 
   paint(input, output, game) {
-    const template = input.value.trim() || input.placeholder
+    const template = input.value.trim()
     output.replaceChildren()
 
     if (!template) {

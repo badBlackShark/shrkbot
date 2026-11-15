@@ -34,34 +34,6 @@ RSpec.describe Components::Feeds::NotificationField do
     end
   end
 
-  it "offers the title chip beside game, author and feed" do
-    chips = html.scan(/data-clipboard-text-param="\{(\w+)\}"/).flatten
-    expect(chips).to eq(%w[game author feed title])
-  end
-
-  context "with Twitch" do
-    subject(:html) { described_class.new(subscription:, plugin_key: :twitch, event_type:, event: nil).render_in(view_context) }
-
-    let(:subscription) { build(:feed_subscription, :twitch) }
-    let(:chips) { html.scan(/data-clipboard-text-param="\{(\w+)\}"/).flatten }
-
-    context "with a highlight" do
-      let(:event_type) { "Integrations::Twitch::HighlightPublished" }
-
-      it "offers neither the category nor the clipper" do
-        expect(chips).to eq(%w[streamer title])
-      end
-    end
-
-    context "with a clip" do
-      let(:event_type) { "Integrations::Twitch::ClipCreated" }
-
-      it "offers the clipper" do
-        expect(chips).to eq(%w[streamer category title clipper])
-      end
-    end
-  end
-
   it "labels the field and offers a reset to the default instead of a help line" do
     button = Nokogiri::HTML5.fragment(html).at_css("button[data-action='feed-preview#reset']")
 

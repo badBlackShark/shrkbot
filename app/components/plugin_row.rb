@@ -3,12 +3,6 @@
 class Components::PluginRow < Components::Base
   include Components::PluginNav
 
-  STATUS_VARIANTS = {
-    enabled: :success,
-    needs_setup: :warning,
-    disabled: :neutral
-  }.freeze
-
   def initialize(server_configuration:, row:)
     @config = server_configuration
     @row = row
@@ -19,7 +13,7 @@ class Components::PluginRow < Components::Base
       identity
       div(class: "ml-auto flex flex-none items-center gap-3") do
         configure_link
-        toggle
+        toggle unless @row.group
       end
     end
   end
@@ -32,11 +26,11 @@ class Components::PluginRow < Components::Base
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { name }
-          status_badge
+          @row.group ? group_count : status_badge
           render Components::BespokeBadge.new if @row.bespoke
           render Components::PluginBadges.new(key: @row.key)
         end
-        p(class: "mt-0.5 text-sm leading-[1.5] text-pretty text-text-secondary") { t(".plugin.#{@row.key}.description") }
+        p(class: "mt-0.5 text-sm leading-[1.5] text-pretty text-text-secondary") { PluginCatalog.description(@row.key) }
       end
     end
   end
@@ -79,15 +73,14 @@ class Components::PluginRow < Components::Base
 
   def status_badge
     if @row.locked
-      render Components::Badge.new(variant: :copper) { t(".status.global") }
-    else
-      render Components::Badge.new(variant: STATUS_VARIANTS.fetch(status), dot: true) { t(".status.#{status}") }
+      render Components::Badge.new(variant: :copper) { t(".status.always_on") }
+    elsif !@row.configured
+      render Components::Badge.new(variant: :warning, dot: true) { t(".status.needs_setup") }
     end
   end
 
-  def status
-    return :needs_setup unless @row.configured
-    @row.enabled ? :enabled : :disabled
+  def group_count
+    render Components::Badge.new(variant: :neutral) { t(".group_count", enabled: @row.members.enabled, total: @row.members.total) }
   end
 
   def configure_link

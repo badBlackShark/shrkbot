@@ -36,7 +36,7 @@ and validations (e.g. the @everyone-visibility check on a logging channel).
 ## Plugin catalog and activation
 
 `PluginCatalog` (`app/models/plugin_catalog.rb`) is the single source of plugin
-metadata — a frozen list of `Definition`s (key, name, description, channel_setting).
+metadata — a frozen list of `Definition`s (key, name, description, channel_setting) plus the `GROUPS` that gather members under one page (key, name and description).
 Don't hardcode the plugin list anywhere else. It drives the
 `db:seed` of the `Plugin` table, prerequisite checks, and the channel-backed registry.
 
@@ -52,13 +52,15 @@ server is first seen.
 
 A **channel-backed** plugin (its `channel_setting` is set) can't be enabled until
 that channel is configured. This is enforced in two places:
-`Ops::ServerConfiguration::Plugins::Toggle` gives the friendly failure, and a
+`Ops::ServerConfiguration::Plugins::Toggle` gives the friendly failure, refuses a change that would leave an enabled dependent unmet (Logging off while a Server Shield protection is on), and a
 `PluginActivation` validation backstops any write that skips the op.
+
+Groups have no activation, so `enabled_plugin_keys` never holds one. The `RemovePluginGroups`
+migration turned off the members of every disabled group and deleted the group rows.
 
 A **bespoke** plugin (`Definition#bespoke`) is hand-activated by the bot owner per
 server rather than self-serve. `bespoke_plugin_grants` (guild ↔ plugin key, cascaded
 off `ServerConfiguration`) records the grant; `PluginCatalog.visible_for` is the filter
 the dashboard/sidebar uses to hide ungranted bespoke plugins entirely, and
 `Bot::GuildCommandSet` requires a grant before registering a bespoke plugin's guild
-commands. `prerequisites_met?` gates on the grant first, so the enable path is
-backstopped the same way as the other prerequisite checks.
+commands. `Definition#blockers` checks the grant first.

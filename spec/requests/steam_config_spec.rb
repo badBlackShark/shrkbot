@@ -10,14 +10,11 @@ RSpec.describe "Steam config", type: :request do
   it_behaves_like "a config page that requires sign-in"
 
   context "when signed in" do
-    let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
     let!(:steam_plugin) { create(:plugin, key: "steam", name: "Steam") }
-    let(:integrations_enabled) { true }
 
     before do
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
-      create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: true) if integrations_enabled
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     end
 
@@ -27,24 +24,23 @@ RSpec.describe "Steam config", type: :request do
       before { get server_path(guild.id) }
 
       describe "GET /servers/:server_id/steam" do
-        context "when Integrations is off" do
-          let(:integrations_enabled) { false }
+        it "links the breadcrumb to Integrations" do
+          get plugin_path
 
-          it "renders the prerequisite gate and a locked toggle" do
-            get plugin_path
-
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to include("Integrations is off")
-            expect(response.body).to include("Go to Integrations")
-            expect(response.body).to include("Turn Integrations on first.")
-          end
+          expect(response.body).to include(server_integrations_path(guild.id))
         end
 
-        context "when Integrations is on and the server follows no games" do
+        context "when the server follows no games" do
           it "renders the empty state" do
             get plugin_path
 
             expect(response.body).not_to include("Part of")
+            expect(response.body).to include("No games yet")
+          end
+
+          it "keeps the route's plugin key over a query parameter" do
+            get plugin_path, params: {plugin_key: "twitch"}
+
             expect(response.body).to include("No games yet")
           end
         end
@@ -143,52 +139,16 @@ RSpec.describe "Steam config", type: :request do
       end
 
       describe "PATCH /servers/:server_id/steam" do
-        subject(:toggle) { patch plugin_path, params: {steam: {enabled: "1"}}.merge(extra_params), **headers }
+        subject(:toggle) { patch plugin_path, params: {steam: {enabled: "1"}}, **headers }
 
-        let(:extra_params) { {} }
         let(:headers) { turbo }
 
-        it "enables Steam when Integrations is on" do
+        it "enables Steam" do
           toggle
 
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
           expect(response.body).to include("steam-config")
           expect(config.enabled_plugin_keys).to include(:steam)
-        end
-
-        context "when Integrations is off" do
-          let(:integrations_enabled) { false }
-
-          it "refuses with the reason rendered" do
-            toggle
-
-            expect(response).to have_http_status(:unprocessable_content)
-            expect(response.body).to include("Steam is part of Integrations. Turn Integrations on first.")
-            expect(config.enabled_plugin_keys).not_to include(:steam)
-          end
-
-          context "without a Turbo Stream" do
-            let(:headers) { {} }
-
-            it "redirects back with the reason as an alert" do
-              toggle
-
-              expect(response).to redirect_to(plugin_path)
-              expect(flash[:alert]).to be_present
-            end
-          end
-        end
-
-        context "when toggled from the overview" do
-          let(:extra_params) { {from_overview: "1"} }
-          let(:headers) { {} }
-
-          it "redirects to the Integrations page" do
-            toggle
-
-            expect(response).to redirect_to(server_integrations_path(guild.id))
-            expect(flash[:notice]).to eq("Steam settings saved.")
-          end
         end
       end
     end

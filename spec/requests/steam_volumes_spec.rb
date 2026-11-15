@@ -9,13 +9,11 @@ RSpec.describe "Steam volume line", type: :request do
   let(:patch_notes) { "Integrations::Steam::PatchNotesPublished" }
   let(:announcements) { "Integrations::Steam::AnnouncementPublished" }
   let(:volume) { Integrations::Volume.new(counts: {patch_notes => 3, announcements => 15}, sample_size: 20) }
-  let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
   let!(:steam_plugin) { create(:plugin, key: "steam", name: "Steam") }
 
   before do
     post "/auth/discord/callback"
     create(:server_configuration, discord_id: guild.id)
-    create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: true)
     create(:plugin_activation, server_configuration: config, plugin: steam_plugin, enabled: true)
     allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     allow(Feeds::VolumeLookup).to receive(:call).with(Integrations::Steam::NewsWatcher, "1145350").and_return(volume)

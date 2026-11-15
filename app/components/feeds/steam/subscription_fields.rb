@@ -9,19 +9,10 @@ class Components::Feeds::Steam::SubscriptionFields < Components::Base
 
   def view_template
     div(class: "contents", data: {controller: "feed-preview"}) do
-      render(Components::Feeds::DestinationCard.new(subscription: @subscription)) do
-        div(class: "flex-1 basis-64") do
-          render Components::Feeds::RoleField.new(
-            subscription: @subscription,
-            name: "subscription[role_id]",
-            selected: @subscription.settings.role_id
-          )
-        end
-      end
-      render(Components::Feeds::EventTypesCard.new(subscription: @subscription, plugin_key: :steam)) do
-        volume_frame
-        render Components::Callout.new(variant: :warning) { t(".what_note") }
-      end
+      render Components::Feeds::DestinationCard.new(subscription: @subscription)
+      volume_frame
+      render Components::Callout.new(variant: :warning) { t(".what_note") }
+      render Components::Feeds::EventTypeList.new(subscription: @subscription, plugin_key: :steam)
       render Components::Feeds::Steam::LanguageCard.new(subscription: @subscription)
       render Components::Feeds::Steam::LengthCard.new(subscription: @subscription)
     end

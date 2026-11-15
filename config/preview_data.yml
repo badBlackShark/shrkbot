@@ -136,9 +136,7 @@ plugins:
       join_message: "Welcome to The Reef, {user} - grab your roles in #roles and introduce yourself whenever you like."
       leave_message: "{user} left The Reef."
 
-  - plugin: moderation
-    settings_association: moderation_settings
-    enabled: true
+  - settings_association: moderation_settings
     settings:
       staff_role_id: 201
       ping_staff: true
@@ -182,9 +180,6 @@ plugins:
       pingable_roles:
         - role_id: 206
         - role_id: 207
-
-  - plugin: integrations
-    enabled: true
 
   - plugin: steam
     enabled: true

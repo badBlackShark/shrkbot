@@ -19,10 +19,7 @@ class Servers::TwilightStruggleController < ApplicationController
   end
 
   def update
-    result = Ops::TwilightStruggle::Configure.call(
-      server_configuration: @server_configuration,
-      enabled: twilight_struggle_params[:enabled]
-    )
+    result = toggle_plugin(twilight_struggle_params[:enabled])
     respond_with_configuration(result)
   end
 

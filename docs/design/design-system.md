@@ -57,7 +57,8 @@ proxy). The login and re-auth pages are not authed, so they sit outside the shel
 and centre themselves.
 
 Flash messages render as dismissable toasts (`Components::Toasts`, rendered once
-from the layout so every page gets them). Small dropdowns (the user menu) are the
+from the layout so every page gets them). The `warning` level (a save that leaves a plugin disabled) is sticky: it
+stays until dismissed. Small dropdowns (the user menu) are the
 standard pattern: a native `<details>` with the `dropdown` Stimulus controller.
 The panel (`.dropdown-menu`, a `menu` target) fades/slides in via CSS on `[open]`
 and fades/slides back out on close — the controller intercepts the close
@@ -103,12 +104,12 @@ toast; a config-form failure re-renders the form region with inline errors — j
 more `turbo_stream.*` lines. The one config-form control still unbuilt (the
 segmented control) ships with the Roles page that consumes it.
 
-## Config pages (the gated layout)
+## Config pages
 
 A plugin config page is assembled by **`Components::ConfigPage`**, not by the
-per-plugin form. ConfigPage owns the single gated `form_with` and renders, in
+per-plugin form. ConfigPage owns the single `form_with` and renders, in
 order: a header (`PluginTile` + title + description + an inline **enable
-`Toggle`**), an `EnableGate` wrapping the body, and the global `SaveBar`. The
+`Toggle`**), the body, and the global `SaveBar`. The
 per-plugin `Components::<Plugin>::ConfigForm` is **body-only** — it renders just
 the cards, with no form tag and no enable control of its own — and its root `div`
 carries the `#<plugin>-config` id that the Turbo Stream replaces on a failed save,
@@ -118,21 +119,23 @@ ConfigPage, fields in the body form.
 Pass `channel_lost: true` to `ConfigPage` when the plugin is enabled but its
 configured channel is gone (`enabled && setting.channel_id.nil?`). ConfigPage
 renders a warning `Callout` banner above the form body so the owner sees the prompt
-to pick a replacement channel. The banner only renders in the non-gated path (plugin
-enabled); a disabled plugin shows the `EnableGate` overlay instead.
+to pick a replacement channel.
 
 The enable toggle is **staged, not instant**: flipping it stages an `enabled`
 field in the same batch as the rest of the form, and nothing persists until Save —
-unlike the dashboard's standalone plugin toggle. The `enable-gate` Stimulus
-controller reveals or re-veils the body client-side as the toggle flips.
-`Components::EnableGate` is the full-page overlay (translucent blurred scrim +
-centred card with a lock icon and an "Enable …" button) shown over the body while
-the plugin is off. A setting the plugin can't be enabled without (the channel
+unlike the dashboard's standalone plugin toggle. There is no overlay: a disabled plugin's body stays fully
+editable, and the Enabled/Disabled label beside the toggle is a CSS
+`group-has-[:checked]` pair, so it follows the staged toggle with no JS. Saving a
+disabled plugin succeeds and toasts "Saved. X is still disabled."
+(`ConfiguresPlugin#saved_message`). A locked toggle submits its current state
+through a hidden field. `prerequisites:` takes a `Components::PrerequisiteSteps`
+callout rendered above the editable body (a protection with unmet prerequisites;
+the Twilight Struggle tournament page while the plugin is off). A setting the plugin can't be enabled without (the channel
 picker on Welcomes/Logging) carries a danger `*` marker next to its label; the
 operation enforces the requirement server-side and the form re-renders with the
-inline error if it's missing. ConfigPage also has a plain, non-gated path for
-always-on plugins: pass no `gate:` and it drops the enable toggle and overlay,
-optionally rendering a copper `badge:` ("Global") next to the title instead —
+inline error if it's missing. ConfigPage also has a plain path for
+always-on plugins: pass no `toggle:` and it drops the enable toggle,
+optionally rendering a copper `badge:` ("Always on") next to the title instead —
 Reminders is the one consumer.
 
 On config pages the app shell also renders a left **`Components::PluginSidebar`**
@@ -140,10 +143,10 @@ On config pages the app shell also renders a left **`Components::PluginSidebar`*
 layout). It lists the plugins that have a config page — resolved through the
 shared `Components::PluginNav` mixin (plugin→icon and plugin→config-path, shared
 with `PluginRow` so the two can't drift) — with a status dot, an active highlight
-(`aria-current="page"`), and a back-to-dashboard link. It's `hidden md:block`
-(the breadcrumb covers navigation on narrow screens). Catalog plugins join the
-list automatically once they have config routes; Reminders isn't in the catalog
-(it has no activation to toggle) — `PluginCatalog::GLOBAL_KEYS` names it and
+(`aria-current="page"`). It's `hidden md:block`; the breadcrumb on every config
+page is the way back to the dashboard. Catalog plugins join the
+list automatically once they have config routes; Reminders has no activation to toggle, so it sits in `PluginCatalog::GLOBALS`, outside
+`DEFINITIONS` — `PluginCatalog::GLOBAL_KEYS` names it and
 `PluginStatus.rows` appends it as a locked, always-enabled row, which both the
 dashboard and the sidebar render.
 With a plugin sidebar the footer renders inside the scrolling main pane, so a
@@ -154,7 +157,7 @@ when their panel carries the `dropdown-menu` class and
 
 `Components::SaveBar` is the commit affordance: a fixed bottom bar, hidden until
 the form differs from its initial state. The `save-bar` Stimulus controller (on
-the form alongside `enable-gate`) snapshots the form on connect and compares on
+the form) snapshots the form on connect and compares on
 every `input`/`change`, revealing or hiding the bar. Its Save button is a plain
 `type="submit"` — there's no JS save path; Discard reloads the saved state via a
 Turbo visit. A dirty form **blocks navigation**: `turbo:before-visit` is
@@ -164,6 +167,20 @@ save — config controllers return **422** (not 200) when a save fails validatio
 which is both the correct status and the signal (`turbo:submit-end` reports
 `success: false`) that tells the bar to stay dirty.
 
+A warning that depends on a field's value reacts to the form, not to the last save: a member who
+saves and leaves never sees a warning that only appears after saving. `Components::LiveWarning`
+renders a warning `Callout` that the `live-warning` Stimulus controller shows or hides on every
+`change` in the surrounding form. It takes the watched field names (`fields:`), a rule
+(`includes-any`: a picked value is in `list:`; `excludes-all`: something is picked and none of
+it is in `list:`), and `shown:`, the answer for
+the saved values so the first paint is right. The Ruby `shown:` and the JS rule must state the same
+predicate, so derive `shown:` from the same `list:` where possible. Warnings about server state (a deleted channel, a
+missing bot permission) stay plain `Callout`s. A live warning goes below the control it watches, so
+it appearing never pushes that control away from the cursor. Advice that would have to sit above
+what it is about stays a plain `Callout` that is always shown (the Steam note about untagged patch
+notes), so nothing moves under the cursor. A live warning announces itself through a
+`role="status"` region that is always in the page, with the `hidden` callout inside it.
+
 The header is a `Components::ConfigPageHeader` value: icon, title, description,
 and optionally `badge`, `media` and `aside`. The leading visual is the `PluginTile`
 unless `media` is set (Steam News' edit page passes the game's header image, and
@@ -172,30 +189,29 @@ beside the title, e.g. the Twilight Struggle tournament switcher.
 
 ### Plugin groups
 
-A plugin *group* (a parent plus sub-plugins) is derived from `PluginCatalog`: any
-definition with `parent:` set is a sub-plugin, and its parent is the group. Server
-Shield (`:moderation`) is the current one. The pages are
-`Views::Servers::PluginConfigShow` subclasses; its `toggle`, `gate` and
-`parent_crumb` hooks carry the group chrome, and `parent_crumb` defaults to the
-catalog parent. A sub-plugin page subclasses `Views::Servers::SubPluginShow`
-(supplying `plugin_key`, `icon` and `body`, plus its copy: `prereq_gate_*`,
-`group_locked_reason`). It locks the header toggle with a reason
-inside a `Tooltip` and shows **`Components::PrereqGate`** while the parent is off
--- a variant of the gate whose card names the blocking dependency and deep-links to
-where it's fixed instead of offering an Enable button -- and no gate once the parent
-is on. A parent page that is not a sub-plugin uses the standard `EnableGate` while
-it is off. In the sidebar every parent with sub-plugins renders as
+A plugin *group* is a `PluginCatalog::Group` (key, name and description): the parent of every
+definition with `parent:` set. A group is not a plugin, so it has no activation and no
+toggle. Server Shield (`:moderation`) and Integrations (`:integrations`) are the current
+ones. A group's page subclasses `Views::Servers::GroupShow` (no header toggle,
+plus the stub forms for its rows). Its dashboard row has no toggle or status badge, and
+its tile and sidebar icon are lit while any member is on. A member page subclasses
+`Views::Servers::SubPluginShow` (supplying `plugin_key`, `icon` and `body`) and links
+the group back through `parent_crumb`. Where a member has unmet prerequisites, its
+page shows **`Components::PrerequisiteSteps`**: one callout above the editable form with a `Step` per unmet
+prerequisite, each deep-linking to where it is fixed (`:requires_plugin` to that
+plugin, `:prerequisite` to the group page), and the header toggle stays locked with the
+dashboard's needs-setup hint. In the sidebar every group renders as
 **`Components::SidebarGroup`**: a native `<details>` disclosure (persisted per user,
-auto-expanded on an active child) whose parent row is a chevron toggle and whose
-sub-items are plain nav links on an indent rail. The parent's overview lists the
-sub-plugins with `Components::SubPluginDirectory` and `Components::SubPluginRow`;
-the row's `toggle_fields` (input name => value, arrays as one input per element)
-render as hidden inputs so its toggle submits the sub-plugin's full form, through
-the stub forms `Components::SubPluginToggleForms` renders after the page's own form
-(forms cannot nest). A
-sub-plugin can't be enabled until its group prerequisite is met — that requirement
-lives in `PluginCatalog::Definition#prerequisite`, so every enable path (the generic
-toggle, the sidebar/row UI, and the Configure ops) agrees.
+auto-expanded on an active member) whose group row is a chevron toggle and whose
+sub-items are plain nav links on an indent rail. The group's overview lists the
+members with `Components::SubPluginDirectory` and `Components::SubPluginRow`;
+the row's toggle posts only `enabled` to `Servers::PluginsController#update` (the
+dashboard's toggle endpoint), through the stub forms `Components::SubPluginToggleForms`
+renders after the page's own form (forms cannot nest), and the controller redirects a
+member back to its group's overview. A member can't be enabled until its prerequisites
+are met — that requirement lives in `PluginCatalog::Definition#requires_plugin` and
+`#prerequisite`, and `Ops::ServerConfiguration::Plugins::Toggle`, which every enable
+path goes through, enforces it.
 
 ## Core components
 
@@ -228,27 +244,62 @@ duplicated class strings:
   `enabled:`, muted sand otherwise). `size:` (`:sm`/`:md`/`:lg`).
 - **`Components::Callout`** — tinted bordered notice. `variant:` (`:info`/
   `:neutral`/`:warning`/`:danger`/`:success`) sets colour + default icon.
-- **`Components::NumberStepper`** — integer field with −/+ buttons, `min:`-clamped,
-  a `unit:` label and a "Recommended default: n" subscript. No UI cap (`max:` is
-  optional, for the dynamic keyword-count limit); submits as a plain number field.
+- **`Components::NumberStepper`** — integer field as one joined 32px control
+  `[- | n | +]` with hairlines between segments, `min:`-clamped, and a `unit:` label
+  outside the group. An optional `default:` adds a reset segment
+  (`Components::ResetButton` `shape: :segment`, tooltip "Reset to n") shown only
+  while the value differs, and only when the default lies within `min..max`; no
+  default, no reset. A stepper with `default:` must be left-anchored, because the
+  reset segment grows the control to the right. `Components::ResetButton` takes `shape:` (`:standalone` bordered
+  square, `:segment` inside a joined control). No UI cap (`max:` is optional, for the
+  dynamic keyword-count limit); submits as a plain number field.
+- **`Components::DurationStepper`** — `NumberStepper` subclass for durations. `base:`
+  (`:seconds` / `:minutes`) is the unit the hidden field submits. The unit picker is the
+  shared `TomSelect` (`tom_select_fixed_value: true`) skinned as a segment (`.ts-segment`
+  in `tom-select.css`): lowercase plural units at or above `base`, between plus and reset.
+  It opens on the largest unit that divides the value (the base unit for 0 or empty). The
+  form converts client side (like `RangeSlider`), so params and storage keep their unit.
+  Reset names the unit ("Reset to 5 minutes"). Above the base unit the input takes
+  decimals (`1.5` hours submits 90 minutes, rounded to the base unit); in the base unit it
+  stays whole.
 - **`Components::RangeSlider`** — native `<input type="range">` styled with tokens;
   shows a percent readout but submits a hidden `0.75`–`1.0` float (converted once).
 - **`Components::RadioCardGroup`** — stacked radio options as bordered cards with a
   title + one-line description; native radios, so selection is reactive with no JS.
-- **`Components::PrereqGate`** / **`Components::SidebarGroup`** — see *Plugin groups*.
+- **`Components::PrerequisiteSteps`** (a title plus one `Step` per unmet prerequisite) / **`Components::SidebarGroup`** — see *Plugin groups*.
 - **`Components::FieldLabel`** / **`Components::FieldHelp`** — the shared label
   and help-text styling for a form field (`<label>` and `<p>` respectively); no
-  parameters, block content only.
+  parameters, block content only. Help goes under the control via `FieldHelp`,
+  never between label and control.
+- **`Components::RequiredMarker`** — the red asterisk after a required field's
+  label; the only required marker. Labels never say "(required)" or "(optional)".
 - **`Components::ConfigSections`** — the config-page section stack: renders the
   `<key>-config` div Turbo targets, the vertical `gap-5` rhythm, and the
   danger callout every plugin form was repeating (`enable_error:`).
+- **Toggle cards that open** (`Components::Feeds::EventTypeSetting`) — an option with its own settings is a card: a
+  `SettingRow` header with a chevron and the toggle at the card edge. Turning it on opens the card and turning it off folds
+  it; a click anywhere on the header
+  row, apart from the toggle, opens and folds it in either state, so the settings of a type that is off can be read.
+  The chevron is the button a keyboard reaches. The
+  accent border follows the checkbox through CSS (`has-[[data-type-toggle]:checked]`); the `type-card`
+  controller owns only open and closed, remembered in
+  `localStorage`. Never put settings behind a loose "Settings" disclosure.
 - **`Components::SettingRow`** — one labelled setting: `label:` + optional
-  `help:` on the left, the control yielded as a block on the right. The *only*
-  row treatment — `ToggleRow` is this plus a `Toggle`, and the Server Shield
-  cards are this plus a stepper or a toggle. The visible label is a `<p>`, not a
+  `help:` on the left, the control yielded as a block on the right. `align: :title`
+  puts the control on the label's line instead of the middle of the row, so two rows
+  side by side line up whether or not they have help; `ToggleRow` uses it. The *only*
+  row treatment — `ToggleRow` is this plus a `Toggle`, and the staff-ping
+  card is this plus a toggle. The visible label is a `<p>`, not a
   `<label>`: the accessible name belongs on the control (`Components::Toggle`
   carries its own `aria-label`), and a second `<label>` with no `for` only
   duplicates it.
+- **`Components::InlineField`** — a setting read as one sentence: `label:` (a
+  `<span>`, same reason as `SettingRow`) followed by the control yielded as a
+  block, wrapping on narrow widths. Help goes below it as a `FieldHelp`. Used
+  where the label leads into the value ("Treat accounts as new for [30] days").
+- **`Components::SegmentedControl`** — one-of-N buttons over a hidden input. Pass
+  `label:` when the visible label is a `FieldLabel` (no `for`): it names the
+  `role="group"` for screen readers.
 
 `Components::Icon` wraps Phosphor; names not in Phosphor (the `megaphone-slash`
 sub-plugin glyph) are served from its `CUSTOM_GLYPHS` map of inline SVGs. `steam` is
@@ -269,7 +320,8 @@ Single `TomSelect` pickers keep a selectable blank option, labelled with the
 placeholder, so an optional value can be cleared. A required picker
 (`ChannelSelect` takes `required: true`) renders `aria-required="true"`, and
 `lib/blank_option` then skips the blank option so the placeholder stays an
-unselectable hint.
+unselectable hint. `tom_select_fixed_value: true` marks a short static list (the duration
+unit picker): no search box, no clear button, no blank option.
 
 ## Where it lives
 
@@ -381,8 +433,8 @@ both the `mousedown` and the `click` must land on the backdrop.
 
 Use flexbox for layout. Reach for CSS grid only when a layout genuinely can't be
 done with flex — in practice that's a responsive multi-column **card grid** with
-equal tracks (e.g. the server picker's `grid-cols-1 sm:grid-cols-2
-lg:grid-cols-3`), where the flex equivalent needs fragile `calc()` basis values.
+equal tracks (the server picker's `grid-cols-1 sm:grid-cols-2
+lg:grid-cols-3` and the home page's plugin grid), where the flex equivalent needs fragile `calc()` basis values.
 Never use grid to centre a single item (`flex items-center justify-center`, not
 `grid place-items-center`) or to stack/overlap elements (`relative` + `absolute
 inset-0`).

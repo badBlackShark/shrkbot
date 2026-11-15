@@ -15,14 +15,52 @@ RSpec.describe Components::Logging::ConfigForm do
   end
 
   it "renders the channel card with the required marker" do
-    expect(html).to include("This setting is required to enable the plugin")
+    label = Nokogiri::HTML5.fragment(html).css("label").find { |node| node.text.include?("Channel") }
+    expect(label.at_css("span.text-danger-text").text).to eq("*")
   end
 
   it "shows the none-message when no channels have synced" do
     expect(html).to include("No channels have synced yet")
   end
 
-  it "wires the channel-warning Stimulus controller on the card" do
-    expect(html).to include('data-controller="channel-warning"')
+  it "counts each event group as N of M on" do
+    counts = Nokogiri::HTML.fragment(html).css("[data-event-group-target=count]").map { |count| count.parent.text.squish }
+
+    expect(counts).to all(match(/\A\d+ of \d+ on\z/))
+  end
+
+  describe "the public-channel warning" do
+    let(:warning) { Nokogiri::HTML5.fragment(html).at_css("[data-controller=live-warning]") }
+    let(:callout) { warning.at_css("[data-live-warning-target=callout]") }
+
+    it "watches the channel field for a public pick" do
+      expect(JSON.parse(warning["data-live-warning-fields-value"])).to eq(["logging[channel_id]"])
+      expect(warning["data-live-warning-rule-value"]).to eq("includes-any")
+    end
+
+    context "when the saved channel is public" do
+      let(:channel) { create(:server_channel, server_configuration: config) }
+
+      before do
+        Logging::Settings.find_by!(server_configuration: config).update!(channel_id: channel.discord_id)
+      end
+
+      it "renders the warning" do
+        expect(callout.key?("hidden")).to be(false)
+      end
+    end
+
+    context "when the saved channel is private" do
+      let(:channel) { create(:server_channel, server_configuration: config) }
+
+      before do
+        create(:channel_overwrite, server_channel: channel, target_id: config.discord_id, deny: ServerChannel::VIEW_CHANNEL)
+        Logging::Settings.find_by!(server_configuration: config).update!(channel_id: channel.discord_id)
+      end
+
+      it "hides the warning" do
+        expect(callout.key?("hidden")).to be(true)
+      end
+    end
   end
 end

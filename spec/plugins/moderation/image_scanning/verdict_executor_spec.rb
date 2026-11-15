@@ -511,7 +511,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
         execute
 
         expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
-          expect(kwargs[:body]).to include("User was kicked.")
+          expect(kwargs[:body]).to include("The member was kicked.")
         end
       end
     end
@@ -523,7 +523,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
         execute
 
         expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
-          expect(kwargs[:body]).to include("User was banned.")
+          expect(kwargs[:body]).to include("The member was banned.")
         end
       end
     end
@@ -535,7 +535,7 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
         execute
 
         expect(Bot::ActivityLog).to have_received(:post) do |_config, kwargs|
-          expect(kwargs[:body]).to match(/User was timed out until <t:\d+:f>\./)
+          expect(kwargs[:body]).to match(/The member was timed out until <t:\d+:f>\./)
         end
       end
     end

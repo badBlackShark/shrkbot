@@ -1,14 +1,18 @@
 # frozen_string_literal: true
 
 class Components::SettingRow < Components::Base
-  def initialize(label:, help: nil)
+  ALIGNMENTS = {center: "items-center", title: "items-start"}.freeze
+  TEXT = {center: "flex-1", title: "flex-1 py-0.5"}.freeze
+
+  def initialize(label:, help: nil, align: :center)
     @label = label
     @help = help
+    @align = align
   end
 
   def view_template
-    div(class: "flex items-center gap-4") do
-      div(class: "flex-1") do
+    div(class: "flex #{ALIGNMENTS.fetch(@align)} gap-4") do
+      div(class: TEXT.fetch(@align)) do
         p(class: "text-sm font-semibold") { @label }
         p(class: "mt-0.5 text-sm text-text-secondary") { @help } if @help
       end

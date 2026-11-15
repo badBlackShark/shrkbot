@@ -8,7 +8,7 @@ class Components::Lfg::DefaultsCard < Components::Base
   end
 
   def view_template
-    render Components::Card.new(padding: :none, class: "overflow-hidden") do
+    render Components::Card.new(padding: :none) do
       details(data: {controller: "disclosure", disclosure_key_value: "lfg-defaults"}) do
         summary_row
         body
@@ -33,7 +33,6 @@ class Components::Lfg::DefaultsCard < Components::Base
 
   def body
     div(class: "flex flex-col gap-5 border-t border-border-subtle p-5") do
-      p(class: "text-sm text-text-secondary") { t(".help") }
       required_field
       excluded_field
       min_days_field
@@ -49,7 +48,6 @@ class Components::Lfg::DefaultsCard < Components::Base
       options: @role_options,
       selected: @settings.default_required_role_ids,
       label: t(".required.label"),
-      help: t(".required.help"),
       placeholder: t(".required.placeholder")
     )
   end
@@ -60,7 +58,6 @@ class Components::Lfg::DefaultsCard < Components::Base
       options: @role_options,
       selected: @settings.default_excluded_role_ids,
       label: t(".excluded.label"),
-      help: t(".excluded.help"),
       placeholder: t(".excluded.placeholder")
     )
   end
@@ -68,37 +65,38 @@ class Components::Lfg::DefaultsCard < Components::Base
   def min_days_field
     render Components::Lfg::MinDaysField.new(
       name: "lfg[default_min_membership_days]",
-      value: @settings.default_min_membership_days,
+      value: @settings.default_min_membership_days_or_zero,
       label: t(".min_days.label"),
-      help: t(".min_days.help"),
-      placeholder: t(".min_days.placeholder"),
       unit: t(".min_days.unit")
     )
   end
 
   def cooldown_field
-    render Components::Lfg::NumberSettingField.new(
+    render Components::Lfg::DurationField.new(
       name: "lfg[cooldown_seconds]",
       value: @settings.cooldown_seconds,
       min: 0,
       max: 86_400,
-      default: t(".cooldown.default"),
-      unit: t(".cooldown.unit"),
-      label: t(".cooldown.label"),
-      help: t(".cooldown.help")
+      default: column_default("cooldown_seconds"),
+      base: :seconds,
+      label: t(".cooldown.label")
     )
   end
 
   def lifetime_field
-    render Components::Lfg::NumberSettingField.new(
+    render Components::Lfg::DurationField.new(
       name: "lfg[post_lifetime_minutes]",
       value: @settings.post_lifetime_minutes,
       min: 5,
       max: 10_080,
-      default: t(".lifetime.default"),
-      unit: t(".lifetime.unit"),
+      default: column_default("post_lifetime_minutes"),
+      base: :minutes,
       label: t(".lifetime.label"),
       help: t(".lifetime.help")
     )
+  end
+
+  def column_default(name)
+    ::Lfg::Settings.column_defaults.fetch(name)
   end
 end

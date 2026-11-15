@@ -79,7 +79,6 @@ RSpec.describe Components::ConfigPage do
 
   context "when no toggle is given" do
     it "does not render an enable control in the header" do
-      expect(html).not_to include("enable-gate-target")
       expect(html).not_to include('type="checkbox"')
     end
   end
@@ -101,6 +100,11 @@ RSpec.describe Components::ConfigPage do
     it "does not mark the toggle disabled" do
       expect(html).not_to include("disabled")
     end
+
+    it "renders both state labels, each shown only for its switch state" do
+      expect(html).to match(/<span class="hidden [^"]*group-has-\[:checked\]\/enable:inline">Enabled<\/span>/)
+      expect(html).to match(/<span class="[^"]*group-has-\[:checked\]\/enable:hidden">Disabled<\/span>/)
+    end
   end
 
   context "when toggle is locked" do
@@ -120,6 +124,10 @@ RSpec.describe Components::ConfigPage do
 
     it "renders the toggle as disabled" do
       expect(html).to include("disabled")
+    end
+
+    it "submits the current state through a hidden field" do
+      expect(html).to include('<input type="hidden" name="reminders[enabled]" value="0"')
     end
 
     it "wraps the toggle in a Tooltip with the reason" do
@@ -151,49 +159,28 @@ RSpec.describe Components::ConfigPage do
     end
   end
 
-  context "when gate type is :enable" do
-    subject(:html) do
-      described_class.new(
-        header:,
-        server_configuration: config,
-        url: "/servers/900000001/reminders",
-        toggle: {field: "reminders[enabled]", enabled: false, locked: false},
-        gate: {type: :enable, message: "Enable Reminders to configure it."}
-      ).render_in(view_context) { "" }
-    end
-
-    it "renders the EnableGate overlay" do
-      expect(html).to include("Enable Reminders")
-    end
-
-    it "wires the form to enable-gate" do
-      expect(html).to include("enable-gate")
-    end
-
-    it "adds enable-gate stimulus targets to the toggle" do
-      expect(html).to include("enable-gate-target")
-    end
-  end
-
-  context "when gate type is :prereq" do
+  context "with prerequisites" do
     subject(:html) do
       described_class.new(
         header:,
         server_configuration: config,
         url: "/servers/900000001/reminders",
         toggle: {field: "reminders[enabled]", enabled: false, locked: true, reason: "Enable Logging first."},
-        gate: {
-          type: :prereq,
+        prerequisites: Components::PrerequisiteSteps.new(
           icon: "scroll",
           title: "Needs Logging",
-          message: "Set up Logging first.",
-          cta_label: "Set up Logging",
-          cta_href: "/servers/900000001/logging"
-        }
-      ).render_in(view_context) { "" }
+          steps: [
+            Components::PrerequisiteSteps::Step.new(
+              message: "Set up Logging first.",
+              cta_label: "Set up Logging",
+              cta_href: "/servers/900000001/logging"
+            )
+          ]
+        )
+      ).render_in(view_context) { "<p>plain body</p>" }
     end
 
-    it "renders the PrereqGate with the title" do
+    it "renders the steps with the title" do
       expect(html).to include("Needs Logging")
     end
 
@@ -202,12 +189,13 @@ RSpec.describe Components::ConfigPage do
       expect(html).to include("/servers/900000001/logging")
     end
 
-    it "does not wire the form to enable-gate" do
-      expect(html).not_to include("enable-gate")
+    it "keeps the body editable" do
+      expect(html).to include("plain body")
+      expect(html).not_to include("inert")
     end
   end
 
-  context "when ungated (no gate)" do
+  context "without prerequisites" do
     subject(:html) do
       described_class.new(
         header:,
@@ -221,7 +209,7 @@ RSpec.describe Components::ConfigPage do
     end
   end
 
-  context "when channel_lost is true (ungated)" do
+  context "when channel_lost is true" do
     subject(:html) do
       described_class.new(
         header:,
@@ -239,27 +227,6 @@ RSpec.describe Components::ConfigPage do
   context "when channel_lost is false (default)" do
     it "does not render the channel-lost warning banner" do
       expect(html).not_to include("The channel you configured for")
-    end
-  end
-
-  context "when gated (:enable) and channel_lost" do
-    subject(:html) do
-      described_class.new(
-        header: Components::ConfigPageHeader.new(
-          icon: "scroll",
-          title: "Logging",
-          description: "Record moderation events."
-        ),
-        server_configuration: config,
-        url: "/servers/900000001/logging",
-        toggle: {field: "logging[enabled]", enabled: true, locked: false},
-        gate: {type: :enable, message: "off"},
-        channel_lost: true
-      ).render_in(view_context) { "" }
-    end
-
-    it "renders the banner inside the gated body" do
-      expect(html).to include("The channel you configured for Logging was deleted")
     end
   end
 

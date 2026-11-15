@@ -3,6 +3,22 @@
 require "rails_helper"
 
 RSpec.describe PluginPaths do
+  describe ".preview_for" do
+    subject(:path) { described_class.preview_for(:steam) }
+
+    it "builds the preview config page path without a server configuration" do
+      expect(path).to eq("/preview/steam")
+    end
+
+    context "with a bespoke plugin key" do
+      subject(:path) { described_class.preview_for(:twilight_struggle) }
+
+      it "raises, since there is no preview route for a bespoke plugin" do
+        expect { path }.to raise_error(ArgumentError, /bespoke/)
+      end
+    end
+  end
+
   describe ".for" do
     subject(:path) { described_class.for(server_configuration, key) }
 
@@ -14,6 +30,14 @@ RSpec.describe PluginPaths do
 
         it "builds the real config page path" do
           expect(path).to eq("/servers/900000001/roles")
+        end
+      end
+
+      context "with a group key" do
+        let(:key) { :moderation }
+
+        it "builds the group page path" do
+          expect(path).to eq("/servers/900000001/moderation")
         end
       end
 
@@ -50,6 +74,14 @@ RSpec.describe PluginPaths do
 
         it "builds the preview config page path" do
           expect(path).to eq("/preview/roles")
+        end
+      end
+
+      context "with a group key" do
+        let(:key) { :integrations }
+
+        it "builds the preview group page path" do
+          expect(path).to eq("/preview/integrations")
         end
       end
 

@@ -10,8 +10,7 @@ RSpec.describe Components::Moderation::ImageScanningForm do
   let(:context) do
     instance_double(
       Moderation::SubPluginContext,
-      settings:,
-      staff_role_present?: true
+      settings:
     )
   end
 
@@ -25,18 +24,30 @@ RSpec.describe Components::Moderation::ImageScanningForm do
     expect(html).to include('id="image_scanning-config"')
   end
 
-  it "renders the consent callout" do
-    expect(html).to include("Before you turn this on")
+  it "places the report-a-scam callout above the settings cards" do
+    expect(html.index("Report a scam yourself")).to be < html.index('name="image_scanning[sensitivity]"')
   end
 
-  it "renders the sensitivity radio card group with correct field name" do
-    expect(html).to include('name="image_scanning[sensitivity]"')
+  it "tells the reader how to add a keyword" do
+    expect(html).to include('data-tom-select-placeholder-value="Type a word or phrase, then press Enter"')
+  end
+
+  it "renders the consent callout" do
+    expect(html).to include("Detection can be wrong")
+  end
+
+  context "when the saved sensitivity is strict" do
+    let(:settings) { create(:image_scanning_settings, server_configuration: config, sensitivity: "strict") }
+
+    it "submits it from the segmented control" do
+      expect(html).to include('<input type="hidden" name="image_scanning[sensitivity]" value="strict"')
+    end
   end
 
   it "renders all three sensitivity options" do
-    expect(html).to include("Relaxed")
-    expect(html).to include("Standard")
-    expect(html).to include("Strict")
+    group = Nokogiri::HTML5.fragment(html).at_css("[role=group]")
+    expect(group.css("button").map { |option| option.text.strip }).to eq(["Relaxed", "Standard (recommended)", "Strict"])
+    expect(html).to include("Stricter catches more scams and more innocent images.")
   end
 
   it "renders the custom keywords select with correct field name" do
@@ -51,13 +62,19 @@ RSpec.describe Components::Moderation::ImageScanningForm do
     expect(html).to include('name="image_scanning[custom_keyword_min_hits]"')
   end
 
+  it "labels the min_hits stepper unit and resets to the column default" do
+    default = ::Moderation::ImageScanning::Settings.column_defaults.fetch("custom_keyword_min_hits")
+    expect(html).to include("matching keywords")
+    expect(html).to include(%(data-number-stepper-default-value="#{default}"))
+  end
+
   it "renders the action segmented control with correct field name" do
     expect(html).to include('name="image_scanning[action]"')
   end
 
-  it "renders Delete the image and Flag only options" do
+  it "renders Delete the image and Only alert staff options" do
     expect(html).to include("Delete the image")
-    expect(html).to include("Flag only")
+    expect(html).to include("Only alert staff")
   end
 
   it "renders the punishment control with correct field name" do

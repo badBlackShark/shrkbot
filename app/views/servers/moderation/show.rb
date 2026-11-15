@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Views::Servers::Moderation::Show < Views::Servers::PluginConfigShow
+class Views::Servers::Moderation::Show < Views::Servers::GroupShow
   def initialize(server_configuration:, user:, context:)
     super(server_configuration:, user:)
     @context = context
@@ -12,8 +12,13 @@ class Views::Servers::Moderation::Show < Views::Servers::PluginConfigShow
     :moderation
   end
 
-  def enabled?
-    @context.group_enabled?
+  def prerequisites
+    return if @context.logging_ready?
+
+    Components::PrerequisiteSteps.new(
+      title: t(".prerequisites_title"),
+      steps: [::Moderation::SetupSteps.new(@config).logging]
+    )
   end
 
   def body
@@ -24,37 +29,6 @@ class Views::Servers::Moderation::Show < Views::Servers::PluginConfigShow
     )
   end
 
-  def after_config_page
-    render Components::SubPluginToggleForms.new(
-      server_configuration: @config,
-      parent: :moderation
-    )
-  end
-
-  def gate
-    if !@context.logging_ready?
-      {
-        type: :prereq,
-        icon: "scroll",
-        title: t(".prereq_gate_title"),
-        message: t(".prereq_gate_message"),
-        cta_label: t(".prereq_gate_cta"),
-        cta_href: PluginPaths.for(@config, :logging)
-      }
-    elsif !@context.group_enabled?
-      {
-        type: :enable,
-        message: t(".gate_message")
-      }
-    end
-  end
-
-  def toggle
-    return super if @context.logging_ready?
-
-    super.merge(locked: true, reason: t(".toggle_locked_reason"))
-  end
-
   def logging_subline
     return unless @context.logging_ready? && @context.logging_channel_name
 
@@ -63,8 +37,9 @@ class Views::Servers::Moderation::Show < Views::Servers::PluginConfigShow
       span do
         plain t(".logging_subline_prefix")
         code(class: "font-mono") { "##{@context.logging_channel_name}" }
-        plain " "
-        plain t(".logging_subline_suffix")
+        plain t(".logging_subline_change")
+        a(href: PluginPaths.for(@config, :logging), class: "underline transition-colors hover:text-text-primary") { t(".logging_subline_link") }
+        plain "."
       end
     end
   end

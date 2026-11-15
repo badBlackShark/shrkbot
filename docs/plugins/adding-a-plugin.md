@@ -77,31 +77,60 @@ source of plugin metadata. `db:seed` syncs the `Plugin` table from it.
 Definition.new(
   key: :welcomes,
   name: "Welcomes",
-  description: "Join and leave messages.",   # user-facing; reused on the website
+  description: "Greet new members and say goodbye when they leave.",
   channel_setting: :welcome_settings          # the assoc holding channel_id; nil if not channel-backed
 )
 ```
+
+`description` is the plugin's only description: the dashboard row, the config page header, the home
+page and the sub-plugin rows all read it, so no locale file carries a copy. A plugin with no activation to
+toggle (Reminders) goes in `PluginCatalog::GLOBALS` instead: `PluginCatalog.description` finds it, `all`
+and `find` do not.
+
+A public plugin also gets a card on the home page: add its key to `PLUGINS` in `app/views/home.rb`. The
+card shows the catalog name and description and links to the plugin's preview page. Bespoke plugins get
+no card. The grid holds 12 cards; past that, group instead of adding a row (Integrations becomes one card
+for Steam and Twitch).
 
 A `channel_setting` makes the plugin **channel-backed**: it can't be enabled until that
 channel is set. `Ops::ServerConfiguration::Plugins::Toggle` enforces this and a `PluginActivation` validation
 backstops it. `key` is read back as a symbol; branch on `:welcomes` in code.
 
-`requires_plugin:` names another plugin that must be enabled first (a hard dependency).
-`parent:` marks the plugin as a member of a plugin group; the parent must be enabled
-before a child can enable. Both are folded into `prerequisites_met?` and backstopped by
-the `PluginActivation` validation. Example: the moderation group's sub-plugins set
-`parent: :moderation`, and `:moderation` sets `requires_plugin: :logging`. A
-sub-plugin's page subclasses `Views::Servers::SubPluginShow`, and its parent's overview
-renders `Components::SubPluginDirectory` (rows from `SubPluginStatus.rows`) plus
-`Components::SubPluginToggleForms`, so the row toggles work from the overview. Integrations
-(`:integrations` with `:steam`) is the minimal example; Server Shield adds its own
-settings on top.
+`requires_plugin:` names another plugin that must be enabled and set up (its own
+prerequisites met) before this one can enable.
+`parent:` marks the plugin as a member of a `PluginCatalog::GROUPS` group (a `Group` is
+a key, a name and a description). A group is not a plugin: it has no activation and no toggle, its
+dashboard row has no toggle or badge and is lit while any member is on, and its overview
+page subclasses `Views::Servers::GroupShow`. A member's `prerequisite` is typically a
+shared group setting, linked from the member page's step list. Example: the Server
+Shield protections set `parent: :moderation` and `requires_plugin: :logging`, with a
+staff-role `prerequisite`. A member's page subclasses `Views::Servers::SubPluginShow`, and
+its group's overview renders `Components::SubPluginDirectory` (rows from
+`SubPluginStatus.rows`) plus `Components::SubPluginToggleForms`, so the row toggles post to
+`Servers::PluginsController` from the overview. Integrations (`:integrations` with
+`:steam`) is the minimal example; Server Shield adds its own settings on top.
+
+`Definition#blockers` returns every unmet reason in the order `:not_granted`,
+`:requires_plugin`, `:channel_missing`, `:prerequisite`;
+`prerequisites_met?` is `blockers.empty?`. `Ops::ServerConfiguration::Plugins::Toggle` is
+the only writer of `PluginActivation#enabled` (except `Ensure` creating disabled rows
+and preview seeding, see `docs/web/preview.md`). It refuses an enable only on a real off-to-on change, with the first
+blocker's message (`requires_channel`, else
+`operations.server_configuration.plugins.requires.<key>` when present - add the key to
+`ignore_unused` group 7 - else `requires_settings`). It also refuses a save that newly
+breaks an enabled dependent from `PluginCatalog.dependents_of(key)`
+(`PluginCatalog.dependents_broken_by`, message `still_needed.<key>`); a dependent that was
+already blocked before the save does not block it, so a plugin that lost a prerequisite
+elsewhere can still be saved. `Ops::Moderation::Settings::Update` asks the same question
+about the group's shared settings. A settings op
+(`Ops::<Plugin>::Settings::Update`) assigns its settings,
+then calls `save_with_activation`, so Toggle checks the submitted values before anything saves. The
+`PluginActivation` validation stays as the backstop.
 
 `bespoke: true` marks a plugin as bot-owner-granted: it's hidden from every server's
 dashboard and its guild commands aren't registered until the bot owner grants it to
 that server from the admin panel (`BespokePluginGrant`). The grant is folded into
-`prerequisites_met?` alongside the other checks, so the enable path is backstopped the
-same way as `requires_plugin:`/`parent:`.
+`Definition#blockers` alongside the other checks.
 
 A bespoke plugin still gets an ordinary `/servers/:server_id/<plugin>` page like every
 other plugin — `RequiresManageableServer` works the same way, and `Components::PluginNav#plugin_config_path`

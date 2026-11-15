@@ -70,7 +70,7 @@ RSpec.describe "Logging config", type: :request do
             get server_path(guild.id)
           end
 
-          it "renders the matrix without the disabled overlay gating it" do
+          it "renders the matrix" do
             get server_logging_path(guild.id)
             expect(response).to have_http_status(:ok)
             expect(response.body).to include("Member gained a role")
@@ -114,7 +114,7 @@ RSpec.describe "Logging config", type: :request do
             params: {logging: {channel_id: 200, enabled: "1", actions: {}}},
             **turbo
           expect(response.body).to include("public")
-          expect(response.body).to include("channel-warning-visible-ids-value")
+          expect(response.body).to include("live-warning-list-value")
         end
 
         it "re-renders with an inline error when enabling without a channel" do
@@ -124,7 +124,7 @@ RSpec.describe "Logging config", type: :request do
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :logging)).to be(false)
           expect(response.body).to include("logging-config")
-          expect(response.body).to include("settings to be configured")
+          expect(response.body).to include("needs a channel.")
         end
 
         it "falls back to a redirect without Turbo" do

@@ -1,22 +1,34 @@
 # frozen_string_literal: true
 
 class Components::Feeds::RoleField < Components::Base
-  def initialize(subscription:, name:, selected:)
+  def initialize(subscription:, name:, selected:, label:, placeholder:, no_ping_label: nil)
     @subscription = subscription
     @name = name
     @selected = selected
+    @label = label
+    @placeholder = placeholder
+    @no_ping_label = no_ping_label
   end
 
   def view_template
-    render Components::FieldLabel.new { t(".role_label") }
+    render Components::FieldLabel.new { @label }
     render Components::RoleSelect.new(
       name: @name,
-      options: ServerRoleOptions.new(@subscription.server_configuration).options,
+      options:,
       selected: @selected,
-      placeholder: t(".role_placeholder"),
+      placeholder: @placeholder,
       multiple: false,
       include_blank: true,
       data: {feed_preview_target: "role", action: "change->feed-preview#render"}
     )
+  end
+
+  private
+
+  def options
+    roles = ServerRoleOptions.new(@subscription.server_configuration).options
+    return roles unless @no_ping_label
+
+    [Components::TomSelect::Option.for(value: ::Feeds::Twitch::Settings::NO_PING, label: @no_ping_label), *roles]
   end
 end

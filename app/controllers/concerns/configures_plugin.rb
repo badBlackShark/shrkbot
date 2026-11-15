@@ -23,25 +23,17 @@ module ConfiguresPlugin
     )
   end
 
-  def respond_with_configuration(result, error_keys: [:enabled])
-    activation = result.value
-    @enabled = activation.enabled?
-    @enable_error = error_keys.filter_map { |key| activation.errors[key].first }.first
-    @enable_error ||= result.errors.to_sentence.presence if result.failure?
+  def respond_with_configuration(result)
+    @enable_error = result.errors.to_sentence.presence if result.failure?
     respond_with_save(result)
   end
 
   def respond_with_save(result)
-    @toast = {level: "notice", message: saved_message} if result.success?
+    @toast = {level: saved_level(result.value), message: saved_message(result.value)} if result.success?
     respond_to do |format|
       format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
       format.html { redirect_to configuration_url, **flash_for(result) }
     end
-  end
-
-  def redirect_to_overview(result)
-    parent = PluginCatalog.find(plugin_key).parent
-    redirect_to PluginPaths.for(@server_configuration, parent), status: :see_other, **flash_for(result)
   end
 
   def configuration_url
@@ -49,12 +41,22 @@ module ConfiguresPlugin
   end
 
   def flash_for(result)
-    return {notice: saved_message} if result.success?
+    return {flash: {saved_level(result.value) => saved_message(result.value)}} if result.success?
 
     {alert: result.errors.to_sentence}
   end
 
-  def saved_message
+  def saved_level(saved)
+    left_disabled?(saved) ? "warning" : "notice"
+  end
+
+  def saved_message(saved)
+    return t("servers.saved_while_disabled", plugin: PluginCatalog.find(plugin_key).name) if left_disabled?(saved)
+
     t("servers.#{plugin_key}.saved")
+  end
+
+  def left_disabled?(saved)
+    saved.is_a?(PluginActivation) && !saved.enabled? && !saved.saved_change_to_enabled?
   end
 end

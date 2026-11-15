@@ -18,13 +18,21 @@ RSpec.describe Components::SubPluginToggleForms do
     expect(forms.map { |form| form["class"] }.uniq).to eq(["hidden"])
   end
 
-  it "posts each form to its sub-plugin path as a patch" do
+  it "posts each form to the plugin toggle endpoint as a patch" do
     expect(forms.map { |form| form["action"] }).to eq(
       [
-        PluginPaths.for(config, :spam_protection),
-        PluginPaths.for(config, :image_scanning)
+        "/servers/900000001/plugins/spam_protection",
+        "/servers/900000001/plugins/image_scanning"
       ]
     )
     expect(forms.map { |form| form.at_css("input[name=_method]")["value"] }.uniq).to eq(["patch"])
+  end
+
+  context "when the server configuration is a preview" do
+    let(:config) { create(:server_configuration, :preview) }
+
+    it "renders no forms" do
+      expect(forms).to be_empty
+    end
   end
 end

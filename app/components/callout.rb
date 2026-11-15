@@ -19,7 +19,7 @@ class Components::Callout < Components::Base
   def view_template(&block)
     div(class: css, **@attrs) do
       render Components::Icon.new(@icon || @variant[:icon], class: "mt-0.5 size-[18px] flex-none #{@variant[:color]}")
-      div(class: "text-sm leading-relaxed") { yield }
+      div(class: "min-w-0 flex-1 text-sm leading-relaxed") { yield }
     end
   end
 

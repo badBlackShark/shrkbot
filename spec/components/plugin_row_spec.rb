@@ -15,6 +15,10 @@ RSpec.describe Components::PluginRow do
   let(:toggleable) { true }
   let(:bespoke) { false }
 
+  it "shows the catalog description" do
+    expect(html).to include(CGI.escapeHTML(PluginCatalog.description(:roles)))
+  end
+
   context "when the plugin was added recently" do
     before do
       allow(PluginCatalog).to receive_messages(recently_added?: true, beta?: false)
@@ -32,6 +36,37 @@ RSpec.describe Components::PluginRow do
 
     it "leaves the toggle interactive" do
       expect(html).not_to include("disabled")
+    end
+  end
+
+  context "for a group row" do
+    let(:row) { PluginStatus::Row.new(key: :moderation, enabled: true, configured: true, toggleable: false, members: PluginStatus::Members.new(enabled: 1, total: 2)) }
+
+    it "shows how many members are enabled" do
+      expect(html).to include("1 of 2 enabled")
+    end
+
+    it "renders no toggle and no status badge" do
+      expect(html).not_to include("checkbox")
+      expect(html).not_to include("Enabled")
+    end
+
+    it "links to the group page" do
+      expect(html).to include(%(href="/servers/900000001/moderation"))
+    end
+  end
+
+  context "for a group row with every member disabled" do
+    let(:row) { PluginStatus::Row.new(key: :moderation, enabled: false, configured: true, toggleable: false, members: PluginStatus::Members.new(enabled: 0, total: 2)) }
+
+    it "shows none of the members enabled" do
+      expect(html).to include("0 of 2 enabled")
+    end
+  end
+
+  context "for a plugin row" do
+    it "shows no member count" do
+      expect(html).not_to match(/\d of \d enabled/)
     end
   end
 

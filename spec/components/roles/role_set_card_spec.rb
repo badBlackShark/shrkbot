@@ -15,6 +15,28 @@ RSpec.describe Components::Roles::RoleSetCard do
     )
   end
 
+  describe "selection mode badge" do
+    subject(:html) { described_class.new(data: card_data, context:).render_in(view_context) }
+
+    let(:card_data) { Components::Roles::RoleSetCardData.empty.with(selection_mode:) }
+
+    context "when the set allows several roles" do
+      let(:selection_mode) { "multi" }
+
+      it "reads Pick several" do
+        expect(html).to include("Pick several")
+      end
+    end
+
+    context "when the set allows one role" do
+      let(:selection_mode) { "single" }
+
+      it "reads Pick one" do
+        expect(html).to include("Pick one")
+      end
+    end
+  end
+
   context "when repost_path is given" do
     let(:card_data) do
       Components::Roles::RoleSetCardData.new(
@@ -59,6 +81,17 @@ RSpec.describe Components::Roles::RoleSetCard do
 
     it "omits the repost button" do
       expect(html).not_to include('data-action="role-sets#repost"')
+    end
+
+    it "marks the set name required" do
+      label = Nokogiri::HTML5.fragment(html).css("label").find { |node| node.text.include?("Set name") }
+      expect(label.at_css("span.text-danger-text").text).to eq("*")
+    end
+
+    it "leaves the channel override unmarked" do
+      label = Nokogiri::HTML5.fragment(html).css("label").find { |node| node.text.include?("Channel override") }
+      expect(label.text).not_to include("optional")
+      expect(label.at_css("span.text-danger-text")).to be_nil
     end
   end
 end

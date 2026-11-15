@@ -13,16 +13,15 @@ RSpec.describe "Twitch subscriptions", type: :request do
   let(:featured_clips) { "Integrations::Twitch::FeaturedClipPublished" }
   let(:clips) { "Integrations::Twitch::ClipCreated" }
   let(:target) { Integrations::Target.new(external_id: "9001", name: "SomeStreamer", image_url: "https://static-cdn.jtvnw.net/profile.png", url: "https://www.twitch.tv/somestreamer") }
-  let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
   let!(:twitch_plugin) { create(:plugin, key: "twitch", name: "Twitch") }
 
   before do
     post "/auth/discord/callback"
     create(:server_configuration, discord_id: guild.id)
-    create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: true)
     create(:plugin_activation, server_configuration: config, plugin: twitch_plugin, enabled: true)
     create(:server_channel, server_configuration: config, discord_id: 777, name: "streams")
     create(:server_role, server_configuration: config, discord_id: 888, name: "Live pings")
+    create(:server_role, server_configuration: config, discord_id: 555, name: "Follow pings")
     allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
     allow(Integrations::Twitch::ChannelWatcher).to receive(:resolve).with("somestreamer").and_return(target)
     allow(Integrations::Twitch::ChannelWatcher).to receive(:refresh).with(["9001"]).and_return([target])
@@ -79,11 +78,19 @@ RSpec.describe "Twitch subscriptions", type: :request do
         expect([live, highlights, uploads, featured_clips, clips].map { |type| checkbox(type)["checked"] }).to all(be_nil)
       end
 
-      it "renders one role select per post type and the end mode only for live" do
+      it "renders one role select for the follow and one per post type and the end mode only for live" do
         lookup
 
         page = Nokogiri::HTML(response.body)
-        names = Feeds::Twitch::Settings::ROLE_COLUMNS.values.map { |column| %(select[name="subscription[#{column}]"]) }
+        columns = %w[
+          role_id
+          live_role_id
+          highlights_role_id
+          uploads_role_id
+          featured_clips_role_id
+          clips_role_id
+        ]
+        names = columns.map { |column| %(select[name="subscription[#{column}]"]) }
         expect(names.map { |selector| page.css(selector).size }).to all(eq(1))
         expect(page.css(%(input[name="subscription[live_end_mode]"]))).to be_one
         expect(page.css(%(input[type=checkbox][name="subscription[show_viewers]"]))).to be_one
@@ -102,6 +109,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
       {
         external_id: "9001",
         channel_id:,
+        role_id: "555",
         live_role_id:,
         highlights_role_id: "",
         uploads_role_id: "",
@@ -122,6 +130,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
       expect(response).to redirect_to(list_path)
       expect(flash[:notice]).to eq("Now following SomeStreamer.")
       expect(config.feed_subscriptions.sole.twitch_settings).to have_attributes(
+        role_id: 555,
         live_role_id: 888,
         highlights_role_id: nil,
         live_end_mode: "delete",
@@ -160,6 +169,26 @@ RSpec.describe "Twitch subscriptions", type: :request do
         create_subscription
 
         expect(config.feed_subscriptions.sole.twitch_settings.categories).to eq([])
+      end
+    end
+
+    context "with the no-ping override on a type" do
+      let(:live_role_id) { Feeds::Twitch::Settings::NO_PING.to_s }
+
+      it "stores it without checking it against the server's roles" do
+        create_subscription
+
+        expect(config.feed_subscriptions.sole.twitch_settings).to have_attributes(role_id: 555, live_role_id: Feeds::Twitch::Settings::NO_PING)
+      end
+    end
+
+    context "with the no-ping value as the follow's own role" do
+      before { attributes[:role_id] = Feeds::Twitch::Settings::NO_PING.to_s }
+
+      it "responds not found and writes nothing" do
+        expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+        expect(response).to have_http_status(:not_found)
       end
     end
 

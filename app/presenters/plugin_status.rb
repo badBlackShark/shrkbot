@@ -1,16 +1,23 @@
 # frozen_string_literal: true
 
 class PluginStatus
-  Row = Data.define(:key, :enabled, :configured, :locked, :manageable, :toggleable, :bespoke) do
-    def initialize(key:, enabled:, configured:, locked: false, manageable: true, toggleable: true, bespoke: false)
+  Members = Data.define(:enabled, :total)
+
+  Row = Data.define(:key, :enabled, :configured, :locked, :manageable, :toggleable, :bespoke, :members) do
+    def initialize(key:, enabled:, configured:, locked: false, manageable: true, toggleable: true, bespoke: false, members: nil)
       super
+    end
+
+    def group
+      !members.nil?
     end
   end
 
   def self.rows(server_configuration, access:)
     activations = server_configuration.plugin_activations.includes(:plugin).index_by { |activation| activation.plugin.key }
     enabled_keys = server_configuration.enabled_plugin_keys
-    catalog_rows = PluginCatalog.visible_for(server_configuration).map do |definition|
+    visible = PluginCatalog.visible_for(server_configuration)
+    catalog_rows = visible.map do |definition|
       Row.new(
         key: definition.key,
         enabled: activations[definition.key]&.enabled? || false,
@@ -20,7 +27,7 @@ class PluginStatus
         bespoke: definition.bespoke
       )
     end
-    display_order(catalog_rows + global_rows(access))
+    display_order(catalog_rows + group_rows(enabled_keys, visible, server_configuration, access) + global_rows(access))
   end
 
   def self.row(server_configuration, plugin, access:)
@@ -29,12 +36,28 @@ class PluginStatus
     Row.new(
       key: plugin.key,
       enabled: activation&.enabled? || false,
-      configured: definition.prerequisites_met?(server_configuration, enabled_keys: server_configuration.enabled_plugin_keys),
+      configured: definition.prerequisites_met?(server_configuration),
       manageable: access.manage?(plugin.key),
       toggleable: access.toggle?(plugin.key),
       bespoke: definition.bespoke
     )
   end
+
+  def self.group_rows(enabled_keys, visible, server_configuration, access)
+    PluginCatalog::GROUPS.map do |group|
+      member_keys = PluginCatalog.visible_sub_plugin_keys(group.key, server_configuration, visible:)
+      members = Members.new(enabled: enabled_keys.count { |key| member_keys.include?(key) }, total: member_keys.size)
+      Row.new(
+        key: group.key,
+        enabled: members.enabled.positive?,
+        configured: true,
+        manageable: access.manage?(group.key),
+        toggleable: false,
+        members:
+      )
+    end
+  end
+  private_class_method :group_rows
 
   def self.global_rows(access)
     PluginCatalog::GLOBAL_KEYS.map do |key|

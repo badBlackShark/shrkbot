@@ -34,7 +34,7 @@ RSpec.describe "Server dashboard", type: :request do
         expect(response).to have_http_status(:ok)
         expect(response.body).to include("Dev Refuge")
         expect(response.body).to include("2,481 members")
-        expect(response.body).to include("0 channels and 0 roles synced")
+        expect(response.body).not_to include("synced")
         expect(response.body).to include("Add another server")
       end
 
@@ -48,8 +48,17 @@ RSpec.describe "Server dashboard", type: :request do
         expect(response.body).not_to include("<hr")
       end
 
+      it "renders the group rows without a toggle, linking to their pages" do
+        get_dashboard
+
+        page = Nokogiri::HTML(response.body)
+        %w[moderation integrations].each do |key|
+          expect(page.css("#plugin-#{key} input[type=checkbox]")).to be_empty
+          expect(page.at_css("#plugin-#{key} a[href='#{public_send("server_#{key}_path", guild.id)}']")).to be_present
+        end
+      end
+
       it "lists moderation but not its sub-plugins on the dashboard" do
-        create(:plugin, key: "moderation", name: "Server Shield")
         create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard")
         create(:plugin, key: "image_scanning", name: "Scam Image Detection")
         get_dashboard
@@ -68,7 +77,7 @@ RSpec.describe "Server dashboard", type: :request do
 
         it "offers it in the switcher" do
           get_dashboard
-          expect(response.body).to include("Speedrun HQ")
+          expect(response.body).to include("Speedrun HQ").and include("0 plugins enabled")
         end
       end
 
@@ -83,23 +92,23 @@ RSpec.describe "Server dashboard", type: :request do
           logging
         end
 
-        it "shows enabled, needs-setup and disabled badges" do
+        it "shows a badge only on the plugin that needs setup" do
           get_dashboard
-          expect(response.body).to include("Enabled")
           expect(response.body).to include("Needs setup")
-          expect(response.body).to include(">Disabled<")
+          expect(response.body).not_to include(">Enabled<")
+          expect(response.body).not_to include(">Disabled<")
         end
 
         it "disables the toggle for a plugin that isn't set up yet, explaining why" do
           get_dashboard
-          expect(response.body).to include("Complete setup before enabling this plugin")
+          expect(response.body).to include("Required settings missing")
         end
       end
 
       it "shows reminders as an always-on plugin row" do
         get_dashboard
         expect(response.body).to include("Reminders")
-        expect(response.body).to include("Global")
+        expect(response.body).to include("Always on")
         expect(response.body).to include("always enabled to preserve DM functionality")
         expect(response.body).to include("disabled")
       end
@@ -232,7 +241,7 @@ RSpec.describe "Server dashboard", type: :request do
       it "refuses to enable a plugin missing its prerequisites" do
         logging
         patch server_plugin_path(guild.id, "logging"), params: {enabled: true}, **turbo
-        expect(response.body).to match(/required settings/)
+        expect(response.body).to include("Logging needs a channel.")
         expect(config.plugin_activations).to be_empty
       end
 
@@ -249,11 +258,65 @@ RSpec.describe "Server dashboard", type: :request do
         expect(flash[:alert]).to be_present
       end
 
+      it "answers a group key as an unknown plugin" do
+        patch server_plugin_path(guild.id, "moderation"), params: {enabled: true}, **turbo
+        expect(response).to redirect_to(server_path(guild.id))
+        expect(flash[:alert]).to eq(I18n.t("servers.unknown_plugin"))
+        expect(config.plugin_activations).to be_empty
+      end
+
       it "falls back to a redirect without Turbo" do
         config.create_role_setting!(channel_id: 7)
         roles
         patch server_plugin_path(guild.id, "roles"), params: {enabled: true}
         expect(response).to redirect_to(server_path(guild.id))
+      end
+
+      context "with a Server Shield sub-plugin key" do
+        subject(:toggle) { patch server_plugin_path(guild.id, "spam_protection"), params: {enabled: "1"}, **turbo }
+
+        let!(:spam_protection) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
+        let(:staff_role_id) { 701 }
+
+        before do
+          config.create_moderation_settings!(staff_role_id:)
+          config.create_logging_settings!(channel_id: 999)
+          create(:plugin_activation, server_configuration: config, plugin: logging, enabled: false).update_column(:enabled, true)
+        end
+
+        it "redirects a Turbo submit to the Server Shield overview with the outcome" do
+          toggle
+
+          expect(response).to have_http_status(:see_other)
+          expect(response).to redirect_to(server_moderation_path(guild.id))
+          expect(flash[:notice]).to eq("Cross-Channel Spam Guard enabled.")
+          expect(config.enabled_plugin_keys).to include(:spam_protection)
+        end
+
+        context "when no staff role is set" do
+          let(:staff_role_id) { nil }
+
+          it "refuses and says which setting is missing" do
+            toggle
+
+            expect(response).to redirect_to(server_moderation_path(guild.id))
+            expect(flash[:alert]).to eq("Cross-Channel Spam Guard needs Logging enabled, and a staff role set on the Server Shield overview.")
+            expect(config.enabled_plugin_keys).not_to include(:spam_protection)
+          end
+        end
+      end
+
+      context "with an Integrations sub-plugin key" do
+        subject(:toggle) { patch server_plugin_path(guild.id, "steam"), params: {enabled: "1"} }
+
+        let!(:steam) { create(:plugin, key: "steam", name: "Steam") }
+
+        it "redirects to the Integrations page" do
+          toggle
+
+          expect(response).to redirect_to(server_integrations_path(guild.id))
+          expect(flash[:notice]).to eq("Steam enabled.")
+        end
       end
     end
 

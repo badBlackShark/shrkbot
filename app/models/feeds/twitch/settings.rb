@@ -1,19 +1,12 @@
 # frozen_string_literal: true
 
 module Feeds
-  module Twitch
+  class Twitch
     class Settings < ApplicationRecord
-      ROLE_COLUMNS = {
-        "Integrations::Twitch::StreamStarted" => :live_role_id,
-        "Integrations::Twitch::HighlightPublished" => :highlights_role_id,
-        "Integrations::Twitch::UploadPublished" => :uploads_role_id,
-        "Integrations::Twitch::FeaturedClipPublished" => :featured_clips_role_id,
-        "Integrations::Twitch::ClipCreated" => :clips_role_id
-      }.freeze
-
       LIVE_END_MODES = %w[mark_ended_with_vod mark_ended keep delete].freeze
       SWITCHED_AWAY_MODES = %w[summary delete].freeze
       MAX_CATEGORIES = 100
+      NO_PING = 0
 
       self.table_name = "feed_twitch_settings"
 
@@ -27,7 +20,14 @@ module Feeds
       validate :categories_count
 
       def role_id_for(event_type)
-        public_send(ROLE_COLUMNS.fetch(event_type))
+        override = role_override_for(event_type)
+        return if override == NO_PING
+
+        override || role_id
+      end
+
+      def role_override_for(event_type)
+        public_send(Twitch.fetch_post_type(event_type).role_column)
       end
 
       def accepts_category?(category_id)

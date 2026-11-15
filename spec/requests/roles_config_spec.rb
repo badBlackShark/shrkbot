@@ -59,12 +59,12 @@ RSpec.describe "Roles config", type: :request do
         it "warns about roles shrkbot can't assign" do
           create(:server_role, server_configuration: config, name: "Integration", discord_id: 333, managed: true)
           get server_roles_path(guild.id)
-          expect(response.body).to include("Grayed-out roles")
+          expect(response.body).to include(CGI.escapeHTML(I18n.t("components.roles.role_set_card.roles.unassignable")))
         end
 
         it "omits the warning when every role is assignable" do
           get server_roles_path(guild.id)
-          expect(response.body).not_to include("Grayed-out roles")
+          expect(response.body).not_to include(CGI.escapeHTML(I18n.t("components.roles.role_set_card.roles.unassignable")))
         end
       end
 
@@ -100,6 +100,7 @@ RSpec.describe "Roles config", type: :request do
           patch server_roles_path(guild.id),
             params: {roles: {channel_id: 111, enabled: "0", role_sets: {}}}
           expect(response).to redirect_to(server_roles_path(guild.id))
+          expect(flash[:warning]).to eq("Saved. Roles is still disabled.")
         end
 
         it "redirects with an alert when a non-Turbo save fails" do

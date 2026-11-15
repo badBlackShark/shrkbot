@@ -3,20 +3,13 @@
 class Components::SubPluginRow < Components::Base
   include Components::PluginNav
 
-  STATUS_VARIANTS = {
-    enabled: :success,
-    needs_setup: :warning,
-    disabled: :neutral
-  }.freeze
-
   def self.toggle_form_id(key)
     "#{key}-overview-toggle-form"
   end
 
-  def initialize(server_configuration:, row:, group_enabled:)
+  def initialize(server_configuration:, row:)
     @config = server_configuration
     @row = row
-    @group_enabled = group_enabled
   end
 
   def view_template
@@ -29,7 +22,6 @@ class Components::SubPluginRow < Components::Base
           render Components::PluginBadges.new(key: @row.key)
         end
         p(class: "mt-0.5 text-sm text-text-secondary") { @row.description }
-        needs_setup_inline_warning if needs_setup?
       end
       configure_link
       toggle_control
@@ -39,25 +31,13 @@ class Components::SubPluginRow < Components::Base
   private
 
   def status_badge
-    render Components::Badge.new(variant: STATUS_VARIANTS.fetch(status), dot: true) do
-      t(".status.#{status}")
-    end
-  end
+    return if @row.configured
 
-  def status
-    return :needs_setup unless @row.configured
-    @row.enabled ? :enabled : :disabled
+    render Components::Badge.new(variant: :warning, dot: true) { t(".status.needs_setup") }
   end
 
   def needs_setup?
-    !@row.configured && @group_enabled
-  end
-
-  def needs_setup_inline_warning
-    p(class: "mt-1 flex items-center gap-1 text-xs font-medium text-warning-text") do
-      render Components::Icon.new("warning", class: "size-3.5")
-      span { t(".needs_setup_hint.#{@row.key}") }
-    end
+    !@row.configured && !@row.enabled
   end
 
   def configure_link
@@ -75,48 +55,37 @@ class Components::SubPluginRow < Components::Base
   end
 
   def toggle_control
-    if needs_setup?
-      locked_toggle
+    if @config.preview?
+      locked_toggle(t("components.plugin_row.preview_locked"))
+    elsif needs_setup?
+      locked_toggle(t("components.plugin_row.needs_setup_hint"))
     else
       enabled_toggle
     end
   end
 
-  def locked_toggle
-    render Components::Tooltip.new(text: t(".locked_reason.#{@row.key}")) do
+  def locked_toggle(reason)
+    render Components::Tooltip.new(text: reason) do
       render Components::Toggle.new(
-        name: "#{@row.key}[enabled]",
+        name: :enabled,
         checked: @row.enabled,
-        label: t(".toggle_label", name: @row.name),
+        label: toggle_label,
         disabled: true
       )
     end
   end
 
   def enabled_toggle
-    input(
-      type: "hidden",
-      name: "from_overview",
-      value: "1",
-      form: stub_form_id
-    )
-    toggle_hidden_fields
     render Components::Toggle.new(
-      name: "#{@row.key}[enabled]",
+      name: :enabled,
       checked: @row.enabled,
-      label: t(".toggle_label", name: @row.name),
+      label: toggle_label,
       submit_on_change: true,
-      form: stub_form_id
+      form: self.class.toggle_form_id(@row.key)
     )
   end
 
-  def toggle_hidden_fields
-    @row.toggle_fields.each do |name, value|
-      (value.is_a?(Array) ? value : [value]).each { |item| input(type: "hidden", name:, value: item, form: stub_form_id) }
-    end
-  end
-
-  def stub_form_id
-    self.class.toggle_form_id(@row.key)
+  def toggle_label
+    t(".toggle_label", name: @row.name)
   end
 end

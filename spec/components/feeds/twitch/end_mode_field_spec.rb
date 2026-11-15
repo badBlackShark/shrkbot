@@ -14,7 +14,7 @@ RSpec.describe Components::Feeds::Twitch::EndModeField do
 
   it "offers the four modes in order" do
     expect(document.css("button[data-segmented-target=option]").map { |button| [button["data-value"], button.text] }).to eq(
-      [["mark_ended_with_vod", "Ended, with VOD"], ["mark_ended", "Ended"], ["keep", "Keep live card"], ["delete", "Delete"]]
+      [["mark_ended_with_vod", "Summary with VOD link"], ["mark_ended", "Summary"], ["keep", "Leave as is"], ["delete", "Delete the post"]]
     )
   end
 
@@ -27,15 +27,14 @@ RSpec.describe Components::Feeds::Twitch::EndModeField do
 
   it "shows only the selected mode's panel" do
     expect(panels.transform_values { |panel| panel.key?("hidden") }).to eq(
-      "mark_ended_with_vod" => true, "mark_ended" => true, "keep" => false, "delete" => true
+      "mark_ended_with_vod" => true, "mark_ended" => true, "keep" => false
     )
   end
 
-  it "previews the VOD link only for the VOD mode and nothing for delete" do
+  it "previews each mode that has a result and renders no panel for delete" do
     expect(panels["mark_ended_with_vod"].text).to include("Watch the VOD")
     expect(panels["mark_ended"].text).not_to include("Watch the VOD")
     expect(panels["keep"].text).to include("Stream ended 5 minutes ago")
-    expect(panels["delete"].text).to include("shrkbot deletes the post.")
-    expect(panels["delete"].text).not_to include("Preview")
+    expect(panels).not_to have_key("delete")
   end
 end

@@ -76,11 +76,11 @@ module Feeds
     end
 
     def rendered_notification(text)
-      Templates.strip(TemplateText.render(text, notification_values)).presence if text
+      Templates.strip(TemplateText.render(text, template_values)).presence if text
     end
 
-    def notification_values
-      blank(subscription.source.notification_tokens).merge(tokens, title: event.title)
+    def template_values
+      @template_values ||= blank(subscription.source.template_tokens).merge(tokens, title: event.title)
     end
 
     def role_id
@@ -92,7 +92,7 @@ module Feeds
     end
 
     def custom_text
-      @custom_text ||= Templates.strip(TemplateText.render(template, blank(subscription.source.template_tokens).merge(tokens)))
+      @custom_text ||= Templates.strip(TemplateText.render(template, template_values))
     end
 
     def blank(names)

@@ -15,14 +15,6 @@ RSpec.describe Components::Lfg::ChannelsField do
     expect(html).to include("multiple")
   end
 
-  context "when nothing is selected" do
-    let(:selected) { [] }
-
-    it "nudges the admin to scope the channels" do
-      expect(html).to include("Consider scoping")
-    end
-  end
-
   context "when no channels have synced" do
     let(:channels) { [] }
     let(:selected) { [] }

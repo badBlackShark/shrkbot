@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import { text, pill, nodes } from "lib/token_preview"
 import { render as renderMarkdown } from "lib/discord_markdown_dom"
 import { tokenPattern, previewTemplate } from "lib/feed_template"
-import { roleSelectFor } from "lib/role_scope"
+import { roleSelectFor, pingedRoleName } from "lib/role_scope"
 
 export default class extends Controller {
   static targets = ["template", "output", "role"]
@@ -42,8 +42,6 @@ export default class extends Controller {
   }
 
   roleName(input) {
-    const select = roleSelectFor(input, this.roleTargets)
-    const selected = select && select.selectedOptions[0]
-    return selected && selected.value ? selected.text : ""
+    return pingedRoleName(roleSelectFor(input, this.roleTargets))
   }
 }

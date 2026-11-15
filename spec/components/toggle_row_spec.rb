@@ -19,6 +19,10 @@ RSpec.describe Components::ToggleRow do
     expect(html).to include('data-action="change->x#y"')
   end
 
+  it "aligns the toggle with the label, not with the middle of the help" do
+    expect(Nokogiri::HTML5.fragment(html).at_css("div")["class"]).to include("items-start")
+  end
+
   it "renders the label and the help text" do
     expect(html).to include("Ping on join").and include("Ping new members.")
   end

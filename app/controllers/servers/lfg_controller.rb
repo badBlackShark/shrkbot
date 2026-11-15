@@ -17,7 +17,7 @@ class Servers::LfgController < ApplicationController
   def update
     return head :not_found unless guild_roles?(submitted_role_ids) && guild_channels?(submitted_channel_ids)
 
-    result = Ops::Lfg::Configure.call(
+    result = Ops::Lfg::Settings::Update.call(
       server_configuration: @server_configuration,
       enabled: lfg_params[:enabled],
       cooldown_seconds: lfg_params[:cooldown_seconds],
@@ -28,10 +28,7 @@ class Servers::LfgController < ApplicationController
       allowed_channel_ids: Array(lfg_params[:allowed_channel_ids]),
       pingable_roles: submitted_pingable_roles
     )
-    respond_with_configuration(
-      result,
-      error_keys: [:enabled, :cooldown_seconds, :post_lifetime_minutes, :default_min_membership_days]
-    )
+    respond_with_configuration(result)
   end
 
   private

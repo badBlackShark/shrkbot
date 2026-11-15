@@ -14,15 +14,8 @@ module Ops
 
         private
 
-        def feeds_group?
-          PluginCatalog.sub_plugin_keys(plugin_key).intersect?(::Feeds.sources.map(&:plugin_key))
-        end
-
         def subscriptions
-          all = server_configuration.feed_subscriptions
-          return all if feeds_group?
-
-          all.for_source(source) if source
+          server_configuration.feed_subscriptions.for_source(source) if source
         end
 
         def source

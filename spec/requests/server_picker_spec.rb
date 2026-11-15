@@ -63,6 +63,12 @@ RSpec.describe "Server picker", type: :request do
         end
       end
 
+      it "explains a missing server in one line, with no invite beyond each absent server's own card" do
+        get_servers
+        expect(response.body).to include("Missing a server? You need the Manage Server permission there.")
+        expect(response.body.scan("Invite shrkbot").size).to eq(2)
+      end
+
       it "frames the page in the app shell with a way to log out" do
         get_servers
         expect(response.body).to include("Log out")

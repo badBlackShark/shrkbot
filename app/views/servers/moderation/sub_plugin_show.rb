@@ -8,31 +8,45 @@ class Views::Servers::Moderation::SubPluginShow < Views::Servers::SubPluginShow
 
   private
 
-  def toggle_locked?
-    super || !@context.staff_role_present?
-  end
-
-  def toggle_reason
-    super || (t(".role_locked_reason") unless @context.staff_role_present?)
-  end
-
   def body
-    no_role_callout
     render form
   end
 
-  def no_role_callout
-    return unless group_enabled? && !@context.staff_role_present?
+  def prerequisites
+    return if unmet_steps.empty?
 
-    render Components::Callout.new(variant: :warning) do
-      span do
-        b(class: "text-warning-text") { t(".no_role_callout_lead") }
-        plain " "
-        plain t(".no_role_callout_body")
-        plain " "
-        a(href: parent_path, class: "underline") { t(".no_role_callout_link") }
-        plain t(".no_role_callout_suffix")
-      end
-    end
+    Components::PrerequisiteSteps.new(
+      title: prerequisites_title,
+      steps: unmet_steps
+    )
+  end
+
+  def prerequisites_title
+    return t("views.servers.moderation.sub_plugin_show.prerequisites.title_enabled") if enabled?
+
+    t("views.servers.moderation.sub_plugin_show.prerequisites.title", plugin: definition.name)
+  end
+
+  def toggle
+    return super if enabled? || unmet_steps.empty?
+
+    super.merge(locked: true, reason: t("components.plugin_row.needs_setup_hint"))
+  end
+
+  def unmet_steps
+    @unmet_steps ||= build_unmet_steps
+  end
+
+  def build_unmet_steps
+    blockers = definition.blockers(@config)
+    steps = ::Moderation::SetupSteps.new(@config)
+    [
+      (steps.logging if blockers.include?(:requires_plugin)),
+      (steps.staff_role if blockers.include?(:prerequisite))
+    ].compact
+  end
+
+  def definition
+    PluginCatalog.find(plugin_key)
   end
 end

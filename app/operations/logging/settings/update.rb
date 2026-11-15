@@ -11,30 +11,10 @@ module Ops
         def call
           settings = server_configuration.logging_settings
           settings.assign_attributes(channel_id:, enabled_actions:)
-          activation = staged_activation
-
-          return moderation_dependency_failure(activation) if moderation_enabled? && !logging_stays_available?
-          return failure(messages(settings, activation), value: activation) unless settings.valid? && activation.valid?
-
-          settings.save!
-          save_activation!(activation)
-          ok(activation)
+          save_with_activation(settings)
         end
 
         private
-
-        def moderation_enabled?
-          server_configuration.plugins.enabled.exists?(key: :moderation)
-        end
-
-        def logging_stays_available?
-          enabling? && channel_id.present?
-        end
-
-        def moderation_dependency_failure(activation)
-          activation.errors.add(:enabled, I18n.t("operations.logging.moderation_dependency"))
-          failure(activation.errors[:enabled], value: activation)
-        end
 
         def plugin_key
           :logging

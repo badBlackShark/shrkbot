@@ -10,13 +10,14 @@ RSpec.describe "Image scanning config", type: :request do
   it_behaves_like "a config page that requires sign-in"
 
   context "when signed in" do
-    let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
+    let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
     let!(:image_plugin) { create(:plugin, key: "image_scanning", name: "Scam Image Detection") }
 
     before do
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
       config.create_moderation_settings!
+      config.create_logging_settings!
       config.create_spam_protection_settings!
       config.create_image_scanning_settings!
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
@@ -28,9 +29,10 @@ RSpec.describe "Image scanning config", type: :request do
       before { get server_path(guild.id) }
 
       describe "GET /servers/:server_id/image_scanning" do
-        context "when group is enabled and staff role is present" do
+        context "when Logging is ready and a staff role is present" do
           before do
-            create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+            config.logging_settings.update!(channel_id: 111)
+            create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
               .update_column(:enabled, true)
             config.moderation_settings.update!(staff_role_id: 500)
             create(:server_role, server_configuration: config, discord_id: 500, name: "Moderator")
@@ -44,7 +46,7 @@ RSpec.describe "Image scanning config", type: :request do
 
           it "renders the sensitivity options and consent callout" do
             get server_image_scanning_path(guild.id)
-            expect(response.body).to include("Before you turn this on")
+            expect(response.body).to include("Detection can be wrong")
             expect(response.body).to include("Relaxed")
             expect(response.body).to include("Standard")
             expect(response.body).to include("Strict")
@@ -56,33 +58,45 @@ RSpec.describe "Image scanning config", type: :request do
           end
         end
 
-        context "when group is disabled" do
-          it "returns 200 and renders the prereq gate" do
+        context "when Logging and the staff role are missing" do
+          it "lists both steps with a link each, and locks the toggle" do
             get server_image_scanning_path(guild.id)
             expect(response).to have_http_status(:ok)
-            expect(response.body).to include("Server Shield is off")
-            expect(response.body).to include("Go to Server Shield")
+            expect(response.body).to include("Before you enable")
+            expect(response.body).to include("Set up a log channel so shrkbot has a place to post alerts.")
+            expect(response.body).to include("Pick a staff role on the Server Shield overview.")
+            expect(response.body).to include(I18n.t("components.plugin_row.needs_setup_hint"))
+          end
+
+          it "points each step at its page" do
+            get server_image_scanning_path(guild.id)
+
+            expect(step_links(response.body)).to include(
+              I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.cta") => server_logging_path(guild.id),
+              I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.staff_role.cta") => server_moderation_path(guild.id)
+            )
           end
         end
 
-        context "when group is enabled but no staff role set" do
+        context "when only the staff role is missing" do
           before do
-            create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+            config.logging_settings.update!(channel_id: 111)
+            create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
               .update_column(:enabled, true)
           end
 
-          it "returns 200 with locked toggle and warning callout" do
+          it "lists the staff role step only" do
             get server_image_scanning_path(guild.id)
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to include("Pick a staff role first.")
-            expect(response.body).not_to include("Server Shield is off")
+            expect(response.body).to include("Pick a staff role on the Server Shield overview.")
+            expect(response.body).not_to include("Set up a log channel so shrkbot has a place to post alerts.")
           end
         end
       end
 
       describe "PATCH /servers/:server_id/image_scanning" do
         before do
-          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+          config.logging_settings.update!(channel_id: 111)
+          create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
             .update_column(:enabled, true)
           config.moderation_settings.update!(staff_role_id: 500)
         end
@@ -98,7 +112,7 @@ RSpec.describe "Image scanning config", type: :request do
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
           expect(response.body).to include('target="plugin-sidebar"')
           expect(response.body).to include("image_scanning-config")
-          expect(response.body).to include("saved")
+          expect(response.body).to include("Saved. Scam Image Detection is still disabled.").and include(%(data-toast-sticky-value="true"))
         end
 
         it "returns 422 when enabling with no staff role" do
@@ -113,6 +127,7 @@ RSpec.describe "Image scanning config", type: :request do
                                       custom_keywords: [], enabled: "1"}},
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
+          expect(response.body).to include("Scam Image Detection needs Logging enabled, and a staff role set on the Server Shield overview.")
         end
 
         it "falls back to a redirect without Turbo" do
@@ -123,23 +138,6 @@ RSpec.describe "Image scanning config", type: :request do
                                       custom_keyword_min_hits: 2,
                                       custom_keywords: [], enabled: "0"}}
           expect(response).to redirect_to(server_image_scanning_path(guild.id))
-        end
-
-        context "when toggled from the overview" do
-          subject(:patch_from_overview) do
-            patch server_image_scanning_path(guild.id),
-              params: {image_scanning: {sensitivity: "standard", action: "delete",
-                                        punishment: "none", timeout_seconds: 3600,
-                                        confirmed_punishment: "none", confirmed_timeout_seconds: 3600,
-                                        custom_keyword_min_hits: 2,
-                                        custom_keywords: [], enabled: "0"},
-                       from_overview: "1"}
-          end
-
-          it "redirects to the moderation overview" do
-            patch_from_overview
-            expect(response).to redirect_to(server_moderation_path(guild.id))
-          end
         end
       end
     end

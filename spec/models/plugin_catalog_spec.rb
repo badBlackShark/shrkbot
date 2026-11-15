@@ -8,11 +8,26 @@ RSpec.describe PluginCatalog do
       expect(described_class.all).to eq(PluginCatalog::DEFINITIONS)
     end
 
-    it "has a sidebar name and description translation for every top-level plugin" do
+    it "excludes the global reminders plugin" do
+      expect(described_class.all.map(&:key)).not_to include(:reminders)
+    end
+
+    it "has a sidebar name translation for every top-level plugin" do
       top_level = described_class.all.reject { |definition| described_class.sub_plugin?(definition.key) }
       top_level.each do |definition|
         expect(I18n.exists?("components.plugin_row.plugin.#{definition.key}.name", :en)).to be(true)
-        expect(I18n.exists?("components.plugin_row.plugin.#{definition.key}.description", :en)).to be(true)
+      end
+    end
+  end
+
+  describe "required plugins" do
+    let(:required_keys) { described_class.all.filter_map(&:requires_plugin).uniq }
+
+    it "has a refusal message for every plugin another plugin requires" do
+      required_keys.each do |key|
+        %w[one other].each do |form|
+          expect(I18n.exists?("operations.server_configuration.plugins.still_needed.#{key}.#{form}", :en)).to be(true), "missing #{key}.#{form}"
+        end
       end
     end
   end
@@ -24,6 +39,30 @@ RSpec.describe PluginCatalog do
 
     it "is nil for an unknown key" do
       expect(described_class.find(:nope)).to be_nil
+    end
+
+    it "is nil for a global plugin" do
+      expect(described_class.find(:reminders)).to be_nil
+    end
+  end
+
+  describe ".description" do
+    subject(:description) { described_class.description(key) }
+
+    context "with a catalog plugin" do
+      let(:key) { :logging }
+
+      it "returns the definition's description" do
+        expect(description).to eq("Records what's happening on your server.")
+      end
+    end
+
+    context "with a global plugin" do
+      let(:key) { :reminders }
+
+      it "returns the global plugin's description" do
+        expect(description).to eq("Members set their own reminders with /remind.")
+      end
     end
   end
 
@@ -156,6 +195,108 @@ RSpec.describe PluginCatalog do
     end
   end
 
+  describe ".dependents_of" do
+    it "lists the plugins that require the logging plugin" do
+      expect(described_class.dependents_of(:logging).map(&:key)).to eq([:spam_protection, :image_scanning])
+    end
+
+    it "lists a group's members" do
+      expect(described_class.dependents_of(:moderation).map(&:key)).to eq([:spam_protection, :image_scanning])
+    end
+  end
+
+  describe ".group" do
+    it "finds each group by key" do
+      expect(described_class::GROUPS.map { |group| described_class.group(group.key).name }).to eq(["Server Shield", "Integrations"])
+    end
+
+    it "is nil for a plugin" do
+      expect(described_class.group(:logging)).to be_nil
+    end
+
+    it "is nil for no key" do
+      expect(described_class.group(nil)).to be_nil
+    end
+  end
+
+  describe ".group?" do
+    it "is true for a group key, as a symbol or a string" do
+      expect([described_class.group?(:moderation), described_class.group?("integrations")]).to all(be(true))
+    end
+
+    it "is false for a plugin key" do
+      expect(described_class.group?(:logging)).to be(false)
+    end
+  end
+
+  describe ".dependents_broken_by" do
+    subject(:broken) { described_class.dependents_broken_by(key, server, enabled_keys:) }
+
+    let(:server) { create(:server_configuration) }
+    let(:key) { :logging }
+    let(:enabled_keys) { [:logging, :spam_protection] }
+    let(:logging) { create(:plugin, key: "logging", name: "Logging") }
+    let(:spam_protection) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
+
+    def activate(plugin)
+      create(:plugin_activation, server_configuration: server, plugin:, enabled: false).update_column(:enabled, true)
+    end
+
+    before do
+      server.create_logging_settings!(channel_id: 999)
+      server.create_moderation_settings!(staff_role_id: 5)
+      activate(logging) if enabled_keys.include?(:logging)
+      activate(spam_protection) if enabled_keys.include?(:spam_protection)
+    end
+
+    context "when the log channel was cleared in memory only" do
+      before { server.logging_settings.channel_id = nil }
+
+      it "returns the newly blocked dependent" do
+        expect(broken.map(&:key)).to eq([:spam_protection])
+      end
+    end
+
+    context "when the log channel was already missing in the database" do
+      before do
+        server.logging_settings.update_columns(channel_id: nil)
+        server.reload
+      end
+
+      it "returns nothing" do
+        expect(broken).to be_empty
+      end
+    end
+
+    context "when the blocked dependent is not enabled" do
+      let(:enabled_keys) { [:logging] }
+
+      before { server.logging_settings.channel_id = nil }
+
+      it "returns nothing" do
+        expect(broken).to be_empty
+      end
+    end
+
+    context "when asking about a group whose staff role was cleared in memory" do
+      let(:key) { :moderation }
+
+      before { server.moderation_settings.staff_role_id = nil }
+
+      it "returns the group's enabled members" do
+        expect(broken.map(&:key)).to eq([:spam_protection])
+      end
+    end
+
+    context "when asking about a group whose members all have their setup" do
+      let(:key) { :moderation }
+
+      it "returns nothing" do
+        expect(broken).to be_empty
+      end
+    end
+  end
+
   describe ".sub_plugin?" do
     it "returns true for :spam_protection" do
       expect(described_class.sub_plugin?(:spam_protection)).to be(true)
@@ -213,28 +354,21 @@ RSpec.describe PluginCatalog do
     end
   end
 
-  describe "sub-plugin setup copy" do
-    let(:needs_setup_possible) { described_class.all.select { |definition| definition.parent && (definition.prerequisite || definition.bespoke || definition.channel_backed? || definition.requires_plugin) } }
-
-    it "has a locked reason and a setup hint for every sub-plugin that can need setup" do
-      needs_setup_possible.each do |definition|
-        expect(I18n.exists?("components.sub_plugin_row.locked_reason.#{definition.key}")).to be(true), definition.key.to_s
-        expect(I18n.exists?("components.sub_plugin_row.needs_setup_hint.#{definition.key}")).to be(true), definition.key.to_s
-      end
-    end
-  end
-
-  describe "moderation group wiring" do
-    it "spam_protection has parent :moderation" do
+  describe "group wiring" do
+    it "puts spam_protection in the moderation group" do
       expect(described_class.find(:spam_protection).parent).to eq(:moderation)
     end
 
-    it "image_scanning has parent :moderation" do
+    it "puts image_scanning in the moderation group" do
       expect(described_class.find(:image_scanning).parent).to eq(:moderation)
     end
 
-    it "moderation requires_plugin :logging" do
-      expect(described_class.find(:moderation).requires_plugin).to eq(:logging)
+    it "makes each protection require logging" do
+      expect([:spam_protection, :image_scanning].map { |key| described_class.find(key).requires_plugin }).to all(eq(:logging))
+    end
+
+    it "keeps groups out of the plugin definitions" do
+      expect(described_class.all.map(&:key)).not_to include(:moderation, :integrations)
     end
   end
 
@@ -245,7 +379,7 @@ RSpec.describe PluginCatalog do
 
     context "when not channel-backed" do
       it "has no prerequisites" do
-        expect(definition(channel_setting: nil).prerequisites_met?(Object.new)).to be(true)
+        expect(definition(channel_setting: nil).prerequisites_met?(double(enabled_plugin_keys: Set[]))).to be(true)
       end
     end
 
@@ -253,13 +387,13 @@ RSpec.describe PluginCatalog do
       subject(:check) { definition(channel_setting: :logging_settings).prerequisites_met?(config) }
 
       context "without a channel" do
-        let(:config) { double(logging_settings: nil) }
+        let(:config) { double(logging_settings: nil, enabled_plugin_keys: Set[]) }
 
         it { is_expected.to be(false) }
       end
 
       context "with a channel" do
-        let(:config) { double(logging_settings: double(channel_id: 5)) }
+        let(:config) { double(logging_settings: double(channel_id: 5), enabled_plugin_keys: Set[]) }
 
         it { is_expected.to be(true) }
       end
@@ -273,35 +407,29 @@ RSpec.describe PluginCatalog do
       subject(:check) { requiring_definition.prerequisites_met?(config) }
 
       context "when required plugin is not enabled" do
-        let(:config) { double(enabled_plugin_keys: Set[]) }
+        let(:config) { double(enabled_plugin_keys: Set[], logging_settings: double(channel_id: 1)) }
 
         it { is_expected.to be(false) }
       end
 
-      context "when required plugin is enabled" do
-        let(:config) { double(enabled_plugin_keys: Set[:logging]) }
+      context "when required plugin is enabled but not set up" do
+        let(:config) { double(enabled_plugin_keys: Set[:logging], logging_settings: double(channel_id: nil)) }
+
+        it { is_expected.to be(false) }
+      end
+
+      context "when required plugin is enabled and set up" do
+        let(:config) { double(enabled_plugin_keys: Set[:logging], logging_settings: double(channel_id: 1)) }
 
         it { is_expected.to be(true) }
       end
     end
 
     context "when a group member (parent: :moderation)" do
-      def child_definition
-        described_class.new(key: :x, name: "X", description: "", parent: :moderation)
-      end
+      subject(:check) { described_class.new(key: :x, name: "X", description: "", parent: :moderation).prerequisites_met?(double(enabled_plugin_keys: Set[])) }
 
-      subject(:check) { child_definition.prerequisites_met?(config) }
-
-      context "when parent plugin is not enabled" do
-        let(:config) { double(enabled_plugin_keys: Set[]) }
-
-        it { is_expected.to be(false) }
-      end
-
-      context "when parent plugin is enabled" do
-        let(:config) { double(enabled_plugin_keys: Set[:moderation]) }
-
-        it { is_expected.to be(true) }
+      it "is met with no group state" do
+        expect(check).to be(true)
       end
     end
 
@@ -314,216 +442,83 @@ RSpec.describe PluginCatalog do
 
       context "when predicate returns false" do
         let(:predicate) { ->(_c) { false } }
-        let(:config) { double }
+        let(:config) { double(enabled_plugin_keys: Set[]) }
 
         it { is_expected.to be(false) }
       end
 
       context "when predicate returns true" do
         let(:predicate) { ->(_c) { true } }
-        let(:config) { double }
+        let(:config) { double(enabled_plugin_keys: Set[]) }
 
         it { is_expected.to be(true) }
       end
     end
   end
 
-  describe "moderation prerequisite lambdas with real ServerConfiguration" do
+  describe "Definition#blockers" do
+    subject(:blockers) { definition.blockers(config, enabled_keys: Set[]) }
+
+    let(:config) { create(:server_configuration) }
+    let(:definition) do
+      PluginCatalog::Definition.new(
+        key: :x,
+        name: "X",
+        description: "",
+        bespoke: true,
+        requires_plugin: :logging,
+        channel_setting: :logging_settings,
+        prerequisite: ->(_c) { false }
+      )
+    end
+
+    it "lists every unmet reason in a fixed order" do
+      expect(blockers).to eq([:not_granted, :requires_plugin, :channel_missing, :prerequisite])
+    end
+
+    context "with a plain definition" do
+      let(:definition) { PluginCatalog::Definition.new(key: :x, name: "X", description: "") }
+
+      it { is_expected.to eq([]) }
+    end
+  end
+
+  describe "protection prerequisite lambdas with real ServerConfiguration" do
     let(:config) { create(:server_configuration, discord_id: 900_000_001) }
     let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
-    let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
 
     before do
-      config.create_logging_settings!
+      config.create_logging_settings!(channel_id: 111)
       config.create_moderation_settings!
-      config.create_spam_protection_settings!
-      config.create_image_scanning_settings!
+      create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
+        .update_column(:enabled, true)
     end
 
-    describe ":moderation prerequisite lambda" do
-      subject(:check) { PluginCatalog.find(:moderation).prerequisites_met?(config) }
+    [:spam_protection, :image_scanning].each do |key|
+      describe ":#{key}" do
+        subject(:check) { PluginCatalog.find(key).prerequisites_met?(config) }
 
-      context "when logging is enabled and channel is set" do
-        before do
-          config.logging_settings.update!(channel_id: 111)
-          create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
-            .update_column(:enabled, true)
+        context "when logging is ready and the staff role is set" do
+          before do
+            config.moderation_settings.update!(staff_role_id: 500)
+          end
+
+          it { is_expected.to be(true) }
         end
 
-        it { is_expected.to be(true) }
-      end
-
-      context "when logging is enabled but no channel is set" do
-        before do
-          create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
-            .update_column(:enabled, true)
+        context "when logging is ready but no staff role is set" do
+          it { is_expected.to be(false) }
         end
 
-        it { is_expected.to be(false) }
-      end
+        context "when moderation_settings is absent" do
+          subject(:check) { PluginCatalog.find(key).prerequisites_met?(config.reload) }
 
-      context "when logging is enabled but logging_settings is absent" do
-        before do
-          config.logging_settings.destroy!
-          create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
-            .update_column(:enabled, true)
+          before do
+            config.moderation_settings.destroy!
+          end
+
+          it { is_expected.to be(false) }
         end
-
-        subject(:check) { PluginCatalog.find(:moderation).prerequisites_met?(config.reload) }
-
-        it { is_expected.to be(false) }
-      end
-    end
-
-    describe ":spam_protection prerequisite lambda" do
-      subject(:check) { PluginCatalog.find(:spam_protection).prerequisites_met?(config) }
-
-      context "when moderation is enabled and staff_role_id is set" do
-        before do
-          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-            .update_column(:enabled, true)
-          config.moderation_settings.update!(staff_role_id: 500)
-        end
-
-        it { is_expected.to be(true) }
-      end
-
-      context "when moderation is enabled but no staff_role_id" do
-        before do
-          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-            .update_column(:enabled, true)
-        end
-
-        it { is_expected.to be(false) }
-      end
-
-      context "when moderation is enabled but moderation_settings is absent" do
-        before do
-          config.moderation_settings.destroy!
-          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-            .update_column(:enabled, true)
-        end
-
-        subject(:check) { PluginCatalog.find(:spam_protection).prerequisites_met?(config.reload) }
-
-        it { is_expected.to be(false) }
-      end
-    end
-
-    describe ":image_scanning prerequisite lambda" do
-      subject(:check) { PluginCatalog.find(:image_scanning).prerequisites_met?(config) }
-
-      context "when moderation is enabled and staff_role_id is set" do
-        before do
-          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-            .update_column(:enabled, true)
-          config.moderation_settings.update!(staff_role_id: 501)
-        end
-
-        it { is_expected.to be(true) }
-      end
-
-      context "when moderation is enabled but no staff_role_id" do
-        before do
-          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-            .update_column(:enabled, true)
-        end
-
-        it { is_expected.to be(false) }
-      end
-
-      context "when moderation is enabled but moderation_settings is absent" do
-        before do
-          config.moderation_settings.destroy!
-          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
-            .update_column(:enabled, true)
-        end
-
-        subject(:check) { PluginCatalog.find(:image_scanning).prerequisites_met?(config.reload) }
-
-        it { is_expected.to be(false) }
-      end
-    end
-  end
-
-  describe "moderation prerequisite predicates" do
-    let(:enabled_keys) { Set[:logging, :moderation] }
-
-    describe ":moderation prerequisite" do
-      subject(:check) { PluginCatalog.find(:moderation).prerequisites_met?(config) }
-
-      context "when logging enabled but no logging channel" do
-        let(:config) do
-          double(
-            enabled_plugin_keys: enabled_keys,
-            logging_settings: double(channel_id: nil)
-          )
-        end
-
-        it { is_expected.to be(false) }
-      end
-
-      context "when logging enabled with a logging channel" do
-        let(:config) do
-          double(
-            enabled_plugin_keys: enabled_keys,
-            logging_settings: double(channel_id: 999)
-          )
-        end
-
-        it { is_expected.to be(true) }
-      end
-    end
-
-    describe ":spam_protection prerequisite" do
-      subject(:check) { PluginCatalog.find(:spam_protection).prerequisites_met?(config) }
-
-      context "when group enabled but no staff role" do
-        let(:config) do
-          double(
-            enabled_plugin_keys: enabled_keys,
-            moderation_settings: double(staff_role_id: nil)
-          )
-        end
-
-        it { is_expected.to be(false) }
-      end
-
-      context "when group enabled with staff role" do
-        let(:config) do
-          double(
-            enabled_plugin_keys: enabled_keys,
-            moderation_settings: double(staff_role_id: 123)
-          )
-        end
-
-        it { is_expected.to be(true) }
-      end
-    end
-
-    describe ":image_scanning prerequisite" do
-      subject(:check) { PluginCatalog.find(:image_scanning).prerequisites_met?(config) }
-
-      context "when group enabled but no staff role" do
-        let(:config) do
-          double(
-            enabled_plugin_keys: enabled_keys,
-            moderation_settings: double(staff_role_id: nil)
-          )
-        end
-
-        it { is_expected.to be(false) }
-      end
-
-      context "when group enabled with staff role" do
-        let(:config) do
-          double(
-            enabled_plugin_keys: enabled_keys,
-            moderation_settings: double(staff_role_id: 456)
-          )
-        end
-
-        it { is_expected.to be(true) }
       end
     end
   end

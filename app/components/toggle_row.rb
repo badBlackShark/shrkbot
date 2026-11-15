@@ -10,7 +10,7 @@ class Components::ToggleRow < Components::Base
   end
 
   def view_template
-    render Components::SettingRow.new(label: @label, help: @help) do
+    render Components::SettingRow.new(label: @label, help: @help, align: :title) do
       render Components::Toggle.new(name: @name, checked: @checked, label: @label, data: @data)
     end
   end

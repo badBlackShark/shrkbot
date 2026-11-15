@@ -194,7 +194,7 @@ RSpec.describe Moderation::SpamGuard do
         simulate_message(channel_id: 2, message_id: 20)
         simulate_message(channel_id: 3, message_id: 30)
 
-        expect(body).to match(/User was timed out until <t:\d+:f>\./)
+        expect(body).to match(/The member was timed out until <t:\d+:f>\./)
       end
     end
 
@@ -543,7 +543,7 @@ RSpec.describe Moderation::SpamGuard do
       simulate_message(channel_id: 2, message_id: 2)
       simulate_message(channel_id: 3, message_id: 3)
 
-      expect(body).to include("User was kicked.")
+      expect(body).to include("The member was kicked.")
     end
   end
 end

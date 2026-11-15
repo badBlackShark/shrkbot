@@ -9,41 +9,44 @@ doc keep the Feeds name; the provider layer is `Integrations::` (see `docs/integ
 
 ## Pages
 
-Two catalog entries make the plugin group: `:integrations` (the parent) and `:steam`
-(`parent: :integrations`). A new source is another sub-plugin entry, its `Feeds::`
-source module (see Sources) and its own page.
+One catalog group, `:integrations`, gathers the source plugins (`:steam`, `parent: :integrations`).
+A new source is another plugin entry, its `Feeds::`
+source class (see Sources) and its `resource` in `config/routes.rb` pointing at the
+shared Feeds controllers (see Config UI).
 
-- **Integrations** (`Servers::IntegrationsController`): the overview. It renders
+- **Integrations** (`Servers::IntegrationsController`): the overview, with no switch. It renders
   `Components::SubPluginDirectory` with one row per sub-plugin
   (`SubPluginStatus.rows(config, parent: :integrations)`), and `Components::SubPluginToggleForms`
-  after the page so a row's toggle can submit from the overview. A row toggle posts the
-  sub-plugin's own `PATCH` with `from_overview=1` and the controller redirects back to
-  the Integrations page.
-- **Steam** (`Servers::SteamController`, a `Views::Servers::SubPluginShow`):
+  after the page so a row's toggle can submit from the overview. A row toggle posts `enabled`
+  to `Servers::PluginsController#update`, which redirects a sub-plugin back to the
+  Integrations page.
+- **Steam** (`Servers::FeedsController` with `plugin_key: :steam`, rendering the shared
+  `Views::Servers::Feeds::Show`, a `Views::Servers::SubPluginShow`):
   lists the games the server follows, with Add, Edit and Stop following (see Config UI).
   `Finders::Feeds::SourceSubscriptions` returns the server's subscriptions on that
   source, ordered by game name, and `Components::Feeds::SubscriptionList` builds the
   channel and role lookups once for all rows. A row shows the game's header image, the
   channel, the pinged role, the followed event types, and a warning when the watch is
   broken (`Integrations::Watch#broken?`).
-- Turning Integrations off or on goes through `Ops::ServerConfiguration::Plugins::Toggle`
-  like any plugin. A sub-plugin cannot be turned on while Integrations is off.
-- Demo data: `config/preview_data.yml` enables both and follows two games, each through a
+- Demo data: `config/preview_data.yml` enables Steam and follows two games, each through a
   shared `Integrations::Watch`, see [../web/preview.md](../web/preview.md).
 
 ## Sources
 
-A source is a module under `Feeds::` (`Feeds::Steam`) that answers `plugin_key`,
-`watchers`, `event_types` (in UI order), `template_tokens`, `notification_tokens`,
-`tokens_for(event_type)` (the tokens that type can fill) and
-`default_notification(event_type)`, plus the settings
-contract: `settings_association` (the `Subscription` association that holds
-its provider settings, which the list finder preloads),
-`role_id_for(subscription, event_type)`, `accepts?(subscription, event)`,
-`post_type(event_type)`, `announced_types`, `retract?(subscription, event)` (true when the post is deleted instead of
-edited; Steam never, Twitch for `StreamEnded` in `delete` mode and for a switched-away
-stream in `delete` mode) and `revive?(subscription, event)` (true when a post shrkbot
-deleted may be sent again; Steam never, Twitch for a live event in a chosen category). Each source
+A source is a class under `Feeds::` (`Feeds::Steam`) that inherits `Feeds::Source` and
+answers `plugin_key`, `watchers`, `event_types` (in UI order), `template_tokens` (every
+token any type fills, blanked when a post has no value), `tokens_for(event_type)` (the
+tokens that type can fill, in the placeholder list and the preview) and
+`default_notification(event_type)`, plus the settings contract: `settings_association`
+(the `Subscription` association that holds its provider settings, which the list finder
+preloads), `role_id_for(subscription, event_type)` and `accepts?(subscription, event)`.
+`Feeds::Source` gives four more a default, and a source overrides only where it differs:
+`post_type(event_type)` (the event type itself), `announced_types` (`event_types`),
+`retract?(subscription, event)`
+(true when the post is deleted instead of edited; false, Twitch for `StreamEnded` in
+`delete` mode and for a switched-away stream in `delete` mode) and
+`revive?(subscription, event)` (true when a post shrkbot deleted may be sent again; false,
+Twitch for a live event in a chosen category). Each source
 with settings adds its own `has_one` on `Feeds::Subscription` (`steam_settings`), so the
 foreign key and the guild purge follow the subscription. `Subscription#settings` reads
 that row and `#build_settings` builds it; the row is built once, with the subscription,
@@ -53,21 +56,31 @@ until they split per source with Twitch.
 A source also answers `announcement(event:, subscription:)`: it builds the source's
 renderer and does the I/O that renderer needs (Steam: the padded thumbnail via
 `Feeds::Steam::Thumbnail`; Twitch: `Feeds::Twitch::LiveImage`).
-`Feeds.sources` lists them; a new source adds a module and one entry there. The
-contract is duck-typed with no base class: a shared mixin is extracted when two sources
-share code. `spec/models/feeds_spec.rb` enforces the contract.
+`Feeds.sources` lists them; a new source adds a class and one entry there. The base holds
+defaults only: a method every source answers differently has no stub there, and
+`spec/models/feeds_spec.rb` enforces the contract.
+For the follow form a source also answers `lookup_param` (the lookup page's query param),
+`settings_params` (the permit list for its settings) and `settings_from(permitted)` (the
+settings hash that `Subscription#build_settings` and `Ops::Feeds::Subscriptions::Update`
+take).
 
 ## Config UI
 
-Routes live under each source's resource (`resource :steam`) as `resources
-:subscriptions` (`new`, `create`, `edit`, `update`, `destroy`). The abstract
-`Servers::Feeds::SubscriptionsController` holds the actions, and a source's subclass
-(`Servers::Steam::SubscriptionsController`) supplies its hooks: `plugin_key`,
-`lookup_param`, `settings_params` and `settings`. The base checks every `*role_id` key in
-`settings` against the server's roles, so a new role column needs no extra hook. The views are
+Each source's `resource` (`resource :steam`) routes to `Servers::FeedsController` (show,
+update) with `defaults: {plugin_key: "steam"}`, and its `resources :subscriptions` (`new`,
+`create`, `edit`, `update`, `destroy`) to `Servers::Feeds::SubscriptionsController`, which
+inherits the default. Both read `params[:plugin_key]`: a route default beats a query param of
+the same name, and `Feeds.source` raises for an unknown key. `FeedsController` overrides
+`configuration_url` because `url_for(action: :show)` ignores non-path defaults and picks the
+first source's route. `Views::Servers::Feeds::Show` reads `views.servers.<key>.show.*` by
+explicit key, since a relative `t` would resolve to `views.servers.feeds.show`. The
+subscriptions controller asks the source for `lookup_param`, `settings_params` and
+`settings_from`, and checks every `*role_id` key in the settings against the server's roles,
+so a new role column needs no extra code. The views are
 `Views::Servers::Feeds::Subscriptions::*`, keyed by plugin, and the form renders the
 source's own `Components::Feeds::<Source>::SubscriptionFields`, composed from the shared
-`DestinationCard` and `EventTypesCard` plus the source's cards. The followed list reads
+`DestinationCard` (channel and role to ping) and `EventTypeList` (one `EventTypeSetting`
+card per post type) plus the source's cards. The followed list reads
 roles through `Feeds::SubscriptionRoles` (`source.role_id_for`): one shared role shows as
 "pings @Role", roles that differ by type show on each badge, and a type's channel shows
 only when it differs from the follow's. The form posts one hash per post type,
@@ -113,35 +126,37 @@ are no preview routes for these pages.
 - **Images.** The pages load each game's header image straight from Steam, so the CSP
   `img_src` lists the two Steam image hosts and the privacy policy says Steam sees the
   viewer's IP address. A watch without an `image_url` shows a neutral placeholder.
-- **Custom messages.** Each post type has a collapsed "Custom message" disclosure
-  (`Components::Feeds::EventTypeSetting`, opens with the toggle through
-  `disclosure#sync`) holding the optional lead-line text (empty by default, no reset), a
-  placeholder list and a live preview (`feed-preview` controller,
-  `lib/feed_template.js`). `Feeds::Templates.custom` stores `nil` when the text is
-  blank, and any text is allowed. Turning a post type off drops its event row, so its custom message goes too.
-- **Volume line.** Under "What to post" a lazy Turbo frame (`feed-volume`) loads
+- **Custom messages.** Each post type is a card (`Components::Feeds::EventTypeSetting`):
+  name, help, chevron and toggle in the header; the body holds the channel override
+  (`OverrideFields`), the placeholder list once (`MessageFields`, from `tokens_for`), the
+  message and the push notification text with live previews (`feed-preview`,
+  `lib/feed_template.js`). Turning the type on opens the card, turning it off folds it, and
+  a click on the header row (the chevron for a keyboard) does either whether the type is on or off (`type-card` controller, open state remembered
+  in `localStorage`); the border follows the toggle in CSS. `Feeds::Templates.custom` stores `nil` when the text is
+  blank, and any text is allowed. Turning a post type off drops its event row, so its
+  custom message goes too.
+- **Volume line.** Between the top card and the post type cards a lazy Turbo frame (`feed-volume`) loads
   `Servers::Steam::VolumesController#show`, which shows how many of the last 20 news
   items were each post type (`Integrations::Steam::NewsWatcher.volume`,
   `Feeds::VolumeLookup`). The follow and edit pages and saving never call Steam. When Steam
   fails the lookup returns `nil` and the frame stays empty.
 
-- **Twitch pages.** `Servers::Twitch::SubscriptionsController` mirrors Steam's, with
-  `channel` as the lookup param and the five role columns plus `live_end_mode` and
-  `show_viewers` as settings. `Components::Feeds::Twitch::SubscriptionFields` is the form
-  (destination card, then the shared "What to post" card). Twitch's role pickers sit
-  per post type, so `EventTypesCard` and `EventTypeSetting` take an optional
-  `type_fields:` component class, rendered inside each type's disclosure with
-  `subscription:` and `event_type:` and a block that renders the text fields, which it
-  yields where they belong; the disclosure is
-  `Feeds::SettingsDisclosure` (summary key `settings_disclosure.summary`), which the
-  categories card reuses for the switched-away choice. `Twitch::TypeFields` adds the role field
-  for every type, a volume warning on All clips, the 48-hour note on Featured clips, the
-  viewer toggle above Live's text fields and the end mode below them. The end mode and
-  the switched-away choice are `Twitch::ModeField` subclasses: a `SegmentedControl` over
-  one `Twitch::ModePanel` per mode; the generic `option-panels` controller shows the
-  panel matching the control's value (`lib/option_panels.js`).
-- **Twitch categories card.** `Twitch::CategoriesCard` (after "What to post") holds the
-  category filter and `Twitch::SwitchedAwayField`. The filter is a multiple `TomSelect`
+- **Twitch pages.** `Feeds::Twitch` answers `channel` as the lookup param and permits
+  `role_id` plus the five role columns, `live_end_mode`, `show_viewers`, `switched_away`
+  and `categories`. `Components::Feeds::Twitch::SubscriptionFields` is the form
+  (destination card, post type cards, categories card). `EventTypeList` and
+  `EventTypeSetting` take an optional `type_fields:` component class, rendered in each
+  card's body with `subscription:`, `event_type:` and `event:` and a block for the text
+  fields. `Twitch::TypeFields` puts the role override beside the channel override (it
+  passes it into `OverrideFields`), the viewer toggle above Live's text fields and the end
+  mode below them. The clip-volume and 48-hour sentences are those types' card help. The
+  end mode and the switched-away choice are `Twitch::ModeField` subclasses: a
+  `SegmentedControl` over one `Twitch::ModePanel` per mode; the generic `option-panels`
+  controller shows the panel matching the control's value (`lib/option_panels.js`).
+- **Twitch categories card.** `Twitch::CategoriesCard` (after the post type cards) holds the
+  category filter and `Twitch::SwitchedAwayField`, the card's last field. The field only
+  matters with a category set, so its wrapper is `hidden` until the select holds a selected
+  option (`group-has-[option:checked]/categories:block`, no JS). The filter is a multiple `TomSelect`
   whose `tom_select_search_url_value` points at
   `Servers::Twitch::CategoriesController#index`; the controller's `searchUrl` mode loads
   matches as the user types (`lib/category_options.js`). The endpoint returns
@@ -149,7 +164,8 @@ are no preview routes for these pages.
   The search caches per lowercased query for a day through `Feeds::CachedFetch`. Each
   option's value is `Feeds::Twitch::CategoryValue.dump` (`{"id","name"}` as JSON, id
   first), so saved and searched options match; the controller `parse`s the values and
-  drops any it can't read. A hidden empty `subscription[categories][]` goes first, so
+  drops any it can't read. The search clears its text after each pick
+  (`clearAfterSelect`). A hidden empty `subscription[categories][]` goes first, so
   clearing every chip still submits and empties the list. A follow holds at most
   `Settings::MAX_CATEGORIES` (100) categories, enforced by the model and the
   `feed_twitch_settings_categories_max` check constraint. In the switched-away field the
@@ -157,13 +173,14 @@ are no preview routes for these pages.
 - **Previews per source.** `TemplateField` takes its sample values and card from
   `Feeds::<Source>::PreviewSamples` (`tokens`, `value`, `card`). Twitch's also builds
   the end-mode cards (`end_mode_card`). The labels come from the renderers
-  (`EndedAnnouncement::VOD_LABEL`, `ClipAnnouncement::LABELS`); the body lines are
+  (`EndedAnnouncement::VOD_LABEL`) and the post type's `label` in
+  `Feeds::Twitch::POST_TYPES`; the body lines are
   copies of the renderers' text, so a renderer change needs the matching sample change.
   The preview card shows text and an optional button only, so it has no accent bar,
   profile picture or thumbnail. A role pill comes from the role
-  select in the field's own `data-feed-preview-scope` (the type's disclosure) and falls
-  back to the first role select on the page, which is Steam's single one
-  (`lib/role_scope.js`).
+  select in the field's own `data-feed-preview-scope` (the type's card) when it has a
+  value, else the top card's role select (`lib/role_scope.js`); a `No ping` override shows
+  no pill.
 - **Twitch images.** Channel profile pictures load straight from Twitch, so the CSP
   `img_src` lists `static-cdn.jtvnw.net` and the privacy policy says Twitch sees the
   viewer's IP address.
@@ -177,11 +194,21 @@ in the order the UI lists them). A new follow starts with every type off, and sa
 needs at least one. Template
 tokens are `streamer`, `category`, `title` and `clipper`; a token a card has no value for
 (`clipper` on a live card, `category` on a video) renders empty
-(`Feeds::Announcement#blank_tokens`). Its settings live in `feed_twitch_settings`
-(`Feeds::Twitch::Settings`, `twitch_settings` on the subscription): one role column per
-post type (`live_role_id`, `highlights_role_id`, `uploads_role_id`,
-`featured_clips_role_id`, `clips_role_id`), `show_viewers` (true by default) and
-`live_end_mode` (see below). `role_id_for` maps an event type to its role column.
+(`Feeds::Announcement#template_values`). Its settings live in `feed_twitch_settings`
+(`Feeds::Twitch::Settings`, `twitch_settings` on the subscription): a follow-wide
+`role_id` plus one override column per post type (`live_role_id`, `highlights_role_id`,
+`uploads_role_id`, `featured_clips_role_id`, `clips_role_id`), `show_viewers` (true by
+default) and `live_end_mode` (see below). `Settings#role_id_for` is the override or
+`role_id`; `#role_override_for` is the column alone (the form's override select). An
+override of `Settings::NO_PING` (`0`, never a snowflake) means no ping for that type even
+when the follow has a role; the controller skips it on an override column when it
+verifies role ids, and still refuses it as the follow's own role.
+`Feeds::Twitch::POST_TYPES` holds one `Feeds::Twitch::PostType` per post type, in UI
+order: event type, default notification, tokens, role column and eyebrow label.
+`event_types`, `template_tokens`, `tokens_for`, `default_notification`,
+`Settings#role_id_for`, the follow form's role select and permit list, and every card's
+eyebrow read it (`fetch_post_type`). `POSTED_AS` is a different axis: it maps the events
+that are not posts onto a post type.
 `categories` (jsonb array of `{id, name}`, name kept so the UI needs no API call) limits
 a follow to chosen categories; empty means every category. `accepts?` checks the
 category id for streams and clips; videos have none and always pass. A stream that
@@ -226,7 +253,9 @@ a day, shared with the Live card's box art; a failed lookup is cached as nil for
 minutes.
 
 Both cards subclass `Feeds::Twitch::MediaAnnouncement`, which holds what they share
-(accent, profile header, eyebrow from the subclass's `LABELS`, thumbnail image, link).
+(accent, thumbnail image, link). `Feeds::Twitch::ProfileHeader`, shared with the Live and
+ended cards, adds the profile picture and the eyebrow, `<name> · <label>` from the post
+type's row; the ended card overrides the eyebrow.
 
 A clip that is both new and featured posts once. `ClipCreated` is secondary, so
 `StoryPick` prefers the featured copy. A clip featured after it already posted as new
@@ -311,7 +340,8 @@ is the only chance to add the button, so `RevisePostJob` retries.
   language). Check constraints limit `body_length` to its two values and `languages` to
   the model's codes. The row outlives a pause: switching every post type off keeps it.
 - `feed_twitch_settings` (`Feeds::Twitch::Settings`): the Twitch-only settings of a
-  subscription, 1:1 (unique `subscription_id`). An optional `live_role_id`,
+  subscription, 1:1 (unique `subscription_id`). An optional `role_id` and one optional override
+  role column per post type,
   `show_viewers` and `switched_away` (`summary` or `delete`, check-constrained).
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
   wants, each with an optional `template` override, an optional `channel_id` and
@@ -332,10 +362,10 @@ is the only chance to add the button, so `RevisePostJob` retries.
 
 ## `Subscription.active`
 
-A subscription is **active** when its server is real (not a preview) and has both the
-`integrations` plugin and the source's sub-plugin enabled. Each source in
+A subscription is **active** when its server is real (not a preview) and has the
+source's plugin enabled. Each source in
 `Feeds.sources` names its watcher classes and its sub-plugin key (`Feeds::Steam`:
-`Integrations::Steam::NewsWatcher`, `:steam`), so a new source is one module and one
+`Integrations::Steam::NewsWatcher`, `:steam`), so a new source is one class and one
 entry there. `Feeds::Subscription` is registered as a demand source in
 `config/initializers/integrations.rb`, and a watch is polled only while an active
 subscription points at it.
@@ -442,8 +472,7 @@ ignores it when ranking, so a copy the subscription could never have received ca
 displace one it could.
 
 `Ops::Feeds::SubscribedEvents::Resume` resets it to now for the server's subscriptions
-when `integrations` is enabled again (all of them) or a source plugin is (the subscriptions on
-that source's watches). Off means off: re-enabling must not post what was published
+when a source plugin is enabled again (the subscriptions on that source's watches). Off means off: re-enabling must not post what was published
 while it was off. Editing a subscription does not reset it.
 
 It replaces priming. A watch stores whatever is fresh and not yet stored, and the gate decides
@@ -473,8 +502,9 @@ falls back to the default. Steam's default is built from `TYPE_LABELS`, the same
 as the card eyebrow. A migration copied existing custom messages into the notification
 text, so existing pushes did not change. The custom message is optional and empty by
 default. It is the subscribed event's `template` filled by `TemplateText`, with the
-tokens `game`, `author` and `feed`. It never touches the subject. A stored template that still has
-`{title}` or `{url}` from before those tokens were removed renders them literally.
+same tokens as the notification
+text, `title` included. It never touches the subject. A stored template that still has
+`{url}` from before that token was removed renders it literally.
 
 The **fallback** content, used when the card conversion fails, keeps the custom message
 line: role and message, then the notification text, then the link.

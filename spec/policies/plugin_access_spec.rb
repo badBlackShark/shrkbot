@@ -23,6 +23,10 @@ RSpec.describe PluginAccess do
         expect(access.manage?(:reminders)).to be(true)
       end
 
+      it "is true for a group page" do
+        expect(access.manage?(:moderation)).to be(true)
+      end
+
       it "is false for a bespoke key without a grant" do
         expect(access.manage?(:bespoke_thing)).to be(false)
       end
@@ -41,6 +45,10 @@ RSpec.describe PluginAccess do
 
       it "is false for a normal plugin key" do
         expect(access.manage?(:roles)).to be(false)
+      end
+
+      it "is false for a group page" do
+        expect(access.manage?(:moderation)).to be(false)
       end
 
       context "when the user is a tournament organiser" do

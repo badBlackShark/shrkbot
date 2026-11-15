@@ -20,7 +20,7 @@ module Moderation
         numericality: {greater_than_or_equal_to: 0.75, less_than_or_equal_to: 1.0}
 
       def self.active_for(discord_id)
-        active_group_settings(discord_id, :spam_protection) { |config| config.spam_protection_settings }
+        active_settings(discord_id, :spam_protection) { |config| config.spam_protection_settings }
       end
     end
   end

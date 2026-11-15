@@ -10,13 +10,14 @@ RSpec.describe "Spam protection config", type: :request do
   it_behaves_like "a config page that requires sign-in"
 
   context "when signed in" do
-    let!(:moderation_plugin) { create(:plugin, key: "moderation", name: "Server Shield") }
+    let!(:logging_plugin) { create(:plugin, key: "logging", name: "Logging") }
     let!(:spam_plugin) { create(:plugin, key: "spam_protection", name: "Cross-Channel Spam Guard") }
 
     before do
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
       config.create_moderation_settings!
+      config.create_logging_settings!
       config.create_spam_protection_settings!
       config.create_image_scanning_settings!
       allow(Bot::Discord::UserGuilds).to receive(:call).and_return([guild])
@@ -28,9 +29,10 @@ RSpec.describe "Spam protection config", type: :request do
       before { get server_path(guild.id) }
 
       describe "GET /servers/:server_id/spam_protection" do
-        context "when group is enabled and staff role is present" do
+        context "when Logging is ready and a staff role is present" do
           before do
-            create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+            config.logging_settings.update!(channel_id: 111)
+            create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
               .update_column(:enabled, true)
             config.moderation_settings.update!(staff_role_id: 500)
             create(:server_role, server_configuration: config, discord_id: 500, name: "Moderator")
@@ -44,39 +46,105 @@ RSpec.describe "Spam protection config", type: :request do
 
           it "renders the detection and response controls" do
             get server_spam_protection_path(guild.id)
-            expect(response.body).to include("Trigger threshold")
+            expect(response.body).to include(I18n.t("components.moderation.spam_protection_form.detection.trigger_threshold.label"))
             expect(response.body).to include("Match strictness")
             expect(response.body).to include("When spam is detected")
           end
         end
 
-        context "when group is disabled" do
-          it "returns 200 and renders the prereq gate" do
+        context "when Logging and the staff role are missing" do
+          it "lists both steps with a link each, and locks the toggle" do
             get server_spam_protection_path(guild.id)
             expect(response).to have_http_status(:ok)
-            expect(response.body).to include("Server Shield is off")
-            expect(response.body).to include("Go to Server Shield")
+            expect(response.body).to include("Before you enable")
+            expect(response.body).to include("Set up a log channel so shrkbot has a place to post alerts.")
+            expect(response.body).to include("Pick a staff role on the Server Shield overview.")
+            expect(response.body).to include(I18n.t("components.plugin_row.needs_setup_hint"))
+          end
+
+          it "points each step at its page" do
+            get server_spam_protection_path(guild.id)
+
+            expect(step_links(response.body)).to include(
+              I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.cta") => server_logging_path(guild.id),
+              I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.staff_role.cta") => server_moderation_path(guild.id)
+            )
           end
         end
 
-        context "when group is enabled but no staff role set" do
+        it "keeps the settings editable" do
+          get server_spam_protection_path(guild.id)
+          expect(response.body).to include(I18n.t("components.moderation.spam_protection_form.detection.trigger_threshold.label"))
+          expect(response.body).not_to include("inert")
+          expect(response.body).to include('name="spam_protection[enabled]" value="0"')
+        end
+
+        context "when the plugin is enabled and a prerequisite is gone" do
           before do
-            create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+            create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)
               .update_column(:enabled, true)
           end
 
-          it "returns 200 with no gate but locked toggle and warning callout" do
+          it "titles the callout by what is missing, not by enabling" do
             get server_spam_protection_path(guild.id)
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to include("Pick a staff role first.")
-            expect(response.body).not_to include("Server Shield is off")
+            expect(response.body).to include(I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.title_enabled"))
+            expect(response.body).not_to include("Before you enable")
+          end
+        end
+
+        context "when the plugin is disabled and a prerequisite is missing" do
+          it "titles the callout by enabling" do
+            get server_spam_protection_path(guild.id)
+            expect(response.body).to include("Before you enable Cross-Channel Spam Guard")
+          end
+        end
+
+        context "when only the staff role is missing" do
+          before do
+            config.logging_settings.update!(channel_id: 111)
+            create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
+              .update_column(:enabled, true)
+          end
+
+          it "lists the staff role step only" do
+            get server_spam_protection_path(guild.id)
+            expect(response.body).to include("Pick a staff role on the Server Shield overview.")
+            expect(response.body).not_to include("Set up a log channel so shrkbot has a place to post alerts.")
+          end
+        end
+
+        context "when only Logging is missing" do
+          before do
+            config.moderation_settings.update!(staff_role_id: 500)
+          end
+
+          it "lists the Logging step only" do
+            get server_spam_protection_path(guild.id)
+            expect(response.body).to include("Set up a log channel so shrkbot has a place to post alerts.")
+            expect(response.body).not_to include("Pick a staff role on the Server Shield overview.")
+            expect(response.body).not_to include("Enable Logging so shrkbot has a place to post alerts.")
+          end
+        end
+
+        context "when a log channel is set but Logging is disabled" do
+          before do
+            config.moderation_settings.update!(staff_role_id: 500)
+            config.logging_settings.update!(channel_id: 111)
+            create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
+          end
+
+          it "tells the reader to enable Logging, not to set up a channel" do
+            get server_spam_protection_path(guild.id)
+            expect(response.body).to include("Enable Logging so shrkbot has a place to post alerts.")
+            expect(response.body).not_to include("Set up a log channel so shrkbot has a place to post alerts.")
           end
         end
       end
 
       describe "PATCH /servers/:server_id/spam_protection" do
         before do
-          create(:plugin_activation, server_configuration: config, plugin: moderation_plugin, enabled: false)
+          config.logging_settings.update!(channel_id: 111)
+          create(:plugin_activation, server_configuration: config, plugin: logging_plugin, enabled: false)
             .update_column(:enabled, true)
           config.moderation_settings.update!(staff_role_id: 500)
         end
@@ -90,7 +158,61 @@ RSpec.describe "Spam protection config", type: :request do
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
           expect(response.body).to include('target="plugin-sidebar"')
           expect(response.body).to include("spam_protection-config")
-          expect(response.body).to include("saved")
+          expect(response.body).to include("Saved. Cross-Channel Spam Guard is still disabled.").and include(%(data-toast-sticky-value="true"))
+        end
+
+        context "when prerequisites are missing" do
+          before do
+            config.moderation_settings.update!(staff_role_id: nil)
+            config.logging_settings.update!(channel_id: nil)
+          end
+
+          it "still saves the settings and says the plugin is disabled" do
+            patch server_spam_protection_path(guild.id),
+              params: {spam_protection: {channel_threshold: 4, window_seconds: 10, similarity: 0.9,
+                                         match_symbol_only_messages: "0", action: "purge", punishment: "none",
+                                         timeout_seconds: 3600, enabled: "0"}},
+              **turbo
+            expect(response).to have_http_status(:ok)
+            expect(config.spam_protection_settings.reload.channel_threshold).to eq(4)
+            expect(response.body).to include("Saved. Cross-Channel Spam Guard is still disabled.").and include(%(data-toast-sticky-value="true"))
+          end
+        end
+
+        context "when the plugin is enabled and Logging lost its channel" do
+          before do
+            config.logging_settings.update_columns(channel_id: nil)
+            create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)
+              .update_column(:enabled, true)
+          end
+
+          it "saves a changed threshold" do
+            patch server_spam_protection_path(guild.id),
+              params: {spam_protection: {channel_threshold: 5, window_seconds: 10, similarity: 0.9,
+                                         match_symbol_only_messages: "0", action: "purge", punishment: "none",
+                                         timeout_seconds: 3600, enabled: "1"}},
+              **turbo
+            expect(response).to have_http_status(:ok)
+            expect(config.spam_protection_settings.reload.channel_threshold).to eq(5)
+          end
+        end
+
+        context "when a forged request enables the plugin with prerequisites unmet" do
+          before do
+            config.moderation_settings.update!(staff_role_id: nil)
+            config.logging_settings.update!(channel_id: nil)
+            create(:plugin_activation, server_configuration: config, plugin: spam_plugin, enabled: false)
+          end
+
+          it "refuses with 422 and leaves the plugin disabled" do
+            patch server_spam_protection_path(guild.id),
+              params: {spam_protection: {channel_threshold: 3, window_seconds: 10, similarity: 0.9,
+                                         match_symbol_only_messages: "0", action: "purge", punishment: "none",
+                                         timeout_seconds: 3600, enabled: "1"}},
+              **turbo
+            expect(response).to have_http_status(:unprocessable_content)
+            expect(config.plugin_activations.find_by(plugin: spam_plugin).reload.enabled).to be(false)
+          end
         end
 
         it "surfaces the validation message when a value exceeds its maximum" do
@@ -122,6 +244,7 @@ RSpec.describe "Spam protection config", type: :request do
                                        timeout_seconds: 3600, enabled: "1"}},
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
+          expect(response.body).to include("Cross-Channel Spam Guard needs Logging enabled, and a staff role set on the Server Shield overview.")
         end
 
         it "falls back to a redirect without Turbo" do
@@ -130,21 +253,6 @@ RSpec.describe "Spam protection config", type: :request do
                                        match_symbol_only_messages: "0", action: "purge", punishment: "none",
                                        timeout_seconds: 3600, enabled: "0"}}
           expect(response).to redirect_to(server_spam_protection_path(guild.id))
-        end
-
-        context "when toggled from the overview" do
-          subject(:patch_from_overview) do
-            patch server_spam_protection_path(guild.id),
-              params: {spam_protection: {channel_threshold: 3, window_seconds: 10, similarity: 0.9,
-                                         match_symbol_only_messages: "0", action: "purge", punishment: "none",
-                                         timeout_seconds: 3600, enabled: "0"},
-                       from_overview: "1"}
-          end
-
-          it "redirects to the moderation overview" do
-            patch_from_overview
-            expect(response).to redirect_to(server_moderation_path(guild.id))
-          end
         end
       end
     end

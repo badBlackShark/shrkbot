@@ -9,6 +9,13 @@ RSpec.describe Lfg::Settings do
     expect(settings).to be_valid
   end
 
+  describe "#default_min_membership_days_or_zero" do
+    it "reads nil as 0" do
+      settings.default_min_membership_days = nil
+      expect(settings.default_min_membership_days_or_zero).to eq(0)
+    end
+  end
+
   describe "cooldown_seconds" do
     it "is valid at 0" do
       settings.cooldown_seconds = 0

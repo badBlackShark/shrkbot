@@ -27,6 +27,12 @@ RSpec.describe "Welcomes config", type: :request do
       end
 
       describe "GET /servers/:server_id/welcomes" do
+        it "renders the form editable while the plugin is disabled" do
+          get server_welcomes_path(guild.id)
+          expect(response.body).to include("Join message")
+          expect(response.body).not_to include("inert")
+        end
+
         it "renders the config page in the app shell" do
           get server_welcomes_path(guild.id)
           expect(response).to have_http_status(:ok)
@@ -97,7 +103,7 @@ RSpec.describe "Welcomes config", type: :request do
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :welcomes)).to be(false)
           expect(response.body).to include("welcomes-config")
-          expect(response.body).to include("settings to be configured")
+          expect(response.body).to include("needs a channel.")
         end
 
         it "saves messages without enabling and reports success" do
@@ -105,7 +111,25 @@ RSpec.describe "Welcomes config", type: :request do
             params: {welcomes: {channel_id: "", join_message: "hello", leave_message: "", enabled: "0"}},
             **turbo
           expect(config.welcome_settings.reload.join_message).to eq("hello")
-          expect(response.body).to include("saved")
+          expect(response.body).to include("Saved. Welcomes is still disabled.").and include(%(data-toast-sticky-value="true"))
+        end
+
+        context "when the save switches an enabled plugin off" do
+          subject(:save) do
+            patch server_welcomes_path(guild.id),
+              params: {welcomes: {channel_id: 111, join_message: "hello", leave_message: "", enabled: "0"}},
+              **turbo
+          end
+
+          before do
+            config.welcome_settings.update!(channel_id: 111)
+            create(:plugin_activation, server_configuration: config, plugin: Plugin.find_by!(key: "welcomes"), enabled: true)
+          end
+
+          it "keeps the plain toast" do
+            save
+            expect(response.body).to include("Welcomes settings saved.").and include("bg-success-solid")
+          end
         end
 
         it "falls back to a redirect without Turbo" do

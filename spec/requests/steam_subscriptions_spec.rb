@@ -11,13 +11,11 @@ RSpec.describe "Steam subscriptions", type: :request do
   let(:announcements) { "Integrations::Steam::AnnouncementPublished" }
   let(:articles) { "Integrations::Steam::ArticlePublished" }
   let(:target) { Integrations::Target.new(external_id: "1145350", name: "Hades II", image_url: "https://shared.akamai.steamstatic.com/hades.jpg", url: "https://store.steampowered.com/app/1145350/") }
-  let!(:integrations_plugin) { create(:plugin, key: "integrations", name: "Integrations") }
   let!(:steam_plugin) { create(:plugin, key: "steam", name: "Steam") }
 
   before do
     post "/auth/discord/callback"
     create(:server_configuration, discord_id: guild.id)
-    create(:plugin_activation, server_configuration: config, plugin: integrations_plugin, enabled: true)
     create(:plugin_activation, server_configuration: config, plugin: steam_plugin, enabled: true)
     create(:server_channel, server_configuration: config, discord_id: 777, name: "news")
     create(:server_role, server_configuration: config, discord_id: 888, name: "Gamers")
@@ -36,6 +34,16 @@ RSpec.describe "Steam subscriptions", type: :request do
     subject(:lookup) { get plugin_path, params: {app: input} }
 
     let(:input) { "1145350" }
+
+    context "with a conflicting plugin key in the query" do
+      subject(:lookup) { get plugin_path, params: {plugin_key: "twitch"} }
+
+      it "resolves the nested route to Steam" do
+        lookup
+
+        expect(response.body).to include("Paste a link to the game")
+      end
+    end
 
     context "without an input" do
       let(:input) { nil }
@@ -243,6 +251,18 @@ RSpec.describe "Steam subscriptions", type: :request do
       end
     end
 
+    context "when every post type is unchecked" do
+      let(:attributes) { super().merge(event_types: {patch_notes => "0", announcements => "0", articles => "0"}) }
+
+      it "renders the form again with the reason and keeps the submitted channel" do
+        expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include("Follow Hades II", "Turn on at least one type of post")
+        expect(Nokogiri::HTML(response.body).at_css(%(select[name="subscription[channel_id]"] option[selected]))["value"]).to eq("777")
+      end
+    end
+
     context "when the channel is left empty" do
       let(:channel_id) { "" }
 
@@ -270,6 +290,13 @@ RSpec.describe "Steam subscriptions", type: :request do
 
       textarea = Nokogiri::HTML(response.body).at_css(%(textarea[name="subscription[choices][#{patch_notes}][template]"]))
       expect(textarea.text).to eq("Hot take: {title}")
+    end
+
+    it "warns about untagged patch notes above the post type cards" do
+      edit
+
+      note = response.body.index(CGI.escapeHTML(I18n.t("components.feeds.steam.subscription_fields.what_note")))
+      expect(note).to be < response.body.index("subscription[event_types]")
     end
 
     it "leaves the textarea empty for a post type without a custom template" do

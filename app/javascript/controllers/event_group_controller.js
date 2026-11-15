@@ -22,6 +22,6 @@ export default class extends Controller {
     const total = this.eventTargets.length
     const enabled = this.eventTargets.filter((checkbox) => checkbox.checked).length
     this.allTarget.checked = enabled === total
-    if (this.hasCountTarget) this.countTarget.textContent = `${enabled}/${total}`
+    if (this.hasCountTarget) this.countTarget.textContent = enabled
   }
 }
