@@ -15,6 +15,28 @@ RSpec.describe Components::Roles::RoleSetCard do
     )
   end
 
+  describe "selection mode badge" do
+    subject(:html) { described_class.new(data: card_data, context:).render_in(view_context) }
+
+    let(:card_data) { Components::Roles::RoleSetCardData.empty.with(selection_mode:) }
+
+    context "when the set allows several roles" do
+      let(:selection_mode) { "multi" }
+
+      it "reads Pick several" do
+        expect(html).to include("Pick several")
+      end
+    end
+
+    context "when the set allows one role" do
+      let(:selection_mode) { "single" }
+
+      it "reads Pick one" do
+        expect(html).to include("Pick one")
+      end
+    end
+  end
+
   context "when repost_path is given" do
     let(:card_data) do
       Components::Roles::RoleSetCardData.new(

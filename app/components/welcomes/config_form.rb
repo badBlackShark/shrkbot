@@ -29,7 +29,6 @@ class Components::Welcomes::ConfigForm < Components::Base
       channels:,
       selected: @settings.channel_id,
       label: t(".channel.label"),
-      help: t(".channel.help"),
       required: true
     )
   end
@@ -47,8 +46,7 @@ class Components::Welcomes::ConfigForm < Components::Base
 
   def message_card(name, value, &toggle)
     render Components::Card.new do
-      label(class: "block text-sm font-semibold") { t(".#{name}.label") }
-      p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".#{name}.help") }
+      render Components::FieldLabel.new { t(".#{name}.label") }
       textarea(
         name: "welcomes[#{name}]",
         rows: 3,
@@ -56,24 +54,12 @@ class Components::Welcomes::ConfigForm < Components::Base
         placeholder: t(".#{name}.placeholder"),
         data: {welcome_preview_target: camel(name), action: "input->welcome-preview#render"}
       ) { value }
-      info_line(name)
       toggle_section(&toggle)
     end
   end
 
   def toggle_section(&toggle)
     div(class: "mt-4 border-t border-border-subtle pt-4", &toggle)
-  end
-
-  def info_line(name)
-    p(class: "mt-1.5 flex items-start gap-1 text-xs text-text-secondary") do
-      render Components::Icon.new("info", class: "mt-0.5 size-3 flex-none text-accent")
-      span do
-        code(class: "font-mono") { "{user}" }
-        whitespace
-        plain t(".#{name}.info")
-      end
-    end
   end
 
   def ping_toggle

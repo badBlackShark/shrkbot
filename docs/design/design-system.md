@@ -145,8 +145,8 @@ shared `Components::PluginNav` mixin (plugin→icon and plugin→config-path, sh
 with `PluginRow` so the two can't drift) — with a status dot, an active highlight
 (`aria-current="page"`), and a back-to-dashboard link. It's `hidden md:block`
 (the breadcrumb covers navigation on narrow screens). Catalog plugins join the
-list automatically once they have config routes; Reminders isn't in the catalog
-(it has no activation to toggle) — `PluginCatalog::GLOBAL_KEYS` names it and
+list automatically once they have config routes; Reminders has no activation to toggle, so it sits in `PluginCatalog::GLOBALS`, outside
+`DEFINITIONS` — `PluginCatalog::GLOBAL_KEYS` names it and
 `PluginStatus.rows` appends it as a locked, always-enabled row, which both the
 dashboard and the sidebar render.
 With a plugin sidebar the footer renders inside the scrolling main pane, so a
@@ -388,8 +388,8 @@ both the `mousedown` and the `click` must land on the backdrop.
 
 Use flexbox for layout. Reach for CSS grid only when a layout genuinely can't be
 done with flex — in practice that's a responsive multi-column **card grid** with
-equal tracks (e.g. the server picker's `grid-cols-1 sm:grid-cols-2
-lg:grid-cols-3`), where the flex equivalent needs fragile `calc()` basis values.
+equal tracks (the server picker's `grid-cols-1 sm:grid-cols-2
+lg:grid-cols-3` and the home page's plugin grid), where the flex equivalent needs fragile `calc()` basis values.
 Never use grid to centre a single item (`flex items-center justify-center`, not
 `grid place-items-center`) or to stack/overlap elements (`relative` + `absolute
 inset-0`).

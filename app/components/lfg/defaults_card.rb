@@ -33,7 +33,6 @@ class Components::Lfg::DefaultsCard < Components::Base
 
   def body
     div(class: "flex flex-col gap-5 border-t border-border-subtle p-5") do
-      p(class: "text-sm text-text-secondary") { t(".help") }
       required_field
       excluded_field
       min_days_field
@@ -49,7 +48,6 @@ class Components::Lfg::DefaultsCard < Components::Base
       options: @role_options,
       selected: @settings.default_required_role_ids,
       label: t(".required.label"),
-      help: t(".required.help"),
       placeholder: t(".required.placeholder")
     )
   end
@@ -60,7 +58,6 @@ class Components::Lfg::DefaultsCard < Components::Base
       options: @role_options,
       selected: @settings.default_excluded_role_ids,
       label: t(".excluded.label"),
-      help: t(".excluded.help"),
       placeholder: t(".excluded.placeholder")
     )
   end
@@ -68,10 +65,8 @@ class Components::Lfg::DefaultsCard < Components::Base
   def min_days_field
     render Components::Lfg::MinDaysField.new(
       name: "lfg[default_min_membership_days]",
-      value: @settings.default_min_membership_days,
+      value: @settings.default_min_membership_days_or_zero,
       label: t(".min_days.label"),
-      help: t(".min_days.help"),
-      placeholder: t(".min_days.placeholder"),
       unit: t(".min_days.unit")
     )
   end

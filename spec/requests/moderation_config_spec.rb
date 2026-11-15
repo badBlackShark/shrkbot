@@ -49,7 +49,7 @@ RSpec.describe "Moderation config", type: :request do
             expect(response.body).to include("Server Shield")
           end
 
-          it "renders the protections directory" do
+          it "lists the protections" do
             get server_moderation_path(guild.id)
             expect(response.body).to include("Protections")
             expect(response.body).to include("Cross-Channel Spam Guard")
@@ -77,9 +77,12 @@ RSpec.describe "Moderation config", type: :request do
               create(:server_channel, server_configuration: config, discord_id: 111, name: "mod-log")
             end
 
-            it "renders the logging subline with the channel name" do
+            it "renders the logging subline with the channel name and a link to change it" do
               get server_moderation_path(guild.id)
-              expect(response.body).to include("#mod-log")
+              subline = Nokogiri::HTML(response.body).css("p").find { |paragraph| paragraph.text.include?("#mod-log") }
+              link = subline.at_css("a")
+              expect(link["href"]).to eq(server_logging_path(guild.id))
+              expect(link.text).to eq("Logging")
             end
           end
         end

@@ -125,18 +125,6 @@ RSpec.describe Moderation::OverviewContext do
     end
   end
 
-  describe "#staff_role_present?" do
-    context "when staff_role_id is set" do
-      before { config.moderation_settings.update!(staff_role_id: 555) }
-
-      it { expect(context.staff_role_present?).to be(true) }
-    end
-
-    context "when no staff_role_id" do
-      it { expect(context.staff_role_present?).to be(false) }
-    end
-  end
-
   describe "#logging_channel_name" do
     context "when logging_settings is absent" do
       before { config.logging_settings.destroy! }

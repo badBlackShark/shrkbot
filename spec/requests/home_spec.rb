@@ -5,6 +5,9 @@ require "rails_helper"
 RSpec.describe "Home", type: :request do
   subject(:home) { get root_path }
 
+  let(:plugin_keys) { %i[roles welcomes logging moderation reminders lfg steam twitch] }
+  let(:cards) { Nokogiri::HTML5(response.body).css("div.grid > a[href^='/preview/']") }
+
   it "renders OK" do
     home
 
@@ -21,6 +24,14 @@ RSpec.describe "Home", type: :request do
     home
 
     expect(response.body).to match(%r{<a href="/bespoke-plugins"[^>]*>#{I18n.t("views.home.bespoke_plugins_link")}</a>})
+  end
+
+  it "describes each plugin card with its catalog text" do
+    home
+
+    plugin_keys.each do |key|
+      expect(response.body).to include(CGI.escapeHTML(PluginCatalog.description(key)))
+    end
   end
 
   it "uses the brand display type for the wordmark" do
@@ -50,18 +61,34 @@ RSpec.describe "Home", type: :request do
     expect(response.body).to include("/releases/tag/3.1.0")
   end
 
-  it "renders the four plugin cards" do
+  it "links every public plugin card to its preview page" do
     home
 
-    %w[Roles Welcomes Logging Reminders].each do |name|
-      expect(response.body).to include(name)
-    end
+    expect(cards.map { |card| card["href"] }).to match_array(plugin_keys.map { |key| "/preview/#{key}" })
   end
 
-  it "renders the more-plugins line" do
+  it "shows a card for every public top-level plugin in the catalog" do
     home
 
-    expect(response.body).to include(I18n.t("views.home.more_plugins"))
+    top_level = PluginCatalog.all.select { |definition| definition.parent.nil? && !definition.bespoke }.map(&:key)
+    expected = top_level - [:integrations] + PluginCatalog.sub_plugin_keys(:integrations) + PluginCatalog::GLOBAL_KEYS
+
+    expect(cards.map { |card| card["href"].delete_prefix("/preview/").to_sym }).to include(*expected)
+  end
+
+  it "shows the Beta badge on the Twitch card and not on the Steam card" do
+    home
+
+    card_for = ->(key) { cards.find { |card| card["href"] == "/preview/#{key}" } }
+
+    expect(card_for.call(:twitch).text).to include(I18n.t("components.plugin_badges.beta"))
+    expect(card_for.call(:steam).text).not_to include(I18n.t("components.plugin_badges.beta"))
+  end
+
+  it "labels both sign-in buttons the same" do
+    home
+
+    expect(response.body.scan("Sign in with Discord").size).to eq(2)
   end
 
   it "offers the preview as the one way in that needs no Discord account" do
@@ -69,12 +96,6 @@ RSpec.describe "Home", type: :request do
 
     expect(response.body).to include('href="/preview"')
     expect(response.body).to include(I18n.t("views.home.preview"))
-  end
-
-  it "renders the marquee wrapper" do
-    home
-
-    expect(response.body).to include("plugin-marquee")
   end
 
   it "renders the footer link" do

@@ -25,10 +25,12 @@ class Components::Feeds::Twitch::ModeField < Components::Base
   end
 
   def panel(mode)
+    preview = card(mode)
+    return unless preview
+
     render Components::Feeds::Twitch::ModePanel.new(
       mode:,
-      description: t(".descriptions.#{mode}"),
-      card: card(mode),
+      card: preview,
       hidden: mode != selected,
       preview_label: t(".preview")
     )

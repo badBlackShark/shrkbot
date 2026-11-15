@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 class Components::Feeds::Twitch::ModePanel < Components::Base
-  def initialize(mode:, description:, card:, hidden:, preview_label:)
+  def initialize(mode:, card:, hidden:, preview_label:)
     @mode = mode
-    @description = description
     @card = card
     @hidden = hidden
     @preview_label = preview_label
@@ -11,8 +10,7 @@ class Components::Feeds::Twitch::ModePanel < Components::Base
 
   def view_template
     div(class: "mt-3 flex flex-col gap-3", hidden: @hidden, data: {option_panels_target: "panel", value: @mode}) do
-      render Components::FieldHelp.new { @description }
-      render Components::DiscordMessagePreview.new(label: @preview_label, messages: [{card: @card}]) if @card
+      render Components::DiscordMessagePreview.new(label: @preview_label, messages: [{card: @card}])
     end
   end
 end
