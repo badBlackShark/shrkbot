@@ -27,6 +27,10 @@ RSpec.describe Components::Moderation::StaffRoleCard do
     expect(html).to include("Exempt from all checks and optionally pinged for alerts.")
   end
 
+  it "exposes the requirement on the select" do
+    expect(Nokogiri::HTML5.fragment(html).at_css("select")["aria-required"]).to eq("true")
+  end
+
   it "renders the role name as an option" do
     expect(html).to include("Moderators")
   end

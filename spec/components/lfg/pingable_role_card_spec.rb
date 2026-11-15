@@ -44,6 +44,16 @@ RSpec.describe Components::Lfg::PingableRoleCard do
       expect(html).to include("Role to ping")
     end
 
+    it "marks the role to ping required" do
+      label = Nokogiri::HTML5.fragment(html).css("label").find { |node| node.text.include?("Role to ping") }
+      expect(label.at_css("span.text-danger-text").text).to eq("*")
+    end
+
+    it "exposes the requirement on the role-to-ping select" do
+      select = Nokogiri::HTML5.fragment(html).at_css("select[name='lfg[pingable_roles][0][role_id]']")
+      expect(select["aria-required"]).to eq("true")
+    end
+
     it "renders the also-requires and also-excludes role fields" do
       expect(html).to include("Also requires")
       expect(html).to include("Also excludes")

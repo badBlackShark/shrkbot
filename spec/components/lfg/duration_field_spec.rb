@@ -27,4 +27,8 @@ RSpec.describe Components::Lfg::DurationField do
   it "offers a reset to its default" do
     expect(html).to include("Reset to 5 minutes")
   end
+
+  it "puts the help under the stepper" do
+    expect(html.index("How long a member must wait")).to be > html.index('name="lfg[cooldown_seconds]"')
+  end
 end

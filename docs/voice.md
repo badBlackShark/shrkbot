@@ -409,6 +409,8 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Global` (badge on Reminders' dashboard row and config page) | `Always on` | "Global" reads as a scope, and the admin page already uses it that way ("Global settings for shrkbot's owner"). The badge means the plugin cannot be disabled. |
 | `Enabled` / `Disabled` (badges on dashboard and sub-plugin rows) | Deleted. `Needs setup` stays. | The toggle and the tile beside them already show the state. A badge earns its place only when it says something the row does not. |
 | Cookie notice: `shrkbot only sets technical cookies to make the site work. No tracking, analytics, or anything else from a third party. It will remember that you've seen this, though - with a cookie, of course. :)` / `Oh, nice!` | Deleted. | Technical cookies need no consent. The banner announced the absence of tracking, and it set the site's only non-essential cookie to remember that it had. The privacy policy says the same thing where a reader looks for it. |
+| `Channel (required)` / `Message (optional)` / `Role to ping (optional)` / `Channel (optional)` (Steam and Twitch), `Channel override (optional)` (Roles) | `Channel` with the red asterisk / `Message` / `Role to ping` / `Channel` / `Channel override` | Every other page marks a required field with the asterisk, so the feed pages spoke a second dialect. A field without the asterisk is optional, so "(optional)" said what the missing marker already says. |
+| `This setting is required to enable the plugin.` (hover text on the asterisk, Welcomes and Logging only) | Deleted. | It was a native browser tooltip, which the site does not use, and only two of the pages with an asterisk had it. The asterisk is the convention on its own. |
 
 ## Kept on purpose
 

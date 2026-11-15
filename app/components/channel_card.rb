@@ -15,7 +15,7 @@ class Components::ChannelCard < Components::Base
     render Components::Card.new(**@attrs) do
       label(class: label_class) do
         plain @label
-        required_marker if @required
+        render Components::RequiredMarker.new if @required
       end
       p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { @help } if @help
       if @channels.empty?
@@ -38,9 +38,5 @@ class Components::ChannelCard < Components::Base
 
   def label_class
     @help ? "block text-sm font-semibold" : "mb-1.5 block text-sm font-semibold"
-  end
-
-  def required_marker
-    span(class: "ml-1 text-xs font-semibold text-danger-text", title: t(".required")) { "*" }
   end
 end

@@ -58,7 +58,6 @@ en:
     channel_card:
       none: No channels have synced yet. shrkbot needs to be in the server first.
       placeholder: Choose a channel
-      required: This setting is required to enable the plugin.
     config_page:
       channel_lost: The channel you configured for %{plugin} was deleted. Choose a
         new channel below to keep it working.
@@ -93,11 +92,11 @@ en:
         twitch:
           title: Add a channel
       custom_message_field:
-        label: Message (optional)
+        label: Message
         placeholder: Shown above the card.
         preview: Preview
       destination_card:
-        channel_label: Channel (required)
+        channel_label: Channel
         channel_placeholder: Choose a channel
         role_label: Role to ping
         role_placeholder: No ping
@@ -743,7 +742,6 @@ en:
           single: Pick one
         channel:
           label: Channel override
-          optional: "(optional)"
           placeholder: Same as above
         delete: Delete role set
         mode:

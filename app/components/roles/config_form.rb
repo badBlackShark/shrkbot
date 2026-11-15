@@ -27,7 +27,8 @@ class Components::Roles::ConfigForm < Components::Base
       name: "roles[channel_id]",
       channels:,
       selected: @setting.channel_id,
-      label: t(".channel.label")
+      label: t(".channel.label"),
+      required: true
     )
   end
 
