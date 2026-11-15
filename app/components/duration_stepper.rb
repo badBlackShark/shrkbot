@@ -85,8 +85,8 @@ class Components::DurationStepper < Components::NumberStepper
   def shown(total)
     return nil if total.nil?
 
-    amount = Rational(total, factor)
-    (amount.denominator == 1) ? amount.to_i : amount.to_f.round(2)
+    amount = exact(total)
+    amount.is_a?(Float) ? amount.round(2) : amount
   end
 
   def exact(total)
