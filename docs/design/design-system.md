@@ -172,7 +172,9 @@ renders a warning `Callout` that the `live-warning` Stimulus controller shows or
 it is in `list:`; `exactly-one`: exactly one watched toggle is on), and `shown:`, the answer for
 the saved values so the first paint is right. The Ruby `shown:` and the JS rule must state the same
 predicate, so derive `shown:` from the same `list:` where possible. Warnings about server state (a deleted channel, a
-missing bot permission) stay plain `Callout`s. A live warning goes below the control it watches, so it appearing never pushes that control away from the cursor. It announces itself through a `role="status"` region that is always in the page, with the `hidden` callout inside it.
+missing bot permission) stay plain `Callout`s. A live warning goes below the control it watches, so
+it appearing never pushes that control away from the cursor. It announces itself through a
+`role="status"` region that is always in the page, with the `hidden` callout inside it.
 
 The header is a `Components::ConfigPageHeader` value: icon, title, description,
 and optionally `badge`, `media` and `aside`. The leading visual is the `PluginTile`

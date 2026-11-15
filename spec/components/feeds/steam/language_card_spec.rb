@@ -27,9 +27,12 @@ RSpec.describe Components::Feeds::Steam::LanguageCard do
     let(:region) { document.at_css("[data-controller=live-warning]") }
     let(:note) { region.at_css("[data-live-warning-target=callout]") }
 
+    let(:field) { region.parent }
+    let(:help) { field.at_xpath("./p") }
+
     it "sits below the language select and its help" do
-      help = document.at_css("select[name='subscription[languages][]']").ancestors("div").first.at_css("p")
-      expect(document.to_html.index("data-controller=\"live-warning\"")).to be > document.to_html.index(help.text)
+      expect(help.xpath("following-sibling::*")).to include(region)
+      expect(help.xpath("preceding-sibling::*").any? { |node| node.xpath("descendant-or-self::select[@name='subscription[languages][]']").any? }).to be(true)
     end
 
     it "announces itself through a status region" do

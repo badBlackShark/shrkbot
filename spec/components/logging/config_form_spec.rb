@@ -24,6 +24,7 @@ RSpec.describe Components::Logging::ConfigForm do
 
   describe "the public-channel warning" do
     let(:warning) { Nokogiri::HTML5.fragment(html).at_css("[data-controller=live-warning]") }
+    let(:callout) { warning.at_css("[data-live-warning-target=callout]") }
 
     it "watches the channel field for a public pick" do
       expect(JSON.parse(warning["data-live-warning-fields-value"])).to eq(["logging[channel_id]"])
@@ -38,7 +39,7 @@ RSpec.describe Components::Logging::ConfigForm do
       end
 
       it "renders the warning" do
-        expect(warning.at_css("[data-live-warning-target=callout]").key?("hidden")).to be(false)
+        expect(callout.key?("hidden")).to be(false)
       end
     end
 
@@ -51,7 +52,7 @@ RSpec.describe Components::Logging::ConfigForm do
       end
 
       it "hides the warning" do
-        expect(warning.at_css("[data-live-warning-target=callout]").key?("hidden")).to be(true)
+        expect(callout.key?("hidden")).to be(true)
       end
     end
   end
