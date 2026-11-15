@@ -100,7 +100,7 @@ RSpec.describe "Roles config", type: :request do
           patch server_roles_path(guild.id),
             params: {roles: {channel_id: 111, enabled: "0", role_sets: {}}}
           expect(response).to redirect_to(server_roles_path(guild.id))
-          expect(flash[:notice]).to eq("Saved. Roles is still disabled.")
+          expect(flash[:warning]).to eq("Saved. Roles is still disabled.")
         end
 
         it "redirects with an alert when a non-Turbo save fails" do

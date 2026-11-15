@@ -29,7 +29,7 @@ module ConfiguresPlugin
   end
 
   def respond_with_save(result)
-    @toast = {level: "notice", message: saved_message(result.value)} if result.success?
+    @toast = {level: saved_level(result.value), message: saved_message(result.value)} if result.success?
     respond_to do |format|
       format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
       format.html { redirect_to configuration_url, **flash_for(result) }
@@ -41,9 +41,13 @@ module ConfiguresPlugin
   end
 
   def flash_for(result)
-    return {notice: saved_message(result.value)} if result.success?
+    return {flash: {saved_level(result.value) => saved_message(result.value)}} if result.success?
 
     {alert: result.errors.to_sentence}
+  end
+
+  def saved_level(saved)
+    left_disabled?(saved) ? "warning" : "notice"
   end
 
   def saved_message(saved)

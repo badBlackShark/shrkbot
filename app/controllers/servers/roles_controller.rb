@@ -27,7 +27,7 @@ class Servers::RolesController < ApplicationController
     @success = result.success?
     @toast =
       if result.success?
-        {level: "notice", message: saved_message(result.value)}
+        {level: saved_level(result.value), message: saved_message(result.value)}
       else
         {level: "alert", message: result.errors.to_sentence.presence || t("servers.roles.failed")}
       end

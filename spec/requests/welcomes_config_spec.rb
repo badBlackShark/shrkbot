@@ -111,16 +111,25 @@ RSpec.describe "Welcomes config", type: :request do
             params: {welcomes: {channel_id: "", join_message: "hello", leave_message: "", enabled: "0"}},
             **turbo
           expect(config.welcome_settings.reload.join_message).to eq("hello")
-          expect(response.body).to include("Saved. Welcomes is still disabled.")
+          expect(response.body).to include("Saved. Welcomes is still disabled.").and include(%(data-toast-sticky-value="true"))
         end
 
-        it "keeps the plain toast when the save switches the plugin off" do
-          config.welcome_settings.update!(channel_id: 111)
-          create(:plugin_activation, server_configuration: config, plugin: Plugin.find_by!(key: "welcomes"), enabled: true)
-          patch server_welcomes_path(guild.id),
-            params: {welcomes: {channel_id: 111, join_message: "hello", leave_message: "", enabled: "0"}},
-            **turbo
-          expect(response.body).to include("Welcomes settings saved.")
+        context "when the save switches an enabled plugin off" do
+          subject(:save) do
+            patch server_welcomes_path(guild.id),
+              params: {welcomes: {channel_id: 111, join_message: "hello", leave_message: "", enabled: "0"}},
+              **turbo
+          end
+
+          before do
+            config.welcome_settings.update!(channel_id: 111)
+            create(:plugin_activation, server_configuration: config, plugin: Plugin.find_by!(key: "welcomes"), enabled: true)
+          end
+
+          it "keeps the plain toast" do
+            save
+            expect(response.body).to include("Welcomes settings saved.").and include("bg-success-solid")
+          end
         end
 
         it "falls back to a redirect without Turbo" do

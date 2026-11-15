@@ -1236,6 +1236,7 @@ en:
             AutoMod.'
           logging_subline_prefix: 'Alerts post to '
           logging_subline_suffix: through the Logging plugin.
+          prerequisites_title: Protections need Logging
           title: Server Shield
         sub_plugin_show:
           prerequisites:
@@ -1249,6 +1250,7 @@ en:
               cta: Open Server Shield
               message: Pick a staff role on the Server Shield overview.
             title: Before you enable %{plugin}
+            title_enabled: Required settings missing
       reminders:
         show:
           badge: Global

@@ -3,7 +3,8 @@
 class Components::Toast < Components::Base
   LEVELS = {
     "alert" => {icon: "warning", tone: "border-danger/30 bg-danger-solid text-danger-text"},
-    "notice" => {icon: "check-circle", tone: "border-success/30 bg-success-solid text-success-text"}
+    "notice" => {icon: "check-circle", tone: "border-success/30 bg-success-solid text-success-text"},
+    "warning" => {icon: "warning", tone: "border-warning-soft-bd bg-warning-solid text-warning-text", sticky: true}
   }.freeze
 
   def initialize(level:, message:)
@@ -15,7 +16,7 @@ class Components::Toast < Components::Base
     style = LEVELS.fetch(@level.to_s, LEVELS["notice"])
     div(
       role: "status",
-      data: {controller: "toast"},
+      data: {controller: "toast", toast_sticky_value: style[:sticky] ? "true" : nil},
       class: "anim-fade pointer-events-auto flex items-center gap-2.5 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-lg #{style[:tone]}"
     ) do
       render Components::Icon.new(style[:icon], class: "size-4 flex-none")

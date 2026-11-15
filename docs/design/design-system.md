@@ -57,7 +57,8 @@ proxy). The login and re-auth pages are not authed, so they sit outside the shel
 and centre themselves.
 
 Flash messages render as dismissable toasts (`Components::Toasts`, rendered once
-from the layout so every page gets them). Small dropdowns (the user menu) are the
+from the layout so every page gets them). The `warning` level (a save that leaves a plugin disabled) is sticky: it
+stays until dismissed. Small dropdowns (the user menu) are the
 standard pattern: a native `<details>` with the `dropdown` Stimulus controller.
 The panel (`.dropdown-menu`, a `menu` target) fades/slides in via CSS on `[open]`
 and fades/slides back out on close — the controller intercepts the close

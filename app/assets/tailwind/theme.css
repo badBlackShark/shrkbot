@@ -51,6 +51,7 @@
   --color-danger-fill: var(--danger-fill);
   --color-danger-fill-hover: var(--danger-fill-hover);
   --color-success-solid: var(--success-solid);
+  --color-warning-solid: var(--warning-solid);
   --color-danger-solid: var(--danger-solid);
 
   --color-surface-page: var(--surface-page);

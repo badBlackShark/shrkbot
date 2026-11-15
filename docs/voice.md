@@ -308,6 +308,8 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Set up a log channel so shrkbot has a place to post alerts.` (protection prerequisite step, shown whether or not a log channel was set) | Two variants: `Set up a log channel so shrkbot has a place to post alerts.` with no channel, `Enable Logging so shrkbot has a place to post alerts.` with a channel and Logging off | A reader who had picked a channel was told to set one up, and the real fix (switch Logging on) never appeared. |
 | `%{plugin} is disabled` / `Enable the plugin to configure messages.` (and the Logging, Roles, Looking for Game, Twilight Struggle variants) / `Enable %{plugin}` button | Deleted. The settings stay editable and the header toggle's `Enabled`/`Disabled` label is the only state signal. | The overlay made admins switch a plugin on before they could see or set what it would do. |
 | `Welcomes settings saved.` (saving a plugin that stays disabled) | `Saved. %{plugin} is still disabled.` | A disabled plugin's form saves now, so the toast tells the reader the change does nothing until the plugin is enabled. |
+| `Before you enable %{plugin}` (callout title, shown on an enabled protection too) | `Required settings missing` when the protection is enabled, `Before you enable %{plugin}` when it is not | "Before you enable" is false for a plugin that is already on. The enabled state now uses the dashboard hint's words. |
+| `Saved. %{plugin} is still disabled.` as a green toast that vanishes after five seconds | The same words as a warning toast that stays until dismissed | A green tick that disappears reads as "done". The change does nothing until the plugin is enabled, so the toast now stays and carries the warning tone. |
 
 ## Kept on purpose
 
