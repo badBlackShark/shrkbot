@@ -15,21 +15,13 @@ test("excludes-all applies when something is picked and none is in the list", ()
   assert.equal(warningApplies("excludes-all", [], ["en"]), false)
 })
 
-test("exactly-one applies for a single value only", () => {
-  assert.equal(warningApplies("exactly-one", ["1"], []), true)
-  assert.equal(warningApplies("exactly-one", [], []), false)
-  assert.equal(warningApplies("exactly-one", ["1", "1"], []), false)
-})
-
-test("watchedValues reads picked options and checked toggles, ignoring companions", () => {
+test("watchedValues reads the picked options of the watched selects only", () => {
   const form = {
     elements: [
       { name: "a", selectedOptions: [{ value: "" }, { value: "de" }] },
       { name: "b", type: "hidden", value: "0" },
-      { name: "b", type: "checkbox", checked: true, value: "1" },
-      { name: "c", type: "checkbox", checked: true, value: "1" },
-      { name: "d", type: "checkbox", checked: false, value: "1" }
+      { name: "c", selectedOptions: [{ value: "en" }] }
     ]
   }
-  assert.deepEqual(watchedValues(form, ["a", "b", "d"]), ["de", "1"])
+  assert.deepEqual(watchedValues(form, ["a", "b"]), ["de"])
 })

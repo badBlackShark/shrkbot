@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
 class Components::Feeds::EventTypeSetting < Components::Base
-  CARD = "group/type px-5 py-4 has-[[data-type-toggle]:checked]:border-accent-soft-bd"
-  CHEVRON = "group/chevron hidden size-8 flex-none items-center justify-center rounded-control text-text-secondary " \
+  CARD = "px-5 py-4 has-[[data-type-toggle]:checked]:border-accent-soft-bd"
+  CHEVRON = "group/chevron flex size-8 flex-none items-center justify-center rounded-control text-text-secondary " \
     "transition-colors hover:bg-surface-sunken hover:text-text-primary focus:outline-none " \
-    "focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] group-has-[[data-type-toggle]:checked]/type:flex"
-
-  def self.toggle_name(event_type)
-    "subscription[event_types][#{event_type}]"
-  end
+    "focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
 
   def initialize(subscription:, plugin_key:, event_type:, event:, type_fields: nil)
     @subscription = subscription
@@ -74,7 +70,7 @@ class Components::Feeds::EventTypeSetting < Components::Base
 
   def toggle
     render Components::Toggle.new(
-      name: self.class.toggle_name(@event_type),
+      name: "subscription[event_types][#{@event_type}]",
       checked: followed?,
       label:,
       data: {type_toggle: true, type_card_target: "toggle", action: "change->type-card#sync"}

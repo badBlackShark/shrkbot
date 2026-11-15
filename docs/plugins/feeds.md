@@ -130,9 +130,9 @@ are no preview routes for these pages.
   name, help, chevron and toggle in the header; the body holds the channel override
   (`OverrideFields`), the placeholder list once (`MessageFields`, from `tokens_for`), the
   message and the push notification text with live previews (`feed-preview`,
-  `lib/feed_template.js`). Turning the type on opens the card, the chevron folds it
-  (`type-card` controller, open state remembered in `localStorage`); border and chevron
-  follow the toggle in CSS. `Feeds::Templates.custom` stores `nil` when the text is
+  `lib/feed_template.js`). Turning the type on opens the card, turning it off folds it, and
+  the chevron does either whether the type is on or off (`type-card` controller, open state remembered
+  in `localStorage`); the border follows the toggle in CSS. `Feeds::Templates.custom` stores `nil` when the text is
   blank, and any text is allowed. Turning a post type off drops its event row, so its
   custom message goes too.
 - **Volume line.** Between the top card and the post type cards a lazy Turbo frame (`feed-volume`) loads

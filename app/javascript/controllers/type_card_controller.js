@@ -5,7 +5,7 @@ export default class extends Controller {
   static targets = ["toggle", "chevron", "body"]
 
   connect() {
-    this.#show(this.toggleTarget.checked && localStorage.getItem(this.keyValue) === "open")
+    this.#show(localStorage.getItem(this.keyValue) === "open")
   }
 
   sync() {

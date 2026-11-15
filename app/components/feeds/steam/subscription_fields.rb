@@ -11,22 +11,14 @@ class Components::Feeds::Steam::SubscriptionFields < Components::Base
     div(class: "contents", data: {controller: "feed-preview"}) do
       render Components::Feeds::DestinationCard.new(subscription: @subscription)
       volume_frame
-      event_types
+      render Components::Callout.new(variant: :warning) { t(".what_note") }
+      render Components::Feeds::EventTypeList.new(subscription: @subscription, plugin_key: :steam)
       render Components::Feeds::Steam::LanguageCard.new(subscription: @subscription)
       render Components::Feeds::Steam::LengthCard.new(subscription: @subscription)
     end
   end
 
   private
-
-  def event_types
-    div do
-      render Components::Feeds::Steam::UpdateTypesNote.new(subscription: @subscription)
-      div(class: "flex flex-col gap-5") do
-        render Components::Feeds::EventTypeList.new(subscription: @subscription, plugin_key: :steam)
-      end
-    end
-  end
 
   def volume_frame
     turbo_frame_tag(

@@ -23,7 +23,6 @@ RSpec.describe Components::Feeds::EventTypeSetting do
 
   it "is the card, controlled by type-card and scoped to its own type" do
     expect(card["data-controller"]).to eq("type-card")
-    expect(card["class"]).to include("group/type")
     expect(card).to have_attribute("data-feed-preview-scope")
     expect(card["data-type-card-key-value"]).to eq("feeds-message-1145350-patch_notes_published")
   end
@@ -38,6 +37,11 @@ RSpec.describe Components::Feeds::EventTypeSetting do
     expect(toggle.attributes.keys).to include("data-type-toggle", "checked")
     expect(toggle["data-type-card-target"]).to eq("toggle")
     expect(toggle["data-action"]).to eq("change->type-card#sync")
+  end
+
+  it "offers the chevron whether or not the type is on" do
+    expect(chevron["class"].split).to include("flex")
+    expect(chevron["class"].split).not_to include("hidden")
   end
 
   it "hides the body behind the chevron" do

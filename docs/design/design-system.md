@@ -172,13 +172,13 @@ saves and leaves never sees a warning that only appears after saving. `Component
 renders a warning `Callout` that the `live-warning` Stimulus controller shows or hides on every
 `change` in the surrounding form. It takes the watched field names (`fields:`), a rule
 (`includes-any`: a picked value is in `list:`; `excludes-all`: something is picked and none of
-it is in `list:`; `exactly-one`: exactly one watched toggle is on), and `shown:`, the answer for
+it is in `list:`), and `shown:`, the answer for
 the saved values so the first paint is right. The Ruby `shown:` and the JS rule must state the same
 predicate, so derive `shown:` from the same `list:` where possible. Warnings about server state (a deleted channel, a
 missing bot permission) stay plain `Callout`s. A live warning goes below the control it watches, so
-it appearing never pushes that control away from the cursor. One exception: the Steam update-types
-note sits above the post type cards, where it reads as their introduction; the cards move down when
-it appears. It announces itself through a
+it appearing never pushes that control away from the cursor. Advice that would have to sit above
+what it is about stays a plain `Callout` that is always shown (the Steam note about untagged patch
+notes), so nothing moves under the cursor. A live warning announces itself through a
 `role="status"` region that is always in the page, with the `hidden` callout inside it.
 
 The header is a `Components::ConfigPageHeader` value: icon, title, description,
@@ -277,9 +277,10 @@ duplicated class strings:
   `<key>-config` div Turbo targets, the vertical `gap-5` rhythm, and the
   danger callout every plugin form was repeating (`enable_error:`).
 - **Toggle cards that open** (`Components::Feeds::EventTypeSetting`) — an option with its own settings is a card: a
-  `SettingRow` header with a chevron and the toggle at the card edge. Turning it on opens the card; the chevron, shown
-  only while on, folds it. The accent border and the chevron follow the checkbox through CSS
-  (`has-[[data-type-toggle]:checked]`); the `type-card` controller owns only open and closed, remembered in
+  `SettingRow` header with a chevron and the toggle at the card edge. Turning it on opens the card and turning it off folds
+  it; the chevron opens and folds it in either state, so the settings of a type that is off can be read. The
+  accent border follows the checkbox through CSS (`has-[[data-type-toggle]:checked]`); the `type-card`
+  controller owns only open and closed, remembered in
   `localStorage`. Never put settings behind a loose "Settings" disclosure.
 - **`Components::SettingRow`** — one labelled setting: `label:` + optional
   `help:` on the left, the control yielded as a block on the right. `align: :title`
