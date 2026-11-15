@@ -233,7 +233,8 @@ duplicated class strings:
   outside the group. An optional `default:` adds a reset segment
   (`Components::ResetButton` `shape: :segment`, tooltip "Reset to n") shown only
   while the value differs, and only when the default lies within `min..max`; no
-  default, no reset. `Components::ResetButton` takes `shape:` (`:standalone` bordered
+  default, no reset. A stepper with `default:` must be left-anchored, because the
+  reset segment grows the control to the right. `Components::ResetButton` takes `shape:` (`:standalone` bordered
   square, `:segment` inside a joined control). No UI cap (`max:` is optional, for the
   dynamic keyword-count limit); submits as a plain number field.
 - **`Components::RangeSlider`** — native `<input type="range">` styled with tokens;
