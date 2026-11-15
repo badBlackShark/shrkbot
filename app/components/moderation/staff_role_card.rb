@@ -23,6 +23,7 @@ class Components::Moderation::StaffRoleCard < Components::Base
         selected: @staff_role_id,
         multiple: false,
         include_blank: true,
+        required: true,
         controller_data: {
           tom_select_color_dots_value: true,
           tom_select_placeholder_value: t(".placeholder")

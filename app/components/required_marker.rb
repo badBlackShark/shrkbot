@@ -2,6 +2,6 @@
 
 class Components::RequiredMarker < Components::Base
   def view_template
-    span(class: "ml-1 text-xs font-semibold text-danger-text") { "*" }
+    span(class: "ml-1 text-xs font-semibold text-danger-text", aria_hidden: "true") { "*" }
   end
 end

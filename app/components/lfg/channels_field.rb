@@ -8,7 +8,8 @@ class Components::Lfg::ChannelsField < Components::Base
 
   def view_template
     div do
-      render Components::FieldLabel.new { t(".label") }
+      label(class: "block text-sm font-semibold") { t(".label") }
+      p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { t(".help") }
       if @channels.empty?
         p(class: "text-sm text-text-secondary") { t(".none") }
       else
@@ -20,7 +21,6 @@ class Components::Lfg::ChannelsField < Components::Base
           multiple: true
         )
       end
-      render Components::FieldHelp.new { t(".help") }
       nudge_callout if @selected.blank?
     end
   end
