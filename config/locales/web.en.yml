@@ -73,6 +73,22 @@ en:
     copyable_tokens:
       copied: Copied!
       copy_failed: Copy failed
+    duration_stepper:
+      amount:
+        hours:
+          one: "%{count} hour"
+          other: "%{count} hours"
+        minutes:
+          one: "%{count} minute"
+          other: "%{count} minutes"
+        seconds:
+          one: "%{count} second"
+          other: "%{count} seconds"
+      unit_label: Unit
+      units:
+        hours: hours
+        minutes: minutes
+        seconds: seconds
     feeds:
       add_page:
         steam:
@@ -464,19 +480,15 @@ en:
         placeholder: Every channel
       defaults_card:
         cooldown:
-          default: 300 seconds (5 minutes)
           help: Set to 0 for no wait.
           label: Wait between posts
-          unit: seconds
         excluded:
           label: Who can't post
           placeholder: No one
         lifetime:
-          default: 360 minutes (6 hours)
           help: How long a post stays up. For scheduled posts, the timer starts with
             the session.
           label: Post lifetime
-          unit: minutes
         min_days:
           label: Minimum membership time
           unit: days
@@ -628,11 +640,9 @@ en:
             label: Match strictness
             max_caption: identical
             min_caption: loosely similar
-            recommended: 'Recommended default: 100%'
           symbol_only:
             help: Messages like "???" or "123" all count as the same message.
             label: Also match messages with only punctuation or numbers
-            recommended: 'Recommended default: Off'
           trigger_threshold:
             channels_unit: different channels
             label: Act when the same message appears in
@@ -671,7 +681,7 @@ en:
       this_server: This server
       title: Notifications
     number_stepper:
-      recommended_default: 'Recommended default: %{value}'
+      reset: Reset to %{value}
     placeholder_section:
       label: Placeholders (click to copy)
     plugin_badges:
@@ -837,7 +847,6 @@ en:
           other: "%{parent} uses a %{count}-minute delay. Leave the field empty to
             use the same here."
         label: Posting delay
-        unit: minutes
       template_card:
         empty: Nothing would be posted.
         preview: Live preview

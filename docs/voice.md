@@ -395,6 +395,10 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Several` (badge on a collapsed role set) | `Pick several` / `Pick one` | The segment label has no noun beside a set name. The badge has its own keys; the segmented control keeps "One" and "Several". |
 | `people like you that want more power than Discord` (home) | `people like you who want more power than Discord` | People take "who". |
 | `Example plugins` (home, above a moving strip of six plugins) | `Plugins` | The grid now shows every public plugin, so the list is no longer a sample and "Example" undersold it. |
+| `Recommended default: %{value}` (under every stepper, e.g. `Recommended default: 300 seconds (5 minutes)`) | Deleted. A reset segment, tooltip `Reset to %{value}`, appears in the stepper while the value differs from the default. | The line made the reader compare two numbers by eye, and printed even when the value already was the default. The reset does the comparison and the action. |
+| `Recommended default: 100%` / `Recommended default: Off` | Deleted. | Same line on a slider and a toggle. Neither has a reset, and the help already says what each setting does. |
+| `seconds` / `minutes` (fixed unit after the LFG cooldown, LFG post lifetime and Twilight Struggle delay) | A unit select in the stepper (`seconds` / `minutes` / `hours`) that opens on the largest unit that fits, e.g. `5 minutes`, `6 hours`. | `300 seconds` and `360 minutes` made the reader convert; the value now reads the way people say it. |
+| `Reset to 300` (LFG cooldown) | `Reset to 5 minutes` | A bare number is ambiguous once the unit can change; the reset names it. |
 
 ## Kept on purpose
 

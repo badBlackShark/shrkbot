@@ -104,3 +104,17 @@
   color: var(--text-muted);
 }
 .ts-lock svg { width: 0.875rem; height: 0.875rem; }
+
+.ts-segment .ts-wrapper { width: auto; height: 100%; }
+.ts-segment .ts-wrapper.single .ts-control,
+.ts-segment .ts-wrapper.single.input-active .ts-control,
+.ts-segment .ts-wrapper.focus .ts-control {
+  min-height: 0;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0 1.75rem 0 0.625rem !important;
+}
+.ts-segment .ts-dropdown { min-width: 7.5rem; width: max-content; }

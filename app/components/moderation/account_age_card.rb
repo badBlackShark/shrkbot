@@ -13,7 +13,6 @@ class Components::Moderation::AccountAgeCard < Components::Base
           value: @new_account_age_days,
           min: 1,
           max: 365,
-          default: 30,
           unit: t(".days_unit")
         )
       end

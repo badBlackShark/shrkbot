@@ -32,8 +32,4 @@ RSpec.describe Components::Lfg::MinDaysField do
     expect(html).to include('min="0"')
     expect(html).to include('max="3650"')
   end
-
-  it "omits the recommended-default subscript, since blank is the default" do
-    expect(html).not_to include("Recommended default")
-  end
 end

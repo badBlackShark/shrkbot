@@ -2,15 +2,15 @@
 
 require "rails_helper"
 
-RSpec.describe Components::Lfg::NumberSettingField do
+RSpec.describe Components::Lfg::DurationField do
   subject(:html) do
     described_class.new(
       name: "lfg[cooldown_seconds]",
       value: 120,
       min: 0,
       max: 86_400,
-      default: "300 seconds, which is 5 minutes",
-      unit: "seconds",
+      default: 300,
+      base: :seconds,
       label: "Cooldown",
       help: "How long a member must wait between posts."
     ).render_in(view_context)
@@ -24,7 +24,7 @@ RSpec.describe Components::Lfg::NumberSettingField do
     expect(html).to include('value="120"')
   end
 
-  it "explains the recommended default in human terms" do
-    expect(html).to include("300 seconds, which is 5 minutes")
+  it "offers a reset to its default" do
+    expect(html).to include("Reset to 5 minutes")
   end
 end

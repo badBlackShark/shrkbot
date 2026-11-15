@@ -39,7 +39,18 @@ ignore_missing:
 # 5. ActiveModel error messages, looked up by `errors.add(:base, :symbol)`.
 # 6. The key built from `Feeds.event_key(event_type)` inside the `t()` call.
 # 7. The key interpolated from the plugin key inside the `t()` call.
+# 8. The key built from a duration unit symbol.
 ignore_unused:
+  # 8. Components::DurationStepper
+  - components.duration_stepper.amount.seconds.one
+  - components.duration_stepper.amount.seconds.other
+  - components.duration_stepper.amount.minutes.one
+  - components.duration_stepper.amount.minutes.other
+  - components.duration_stepper.amount.hours.one
+  - components.duration_stepper.amount.hours.other
+  - components.duration_stepper.units.seconds
+  - components.duration_stepper.units.minutes
+  - components.duration_stepper.units.hours
   # 5. Feeds::Twitch::Settings
   - activerecord.errors.models.feeds/twitch/settings.attributes.categories.too_long
   # 6. Components::Feeds::VolumeLine

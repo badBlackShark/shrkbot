@@ -22,6 +22,10 @@ RSpec.describe Components::Moderation::AccountAgeCard do
     expect(html).to include('value="30"')
   end
 
+  it "renders no reset segment because the stepper is right-anchored" do
+    expect(Nokogiri::HTML.fragment(html).at_css("[data-number-stepper-target=reset]")).to be_nil
+  end
+
   context "with a custom value" do
     let(:new_account_age_days) { 90 }
 
