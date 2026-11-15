@@ -101,11 +101,9 @@ RSpec.describe "Moderation config", type: :request do
           context "when the log channel is missing" do
             it "tells the reader protections need Logging and links its channel step" do
               get server_moderation_path(guild.id)
-              link_labels = Nokogiri::HTML(response.body).css("a[href='#{server_logging_path(guild.id)}']").map { |link| link.text.strip }
-
               expect(response.body).to include(I18n.t("views.servers.moderation.show.prerequisites_title"))
               expect(response.body).to include(I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.message"))
-              expect(link_labels).to include(I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.cta"))
+              expect(step_links(response.body)).to include(I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.cta") => server_logging_path(guild.id))
             end
           end
 

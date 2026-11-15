@@ -70,9 +70,8 @@ RSpec.describe "Image scanning config", type: :request do
 
           it "points each step at its page" do
             get server_image_scanning_path(guild.id)
-            step_links = Nokogiri::HTML(response.body).css("a").to_h { |link| [link.text.strip, link["href"]] }
 
-            expect(step_links).to include(
+            expect(step_links(response.body)).to include(
               I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.cta") => server_logging_path(guild.id),
               I18n.t("views.servers.moderation.sub_plugin_show.prerequisites.staff_role.cta") => server_moderation_path(guild.id)
             )
