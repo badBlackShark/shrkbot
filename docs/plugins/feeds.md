@@ -156,7 +156,9 @@ are no preview routes for these pages.
   `SegmentedControl` over one `Twitch::ModePanel` per mode; the generic `option-panels`
   controller shows the panel matching the control's value (`lib/option_panels.js`).
 - **Twitch categories card.** `Twitch::CategoriesCard` (after the post type cards) holds the
-  category filter and `Twitch::SwitchedAwayField`, the card's last field, always shown. The filter is a multiple `TomSelect`
+  category filter and `Twitch::SwitchedAwayField`, the card's last field. The field only
+  matters with a category set, so its wrapper is `hidden` until the select holds a selected
+  option (`group-has-[option:checked]/categories:block`, no JS). The filter is a multiple `TomSelect`
   whose `tom_select_search_url_value` points at
   `Servers::Twitch::CategoriesController#index`; the controller's `searchUrl` mode loads
   matches as the user types (`lib/category_options.js`). The endpoint returns
@@ -179,7 +181,8 @@ are no preview routes for these pages.
   The preview card shows text and an optional button only, so it has no accent bar,
   profile picture or thumbnail. A role pill comes from the role
   select in the field's own `data-feed-preview-scope` (the type's card) when it has a
-  value, else the top card's role select (`lib/role_scope.js`).
+  value, else the top card's role select (`lib/role_scope.js`); a `No ping` override shows
+  no pill.
 - **Twitch images.** Channel profile pictures load straight from Twitch, so the CSP
   `img_src` lists `static-cdn.jtvnw.net` and the privacy policy says Twitch sees the
   viewer's IP address.
@@ -198,7 +201,9 @@ tokens are `streamer`, `category`, `title` and `clipper`; a token a card has no 
 `role_id` plus one override column per post type (`live_role_id`, `highlights_role_id`,
 `uploads_role_id`, `featured_clips_role_id`, `clips_role_id`), `show_viewers` (true by
 default) and `live_end_mode` (see below). `Settings#role_id_for` is the override or
-`role_id`; `#role_override_for` is the column alone (the form's override select).
+`role_id`; `#role_override_for` is the column alone (the form's override select). An
+override of `Settings::NO_PING` (`0`, never a snowflake) means no ping for that type even
+when the follow has a role; the controller skips it when it verifies role ids.
 `Feeds::Twitch::POST_TYPES` holds one `Feeds::Twitch::PostType` per post type, in UI
 order: event type, default notification, tokens, role column and eyebrow label.
 `event_types`, `template_tokens`, `tokens_for`, `default_notification`,

@@ -65,9 +65,7 @@ ignore_unused:
   - components.feeds.event_types.patch_notes_published.help
   # 7. Views::Servers::Feeds::Show#header
   - views.servers.steam.show.title
-  - views.servers.steam.show.description
   - views.servers.twitch.show.title
-  - views.servers.twitch.show.description
   # 1. Views::Servers::PluginConfigShow subclasses
   - views.servers.logging.show.*
   - views.servers.roles.show.*

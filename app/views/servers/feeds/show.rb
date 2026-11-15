@@ -14,7 +14,7 @@ class Views::Servers::Feeds::Show < Views::Servers::SubPluginShow
     Components::ConfigPageHeader.new(
       icon:,
       title: t("views.servers.#{plugin_key}.show.title"),
-      description: t("views.servers.#{plugin_key}.show.description"),
+      description: PluginCatalog.find(plugin_key).description,
       badge:
     )
   end

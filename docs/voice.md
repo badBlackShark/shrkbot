@@ -310,6 +310,7 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `Role to ping (optional)` / `No ping` on every Twitch post type | `Role to ping` in the top card; `Role override` / `Same as above` on each type | Five types meant five picks of the same role. One role for the follow, overridden where a type differs, matches the channel. |
 | `Shown above the card. Leave it empty to post the card alone.` | `Shown above the card.` | "Leave it empty to..." is banned. A message box that posts the card alone when empty surprises nobody. |
 | The clip-volume warning and the 48-hour note, inside the All clips and Featured clips settings | The same sentences as each card's help line, visible while the type is off | Both help decide whether to turn the type on, so hiding them until it was on defeated them. This reverses the row above that moved the 48-hour window into the settings. |
+| `Posts new patch notes, announcements and press coverage of the Steam games you follow.` (Steam page header) | `Posts new patch notes, announcements, and press coverage of the Steam games you follow.` | The header now reads the plugin catalog, which already carries the serial comma. One text for the page and the plugin list. |
 
 ## Kept on purpose
 

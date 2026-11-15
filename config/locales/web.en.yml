@@ -446,6 +446,7 @@ en:
             summary: Show it switched
           preview: Preview
         type_fields:
+          no_ping: No ping
           role_label: Role override
           role_placeholder: Same as above
         viewers_toggle:
@@ -1297,8 +1298,6 @@ en:
           title: Cross-Channel Spam Guard
       steam:
         show:
-          description: Posts new patch notes, announcements and press coverage of
-            the Steam games you follow.
           title: Steam
       sub_plugin_show:
         group_locked_reason: Turn %{parent} on first.
@@ -1330,8 +1329,6 @@ en:
           toggle_admin_only: Only a server admin can switch this plugin on or off.
       twitch:
         show:
-          description: Announces when the Twitch channels you follow go live, and
-            posts their highlights, uploads, and clips.
           title: Twitch
       welcomes:
         show:
