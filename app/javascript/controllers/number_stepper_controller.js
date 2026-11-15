@@ -1,18 +1,18 @@
 import { Controller } from "@hotwired/stimulus"
-import { baseValue, resetAmount, shownPlaceholder, syncReset, unitBounds } from "lib/number_stepper"
+import { baseValue, resetAmount, shownPlaceholder, stepFor, syncReset, unitBounds } from "lib/number_stepper"
 
 export default class extends Controller {
   static targets = ["input", "reset", "unit", "field"]
   static values = { min: Number, max: Number, default: Number, defaultUnit: Number, placeholder: Number }
 
   increment() {
-    const current = parseInt(this.inputTarget.value, 10) || 0
+    const current = Number(this.inputTarget.value) || 0
     this.inputTarget.value = Math.min(current + 1, this.#bounds.max)
     this.#dispatch()
   }
 
   decrement() {
-    const current = parseInt(this.inputTarget.value, 10) || 0
+    const current = Number(this.inputTarget.value) || 0
     this.inputTarget.value = Math.max(current - 1, this.#bounds.min)
     this.#dispatch()
   }
@@ -40,6 +40,7 @@ export default class extends Controller {
   #rescale() {
     const { min, max } = this.#bounds
     this.inputTarget.min = min
+    this.inputTarget.step = stepFor(this.#factor)
     if (Number.isFinite(max)) this.inputTarget.max = max
     if (this.hasPlaceholderValue) this.inputTarget.placeholder = shownPlaceholder(this.placeholderValue, this.#factor)
   }

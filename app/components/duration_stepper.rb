@@ -15,10 +15,14 @@ class Components::DurationStepper < Components::NumberStepper
   def shown_attributes
     {
       value: shown(@value),
-      min: @min.ceildiv(factor),
-      max: @max / factor,
+      min: exact(@min),
+      max: exact(@max),
       placeholder: shown(@placeholder)
     }
+  end
+
+  def step
+    (factor == 1) ? 1 : "any"
   end
 
   def controller_data
@@ -83,5 +87,10 @@ class Components::DurationStepper < Components::NumberStepper
 
     amount = Rational(total, factor)
     (amount.denominator == 1) ? amount.to_i : amount.to_f.round(2)
+  end
+
+  def exact(total)
+    amount = Rational(total, factor)
+    (amount.denominator == 1) ? amount.to_i : amount.to_f
   end
 end

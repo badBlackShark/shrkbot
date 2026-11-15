@@ -37,6 +37,10 @@ RSpec.describe Components::DurationStepper do
     expect(field["data-number-stepper-target"]).to eq("field")
   end
 
+  it "steps whole numbers in the base unit" do
+    expect(described_class.new(**options.merge(value: 90)).render_in(view_context)).to include('step="1"')
+  end
+
   it "hides the reset while the value is the default" do
     expect(fragment.at_css("[data-number-stepper-target=reset]").key?("hidden")).to be(true)
   end
@@ -74,9 +78,13 @@ RSpec.describe Components::DurationStepper do
       expect(fragment.css("option").map { |option| option["value"] }).to eq(%w[1 60])
     end
 
-    it "scales the bounds to the shown unit" do
-      expect(input["min"]).to eq("1")
+    it "scales the bounds to the shown unit without rounding them" do
+      expect(input["min"]).to eq((5 / 60.0).to_s)
       expect(input["max"]).to eq("168")
+    end
+
+    it "accepts decimals above the base unit" do
+      expect(input["step"]).to eq("any")
     end
   end
 
@@ -90,6 +98,24 @@ RSpec.describe Components::DurationStepper do
       expect(fragment.at_css("[data-number-stepper-target=reset]")).to be_nil
       expect(input["data-action"]).to eq("input->number-stepper#sync")
       expect(wrapper["data-number-stepper-placeholder-value"]).to eq("30")
+    end
+  end
+
+  context "when the inherited value divides into hours" do
+    let(:options) { {name: "destination[post_delay_minutes]", value: nil, base: :minutes, min: 0, max: 10_080, placeholder: 120} }
+
+    it "opens on hours with a whole placeholder" do
+      expect(selected.text).to eq("hours")
+      expect(input["placeholder"]).to eq("2")
+    end
+  end
+
+  context "when the inherited value does not divide into hours" do
+    let(:options) { {name: "destination[post_delay_minutes]", value: nil, base: :minutes, min: 0, max: 10_080, placeholder: 90} }
+
+    it "opens on minutes with a whole placeholder" do
+      expect(selected.text).to eq("minutes")
+      expect(input["placeholder"]).to eq("90")
     end
   end
 

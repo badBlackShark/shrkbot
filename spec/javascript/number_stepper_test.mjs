@@ -1,7 +1,7 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
 
-const { baseValue, resetAmount, shownPlaceholder, syncReset, unitBounds } = await import("lib/number_stepper")
+const { baseValue, resetAmount, shownPlaceholder, stepFor, syncReset, unitBounds } = await import("lib/number_stepper")
 
 test("hides the reset when the value equals the default", () => {
   const reset = { hidden: false }
@@ -47,8 +47,40 @@ test("submits empty for an empty input", () => {
   assert.equal(baseValue("", 60), "")
 })
 
-test("scales bounds to the unit, rounding inward", () => {
-  assert.deepEqual(unitBounds(5, 10_080, 60), { min: 1, max: 168 })
+test("scales bounds to the unit exactly", () => {
+  assert.deepEqual(unitBounds(5, 10_080, 60), { min: 5 / 60, max: 168 })
+})
+
+test("expands exponent notation in the base unit", () => {
+  assert.equal(baseValue("1e3", 1), "1000")
+})
+
+test("passes a fraction in the base unit through for the server to reject", () => {
+  assert.equal(baseValue("5.5", 1), "5.5")
+})
+
+test("converts exponent notation above the base unit", () => {
+  assert.equal(baseValue("1e3", 60), "60000")
+})
+
+test("rounds a fractional amount to the base unit", () => {
+  assert.equal(baseValue("5.5", 60), "330")
+  assert.equal(baseValue("1.5", 60), "90")
+})
+
+test("passes text that is not a number through for the server to reject", () => {
+  assert.equal(baseValue("abc", 60), "abc")
+})
+
+test("shows the reset for a fractional amount that differs from the default", () => {
+  const reset = { hidden: true }
+  syncReset(reset, "5.5", 300, 60)
+  assert.equal(reset.hidden, false)
+})
+
+test("allows decimals only above the base unit", () => {
+  assert.equal(stepFor(1), "1")
+  assert.equal(stepFor(60), "any")
 })
 
 test("keeps an open upper bound open", () => {

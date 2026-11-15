@@ -243,7 +243,9 @@ duplicated class strings:
   in `tom-select.css`): lowercase plural units at or above `base`, between plus and reset.
   It opens on the largest unit that divides the value (the base unit for 0 or empty). The
   form converts client side (like `RangeSlider`), so params and storage keep their unit.
-  Reset names the unit ("Reset to 5 minutes").
+  Reset names the unit ("Reset to 5 minutes"). Above the base unit the input takes
+  decimals (`1.5` hours submits 90 minutes, rounded to the base unit); in the base unit it
+  stays whole.
 - **`Components::RangeSlider`** — native `<input type="range">` styled with tokens;
   shows a percent readout but submits a hidden `0.75`–`1.0` float (converted once).
 - **`Components::RadioCardGroup`** — stacked radio options as bordered cards with a

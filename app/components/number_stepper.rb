@@ -55,6 +55,10 @@ class Components::NumberStepper < Components::Base
   def unit_segment
   end
 
+  def step
+    1
+  end
+
   def shown_attributes
     {name: @name, value: @value, min: @min, max: @max, placeholder: @placeholder}
   end
@@ -88,7 +92,7 @@ class Components::NumberStepper < Components::Base
   def number_input
     input(
       type: "number",
-      step: 1,
+      step:,
       class: "#{@input_class} h-full border-x border-border-default bg-transparent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none px-1 text-center font-mono text-sm text-text-primary focus:outline-none",
       data: input_data,
       **shown_attributes
