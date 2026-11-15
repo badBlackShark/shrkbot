@@ -24,7 +24,8 @@ class Components::Feeds::Twitch::TypeFields < Components::Base
       name: "subscription[#{::Feeds::Twitch.fetch_post_type(@event_type).role_column}]",
       selected: @subscription.settings.role_override_for(@event_type),
       label: t(".role_label"),
-      placeholder: t(".role_placeholder")
+      placeholder: t(".role_placeholder"),
+      no_ping_label: t(".no_ping")
     )
   end
 

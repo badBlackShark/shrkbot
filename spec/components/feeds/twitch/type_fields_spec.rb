@@ -43,6 +43,12 @@ RSpec.describe Components::Feeds::Twitch::TypeFields do
     end
   end
 
+  context "with the no-ping option" do
+    it "is on the role override and not on the follow's own role" do
+      expect(document.css("select[name='subscription[live_role_id]'] option[value='0']").map(&:text)).to eq(["No ping"])
+    end
+  end
+
   context "with all clips" do
     let(:event_type) { "Integrations::Twitch::ClipCreated" }
 

@@ -174,6 +174,16 @@ RSpec.describe "Twitch subscriptions", type: :request do
       end
     end
 
+    context "with the no-ping override on a type" do
+      let(:live_role_id) { Feeds::Twitch::Settings::NO_PING.to_s }
+
+      it "stores it without checking it against the server's roles" do
+        create_subscription
+
+        expect(config.feed_subscriptions.sole.twitch_settings).to have_attributes(role_id: 555, live_role_id: Feeds::Twitch::Settings::NO_PING)
+      end
+    end
+
     context "with a role from another server on a role column that is not live" do
       let(:live_role_id) { "" }
       let(:clips_role_id) { "999" }

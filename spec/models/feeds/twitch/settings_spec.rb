@@ -137,6 +137,14 @@ RSpec.describe Feeds::Twitch::Settings do
         expect { role_id }.to raise_error(KeyError)
       end
     end
+
+    context "with a no-ping override on a type while the follow has a role" do
+      let(:event_type) { "Integrations::Twitch::StreamStarted" }
+
+      before { settings.update!(live_role_id: Feeds::Twitch::Settings::NO_PING) }
+
+      it { is_expected.to be_nil }
+    end
   end
 
   describe "#role_override_for" do

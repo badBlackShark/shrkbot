@@ -177,7 +177,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   end
 
   def role_ids
-    settings.filter_map { |column, value| value if column.end_with?("role_id") }
+    settings.filter_map { |column, value| value if column.end_with?("role_id") && value.to_s != ::Feeds::Twitch::Settings::NO_PING.to_s }
   end
 
   def subscription_params
