@@ -196,14 +196,15 @@ in the order the UI lists them). A new follow starts with every type off, and sa
 needs at least one. Template
 tokens are `streamer`, `category`, `title` and `clipper`; a token a card has no value for
 (`clipper` on a live card, `category` on a video) renders empty
-(`Feeds::Announcement#blank_tokens`). Its settings live in `feed_twitch_settings`
+(`Feeds::Announcement#template_values`). Its settings live in `feed_twitch_settings`
 (`Feeds::Twitch::Settings`, `twitch_settings` on the subscription): a follow-wide
 `role_id` plus one override column per post type (`live_role_id`, `highlights_role_id`,
 `uploads_role_id`, `featured_clips_role_id`, `clips_role_id`), `show_viewers` (true by
 default) and `live_end_mode` (see below). `Settings#role_id_for` is the override or
 `role_id`; `#role_override_for` is the column alone (the form's override select). An
 override of `Settings::NO_PING` (`0`, never a snowflake) means no ping for that type even
-when the follow has a role; the controller skips it when it verifies role ids.
+when the follow has a role; the controller skips it on an override column when it
+verifies role ids, and still refuses it as the follow's own role.
 `Feeds::Twitch::POST_TYPES` holds one `Feeds::Twitch::PostType` per post type, in UI
 order: event type, default notification, tokens, role column and eyebrow label.
 `event_types`, `template_tokens`, `tokens_for`, `default_notification`,

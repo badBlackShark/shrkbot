@@ -184,6 +184,16 @@ RSpec.describe "Twitch subscriptions", type: :request do
       end
     end
 
+    context "with the no-ping value as the follow's own role" do
+      before { attributes[:role_id] = Feeds::Twitch::Settings::NO_PING.to_s }
+
+      it "responds not found and writes nothing" do
+        expect { create_subscription }.not_to change(Feeds::Subscription, :count)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
     context "with a role from another server on a role column that is not live" do
       let(:live_role_id) { "" }
       let(:clips_role_id) { "999" }
