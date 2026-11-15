@@ -15,7 +15,7 @@ class Components::Feeds::Steam::UpdateTypesNote < Components::Base
       fields: UPDATE_TYPES.map { |event_type| Components::Feeds::EventTypeSetting.toggle_name(event_type) },
       rule: "exactly-one",
       shown: one_update_type_followed?,
-      class: "mt-5"
+      class: "mb-5"
     ) { t(".text") }
   end
 

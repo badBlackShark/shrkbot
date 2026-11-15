@@ -21,10 +21,10 @@ class Components::Feeds::Steam::SubscriptionFields < Components::Base
 
   def event_types
     div do
+      render Components::Feeds::Steam::UpdateTypesNote.new(subscription: @subscription)
       div(class: "flex flex-col gap-5") do
         render Components::Feeds::EventTypeList.new(subscription: @subscription, plugin_key: :steam)
       end
-      render Components::Feeds::Steam::UpdateTypesNote.new(subscription: @subscription)
     end
   end
 

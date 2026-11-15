@@ -9,10 +9,10 @@ class Components::Moderation::ImageScanningForm < Components::Base
   def view_template
     render Components::ConfigSections.new(key: "image_scanning", enable_error: @enable_error) do
       consent_callout
+      report_scam_callout
       sensitivity_card
       custom_keywords_card
       response_card
-      report_scam_callout
       image_explainer
     end
   end
@@ -71,7 +71,10 @@ class Components::Moderation::ImageScanningForm < Components::Base
         options: keyword_options,
         selected: @settings.custom_keywords,
         multiple: true,
-        controller_data: {tom_select_create_value: true}
+        controller_data: {
+          tom_select_create_value: true,
+          tom_select_placeholder_value: t(".custom_keywords.keywords_placeholder")
+        }
       )
       render Components::FieldHelp.new { t(".custom_keywords.keywords_help") }
     end

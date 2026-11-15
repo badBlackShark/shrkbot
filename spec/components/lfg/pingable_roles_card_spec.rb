@@ -12,9 +12,8 @@ RSpec.describe Components::Lfg::PingableRolesCard do
   let(:channels) { [] }
   let(:context) { Components::Lfg::PingableRoleFormContext.new(role_options:, channels:, default_min_membership_days: 0) }
 
-  it "renders the section label and help" do
-    expect(html).to include("Pingable roles")
-    expect(html).to include("Members can ping these roles with /lfg.")
+  it "heads the list with what the roles are for" do
+    expect(html).to include("Roles members can ping with /lfg")
   end
 
   it "renders the add button wired to the Stimulus controller" do

@@ -19,7 +19,7 @@ class Components::Lfg::MinDaysField < Components::Base
         max: 3650,
         unit: @unit,
         placeholder: @placeholder,
-        input_class: "w-28"
+        input_class: "w-14"
       )
     end
   end

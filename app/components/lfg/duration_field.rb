@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Components::Lfg::DurationField < Components::Base
-  def initialize(name:, value:, min:, max:, default:, base:, label:, help:)
+  def initialize(name:, value:, min:, max:, default:, base:, label:, help: nil)
     @name = name
     @value = value
     @min = min
@@ -23,7 +23,7 @@ class Components::Lfg::DurationField < Components::Base
         default: @default,
         base: @base
       )
-      render Components::FieldHelp.new { @help }
+      render Components::FieldHelp.new { @help } if @help
     end
   end
 end

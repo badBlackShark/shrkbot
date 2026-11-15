@@ -176,7 +176,9 @@ it is in `list:`; `exactly-one`: exactly one watched toggle is on), and `shown:`
 the saved values so the first paint is right. The Ruby `shown:` and the JS rule must state the same
 predicate, so derive `shown:` from the same `list:` where possible. Warnings about server state (a deleted channel, a
 missing bot permission) stay plain `Callout`s. A live warning goes below the control it watches, so
-it appearing never pushes that control away from the cursor. It announces itself through a
+it appearing never pushes that control away from the cursor. One exception: the Steam update-types
+note sits above the post type cards, where it reads as their introduction; the cards move down when
+it appears. It announces itself through a
 `role="status"` region that is always in the page, with the `hidden` callout inside it.
 
 The header is a `Components::ConfigPageHeader` value: icon, title, description,
@@ -280,7 +282,9 @@ duplicated class strings:
   (`has-[[data-type-toggle]:checked]`); the `type-card` controller owns only open and closed, remembered in
   `localStorage`. Never put settings behind a loose "Settings" disclosure.
 - **`Components::SettingRow`** — one labelled setting: `label:` + optional
-  `help:` on the left, the control yielded as a block on the right. The *only*
+  `help:` on the left, the control yielded as a block on the right. `align: :title`
+  puts the control on the label's line instead of the middle of the row, so two rows
+  side by side line up whether or not they have help; `ToggleRow` uses it. The *only*
   row treatment — `ToggleRow` is this plus a `Toggle`, and the staff-ping
   card is this plus a toggle. The visible label is a `<p>`, not a
   `<label>`: the accessible name belongs on the control (`Components::Toggle`

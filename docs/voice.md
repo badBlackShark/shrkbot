@@ -411,6 +411,11 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | Cookie notice: `shrkbot only sets technical cookies to make the site work. No tracking, analytics, or anything else from a third party. It will remember that you've seen this, though - with a cookie, of course. :)` / `Oh, nice!` | Deleted. | Technical cookies need no consent. The banner announced the absence of tracking, and it set the site's only non-essential cookie to remember that it had. The privacy policy says the same thing where a reader looks for it. |
 | `Channel (required)` / `Message (optional)` / `Role to ping (optional)` / `Channel (optional)` (Steam and Twitch), `Channel override (optional)` (Roles) | `Channel` with the red asterisk / `Message` / `Role to ping` / `Channel` / `Channel override` | Every other page marks a required field with the asterisk, so the feed pages spoke a second dialect. A field without the asterisk is optional, so "(optional)" said what the missing marker already says. |
 | `This setting is required to enable the plugin.` (hover text on the asterisk, Welcomes and Logging only) | Deleted. | It was a native browser tooltip, which the site does not use, and only two of the pages with an asterisk had it. The asterisk is the convention on its own. |
+| `...and can mark it as wrong.` (Scam Image Detection warning) | `...and can mark it as incorrect.` | "Wrong" also reads as a moral judgement. "Incorrect" can only mean the detection. |
+| `Pingable roles` + `Members can ping these roles with /lfg.` | `Roles members can ping with /lfg` | The heading was a coined word and the sentence under it explained the word. One line now says what the list is. |
+| `Set to 0 for no wait.` (Wait between posts) | Deleted. | The stepper goes down to 0 and the label says what it counts. |
+| `With no channels chosen, /lfg works in every channel. Consider scoping it to a few dedicated channels.` | Deleted. | The empty box already says `Every channel`, and the setup guide above covers where /lfg should run. |
+| `No results found` under the custom keywords box | Deleted. The empty box says `Type a word or phrase, then press Enter`. | The box adds new keywords; it does not search a list, so there were never results to find. |
 
 ## Kept on purpose
 

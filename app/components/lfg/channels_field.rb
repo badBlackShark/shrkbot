@@ -20,15 +20,6 @@ class Components::Lfg::ChannelsField < Components::Base
           multiple: true
         )
       end
-      nudge_callout if @selected.blank?
-    end
-  end
-
-  private
-
-  def nudge_callout
-    div(class: "mt-3") do
-      render Components::Callout.new(variant: :info) { t(".nudge") }
     end
   end
 end

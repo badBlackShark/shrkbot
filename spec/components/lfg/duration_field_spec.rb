@@ -12,11 +12,12 @@ RSpec.describe Components::Lfg::DurationField do
       default: 300,
       base: :seconds,
       label: "Cooldown",
-      help: "How long a member must wait between posts."
+      help:
     ).render_in(view_context)
   end
 
   let(:view_context) { ApplicationController.new.view_context }
+  let(:help) { "How long a member must wait between posts." }
 
   it "renders the label, help, and stepper with the given value" do
     expect(html).to include("Cooldown")
@@ -30,5 +31,13 @@ RSpec.describe Components::Lfg::DurationField do
 
   it "puts the help under the stepper" do
     expect(html.index("How long a member must wait")).to be > html.index('name="lfg[cooldown_seconds]"')
+  end
+
+  context "without help" do
+    let(:help) { nil }
+
+    it "renders no help line" do
+      expect(Nokogiri::HTML5.fragment(html).css("p")).to be_empty
+    end
   end
 end

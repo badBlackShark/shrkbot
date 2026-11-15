@@ -34,7 +34,7 @@ RSpec.describe "LFG config", type: :request do
           get server_lfg_path(guild.id)
           expect(response).to have_http_status(:ok)
           expect(response.body).to include("Looking for Game")
-          expect(response.body).to include("Pingable roles")
+          expect(response.body).to include("Roles members can ping with /lfg")
           expect(response.body).to include("Add role")
           expect(response.body).to include("Make your LFG roles non-mentionable")
           expect(response.body).to include("Restrict who can run /lfg")

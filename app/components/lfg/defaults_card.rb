@@ -79,8 +79,7 @@ class Components::Lfg::DefaultsCard < Components::Base
       max: 86_400,
       default: column_default("cooldown_seconds"),
       base: :seconds,
-      label: t(".cooldown.label"),
-      help: t(".cooldown.help")
+      label: t(".cooldown.label")
     )
   end
 

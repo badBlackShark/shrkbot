@@ -472,12 +472,9 @@ en:
       channels_field:
         label: Allowed channels
         none: No channels have synced yet. shrkbot needs to be in the server first.
-        nudge: With no channels chosen, /lfg works in every channel. Consider scoping
-          it to a few dedicated channels.
         placeholder: Every channel
       defaults_card:
         cooldown:
-          help: Set to 0 for no wait.
           label: Wait between posts
         excluded:
           label: Who can't post
@@ -518,8 +515,7 @@ en:
         unpicked: Choose a role
       pingable_roles_card:
         add: Add role
-        help: Members can ping these roles with /lfg.
-        label: Pingable roles
+        label: Roles members can ping with /lfg
       setup_guide_card:
         non_mentionable:
           body: Turn off "Allow anyone to @mention this role" for the roles you set
@@ -564,12 +560,13 @@ en:
         consent:
           body: Images are deleted automatically. Screenshots of scams that members
             post as warnings can be caught too. Staff are alerted to every action
-            and can mark it as wrong.
+            and can mark it as incorrect.
           title: Detection can be wrong
         custom_keywords:
           keywords_help: Extra words or phrases that mark an image as a scam; close
             misspellings count. Longer phrases cause fewer false matches.
           keywords_label: Custom keywords
+          keywords_placeholder: Type a word or phrase, then press Enter
           min_hits_label: Require at least
           min_hits_unit: matching keywords
         detection:

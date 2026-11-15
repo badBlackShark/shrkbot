@@ -8,8 +8,7 @@ class Components::Lfg::PingableRolesCard < Components::Base
 
   def view_template
     div do
-      p(class: "mb-3 text-[11px] font-semibold uppercase tracking-widest text-eyebrow") { t(".label") }
-      p(class: "mb-3 text-sm text-text-secondary") { t(".help") }
+      p(class: "mb-3 text-sm font-semibold") { t(".label") }
       div(class: "flex flex-col gap-3", data: {pingable_roles_target: "list"}) do
         @settings.pingable_roles.each_with_index { |role, index| render card_for(role, index) }
       end

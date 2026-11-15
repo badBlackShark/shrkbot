@@ -15,6 +15,7 @@ export default class extends Controller {
       plugins: this.plugins(),
       render: this.renderers(),
       create: this.createValue || false,
+      createOnBlur: this.createValue,
       persist: this.createValue ? false : undefined,
       ...this.remoteSearch(),
       ...this.fixedOptions()
@@ -65,6 +66,7 @@ export default class extends Controller {
   }
 
   renderers() {
+    if (this.createValue) return { no_results: null }
     if (this.searchUrlValue) return this.searchRenderers()
     if (this.colorDotsValue) return this.roleRenderers()
     if (this.prefixValue) return this.prefixRenderers()
