@@ -35,9 +35,9 @@ RSpec.describe "Reminders config", type: :request do
           expect(response.body).to include(CGI.escapeHTML(PluginCatalog.description(:reminders)))
         end
 
-        it "shows the Global badge" do
+        it "shows the Always on badge" do
           get server_reminders_path(guild.id)
-          expect(response.body).to include("Global")
+          expect(response.body).to include("Always on")
         end
 
         it "renders the save bar wired to the form" do

@@ -406,6 +406,9 @@ whenever copy is corrected - the pairs teach more than the rules do.
 | `This message is off.` (Welcomes preview) | `Nothing will be sent.` | "Off" names a toggle state, and the message has no toggle; it is empty. One sentence now serves the box and the preview. |
 | `Nothing would be posted.` (Twilight Struggle preview) | `Nothing will be sent.` | Same sentence as the Welcomes preview: one phrase for an empty message. |
 | `{the inherited template}` as the placeholder of an emptied Twilight Struggle box, and in its preview | `Nothing will be sent.` in the box and the preview | The placeholder looked like the text that would be posted, and it was: empty meant "inherit". Now empty posts nothing, says so, and the reset brings the inherited text back. |
+| `Global` (badge on Reminders' dashboard row and config page) | `Always on` | "Global" reads as a scope, and the admin page already uses it that way ("Global settings for shrkbot's owner"). The badge means the plugin cannot be disabled. |
+| `Enabled` / `Disabled` (badges on dashboard and sub-plugin rows) | Deleted. `Needs setup` stays. | The toggle and the tile beside them already show the state. A badge earns its place only when it says something the row does not. |
+| Cookie notice: `shrkbot only sets technical cookies to make the site work. No tracking, analytics, or anything else from a third party. It will remember that you've seen this, though - with a cookie, of course. :)` / `Oh, nice!` | Deleted. | Technical cookies need no consent. The banner announced the absence of tracking, and it set the site's only non-essential cookie to remember that it had. The privacy policy says the same thing where a reader looks for it. |
 
 ## Kept on purpose
 

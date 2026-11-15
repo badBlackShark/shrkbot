@@ -42,8 +42,8 @@ RSpec.describe Components::SubPluginRow do
   end
 
   context "when enabled and configured" do
-    it "renders the Enabled badge" do
-      expect(html).to include("Enabled")
+    it "leaves the enabled state to the toggle" do
+      expect(html).not_to include(">Enabled<")
     end
 
     it "renders the Configure link to the sub-plugin path" do
@@ -97,8 +97,8 @@ RSpec.describe Components::SubPluginRow do
       described_class.new(**with_row(enabled: false, configured: true)).render_in(view_context)
     end
 
-    it "renders the Disabled badge" do
-      expect(html).to include("Disabled")
+    it "leaves the disabled state to the toggle" do
+      expect(html).not_to include(">Disabled<")
     end
 
     it "leaves the toggle interactive" do
