@@ -38,9 +38,8 @@ RSpec.describe Components::Moderation::ImageScanningForm do
   end
 
   it "renders all three sensitivity options" do
-    expect(html).to include("Relaxed")
-    expect(html).to include("Standard (recommended)")
-    expect(html).to include("Strict")
+    group = Nokogiri::HTML5.fragment(html).at_css("[role=group]")
+    expect(group.css("button").map { |option| option.text.strip }).to eq(["Relaxed", "Standard (recommended)", "Strict"])
     expect(html).to include("Stricter catches more scams and more innocent images.")
   end
 
