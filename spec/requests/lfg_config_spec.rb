@@ -36,7 +36,7 @@ RSpec.describe "LFG config", type: :request do
           expect(response.body).to include("Looking for Game")
           expect(response.body).to include("Roles members can ping with /lfg")
           expect(response.body).to include("Add role")
-          expect(response.body).to include("Make your LFG roles non-mentionable")
+          expect(response.body).to include("Make your Looking for Game roles non-mentionable")
           expect(response.body).to include("Restrict who can run /lfg")
         end
 

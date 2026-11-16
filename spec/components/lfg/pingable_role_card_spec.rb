@@ -19,7 +19,7 @@ RSpec.describe Components::Lfg::PingableRoleCard do
     let(:data) { Components::Lfg::PingableRoleCardData.empty }
 
     it "shows the unpicked placeholder in the summary" do
-      expect(html).to include("Choose a role")
+      expect(html).to include("Pick a role…")
     end
   end
 

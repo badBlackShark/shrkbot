@@ -8,7 +8,7 @@ RSpec.describe Components::Lfg::SetupGuideCard do
   let(:view_context) { ApplicationController.new.view_context }
 
   it "renders the non-mentionable recommendation" do
-    expect(html).to include("Make your LFG roles non-mentionable")
+    expect(html).to include("Make your Looking for Game roles non-mentionable")
     expect(html).to include("Allow anyone to @mention this role")
   end
 
