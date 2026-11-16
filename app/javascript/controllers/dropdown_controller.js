@@ -49,8 +49,7 @@ export default class extends Controller {
   close() {
     if (!this.element.open || this.closing) return
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    if (reduce || !this.hasMenuTarget) {
+    if (!this.hasMenuTarget) {
       this.element.open = false
       return
     }

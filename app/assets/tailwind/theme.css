@@ -111,4 +111,7 @@
   --shadow-md: 0 4px 12px rgba(29, 26, 21, 0.08), 0 2px 4px rgba(29, 26, 21, 0.04);
   --shadow-lg: 0 12px 32px rgba(29, 26, 21, 0.12), 0 4px 8px rgba(29, 26, 21, 0.05);
   --shadow-accent: 0 4px 14px color-mix(in srgb, var(--brand-500) 35%, transparent);
+
+  --default-transition-duration: var(--dur-fast);
+  --default-transition-timing-function: var(--ease-standard);
 }
