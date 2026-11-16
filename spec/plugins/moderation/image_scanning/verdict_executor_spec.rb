@@ -138,6 +138,16 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
 
         expect(Bot::ActivityLog).to have_received(:post).with(anything, hash_including(silent: true))
       end
+
+      context "when the image is removed" do
+        let(:action) { :remove }
+
+        it "still notifies, because a removal always pings" do
+          execute
+
+          expect(Bot::ActivityLog).to have_received(:post).with(anything, hash_including(silent: false))
+        end
+      end
     end
 
     it "does not delete or punish" do

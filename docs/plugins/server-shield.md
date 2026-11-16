@@ -75,7 +75,8 @@ One message is one `ScanQueue` job (`ScanMessage`). Its images are scanned in or
 and the scan stops at the first `:remove` verdict, so a message is removed and its
 author punished once. A crash on one image never skips the rest. Every flagged image
 gets its own log entry with its own verdict buttons. The first entry of a message
-pings staff; the later ones are sent with `SUPPRESS_NOTIFICATIONS`.
+pings staff; later flags are sent with `SUPPRESS_NOTIFICATIONS`. A removal always
+pings, so one message pings at most twice.
 
 A forwarded message scores like the message it forwards: the link amplifier reads the
 forwarded text as well as the forwarder's own.
