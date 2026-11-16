@@ -60,9 +60,15 @@ RSpec.describe Components::PrerequisiteSteps do
       }
     end
 
-    it "renders the link without an empty line beside it" do
-      expect(Nokogiri::HTML5.fragment(html).css("p").map(&:text)).to eq(["Posting is disabled"])
-      expect(html).to include("/servers/123/plugin")
+    let(:title) { Nokogiri::HTML5.fragment(html).at_css("p") }
+
+    it "puts the link on the title's line, so the callout stays one line tall" do
+      expect(title.text).to eq("Posting is disabled")
+      expect(title.parent.css("a").map { |link| link["href"] }).to eq(["/servers/123/plugin"])
+    end
+
+    it "renders no second line" do
+      expect(Nokogiri::HTML5.fragment(html).css("p").size).to eq(1)
     end
   end
 
