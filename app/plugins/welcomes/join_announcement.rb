@@ -2,10 +2,6 @@
 
 module Welcomes
   class JoinAnnouncement
-    # Stripping the mention drops the user object from the payload, so clients that have not lazily
-    # loaded the member render it as @unknown-user. Keep the mention real and silence the message.
-    SUPPRESS_NOTIFICATIONS = 1 << 12
-
     def initialize(bot:, server:, member:)
       @bot = bot
       @server = server
@@ -42,8 +38,10 @@ module Welcomes
       {parse: [], users: [@member.id]} unless setting.ping_on_join
     end
 
+    # Stripping the mention drops the user object from the payload, so clients that have not lazily
+    # loaded the member render it as @unknown-user. Keep the mention real and silence the message.
     def flags
-      setting.ping_on_join ? 0 : SUPPRESS_NOTIFICATIONS
+      setting.ping_on_join ? 0 : Bot::Discord::Components::SUPPRESS_NOTIFICATIONS
     end
   end
 end

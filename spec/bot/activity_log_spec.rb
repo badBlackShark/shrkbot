@@ -53,6 +53,17 @@ RSpec.describe Bot::ActivityLog do
       post
     end
 
+    context "when silent" do
+      subject(:post) do
+        described_class.post(server_config, bot:, title: "t", body: "b", meta: "m", silent: true)
+      end
+
+      it "passes it through to the send" do
+        expect(Bot::Discord::Components).to receive(:send_to).with(channel, anything, hash_including(silent: true))
+        post
+      end
+    end
+
     context "with a subject" do
       subject(:post) do
         described_class.post(

@@ -144,7 +144,8 @@ RSpec.describe Moderation::SpamGuard do
         anything,
         allowed_mentions: hash_including(users: [author_id], roles: array_including(staff_role_id)),
         attachments: nil,
-        subject: "<@&#{staff_role_id}>: #{I18n.t("moderation.spam_protection.notification.title.purge")}"
+        subject: "<@&#{staff_role_id}>: #{I18n.t("moderation.spam_protection.notification.title.purge")}",
+        silent: false
       )
 
       simulate_message(channel_id: 1, message_id: 10)
@@ -467,7 +468,8 @@ RSpec.describe Moderation::SpamGuard do
         anything,
         allowed_mentions: {parse: [], users: [author_id], roles: []},
         attachments: nil,
-        subject: I18n.t("moderation.spam_protection.notification.title.notify_only")
+        subject: I18n.t("moderation.spam_protection.notification.title.notify_only"),
+        silent: false
       )
 
       simulate_message(channel_id: 1, message_id: 10)

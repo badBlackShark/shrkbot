@@ -17,7 +17,8 @@ RSpec.describe Moderation::ImageScanning::ScanProcessor do
       image_url: "https://cdn/x.png",
       signals:,
       new_account_age_days: 30,
-      settings:
+      settings:,
+      silent: false
     )
   end
 
@@ -52,6 +53,10 @@ RSpec.describe Moderation::ImageScanning::ScanProcessor do
         new_account_age_days: 30
       )
       expect(Moderation::ImageScanning::VerdictExecutor).to have_received(:call).with(verdict:, context:, phash: hex, hash_state: :none, image_bytes: "bytes")
+    end
+
+    it "returns the verdict action" do
+      expect(process).to eq(:allow)
     end
 
     it "does not touch last_seen" do

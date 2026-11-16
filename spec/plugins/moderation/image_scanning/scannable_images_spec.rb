@@ -6,10 +6,12 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
   let(:png_type) { "image/png" }
   let(:jpeg_type) { "image/jpeg" }
 
-  describe ".attachments" do
-    subject(:result) { described_class.attachments(message) }
+  describe ".on_create" do
+    subject(:result) { described_class.on_create(message) }
 
-    let(:message) { double("message", attachments:) }
+    let(:message) { double("message", attachments:, content:, snapshots:) }
+    let(:content) { nil }
+    let(:snapshots) { [] }
     let(:image_att) { double("att", content_type: png_type, size: 1234, url: "https://cdn/a.png") }
     let(:attachments) { [image_att] }
 
@@ -33,13 +35,13 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
       end
     end
 
-    context "when there are more attachments than MAX" do
+    context "when the message has ten attachments" do
       let(:attachments) do
-        Array.new(5) { |i| double("att#{i}", content_type: png_type, size: 1234, url: "https://cdn/#{i}.png") }
+        Array.new(10) { |i| double("att#{i}", content_type: png_type, size: 1234, url: "https://cdn/#{i}.png") }
       end
 
-      it "caps at MAX" do
-        expect(result.length).to eq(4)
+      it "returns all ten" do
+        expect(result.length).to eq(10)
       end
     end
 
@@ -58,129 +60,195 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
         expect(result).to eq(["https://cdn/anim.gif"])
       end
     end
-  end
 
-  describe ".content_links" do
-    subject(:result) { described_class.content_links(message) }
+    context "with links in the content" do
+      let(:attachments) { [] }
+      let(:cdn_url) { "https://cdn.discordapp.com/attachments/123/456/scan.png?ex=abc&is=def&hm=xyz" }
 
-    let(:cdn_url) { "https://cdn.discordapp.com/attachments/123/456/scan.png?ex=abc&is=def&hm=xyz" }
-    let(:message) { double("message", content: "check this out #{cdn_url}") }
+      let(:content) { "check this out #{cdn_url}" }
 
-    it "returns Discord CDN png link with signed query preserved" do
-      expect(result).to eq([cdn_url])
-    end
-
-    context "when link is on media.discordapp.net" do
-      let(:media_url) { "https://media.discordapp.net/attachments/1/2/img.jpg" }
-      let(:message) { double("message", content: media_url) }
-
-      it "returns it" do
-        expect(result).to eq([media_url])
-      end
-    end
-
-    context "when host looks like Discord CDN but has extra suffix (subdomain takeover attempt)" do
-      let(:message) { double("message", content: "https://cdn.discordapp.com.evil.com/x.png") }
-
-      it "skips it" do
-        expect(result).to be_empty
-      end
-    end
-
-    context "when host is a non-Discord domain" do
-      let(:message) { double("message", content: "https://evil.com/x.png") }
-
-      it "skips it" do
-        expect(result).to be_empty
-      end
-    end
-
-    context "when image extension is not in the allowlist" do
-      let(:message) { double("message", content: "https://cdn.discordapp.com/a/file.pdf") }
-
-      it "skips it" do
-        expect(result).to be_empty
-      end
-    end
-
-    context "when link uses http instead of https" do
-      let(:message) { double("message", content: "http://cdn.discordapp.com/attachments/1/2/img.png") }
-
-      it "skips it" do
-        expect(result).to be_empty
-      end
-    end
-
-    context "when content contains a malformed URL" do
-      let(:message) { double("message", content: "https://cdn.discordapp.com/[bad") }
-
-      it "skips it without raising" do
-        expect(result).to be_empty
-      end
-    end
-
-    context "when content is mixed text and a valid link" do
-      let(:message) { double("message", content: "hey look at this #{cdn_url} pretty cool right") }
-
-      it "extracts just the link" do
+      it "returns Discord CDN png link with signed query preserved" do
         expect(result).to eq([cdn_url])
       end
+
+      context "when link is on media.discordapp.net" do
+        let(:media_url) { "https://media.discordapp.net/attachments/1/2/img.jpg" }
+        let(:content) { media_url }
+
+        it "returns it" do
+          expect(result).to eq([media_url])
+        end
+      end
+
+      context "when host looks like Discord CDN but has extra suffix (subdomain takeover attempt)" do
+        let(:content) { "https://cdn.discordapp.com.evil.com/x.png" }
+
+        it "skips it" do
+          expect(result).to be_empty
+        end
+      end
+
+      context "when host is a non-Discord domain" do
+        let(:content) { "https://evil.com/x.png" }
+
+        it "skips it" do
+          expect(result).to be_empty
+        end
+      end
+
+      context "when image extension is not in the allowlist" do
+        let(:content) { "https://cdn.discordapp.com/a/file.pdf" }
+
+        it "skips it" do
+          expect(result).to be_empty
+        end
+      end
+
+      context "when link uses http instead of https" do
+        let(:content) { "http://cdn.discordapp.com/attachments/1/2/img.png" }
+
+        it "skips it" do
+          expect(result).to be_empty
+        end
+      end
+
+      context "when content contains a malformed URL" do
+        let(:content) { "https://cdn.discordapp.com/[bad" }
+
+        it "skips it without raising" do
+          expect(result).to be_empty
+        end
+      end
+
+      context "when content is mixed text and a valid link" do
+        let(:content) { "hey look at this #{cdn_url} pretty cool right" }
+
+        it "extracts just the link" do
+          expect(result).to eq([cdn_url])
+        end
+      end
+
+      context "when the content holds five valid links" do
+        let(:urls) do
+          Array.new(5) { |i| "https://cdn.discordapp.com/attachments/#{i}/#{i}/img#{i}.png" }
+        end
+        let(:content) { urls.join(" ") }
+
+        it "returns all five" do
+          expect(result).to eq(urls)
+        end
+      end
+
+      context "when the same link appears twice" do
+        let(:content) { "#{cdn_url} #{cdn_url}" }
+
+        it "returns it once" do
+          expect(result).to eq([cdn_url])
+        end
+      end
+
+      context "when the link is a GIF" do
+        let(:content) { "https://cdn.discordapp.com/attachments/1/2/anim.gif" }
+
+        it "returns it" do
+          expect(result).to eq(["https://cdn.discordapp.com/attachments/1/2/anim.gif"])
+        end
+      end
+
+      context "when the link uses a non-standard port" do
+        let(:content) { "https://cdn.discordapp.com:8443/attachments/1/2/x.png" }
+
+        it "skips it" do
+          expect(result).to be_empty
+        end
+      end
+
+      context "when a valid link ends a sentence with trailing punctuation" do
+        let(:content) { "see #{cdn_url}." }
+
+        it "strips the punctuation and returns the link" do
+          expect(result).to eq([cdn_url])
+        end
+      end
+
+      context "when content is nil" do
+        let(:content) { nil }
+
+        it "returns empty array" do
+          expect(result).to eq([])
+        end
+      end
+
+      context "when content is empty string" do
+        let(:content) { "" }
+
+        it "returns empty array" do
+          expect(result).to eq([])
+        end
+      end
+
+      context "when two links point at the same file with different query strings" do
+        let(:base) { "https://cdn.discordapp.com/attachments/1/2/img.png" }
+        let(:content) { "#{base}?ex=1&hm=a #{base}?ex=2&hm=b" }
+
+        it "returns the first only" do
+          expect(result).to eq(["#{base}?ex=1&hm=a"])
+        end
+      end
+
+      context "when a link repeats a file with percent-encoding and a fragment" do
+        let(:content) { "https://cdn.discordapp.com/attachments/1/2/img.png https://cdn.discordapp.com/attachments/%31/2/img.png#x" }
+
+        it "returns the first only" do
+          expect(result).to eq(["https://cdn.discordapp.com/attachments/1/2/img.png"])
+        end
+      end
+
+      context "when a link repeats a file on the other Discord host" do
+        let(:content) { "https://cdn.discordapp.com/attachments/1/2/img.png https://media.discordapp.net/attachments/1/2/img.png" }
+
+        it "returns the first only" do
+          expect(result).to eq(["https://cdn.discordapp.com/attachments/1/2/img.png"])
+        end
+      end
     end
 
-    context "when there are more than MAX valid links" do
-      let(:urls) do
-        Array.new(5) { |i| "https://cdn.discordapp.com/attachments/#{i}/#{i}/img#{i}.png" }
+    context "with attachments, links, embeds and a forward" do
+      let(:link) { "https://cdn.discordapp.com/attachments/1/2/link.png" }
+      let(:attachment_url) { "https://cdn/a.png" }
+      let(:message) do
+        double(
+          "message",
+          attachments: [double("att", content_type: png_type, size: 1234, url: attachment_url)],
+          content: link,
+          embeds: [double("embed", image: double("img", proxy_url: "https://media.discordapp.net/e.png", content_type: png_type))],
+          snapshots: [
+            double(
+              "snapshot",
+              attachments: [double("att", content_type: png_type, size: 1234, url: "https://cdn/fwd.png")],
+              content: nil,
+              embeds: []
+            )
+          ]
+        )
       end
-      let(:message) { double("message", content: urls.join(" ")) }
 
-      it "caps at MAX" do
-        expect(result.length).to eq(4)
+      it "returns attachments, links and forwarded images, and leaves the message's own embeds to the update event" do
+        expect(result).to eq([attachment_url, link, "https://cdn/fwd.png"])
       end
-    end
 
-    context "when the link is a GIF" do
-      let(:message) { double("message", content: "https://cdn.discordapp.com/attachments/1/2/anim.gif") }
+      context "when an attachment is also pasted as a link" do
+        let(:attachment_url) { link }
 
-      it "returns it" do
-        expect(result).to eq(["https://cdn.discordapp.com/attachments/1/2/anim.gif"])
-      end
-    end
-
-    context "when the link uses a non-standard port" do
-      let(:message) { double("message", content: "https://cdn.discordapp.com:8443/attachments/1/2/x.png") }
-
-      it "skips it" do
-        expect(result).to be_empty
-      end
-    end
-
-    context "when a valid link ends a sentence with trailing punctuation" do
-      let(:message) { double("message", content: "see #{cdn_url}.") }
-
-      it "strips the punctuation and returns the link" do
-        expect(result).to eq([cdn_url])
-      end
-    end
-
-    context "when content is nil" do
-      let(:message) { double("message", content: nil) }
-
-      it "returns empty array" do
-        expect(result).to eq([])
-      end
-    end
-
-    context "when content is empty string" do
-      let(:message) { double("message", content: "") }
-
-      it "returns empty array" do
-        expect(result).to eq([])
+        it "returns it once" do
+          expect(result).to eq([link, "https://cdn/fwd.png"])
+        end
       end
     end
   end
 
-  describe ".embeds" do
-    subject(:result) { described_class.embeds(message) }
+  describe ".on_update" do
+    subject(:result) { described_class.on_update(message) }
 
     let(:message) { double("message", embeds:) }
     let(:embed_image) { double("img", proxy_url: "https://media.discordapp.net/a.png", content_type: png_type) }
@@ -231,16 +299,16 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
       end
     end
 
-    context "when there are more embed images than MAX" do
+    context "when the message has ten embed images" do
       let(:embeds) do
-        Array.new(5) do |i|
+        Array.new(10) do |i|
           img = double("img#{i}", proxy_url: "https://media.discordapp.net/#{i}.png", content_type: png_type)
           double("embed#{i}", image: img)
         end
       end
 
-      it "caps at MAX" do
-        expect(result.length).to eq(4)
+      it "returns all ten" do
+        expect(result.length).to eq(10)
       end
     end
   end
@@ -248,12 +316,14 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
   describe ".all" do
     subject(:result) { described_class.all(message) }
 
+    let(:snapshots) { [] }
     let(:message) do
       double(
         "message",
         attachments: [double("att", content_type: png_type, size: 1234, url: "https://cdn/a.png")],
         content: "https://cdn.discordapp.com/attachments/1/2/link.png",
-        embeds: [double("embed", image: double("img", proxy_url: "https://media.discordapp.net/e.png", content_type: png_type))]
+        embeds: [double("embed", image: double("img", proxy_url: "https://media.discordapp.net/e.png", content_type: png_type))],
+        snapshots:
       )
     end
 
@@ -263,6 +333,30 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
         "https://cdn.discordapp.com/attachments/1/2/link.png",
         "https://media.discordapp.net/e.png"
       )
+    end
+
+    context "when the message forwards another message" do
+      let(:snapshots) do
+        [
+          double(
+            "snapshot",
+            attachments: [double("att", content_type: png_type, size: 1234, url: "https://cdn/fwd.png")],
+            content: "https://cdn.discordapp.com/attachments/9/9/fwdlink.png",
+            embeds: [double("embed", image: double("img", proxy_url: "https://media.discordapp.net/fwd-e.png", content_type: png_type))]
+          )
+        ]
+      end
+
+      it "includes the forwarded message's attachments, links and embed images" do
+        expect(result).to contain_exactly(
+          "https://cdn/a.png",
+          "https://cdn.discordapp.com/attachments/1/2/link.png",
+          "https://media.discordapp.net/e.png",
+          "https://cdn/fwd.png",
+          "https://cdn.discordapp.com/attachments/9/9/fwdlink.png",
+          "https://media.discordapp.net/fwd-e.png"
+        )
+      end
     end
 
     context "when the message is nil" do
@@ -280,7 +374,8 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
           "message",
           attachments: [double("att", content_type: png_type, size: 1234, url: dup_url)],
           content: dup_url,
-          embeds: []
+          embeds: [],
+          snapshots:
         )
       end
 

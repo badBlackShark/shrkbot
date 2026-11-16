@@ -10,7 +10,7 @@ RSpec.describe Moderation::EmbedScan do
   let(:embed_urls) { ["https://media.discordapp.net/a.png"] }
 
   before do
-    allow(Moderation::ImageScanning::ScannableImages).to receive(:embeds).with(message).and_return(embed_urls)
+    allow(Moderation::ImageScanning::ScannableImages).to receive(:on_update).with(message).and_return(embed_urls)
     allow(Moderation::ImageScanning::EnqueueScan).to receive(:call)
   end
 

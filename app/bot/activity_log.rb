@@ -6,11 +6,11 @@ module Bot
 
     module_function
 
-    def post(server_configuration, bot:, title:, body:, meta:, image: nil, components: [], allowed_mentions: SUPPRESS_MENTIONS, subject: nil)
+    def post(server_configuration, bot:, title:, body:, meta:, image: nil, components: [], allowed_mentions: SUPPRESS_MENTIONS, subject: nil, silent: false)
       channel_id = server_configuration.logging_settings.channel_id
       return unless channel_id
 
-      deliver(bot, channel_id, entry(title, body, meta, image:, components:), allowed_mentions:, attachments: image && [image], subject:)
+      deliver(bot, channel_id, entry(title, body, meta, image:, components:), allowed_mentions:, attachments: image && [image], subject:, silent:)
     end
 
     def enabled?(server_configuration, action)
@@ -26,11 +26,11 @@ module Bot
       Discord::Components.container(blocks)
     end
 
-    def deliver(bot, channel_id, entry, allowed_mentions: SUPPRESS_MENTIONS, attachments: nil, subject: nil)
+    def deliver(bot, channel_id, entry, allowed_mentions: SUPPRESS_MENTIONS, attachments: nil, subject: nil, silent: false)
       channel = bot.channel(channel_id)
       return unless channel
 
-      Discord::Components.send_to(channel, entry, allowed_mentions:, attachments:, subject:)
+      Discord::Components.send_to(channel, entry, allowed_mentions:, attachments:, subject:, silent:)
     rescue => e
       Rails.logger.warn("[ActivityLog] could not write to ##{channel_id}: #{e.class}: #{e.message}")
     end

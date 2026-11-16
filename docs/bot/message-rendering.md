@@ -42,7 +42,9 @@ after a rename or a deleted account. Whether the allowed mention also fires a re
 ping is the caller's decision to make and to defend: the moderation log allows the
 offender because a private log channel delivers no notification to them, while
 `Welcomes::JoinAnnouncement` allows the joiner and sets `SUPPRESS_NOTIFICATIONS`
-(`1 << 12`) instead, so the mention resolves without a sound.
+(`1 << 12`) instead, so the mention resolves without a sound. `send_to(silent: true)`
+sets the same flag; the image-scan log uses it for every flag of a message after the
+first, so twenty flagged images in one message ping staff once.
 
 The subject-first flow makes this two API calls, and **a mention allowed on both of
 them can ping twice**. `send_to` therefore splits the allow-list: the plain create

@@ -11,7 +11,8 @@ module Moderation
       :image_url,
       :signals,
       :new_account_age_days,
-      :settings
+      :settings,
+      :silent
     )
   end
 end
