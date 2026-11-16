@@ -1,27 +1,32 @@
 import { Controller } from "@hotwired/stimulus"
+import { Reveal } from "lib/reveal"
+
+const INTERACTIVE = "a, button, input, label, select, textarea"
 
 export default class extends Controller {
   static values = { key: String }
-  static targets = ["details"]
 
   connect() {
-    if (this.details.open) return
-
-    const stored = localStorage.getItem(this.keyValue)
-    if (stored === "open") this.details.open = true
+    this.reveal = new Reveal(this.element)
+    if (!this.element.open && this.#stored === "open") this.element.open = true
   }
 
   toggle(event) {
+    if (event.target.closest(INTERACTIVE)) return
+
     event.preventDefault()
-    this.#set(!this.details.open)
+    this.#remember(this.reveal.toggle())
   }
 
-  #set(open) {
-    this.details.open = open
-    localStorage.setItem(this.keyValue, open ? "open" : "closed")
+  follow({ target }) {
+    this.#remember(this.reveal.set(target.checked))
   }
 
-  get details() {
-    return this.hasDetailsTarget ? this.detailsTarget : this.element
+  get #stored() {
+    return this.hasKeyValue ? localStorage.getItem(this.keyValue) : null
+  }
+
+  #remember(open) {
+    if (this.hasKeyValue) localStorage.setItem(this.keyValue, open ? "open" : "closed")
   }
 }

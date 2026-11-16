@@ -39,9 +39,9 @@ RSpec.describe Components::Moderation::OverviewForm do
     expect(html).not_to include("Something went wrong enabling.")
   end
 
-  it "renders the matching explainer with dropdown-menu class and menu target" do
-    expect(html).to include("dropdown-menu")
-    expect(html).to include('data-dropdown-target="menu"')
+  it "renders the matching explainer as a disclosure" do
+    expect(html).to include('data-controller="disclosure"')
+    expect(html).to include('data-action="click->disclosure#toggle"')
   end
 
   context "with an enable_error" do

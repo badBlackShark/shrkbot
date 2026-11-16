@@ -146,19 +146,16 @@ class Components::Moderation::ImageScanningForm < Components::Base
   def image_explainer
     details(
       class: "rounded-card border border-border-default bg-surface-card shadow-sm overflow-hidden",
-      data: {controller: "dropdown", dropdown_dismiss_on_outside_value: "false"}
+      data: {controller: "disclosure"}
     ) do
       summary(
         class: "flex cursor-pointer select-none list-none items-center gap-3 border-b border-border-subtle bg-surface-sunken px-5 py-3.5 [&::-webkit-details-marker]:hidden",
-        data: {action: "click->dropdown#toggle"}
+        data: {action: "click->disclosure#toggle"}
       ) do
         render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 text-text-muted")
         span(class: "text-sm font-semibold flex-1") { t(".explainer.title") }
       end
-      div(
-        class: "dropdown-menu px-5 py-4",
-        data: {dropdown_target: "menu"}
-      ) do
+      div(class: "px-5 py-4") do
         ol(class: "list-decimal list-outside space-y-2.5 pl-5 marker:text-text-muted") do
           explainer_line(t(".explainer.line_memory"))
           explainer_line(t(".explainer.line_staff"))

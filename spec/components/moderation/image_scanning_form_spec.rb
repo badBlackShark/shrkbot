@@ -98,9 +98,9 @@ RSpec.describe Components::Moderation::ImageScanningForm do
     expect(html).to include("Nothing is stored.")
   end
 
-  it "renders the explainer with dropdown-menu class and menu target" do
-    expect(html).to include("dropdown-menu")
-    expect(html).to include('data-dropdown-target="menu"')
+  it "renders the explainer as a disclosure" do
+    expect(html).to include('data-controller="disclosure"')
+    expect(html).to include('data-action="click->disclosure#toggle"')
   end
 
   it "renders the report-as-scam callout" do

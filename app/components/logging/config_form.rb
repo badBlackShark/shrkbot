@@ -44,17 +44,17 @@ class Components::Logging::ConfigForm < Components::Base
     div(class: "relative border-b border-border-subtle last:border-b-0", data: {controller: "event-group"}) do
       details(
         open: true,
-        data: {controller: "dropdown", dropdown_dismiss_on_outside_value: "false"}
+        data: {controller: "disclosure"}
       ) do
         summary(
           class: "flex h-11 cursor-pointer list-none select-none items-center gap-3 bg-surface-sunken px-5 pr-36 [&::-webkit-details-marker]:hidden",
-          data: {action: "click->dropdown#toggle"}
+          data: {action: "click->disclosure#toggle"}
         ) do
           render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
           span(class: "text-[11px] font-semibold uppercase tracking-widest text-text-secondary") { t(".events.plugin.#{plugin}") }
           event_count(enabled, definitions.size)
         end
-        div(class: "dropdown-menu divide-y divide-border-subtle", data: {dropdown_target: "menu"}) do
+        div(class: "divide-y divide-border-subtle") do
           definitions.each { |definition| event_row(definition) }
         end
       end

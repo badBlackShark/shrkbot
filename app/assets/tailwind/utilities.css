@@ -165,7 +165,7 @@ details[open] > .dropdown-menu.no-enter:not(.is-closing) {
 .dropdown-chevron {
   transition: transform var(--dur-base) var(--ease-standard);
 }
-details[open] .dropdown-chevron { transform: rotate(180deg); }
+details[open]:not([data-closing]) .dropdown-chevron { transform: rotate(180deg); }
 details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0deg); }
 
 .theme-switching,

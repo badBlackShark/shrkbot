@@ -18,14 +18,18 @@ RSpec.describe Components::Feeds::EventTypeSetting do
 
   let(:document) { Nokogiri::HTML.fragment(html) }
   let(:card) { document.element_children.first }
-  let(:body) { card.at_css("[data-type-card-target=body]") }
-  let(:chevron) { card.at_css("button[data-type-card-target=chevron]") }
-  let(:header) { card.at_css("[data-action='click->type-card#flip']") }
+  let(:details) { card.at_css("details") }
+  let(:header) { details.at_css("summary") }
+  let(:body) { details.element_children.last }
 
-  it "is the card, controlled by type-card and scoped to its own type" do
-    expect(card["data-controller"]).to eq("type-card")
+  it "is the card, scoped to its own type" do
     expect(card).to have_attribute("data-feed-preview-scope")
-    expect(card["data-type-card-key-value"]).to eq("feeds-message-1145350-patch_notes_published")
+  end
+
+  it "is a disclosure that remembers its open state per type" do
+    expect(details["data-controller"]).to eq("disclosure")
+    expect(details["data-disclosure-key-value"]).to eq("feeds-message-1145350-patch_notes_published")
+    expect(details).not_to have_attribute("open")
   end
 
   it "shows the type's help line" do
@@ -33,28 +37,17 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   end
 
   it "wires the checked toggle to open and close the card" do
-    toggle = card.at_css("input[type=checkbox]")
+    toggle = header.at_css("input[type=checkbox]")
 
     expect(toggle.attributes.keys).to include("data-type-toggle", "checked")
-    expect(toggle["data-type-card-target"]).to eq("toggle")
-    expect(toggle["data-action"]).to eq("change->type-card#sync")
+    expect(toggle["data-action"]).to eq("change->disclosure#follow")
   end
 
   it "folds from anywhere in the header, and not from the settings below it" do
-    expect(header.at_css("button[data-type-card-target=chevron]")).to be_present
-    expect(header.at_css("[data-type-card-target=body]")).to be_nil
-  end
-
-  it "offers the chevron whether or not the type is on" do
-    expect(chevron["class"].split).to include("flex")
-    expect(chevron["class"].split).not_to include("hidden")
-  end
-
-  it "hides the body behind the chevron" do
-    expect(body).to have_attribute("hidden")
-    expect(chevron["aria-controls"]).to eq(body["id"])
-    expect(chevron["aria-expanded"]).to eq("false")
-    expect(chevron["aria-label"]).to eq("Patch notes settings")
+    expect(header["data-action"]).to eq("click->disclosure#toggle")
+    expect(header.at_css(".dropdown-chevron")).to be_present
+    expect(body.name).to eq("div")
+    expect(body.at_css("[data-action*='disclosure#toggle']")).to be_nil
   end
 
   context "when the type is not followed" do
