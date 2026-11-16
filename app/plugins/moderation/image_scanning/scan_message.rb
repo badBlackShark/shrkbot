@@ -9,7 +9,7 @@ module Moderation
         contexts.each do |context|
           break if ScanProcessor.call(context) == :remove
         rescue => e
-          Rails.logger.error("[Moderation::ImageScanning::ScanMessage] scan crashed: #{e.class}: #{e.message}")
+          Rails.logger.error("[Moderation::ImageScanning::ScanMessage] scan crashed on message #{context.message_id}: #{e.class}: #{e.message}")
         end
       end
     end

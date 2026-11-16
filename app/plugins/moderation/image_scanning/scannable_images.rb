@@ -9,6 +9,10 @@ module Moderation
         (new(message).all + forwarded(message)).uniq
       end
 
+      def self.on_create(message)
+        (attachments(message) + content_links(message) + forwarded(message)).uniq
+      end
+
       def self.forwarded(message)
         message.snapshots.flat_map { |snapshot| new(snapshot).all }
       end

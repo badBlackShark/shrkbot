@@ -351,4 +351,39 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
       end
     end
   end
+
+  describe ".on_create" do
+    subject(:result) { described_class.on_create(message) }
+
+    let(:link) { "https://cdn.discordapp.com/attachments/1/2/link.png" }
+    let(:attachment_url) { "https://cdn/a.png" }
+    let(:message) do
+      double(
+        "message",
+        attachments: [double("att", content_type: png_type, size: 1234, url: attachment_url)],
+        content: link,
+        embeds: [double("embed", image: double("img", proxy_url: "https://media.discordapp.net/e.png", content_type: png_type))],
+        snapshots: [
+          double(
+            "snapshot",
+            attachments: [double("att", content_type: png_type, size: 1234, url: "https://cdn/fwd.png")],
+            content: nil,
+            embeds: []
+          )
+        ]
+      )
+    end
+
+    it "returns attachments, links and forwarded images, and leaves the message's own embeds to the update event" do
+      expect(result).to eq([attachment_url, link, "https://cdn/fwd.png"])
+    end
+
+    context "when an attachment is also pasted as a link" do
+      let(:attachment_url) { link }
+
+      it "returns it once" do
+        expect(result).to eq([link, "https://cdn/fwd.png"])
+      end
+    end
+  end
 end

@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe Moderation::ImageScanning::ScanMessage do
   subject(:scan) { described_class.call(contexts) }
 
-  let(:first) { double("first context") }
+  let(:first) { double("first context", message_id: 4) }
   let(:second) { double("second context") }
   let(:contexts) { [first, second] }
   let(:first_result) { :allow }
@@ -47,7 +47,7 @@ RSpec.describe Moderation::ImageScanning::ScanMessage do
 
     it "logs the crash and still scans the remaining images" do
       scan
-      expect(Rails.logger).to have_received(:error).with(/scan crashed: RuntimeError: boom/)
+      expect(Rails.logger).to have_received(:error).with(/scan crashed on message 4: RuntimeError: boom/)
       expect(Moderation::ImageScanning::ScanProcessor).to have_received(:call).with(second)
     end
   end
