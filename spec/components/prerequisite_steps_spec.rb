@@ -52,6 +52,26 @@ RSpec.describe Components::PrerequisiteSteps do
     expect(html).to include(icon_shape("arrow-right"))
   end
 
+  context "with a step that has no message" do
+    let(:options) do
+      {
+        title: "Posting is disabled",
+        steps: [described_class::Step.new(message: nil, cta_label: "Open the plugin", cta_href: "/servers/123/plugin")]
+      }
+    end
+
+    let(:title) { Nokogiri::HTML5.fragment(html).at_css("p") }
+
+    it "puts the link on the title's line, so the callout stays one line tall" do
+      expect(title.text).to eq("Posting is disabled")
+      expect(title.parent.css("a").map { |link| link["href"] }).to eq(["/servers/123/plugin"])
+    end
+
+    it "renders no second line" do
+      expect(Nokogiri::HTML5.fragment(html).css("p").size).to eq(1)
+    end
+  end
+
   context "with a custom icon" do
     let(:options) do
       {

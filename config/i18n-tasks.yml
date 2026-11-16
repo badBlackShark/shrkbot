@@ -84,7 +84,6 @@ ignore_unused:
   - views.servers.twilight_struggle.show.title
   # 1. Components::TwilightStruggle::SettingCardBase subclasses
   - components.twilight_struggle.player_display_card.label
-  - components.twilight_struggle.player_display_card.help
   - components.twilight_struggle.player_display_card.inherits_from
   - components.twilight_struggle.player_display_card.inherits_default
   - components.twilight_struggle.post_delay_card.label

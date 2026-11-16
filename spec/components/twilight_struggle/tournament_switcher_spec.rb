@@ -16,8 +16,9 @@ RSpec.describe Components::TwilightStruggle::TournamentSwitcher do
   let(:other) { create(:twilight_struggle_destination, tournament: other_tournament, server_configuration:) }
   let(:destinations) { [current, other] }
 
-  it "names the tournament being configured" do
-    expect(html).to include("OTSL 2026 - Season 8")
+  it "leaves the tournament's name to the page heading" do
+    expect(html).to include("Switch tournament")
+    expect(html).not_to include("OTSL 2026 - Season 8")
   end
 
   it "links to the others" do
@@ -40,9 +41,8 @@ RSpec.describe Components::TwilightStruggle::TournamentSwitcher do
   context "when there is nowhere else to go" do
     let(:destinations) { [current] }
 
-    it "falls back to a plain badge rather than an empty dropdown" do
-      expect(html).to include("OTSL 2026 - Season 8")
-      expect(html).not_to include("<details")
+    it "renders nothing" do
+      expect(html).to be_empty
     end
   end
 end

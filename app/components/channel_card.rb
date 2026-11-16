@@ -1,23 +1,20 @@
 # frozen_string_literal: true
 
 class Components::ChannelCard < Components::Base
-  def initialize(name:, channels:, selected:, label:, help: nil, required: false, **attrs)
+  def initialize(name:, channels:, selected:, label:, required: false)
     @name = name
     @channels = channels
     @selected = selected
     @label = label
-    @help = help
     @required = required
-    @attrs = attrs
   end
 
   def view_template(&block)
-    render Components::Card.new(**@attrs) do
-      label(class: label_class) do
+    render Components::Card.new do
+      render Components::FieldLabel.new do
         plain @label
         render Components::RequiredMarker.new if @required
       end
-      p(class: "mb-2 mt-0.5 text-sm text-text-secondary") { @help } if @help
       if @channels.empty?
         p(class: "text-sm text-text-secondary") { t(".none") }
       else
@@ -32,11 +29,5 @@ class Components::ChannelCard < Components::Base
       end
       yield if block
     end
-  end
-
-  private
-
-  def label_class
-    @help ? "block text-sm font-semibold" : "mb-1.5 block text-sm font-semibold"
   end
 end

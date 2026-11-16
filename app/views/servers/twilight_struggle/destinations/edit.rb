@@ -20,7 +20,7 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
           label: t(".subscribe", tournament: tournament.name)
         },
         prerequisites:,
-        parent_crumb: {label: t(".tournaments"), href: server_twilight_struggle_path(server_configuration.discord_id)}
+        parent_crumb:
       ) do
         render Components::TwilightStruggle::ConfigForm.new(destination: @destination)
       end
@@ -32,10 +32,16 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
   def header
     Components::ConfigPageHeader.new(
       icon: "trophy",
-      title: t(".title"),
-      description: t(".description"),
+      title: tournament.name,
       aside: switcher
     )
+  end
+
+  def parent_crumb
+    {
+      label: PluginCatalog.find(::TwilightStruggle::PLUGIN_KEY).name,
+      href: server_twilight_struggle_path(server_configuration.discord_id)
+    }
   end
 
   def tournament
@@ -50,7 +56,7 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
       title: t(".prerequisites.title"),
       steps: [
         Components::PrerequisiteSteps::Step.new(
-          message: t(".prerequisites.message"),
+          message: nil,
           cta_label: t(".prerequisites.cta"),
           cta_href: server_twilight_struggle_path(server_configuration.discord_id)
         )

@@ -271,6 +271,7 @@ duplicated class strings:
   and help-text styling for a form field (`<label>` and `<p>` respectively); no
   parameters, block content only. Help goes under the control via `FieldHelp`,
   never between label and control.
+- **Option help** — a help line that describes some options of a `SegmentedControl` shows only while one of them is pressed: the card is a named group (`group/setting`), and a wrapper around the `FieldHelp` under the control carries `hidden group-has-[[data-value=<value>][aria-pressed=true]]/setting:block` per option, with `_` in a value written `\_`. It sits under the control so the options do not move when it appears. CSS only (`TwilightStruggle::PlayerDisplayCard`).
 - **`Components::RequiredMarker`** — the red asterisk after a required field's
   label; the only required marker. Labels never say "(required)" or "(optional)".
 - **`Components::ConfigSections`** — the config-page section stack: renders the

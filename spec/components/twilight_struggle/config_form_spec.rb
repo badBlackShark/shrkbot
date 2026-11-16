@@ -93,18 +93,18 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
     end
   end
 
-  describe "the channel help" do
-    it "explains that no channel means no posts" do
-      expect(html).to include("With no channel, nothing is posted")
+  describe "the inherited channel" do
+    it "says nothing about inheriting when there is no parent" do
+      expect(html).not_to include("posts in")
     end
 
     context "when this server's destination for a parent tournament already has a channel" do
-      let(:parent) { create(:twilight_struggle_tournament) }
+      let(:parent) { create(:twilight_struggle_tournament, name: "OTSL 2026") }
       let(:tournament) { create(:twilight_struggle_tournament, parent:) }
       let!(:parent_destination) { create(:twilight_struggle_destination, tournament: parent, server_configuration:, discord_channel_id: 4242) }
 
-      it "names the inherited channel instead" do
-        expect(html).to include("inherited from the tournament above").and include("Tournaments / #results")
+      it "names the parent tournament and its channel under the select" do
+        expect(html).to include("OTSL 2026 posts in Tournaments / #results.")
       end
     end
 
@@ -113,9 +113,20 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
       let(:tournament) { create(:twilight_struggle_tournament, parent:) }
       let!(:parent_destination) { create(:twilight_struggle_destination, tournament: parent, server_configuration: create(:server_configuration), discord_channel_id: 999) }
 
-      it "falls back to the plain help rather than leaking a channel name" do
-        expect(html).to include("With no channel, nothing is posted")
+      it "names no channel it cannot show" do
+        expect(html).not_to include("posts in")
       end
+    end
+  end
+
+  describe "the template boxes" do
+    it "gives each template box four lines" do
+      rows = fragment.css("textarea[name^='destination[template_']").map { |box| box["rows"] }
+      expect(rows).to eq(["4"] * 3)
+    end
+
+    it "explains only the video template" do
+      expect(html.scan(I18n.t("components.twilight_struggle.template_card.video.help")).size).to eq(1)
     end
   end
 
