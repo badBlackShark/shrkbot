@@ -1,135 +1,203 @@
 # Voice
 
-How shrkbot's copy sounds. Read this before writing or changing any user-facing
-string: Discord messages and command descriptions, website copy, and PR
-descriptions.
+How shrkbot's copy sounds. Read this before you write or change a user-facing
+string: Discord messages and command descriptions, website copy, release notes,
+and PR descriptions.
 
-Rules are derived from the Discord copy already in the repo, which is the
-surface that has had the most correction passes. Examples are real strings, not
-invented ones.
+Every example is a string that ships today. Square brackets in an example mark
+a control: `Require at least [2] matching keywords`.
 
 ## The four surfaces
 
-Each has a different reader, so each has a different register. Copy that fits one
-surface is usually wrong on another.
+Each surface has a different reader, so each has a different register. Copy
+that fits one is usually wrong on another.
 
-**Discord** - largely non-technical readers, mid-task, often on a phone. The
-least technical surface and the cleanest one. Say the minimum that answers "what
-happened and what do I do now". Detail the reader did not ask for is noise.
+**Discord** - largely non-technical readers, mid-task, often on a phone. Say
+the minimum that answers "what happened and what do I do now".
 
 **Website** - readers who can set up a Discord bot but are not software
-engineers. This is the surface people judge the project by, so the prose has to
-be clean. Technical, but no engineering vocabulary that a competent server admin
-would have to look up.
+engineers. People judge the project by this surface, so the prose has to be
+clean. Technical, but no word a competent server admin would have to look up.
+
+**Release notes** - `CHANGELOG.md` and the GitHub release body built from it.
+Every technical detail a PR body would carry is allowed: the Discord event that
+fires, the API field and its bounds, the numbers that made the bug bite. The
+prose is held to website standard, because the release page is public: full
+sentences, no shorthand, no internal class or constant names, and each bullet
+reads on its own without the diff beside it. The release title takes the ` - `
+joiner. Releases up to 3.8.1 used an em dash and are left as a record.
 
 **PR descriptions** - written for software engineers, usually exactly one
 reader. The most technical surface, and the one where an awkward sentence costs
-least. Optimise for a reviewer making a decision.
+least. Optimise for a reviewer who has to make a decision.
 
-**Release notes** - `CHANGELOG.md` and the GitHub release body built from it.
-Sits between the website and a PR description. Every technical detail a PR body
-would carry is allowed: the Discord event that fires, the API field and its
-bounds, the numbers that made the bug bite. The prose is held to website
-standard, because the release page is public and read by people who never see
-the repository. So: full sentences, no shorthand, no internal class or constant
-names, and one bullet that reads on its own without the diff beside it.
-The GitHub release title takes the same ` - ` joiner as every other surface.
-Releases up to 3.8.1 used an em dash and are left as a record.
+## Write less
+
+The cheapest fix for a weak string is to delete it. Check that a sentence has a
+job before you polish it: several rows in the ledger below record a sentence
+that was improved first and deleted later.
+
+**Say nothing the page already says.** A label, a heading, a control, a
+placeholder, a preview, and a breadcrumb all speak. Text that repeats one of
+them is deleted, not reworded.
+
+```
+Act when the same message appears in [4] different channels within [15] seconds
+```
+
+That row has no help text. The sentence it used to carry restated the two
+steppers and hardcoded their defaults, so it would have lied as soon as a
+server changed either one.
+
+**Help text carries a fact the reader cannot guess.** If the help only explains
+the label, fix the label and delete the help.
+
+```
+Only filters Live and Clips, as Highlights and Uploads don't have a category.
+Messages like "???" or "123" all count as the same message.
+```
+
+**A title carries the fact.** Not a slogan, a category, or a teaser for the
+body. The body then holds only the fix or the consequence.
+
+```
+Detection can be wrong
+This role can't use "Report as scam".
+Tournament result posting is currently disabled
+```
+
+**Say it once per screen.** A badge, a caption, or a count earns its place only
+when it says something the row does not. A dashboard row has no "Enabled" badge
+beside its toggle, a role card with no extra restrictions shows no count, and a
+caveat that holds for eleven placeholders is one line above them:
+
+```
+All following placeholders are empty on a tie.
+```
+
+**No puffery, and no promise without a date.** "Tidy", "the smoothest
+experience", and "more plugins are on the way" give the reader nothing to check
+or act on.
+
+## Vocabulary
+
+One term for one thing, on every surface. A second word for the same thing
+makes the reader look for a difference.
+
+| Say | Never | Notes |
+| --- | --- | --- |
+| `enabled` / `disabled`, for a plugin | on, off, switched on | `Only a server admin can enable or disable this plugin.` |
+| `on` / `off`, for an option inside a plugin | enabled, disabled | `of %{total} on` under a Logging event group |
+| `Server Shield` | Moderation | Its old name. One exception, under "Kept on purpose". |
+| `Protections` | sub-plugins, group | The code's words for a plugin inside a group and for the group. Neither is ever shown. |
+| `delete` | purge | `Delete the messages`, `Cross-channel spam deleted` |
+| `Only alert staff` | Notify only, Flag only, dry run | One spelling on both protection pages. |
+| `Looking for Game` in prose, `/lfg` for the command | LFG, an LFG | |
+| `member` | user | `The member was banned.` |
+| `placeholder` | token | `Placeholders (click to copy)` |
+| `restrictions` | gates | "Gate" is the code's name for the check, and stays in the code and in `docs/`. |
+| `server` | server configuration | |
+| `preview` | preview server | The fake server is only the vehicle: `Preview features`. |
+| `parent tournament` | the tournament above | |
+
+The same holds for verbs. The Roles tooltip says `Repost` because the toast
+already said `Reposting the role menu…`, and both sign-in buttons on the home
+page say `Sign in with Discord`.
 
 ## Rules for every surface
 
-**State what happened, never that it succeeded.**
+**State what happened, never that it succeeded.** No "Successfully", no "has
+been". If nothing went wrong, the outcome is the message.
 
 ```
-Roles updated.
 Timeout cleared for %{user}.
+Now following %{name}.
 ```
-
-No "Successfully", no "has been". If nothing went wrong, the outcome is the
-message.
 
 **Add the consequence when the reader would otherwise have to ask.**
 
 ```
 Confirmed as a scam by %{actor} - the bot will remember this image.
 The member was kicked; a kick can't be undone.
+Unsubscribed. New results in this tournament won't be posted.
 ```
 
-**Every failure names a cause or a fix.**
+**Every failure names a cause or a fix, and names everything that is missing at
+once.**
 
 ```
 I couldn't understand that duration. Try something like `1d2h30m`.
 Could not post the role message - check the channel.
+%{plugin} needs Logging enabled, and a staff role set on the Server Shield overview.
 ```
 
-**No internals.** No error codes, class names, "validation failed", "invalid
-input", "an error occurred". The reader cannot act on any of it.
-
-**Internal vocabulary stays internal, even when it reads like English.** The code
-calls a precondition a gate, a plugin group a group, a server a server
-configuration. Only the last one is obviously a leak; the first two look like
-plain words and slip through. Name the thing the reader is actually setting -
-roles, requirements, restrictions - not the mechanism that enforces it.
+**Say what the reader notices, not how it works.** No error codes, class names,
+"validation failed", "invalid input", or "an error occurred". The same goes for
+mechanism that reads like English: a description promises what the reader gets,
+and help text names the consequence of a setting.
 
 ```
-The per-role cards below add extra restrictions on top of these.
+Detects messages spammed across multiple channels without storing message content.
+When off, the mention makes no sound and sends no push notification.
 ```
 
-"Gate" in particular is a word almost nobody uses for a rule they configured
-themselves. Its plain-English senses are a fence and a boarding point, and
-neither is what the setting does.
-
-**Second person for what the reader must do, and for the one thing you want them
-to do.** Use it sparingly. If every clause is "you", none of them stand out.
-
-```
-You need the staff role or the Manage Messages permission to do that.
-Show shrkbot's tech stack, where its code lives, and how you can add it to your server.
-```
-
-**The joiner is ` - `.** Never an em dash, anywhere, on any surface.
-
-**ASCII over glyphs.** `->` for a UI path or a transformation, `:)` over an
-emoji. The design guidelines lean the same way. The one deliberate exception is
-the `♥` in the site footer.
+**Check every claim against the code.** Copy is a claim, and it goes stale
+without a failing test. A warning said shrkbot cannot undo a ban while the
+alert carried an `Undo punishment` button. A help text said emoji-only messages
+are ignored while the matcher kept them. A claim about external data has to hold
+for every variant, or name the majority it covers:
 
 ```
-In Server Settings -> Integrations -> shrkbot, limit the /lfg command to the channels and roles that should use it.
-Stylized and lookalike characters are folded to their plain form (ⓕⓡⓔⓔ, ｆｒｅｅ -> free), so disguises don't help.
+Most developers write their Steam posts in English, so leaving English out usually drops patch notes and announcements.
 ```
-
-**Serial comma.** Lists of three or more take the serial (Oxford) comma:
-`announcements, and press coverage`, never `announcements and press coverage`.
-
-**Never "we".** shrkbot is one developer. Name shrkbot when something acts, use
-the passive when no actor matters, and use "I" only where the developer speaks
-personally, as on the bespoke-plugins page. "We" is correct in exactly one case:
-when it means the developer and the reader together.
-
-```
-A token shrkbot doesn't know is left exactly as you typed it.
-Two optional but recommended Discord settings
-Let me know what your general idea is, and we'll figure out together if and how shrkbot can work for you.
-```
-
-**Say nothing the controls already say.** A form field that reads
-`4 different channels within 15 seconds` needs no help text repeating it, and
-help text that hardcodes a default goes stale the moment a server changes it.
-Delete it rather than restate it.
-
-**Don't restate a heading in the text under it.** A card subtitled "Two optional
-but recommended Discord settings" does not open with "Neither is required, but
-we recommend both".
-
-**Offer, don't instruct, when the reader has a choice.** "a quieter log that
-staff can check on their own" leaves it optional. Dropping "can" turns the same
-sentence into an order.
 
 **Interpolate the real number or name.** Never "some", "several", "a while".
 
 ```
 the account is only %{days} days old
 matched %{count} custom keywords
+```
+
+**The verb must match what the reader gets.** A command that links to the
+repository shows where the code lives, not the code. A post that comes back
+when the stream does is not simply deleted.
+
+```
+Show shrkbot's tech stack, where its code lives, and how you can add it to your server.
+Delete until it switches back
+```
+
+**Quote a label or a command when you name it.** The quotes mark it as the
+thing the reader can find on the page.
+
+```
+To get every update, keep both "Patch notes" and "Announcements" on.
+The message was left in place - Scam Image Detection is set to "Only alert staff".
+```
+
+**Second person for what the reader must do, and for the one thing you want
+them to do.** Use it sparingly. If every clause is "you", none of them stand
+out.
+
+```
+You need the staff role or the Manage Messages permission to do that.
+```
+
+**Never "we".** shrkbot is one developer. Name shrkbot when something acts, use
+the passive when no actor matters, and use "I" only where the developer speaks
+personally, as on the bespoke-plugins page.
+
+```
+shrkbot couldn't reach Discord to load your servers. Try again in a moment.
+Your Discord sign-in couldn't be refreshed. Please sign in again.
+Tell me your idea and I'll tell you if it fits.
+```
+
+**Advice reads as advice.** When the reader has a choice, recommend. Do not
+phrase it as a rule the product does not enforce.
+
+```
+Keeping it spoiler-free is highly recommended.
 ```
 
 **Apologise only for harm the bot actually caused.** Routine failure is not
@@ -140,8 +208,19 @@ bot punished by mistake:
 Sorry - you were automatically moderated in %{server} by mistake, and a staff member has reversed it.
 ```
 
-**The verb must match what the reader actually gets.** A command that links to
-the repository shows where the code lives. It does not show the code.
+**The joiner is ` - `.** Never an em dash, anywhere, on any surface.
+
+**ASCII over glyphs.** `->` for a UI path or a transformation, `:)` over an
+emoji. The ellipsis `…` is allowed: it marks a prompt or work in progress.
+
+```
+In Server Settings -> Integrations -> shrkbot, limit the /lfg command to the channels and roles that should use it.
+Reposting the role menu…
+```
+
+**Serial comma.** Lists of three or more take it: `patch notes, announcements,
+and press coverage`. Strings older than the rule are fixed when they are next
+touched.
 
 ## Rules for Discord
 
@@ -150,24 +229,7 @@ example, or a consequence.
 
 ```
 Cancel one of your reminders.
-Change the text of one of your reminders.
 Set a reminder to be sent to you after a delay (e.g. 1d2h30m).
-```
-
-**"I" only when the bot itself failed.** Everywhere else the bot is "shrkbot" or
-the sentence is passive. The bot never narrates its own successes in first
-person.
-
-```
-I couldn't reverse that - I may be missing permissions.
-```
-
-**Fragments that compose into a larger sentence stay lowercase and take no
-terminal period.** Check how the string is interpolated before you punctuate it.
-
-```
-on cooldown (%{time} left)
-that role isn't set up for Looking for Game
 ```
 
 **Command descriptions lead with an imperative verb.** Constraints are appended
@@ -178,27 +240,193 @@ List your active reminders.
 Broadcast a message to the owner of every server shrkbot is in. Bot owner only.
 ```
 
+**"I" only when the bot itself failed.** Everywhere else the bot is "shrkbot"
+or the sentence is passive. The bot never narrates its own successes in first
+person.
+
+```
+I couldn't reverse that - I may be missing permissions.
+```
+
+**Fragments that compose into a larger sentence stay lowercase and take no
+terminal period.** Check how the string is interpolated before you punctuate
+it.
+
+```
+on cooldown (%{time} left)
+that role isn't set up for Looking for Game
+```
+
+**An alert says what happened to the message,** not the name of the mode that
+caused it.
+
+```
+This is only an alert, no messages were deleted.
+```
+
 ## Rules for the website
 
-Everything under "every surface" applies. Three more, all from settings pages:
+Everything above applies. The component behind each rule is described in
+[design/design-system.md](design/design-system.md); this section covers the
+words.
 
-**Sibling help texts share a shape.** If the fields around yours all open "How
-long a member must...", yours does too. A single field that switches to a
-noun-phrase register reads as though someone else wrote it.
+### Labels and options
 
-**Say what a setting does, not how it is stored.** A tournament "uses a
-30-minute delay", not "is set to 30 minutes". A tournament higher up the chain
-is a "parent tournament", not one "above". When the value is an option label,
-quote it so it reads as the label: `OTSL 2026 uses "Name and tag".`
-
-**Warn before the setting, and say what it costs.** Put the limitation ahead of
-the control it applies to, and name the trade-off rather than grading it.
+**A label reads into its control.** Where the value completes a sentence, write
+the sentence.
 
 ```
-1 is aggressive - a single matched word can delete an image. 2 or more keeps one stray word from triggering.
-Acts only on unmistakable scams. Fewest false positives; more scams slip through.
-A ban is permanent until a mod lifts it, and shrkbot can't undo it.
+Treat accounts as new for [30] days
+Require at least [2] matching keywords
+Members can pick [One | Several]
 ```
+
+**A label is the question the reader answers, not the name of the column.**
+`Who can post`, `Who can't post`, and `Wait between posts` replaced "Required
+roles", "Excluded roles", and "Cooldown".
+
+**An option names its outcome.** If each option needs a help line to say what
+it does, the labels are wrong.
+
+```
+Delete the messages / Only alert staff
+Summary with VOD link / Summary / Leave as is / Delete the post
+```
+
+**The recommendation sits on the option it recommends:** `Standard
+(recommended)`. A stepper with a default shows a reset segment while the value
+differs (`Reset to %{value}`), so no line prints the default.
+
+**Values read the way people say them.** A duration is a number and a unit, and
+opens on the largest unit that fits: 5 minutes, not 300 seconds.
+
+**One description per plugin.** `PluginCatalog` holds it, and the dashboard,
+the page header, and the home page read it. It is one line that says what the
+plugin does for the reader.
+
+### Help text
+
+**Help goes below the control**, never between the label and the control.
+
+**Describe only the selected option.** Help that covers some options of a
+control shows only while one of them is picked.
+
+```
+Missing tags fall back to player names. Tags don't ping.
+```
+
+**Help that decides whether to turn an option on shows while it is off.**
+
+```
+Big channels get dozens to hundreds of clips per stream, and each one is a post.
+```
+
+**Name the trade-off, do not grade it.**
+
+```
+Stricter catches more scams and more innocent images.
+100% matches exact copies only. Lower values also catch lightly edited copies, but can catch real messages that look alike.
+```
+
+**Say what a setting does, not how it is stored.** A tournament "uses" a delay,
+it is not "set to" one. When the value is an option label, quote it.
+
+```
+%{parent} uses a %{count}-minute delay.
+%{parent} uses "%{setting}".
+No parent tournament sets a delay, so results post immediately.
+```
+
+**Sibling help texts share a shape.** If the hints around yours all open "The
+USA player's...", yours does too.
+
+### Empty, required, and inherited
+
+**No "Leave empty to...", in help or in a placeholder.** A placeholder says
+what empty means, and only where empty has more than one plausible meaning:
+
+```
+Everyone
+No one
+Every channel
+Every language
+```
+
+**A required field carries the red asterisk and nothing else.** Labels never
+say "(required)" or "(optional)", and the asterisk has no tooltip.
+
+**An override is named an override and shows what it falls back to.**
+
+```
+Channel override    ->  Same as above
+Role override       ->  Same as above
+Channel override    ->  Same as every role
+```
+
+A number override shows the inherited number, and an inherited tournament
+setting names its source: `%{parent} posts in %{channel}.`
+
+**A default message is real text in the box,** editable, with `Reset to
+default` beside the label. An empty box sends nothing and says so with one
+phrase, in the box and in the preview:
+
+```
+Nothing will be sent.
+```
+
+### Warnings and prerequisites
+
+**A standing limitation goes before the choice. A live warning goes below the
+control it watches.** A limitation that holds whatever the reader picks sits
+above the controls and is always visible, like the `Detection can be wrong` box
+or the Steam note about untagged patch notes. A warning that depends on a
+field's value appears the moment the value makes it true, directly below that
+field, so the field does not move under the cursor.
+
+**A title is true in every state it shows in.** A box that stays on the page
+after the plugin is enabled cannot be titled "Before you turn this on".
+
+```
+Before you enable %{plugin}
+Required settings missing
+```
+
+**Show every missing step at once, each with a link to where it is fixed.**
+
+```
+Set up a log channel so shrkbot has a place to post alerts.    [Open Logging]
+Pick a staff role on the Server Shield overview.               [Open Server Shield]
+```
+
+### Structure
+
+**No heading that names the layout.** "Where to post" and "What to post" named
+two groups of cards, not a setting.
+
+**Nothing goes behind "Advanced" or "Settings".** Disclose only when a page has
+three or more rare tuning controls, name the disclosure by its content, and
+never hide a setting that currently changes behaviour.
+
+**Link the noun, never "click here".** The link sits on the name of the place
+it leads to.
+
+```
+Alerts go to #mod-log. You can change this in Logging.
+shrkbot also supports bespoke plugins that do exactly what you need, exclusively for your server.
+```
+
+**A dialog's title asks the question, its body states the consequence, and its
+button repeats the verb.**
+
+```
+Delete your account?
+This cannot be undone.
+[Delete account]
+```
+
+**A toast that is not plain good news does not look like one.** `Saved.
+%{plugin} is still disabled.` is a warning toast that stays until dismissed,
+because the change does nothing yet.
 
 ## Rules for PR descriptions
 
@@ -237,197 +465,173 @@ without trusting the author.
 
 ## Weak to better
 
-Strings that were rewritten, and the fault each one had. Add to this list
-whenever copy is corrected - the pairs teach more than the rules do.
+Strings that were rewritten, and the fault each one had. The pairs teach more
+than the rules do, and they are the record of what was already decided: check a
+string here before you "fix" it.
+
+Each "Better" cell is the string that ships today. A row is grouped under the
+rule it broke. The ledger was rebuilt after the 2026-11 copy overhaul, which
+reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
+
+### Said by something else on the page
 
 | Weak | Better | Fault |
 | --- | --- | --- |
-| `Show information about shrkbot - its code, stack, and how to add it to your server.` | `Show shrkbot's tech stack, where its code lives, and how you can add it to your server.` | "Show information about" is a filler verb phrase, and the command shows a link to the repository rather than the code. |
-| `Find out what it costs to run shrkbot and how you can support the project.` | `Show what it costs to run shrkbot and how to support it.` | "Find out what it costs" says what "Show what it costs" says in less. Donating is a soft sell, so it keeps the lighter "how to support it" while the invite string above keeps the second person. |
-| `Triggers when the same message appears in 4 different channels within 15 seconds.` | Deleted. The unit label became `different channels`. | The two steppers beside it are the real controls. The sentence restated them and hardcoded their defaults, so it would have lied as soon as a server changed either one. |
-| `Neither is required, but we recommend both for the smoothest Looking for Game experience:` | Deleted. | It restated the card's own subtitle, and "the smoothest ... experience" is puffery. |
-| `Two optional Discord settings we recommend` | `Two optional but recommended Discord settings` | "We" is one developer. The compound modifier takes no internal commas. |
-| `shrkbot can only assign roles below its own, and it looks like its role is at the very bottom. Please move shrkbot's role up if you want it to be able to assign roles.` | `shrkbot can only assign roles below its own, and its role sits at the very bottom. Move it up in Server Settings so shrkbot can assign roles.` | `bot_at_bottom?` is a definite position check, so "it looks like" hedged on a known fact. The old second sentence restated the first. |
-| `Turn it off for a quieter log staff check on their own.` | `Turn it off for a quieter log that staff can check on their own.` | Missing relative pronoun made a garden path ("log-staff-check"). "Can" keeps it an option rather than an order. |
-| `300 seconds, which is 5 minutes` | `300 seconds (5 minutes)` | "Which is" is filler around a conversion. |
-| `The duration the "Looking for Game" post remains visible after it starts. For scheduled posts, this time only starts with the actual session, not during the "gathering interest" period.` | `How long the "Looking for Game" post stays visible. For scheduled posts, the clock starts with the session, not while it gathers interest.` | Its two sibling fields both open "How long a member must...", so the noun-phrase register was the odd one out. Second sentence ran 24 words. |
-| `We couldn't reach Discord to load your servers.` | `shrkbot couldn't reach Discord to load your servers.` | Six strings across the site said "we". Each took one of three fixes: name shrkbot where something acts, use the passive where no actor matters (`Your Discord sign-in couldn't be refreshed.`), or delete the clause where the heading already said it (`Please stand by - this only takes a moment.`, under a page titled "Signing you back in"). |
-| `Your members' privacy is a priority and a guarantee: moderation happens in memory, your messages are never stored.` | `Your members' privacy is guaranteed, and it stays that way: moderation happens in memory, and your messages are never stored.` | A guarantee outranks a priority, so leading with the weaker word read as a hedge on the stronger one. The rewrite keeps the ongoing commitment without discounting the promise. |
-| `Could not delete the server configuration - it's a preview configuration.` | `Could not delete this server - it is a preview, not a real Discord guild.` | The cause repeated the noun instead of explaining it, so the reader learns nothing after the dash. "Server configuration" is also the internal name for what every other string calls a server. |
-| `Preview a server` | `Preview features` | The verb has to match what the reader gets. Nothing about the preview is server-specific - the fake guild is only the vehicle for showing what shrkbot does, and offering to preview "a server" promises something the reader already has. |
-| `You're looking at a preview server - nothing you change here is saved.` | `You're looking at a preview - nothing you change here is saved.` | Same fault as the button above: "preview server" reads as a kind of server rather than as a demonstration of the product. |
-| `The per-role cards below add extra gates on top of these.` | `The per-role cards below add extra restrictions on top of these.` | "Gate" is the internal name for the check, not a word a server admin would use for the rule they set. "Restrictions" covers both halves of what the cards hold - required roles and excluded roles - where "requirements" would only cover the first. |
-| `%{count} extra gate` / `Server-wide gates, allowed channels, cooldown and post lifetime` / `each with its own extra gates` / `Enable the plugin to configure pingable roles and gates.` | Same swap, `gates` -> `restrictions`. | Five sites, one word. `gate` stays in the code and in `docs/`, where it names the mechanism for people who maintain it. |
-| `the leave message waits a few seconds while shrkbot reads the audit log` | `the leave message waits 3 seconds while shrkbot reads the audit log` | The real number was in the code (`Welcomes::GracePeriod::DURATION`). "A few seconds" is the same fault as "a while": the reader cannot plan around it, and a changelog is no more exempt from the rule than a settings page. |
-| `Steam sends developer posts in English, so leaving English out also drops patch notes and announcements.` | `Most developers write their Steam posts in English, so leaving English out usually drops patch notes and announcements.` | Checked against Western games only. Chinese studios write Chinese into Steam's primary (English) slot, and Steam's feed passes that text on unchanged: 11 of 20 posts for one game. A claim about external data has to hold for every variant, or name the majority it covers. |
-| `Caches, background-job records and logs are cleared automatically (at most 60 days, 30 days and briefly, respectively).` | `... (at most 60 days, 30 days and 7 days, respectively).` | "Briefly" sat beside two real numbers, and nothing enforced it: the logs had no time limit at all. A retention promise needs the number the host is configured to, because the policy binds the implementation. |
-| `Tokens` + `Anything in braces is replaced when the message is built. A token shrkbot doesn't know is left exactly as you typed it. Click a token to copy it.` | `Placeholders (click to copy)` | The page called the same thing "tokens" and "placeholders" depending on the card, and the paragraph restated what the chips and the live preview already show. One word, and the one action that is not obvious, in the heading. |
-| `Placeholders (click one to copy):` | `Placeholders (click to copy)` | "Click one" counts what cannot be miscounted, and the trailing colon introduced a run that now sits under the heading instead of inline. |
-| `A custom message would post nothing. Add some text, or pick a role to ping.` / `This message would post nothing. Add some text, or pick a role to ping.` | `A custom message needs some text besides placeholders that can be empty, such as {author}.` / `This message needs some text besides placeholders that can be empty.` | The role mention is added automatically now, so "pick a role to ping" no longer rescues an empty message. The rewrite names the actual cause and the one example a reader can act on. |
-| `Adds a player's Discord tag in brackets after their name, for players whose Discord ID twilight-struggle.com sends with the result. Everyone else just gets their name. Tags never notify anyone - they are there so you can see who a result belongs to, and they survive a player leaving the server.` | `How players appear in posted results. Tag only keeps a player's real name out of the channel, but falls back to it for anyone whose Discord ID twilight-struggle.com doesn't send. Tags never notify anyone, and they survive a player leaving the server.` | The old text narrated one toggle's two states, so it had no room for a third mode, and "everyone else just gets their name" was a per-mode aside rather than the rule it actually is. |
-| `...falls back to it for anyone whose Discord ID twilight-struggle.com doesn't send. Tags never notify anyone, and they survive a player leaving the server.` | `...falls back to it for anyone who isn't on this server or whose Discord ID twilight-struggle.com doesn't send. Tags never notify anyone.` | A tag for someone who isn't on the server renders as `@unknown-user`, so shrkbot now shows those players by name, and the help names the second fallback next to the first. "They survive a player leaving" promised a tag that, once the player is gone, reads as `@unknown-user` - a promise the code no longer tries to keep. |
-| `Each result is posted this long after it was reported, so it can't spoil a stream that runs behind. Everyone sees results that much later. Changes to a result that is already posted appear immediately.` | `How long shrkbot waits after a result is reported before posting it, so it can't spoil a stream that's still running. Edits to a result that is already posted show up immediately. Changing the delay doesn't affect results that are already waiting.` | Its sibling opens "How players appear...", so the passive "is posted this long after" was the odd one out. "Runs behind" is broadcast jargon for what "still running" says plainly. The old text also never warned that results already waiting keep their delay. An admin who set a week by mistake and then lowered it would expect them to come out. |
-| `OTSL 2026 is set to 30 minutes.` / `No tournament above sets a delay, ...` | `OTSL 2026 uses a 30-minute delay.` / `No parent tournament sets a delay, so results post immediately.` | "Is set to" and "above" describe how the settings are stored and resolved. "Uses" and "parent tournament" describe what the reader sees. The note also used to name the nearest subscribed tournament whether or not it set the value, so it pinned a default on a tournament that never chose it. The same fixes went into the player-names card. |
-| `OTSL 2026 is set to Name and tag.` | `OTSL 2026 uses "Name and tag".` | Same swap as the delay note. Without the quotes, "uses Name and tag" reads as two things the tournament uses. The quotes mark the option label the reader picks in the control above. |
-| `Polling hit a bug in shrkbot:` | `Polling hit an unexpected error:` | Deadlocks and statement timeouts land in this report too, and calling them a bug is wrong. |
-| `Server Shield group is disabled` / `Open Server Shield overview` / `Enable the Server Shield group first - its master switch is off.` | `Server Shield is off` / `Go to Server Shield` / `Turn Server Shield on first.` | Every sub-plugin carried its own copy of the group-gate strings, with the parent named three ways ("group", "master switch", "Moderation"). One shared set now names the parent by its catalog name. |
-| `Part of Moderation. Shared settings - staff role and alerts - live on the Moderation overview.` | `Part of Server Shield.` plus, on Server Shield sub-plugins, `Shared settings like the staff role and alerts live on the overview.` | "Moderation" was an old name for Server Shield. The shared-settings aside belongs to Server Shield only, so it is a separate sentence instead of living in the shared subline. |
-| `Delete your account and all associated data? This cannot be undone.` | Title `Delete your account?`, body `shrkbot deletes your account and all data tied to it. This cannot be undone.` | The dialog has a title, so the question moved there and the body says what happens. "Associated" is filler for "tied to", and the body names the actor. |
-| `Your account and all associated data have been deleted.` / `Permanently deletes your account and all data associated with it.` | `shrkbot deleted your account and all data tied to it.` / `Permanently deletes your account and all data tied to it.` | Same filler as the confirm body beside them. The flash names the actor. |
-| `Revoke this plugin? The server loses the page and its commands, and the plugin is switched off.` | Title `Revoke this plugin?`, body `The server loses the page and its commands, and the plugin is switched off.` | Same split: the question is the title, the body states the consequence without repeating it. |
-| `Posts new patch notes, announcements and press coverage of the Steam games you follow.` | `Posts new patch notes, announcements, and press coverage of the Steam games you follow.` | Three items, no serial comma. Only this string was fixed when the rule was written. |
-| `Up to about 3,500 characters. Long patch notes fill the channel.` | `Up to about 3,500 characters.` | The second sentence was a warning the reader can see for themselves from the number. |
-| `shrkbot deletes this server's settings for this game. Posts already in Discord stay.` / `Stop following and delete settings` | `This deletes your settings for this game.` / `Stop following` | The dialog title already names the game and the action, and the button repeats it. "Posts already in Discord stay" is what any reader assumes, and the button needs no clause explaining what the title promised. |
-| `Stop following %{name}` card with `No more posts for this game. Posts already in Discord stay.` | Button only, labelled `Stop following %{name}`. | The card title, body, and button said the same thing three times. The button now carries the name, so nothing else is needed. |
-| `Paste a Steam store link and pick a channel. shrkbot posts the game's news there from then on.` | Deleted. | The empty state sits beside an "Add a game" button and the page it opens explains the steps. The sentence restated both. |
-| `Part of Feeds.` (subline under every sub-plugin title) | Deleted. | The breadcrumb above the title already names the parent. |
-| `Feeds` / `Steam News` (plugin names) | `Integrations` / `Steam` | The group will hold more than feeds of posts and each provider is named for the platform, so `Steam` is the name now and `Steam News` would repeat itself under `Integrations`. |
-| `Steam link or app ID` with the subtitle `Paste the game's Steam store page, its community hub, or its SteamDB page. An app ID works too.` | One label: `Paste a link to the game's Steam store page, community hub, or SteamDB page. An app ID works too.` | The label named the field and the subtitle explained it, one screen apart. The label now carries the instruction and the page heading stands alone. |
-| `New {game} patch notes: {title}` (prefilled default in the custom-message box) | Empty box with the placeholder `Shown above the card. Leave it empty to post the card alone.` | The card now carries the game, the post type and the title, so the prefilled line repeated it. The placeholder says where the text lands and that leaving it empty is fine. |
-| `Some developers don't tag their patch notes, so their updates arrive as announcements. To get every update, keep Patch notes and Announcements both on.` | `Some developers don't tag their patch notes, so shrkbot posts them as announcements. To get every update, keep both "Patch notes" and "Announcements" on.` | "Their updates arrive" hid who files them; shrkbot does. The toggle names in quotes read as the two switches below, not as kinds of post. |
-| `Custom message` (disclosure summary) | `Message and notification` | The disclosure now holds both the custom message and the notification text, so the label names both. |
-| `Works, but has not been tested widely yet. Report problems to @%{owner} on Discord.` | `You might experience some bugs. Please report them to @%{owner} on Discord or via %{email}.` | "Works, but has not been tested widely" hedged twice around a plain warning, and the report path had no email fallback. |
-| `Notification text` + `What push notifications say. Leave it empty for the default.` | `Push notification text`, help line deleted, reset button beside the label. | The label now names the thing it controls. The help line restated the label, and the reset button does what "leave it empty" promised. |
-| `Live` / `Highlights` / `Uploads` (Twitch post types) | `Going live` / `New highlight` / `New upload` | Plain nouns read as page sections. The new labels name the moment a post is made, so the one-line subtitles under them could go. |
-| `Featured clips` / `All clips` with `When the streamer features a clip, within 48 hours of it being made.` / `Every clip viewers make.` | Labels kept, help lines deleted. | The labels carry the meaning. The 48-hour window moved to an info note inside the featured-clips settings, where it explains a behaviour rather than a toggle. |
-| `The game or category. Empty for highlights and uploads.` / `Who made the clip. Empty for other posts.` / `The post's title.` (shared by Steam and Twitch) | `The game or category.` / `Who made the clip.` / `The title of the stream, video or clip.` | Placeholders now list only the tokens a post type can fill, so the "empty for" caveats described tokens the reader no longer sees. The Twitch title hint named a post, which a stream is not. |
-| `Twitch user %{id}` (under the channel name) | No line. | The numeric id is never visible on Twitch, so it tells the reader nothing, and "Twitch channel" under a Twitch avatar would only restate the page. A caption earns its place only when it carries something, like Steam's app id. |
-| `Message and notification` (disclosure summary on a Steam post type) | `Settings` | The disclosure also holds the type's channel now, so naming two of its fields no longer described it. Twitch already said `Settings`; both sources share one key. |
-| `Bespoke plugins` (eyebrow) + `shrkbot can do it all, even if it's only for you` (headline) | `Bespoke plugins` (title, no eyebrow) | The eyebrow already named the page and the headline was a slogan. A title carries the fact. |
-| `If you're enjoying the general usefulness of shrkbot but have an idea that needs custom work - or you plain don't want another bot in your ecosystem - I can build a bespoke plugin just for you. No other server will ever see it exists, but for you it lives right alongside the functionality you know and love.` | `Need something shrkbot doesn't do, or don't want another bot on your server? I can build it as a plugin that only your server gets. It sits in your dashboard next to the regular plugins, and no other server sees it.` | Same offer without the stock phrases and the dashes. It says where the plugin shows up instead of how it feels. |
-| `How it works` with three numbered cards (`Talk to me!` / `I build it` / `I ship and maintain it` and their bodies) | `Tell me your idea and I'll tell you if it fits. If it does, I build it, switch it on for your server, and keep it running.` | Three cards held three steps of one sentence. The sentence keeps the order. The running-costs note moved to the cost paragraph. |
-| `One that already exists` + `Game results posted on twilight-struggle.com get posted straight to Discord, in whichever servers, channels, and message formats each server picks.` (plugin name linked) | `An example` + `Posts game results from twilight-struggle.com to Discord, in the channel and format each server picks.` (site linked) | Link the noun: the link goes to the site, so it sits on the site's name. The old sentence said "posted" twice. |
-| `I offer shrkbot for free and for everyone, but I might charge a little fee for custom work that's only for you. Smaller things, and features everyone would get, are usually free, and I'll do my best to keep prices affordable.` | `Small things, and anything every server would get, are usually free. For bigger custom work I charge a small fee. Running it afterwards is free, unless it needs a paid API.` | Leads with what is free, states the fee once, and says what running costs. "I'll do my best" promised nothing. |
-| `requires the Logging plugin enabled with a log channel set` | `Server Shield needs the Logging plugin on, with a log channel set.` | A fragment with no subject, shown alone in a callout. The reader had to guess which plugin it meant. |
-| `requires a staff role set on the Server Shield overview` | `%{plugin} needs a staff role. Set one on the Server Shield overview.` | Same fragment fault. The requirement and the fix now get one sentence each. |
-| `A staff role is required while a sub-plugin is enabled.` / `can't be turned off or lose its channel while Server Shield is enabled` | `%{dependent} is on and depends on these settings. Turn %{dependent} off first.` | Neither named the plugin that blocked the change, so the reader could not find the way out. One sentence now covers every plugin that another plugin depends on. |
-| `requires the plugin's settings to be configured first` (config page) | `%{plugin} can't be enabled until its required settings are configured.` | The config page showed the model's fragment, and the dashboard showed a full sentence for the same refusal. Both now come from Toggle. |
-| `%{dependent} is on and depends on these settings. Turn %{dependent} off first.` | `%{dependents} needs Logging enabled, with a log channel. Disable %{dependents} first.` / `%{dependents} needs a staff role. Disable %{dependents} first.` (plural: `need ... Disable them first.`) | "These settings" pointed at nothing, the message named one dependent when several could be blocked, and it said on/off for a plugin. Now it names the missing thing and every dependent it breaks. |
-| `%{plugin} can't be enabled until its required settings are configured.` (shown for a missing channel) | `%{plugin} needs a channel.` | A missing channel got the generic settings message. It now names the one thing to set. |
-| `Turn Logging on and pick a log channel. Every alert lands there.` (protection prerequisite step) | `Set up a log channel so shrkbot has a place to post alerts.` | `Every alert lands there` restated the destination without saying why the step exists; the new line gives the reason in the instruction itself. |
-| `Set up a log channel so shrkbot has a place to post alerts.` (protection prerequisite step, shown whether or not a log channel was set) | Two variants: `Set up a log channel so shrkbot has a place to post alerts.` with no channel, `Enable Logging so shrkbot has a place to post alerts.` with a channel and Logging off | A reader who had picked a channel was told to set one up, and the real fix (switch Logging on) never appeared. |
-| `%{plugin} is disabled` / `Enable the plugin to configure messages.` (and the Logging, Roles, Looking for Game, Twilight Struggle variants) / `Enable %{plugin}` button | Deleted. The settings stay editable and the header toggle's `Enabled`/`Disabled` label is the only state signal. | The overlay made admins switch a plugin on before they could see or set what it would do. |
-| `Welcomes settings saved.` (saving a plugin that stays disabled) | `Saved. %{plugin} is still disabled.` | A disabled plugin's form saves now, so the toast tells the reader the change does nothing until the plugin is enabled. |
-| `Before you enable %{plugin}` (callout title, shown on an enabled protection too) | `Required settings missing` when the protection is enabled, `Before you enable %{plugin}` when it is not | "Before you enable" is false for a plugin that is already on. The enabled state now uses the dashboard hint's words. |
-| `Saved. %{plugin} is still disabled.` as a green toast that vanishes after five seconds | The same words as a warning toast that stays until dismissed | A green tick that disappears reads as "done". The change does nothing until the plugin is enabled, so the toast now stays and carries the warning tone. |
-| `Where to post` / `What to post` (feed form headings) | Deleted. | The top card holds the channel and role, and each post type is its own card, so the headings named the layout, not a setting. |
-| `Settings` (disclosure under each post type, and on the Twitch categories card) | Deleted. A post type's card opens with its toggle and folds with a chevron; the switched-away choice sits in the categories card. | One word hid every setting of a type, and on the categories card it hid a choice that changes what gets posted. |
-| `Channel (optional)` with placeholder `Same as "Where to post"` | `Channel override` with placeholder `Same as above` | An override says it is one. The placeholder said what empty meant by pointing at a heading that is gone. |
-| `Role to ping (optional)` / `No ping` on every Twitch post type | `Role to ping` in the top card; `Role override` / `Same as above` on each type | Five types meant five picks of the same role. One role for the follow, overridden where a type differs, matches the channel. |
-| `Shown above the card. Leave it empty to post the card alone.` | `Shown above the card.` | "Leave it empty to..." is banned. A message box that posts the card alone when empty surprises nobody. |
-| The clip-volume warning and the 48-hour note, inside the All clips and Featured clips settings | The same sentences as each card's help line, visible while the type is off | Both help decide whether to turn the type on, so hiding them until it was on defeated them. This reverses the row above that moved the 48-hour window into the settings. |
-| `Posts new patch notes, announcements and press coverage of the Steam games you follow.` (Steam page header) | `Posts new patch notes, announcements, and press coverage of the Steam games you follow.` | The header now reads the plugin catalog, which already carries the serial comma. One text for the page and the plugin list. |
-| `Record moderation events to a channel of your choice.` (dashboard, page header) / `Record moderation events to a private staff channel: role changes, joins, leaves.` (home) | `Records what's happening on your server.` | Logging also records role changes and Looking for Game denials, so "moderation events" covered a third of it, and the home card promised joins and leaves, which Logging does not record. Four copies made three claims; `PluginCatalog` now holds the one text every page reads. |
-| `Your server's aegis: automated moderation beyond Discord's AutoMod.` / `Automated moderation beyond Discord's AutoMod: catch cross-channel spam and unwanted images.` (home) | `Automated moderation that goes further than Discord's AutoMod.` | Was kept on purpose for its personality. In a list of plugins the reader is scanning, and "aegis" sent some of them to a dictionary. The home variant listed the sub-plugins, which the Server Shield page shows anyway. |
-| `Detects the same message blasted across multiple channels within seconds and purges it before it spreads. Matching is fingerprint-based - message content is never stored.` | `Detects messages spammed across multiple channels without storing message content.` | Two sentences of mechanism in a one-line slot. "Fingerprint-based" is how it works; the privacy promise is what the reader gets, so that part stays. "Purges" also broke delete-not-purge. |
-| `Reads the text inside posted images and checks it against known scam patterns and previously confirmed scam images. Staff confirm or dismiss every catch, and the bot remembers.` | First sentence only. | The second sentence describes the review flow, which the page itself shows. |
-| `Let members find people to play with, on the fly or scheduled. Only shrkbot pings - so you can turn off general-purpose role pings.` (page header) / `Let members rally a group with a role ping, instantly or scheduled. Others join with one click.` (home) | `Let members find people to play with, on the fly or scheduled.` | The dashboard wording, now everywhere. The ping advice is setup guidance and lives in the page's recommended-setup card. |
-| `Posts news from the platforms you follow, like Steam, in the channels you pick.` | `Posts updates from other platforms to your server.` | "Like Steam" dated the line once Twitch shipped, and "in the channels you pick" is true of every plugin that posts. |
-| `Members set their own reminders with /remind.` (dashboard) / `... This plugin can't be turned off.` (page header) / `Let members set personal reminders, delivered in the channel or by DM.` (home) | `Members set their own reminders with /remind. This plugin can't be disabled.` | Plugins are enabled and disabled; on and off are for options inside them. The dashboard row carries the second sentence too, since its locked toggle is what it explains. |
-| `Let members give themselves roles from a menu you post in a channel.` (page header) / `Let members self-assign roles from a tidy menu you post in a channel.` (home) | `Let members give themselves roles from a menu.` | The dashboard wording, now everywhere. "Tidy" is self-praise the reader discounts. |
-| `Greet new members with a custom message, and say goodbye when they leave.` (home) | `Greet new members and say goodbye when they leave.` | The dashboard wording, now everywhere. |
-| `Tournaments pushed to shrkbot by twilight-struggle.com. Subscribe to the ones you want posted in this server.` (page header) / `Posts results from twilight-struggle.com as they are reported. Subscribe to a tournament, pick its channel, and write the message however you like.` (admin) | `Post results from twilight-struggle.com as they are reported.` | The dashboard wording, now everywhere. The header was instructions for the list below it, which the subscribe buttons and empty state already give. |
-| `Posts new patch notes, announcements and press coverage of the Steam games you follow.` (Steam page header) | `Posts new patch notes, announcements, and press coverage of the Steam games you follow.` | The earlier serial-comma fix reached only the catalog copy. The page header now reads the catalog. |
-| `Members set their own reminders with /remind. This plugin can't be disabled.` (catalog description) | `Members set their own reminders with /remind.` | Said three times on one dashboard row: the sentence, the badge and the locked toggle. It also told signed-out visitors on the home page about a control they cannot see. |
-| `Complete setup before enabling this plugin.` (dashboard toggle tooltip) | `Required settings missing` | An instruction with no object: the row cannot say which setup. The page marks the missing fields with the asterisk, so the tooltip names the state and stops. |
-| `2,481 members · 20 channels and 18 roles synced` (dashboard header) | `2,481 members` | Sync counts describe shrkbot's copy of the server. Nobody configuring a plugin acts on them. |
-| `%{count} plugins on` (server switcher) | `%{count} plugins enabled` | The server list said "enabled" for the same number. Plugins are enabled and disabled; options are on and off. |
-| `Pick a server to configure shrkbot.` (server list subtitle) | Deleted. | A grid of servers under "Your servers" says it. |
-| `Don't see a server?` / `You need Manage Server permissions and shrkbot must be present. Invite it, then refresh.` (dashed card with Invite and Preview buttons) | `Missing a server? You need the Manage Server permission there.` with only Preview features under it | A managed server without shrkbot already has its own invite card, so half the text and the second invite button repeated it. A fallback does not need a card that competes with the servers. |
-| `Sign in to add shrkbot to your servers` (home hero button) | `Sign in with Discord` | The header button beside it said "Sign in with Discord". Two labels for one action make the reader look for a difference. |
-| `shrkbot is designed to help you where Discord doesn't. It respects your members' privacy, and it gets out of your way when you don't need it. It is highly configurable and geared towards technical users that feel like Discord doesn't give them enough power.` | `shrkbot is designed for people like you that want more power than Discord gives them, while respecting your members' privacy.` | Four sentences about shrkbot in the abstract. The new line names the reader and keeps the two promises: more power, privacy kept. |
-| `... but only for your server. Click here to find out more.` (link on "here") | `... exclusively for your server.` with the link on "bespoke plugins" | "Click here" names an action instead of the destination, so the link sits on the noun now. "But only" read as a limitation. |
-| `More plugins are on the way.` | Deleted. | A promise with no date and nothing to act on. |
-| `Where join and leave messages are posted.` / `Sent when a member joins. Leave empty to send nothing.` / `Sent when a member leaves. Leave empty to send nothing.` / `{user} is a Discord mention in join messages.` / `{user} is a plain @username in leave messages.` | Deleted. | The labels say the first three. No help says "leave empty" any more. The `{user}` notes repeated the placeholder's own tooltip. |
-| `Off delivers silently - the mention badge still shows, but no sound or push.` | `When off, the mention makes no sound and sends no push notification.` | "Delivers silently" and "push" were shorthand for Discord's notification flag. The new line says what the member notices. |
-| `Where moderation events are recorded.` / `Pick which events shrkbot writes to the log channel.` | Deleted. | Logging also records role changes and Looking for Game denials, so "moderation events" was wrong. The second line restated the "Logged events" heading and its toggles. |
-| `3/3 enabled` (Logging event group) | `3 of 3 on` | Events are options inside a plugin, so they are on or off. The count stays because it shows state while the group is collapsed. |
-| `Alerts post to #mod-log through the Logging plugin.` | `Alerts go to #mod-log. You can change this in Logging.` with "Logging" as a link | The line named the place to change the channel but did not lead there. |
-| `Shared by every Moderation sub-plugin, and exempt from spam detection. Pick one before enabling any sub-plugin.` / `Required. Every sub-plugin stays off until a staff role is picked.` | `Exempt from all checks and optionally pinged for alerts.`, warning deleted | "Moderation" is Server Shield's old name and "sub-plugin" is the code's word. The asterisk marks the field required, so both instructions went and what the role does stayed. |
-| `Mention the staff role at the top of every moderation log entry. Turn it off for a quieter log that staff can check on their own.` | Deleted. | The label "Ping staff on alerts" says it. This reverses the earlier fix to the same line: the better sentence was still one too many. |
-| `This role can't see staff commands.` + `It doesn't have the Manage Messages permission, so its members won't see staff-only commands like Report as scam. Give the role Manage Messages, or grant it access under Server Settings -> Integrations -> shrkbot.` | `This role can't use "Report as scam".` + `Give it Manage Messages, or allow it under Server Settings -> Integrations -> shrkbot.` | "Staff commands like Report as scam" generalised from the one staff command there is. The title names it, and the body is only the fix. |
-| `Sub-plugins` (Server Shield overview heading) | `Protections` | "Sub-plugin" is the code's word for a plugin inside a group. The heading now names what the list holds. |
-| `Moderation needs the Logging plugin` / `Every Moderation sub-plugin needs ...` / `Moderation overview` | `Server Shield ...` in each | The old name for Server Shield. |
-| `Trigger threshold` | `Act when the same message appears in` | The label now reads into its controls: "Act when the same message appears in 4 different channels within 15 seconds". "Threshold" made the reader translate. |
-| `How similar two messages must be to count as the same message. 100% only catches exact copies; lower values also catch spam with small edits - swapped words, extra characters - but can mistake similar real messages for spam. Case, punctuation, digits and disguised characters are ignored either way.` | `100% matches exact copies only. Lower values also catch lightly edited copies, but can catch real messages that look alike.` | The first sentence restated the label, and the last restated the matching explainer on the overview. Two dash asides went with them. |
-| `Also match symbol-only messages` + `Messages with no matchable text - only emoji, punctuation or digits - are ignored by default. When on, they all count as the same message, so blasting any symbol noise across channels triggers.` | `Also match messages with only punctuation or numbers` + `Messages like "???" or "123" all count as the same message.` | Emoji were wrong: the matcher keeps them, so emoji-only messages already match as text. Two examples replace "no matchable text". |
-| `Purge the messages` / `Notify only` + `Notify only is a dry run - staff get the alert, nothing is deleted.` (Spam Guard) and `Flag only` + `Flag only leaves the image up and pings staff to review it.` (Scam Image Detection) | `Delete the messages` / `Only alert staff`, and `Only alert staff`, no help on either page | Delete, never purge. One option had two names on two pages; the new label says what both helps explained. |
-| `Applies on top of the purge.` (timeout duration) | Deleted. | It answered a question nobody asks at a duration picker, and it said "purge". |
-| `A ban is permanent until a mod lifts it, and shrkbot can't undo it. Pick this only if you're confident your thresholds never catch real members.` | Deleted. | False: "Undo punishment" on the alert lifts the ban. |
-| `Before you turn this on` + `Deletion is on by default, and detection is automated and imperfect. Screenshots of scams - the kind well-meaning members post as warnings - can be detected and deleted too, so tell your community not to post scam screenshots. Staff are pinged on every action and can mark a decision as wrong with one click in Discord.` | `Detection can be wrong` + `Images are deleted automatically. Screenshots of scams that members post as warnings can be caught too. Staff are alerted to every action and can mark it as wrong.` | The box stays on the page after the plugin is on, so a title about turning it on went stale. The title now carries the fact. "Pinged on every action" was false once staff pings became optional. |
-| `Anyone with the staff role can right-click any message with images -> Apps -> shrkbot -> Report as scam. Works whether or not automated scanning catches it.` | `Staff can report any message with images: right-click -> Apps -> shrkbot -> "Report as scam".` | "Any message" already covers messages the scan missed. The command name is quoted so it reads as the menu item. |
-| `Words or phrases that mark an image as a scam when they show up in its text - on top of shrkbot's built-in scam rules. Close misspellings count too, ... digits kept.` | `Extra words or phrases that mark an image as a scam; close misspellings count. Longer phrases cause fewer false matches.` | Five sentences for a tag field. The matching rules live in the matching explainer; "extra" says they add to the built-in rules. |
-| `If confirmed as a scam on this server` + `Sets the punishment for images a moderator has confirmed as scam on this server, ...` | `Punishment if confirmed by staff on this server`, no help | The label now says what it sets and who confirms. Its "Same as above" option explains the inheritance the help spelled out. |
-| `Defaults` + `Server-wide Looking for Game settings. The per-role cards below add extra restrictions on top of these.` | `Rules for every role`, sentence deleted | "Defaults" left the reader asking "of what". The subtitle already lists what the card holds. |
-| `Required roles` / `Excluded roles` / `Minimum membership` / `Cooldown`, each with a help ending `Leave empty ...` / `Leave blank ...` | `Who can post` (placeholder `Everyone`) / `Who can't post` (`No one`) / `Minimum membership time` (shows 0) / `Wait between posts` | Labels are now the question the reader answers. Where empty has two readings the placeholder names the one that applies, so the "leave empty" helps went. |
-| `Channels where members can post an LFG. Leave empty to allow every channel.` + placeholder `Choose channels` | placeholder `Every channel`, help deleted | Same rule. "An LFG" was the command's name used as a noun. |
-| `How long the "Looking for Game" post stays visible. For scheduled posts, the clock starts with the session, not while it gathers interest.` | `How long a post stays up. For scheduled posts, the timer starts with the session.` | The label names the post, and "not while it gathers interest" restated "starts with the session". |
-| `The roles members can ping with /lfg, each with its own extra restrictions. Only configured roles appear in the command.` | `Members can ping these roles with /lfg.` | The cards below show the restrictions, and the second sentence restated the first. |
-| `0 extra restrictions` (role card summary) | Nothing at zero. | A count of nothing is noise in a summary line. |
-| `Additional required roles` / `Additional excluded roles` / `Minimum membership override`, helps `On top of the defaults above, ...` / `Restrict this role to these channels, overriding ...` / `Overrides the default minimum ...`, placeholders `Inherit allowed channels` / `Inherit default` | `Also requires` / `Also excludes` / `Minimum membership time override`, helps deleted, `Channel override` shows `Same as every role`, the number shows the inherited value | "Additional" and "on top of the defaults" said the same thing twice. An override names itself and shows what it falls back to, so "inherit" left the copy. |
-| `Two optional but recommended Discord settings` (setup card subtitle) | Deleted. | The card title "Recommended setup" says it. This reverses the earlier rewrite of the same line. |
-| `In Server Settings, turn off "Allow anyone to @mention this role" for every role you list below. shrkbot pings them for members, so you can switch off general-purpose role pings entirely.` | `Turn off "Allow anyone to @mention this role" for the roles you set up here, as shrkbot automatically pings them.` | One sentence with the reason attached. The second half was advice for the whole server, not for these roles. |
-| `... That's your first line of control over who posts.` | Sentence deleted. | Puffery; the instruction before it is the point. |
-| `Selection type` / `Single` / `Multi` (also the badge) | `Members can pick` / `One` / `Several` | The label reads into the choice. "Single" and "Multi" were the code's values. |
-| `Resync menu` (tooltip) | `Repost` | The toast already said "Reposting the role menu…". One verb for one action. |
-| Callout `Grayed-out roles can't be assigned. shrkbot can only assign roles below its own highest role, and never Discord-managed ones.` | Help line `shrkbot can't assign roles above its highest one, or roles managed by Discord.` | A yellow callout in every set for a fact about the picker. A help line under the picker is enough, and "grayed-out" described the picker's styling. |
-| `Above shrkbot - it ranks below this role.` / `Managed by Discord - bots can't assign integration roles.` (option tooltips) | `This role is higher than shrkbot's highest role.` / `This role is managed by Discord.` | "It ranks below this role" made the reader resolve "it". Full sentences, one fact each. |
-| `Use plugin default (%{channel})` / `no default set` (per-set channel) | `Same as above` | Overrides show what they fall back to. The channel picker above is in view. |
-| `Each role set posts here unless it has its own channel override.` | Deleted. | Each set's "Channel override" says it. |
-| `Reminders are triggered by members using /remind - there's nothing more to configure here.` | Deleted. | The page header names /remind, and the one setting below shows there is something to configure. |
-| `Force reminder delivery via DM` + `Deliver every reminder in DMs, ignoring channel preferences set by members.` | `Always send reminders by DM`, no help | "Always" carries what the help explained. |
-| `Leave empty to post every language. shrkbot can't tell the language of very short posts, so those always go through.` | `Posts whose language can't be detected, like very short ones, are posted anyway.` | The placeholder "Every language" covers empty. The rest is now one sentence about the exception. |
-| `About 500 characters, then a link to the full post.` | `About 500 characters.` | Every Steam post links to the full post, whatever its length. |
-| `Ended, with VOD` / `Ended` / `Keep live card` / `Delete` with a help under each, and `Show it switched` / `Delete it` with helps | `Summary with VOD link` / `Summary` / `Leave as is` / `Delete the post`, and `Show the switch` / `Delete the post`, no helps | The preview under each option shows the result. The labels now name it, so the helps restated them. |
-| `Only post while the stream is in (optional)` / `Search Twitch categories` / `Leave it empty to post every category. Clips follow the same filter. Highlights and uploads have no category, so they always post.` | `Only post when streaming one of these categories` / `Every category` / `Only filters Live and Clips, as Highlights and Uploads don't have a category.` | The placeholder says what empty means. The help keeps the one fact the reader cannot guess. |
-| Bare Discord ID on the account page | `Discord ID: %{id}` | An unlabelled 18-digit number. |
-| `Permanently deletes your account and all data tied to it. Role assignments and server settings belong to their servers and are not affected. This cannot be undone.` | Deleted. | The dialog says it at the moment it matters. |
-| Dialog body `shrkbot deletes your account and all data tied to it. This cannot be undone.` / button `Delete my account` | `This cannot be undone.` / `Delete account` | The title already asks "Delete your account?"; the body keeps only the consequence, and the button matches the card title. |
-| `User was banned.` / `User was kicked.` / `User was timed out until %{until}.` (Discord alerts) | `The member was banned.` / `The member was kicked.` / `The member was timed out until %{until}.` | Member, not user. The scam alert beside it already said "The member was kicked". |
-| `Notify-only - no messages were deleted.` / `Cross-channel spam purged` (Discord alerts) | `This is only an alert, no messages were deleted.` / `Cross-channel spam deleted` | The alert says what the setting did without quoting a label that may change. Delete, never purge. |
-| `Only a server admin can switch this plugin on or off.` (plugin row, Twilight Struggle page) | `Only a server admin can enable or disable this plugin.` | Plugins are enabled and disabled; on and off are for options inside them. |
-| `Preview doesn't save - add shrkbot to your server to turn plugins on there.` | `Preview doesn't save - add shrkbot to your server to enable plugins there.` | Same vocabulary rule. |
-| `Flagged for review - no automatic action taken.` (Discord scam-image alert) | `This is only an alert, the image was not deleted.` | Matches the "Only alert staff" mode the site names, and says what happened to the image. |
-| `The message was left in place - automatic removal is turned off.` (Discord scam-image report log) | `The message was left in place - Scam Image Detection is set to "Only alert staff".` | Names the setting the reader can find on the site instead of describing it. |
-| `Server-wide restrictions, allowed channels, cooldown and post lifetime` (LFG) | `Server-wide restrictions, allowed channels, wait between posts, and post lifetime` | The field is labelled "Wait between posts"; the subtitle now uses the same words. |
-| `How long a member must wait between posts. Set to 0 to disable the cooldown.` (LFG) | `Set to 0 for no wait.` | The label already says what the field is; the help only needs the zero case. |
-| `Delete the post` (Twitch, when the stream switches category) | `Delete until it switches back` | The post comes back when the category does, and the label has to say so. |
-| `Several` (badge on a collapsed role set) | `Pick several` / `Pick one` | The segment label has no noun beside a set name. The badge has its own keys; the segmented control keeps "One" and "Several". |
-| `people like you that want more power than Discord` (home) | `people like you who want more power than Discord` | People take "who". |
-| `Example plugins` (home, above a moving strip of six plugins) | `Plugins` | The grid now shows every public plugin, so the list is no longer a sample and "Example" undersold it. |
-| `Recommended default: %{value}` (under every stepper, e.g. `Recommended default: 300 seconds (5 minutes)`) | Deleted. A reset segment, tooltip `Reset to %{value}`, appears in the stepper while the value differs from the default. | The line made the reader compare two numbers by eye, and printed even when the value already was the default. The reset does the comparison and the action. |
-| `Recommended default: 100%` / `Recommended default: Off` | Deleted. | Same line on a slider and a toggle. Neither has a reset, and the help already says what each setting does. |
-| `seconds` / `minutes` (fixed unit after the LFG cooldown, LFG post lifetime and Twilight Struggle delay) | A unit select in the stepper (`seconds` / `minutes` / `hours`) that opens on the largest unit that fits, e.g. `5 minutes`, `6 hours`. | `300 seconds` and `360 minutes` made the reader convert; the value now reads the way people say it. |
-| `Reset to 300` (LFG cooldown) | `Reset to 5 minutes` | A bare number is ambiguous once the unit can change; the reset names it. |
-| `New account age` + `How recently a Discord account must have been created to count as new. New accounts draw extra scrutiny across every Moderation sub-plugin. Anywhere from 1 to 365 days.` | `Treat accounts as new for [30] days` + `New accounts are judged more strictly.` | The label named a number the reader had to turn into a rule; the sentence around the stepper states the rule. The stepper enforces the range, and "Moderation sub-plugin" named two things the page never shows. |
-| `Relaxed` / `Standard` / `Strict`, each with a description (`Acts only on unmistakable scams. Fewest false positives; more scams slip through.` / `Catches most scam images with occasional false positives. Recommended.` / `Also acts on borderline matches. Expect false positives - best with an active staff team.`) | `Relaxed` / `Standard (recommended)` / `Strict` + `Stricter catches more scams and more innocent images.` | Three descriptions told one trade-off three times from different ends. One line names the axis, and the recommendation sits on the option it recommends. |
-| `Require at least [2] matching keywords before shrkbot acts` + `1 is aggressive - a single matched word can delete an image. 2 or more keeps one stray word from triggering. Up to as many keywords as you've set.` | `Require at least [2] matching keywords`, help deleted. | Every threshold means "before shrkbot acts". The help did arithmetic the reader can do, and the stepper's max enforces the upper bound. |
-| `Welcome {user}, you're member {membercount}!` / `{user} has left the server.` (placeholders in empty Welcomes boxes) | The same text as the box's real, editable default; empty box placeholder `Nothing will be sent.` | The placeholder looked like a message shrkbot would send, but an empty box sent nothing. Now the default is the value and the placeholder says what empty does. |
-| `This message is off.` (Welcomes preview) | `Nothing will be sent.` | "Off" names a toggle state, and the message has no toggle; it is empty. One sentence now serves the box and the preview. |
-| `Nothing would be posted.` (Twilight Struggle preview) | `Nothing will be sent.` | Same sentence as the Welcomes preview: one phrase for an empty message. |
-| `{the inherited template}` as the placeholder of an emptied Twilight Struggle box, and in its preview | `Nothing will be sent.` in the box and the preview | The placeholder looked like the text that would be posted, and it was: empty meant "inherit". Now empty posts nothing, says so, and the reset brings the inherited text back. |
-| `Global` (badge on Reminders' dashboard row and config page) | `Always on` | "Global" reads as a scope, and the admin page already uses it that way ("Global settings for shrkbot's owner"). The badge means the plugin cannot be disabled. |
-| `Enabled` / `Disabled` (badges on dashboard and sub-plugin rows) | Deleted. `Needs setup` stays. | The toggle and the tile beside them already show the state. A badge earns its place only when it says something the row does not. |
-| Cookie notice: `shrkbot only sets technical cookies to make the site work. No tracking, analytics, or anything else from a third party. It will remember that you've seen this, though - with a cookie, of course. :)` / `Oh, nice!` | Deleted. | Technical cookies need no consent. The banner announced the absence of tracking, and it set the site's only non-essential cookie to remember that it had. The privacy policy says the same thing where a reader looks for it. |
-| `Channel (required)` / `Message (optional)` / `Role to ping (optional)` / `Channel (optional)` (Steam and Twitch), `Channel override (optional)` (Roles) | `Channel` with the red asterisk / `Message` / `Role to ping` / `Channel` / `Channel override` | Every other page marks a required field with the asterisk, so the feed pages spoke a second dialect. A field without the asterisk is optional, so "(optional)" said what the missing marker already says. |
-| `This setting is required to enable the plugin.` (hover text on the asterisk, Welcomes and Logging only) | Deleted. | It was a native browser tooltip, which the site does not use, and only two of the pages with an asterisk had it. The asterisk is the convention on its own. |
-| `...and can mark it as wrong.` (Scam Image Detection warning) | `...and can mark it as incorrect.` | "Wrong" also reads as a moral judgement. "Incorrect" can only mean the detection. |
-| `Pingable roles` + `Members can ping these roles with /lfg.` | `Roles members can ping with /lfg` | The heading was a coined word and the sentence under it explained the word. One line now says what the list is. |
-| `Set to 0 for no wait.` (Wait between posts) | Deleted. | The stepper goes down to 0 and the label says what it counts. |
-| `With no channels chosen, /lfg works in every channel. Consider scoping it to a few dedicated channels.` | Deleted. | The empty box already says `Every channel`, and the setup guide above covers where /lfg should run. |
-| `No results found` under the custom keywords box | Deleted. The empty box says `Type a word or phrase, then press Enter`. | The box adds new keywords; it does not search a list, so there were never results to find. |
-| `Twilight Struggle` (heading), crumb `Tournaments > Twilight Struggle`, tournament in a badge | heading `<tournament>`, crumb `Twilight Struggle > <tournament>` | The heading named the plugin the sidebar already names, and the tournament being edited sat in a badge beside it. |
-| `<tournament>` (switcher summary and badge) | `Switch tournament`; no switcher when there is only one tournament | The heading names the tournament now; the menu says what it does. |
-| `Where this server posts this tournament's results and how they read. You can set all of it up before subscribing.` | Deleted. | It listed the cards below it. |
-| `How players appear in posted results. Tag only keeps a player's real name out of the channel, ...` | `Missing tags fall back to player names. Tags don't ping.`, shown under the buttons and only while a tag option is picked | It explained three options at once. Only the tag options need a word, so the line describes the selected one. |
-| `How long shrkbot waits after a result is reported before posting it, so it can't spoil a stream ...` (four sentences) | `Wait this long after a result is reported before posting, to avoid spoiling live streams.` | The edge cases (edits post at once, waiting results keep their delay) behave as a reader expects without being told. |
-| `%{parent} uses a %{count}-minute delay. Leave the field empty to use the same here.` | `%{parent} uses a %{count}-minute delay.` | No "leave empty" instructions; the box already shows the inherited minutes as its placeholder. |
-| `Where results for this tournament are posted. With no channel, nothing is posted.` / `... Leave empty to use %{channel}, inherited from the tournament above.` | Deleted. / `%{parent} posts in %{channel}.` under the select | The label says what the channel is for. The inherited channel now reads like the other inherit notes on the page. |
-| `Decided game` + `Used when one player won.`; `Tie` + `Used when the game ended in a tie.` | `A player won`; `Tie` | The label now says when the template is used, so the help repeated it. |
-| `Game with a video` + `Used whenever the result comes with a video, ahead of the other two. Keep it spoiler-free - no winner, turn or method.` | `Result with a video` + `If a result comes with a video, this template is used over the other two. Keeping it spoiler-free is highly recommended.` | It is a result, not a game, and the spoiler advice is advice, not a rule the form enforces. |
+| `Trigger threshold` + `Triggers when the same message appears in 4 different channels within 15 seconds.` | `Act when the same message appears in`, no help | The two steppers are the real controls. The sentence restated them and hardcoded their defaults. The label now reads into them. |
+| `Two optional Discord settings we recommend` + `Neither is required, but we recommend both for the smoothest Looking for Game experience:` | Deleted. | The card title `Recommended setup` says it. An earlier pass only fixed the "we" and the puffery. |
+| `Mention the staff role at the top of every moderation log entry. Turn it off for a quieter log staff check on their own.` | Deleted. | The label `Ping staff on alerts` says it. An earlier pass repaired the grammar of a sentence that had no job. |
+| `Where join and leave messages are posted.` / `Sent when a member joins. Leave empty to send nothing.` / `Pick which events shrkbot writes to the log channel.` / `Pick a server to configure shrkbot.` / `Each role set posts here unless it has its own channel override.` / `Where this server posts this tournament's results and how they read. ...` / `Paste a Steam store link and pick a channel. shrkbot posts the game's news there from then on.` | Deleted. | Each restated the label, the heading, or the cards beside it. |
+| Card `Stop following %{name}` + `No more posts for this game. Posts already in Discord stay.` + button `Stop following and delete settings` | Button `Stop following %{name}`, dialog body `This deletes your settings for this game.` | Title, body, and button said one thing three times. "Posts already in Discord stay" is what any reader assumes. |
+| `Members set their own reminders with /remind. This plugin can't be disabled.` | `Members set their own reminders with /remind.` | Said three times on one dashboard row: the sentence, the `Always on` badge, and the locked toggle. |
+| `Enabled` / `Disabled` badges on dashboard rows | Deleted. `Needs setup` stays. | The toggle and the tile already show the state. |
+| `Twitch user %{id}` under the channel name | No line. | The numeric id is never visible on Twitch. `Steam app %{id}` stays, because an app id is something a reader looks up. |
+| `Part of Feeds.` under every plugin title | Deleted. | The breadcrumb above the title names the parent. |
+| `0 extra restrictions` | Nothing at zero. | A count of nothing is noise in a summary line. |
+| `2,481 members · 20 channels and 18 roles synced` | `2,481 members` | Sync counts describe shrkbot's copy of the server. Nobody who configures a plugin acts on them. |
+| `... Empty on a tie.` on eleven placeholder hints | `All following placeholders are empty on a tie.`, once | One caveat said eleven times. |
+| `Recommended default: %{value}` under every stepper | Deleted. Reset segment with the tooltip `Reset to %{value}`. | The line made the reader compare two numbers by eye, and printed even when the value was the default. |
+| `About 500 characters, then a link to the full post.` | `About 500 characters.` | Every Steam post links to the full post. A detail that is true of both options describes neither. |
+| Cookie notice: `shrkbot only sets technical cookies to make the site work. ... It will remember that you've seen this, though - with a cookie, of course. :)` | Deleted. | Technical cookies need no consent. The banner set the site's only non-essential cookie to remember that it was dismissed. |
+
+### Titles
+
+| Weak | Better | Fault |
+| --- | --- | --- |
+| Eyebrow `Bespoke plugins` + headline `shrkbot can do it all, even if it's only for you` | Title `Bespoke plugins` | The eyebrow named the page and the headline was a slogan. |
+| `Before you turn this on` + `Deletion is on by default, and detection is automated and imperfect. ... Staff are pinged on every action and can mark a decision as wrong with one click in Discord.` | `Detection can be wrong` + `Images are deleted automatically. Screenshots of scams that members post as warnings can be caught too. Staff are alerted to every action and can mark it as incorrect.` | The box stays after the plugin is enabled, so its title went stale. "Pinged on every action" became false when staff pings became optional. "Wrong" also reads as a moral judgement. |
+| `This role can't see staff commands.` + `It doesn't have the Manage Messages permission, so its members won't see staff-only commands like Report as scam. ...` | `This role can't use "Report as scam".` + `Give it Manage Messages, or allow it under Server Settings -> Integrations -> shrkbot.` | "Staff commands like" generalised from the one staff command there is. The title names it, and the body is only the fix. |
+| `The plugin is disabled` + `Twilight Struggle is switched off for this server, so nothing is posted anywhere yet.` | `Tournament result posting is currently disabled` | The title now says what stopped. The body repeated it with a second word for the same state. |
+| `Before you enable %{plugin}`, also on an enabled protection | `Required settings missing` while it is enabled | "Before you enable" is false for a plugin that is already on. |
+| `Delete your account and all associated data? This cannot be undone.` as the whole dialog | Title `Delete your account?`, body `This cannot be undone.`, button `Delete account` | The dialog has a title, so the question moved there. The body keeps only the consequence. |
+| Heading `Twilight Struggle` with the tournament in a badge | The tournament's name as the heading, `Switch tournament` on the menu | The heading named the plugin, which the sidebar already names. |
+
+### Labels and options
+
+| Weak | Better | Fault |
+| --- | --- | --- |
+| `Required roles` / `Excluded roles` / `Minimum membership` / `Cooldown`, each with a help ending `Leave empty ...` | `Who can post` (`Everyone`) / `Who can't post` (`No one`) / `Minimum membership time` / `Wait between posts` | A label is the question the reader answers. Where empty has two readings, the placeholder names the one that applies. |
+| `Defaults` + `Server-wide Looking for Game settings. The per-role cards below add extra restrictions on top of these.` | `Rules for every role` | "Defaults" left the reader asking "of what". The subtitle already lists what the card holds. |
+| `Pingable roles` + `The roles members can ping with /lfg, each with its own extra restrictions. Only configured roles appear in the command.` | `Roles members can ping with /lfg` | The heading was a coined word, and the sentence under it explained the word. |
+| `Selection type` / `Single` / `Multi` | `Members can pick` / `One` / `Several`, badge `Pick one` / `Pick several` | "Single" and "Multi" were the code's values. The badge has no label beside it, so it carries the verb. |
+| `New account age` + `How recently a Discord account must have been created to count as new. ... Anywhere from 1 to 365 days.` | `Treat accounts as new for` [30] `days` + `New accounts are judged more strictly.` | The label named a number the reader had to turn into a rule. The stepper enforces the range. |
+| `Relaxed` / `Standard` / `Strict`, each with a description | `Relaxed` / `Standard (recommended)` / `Strict` + `Stricter catches more scams and more innocent images.` | Three descriptions told one trade-off from three ends. |
+| `Require at least [2] matching keywords before shrkbot acts` + `1 is aggressive - a single matched word can delete an image. ...` | `Require at least` [2] `matching keywords` | Every threshold means "before shrkbot acts". The help did arithmetic the reader can do. |
+| `Ended, with VOD` / `Ended` / `Keep live card` / `Delete`, each with a help | `Summary with VOD link` / `Summary` / `Leave as is` / `Delete the post` | The preview under each option shows the result. The labels now name it. |
+| `Live` / `Highlights` / `Uploads` | `Going live` / `New highlight` / `New upload` | Plain nouns read as page sections. The new labels name the moment a post is made. |
+| `Decided game` + `Used when one player won.` | `A player won` | The label now says when the template is used. |
+| `Game with a video` + `... Keep it spoiler-free - no winner, turn or method.` | `Result with a video` + `If a result comes with a video, this template is used over the other two. Keeping it spoiler-free is highly recommended.` | It is a result, not a game. The spoiler advice is advice, not a rule the form enforces. |
+| `Steam link or app ID` + subtitle `Paste the game's Steam store page, its community hub, or its SteamDB page. An app ID works too.` | One label: `Paste a link to the game's Steam store page, community hub, or SteamDB page. An app ID works too.` | The label named the field and the subtitle explained it. |
+| `Notification text` + `What push notifications say. Leave it empty for the default.` | `Push notification text`, with `Reset to default` beside it | The label names what it controls, and the reset does what "leave it empty" promised. |
+| `If confirmed as a scam on this server` + two sentences of help | `Punishment if confirmed by staff on this server` | The label says what it sets and who confirms. Its `Same as above` option carries the inheritance. |
+| `Force reminder delivery via DM` + `Deliver every reminder in DMs, ignoring channel preferences set by members.` | `Always send reminders by DM` | "Always" carries what the help explained. |
+| `Global` badge on Reminders | `Always on` | "Global" reads as a scope, and the admin page uses it that way. |
+| `Example plugins` | `Plugins` | The grid shows every public plugin, so it is not a sample. |
+| `Feeds` / `Steam News` | `Integrations` / `Steam` | The group holds more than feeds, and a provider is named for its platform. |
+| Bare number on the account page | `Discord ID: %{id}` | An unlabelled 18-digit number. |
+
+### Help text
+
+| Weak | Better | Fault |
+| --- | --- | --- |
+| `The duration the "Looking for Game" post remains visible after it starts. For scheduled posts, this time only starts with the actual session, not during the "gathering interest" period.` | `How long a post stays up. For scheduled posts, the timer starts with the session.` | The label names the post. "Not during the gathering interest period" restated "starts with the session". |
+| `How similar two messages must be to count as the same message. 100% only catches exact copies; lower values also catch spam with small edits - swapped words, extra characters - but can mistake similar real messages for spam. ...` | `100% matches exact copies only. Lower values also catch lightly edited copies, but can catch real messages that look alike.` | The first sentence restated the label, and the last one restated the matching explainer. |
+| `Words or phrases that mark an image as a scam when they show up in its text - on top of shrkbot's built-in scam rules. ...` (five sentences) | `Extra words or phrases that mark an image as a scam; close misspellings count. Longer phrases cause fewer false matches.` | Five sentences for a tag field. "Extra" says they add to the built-in rules. |
+| `Shared by every Moderation sub-plugin, and exempt from spam detection. Pick one before enabling any sub-plugin.` | `Exempt from all checks and optionally pinged for alerts.` | The asterisk marks the field required, so the instruction went and what the role does stayed. |
+| `Off delivers silently - the mention badge still shows, but no sound or push.` | `When off, the mention makes no sound and sends no push notification.` | "Delivers silently" and "push" were shorthand for Discord's notification flag. |
+| `How players appear in posted results. Tag only keeps a player's real name out of the channel, ...` | `Missing tags fall back to player names. Tags don't ping.`, only while a tag option is picked | It explained three options at once. Only the tag options need a word. |
+| `How long shrkbot waits after a result is reported before posting it, so it can't spoil a stream ...` (four sentences) | `Wait this long after a result is reported before posting, to avoid spoiling live streams.` | The edge cases behave as a reader expects without being told. |
+| `OTSL 2026 is set to 30 minutes.` / `No tournament above sets a delay, ...` | `%{parent} uses a %{count}-minute delay.` / `No parent tournament sets a delay, so results post immediately.` | "Is set to" and "above" describe how the settings are stored. |
 | `Hides it from this server's list. It is not an off switch - a result that still arrives is still posted here.` | `Hides this tournament from the list. Results will still be posted; unsubscribe to stop.` | It said what archive is not, without naming what is. |
-| `... Empty on a tie.` on eleven placeholder hints; `such as`; `... Discord builds the embed.` | one line `All following placeholders are empty on a tie.` above Winner; `e.g.`; cut | One caveat said eleven times is noise; the embed is Discord's business. |
-| `The plugin is disabled` + `Twilight Struggle is switched off for this server, so nothing is posted anywhere yet.` | `Tournament result posting is currently disabled`, no second line | The title carries the fact: it says what stopped. The message only repeated it, with a second word for the same state. |
+| `Leave empty to post every language. shrkbot can't tell the language of very short posts, so those always go through.` | `Posts whose language can't be detected, like very short ones, are posted anyway.` | The placeholder `Every language` covers empty. The rest is one sentence about the exception. |
+| `Leave it empty to post every category. Clips follow the same filter. Highlights and uploads have no category, so they always post.` | `Only filters Live and Clips, as Highlights and Uploads don't have a category.` | The placeholder `Every category` says what empty means. The help keeps the one fact the reader cannot guess. |
+| Callout `Grayed-out roles can't be assigned. shrkbot can only assign roles below its own highest role, and never Discord-managed ones.` | Help line `shrkbot can't assign roles above its highest one, or roles managed by Discord.` | A yellow callout in every role set for a fact about the picker. "Grayed-out" described the styling. |
+| `Above shrkbot - it ranks below this role.` / `Managed by Discord - bots can't assign integration roles.` | `This role is higher than shrkbot's highest role.` / `This role is managed by Discord.` | "It ranks below this role" made the reader resolve "it". |
+| `In Server Settings, turn off "Allow anyone to @mention this role" for every role you list below. shrkbot pings them for members, so you can switch off general-purpose role pings entirely.` | `Turn off "Allow anyone to @mention this role" for the roles you set up here, as shrkbot automatically pings them.` | The second half was advice for the whole server, not for these roles. |
+| `Some developers don't tag their patch notes, so their updates arrive as announcements. To get every update, keep Patch notes and Announcements both on.` | `Some developers don't tag their patch notes, so shrkbot posts them as announcements. To get every update, keep both "Patch notes" and "Announcements" on.` | "Their updates arrive" hid who files them. The quotes mark the two toggles. |
+| The clip-volume warning and the 48-hour note, inside the settings of a clip type | `Big channels get dozens to hundreds of clips per stream, and each one is a post.` / `Only clips featured within 48 hours of being made get posted.`, as each card's help | Both help decide whether to turn the type on, so hiding them until it was on defeated them. |
+| `Works, but has not been tested widely yet. Report problems to @%{owner} on Discord.` | `You might experience some bugs. Please report them to @%{owner} on Discord or via %{email}.` | It hedged twice around a plain warning. |
+
+### Empty, required, and inherited
+
+| Weak | Better | Fault |
+| --- | --- | --- |
+| `Channels where members can post an LFG. Leave empty to allow every channel.` + placeholder `Choose channels` | Placeholder `Every channel`, no help | The placeholder says what empty means. "An LFG" used the command's name as a noun. |
+| `Channel (optional)` with the placeholder `Same as "Where to post"` | `Channel override` with `Same as above` | An override says it is one. |
+| `Role to ping (optional)` / `No ping` on every Twitch post type | `Role to ping` in the top card, `Role override` / `Same as above` on each type | Five types meant five picks of the same role. |
+| `Additional required roles` / `Additional excluded roles` / `Minimum membership override`, placeholders `Inherit allowed channels` / `Inherit default` | `Also requires` / `Also excludes` / `Minimum membership time override`, and `Channel override` shows `Same as every role` | "Additional" and "on top of the defaults" said one thing twice. An override shows what it falls back to. |
+| `Use plugin default (%{channel})` / `no default set` | `Same as above` | The channel picker above is in view. |
+| `Channel (required)` / `Message (optional)` / `Role to ping (optional)` | `Channel` with the asterisk / `Message` / `Role to ping` | Every other page marked a required field with the asterisk. A field without one is optional. |
+| `This setting is required to enable the plugin.` on the asterisk | Deleted. | The asterisk is the convention on its own. |
+| Prefilled `New {game} patch notes: {title}`, then the placeholder `Shown above the card. Leave it empty to post the card alone.` | Empty box, placeholder `Shown above the card.` | The card carries the game, the type, and the title. A box that posts the card alone when empty surprises nobody. |
+| `Welcome {user}, you're member {membercount}!` as the placeholder of an empty box | The same text as the box's editable default, and `Nothing will be sent.` in an empty box | The placeholder looked like a message shrkbot would send, but an empty box sent nothing. |
+| `This message is off.` / `Nothing would be posted.` / the inherited template as a placeholder | `Nothing will be sent.` | Three ways to show an empty message. One phrase serves every box and preview. |
+| `%{parent} uses a %{count}-minute delay. Leave the field empty to use the same here.` / `... Leave empty to use %{channel}, inherited from the tournament above.` | `%{parent} uses a %{count}-minute delay.` / `%{parent} posts in %{channel}.` | The box already shows the inherited value. |
+| `No results found` under the custom keywords box | Placeholder `Type a word or phrase, then press Enter` | The box adds keywords. It does not search a list. |
+| `300 seconds, which is 5 minutes` / `Reset to 300` | A unit select in the stepper (`seconds` / `minutes` / `hours`), reset `Reset to 5 minutes` | The reader had to convert. A bare number is ambiguous once the unit can change. |
+
+### Claims
+
+| Weak | Better | Fault |
+| --- | --- | --- |
+| `A ban is permanent until a mod lifts it, and shrkbot can't undo it. Pick this only if you're confident your thresholds never catch real members.` | Deleted. | False: `Undo punishment` on the alert lifts the ban. |
+| `Also match symbol-only messages` + `Messages with no matchable text - only emoji, punctuation or digits - are ignored by default. ...` | `Also match messages with only punctuation or numbers` + `Messages like "???" or "123" all count as the same message.` | The matcher keeps emoji, so emoji-only messages already matched as text. |
+| `Record moderation events to a channel of your choice.` / `Record moderation events to a private staff channel: role changes, joins, leaves.` | `Records what's happening on your server.` | Logging also records role changes and Looking for Game denials, and it never recorded joins or leaves. Four copies made three claims. |
+| `Steam sends developer posts in English, so leaving English out also drops patch notes and announcements.` | `Most developers write their Steam posts in English, so leaving English out usually drops patch notes and announcements.` | Checked against Western games only. Chinese studios write Chinese into the English slot: 11 of 20 posts for one game. |
+| `Caches, background-job records and logs are cleared automatically (at most 60 days, 30 days and briefly, respectively).` | `... (at most 60 days, 30 days and 7 days, respectively).` | "Briefly" sat beside two real numbers, and nothing enforced it. The policy binds the implementation. |
+| `... and it looks like its role is at the very bottom. Please move shrkbot's role up if you want it to be able to assign roles.` | `... and its role sits at the very bottom. Move it up in Server Settings so shrkbot can assign roles.` | The check is a definite position check, so "it looks like" hedged on a known fact. |
+| `Polling hit a bug in shrkbot:` | `Polling hit an unexpected error:` | Deadlocks and statement timeouts land in this report too. |
+| `Posts news from the platforms you follow, like Steam, in the channels you pick.` | `Posts updates from other platforms to your server.` | "Like Steam" dated the line once Twitch shipped. |
+| `Delete the post` when the stream switches category | `Delete until it switches back` | The post comes back when the category does. |
+
+### Failures and prerequisites
+
+| Weak | Better | Fault |
+| --- | --- | --- |
+| `requires the Logging plugin enabled with a log channel set` / `requires a staff role set on the Server Shield overview` | `%{plugin} needs Logging enabled, and a staff role set on the Server Shield overview.` | Fragments with no subject, shown alone in a callout. One refusal now names everything the protection needs. |
+| `A staff role is required while a sub-plugin is enabled.` / `can't be turned off or lose its channel while Server Shield is enabled` | `%{dependents} needs a staff role. Disable %{dependents} first.` / `%{dependents} needs Logging enabled, with a log channel. Disable %{dependents} first.` | Neither named the plugin that blocked the change, so the reader could not find the way out. |
+| `%{plugin} can't be enabled until its required settings are configured.`, shown for a missing channel | `%{plugin} needs a channel.` | A missing channel got the generic message. |
+| `Moderation needs the Logging plugin` + `... Enable Logging and pick a log channel, then come back.`, one requirement per page | `Set up a log channel so shrkbot has a place to post alerts.` / `Enable Logging so shrkbot has a place to post alerts.` / `Pick a staff role on the Server Shield overview.`, all at once | One requirement per page sent the reader through three pages in a fixed order. The first step has two variants because a reader who had picked a channel was told to set one up. |
+| `Complete setup before enabling this plugin.` | `Required settings missing` | An instruction with no object: the row cannot say which setup. The page marks the missing fields. |
+| `Could not delete the server configuration - it's a preview configuration.` | `Could not delete this server - it is a preview, not a real Discord guild.` | The cause repeated the noun instead of explaining it. |
+| Card `Don't see a server?` + `You need Manage Server permissions and shrkbot must be present. Invite it, then refresh.` | `Missing a server? You need the Manage Server permission there.` | A server without shrkbot already has its own invite card. A fallback does not need a card that competes with the servers. |
+| `Welcomes settings saved.` after saving a disabled plugin | `Saved. %{plugin} is still disabled.`, as a warning toast that stays | A green tick that disappears reads as "done". |
+
+### We, filler, and puffery
+
+| Weak | Better | Fault |
+| --- | --- | --- |
+| `We couldn't reach Discord to load your servers.` | `shrkbot couldn't reach Discord to load your servers.` | "We" is one developer. Six strings took one of three fixes: name shrkbot, use the passive, or delete the clause. |
+| `Show information about shrkbot - its code, stack, and how to add it to your server.` | `Show shrkbot's tech stack, where its code lives, and how you can add it to your server.` | "Show information about" is filler, and the command links to the repository instead of showing code. |
+| `Find out what it costs to run shrkbot and how you can support the project.` | `Show what it costs to run shrkbot and how to support it.` | "Find out" says what "Show" says in less. Donating is a soft sell, so it loses the second person. |
+| `shrkbot is designed to help you where Discord doesn't. It respects your members' privacy, and it gets out of your way when you don't need it. It is highly configurable and geared towards technical users ...` | `shrkbot is designed for people like you who want more power than Discord gives them, while respecting your members' privacy.` | Four sentences about shrkbot in the abstract. The new line names the reader and keeps the two promises. |
+| `... but only for your server. Click here to find out more.` | `... exclusively for your server.`, with the link on `bespoke plugins` | "Click here" names an action instead of the destination. "But only" read as a limitation. |
+| `More plugins are on the way.` | Deleted. | A promise with no date and nothing to act on. |
+| `Your server's aegis: automated moderation beyond Discord's AutoMod.` | `Automated moderation that goes further than Discord's AutoMod.` | Was kept on purpose for its personality. In a list the reader is scanning, "aegis" sent some of them to a dictionary. |
+| `Detects the same message blasted across multiple channels within seconds and purges it before it spreads. Matching is fingerprint-based - message content is never stored.` | `Detects messages spammed across multiple channels without storing message content.` | Two sentences of mechanism in a one-line slot. The privacy promise is what the reader gets, so it stayed. |
+| `Let members self-assign roles from a tidy menu you post in a channel.` | `Let members give themselves roles from a menu.` | "Tidy" is self-praise the reader discounts. |
+| `If you're enjoying the general usefulness of shrkbot but have an idea that needs custom work - or you plain don't want another bot in your ecosystem - I can build a bespoke plugin just for you. ... it lives right alongside the functionality you know and love.` | `Need something shrkbot doesn't do, or don't want another bot on your server? I can build it as a plugin that only your server gets. It sits in your dashboard next to the regular plugins, and no other server sees it.` | Was kept on purpose as the developer's own voice. The same offer without the stock phrases says where the plugin shows up instead of how it feels. |
+| `How it works` with three numbered cards (`Talk to me!` / `I build it` / `I ship and maintain it`) | `Tell me your idea and I'll tell you if it fits. If it does, I build it, switch it on for your server, and keep it running.` | Three cards held three steps of one sentence. |
+| `I offer shrkbot for free and for everyone, but I might charge a little fee for custom work that's only for you. ... and I'll do my best to keep prices affordable.` | `Small things, and anything every server would get, are usually free. For bigger custom work I charge a small fee. Running it afterwards is free, unless it needs a paid API.` | Leads with what is free and states the fee once. "I'll do my best" promised nothing. |
+| `Preview a server` / `You're looking at a preview server - nothing you change here is saved.` | `Preview features` / `You're looking at a preview - nothing you change here is saved.` | Nothing about the preview is server-specific. "A server" offered the reader something they already have. |
+| `Tokens` + `Anything in braces is replaced when the message is built. A token shrkbot doesn't know is left exactly as you typed it. Click a token to copy it.` | `Placeholders (click to copy)` | Two words for one thing, and a paragraph that restated what the chips and the preview show. The one action that is not obvious moved into the heading. |
+| `Your account and all associated data have been deleted.` | `shrkbot deleted your account and all data tied to it.` | "Associated" is filler for "tied to", and the flash names the actor. |
+
+### Discord
+
+| Weak | Better | Fault |
+| --- | --- | --- |
+| `Notify-only - no messages were deleted.` / `Flagged for review - no automatic action taken.` | `This is only an alert, no messages were deleted.` / `This is only an alert, the image was not deleted.` | The alert says what happened to the message, in the words of the `Only alert staff` setting. |
+| `The message was left in place - automatic removal is turned off.` | `The message was left in place - Scam Image Detection is set to "Only alert staff".` | Names the setting the reader can find on the site instead of describing it. |
+| `User was banned.` / `Cross-channel spam purged` | `The member was banned.` / `Cross-channel spam deleted` | The vocabulary holds on Discord too. |
+
+### Structure
+
+| Weak | Better | Fault |
+| --- | --- | --- |
+| `Where to post` / `What to post` | Deleted. | The headings named the layout, not a setting. |
+| Disclosure `Custom message`, renamed `Message and notification`, renamed `Settings` | No disclosure. Each post type is a card that opens with its toggle. | The label was renamed every time the disclosure gained a field, because it named a container. One word hid every setting of a type. |
+| `Alerts post to #mod-log through the Logging plugin.` | `Alerts go to #mod-log. You can change this in Logging.`, with `Logging` as the link | The line named the place to change the channel but did not lead there. |
+| `One that already exists` + `Game results posted on twilight-struggle.com get posted straight to Discord, ...`, with the plugin name linked | `An example` + `Posts game results from twilight-struggle.com to Discord, in the channel and format each server picks.`, with the site linked | The link goes to the site, so it sits on the site's name. |
 
 ## Kept on purpose
 
@@ -436,17 +640,14 @@ later.
 
 | Copy | Rule it breaks | Why it stays |
 | --- | --- | --- |
-| `...for you it lives right alongside the functionality you know and love.` | Stock phrase. | The bespoke-plugins page is written in the developer's own voice, first person throughout. It is the one page where personality outranks the rules. |
 | `♥` in the site footer | ASCII over glyphs. | One glyph, one place, load-bearing for the line it sits in. |
-| `Steam is part of Integrations. Turn Integrations on first.` / `%{parent} is off` / `Go to %{parent}` / `%{plugin} is part of %{parent}. Turn %{parent} on to configure this page.` / `Enable Integrations to post news from the sources you follow.` / `Enable the group to configure its sub-plugins and shared settings.` | Deleted. | A group has no switch any more, so there is nothing to turn on first. |
-| `Moderation needs the Logging plugin` / `Every alert, staff ping and one-click review lands in your log channel. Enable Logging and pick a log channel, then come back.` / `Enable the Logging plugin first - alerts are delivered through your log channel.` | Deleted. The protection page lists `Set up a log channel so shrkbot has a place to post alerts.` and `Pick a staff role on the Server Shield overview.` together, each with its own link. | One gate per page sent the reader through three pages in a fixed order. Every missing step now shows at once, and each links to where it is fixed. |
-| `Server Shield needs the Logging plugin on, with a log channel set.` / `%{plugin} needs a staff role. Set one on the Server Shield overview.` | `%{plugin} needs Logging enabled, and a staff role set on the Server Shield overview.` | Logging moved from the group to each protection, so one refusal names everything the protection needs. |
-| `Pick a staff role first.` (overview row tooltip, inline warning) / `Every Moderation sub-plugin needs the shared staff role ...` callout | The row tooltip reads the dashboard's needs-setup hint; the warning and callout are deleted. | The staff role is no longer the only thing a protection can miss. The badge and the page's step list say what is missing. |
-| `Sub-plugins` (group page list heading) | `Protections` (Server Shield); deleted on the Integrations page | "Sub-plugin" is the code's word. The heading names what the list holds, and a list of two platforms under their own page title needs none. |
+| `Moderation`, the event group on the Logging page | Server Shield, never Moderation. | It means Discord's own mod actions (bans, kicks, timeouts), not the plugin group. |
 
 ## Standing rule
 
 Copy changes land in this file in the same chunk that makes them. A rewritten
-string adds a row to "Weak to better"; a new rule that came out of the rewrite
-adds itself to the right section. Reviewing copy and then losing the reasoning is
-how the same correction gets made twice.
+string adds a row under the rule it broke, and a row that fits no heading means
+a rule is missing: add it to the right section. When a "Better" string is
+rewritten again, update its row instead of adding a second one, so every
+"Better" cell stays true. Reviewing copy and then losing the reasoning is how
+the same correction gets made twice.
