@@ -39,9 +39,12 @@ RSpec.describe Components::Moderation::OverviewForm do
     expect(html).not_to include("Something went wrong enabling.")
   end
 
-  it "renders the matching explainer with dropdown-menu class and menu target" do
-    expect(html).to include("dropdown-menu")
-    expect(html).to include('data-dropdown-target="menu"')
+  context "with the matching explainer" do
+    let(:explainer) { Nokogiri::HTML.fragment(html).at_css("#matching details[data-controller='disclosure']") }
+
+    it "is a disclosure that its summary toggles" do
+      expect(explainer.at_xpath("./summary")["data-action"]).to eq("click->disclosure#toggle")
+    end
   end
 
   context "with an enable_error" do

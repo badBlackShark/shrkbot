@@ -46,8 +46,8 @@ RSpec.describe Components::SidebarGroup do
     expect(html).to include("Server Shield")
   end
 
-  it "renders a chevron that rotates when the group is open" do
-    expect(html).to include("group-open/details:rotate-90")
+  it "renders a chevron that turns back as soon as the group starts to close" do
+    expect(html).to include("group-[[open]:not([data-closing])]/details:rotate-90")
   end
 
   it "wires the disclosure controller with the storage key" do

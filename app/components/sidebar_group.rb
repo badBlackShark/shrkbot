@@ -55,7 +55,7 @@ class Components::SidebarGroup < Components::Base
 
   def chevron
     span(class: "text-text-muted") do
-      render Components::Icon.new("caret-right", class: "size-3.5 transition-transform group-open/details:rotate-90")
+      render Components::Icon.new("caret-right", class: "size-3.5 transition-transform group-[[open]:not([data-closing])]/details:rotate-90")
     end
   end
 

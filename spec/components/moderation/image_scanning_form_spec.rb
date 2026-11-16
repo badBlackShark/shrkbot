@@ -98,9 +98,12 @@ RSpec.describe Components::Moderation::ImageScanningForm do
     expect(html).to include("Nothing is stored.")
   end
 
-  it "renders the explainer with dropdown-menu class and menu target" do
-    expect(html).to include("dropdown-menu")
-    expect(html).to include('data-dropdown-target="menu"')
+  context "with the explainer" do
+    let(:explainer) { Nokogiri::HTML.fragment(html).at_css("details[data-controller='disclosure']") }
+
+    it "is a disclosure that its summary toggles" do
+      expect(explainer.at_xpath("./summary")["data-action"]).to eq("click->disclosure#toggle")
+    end
   end
 
   it "renders the report-as-scam callout" do

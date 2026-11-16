@@ -66,7 +66,35 @@ and fades/slides back out on close — the controller intercepts the close
 finishes before the panel is removed, then sets `open = false`. The trigger's
 `.dropdown-chevron` points down when closed, rotates up when open, and rotates
 back down the moment a close starts (keyed off the panel's `.is-closing` via
-`:has`, so it turns with the fade-out rather than after it).
+`:has`, so it turns with the fade-out rather than after it). The `dropdown`
+controller is for menus that float above the page and nothing else. A menu
+that renders already open (a Turbo Frame reloads the notification bell in place)
+must not replay its entrance, which reads as a flicker: the controller adds
+`.no-enter` on connect, and the next close clears it.
+
+A section that opens inside the page is a native `<details>` with the
+`disclosure` controller (`click->disclosure#toggle` on the `<summary>`). It is
+the one home for that concept: logging groups, role set and pingable role
+cards, the Server Shield explainers, the remembered cards, sidebar groups and
+feed type cards all use it. `lib/reveal.js` animates the height of the
+`<details>` itself between the summary height and the full height, so the
+content stays put and padding needs no wrapper. One Web Animations API
+animation plays forward to open and backward at 1.5x to close; a click while it
+runs only flips the playback rate, which is what turns a moving section around.
+The `<details>` carries `data-closing` while it closes, and the chevron CSS keys
+off it. Options: `data-disclosure-key-value` remembers the state in
+`localStorage` (restored on connect with no animation), and
+`change->disclosure#follow` on a checkbox makes the section follow it. A click
+on a link, button, input or label inside the summary does not toggle, the same
+as the platform. Durations come from the CSS tokens through `lib/motion.js`,
+which reads both `180ms` and the `.18s` the minifier rewrites it to.
+
+A new summary holds no control: a screen reader reads a `<summary>` as one
+button and can lose what is nested in it. A control that belongs in the header
+sits beside the `<details>`, and the controller moves to their shared wrapper
+with the `<details>` as its `details` target (the feed type card and its
+toggle). On `turbo:before-cache` the controller settles a reveal in flight, so
+a cached page never comes back half closed.
 
 The top bar also gains a **server switcher** when a page is scoped to one server
 (the dashboard passes `current_server:` + `servers:` to `AppShell`): a `dropdown`
@@ -150,9 +178,7 @@ list automatically once they have config routes; Reminders has no activation to 
 dashboard and the sidebar render.
 With a plugin sidebar the footer renders inside the scrolling main pane, so a
 page never scrolls by just the footer height — that would rob the sticky sidebar
-of headroom and make it slide out of view. `<details>` disclosures only animate
-when their panel carries the `dropdown-menu` class and
-`data-dropdown-target="menu"` (see the dropdown Stimulus controller).
+of headroom and make it slide out of view.
 
 `Components::SaveBar` is the commit affordance: a fixed bottom bar, hidden until
 the form differs from its initial state. The `save-bar` Stimulus controller (on
@@ -280,9 +306,9 @@ duplicated class strings:
   `SettingRow` header with a chevron and the toggle at the card edge. Turning it on opens the card and turning it off folds
   it; a click anywhere on the header
   row, apart from the toggle, opens and folds it in either state, so the settings of a type that is off can be read.
-  The chevron is the button a keyboard reaches. The
-  accent border follows the checkbox through CSS (`has-[[data-type-toggle]:checked]`); the `type-card`
-  controller owns only open and closed, remembered in
+  The card is a `<details>`, so the header is its `<summary>` and a keyboard reaches it. The
+  accent border follows the checkbox through CSS (`has-[[data-type-toggle]:checked]`); the `disclosure`
+  controller owns open and closed (`change->disclosure#follow` on the toggle), remembered in
   `localStorage`. Never put settings behind a loose "Settings" disclosure.
 - **`Components::SettingRow`** — one labelled setting: `label:` + optional
   `help:` on the left, the control yielded as a block on the right. `align: :title`

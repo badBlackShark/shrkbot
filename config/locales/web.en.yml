@@ -100,8 +100,6 @@ en:
         channel_placeholder: Choose a channel
         role_label: Role to ping
         role_placeholder: No ping
-      event_type_setting:
-        settings_label: "%{type} settings"
       event_types:
         announcement_published:
           help: The developer's other posts on Steam.
