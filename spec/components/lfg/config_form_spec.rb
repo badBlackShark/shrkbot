@@ -24,7 +24,7 @@ RSpec.describe Components::Lfg::ConfigForm do
   end
 
   it "renders the setup guide recommendations" do
-    expect(html).to include("Make your LFG roles non-mentionable")
+    expect(html).to include("Make your Looking for Game roles non-mentionable")
     expect(html).to include("Restrict who can run /lfg")
   end
 

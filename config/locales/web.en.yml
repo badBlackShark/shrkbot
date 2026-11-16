@@ -144,7 +144,7 @@ en:
           category: The game or category.
           clipper: Who made the clip.
           streamer: The channel's name on Twitch.
-          title: The title of the stream, video or clip.
+          title: The title of the stream, video, or clip.
       steam:
         language_card:
           help: Posts whose language can't be detected, like very short ones, are
@@ -507,11 +507,11 @@ en:
           placeholder: Choose roles
         role:
           label: Role to ping
-          placeholder: Choose a role
+          placeholder: Pick a role…
         summary:
           one: "%{count} extra restriction"
           other: "%{count} extra restrictions"
-        unpicked: Choose a role
+        unpicked: Pick a role…
       pingable_roles_card:
         add: Add role
         label: Roles members can ping with /lfg
@@ -519,7 +519,7 @@ en:
         non_mentionable:
           body: Turn off "Allow anyone to @mention this role" for the roles you set
             up here, as shrkbot automatically pings them.
-          title: Make your LFG roles non-mentionable
+          title: Make your Looking for Game roles non-mentionable
         title: Recommended setup
         visibility:
           body: In Server Settings -> Integrations -> shrkbot, limit the /lfg command
@@ -602,7 +602,7 @@ en:
         row_lookalike: Stylized and lookalike characters are folded to their plain
           form (ⓕⓡⓔⓔ, ｆｒｅｅ -> free), so disguises don't help.
         row_normalize: 'Before comparing any text, shrkbot normalizes it: case, punctuation,
-          extra spacing and invisible characters are ignored - FREE N-I-T-R-O!! and
+          extra spacing, and invisible characters are ignored - FREE N-I-T-R-O!! and
           free nitro are the same text.'
         row_spam: Spam protection also ignores digits - message 1, message 2, message
           3 count as the same message.

@@ -92,7 +92,7 @@ makes the reader look for a difference.
 | `Protections` | sub-plugins, group | The code's words for a plugin inside a group and for the group. Neither is ever shown. |
 | `delete` | purge | `Delete the messages`, `Cross-channel spam deleted` |
 | `Only alert staff` | Notify only, Flag only, dry run | One spelling on both protection pages. |
-| `Looking for Game` in prose, `/lfg` for the command | LFG, an LFG | |
+| `Looking for Game` in prose, `/lfg` for the command | LFG, an LFG | `Make your Looking for Game roles non-mentionable` |
 | `member` | user | `The member was banned.` |
 | `placeholder` | token | `Placeholders (click to copy)` |
 | `restrictions` | gates | "Gate" is the code's name for the check, and stays in the code and in `docs/`. |
@@ -101,8 +101,8 @@ makes the reader look for a difference.
 | `parent tournament` | the tournament above | |
 
 The same holds for verbs. The Roles tooltip says `Repost` because the toast
-already said `Reposting the role menu…`, and both sign-in buttons on the home
-page say `Sign in with Discord`.
+already said `Reposting the role menu…`, both sign-in buttons on the home page
+say `Sign in with Discord`, and every role picker prompts `Pick a role…`.
 
 ## Rules for every surface
 
@@ -528,6 +528,7 @@ reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
 | `Example plugins` | `Plugins` | The grid shows every public plugin, so it is not a sample. |
 | `Feeds` / `Steam News` | `Integrations` / `Steam` | The group holds more than feeds, and a provider is named for its platform. |
 | Bare number on the account page | `Discord ID: %{id}` | An unlabelled 18-digit number. |
+| `Choose a role` on the Looking for Game role cards | `Pick a role…` | The staff role picker already said `Pick a role…`. Two verbs for one prompt. |
 
 ### Help text
 
@@ -623,6 +624,12 @@ reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
 | `Notify-only - no messages were deleted.` / `Flagged for review - no automatic action taken.` | `This is only an alert, no messages were deleted.` / `This is only an alert, the image was not deleted.` | The alert says what happened to the message, in the words of the `Only alert staff` setting. |
 | `The message was left in place - automatic removal is turned off.` | `The message was left in place - Scam Image Detection is set to "Only alert staff".` | Names the setting the reader can find on the site instead of describing it. |
 | `User was banned.` / `Cross-channel spam purged` | `The member was banned.` / `Cross-channel spam deleted` | The vocabulary holds on Discord too. |
+
+### Punctuation
+
+| Weak | Better | Fault |
+| --- | --- | --- |
+| `The title of the stream, video or clip.` / `... case, punctuation, extra spacing and invisible characters are ignored ...` / `(try 30m, 2h or 1d, up to 30 days)` | `The title of the stream, video, or clip.` / `... case, punctuation, extra spacing, and invisible characters are ignored ...` / `(try 30m, 2h, or 1d, up to 30 days)` | Three items, no serial comma. |
 
 ### Structure
 
