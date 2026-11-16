@@ -211,10 +211,11 @@ Sorry - you were automatically moderated in %{server} by mistake, and a staff me
 **The joiner is ` - `.** Never an em dash, anywhere, on any surface.
 
 **ASCII over glyphs.** `->` for a UI path or a transformation, `:)` over an
-emoji.
+emoji. The ellipsis `…` is allowed: it marks a prompt or work in progress.
 
 ```
 In Server Settings -> Integrations -> shrkbot, limit the /lfg command to the channels and roles that should use it.
+Reposting the role menu…
 ```
 
 **Serial comma.** Lists of three or more take it: `patch notes, announcements,
