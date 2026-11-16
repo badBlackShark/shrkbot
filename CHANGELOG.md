@@ -5,6 +5,54 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.14.0] - 2026-11-16
+
+### Added
+- Servers can follow Twitch channels. Twitch is a Beta plugin in the Integrations group. Add a channel by its name, `@name`, or `twitch.tv` link, then pick the post types to follow: Live, Highlights, Uploads, Featured clips, and Clips. A server can follow up to 25 Twitch channels. ([#335](https://github.com/badBlackShark/shrkbot/pull/335), [#344](https://github.com/badBlackShark/shrkbot/pull/344), [#353](https://github.com/badBlackShark/shrkbot/pull/353), [#358](https://github.com/badBlackShark/shrkbot/pull/358))
+- When a followed channel goes live, shrkbot posts a Live card with the title, the category, the profile picture, and a "Watch on Twitch" button. The card shows the stream preview, or the category's box art while Twitch has no preview yet. Twitch reports a go-live to shrkbot within seconds, and a check every 10 minutes catches any it missed. ([#339](https://github.com/badBlackShark/shrkbot/pull/339), [#340](https://github.com/badBlackShark/shrkbot/pull/340), [#346](https://github.com/badBlackShark/shrkbot/pull/346))
+- The Live card updates while the stream runs. A title or category change edits it within seconds. Every 10 minutes the card gets a new preview frame and the viewer count, which can be turned off per follow. ([#347](https://github.com/badBlackShark/shrkbot/pull/347))
+- When the stream ends, the Live card becomes "Summary with VOD link" (the default), "Summary", "Leave as is", or "Delete the post". The summary says how long the stream ran in its category. If the title changed, it lists each title with its duration instead, up to 15 lines. ([#348](https://github.com/badBlackShark/shrkbot/pull/348))
+- Highlights, uploads, featured clips, and clips are checked every 10 minutes. Only featured clips from the last 48 hours are posted. A clip that is both new and featured posts once, as a featured clip. ([#353](https://github.com/badBlackShark/shrkbot/pull/353))
+- A Twitch follow can be limited to up to 100 categories. The filter applies to Live and Clips, because highlights and uploads have no category. A stream that switches into a chosen category posts and pings at the switch. When it switches out, the card shows the switch, or is deleted until the stream switches back. ([#354](https://github.com/badBlackShark/shrkbot/pull/354), [#355](https://github.com/badBlackShark/shrkbot/pull/355), [#359](https://github.com/badBlackShark/shrkbot/pull/359))
+- A Twitch follow pings one role, and each post type can override it with another role or "No ping". ([#353](https://github.com/badBlackShark/shrkbot/pull/353), [#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- Each post type of a Steam game or a Twitch channel can post to its own channel. Without one, it posts to the follow's channel. The list of followed channels shows a post type's own channel when it differs, as in `All clips · #clips · @Clips`. ([#363](https://github.com/badBlackShark/shrkbot/pull/363))
+- Each post type has its own push notification text, separate from the message above the card. Existing custom messages were copied into it, so existing push notifications read the same. ([#357](https://github.com/badBlackShark/shrkbot/pull/357))
+- Plugins show a New badge for 30 days after they ship, and a Beta badge while they are in testing. Twitch carries both. The Beta badge's tooltip says how to report bugs to the bot owner. ([#341](https://github.com/badBlackShark/shrkbot/pull/341))
+- The bot owner gets a DM when Twitch rejects shrkbot's app credentials, when Twitch rate-limits shrkbot, and when the live check has failed for 24 hours. ([#340](https://github.com/badBlackShark/shrkbot/pull/340), [#345](https://github.com/badBlackShark/shrkbot/pull/345), [#350](https://github.com/badBlackShark/shrkbot/pull/350))
+- The home page shows a grid of the 8 public plugins, each linking to its preview. It replaces the scrolling list. ([#393](https://github.com/badBlackShark/shrkbot/pull/393))
+
+### Changed
+- Server Shield and Integrations are groups now, without a switch of their own. Each protection or service turns on from its own page, which lists every missing setting with a link. The dashboard shows how many plugins of each group are enabled. The update turns off each protection or service whose group was off. ([#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- A disabled plugin's settings stay editable. A save while the plugin is off shows a warning that it is still disabled. The settings it still needs are listed above the form, each with a link. ([#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- Warnings on the settings pages appear as soon as the form changes, before saving. This covers a public log channel, a staff role without Manage Messages, and a Steam language list without English. ([#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- Each post type on the Steam and Twitch follow forms is one card with its channel, message, and push notification text. A click on the card's header opens or folds it. Steam's `{title}` placeholder now fills in the message above the card too. ([#360](https://github.com/badBlackShark/shrkbot/pull/360), [#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- New follows start with every post type off, and a follow needs at least one post type to save. ([#360](https://github.com/badBlackShark/shrkbot/pull/360))
+- Number fields show a reset button while the value differs from the default. The Looking for Game cooldown and post lifetime, and the Twilight Struggle posting delay, take a unit and accept decimals above the smallest unit. ([#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- An empty Twilight Struggle template posts nothing for that kind of result. Before, an empty box used the parent tournament's template. The box starts with the inherited text, and its reset button inherits again. ([#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- The Twilight Struggle page leads with the tournament's name. The tournament switcher shows only on a server with more than one tournament. ([#394](https://github.com/badBlackShark/shrkbot/pull/394))
+- New servers get join and leave messages as text that can be edited, in place of empty boxes. Existing servers keep their messages. ([#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- The website copy is shorter on every settings page. Discord alerts say "The member was banned." in place of "User was banned.", and an alert-only action says that nothing was deleted. ([#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- The cookie notice, the Enabled and Disabled badges on the dashboard, and the sidebar's back button are removed. The breadcrumb leads back to the dashboard. ([#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- Small text and text on coloured buttons reach a contrast ratio of at least 4.5:1 in both themes. ([#379](https://github.com/badBlackShark/shrkbot/pull/379))
+- The privacy policy covers Twitch: clip creator names, the text a server writes for a followed channel, and 14-day retention of received events. Twitch sees your IP address when a page shows a channel's profile picture. The policy also says that shrkbot sets one cookie, the session cookie. ([#358](https://github.com/badBlackShark/shrkbot/pull/358), [#366](https://github.com/badBlackShark/shrkbot/pull/366), [#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- Self-hosted instances need `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET` for Twitch. Without them, the Twitch plugin does nothing. Live updates within seconds also need `TWITCH_EVENTSUB_SECRET` and an `https` `WEB_BASE_URL`. Without those, live status comes from the 10-minute check. ([#336](https://github.com/badBlackShark/shrkbot/pull/336), [#340](https://github.com/badBlackShark/shrkbot/pull/340))
+
+### Fixed
+- Scam Image Detection scans every image in a message. It checked only the first 4 images of each kind, so 4 harmless images could hide a scam image. Forwarded messages are scanned now, and "Report as scam" and "Toggle global scam block" find their images. ([#395](https://github.com/badBlackShark/shrkbot/pull/395))
+- A message with several flagged images is removed, and its author punished, once. Only its first log entry pings staff, unless a later image gets removed. A member who posts many images delays only their own scans. ([#395](https://github.com/badBlackShark/shrkbot/pull/395))
+- Logging can no longer be turned off while Server Shield needs it. A save is refused only when it breaks an enabled plugin, so a plugin that already lacked a setting no longer blocks other saves. ([#393](https://github.com/badBlackShark/shrkbot/pull/393))
+- A Twilight Struggle result or a short reminder could be lost when its job ran before its data was saved. ([#371](https://github.com/badBlackShark/shrkbot/pull/371))
+- A Steam post that moves to another post type now reaches servers that follow only that type. ([#351](https://github.com/badBlackShark/shrkbot/pull/351))
+- The server list no longer shows an error page when the connection to Discord resets. ([#341](https://github.com/badBlackShark/shrkbot/pull/341))
+- Rails 8.1.4.1 fixes 21 security advisories, and Puma 8.1.1 fixes 7. Puma 8.1 answers 400 to an HTTP/1.1 request without a `Host` header, and rejects paths with an unescaped `{`, `}`, `` ` ``, or `# Changelog
+
+All notable user-facing changes to shrkbot are documented here. Internal
+refactors, tooling, and CI changes are omitted; see the git history for those.
+
+This project follows [Semantic Versioning](https://semver.org).
+
+. ([#349](https://github.com/badBlackShark/shrkbot/pull/349), [#396](https://github.com/badBlackShark/shrkbot/pull/396))
+
 ## [3.13.0] - 2026-10-28
 
 ### Added

@@ -139,7 +139,7 @@ RSpec.describe Components::PluginSidebar do
       described_class.new(server_configuration: config, active_key: :steam, access:).render_in(view_context)
     end
 
-    let(:groups) { Nokogiri::HTML.fragment(html).css("details").to_h { |group| [group.at_css("summary").text.strip, group] } }
+    let(:groups) { Nokogiri::HTML.fragment(html).css("details").to_h { |group| [group.at_css("summary").xpath(".//text()[not(ancestor::*[contains(@class, \"sr-only\")])]").text.strip, group] } }
 
     it "opens the Integrations group and leaves Server Shield closed" do
       expect(groups.fetch("Integrations").key?("open")).to be(true)

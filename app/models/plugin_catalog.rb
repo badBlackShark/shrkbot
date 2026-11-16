@@ -63,7 +63,7 @@ class PluginCatalog
     Definition.new(key: :image_scanning, name: "Scam Image Detection", description: "Reads the text inside posted images and checks it against known scam patterns and previously confirmed scam images.", requires_plugin: :logging, parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
     Definition.new(key: :lfg, name: "Looking for Game", description: "Let members find people to play with, on the fly or scheduled."),
     Definition.new(key: :steam, name: "Steam", description: "Posts new patch notes, announcements, and press coverage of the Steam games you follow.", parent: :integrations),
-    Definition.new(key: :twitch, name: "Twitch", description: "Announces when the Twitch channels you follow go live, and posts their highlights, uploads, and clips.", parent: :integrations, beta: true),
+    Definition.new(key: :twitch, name: "Twitch", description: "Announces when the Twitch channels you follow go live, and posts their highlights, uploads, and clips.", parent: :integrations, beta: true, added_on: Date.new(2026, 11, 16)),
     Definition.new(key: :twilight_struggle, name: "Twilight Struggle", description: "Post results from twilight-struggle.com as they are reported.", bespoke: true)
   ].freeze
 
