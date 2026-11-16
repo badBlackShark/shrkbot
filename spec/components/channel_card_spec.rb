@@ -72,20 +72,4 @@ RSpec.describe Components::ChannelCard do
       expect(html).to include("trailing content")
     end
   end
-
-  context "with extra attrs" do
-    subject(:html) do
-      described_class.new(
-        name: "welcomes[channel_id]",
-        channels:,
-        selected:,
-        label: "Channel",
-        data: {controller: "my-controller"}
-      ).render_in(view_context)
-    end
-
-    it "forwards extra attrs to the card element" do
-      expect(html).to include('data-controller="my-controller"')
-    end
-  end
 end

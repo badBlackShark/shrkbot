@@ -1,17 +1,16 @@
 # frozen_string_literal: true
 
 class Components::ChannelCard < Components::Base
-  def initialize(name:, channels:, selected:, label:, required: false, **attrs)
+  def initialize(name:, channels:, selected:, label:, required: false)
     @name = name
     @channels = channels
     @selected = selected
     @label = label
     @required = required
-    @attrs = attrs
   end
 
   def view_template(&block)
-    render Components::Card.new(**@attrs) do
+    render Components::Card.new do
       render Components::FieldLabel.new do
         plain @label
         render Components::RequiredMarker.new if @required
