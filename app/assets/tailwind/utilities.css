@@ -130,10 +130,6 @@ ol.discord-list {
   from { opacity: 1; transform: translateY(0); }
   to   { opacity: 0; transform: translateY(-6px); }
 }
-@keyframes slideUp {
-  from { opacity: 0; transform: translate(-50%, 8px); }
-  to   { opacity: 1; transform: translate(-50%, 0); }
-}
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -150,8 +146,6 @@ ol.discord-list {
   border-color: var(--accent-soft-bd);
 }
 
-.anim-menu { animation: menuEnter var(--dur-base) var(--ease-standard); }
-.anim-toast { animation: slideUp var(--dur-base) var(--ease-standard) forwards; }
 .anim-fade { animation: fadeIn var(--dur-slow); }
 
 details[open] > .dropdown-menu {
@@ -169,7 +163,7 @@ details[open] > .dropdown-menu.no-enter:not(.is-closing) {
 }
 
 .dropdown-chevron {
-  transition: transform var(--dur-base) var(--ease-standard);
+  transition: transform var(--dur-fast) var(--ease-standard);
 }
 details[open] .dropdown-chevron { transform: rotate(180deg); }
 details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0deg); }
@@ -193,15 +187,12 @@ details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0de
 [data-theme="dark"] .theme-morph .theme-moon { opacity: 0; transform: rotate(90deg) scale(0.4); }
 
 @media (prefers-reduced-motion: reduce) {
-  .card-lift { transition: none; }
-  .anim-menu,
-  .anim-toast,
-  .anim-fade { animation: none; }
-  details[open] > .dropdown-menu,
-  details[open] > .dropdown-menu.is-closing { animation: none; }
-  .dropdown-chevron { transition: none; }
-  .theme-switching,
-  .theme-switching *,
-  .theme-morph > * { transition: none; }
-  .discord-spoiler { transition: none; }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -4,7 +4,7 @@ class Components::Toggle < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
   COMMON = "flex-none rounded-full bg-border-strong transition-colors after:absolute after:start-0.5 after:top-0.5 " \
-    "after:rounded-full after:bg-white after:shadow motion-safe:after:transition-transform peer-checked:bg-accent-fill " \
+    "after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:bg-accent-fill " \
     "peer-focus-visible:ring-3 peer-focus-visible:ring-[var(--focus-ring)]"
 
   SIZES = {

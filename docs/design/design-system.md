@@ -66,8 +66,7 @@ and fades/slides back out on close — the controller intercepts the close
 finishes before the panel is removed, then sets `open = false`. The trigger's
 `.dropdown-chevron` points down when closed, rotates up when open, and rotates
 back down the moment a close starts (keyed off the panel's `.is-closing` via
-`:has`, so it turns with the fade-out rather than after it). Reduced motion drops
-both directions.
+`:has`, so it turns with the fade-out rather than after it).
 
 The top bar also gains a **server switcher** when a page is scoped to one server
 (the dashboard passes `current_server:` + `servers:` to `AppShell`): a `dropdown`
@@ -402,20 +401,54 @@ cell (`.theme-morph`) and rotate/scale/fade past each other, so the icon morphs
 between states. And surface colours ease rather than snap: the controller adds
 `.theme-switching` to `<html>` for the duration, which turns on a
 `background-color`/`border-color`/`color` transition — scoped to exclude the
-morphing icons, so it doesn't replace their transform/opacity transition. Both
-are skipped under reduced motion.
+morphing icons, so it doesn't replace their transform/opacity transition.
 
 ## Motion
 
-CSS-only patterns in `app/assets/tailwind/utilities.css`: `card-lift`, the
-`anim-menu` / `anim-toast` / `anim-fade` classes, the dropdown/chevron and
-theme-morph choreography, and the chamfer geometry helpers (`chamfer-tile`,
-`chamfer-tile-sm`, `chamfer-cta`, `chamfer-bar` — for brand-forward surfaces
-only). Durations 120/180/260ms; `--ease-standard cubic-bezier(.2,0,0,1)` for
-entering, `--ease-exit cubic-bezier(.4,0,1,1)` for leaving. A
-`prefers-reduced-motion: reduce` block neutralises them — keep it. Buttons
+Motion explains a change. It has four jobs, and each job has one treatment:
+
+| Job | Where | What moves | In | Out |
+| --- | --- | --- | --- | --- |
+| Feedback | hover, switches, chevrons, tooltips, copy buttons | colour, or a small turn or slide | 120ms | 120ms |
+| Reveal in place | every section that opens inside the page | height | 180ms | 120ms |
+| Overlay | menus, toasts, dialogs | opacity and at most 8px of travel | 180ms | 120ms |
+| Signature | save bar, theme switch | spring, ink across the page | 420-580ms | 300ms |
+
+Rules:
+
+- A change in layout animates the layout. A fade never stands in for it.
+- Leaving is faster than arriving.
+- The more often something fires, the smaller it is. Only the two signature
+  moments may use a spring or cover the page.
+- A page does not animate in, and Turbo navigation stays instant. The one thing
+  that moves after a load is a toast that reports the action that caused it.
+- Form fields that appear because of a choice (`hidden` toggles: timeout
+  length, mode panels, warnings, reset buttons) stay instant.
+- No animation library. CSS transitions and keyframes plus the Web Animations
+  API cover every case.
+
+Tokens live in `tokens.css`: `--dur-fast` 120ms, `--dur-base` 180ms, `--dur-slow`
+260ms, `--ease-standard` for arriving, `--ease-exit` for leaving, `--ease-spring`
+for the save bar. `theme.css` points Tailwind's default transition duration and
+easing at `--dur-fast` and `--ease-standard`, so a bare `transition-colors` or
+`transition-transform` is already on the system; do not add `duration-*` or
+`ease-*` to one. The signature moments keep literal durations beside their
+keyframes: they sit off the scale on purpose, and each value has one user.
+
+Reduced motion is one global rule at the end of `utilities.css` that collapses
+every CSS animation and transition to 0.01ms and turns smooth scrolling off.
+`animationend` still fires, so controllers that wait for it need no branch of
+their own, and components need no `motion-safe:` variant. Only motion driven
+from JavaScript checks `prefers-reduced-motion` itself. One exception, in
+`save_bar.css`: the ring on a blocked navigation keeps its fade. It is a colour
+change, and without it a refused click shows nothing.
+
+The CSS patterns are in `utilities.css` (`card-lift`, `anim-fade`, the
+dropdown/chevron and theme-morph choreography) and `save_bar.css`. The chamfer
+geometry helpers (`chamfer-tile`, `chamfer-tile-sm`, `chamfer-cta`,
+`chamfer-bar`) sit beside them and are for brand-forward surfaces only. Buttons
 darken on hover (`hover:bg-accent-fill-hover` for primary, a sand wash for the
-rest) rather than the old fill-wipe, which has been removed.
+rest).
 
 ## Confirmations
 

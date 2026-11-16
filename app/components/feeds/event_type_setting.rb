@@ -71,7 +71,7 @@ class Components::Feeds::EventTypeSetting < Components::Base
       aria_controls: body_id,
       data: {type_card_target: "chevron"}
     ) do
-      render Components::Icon.new("caret-down", class: "size-4 motion-safe:transition-transform group-aria-expanded/chevron:rotate-180")
+      render Components::Icon.new("caret-down", class: "size-4 transition-transform group-aria-expanded/chevron:rotate-180")
     end
   end
 

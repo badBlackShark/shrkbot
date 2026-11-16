@@ -13,7 +13,7 @@ class Components::Tooltip < Components::Base
 
   BUBBLE = "pointer-events-none absolute z-20 w-max rounded-md " \
     "border border-border-default bg-surface-card px-3 py-2 text-xs font-medium leading-snug text-text-secondary shadow-lg " \
-    "invisible opacity-0 transition-opacity motion-safe:duration-[120ms] " \
+    "invisible opacity-0 transition-opacity " \
     "group-hover:visible group-hover:opacity-100 " \
     "group-has-[:focus-visible]:visible group-has-[:focus-visible]:opacity-100"
 

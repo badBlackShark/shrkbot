@@ -74,8 +74,6 @@ export default class extends Controller {
 
   reveal() {
     this.barTarget.classList.remove("hidden", "save-bar-out")
-    if (this.reduceMotion) return
-
     this.barTarget.classList.add("save-bar-anim")
     this.barTarget.addEventListener(
       "animationend",
@@ -86,16 +84,13 @@ export default class extends Controller {
 
   hide() {
     if (this.barTarget.classList.contains("hidden")) return
-    if (this.reduceMotion) {
-      this.barTarget.classList.add("hidden")
-      return
-    }
-
     this.barTarget.classList.remove("save-bar-anim")
     this.barTarget.classList.add("save-bar-out")
     this.barTarget.addEventListener(
       "animationend",
       () => {
+        if (this.dirty) return
+
         this.barTarget.classList.add("hidden")
         this.barTarget.classList.remove("save-bar-out")
       },
@@ -104,8 +99,6 @@ export default class extends Controller {
   }
 
   shake() {
-    if (this.reduceMotion) return
-
     const bar = this.barTarget
     if (this.ringEnd) bar.removeEventListener("animationend", this.ringEnd)
     bar.classList.remove("save-bar-blocked")
@@ -122,9 +115,5 @@ export default class extends Controller {
 
   snapshot() {
     return new URLSearchParams(new FormData(this.element)).toString()
-  }
-
-  get reduceMotion() {
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches
   }
 }
