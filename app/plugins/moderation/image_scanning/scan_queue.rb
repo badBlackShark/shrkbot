@@ -13,7 +13,7 @@ module Moderation
         instance.enqueue(job)
       end
 
-      def initialize(size: 10, workers: 2)
+      def initialize(size: 100, workers: 2)
         @queue = SizedQueue.new(size)
         @workers = workers
         @mutex = Mutex.new

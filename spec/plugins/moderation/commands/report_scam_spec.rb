@@ -15,7 +15,7 @@ RSpec.describe Moderation::ReportScam do
   let(:content) { nil }
   let(:embeds) { [] }
   let(:message_author) { double("author", id: author_id, mention: "<@#{author_id}>", username: "offender") }
-  let(:target) { double("message", attachments:, content:, embeds:, author: message_author, delete: nil) }
+  let(:target) { double("message", attachments:, content:, embeds:, snapshots: [], author: message_author, delete: nil) }
   let(:server) { double("server", id: guild_id) }
   let(:user) { double("user", id: 555, mention: "<@555>", username: "reporter") }
   let(:channel) { double("channel", id: channel_id) }

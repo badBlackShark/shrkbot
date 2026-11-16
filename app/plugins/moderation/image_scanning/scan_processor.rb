@@ -23,6 +23,7 @@ module Moderation
           new_account_age_days: context.new_account_age_days
         )
         VerdictExecutor.call(verdict:, context:, phash: hex, hash_state: state, image_bytes: bytes)
+        verdict.action
       rescue Ocr::Error => e
         Rails.logger.warn("[Moderation::ImageScanning::ScanProcessor] scan failed: #{e.class}: #{e.message}")
       end

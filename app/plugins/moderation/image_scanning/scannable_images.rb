@@ -3,12 +3,14 @@
 module Moderation
   module ImageScanning
     class ScannableImages
-      MAX = 4
-
       def self.all(message)
         return [] unless message
 
-        new(message).all
+        (new(message).all + forwarded(message)).uniq
+      end
+
+      def self.forwarded(message)
+        message.snapshots.flat_map { |snapshot| new(snapshot).all }
       end
 
       def self.attachments(message)
@@ -37,7 +39,6 @@ module Moderation
       def attachments
         message.attachments
           .select { |a| CONTENT_TYPES.include?(a.content_type) && a.size <= AttachmentDownload::MAX_BYTES }
-          .first(MAX)
           .map(&:url)
       end
 
@@ -45,14 +46,13 @@ module Moderation
         message.embeds
           .filter_map(&:image)
           .select { |img| img.proxy_url && CONTENT_TYPES.include?(img.content_type) }
-          .first(MAX)
           .map(&:proxy_url)
       end
 
       def content_links
         message.content.to_s.scan(URL_PATTERN)
           .filter_map { |raw| discord_cdn_image_url(raw) }
-          .first(MAX)
+          .uniq
       end
 
       private

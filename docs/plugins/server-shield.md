@@ -54,8 +54,24 @@ the raw origin `url` (`Moderation::ImageScanning::ScannableImages` filters on it
 The bot must never issue an HTTP request to an attacker-controlled host. This binds
 any future non-attachment image source.
 
-Message creates scan attachments; message updates scan embeds (`Moderation::EmbedScan`
-on `MESSAGE_UPDATE`). They are separate sources, so nothing is scanned twice.
+Message creates scan attachments, Discord-CDN links in the content, and everything
+inside a forwarded message (`message_snapshots`: its attachments, links and embeds).
+A snapshot never changes, so create is the only event that carries it. Message
+updates scan the message's own embeds (`Moderation::EmbedScan` on `MESSAGE_UPDATE`).
+They are separate sources, so nothing is scanned twice.
+
+## Every image is scanned
+
+**Hard invariant:** no per-message image cap, no sampling, no trust shortcut. Any
+rule that skips an image is a bypass as soon as someone reads it. A cap of four was
+beaten by four harmless images with the scam as the fifth. Discord bounds the cost:
+10 attachments and 10 embeds per message.
+
+One message is one `ScanQueue` job (`ScanMessage`). Its images are scanned in order
+and the scan stops at the first `:remove` verdict, so a message is removed and its
+author punished once. A crash on one image never skips the rest. A full queue drops
+the whole message's scan, which fails open; the bound (100 messages) exists only to
+protect the process.
 
 ## OCR sidecar
 

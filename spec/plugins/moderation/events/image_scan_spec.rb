@@ -9,10 +9,12 @@ RSpec.describe Moderation::ImageScan do
   let(:event) { double("event", message:) }
   let(:attachment_urls) { ["https://cdn/x.png"] }
   let(:content_link_urls) { ["https://cdn.discordapp.com/attachments/1/2/img.png"] }
+  let(:forwarded_urls) { ["https://cdn/fwd.png"] }
 
   before do
     allow(Moderation::ImageScanning::ScannableImages).to receive(:attachments).with(message).and_return(attachment_urls)
     allow(Moderation::ImageScanning::ScannableImages).to receive(:content_links).with(message).and_return(content_link_urls)
+    allow(Moderation::ImageScanning::ScannableImages).to receive(:forwarded).with(message).and_return(forwarded_urls)
     allow(Moderation::ImageScanning::EnqueueScan).to receive(:call)
   end
 
@@ -20,10 +22,10 @@ RSpec.describe Moderation::ImageScan do
     expect(described_class.discord_events).to include(:message)
   end
 
-  it "delegates to EnqueueScan with attachment URLs and content link URLs combined" do
+  it "delegates to EnqueueScan with attachment, content link and forwarded image URLs combined" do
     expect(Moderation::ImageScanning::EnqueueScan).to receive(:call).with(
       event:,
-      images: attachment_urls + content_link_urls
+      images: attachment_urls + content_link_urls + forwarded_urls
     )
     handle
   end

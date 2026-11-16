@@ -23,12 +23,20 @@ RSpec.describe Moderation::ImageScanning::EnqueueScan do
   let(:signals) { {account_age_days: 2, has_link: false, has_role: false} }
 
   let(:images) { ["https://cdn/x.png"] }
+  let(:captured) { [] }
 
   before do
     allow(server).to receive(:owner).and_return(owner)
     allow(Moderation::ImageScanning::Settings).to receive(:active_for).with(guild_id).and_return(settings)
     allow(Moderation::ImageScanning::Signals).to receive(:call).and_return(signals)
     allow(Moderation::ImageScanning::ScanQueue).to receive(:enqueue)
+  end
+
+  shared_context "when the queued job runs" do
+    before do
+      allow(Moderation::ImageScanning::ScanMessage).to receive(:call) { |contexts| captured.concat(contexts) }
+      allow(Moderation::ImageScanning::ScanQueue).to receive(:enqueue) { |job| job.call }
+    end
   end
 
   context "when the event is from a bot" do
@@ -110,32 +118,36 @@ RSpec.describe Moderation::ImageScanning::EnqueueScan do
       call
     end
 
-    it "enqueues one processor" do
+    it "enqueues one job" do
       expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).once
       call
     end
 
-    it "builds a ScanContext with image_url" do
-      captured_context = nil
-      allow(Moderation::ImageScanning::ScanQueue).to receive(:enqueue) do |proc|
-        allow(Moderation::ImageScanning::ScanProcessor).to receive(:call) do |ctx|
-          captured_context = ctx
-        end
-        proc.call
+    context "when the queued job runs" do
+      include_context "when the queued job runs"
+
+      it "builds a ScanContext with image_url" do
+        call
+        expect(captured.map(&:image_url)).to eq(["https://cdn/x.png"])
       end
-
-      call
-
-      expect(captured_context.image_url).to eq("https://cdn/x.png")
     end
   end
 
   context "with multiple images" do
     let(:images) { ["https://cdn/a.png", "https://cdn/b.png"] }
 
-    it "enqueues one processor per image" do
-      expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).exactly(2).times
+    it "enqueues one job for the whole message" do
+      expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).once
       call
+    end
+
+    context "when the queued job runs" do
+      include_context "when the queued job runs"
+
+      it "hands every image to ScanMessage in order" do
+        call
+        expect(captured.map(&:image_url)).to eq(["https://cdn/a.png", "https://cdn/b.png"])
+      end
     end
   end
 

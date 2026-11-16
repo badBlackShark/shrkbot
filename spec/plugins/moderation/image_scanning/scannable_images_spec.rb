@@ -33,13 +33,13 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
       end
     end
 
-    context "when there are more attachments than MAX" do
+    context "when the message has ten attachments" do
       let(:attachments) do
-        Array.new(5) { |i| double("att#{i}", content_type: png_type, size: 1234, url: "https://cdn/#{i}.png") }
+        Array.new(10) { |i| double("att#{i}", content_type: png_type, size: 1234, url: "https://cdn/#{i}.png") }
       end
 
-      it "caps at MAX" do
-        expect(result.length).to eq(4)
+      it "returns all ten" do
+        expect(result.length).to eq(10)
       end
     end
 
@@ -127,14 +127,22 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
       end
     end
 
-    context "when there are more than MAX valid links" do
+    context "when the content holds five valid links" do
       let(:urls) do
         Array.new(5) { |i| "https://cdn.discordapp.com/attachments/#{i}/#{i}/img#{i}.png" }
       end
       let(:message) { double("message", content: urls.join(" ")) }
 
-      it "caps at MAX" do
-        expect(result.length).to eq(4)
+      it "returns all five" do
+        expect(result).to eq(urls)
+      end
+    end
+
+    context "when the same link appears twice" do
+      let(:message) { double("message", content: "#{cdn_url} #{cdn_url}") }
+
+      it "returns it once" do
+        expect(result).to eq([cdn_url])
       end
     end
 
@@ -231,16 +239,16 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
       end
     end
 
-    context "when there are more embed images than MAX" do
+    context "when the message has ten embed images" do
       let(:embeds) do
-        Array.new(5) do |i|
+        Array.new(10) do |i|
           img = double("img#{i}", proxy_url: "https://media.discordapp.net/#{i}.png", content_type: png_type)
           double("embed#{i}", image: img)
         end
       end
 
-      it "caps at MAX" do
-        expect(result.length).to eq(4)
+      it "returns all ten" do
+        expect(result.length).to eq(10)
       end
     end
   end
@@ -248,12 +256,14 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
   describe ".all" do
     subject(:result) { described_class.all(message) }
 
+    let(:snapshots) { [] }
     let(:message) do
       double(
         "message",
         attachments: [double("att", content_type: png_type, size: 1234, url: "https://cdn/a.png")],
         content: "https://cdn.discordapp.com/attachments/1/2/link.png",
-        embeds: [double("embed", image: double("img", proxy_url: "https://media.discordapp.net/e.png", content_type: png_type))]
+        embeds: [double("embed", image: double("img", proxy_url: "https://media.discordapp.net/e.png", content_type: png_type))],
+        snapshots:
       )
     end
 
@@ -263,6 +273,30 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
         "https://cdn.discordapp.com/attachments/1/2/link.png",
         "https://media.discordapp.net/e.png"
       )
+    end
+
+    context "when the message forwards another message" do
+      let(:snapshots) do
+        [
+          double(
+            "snapshot",
+            attachments: [double("att", content_type: png_type, size: 1234, url: "https://cdn/fwd.png")],
+            content: "https://cdn.discordapp.com/attachments/9/9/fwdlink.png",
+            embeds: [double("embed", image: double("img", proxy_url: "https://media.discordapp.net/fwd-e.png", content_type: png_type))]
+          )
+        ]
+      end
+
+      it "includes the forwarded message's attachments, links and embed images" do
+        expect(result).to contain_exactly(
+          "https://cdn/a.png",
+          "https://cdn.discordapp.com/attachments/1/2/link.png",
+          "https://media.discordapp.net/e.png",
+          "https://cdn/fwd.png",
+          "https://cdn.discordapp.com/attachments/9/9/fwdlink.png",
+          "https://media.discordapp.net/fwd-e.png"
+        )
+      end
     end
 
     context "when the message is nil" do
@@ -280,12 +314,40 @@ RSpec.describe Moderation::ImageScanning::ScannableImages do
           "message",
           attachments: [double("att", content_type: png_type, size: 1234, url: dup_url)],
           content: dup_url,
-          embeds: []
+          embeds: [],
+          snapshots:
         )
       end
 
       it "deduplicates across sources" do
         expect(result).to eq([dup_url])
+      end
+    end
+  end
+
+  describe ".forwarded" do
+    subject(:result) { described_class.forwarded(message) }
+
+    let(:message) { double("message", snapshots:) }
+    let(:snapshot) do
+      double(
+        "snapshot",
+        attachments: [double("att", content_type: png_type, size: 1234, url: "https://cdn/fwd.png")],
+        content: nil,
+        embeds: []
+      )
+    end
+    let(:snapshots) { [snapshot] }
+
+    it "returns the images inside the forwarded message" do
+      expect(result).to eq(["https://cdn/fwd.png"])
+    end
+
+    context "when the message forwards nothing" do
+      let(:snapshots) { [] }
+
+      it "returns an empty array" do
+        expect(result).to eq([])
       end
     end
   end

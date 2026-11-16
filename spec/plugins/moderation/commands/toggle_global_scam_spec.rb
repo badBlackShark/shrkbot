@@ -12,7 +12,8 @@ RSpec.describe Moderation::ToggleGlobalScam do
   let(:attachments) { [image_attachment] }
   let(:content) { nil }
   let(:embeds) { [] }
-  let(:target) { double("message", attachments:, content:, embeds:) }
+  let(:snapshots) { [] }
+  let(:target) { double("message", attachments:, content:, embeds:, snapshots:) }
   let(:server) { double("server", id: guild_id) }
   let(:event) do
     double(
@@ -115,6 +116,20 @@ RSpec.describe Moderation::ToggleGlobalScam do
     let(:content) { "https://cdn.discordapp.com/attachments/1/2/scam.png" }
 
     it "marks the linked image global" do
+      execute
+
+      expect(Ops::Moderation::Phashes::SetGlobalScam).to have_received(:call).with(
+        phash_hex: "deadbeefdeadbeef",
+        global: true
+      )
+    end
+  end
+
+  context "when the image sits in a forwarded message" do
+    let(:attachments) { [] }
+    let(:snapshots) { [double("snapshot", attachments: [image_attachment], content: nil, embeds: [])] }
+
+    it "toggles the forwarded image" do
       execute
 
       expect(Ops::Moderation::Phashes::SetGlobalScam).to have_received(:call).with(

@@ -54,6 +54,10 @@ RSpec.describe Moderation::ImageScanning::ScanProcessor do
       expect(Moderation::ImageScanning::VerdictExecutor).to have_received(:call).with(verdict:, context:, phash: hex, hash_state: :none, image_bytes: "bytes")
     end
 
+    it "returns the verdict action" do
+      expect(process).to eq(:allow)
+    end
+
     it "does not touch last_seen" do
       process
       expect(Ops::Moderation::Phashes::MarkSeen).not_to have_received(:call)

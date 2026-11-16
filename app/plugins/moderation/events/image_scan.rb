@@ -9,7 +9,8 @@ module Moderation
       ImageScanning::EnqueueScan.call(
         event:,
         images: ImageScanning::ScannableImages.attachments(message) +
-          ImageScanning::ScannableImages.content_links(message)
+          ImageScanning::ScannableImages.content_links(message) +
+          ImageScanning::ScannableImages.forwarded(message)
       )
     end
   end

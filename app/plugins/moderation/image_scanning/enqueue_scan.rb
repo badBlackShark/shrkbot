@@ -25,10 +25,8 @@ module Moderation
 
         signals = Signals.call(author: event.author, content: event.message.content, server_id: event.server.id)
 
-        images.each do |url|
-          context = context_for(url, settings, signals, moderation_settings.new_account_age_days)
-          ScanQueue.enqueue(-> { ScanProcessor.call(context) })
-        end
+        contexts = images.map { |url| context_for(url, settings, signals, moderation_settings.new_account_age_days) }
+        ScanQueue.enqueue(-> { ScanMessage.call(contexts) })
       end
 
       private
