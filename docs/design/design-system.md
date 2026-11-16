@@ -89,6 +89,13 @@ on a link, button, input or label inside the summary does not toggle, the same
 as the platform. Durations come from the CSS tokens through `lib/motion.js`,
 which reads both `180ms` and the `.18s` the minifier rewrites it to.
 
+A new summary holds no control: a screen reader reads a `<summary>` as one
+button and can lose what is nested in it. A control that belongs in the header
+sits beside the `<details>`, and the controller moves to their shared wrapper
+with the `<details>` as its `details` target (the feed type card and its
+toggle). On `turbo:before-cache` the controller settles a reveal in flight, so
+a cached page never comes back half closed.
+
 The top bar also gains a **server switcher** when a page is scoped to one server
 (the dashboard passes `current_server:` + `servers:` to `AppShell`): a `dropdown`
 disclosure listing the user's configured servers as links to their dashboards,
