@@ -16,7 +16,7 @@ class Components::Toast < Components::Base
     style = LEVELS.fetch(@level.to_s, LEVELS["notice"])
     div(
       role: "status",
-      data: {controller: "toast", toast_sticky_value: style[:sticky] ? "true" : nil},
+      data: {controller: "toast", toast_sticky_value: style[:sticky] ? "true" : nil, turbo_temporary: true},
       class: "toast-enter pointer-events-auto flex items-center gap-2.5 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-lg #{style[:tone]}"
     ) do
       render Components::Icon.new(style[:icon], class: "size-4 flex-none")

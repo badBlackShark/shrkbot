@@ -198,7 +198,8 @@ details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0de
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
-  ::after {
+  ::after,
+  ::backdrop {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

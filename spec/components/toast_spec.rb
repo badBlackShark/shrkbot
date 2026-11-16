@@ -17,6 +17,14 @@ RSpec.describe Components::Toast do
     end
   end
 
+  context "with any level" do
+    let(:level) { "notice" }
+
+    it "stays out of Turbo's page cache, so Back never replays it" do
+      expect(html).to include("data-turbo-temporary")
+    end
+  end
+
   context "with the notice level" do
     let(:level) { "notice" }
 
