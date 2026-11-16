@@ -1,17 +1,20 @@
 import { Controller } from "@hotwired/stimulus"
+import { inkTheme } from "lib/theme_ink"
 
 export default class extends Controller {
-  toggle() {
+  async toggle() {
+    if (this.switching) return
+
     const root = document.documentElement
-    const dark = root.dataset.theme !== "dark"
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-
-    if (!reduce) {
-      root.classList.add("theme-switching")
-      setTimeout(() => root.classList.remove("theme-switching"), 300)
+    const theme = root.dataset.theme === "dark" ? "light" : "dark"
+    this.switching = true
+    try {
+      await inkTheme(this.element, theme, () => {
+        root.dataset.theme = theme
+        localStorage.setItem("shrk-theme", theme)
+      })
+    } finally {
+      this.switching = false
     }
-
-    root.dataset.theme = dark ? "dark" : "light"
-    localStorage.setItem("shrk-theme", dark ? "dark" : "light")
   }
 }

@@ -177,12 +177,18 @@ details[open] > .dropdown-menu.no-enter:not(.is-closing) {
 details[open]:not([data-closing]) .dropdown-chevron { transform: rotate(180deg); }
 details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0deg); }
 
-.theme-switching,
-.theme-switching *:not(.theme-morph):not(.theme-morph *) {
-  transition: background-color var(--dur-slow) var(--ease-standard),
-    border-color var(--dur-slow) var(--ease-standard),
-    color var(--dur-slow) var(--ease-standard);
+@property --theme-ink {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
 }
+.theme-ink {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+.theme-inking :not(.theme-morph > *) { transition: none !important; }
 
 .theme-morph { position: relative; }
 .theme-morph > * {

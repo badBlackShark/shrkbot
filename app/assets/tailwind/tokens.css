@@ -1,4 +1,5 @@
-:root {
+:root,
+[data-theme="light"] {
   --brand-50: #eef8f6;
   --brand-100: #d2ece8;
   --brand-200: #a8dcd5;

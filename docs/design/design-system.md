@@ -416,12 +416,22 @@ inline script in the `<head>` (see `layouts/application.html.erb`) sets
 `data-theme` before first paint from `localStorage`, falling back to the OS
 `prefers-color-scheme`. The toggle lives in the app-shell top bar.
 
-Two things animate on a theme switch. The toggle's sun/moon icons share a grid
-cell (`.theme-morph`) and rotate/scale/fade past each other, so the icon morphs
-between states. And surface colours ease rather than snap: the controller adds
-`.theme-switching` to `<html>` for the duration, which turns on a
-`background-color`/`border-color`/`color` transition — scoped to exclude the
-morphing icons, so it doesn't replace their transform/opacity transition.
+The theme switch is one of the two signature moments. The new page colour
+spreads from the toggle as ink and covers the page in 240ms, the theme changes
+under it, and the new theme then opens from the same point in 340ms
+(`lib/theme_ink.js`). The ink is a fixed element with `data-theme` set to the
+next theme, which is why the light tokens are declared on
+`:root, [data-theme="light"]`: the element resolves `--surface-page` for a theme
+the page does not have yet. Its background is a radial gradient whose radius is
+the registered length `--theme-ink`, so the Web Animations API can animate it.
+While it runs, `.theme-inking` on `<html>` turns element transitions off, so
+nothing cross-fades under the ink; the toggle's sun/moon icons are exempt and
+still morph (`.theme-morph`: they share a cell and rotate, scale and fade past
+each other).
+
+Do not build this on the View Transitions API. Firefox drops blank frames
+during any view transition, even on a page with nothing but text, and a
+full-page circle makes every one of them visible.
 
 ## Motion
 
