@@ -436,7 +436,11 @@ the registered length `--theme-ink`, so the Web Animations API can animate it.
 While it runs, `.theme-inking` on `<html>` turns element transitions off, so
 nothing cross-fades under the ink; the toggle's sun/moon icons are exempt and
 still morph (`.theme-morph`: they share a cell and rotate, scale and fade past
-each other).
+each other). The same class is the guard: a click while it is set is ignored,
+also from a page Turbo loaded in the meantime. The ink is
+`data-turbo-temporary`, so a page cached under it comes back without a cover,
+and it comes off in a `finally`, so a switch that throws cannot leave the page
+covered.
 
 Do not build this on the View Transitions API. Firefox drops blank frames
 during any view transition, even on a page with nothing but text, and a
