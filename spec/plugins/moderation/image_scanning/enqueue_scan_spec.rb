@@ -10,7 +10,8 @@ RSpec.describe Moderation::ImageScanning::EnqueueScan do
 
   let(:server) { double("server", id: guild_id) }
   let(:author) { double("author", id: author_id) }
-  let(:message) { double("message", id: 1, webhook?: false, content: "hello") }
+  let(:message) { double("message", id: 1, webhook?: false, content: "hello", snapshots:) }
+  let(:snapshots) { [] }
   let(:channel) { double("channel", id: 1, pm?: false) }
   let(:bot) { double("bot") }
   let(:event) { double("event", from_bot?: false, server:, author:, message:, channel:, bot:) }
@@ -35,7 +36,7 @@ RSpec.describe Moderation::ImageScanning::EnqueueScan do
   shared_context "when the queued job runs" do
     before do
       allow(Moderation::ImageScanning::ScanMessage).to receive(:call) { |contexts| captured.concat(contexts) }
-      allow(Moderation::ImageScanning::ScanQueue).to receive(:enqueue) { |job| job.call }
+      allow(Moderation::ImageScanning::ScanQueue).to receive(:enqueue) { |_author_id, job| job.call }
     end
   end
 
@@ -118,8 +119,21 @@ RSpec.describe Moderation::ImageScanning::EnqueueScan do
       call
     end
 
+    context "when the message forwards text that holds a link" do
+      let(:snapshots) { [double("snapshot", content: "see https://x.example")] }
+
+      it "computes signals over the forwarded text too" do
+        expect(Moderation::ImageScanning::Signals).to receive(:call).with(
+          author:,
+          content: "hello\nsee https://x.example",
+          server_id: guild_id
+        ).and_return(signals)
+        call
+      end
+    end
+
     it "enqueues one job" do
-      expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).once
+      expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(author_id, kind_of(Proc)).once
       call
     end
 
@@ -130,6 +144,11 @@ RSpec.describe Moderation::ImageScanning::EnqueueScan do
         call
         expect(captured.map(&:image_url)).to eq(["https://cdn/x.png"])
       end
+
+      it "starts every image as not silent" do
+        call
+        expect(captured.map(&:silent)).to eq([false])
+      end
     end
   end
 
@@ -137,7 +156,7 @@ RSpec.describe Moderation::ImageScanning::EnqueueScan do
     let(:images) { ["https://cdn/a.png", "https://cdn/b.png"] }
 
     it "enqueues one job for the whole message" do
-      expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).once
+      expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(author_id, kind_of(Proc)).once
       call
     end
 
@@ -156,7 +175,7 @@ RSpec.describe Moderation::ImageScanning::EnqueueScan do
     let(:author) { double("author", id: author_id, roles: []) }
 
     it "enqueues normally" do
-      expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(kind_of(Proc)).once
+      expect(Moderation::ImageScanning::ScanQueue).to receive(:enqueue).with(author_id, kind_of(Proc)).once
       call
     end
   end

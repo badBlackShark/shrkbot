@@ -7,7 +7,7 @@ module Moderation
     def handle
       ImageScanning::EnqueueScan.call(
         event:,
-        images: ImageScanning::ScannableImages.embeds(event.message)
+        images: ImageScanning::ScannableImages.on_update(event.message)
       )
     end
   end

@@ -17,7 +17,8 @@ RSpec.describe Moderation::ImageScanning::ScanProcessor do
       image_url: "https://cdn/x.png",
       signals:,
       new_account_age_days: 30,
-      settings:
+      settings:,
+      silent: false
     )
   end
 

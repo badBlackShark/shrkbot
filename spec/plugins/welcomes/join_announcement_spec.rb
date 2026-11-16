@@ -44,7 +44,7 @@ RSpec.describe Welcomes::JoinAnnouncement do
         {parse: [], users: [7]},
         nil,
         nil,
-        described_class::SUPPRESS_NOTIFICATIONS
+        Bot::Discord::Components::SUPPRESS_NOTIFICATIONS
       )
       deliver
     end

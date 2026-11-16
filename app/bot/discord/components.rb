@@ -17,6 +17,7 @@ module Bot
       BUTTON_DANGER = 4
       BUTTON_LINK = 5
       COMPONENTS_V2 = 1 << 15
+      SUPPRESS_NOTIFICATIONS = 1 << 12
 
       module_function
 
@@ -96,12 +97,13 @@ module Bot
         JSON.parse(Discordrb::API::User.create_pm(Bot::Config.rest_token, user_id))["id"]
       end
 
-      def send_to(channel, rendered, allowed_mentions: nil, attachments: nil, subject: nil)
+      def send_to(channel, rendered, allowed_mentions: nil, attachments: nil, subject: nil, silent: false)
+        quiet = silent ? SUPPRESS_NOTIFICATIONS : 0
         unless subject
-          return channel.send_message(nil, false, nil, attachments, allowed_mentions, nil, rendered[:components], rendered[:flags])
+          return channel.send_message(nil, false, nil, attachments, allowed_mentions, nil, rendered[:components], rendered[:flags] | quiet)
         end
 
-        message = channel.send_message(subject, false, nil, attachments, allowed_mentions, nil, nil, 0)
+        message = channel.send_message(subject, false, nil, attachments, allowed_mentions, nil, nil, quiet)
         convert_to_v2(channel.id, message.id, rendered, mention_users(allowed_mentions))
         message
       end

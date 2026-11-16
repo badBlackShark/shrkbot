@@ -23,10 +23,10 @@ module Moderation
         staff_role_id = moderation_settings.staff_role_id
         return if Exemption.exempt?(member: event.author, server: event.server, staff_role_id:)
 
-        signals = Signals.call(author: event.author, content: event.message.content, server_id: event.server.id)
+        signals = Signals.call(author: event.author, content: message_text, server_id: event.server.id)
 
         contexts = images.map { |url| context_for(url, settings, signals, moderation_settings.new_account_age_days) }
-        ScanQueue.enqueue(-> { ScanMessage.call(contexts) })
+        ScanQueue.enqueue(event.author.id, -> { ScanMessage.call(contexts) })
       end
 
       private
@@ -43,8 +43,14 @@ module Moderation
           image_url: url,
           signals:,
           new_account_age_days:,
-          settings:
+          settings:,
+          silent: false
         )
+      end
+
+      def message_text
+        message = event.message
+        [message.content, *message.snapshots.map(&:content)].join("\n")
       end
     end
   end

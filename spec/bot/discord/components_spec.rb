@@ -345,6 +345,17 @@ RSpec.describe Bot::Discord::Components do
       send_to
     end
 
+    context "when silent" do
+      subject(:send_to) { described_class.send_to(channel, rendered, silent: true) }
+
+      it "adds the suppress-notifications flag to the components flag" do
+        expect(channel).to receive(:send_message) do |*args|
+          expect(args[7]).to eq(described_class::COMPONENTS_V2 | described_class::SUPPRESS_NOTIFICATIONS)
+        end
+        send_to
+      end
+    end
+
     context "with attachments" do
       let(:attachments) { [Bot::Discord::FileUpload.new("bytes", "img.png")] }
 
@@ -379,6 +390,24 @@ RSpec.describe Bot::Discord::Components do
           0
         ).and_return(message)
         send_to
+      end
+
+      context "when silent" do
+        subject(:send_to) { described_class.send_to(channel, rendered, subject: "reminder: hello", silent: true) }
+
+        it "creates the plain message without a notification" do
+          expect(channel).to receive(:send_message).with(
+            "reminder: hello",
+            false,
+            nil,
+            nil,
+            nil,
+            nil,
+            nil,
+            described_class::SUPPRESS_NOTIFICATIONS
+          ).and_return(message)
+          send_to
+        end
       end
 
       it "converts the message to components v2 with the content nulled out and mention re-parsing suppressed" do

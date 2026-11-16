@@ -5,17 +5,31 @@ require "rails_helper"
 RSpec.describe Moderation::ImageScanning::ScanMessage do
   subject(:scan) { described_class.call(contexts) }
 
-  let(:first) { double("first context", message_id: 4) }
-  let(:second) { double("second context") }
+  let(:base) do
+    Moderation::ImageScanning::ScanContext.new(
+      bot: nil,
+      server: nil,
+      member: nil,
+      channel_id: 3,
+      message_id: 4,
+      image_url: nil,
+      signals: {},
+      new_account_age_days: 30,
+      settings: nil,
+      silent: false
+    )
+  end
+  let(:first) { base.with(image_url: "https://cdn/1.png") }
+  let(:second) { base.with(image_url: "https://cdn/2.png") }
   let(:contexts) { [first, second] }
   let(:first_result) { :allow }
+  let(:results) { {first.image_url => first_result, second.image_url => :allow} }
 
   before do
-    allow(Moderation::ImageScanning::ScanProcessor).to receive(:call).with(first).and_return(first_result)
-    allow(Moderation::ImageScanning::ScanProcessor).to receive(:call).with(second).and_return(:allow)
+    allow(Moderation::ImageScanning::ScanProcessor).to receive(:call) { |context| results.fetch(context.image_url) }
   end
 
-  it "scans every image of the message in order" do
+  it "scans every image of the message in order, loudly" do
     scan
     expect(Moderation::ImageScanning::ScanProcessor).to have_received(:call).with(first).ordered
     expect(Moderation::ImageScanning::ScanProcessor).to have_received(:call).with(second).ordered
@@ -24,9 +38,9 @@ RSpec.describe Moderation::ImageScanning::ScanMessage do
   context "when an image is flagged for review" do
     let(:first_result) { :flag_for_review }
 
-    it "keeps scanning the remaining images" do
+    it "scans the remaining images silently, so one message pings staff once" do
       scan
-      expect(Moderation::ImageScanning::ScanProcessor).to have_received(:call).with(second)
+      expect(Moderation::ImageScanning::ScanProcessor).to have_received(:call).with(second.with(silent: true))
     end
   end
 
@@ -35,13 +49,17 @@ RSpec.describe Moderation::ImageScanning::ScanMessage do
 
     it "stops, so the message is acted on once" do
       scan
-      expect(Moderation::ImageScanning::ScanProcessor).not_to have_received(:call).with(second)
+      expect(Moderation::ImageScanning::ScanProcessor).to have_received(:call).once
     end
   end
 
   context "when scanning an image crashes" do
     before do
-      allow(Moderation::ImageScanning::ScanProcessor).to receive(:call).with(first).and_raise(RuntimeError, "boom")
+      allow(Moderation::ImageScanning::ScanProcessor).to receive(:call) do |context|
+        raise "boom" if context.image_url == first.image_url
+
+        :allow
+      end
       allow(Rails.logger).to receive(:error)
     end
 

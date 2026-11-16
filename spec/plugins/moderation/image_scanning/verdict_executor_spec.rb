@@ -53,10 +53,12 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
       image_url:,
       signals: {},
       new_account_age_days: 30,
-      settings:
+      settings:,
+      silent:
     )
   end
 
+  let(:silent) { false }
   let(:phash) { "0123456789abcdef" }
   let(:action) { :remove }
   let(:reasons) do
@@ -125,6 +127,16 @@ RSpec.describe Moderation::ImageScanning::VerdictExecutor do
         expect(io.original_filename).to eq("x.png")
         io.rewind
         expect(io.read).to eq(image_bytes)
+      end
+    end
+
+    context "when the entry is not the message's first" do
+      let(:silent) { true }
+
+      it "posts the entry without a notification" do
+        execute
+
+        expect(Bot::ActivityLog).to have_received(:post).with(anything, hash_including(silent: true))
       end
     end
 

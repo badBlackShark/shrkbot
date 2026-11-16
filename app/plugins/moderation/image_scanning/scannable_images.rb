@@ -3,42 +3,49 @@
 module Moderation
   module ImageScanning
     class ScannableImages
+      URL_PATTERN = %r{https?://\S+}
+      TRAILING_PUNCTUATION = /[.,!?;:)\]>]+\z/
+      FILE_PATH = %r{\Ahttps?://[^/]+([^?#]*)}
+
       def self.all(message)
         return [] unless message
 
-        (new(message).all + forwarded(message)).uniq
+        new(message).all
       end
 
       def self.on_create(message)
-        (attachments(message) + content_links(message) + forwarded(message)).uniq
+        new(message).on_create
       end
 
-      def self.forwarded(message)
-        message.snapshots.flat_map { |snapshot| new(snapshot).all }
+      def self.on_update(message)
+        new(message).on_update
       end
-
-      def self.attachments(message)
-        new(message).attachments
-      end
-
-      def self.embeds(message)
-        new(message).embeds
-      end
-
-      def self.content_links(message)
-        new(message).content_links
-      end
-
-      URL_PATTERN = %r{https?://\S+}
-      TRAILING_PUNCTUATION = /[.,!?;:)\]>]+\z/
 
       def initialize(message)
         @message = message
       end
 
       def all
-        (attachments + content_links + embeds).uniq
+        distinct(own + forwarded)
       end
+
+      def on_create
+        distinct(attachments + content_links + forwarded)
+      end
+
+      def on_update
+        distinct(embeds)
+      end
+
+      protected
+
+      def own
+        attachments + content_links + embeds
+      end
+
+      private
+
+      attr_reader :message
 
       def attachments
         message.attachments
@@ -54,14 +61,16 @@ module Moderation
       end
 
       def content_links
-        message.content.to_s.scan(URL_PATTERN)
-          .filter_map { |raw| discord_cdn_image_url(raw) }
-          .uniq
+        message.content.to_s.scan(URL_PATTERN).filter_map { |raw| discord_cdn_image_url(raw) }
       end
 
-      private
+      def forwarded
+        message.snapshots.flat_map { |snapshot| self.class.new(snapshot).own }
+      end
 
-      attr_reader :message
+      def distinct(urls)
+        urls.uniq { |url| CGI.unescape(url[FILE_PATH, 1] || url) }
+      end
 
       def discord_cdn_image_url(raw)
         url = raw.sub(TRAILING_PUNCTUATION, "")

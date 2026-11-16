@@ -86,6 +86,7 @@ module Moderation
           image:,
           components: message_components(punishment.action),
           subject: StaffPing.prefix(staff_role_id, ping:) + title,
+          silent: context.silent,
           allowed_mentions: {parse: [], users: [context.member.id], roles: StaffPing.allowed_roles(staff_role_id, ping:)}
         )
       end
