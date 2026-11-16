@@ -420,7 +420,8 @@ Rules:
 - Leaving is faster than arriving.
 - The more often something fires, the smaller it is. Only the two signature
   moments may use a spring or cover the page.
-- Nothing plays on page load, and Turbo navigation stays instant.
+- A page does not animate in, and Turbo navigation stays instant. The one thing
+  that moves after a load is a toast that reports the action that caused it.
 - Form fields that appear because of a choice (`hidden` toggles: timeout
   length, mode panels, warnings, reset buttons) stay instant.
 - No animation library. CSS transitions and keyframes plus the Web Animations
