@@ -1,3 +1,7 @@
+export function reducedMotion(env = window) {
+  return env.matchMedia("(prefers-reduced-motion: reduce)").matches
+}
+
 export function token(name, env = window) {
   return env.getComputedStyle(env.document.documentElement).getPropertyValue(name).trim()
 }

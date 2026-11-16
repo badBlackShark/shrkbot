@@ -1,6 +1,4 @@
-import { milliseconds, token } from "lib/motion"
-
-const REDUCED_MOTION = "(prefers-reduced-motion: reduce)"
+import { milliseconds, reducedMotion, token } from "lib/motion"
 
 export class Reveal {
   constructor(details, env = window) {
@@ -15,7 +13,7 @@ export class Reveal {
   set(open) {
     if (open === this.#destination) return open
 
-    if (this.env.matchMedia(REDUCED_MOTION).matches) {
+    if (reducedMotion(this.env)) {
       this.details.open = open
       return open
     }
