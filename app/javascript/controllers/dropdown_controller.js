@@ -4,11 +4,7 @@ export default class extends Controller {
   static targets = ["menu"]
 
   connect() {
-    // Woke up already open (a Turbo Frame reloaded the panel in place): skip the
-    // entrance animation so it doesn't flicker. Cleared on the next close.
-    if (this.element.open && this.hasMenuTarget) {
-      this.menuTarget.classList.add("no-enter")
-    }
+    if (this.element.open) this.menuTarget.classList.add("no-enter")
 
     this.closeOutside = (e) => {
       if (!this.element.contains(e.target)) this.close()
@@ -34,11 +30,6 @@ export default class extends Controller {
 
   close() {
     if (!this.element.open || this.closing) return
-
-    if (!this.hasMenuTarget) {
-      this.element.open = false
-      return
-    }
 
     this.closing = true
     const menu = this.menuTarget

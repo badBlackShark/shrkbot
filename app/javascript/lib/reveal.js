@@ -9,11 +9,11 @@ export class Reveal {
   }
 
   toggle() {
-    return this.set(!this.#heading)
+    return this.set(!this.#destination)
   }
 
   set(open) {
-    if (open === this.#heading) return open
+    if (open === this.#destination) return open
 
     if (this.env.matchMedia(REDUCED_MOTION).matches) {
       this.details.open = open
@@ -28,7 +28,7 @@ export class Reveal {
     return open
   }
 
-  get #heading() {
+  get #destination() {
     return this.animation ? this.opening : this.details.open
   }
 

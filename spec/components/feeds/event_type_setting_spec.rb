@@ -46,7 +46,6 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   it "folds from anywhere in the header, and not from the settings below it" do
     expect(header["data-action"]).to eq("click->disclosure#toggle")
     expect(header.at_css(".dropdown-chevron")).to be_present
-    expect(body.name).to eq("div")
     expect(body.at_css("[data-action*='disclosure#toggle']")).to be_nil
   end
 

@@ -67,7 +67,10 @@ finishes before the panel is removed, then sets `open = false`. The trigger's
 `.dropdown-chevron` points down when closed, rotates up when open, and rotates
 back down the moment a close starts (keyed off the panel's `.is-closing` via
 `:has`, so it turns with the fade-out rather than after it). The `dropdown`
-controller is for menus that float above the page and nothing else.
+controller is for menus that float above the page and nothing else. A menu
+that renders already open (a Turbo Frame reloads the notification bell in place)
+must not replay its entrance, which reads as a flicker: the controller adds
+`.no-enter` on connect, and the next close clears it.
 
 A section that opens inside the page is a native `<details>` with the
 `disclosure` controller (`click->disclosure#toggle` on the `<summary>`). It is
