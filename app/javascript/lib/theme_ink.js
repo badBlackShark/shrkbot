@@ -22,15 +22,12 @@ export async function inkTheme(origin, theme, apply, env = window) {
   document.documentElement.classList.add("theme-inking")
   paint("var(--surface-page)", "transparent")
   document.body.append(ink)
-  try {
-    await spread(COVER_MS, "--ease-exit")
-    apply()
-    paint("transparent", "var(--surface-page)")
-    await spread(OPEN_MS, "--ease-standard")
-  } finally {
-    ink.remove()
-    document.documentElement.classList.remove("theme-inking")
-  }
+  await spread(COVER_MS, "--ease-exit")
+  apply()
+  paint("transparent", "var(--surface-page)")
+  await spread(OPEN_MS, "--ease-standard")
+  ink.remove()
+  document.documentElement.classList.remove("theme-inking")
 }
 
 function reach(origin, env) {

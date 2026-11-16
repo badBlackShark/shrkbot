@@ -8,13 +8,10 @@ export default class extends Controller {
     const root = document.documentElement
     const theme = root.dataset.theme === "dark" ? "light" : "dark"
     this.switching = true
-    try {
-      await inkTheme(this.element, theme, () => {
-        root.dataset.theme = theme
-        localStorage.setItem("shrk-theme", theme)
-      })
-    } finally {
-      this.switching = false
-    }
+    await inkTheme(this.element, theme, () => {
+      root.dataset.theme = theme
+      localStorage.setItem("shrk-theme", theme)
+    })
+    this.switching = false
   }
 }

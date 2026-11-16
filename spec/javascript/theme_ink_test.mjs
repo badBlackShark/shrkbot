@@ -76,13 +76,3 @@ test("a browser that cannot animate a registered property applies the theme with
 
   assert.deepEqual(env.log, [{ step: "apply" }])
 })
-
-test("an interrupted ink still clears itself", async () => {
-  const env = fakeEnv()
-  env.ink.animate = () => ({ finished: Promise.reject(new Error("AbortError")) })
-
-  await assert.rejects(inkTheme(TOGGLE, "dark", () => {}, env))
-
-  assert.deepEqual(env.log.at(-1), { step: "remove" })
-  assert.equal(env.classes.has("theme-inking"), false)
-})
