@@ -58,7 +58,8 @@ and centre themselves.
 
 Flash messages render as dismissable toasts (`Components::Toasts`, rendered once
 from the layout so every page gets them). The `warning` level (a save that leaves a plugin disabled) is sticky: it
-stays until dismissed. Small dropdowns (the user menu) are the
+stays until dismissed. A toast rises 8px as it fades in, and the `toast`
+controller plays `toast-leave` before it removes the element. Small dropdowns (the user menu) are the
 standard pattern: a native `<details>` with the `dropdown` Stimulus controller.
 The panel (`.dropdown-menu`, a `menu` target) fades/slides in via CSS on `[open]`
 and fades/slides back out on close — the controller intercepts the close
@@ -459,8 +460,9 @@ controllers that wait for it need no branch of their own, and components need no
 `motion-safe:` variant. Only motion driven from JavaScript checks
 `prefers-reduced-motion` itself.
 
-The CSS patterns are in `utilities.css` (`card-lift`, `anim-fade`, the
-dropdown/chevron and theme-morph choreography) and `save_bar.css`. The chamfer
+The CSS patterns are in `utilities.css` (`card-lift`, `toast-enter` and
+`toast-leave`, the `dialog[open]` entrance, the dropdown/chevron and theme-morph
+choreography) and `save_bar.css`. The chamfer
 geometry helpers (`chamfer-tile`, `chamfer-tile-sm`, `chamfer-cta`,
 `chamfer-bar`) sit beside them and are for brand-forward surfaces only. Buttons
 darken on hover (`hover:bg-accent-fill-hover` for primary, a sand wash for the
@@ -478,6 +480,10 @@ through it.
 The dialog cancels on a click outside it, not on a drag that merely ends outside
 (selecting text inside the dialog and releasing over the backdrop keeps it open):
 both the `mousedown` and the `click` must land on the backdrop.
+
+The dialog and its backdrop fade in through CSS on `dialog[open]`, so any
+`<dialog>` gets the entrance. It closes with no animation: the user has just
+answered it.
 
 ## Layout: flex, not grid
 
