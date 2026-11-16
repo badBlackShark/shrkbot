@@ -451,13 +451,16 @@ Tokens live in `tokens.css`: `--dur-fast` 120ms, `--dur-base` 180ms, `--dur-slow
 for the save bar. `theme.css` points Tailwind's default transition duration and
 easing at `--dur-fast` and `--ease-standard`, so a bare `transition-colors` or
 `transition-transform` is already on the system; do not add `duration-*` or
-`ease-*` to one.
+`ease-*` to one. The signature moments keep literal durations beside their
+keyframes: they sit off the scale on purpose, and each value has one user.
 
 Reduced motion is one global rule at the end of `utilities.css` that collapses
-every CSS animation and transition to 0.01ms. `animationend` still fires, so
-controllers that wait for it need no branch of their own, and components need no
-`motion-safe:` variant. Only motion driven from JavaScript checks
-`prefers-reduced-motion` itself.
+every CSS animation and transition to 0.01ms and turns smooth scrolling off.
+`animationend` still fires, so controllers that wait for it need no branch of
+their own, and components need no `motion-safe:` variant. Only motion driven
+from JavaScript checks `prefers-reduced-motion` itself. One exception, in
+`save_bar.css`: the ring on a blocked navigation keeps its fade. It is a colour
+change, and without it a refused click shows nothing.
 
 The CSS patterns are in `utilities.css` (`card-lift`, `anim-fade`, the
 dropdown/chevron and theme-morph choreography) and `save_bar.css`. The chamfer

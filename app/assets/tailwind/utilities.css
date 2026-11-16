@@ -159,7 +159,7 @@ details[open] > .dropdown-menu.no-enter:not(.is-closing) {
 }
 
 .dropdown-chevron {
-  transition: transform var(--dur-base) var(--ease-standard);
+  transition: transform var(--dur-fast) var(--ease-standard);
 }
 details[open]:not([data-closing]) .dropdown-chevron { transform: rotate(180deg); }
 details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0deg); }
@@ -189,5 +189,6 @@ details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0de
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
