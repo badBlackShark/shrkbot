@@ -19,8 +19,8 @@ class Components::PrerequisiteSteps < Components::Base
   private
 
   def step_row(step)
-    div(class: "mt-3 flex items-center justify-between gap-4") do
-      p(class: "text-text-secondary") { step.message }
+    div(class: "mt-3 flex items-center justify-end gap-4") do
+      p(class: "mr-auto text-text-secondary") { step.message } if step.message
       render Components::Button.new(
         variant: :secondary,
         href: step.cta_href,

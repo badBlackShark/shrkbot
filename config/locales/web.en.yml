@@ -798,7 +798,6 @@ en:
         subscribe: Subscribe
         unsubscribe: Unsubscribe
       player_display_card:
-        help: Missing tags fall back to player names. Tags don't ping.
         inherit: Inherit
         inherits_default: No parent tournament sets this, so it defaults to "%{setting}".
         inherits_from: '%{parent} uses "%{setting}".'
@@ -806,6 +805,7 @@ en:
         name: Name only
         name_and_tag: Name and tag
         tag: Tag only
+        tag_note: Missing tags fall back to player names. Tags don't ping.
       post_delay_card:
         help: Wait this long after a result is reported before posting, to avoid spoiling
           live streams.
@@ -1122,8 +1122,7 @@ en:
           edit:
             prerequisites:
               cta: Open Twilight Struggle
-              message: Nothing is posted until you enable it.
-              title: Twilight Struggle is disabled
+              title: Tournament result posting is currently disabled
             subscribe: Post %{tournament} results in this server
         show:
           empty_archived: Nothing has been archived.

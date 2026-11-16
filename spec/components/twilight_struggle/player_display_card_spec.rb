@@ -25,9 +25,13 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
       expect(html).not_to include("uses")
     end
 
+    it "puts the tag note under the buttons, so they stay put when it appears" do
+      expect(html.index("Tag only")).to be < html.index("Missing tags fall back to player names.")
+    end
+
     it "shows the tag note only while a tag option is pressed" do
       note = Nokogiri::HTML5.fragment(html).css("p").find { |line| line.text == "Missing tags fall back to player names. Tags don't ping." }
-      expect(note["class"].split).to include(
+      expect(note.parent["class"].split).to include(
         "hidden",
         "group-has-[[data-value=tag][aria-pressed=true]]/setting:block",
         "group-has-[[data-value=name\\_and\\_tag][aria-pressed=true]]/setting:block"

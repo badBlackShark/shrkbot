@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 class Components::TwilightStruggle::PlayerDisplayCard < Components::TwilightStruggle::SettingCardBase
-  TAG_HELP = "hidden group-has-[[data-value=tag][aria-pressed=true]]/setting:block " \
+  TAG_NOTE = "hidden group-has-[[data-value=tag][aria-pressed=true]]/setting:block " \
     'group-has-[[data-value=name\_and\_tag][aria-pressed=true]]/setting:block'
 
   private
 
   def help
-    p(class: "#{HELP} #{TAG_HELP}") { t(".help") }
   end
 
   def control
@@ -17,6 +16,7 @@ class Components::TwilightStruggle::PlayerDisplayCard < Components::TwilightStru
       input_data: {twilight_struggle_preview_target: "display"},
       options:
     )
+    div(class: TAG_NOTE) { render Components::FieldHelp.new { t(".tag_note") } }
   end
 
   def attribute

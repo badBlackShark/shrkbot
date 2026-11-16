@@ -56,7 +56,7 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
       title: t(".prerequisites.title"),
       steps: [
         Components::PrerequisiteSteps::Step.new(
-          message: t(".prerequisites.message"),
+          message: nil,
           cta_label: t(".prerequisites.cta"),
           cta_href: server_twilight_struggle_path(server_configuration.discord_id)
         )

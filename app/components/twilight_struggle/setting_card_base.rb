@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Components::TwilightStruggle::SettingCardBase < Components::Base
-  HELP = "mt-0.5 text-sm text-text-secondary"
-
   def initialize(destination:, inherited:)
     @destination = destination
     @inherited = inherited
@@ -20,7 +18,7 @@ class Components::TwilightStruggle::SettingCardBase < Components::Base
   private
 
   def help
-    p(class: HELP) { t(".help") }
+    p(class: "mt-0.5 text-sm text-text-secondary") { t(".help") }
   end
 
   def parent
