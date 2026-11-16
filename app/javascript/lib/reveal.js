@@ -26,6 +26,16 @@ export class Reveal {
     return open
   }
 
+  settle() {
+    if (!this.animation) return
+
+    if (!this.opening) this.details.open = false
+    this.details.removeAttribute("data-closing")
+    this.details.style.overflow = ""
+    this.animation.cancel()
+    this.animation = null
+  }
+
   get #destination() {
     return this.animation ? this.opening : this.details.open
   }
@@ -41,15 +51,7 @@ export class Reveal {
       { duration: milliseconds("--dur-base", env), easing: token("--ease-standard", env), fill: "both" }
     ))
     details.style.overflow = "clip"
-    animation.onfinish = () => this.#settle()
+    animation.onfinish = () => this.settle()
     return animation
-  }
-
-  #settle() {
-    if (!this.opening) this.details.open = false
-    this.details.removeAttribute("data-closing")
-    this.details.style.overflow = ""
-    this.animation.cancel()
-    this.animation = null
   }
 }

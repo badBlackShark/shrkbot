@@ -89,6 +89,8 @@ export default class extends Controller {
     this.barTarget.addEventListener(
       "animationend",
       () => {
+        if (this.dirty) return
+
         this.barTarget.classList.add("hidden")
         this.barTarget.classList.remove("save-bar-out")
       },

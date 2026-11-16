@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Components::Feeds::EventTypeSetting < Components::Base
-  CARD = "has-[[data-type-toggle]:checked]:border-accent-soft-bd"
-  HEADER = "cursor-pointer list-none select-none px-5 py-4 [&::-webkit-details-marker]:hidden"
+  CARD = "relative has-[[data-type-toggle]:checked]:border-accent-soft-bd"
+  HEADER = "cursor-pointer list-none select-none py-4 pl-5 pr-20 [&::-webkit-details-marker]:hidden"
 
   def initialize(subscription:, plugin_key:, event_type:, event:, type_fields: nil)
     @subscription = subscription
@@ -13,21 +13,27 @@ class Components::Feeds::EventTypeSetting < Components::Base
   end
 
   def view_template
-    render Components::Card.new(padding: :none, class: CARD, data: {feed_preview_scope: true}) do
-      details(data: {controller: "disclosure", disclosure_key_value: storage_key}) do
+    render Components::Card.new(padding: :none, class: CARD, data: card_data) do
+      details(data: {disclosure_target: "details"}) do
         header
         body
       end
+      div(class: "absolute right-5 top-4") { toggle }
     end
   end
 
   private
 
+  def card_data
+    {controller: "disclosure", disclosure_key_value: storage_key, feed_preview_scope: true}
+  end
+
   def header
     summary(class: HEADER, data: {action: "click->disclosure#toggle"}) do
-      render(Components::SettingRow.new(label:, help: help_text)) do
-        render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
-        toggle
+      render(Components::SettingRow.new(label:, help: help_text, align: :title)) do
+        span(class: "flex h-6 flex-none items-center") do
+          render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 text-text-muted")
+        end
       end
     end
   end

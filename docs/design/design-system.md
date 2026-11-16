@@ -59,7 +59,9 @@ and centre themselves.
 Flash messages render as dismissable toasts (`Components::Toasts`, rendered once
 from the layout so every page gets them). The `warning` level (a save that leaves a plugin disabled) is sticky: it
 stays until dismissed. A toast rises 8px as it fades in, and the `toast`
-controller plays `toast-leave` before it removes the element. Small dropdowns (the user menu) are the
+controller plays `toast-leave` before it removes the element. A toast is
+`data-turbo-temporary`: Turbo drops it from the page cache, so Back never
+replays one. Small dropdowns (the user menu) are the
 standard pattern: a native `<details>` with the `dropdown` Stimulus controller.
 The panel (`.dropdown-menu`, a `menu` target) fades/slides in via CSS on `[open]`
 and fades/slides back out on close — the controller intercepts the close
@@ -89,6 +91,13 @@ off it. Options: `data-disclosure-key-value` remembers the state in
 on a link, button, input or label inside the summary does not toggle, the same
 as the platform. Durations come from the CSS tokens through `lib/motion.js`,
 which reads both `180ms` and the `.18s` the minifier rewrites it to.
+
+A new summary holds no control: a screen reader reads a `<summary>` as one
+button and can lose what is nested in it. A control that belongs in the header
+sits beside the `<details>`, and the controller moves to their shared wrapper
+with the `<details>` as its `details` target (the feed type card and its
+toggle). On `turbo:before-cache` the controller settles a reveal in flight, so
+a cached page never comes back half closed.
 
 The top bar also gains a **server switcher** when a page is scoped to one server
 (the dashboard passes `current_server:` + `servers:` to `AppShell`): a `dropdown`
@@ -441,7 +450,7 @@ Motion explains a change. It has four jobs, and each job has one treatment:
 | --- | --- | --- | --- | --- |
 | Feedback | hover, switches, chevrons, tooltips, copy buttons | colour, or a small turn or slide | 120ms | 120ms |
 | Reveal in place | every section that opens inside the page | height | 180ms | 120ms |
-| Overlay | menus, toasts, dialogs | opacity and at most 8px of travel | 180ms | 120ms |
+| Overlay | menus, toasts, dialogs | opacity and at most 8px of travel | 180ms | 120ms; a dialog closes at once |
 | Signature | save bar, theme switch | spring, ink across the page | 420-580ms | 300ms |
 
 Rules:
@@ -462,13 +471,16 @@ Tokens live in `tokens.css`: `--dur-fast` 120ms, `--dur-base` 180ms, `--dur-slow
 for the save bar. `theme.css` points Tailwind's default transition duration and
 easing at `--dur-fast` and `--ease-standard`, so a bare `transition-colors` or
 `transition-transform` is already on the system; do not add `duration-*` or
-`ease-*` to one.
+`ease-*` to one. The signature moments keep literal durations beside their
+keyframes: they sit off the scale on purpose, and each value has one user.
 
 Reduced motion is one global rule at the end of `utilities.css` that collapses
-every CSS animation and transition to 0.01ms. `animationend` still fires, so
-controllers that wait for it need no branch of their own, and components need no
-`motion-safe:` variant. Only motion driven from JavaScript checks
-`prefers-reduced-motion` itself.
+every CSS animation and transition to 0.01ms and turns smooth scrolling off.
+`animationend` still fires, so controllers that wait for it need no branch of
+their own, and components need no `motion-safe:` variant. Only motion driven
+from JavaScript checks `prefers-reduced-motion` itself. One exception, in
+`save_bar.css`: the ring on a blocked navigation keeps its fade. It is a colour
+change, and without it a refused click shows nothing.
 
 The CSS patterns are in `utilities.css` (`card-lift`, `toast-enter` and
 `toast-leave`, the `dialog[open]` entrance, the dropdown/chevron and theme-morph
