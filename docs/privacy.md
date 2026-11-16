@@ -73,5 +73,8 @@ associated, so the op handles them explicitly:
   a Solid Queue job's arguments and are swept out on a schedule; both retention
   windows are quoted in the privacy policy. See
   [Twilight Struggle](integrations/twilight-struggle.md).
+- **Sentry gets diagnostics, not content.** Errors, traces and one cron check-in
+  go to Sentry's EU region. The SDK's data-collection settings stay off and a spec
+  pins them. See [Error tracking](running/error-tracking.md).
 
 See also [Adding a plugin](plugins/adding-a-plugin.md) § Privacy & data.

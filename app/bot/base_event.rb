@@ -39,8 +39,7 @@ module Bot
     def call
       with_connection { handle }
     rescue => e
-      Rails.logger.error("[#{self.class.name}] #{e.class}: #{e.message}")
-      OwnerNotifier.report(bot: event.bot, error: e, source: "event #{self.class.name}")
+      ErrorReporter.report(bot: event.bot, error: e, source: "event #{self.class.name}")
       nil
     end
 

@@ -72,6 +72,7 @@ Variable reference:
 | `OWNER_ID` | Your personal Discord user snowflake |
 | `DISCORD_CLIENT_ID` | OAuth2 client ID from Discord Developer Portal |
 | `DISCORD_CLIENT_SECRET` | OAuth2 client secret from Discord Developer Portal |
+| `SENTRY_DSN` | Optional. DSN of your Sentry project; blank sends nothing. See [error tracking](error-tracking.md) |
 
 Alternatively, use `kamal secrets fetch` with a secrets manager — see
 [Kamal docs on secrets](https://kamal-deploy.org/docs/configuration/secrets/).

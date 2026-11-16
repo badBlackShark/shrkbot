@@ -102,8 +102,7 @@ module Bot
         execute
       end
     rescue => e
-      Rails.logger.error("[#{self.class.command_name}] #{e.class}: #{e.message}")
-      OwnerNotifier.report(bot: event.bot, error: e, source: "command /#{self.class.command_name}")
+      ErrorReporter.report(bot: event.bot, error: e, source: "command /#{self.class.command_name}")
       respond_error
     end
 

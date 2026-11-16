@@ -180,7 +180,7 @@ RSpec.describe Bot::BaseCommand do
       let(:klass) { command_class { raise "boom" } }
 
       it "reports to the owner and responds without raising" do
-        expect(Bot::OwnerNotifier).to receive(:report).with(hash_including(source: "command /probe"))
+        expect(Bot::ErrorReporter).to receive(:report).with(hash_including(source: "command /probe"))
         expect(event).to receive(:respond).with(hash_including(ephemeral: true))
         expect { dispatch }.not_to raise_error
       end
@@ -192,7 +192,7 @@ RSpec.describe Bot::BaseCommand do
       let(:klass) { command_class { raise "boom" } }
 
       it "swallows the secondary failure" do
-        allow(Bot::OwnerNotifier).to receive(:report)
+        allow(Bot::ErrorReporter).to receive(:report)
         allow(event).to receive(:respond).and_raise("interaction expired")
         expect { dispatch }.not_to raise_error
       end
