@@ -179,7 +179,7 @@ RSpec.describe Bot::BaseCommand do
 
       let(:klass) { command_class { raise "boom" } }
 
-      it "reports to the owner and responds without raising" do
+      it "reports the error and responds without raising" do
         expect(Bot::ErrorReporter).to receive(:report).with(hash_including(source: "command /probe"))
         expect(event).to receive(:respond).with(hash_including(ephemeral: true))
         expect { dispatch }.not_to raise_error
