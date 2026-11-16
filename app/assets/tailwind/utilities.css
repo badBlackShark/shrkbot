@@ -134,6 +134,15 @@ ol.discord-list {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+@keyframes toastEnter {
+  from { opacity: 0; transform: translateY(8px); }
+}
+@keyframes toastLeave {
+  to { opacity: 0; transform: translateY(4px); }
+}
+@keyframes dialogEnter {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+}
 
 .card-lift {
   transition: transform var(--dur-base) var(--ease-standard),
@@ -146,13 +155,17 @@ ol.discord-list {
   border-color: var(--accent-soft-bd);
 }
 
-.anim-fade { animation: fadeIn var(--dur-slow); }
+.toast-enter { animation: toastEnter var(--dur-base) var(--ease-standard); }
+.toast-leave { animation: toastLeave var(--dur-fast) var(--ease-exit) forwards; }
+
+dialog[open] { animation: dialogEnter var(--dur-base) var(--ease-standard); }
+dialog[open]::backdrop { animation: fadeIn var(--dur-base) var(--ease-standard); }
 
 details[open] > .dropdown-menu {
   animation: menuEnter var(--dur-base) var(--ease-standard);
 }
 details[open] > .dropdown-menu.is-closing {
-  animation: menuLeave var(--dur-base) var(--ease-exit) forwards;
+  animation: menuLeave var(--dur-fast) var(--ease-exit) forwards;
 }
 details[open] > .dropdown-menu.no-enter:not(.is-closing) {
   animation: none;
@@ -185,7 +198,8 @@ details:has(.dropdown-menu.is-closing) .dropdown-chevron { transform: rotate(0de
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
-  ::after {
+  ::after,
+  ::backdrop {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

@@ -58,7 +58,10 @@ and centre themselves.
 
 Flash messages render as dismissable toasts (`Components::Toasts`, rendered once
 from the layout so every page gets them). The `warning` level (a save that leaves a plugin disabled) is sticky: it
-stays until dismissed. Small dropdowns (the user menu) are the
+stays until dismissed. A toast rises 8px as it fades in, and the `toast`
+controller plays `toast-leave` before it removes the element. A toast is
+`data-turbo-temporary`: Turbo drops it from the page cache, so Back never
+replays one. Small dropdowns (the user menu) are the
 standard pattern: a native `<details>` with the `dropdown` Stimulus controller.
 The panel (`.dropdown-menu`, a `menu` target) fades/slides in via CSS on `[open]`
 and fades/slides back out on close — the controller intercepts the close
@@ -437,7 +440,7 @@ Motion explains a change. It has four jobs, and each job has one treatment:
 | --- | --- | --- | --- | --- |
 | Feedback | hover, switches, chevrons, tooltips, copy buttons | colour, or a small turn or slide | 120ms | 120ms |
 | Reveal in place | every section that opens inside the page | height | 180ms | 120ms |
-| Overlay | menus, toasts, dialogs | opacity and at most 8px of travel | 180ms | 120ms |
+| Overlay | menus, toasts, dialogs | opacity and at most 8px of travel | 180ms | 120ms; a dialog closes at once |
 | Signature | save bar, theme switch | spring, ink across the page | 420-580ms | 300ms |
 
 Rules:
@@ -469,8 +472,9 @@ from JavaScript checks `prefers-reduced-motion` itself. One exception, in
 `save_bar.css`: the ring on a blocked navigation keeps its fade. It is a colour
 change, and without it a refused click shows nothing.
 
-The CSS patterns are in `utilities.css` (`card-lift`, `anim-fade`, the
-dropdown/chevron and theme-morph choreography) and `save_bar.css`. The chamfer
+The CSS patterns are in `utilities.css` (`card-lift`, `toast-enter` and
+`toast-leave`, the `dialog[open]` entrance, the dropdown/chevron and theme-morph
+choreography) and `save_bar.css`. The chamfer
 geometry helpers (`chamfer-tile`, `chamfer-tile-sm`, `chamfer-cta`,
 `chamfer-bar`) sit beside them and are for brand-forward surfaces only. Buttons
 darken on hover (`hover:bg-accent-fill-hover` for primary, a sand wash for the
@@ -488,6 +492,10 @@ through it.
 The dialog cancels on a click outside it, not on a drag that merely ends outside
 (selecting text inside the dialog and releasing over the backdrop keeps it open):
 both the `mousedown` and the `click` must land on the backdrop.
+
+The dialog and its backdrop fade in through CSS on `dialog[open]`, so any
+`<dialog>` gets the entrance. It closes with no animation: the user has just
+answered it.
 
 ## Layout: flex, not grid
 

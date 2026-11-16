@@ -24,5 +24,9 @@ RSpec.describe Components::Toast do
       expect(html).to include("bg-success-solid")
       expect(html).not_to include("data-toast-sticky-value")
     end
+
+    it "stays out of Turbo's page cache, so Back never replays it" do
+      expect(html).to include("data-turbo-temporary")
+    end
   end
 end
