@@ -27,8 +27,12 @@
   100% { box-shadow: 0 0 0 2.5px color-mix(in srgb, var(--accent-2), transparent 100%); }
 }
 .save-bar-anim { animation: saveBarIn 420ms var(--ease-spring) forwards; }
-.save-bar-out { animation: saveBarOut 300ms cubic-bezier(0.4, 0, 0.8, 0.8) forwards; }
+.save-bar-out { animation: saveBarOut 300ms var(--ease-exit) forwards; }
 .save-bar-blocked { animation: saveBarShake 420ms var(--ease-standard), saveBarRingFade 1600ms ease-out; }
 
 /* lift toasts clear of the save bar on config pages, where both sit bottom-centre */
 body:has(.save-bar) #toasts { bottom: 6rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .save-bar-blocked { animation-duration: 0.01ms, 1600ms !important; }
+}
