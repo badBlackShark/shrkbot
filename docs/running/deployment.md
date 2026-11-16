@@ -70,8 +70,13 @@ Variable reference:
 | `DISCORD_TOKEN` | Bot token from Discord Developer Portal |
 | `CLIENT_ID` | Bot application ID from Discord Developer Portal |
 | `OWNER_ID` | Your personal Discord user snowflake |
+| `OWNER_GUILD_ID` | Optional. Discord server where owner-only commands are registered; blank registers them nowhere |
 | `DISCORD_CLIENT_ID` | OAuth2 client ID from Discord Developer Portal |
 | `DISCORD_CLIENT_SECRET` | OAuth2 client secret from Discord Developer Portal |
+| `TWILIGHT_STRUGGLE_API_KEYS` | Optional. Comma-separated bearer keys for the results API; blank rejects every request. `ruby -rsecurerandom -e 'puts SecureRandom.urlsafe_base64(32)'` |
+| `TWITCH_CLIENT_ID` | Optional. Client ID of your Twitch app (dev.twitch.tv console); blank disables the Twitch sub-plugin |
+| `TWITCH_CLIENT_SECRET` | Client secret of the same Twitch app |
+| `TWITCH_EVENTSUB_SECRET` | Optional. Signs the webhook notifications Twitch sends; blank falls back to polling. `openssl rand -hex 32` |
 | `SENTRY_DSN` | Optional. DSN of your Sentry project; blank sends nothing. See [error tracking](error-tracking.md) |
 
 Alternatively, use `kamal secrets fetch` with a secrets manager — see
