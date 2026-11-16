@@ -4,11 +4,19 @@ import { Reveal } from "lib/reveal"
 const INTERACTIVE = "a, button, input, label, select, textarea"
 
 export default class extends Controller {
+  static targets = ["details"]
   static values = { key: String }
 
   connect() {
-    this.reveal = new Reveal(this.element)
-    if (!this.element.open && this.#stored === "open") this.element.open = true
+    const details = this.hasDetailsTarget ? this.detailsTarget : this.element
+    this.reveal = new Reveal(details)
+    if (!details.open && this.#stored === "open") details.open = true
+    this.settle = () => this.reveal.settle()
+    document.addEventListener("turbo:before-cache", this.settle)
+  }
+
+  disconnect() {
+    document.removeEventListener("turbo:before-cache", this.settle)
   }
 
   toggle(event) {

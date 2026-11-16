@@ -129,6 +129,26 @@ test("a section that has settled starts a fresh animation on the next toggle", (
   assert.deepEqual(env.animations[1].effect.keyframes, { height: ["46px", "202px"] })
 })
 
+test("settling early lands a closing section where the animation would have", () => {
+  const { details, env, reveal: subject } = reveal({ open: true })
+  subject.toggle()
+
+  subject.settle()
+
+  assert.equal(details.open, false)
+  assert.equal(details.hasAttribute("data-closing"), false)
+  assert.equal(details.style.overflow, "")
+  assert.equal(env.animations[0].cancelled, true)
+})
+
+test("settling a section at rest changes nothing", () => {
+  const { details, reveal: subject } = reveal({ open: true })
+
+  subject.settle()
+
+  assert.equal(details.open, true)
+})
+
 test("set does nothing when the section is already heading that way", () => {
   const { env, reveal: subject } = reveal({ open: false })
   subject.set(true)

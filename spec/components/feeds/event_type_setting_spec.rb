@@ -27,8 +27,9 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   end
 
   it "is a disclosure that remembers its open state per type" do
-    expect(details["data-controller"]).to eq("disclosure")
-    expect(details["data-disclosure-key-value"]).to eq("feeds-message-1145350-patch_notes_published")
+    expect(card["data-controller"]).to eq("disclosure")
+    expect(card["data-disclosure-key-value"]).to eq("feeds-message-1145350-patch_notes_published")
+    expect(details["data-disclosure-target"]).to eq("details")
     expect(details).not_to have_attribute("open")
   end
 
@@ -37,16 +38,20 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   end
 
   it "wires the checked toggle to open and close the card" do
-    toggle = header.at_css("input[type=checkbox]")
+    toggle = card.at_css("input[type=checkbox]")
 
     expect(toggle.attributes.keys).to include("data-type-toggle", "checked")
     expect(toggle["data-action"]).to eq("change->disclosure#follow")
   end
 
-  it "folds from anywhere in the header, and not from the settings below it" do
+  it "keeps the toggle beside the section, so a closed card still shows it and the summary holds no control" do
+    expect(details.at_css("[data-type-toggle]")).to be_nil
+    expect(header.at_css("input, label, button, a")).to be_nil
+  end
+
+  it "folds from the header" do
     expect(header["data-action"]).to eq("click->disclosure#toggle")
     expect(header.at_css(".dropdown-chevron")).to be_present
-    expect(body.at_css("[data-action*='disclosure#toggle']")).to be_nil
   end
 
   context "when the type is not followed" do
