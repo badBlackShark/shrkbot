@@ -20,7 +20,7 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
           label: t(".subscribe", tournament: tournament.name)
         },
         prerequisites:,
-        parent_crumb: {label: PluginCatalog.find(::TwilightStruggle::PLUGIN_KEY).name, href: server_twilight_struggle_path(server_configuration.discord_id)}
+        parent_crumb:
       ) do
         render Components::TwilightStruggle::ConfigForm.new(destination: @destination)
       end
@@ -35,6 +35,13 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
       title: tournament.name,
       aside: switcher
     )
+  end
+
+  def parent_crumb
+    {
+      label: PluginCatalog.find(::TwilightStruggle::PLUGIN_KEY).name,
+      href: server_twilight_struggle_path(server_configuration.discord_id)
+    }
   end
 
   def tournament

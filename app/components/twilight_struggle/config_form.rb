@@ -35,7 +35,11 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
     return unless inherited_channel_label
 
     render Components::TwilightStruggle::InheritNote.new do
-      t(".channel.inherits_from", parent: inherited.source_of(:discord_channel_id).name, channel: inherited_channel_label)
+      t(
+        ".channel.inherits_from",
+        parent: inherited.source_of(:discord_channel_id).name,
+        channel: inherited_channel_label
+      )
     end
   end
 
