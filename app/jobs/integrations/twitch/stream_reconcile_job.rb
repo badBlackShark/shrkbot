@@ -46,7 +46,10 @@ module Integrations
           )
         rescue => error
           log_bug(watch, error)
-          bugs << "#{watch.label}: #{error.class}: #{error.message}" if NotifiesOwner.claim("twitch/streams/bug/#{watch.id}/#{error.class}")
+          if NotifiesOwner.claim("twitch/streams/bug/#{watch.id}/#{error.class}")
+            Rails.error.report(error, severity: :error)
+            bugs << "#{watch.label}: #{error.class}: #{error.message}"
+          end
         end
         ReportPollBugsJob.perform_later(bugs) if bugs.any?
       end

@@ -20,7 +20,7 @@ RSpec.describe "Sentry configuration" do
 
     let(:collection) { configuration.data_collection }
 
-    it "leaves out identity, cookies, bodies, query strings, query values, job arguments and local variables, as the privacy policy promises" do
+    it "leaves out identity, cookies, bodies, query strings, bound query values, job arguments and local variables, as the privacy policy promises" do
       expect(collected).to eq(
         user_info: false,
         cookies: :off,
@@ -30,6 +30,22 @@ RSpec.describe "Sentry configuration" do
         queues: false,
         stack_frame_variables: :off
       )
+    end
+  end
+
+  describe "request headers" do
+    subject(:headers) do
+      Sentry::RequestInterface.new(
+        env:,
+        data_collection: configuration.data_collection,
+        rack_env_whitelist: configuration.rack_env_whitelist
+      ).headers
+    end
+
+    let(:env) { Rack::MockRequest.env_for("/servers", "HTTP_REFERER" => "https://shrkbot.com/servers?guild=1") }
+
+    it "filter the referer, which carries the previous page's query string" do
+      expect(headers).to include("Referer" => "[Filtered]")
     end
   end
 
@@ -57,6 +73,10 @@ RSpec.describe "Sentry configuration" do
 
     it "watches exactly one recurring task, because the plan has one monitor seat" do
       expect(monitored).to eq(["integrations_stranded_event_dispatch"])
+    end
+
+    it "checks in from production only, so a stopped development box never alerts" do
+      expect(configuration.enabled_patches).not_to include(:solid_queue_recurring)
     end
   end
 end

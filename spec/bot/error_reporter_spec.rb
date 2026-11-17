@@ -30,4 +30,31 @@ RSpec.describe Bot::ErrorReporter do
       expect(Bot::OwnerNotifier).to have_received(:report).with(bot:, error:, source: "command /probe")
     end
   end
+
+  describe ".track" do
+    subject(:track) { described_class.track(error:, source: "autocomplete /probe") }
+
+    let(:error) { RuntimeError.new("boom") }
+
+    before do
+      allow(Rails.error).to receive(:report)
+      allow(Bot::OwnerNotifier).to receive(:report)
+    end
+
+    it "hands the error to the Rails error reporter tagged with where it came from" do
+      track
+      expect(Rails.error).to have_received(:report).with(
+        error,
+        handled: true,
+        severity: :error,
+        source: "bot",
+        context: {tags: {origin: "autocomplete /probe"}}
+      )
+    end
+
+    it "leaves the owner alone, because autocomplete runs on every keystroke" do
+      track
+      expect(Bot::OwnerNotifier).not_to have_received(:report)
+    end
+  end
 end

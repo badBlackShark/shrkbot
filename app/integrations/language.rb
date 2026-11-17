@@ -18,6 +18,7 @@ module Integrations
     def self.alert_owner(error)
       return unless NotifiesOwner.claim("language/#{error.class}")
 
+      Rails.error.report(error, severity: :error)
       ReportPollBugsJob.perform_later(["Language detection: #{error.class}: #{error.message}"])
     end
     private_class_method :alert_owner

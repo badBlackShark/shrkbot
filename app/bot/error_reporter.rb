@@ -5,6 +5,11 @@ module Bot
     module_function
 
     def report(bot:, error:, source:)
+      track(error:, source:)
+      OwnerNotifier.report(bot:, error:, source:)
+    end
+
+    def track(error:, source:)
       Rails.logger.error("[#{source}] #{error.class}: #{error.message}")
       Rails.error.report(
         error,
@@ -13,7 +18,6 @@ module Bot
         source: "bot",
         context: {tags: {origin: source}}
       )
-      OwnerNotifier.report(bot:, error:, source:)
     end
   end
 end

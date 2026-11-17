@@ -30,12 +30,18 @@ RSpec.describe Integrations::Language do
       before do
         allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
         allow(described_class).to receive(:model).and_raise(RuntimeError, "boom")
+        allow(Rails.error).to receive(:report)
       end
 
       it { is_expected.to be_nil }
 
       it "alerts the owner" do
         expect { language }.to have_enqueued_job(Integrations::ReportPollBugsJob)
+      end
+
+      it "sends the failure to the error tracker" do
+        language
+        expect(Rails.error).to have_received(:report).with(an_instance_of(RuntimeError), severity: :error)
       end
 
       context "when it fails again within a day" do

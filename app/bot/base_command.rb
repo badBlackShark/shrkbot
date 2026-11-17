@@ -102,8 +102,8 @@ module Bot
         execute
       end
     rescue => e
-      ErrorReporter.report(bot: event.bot, error: e, source: "command /#{self.class.command_name}")
       respond_error
+      ErrorReporter.report(bot: event.bot, error: e, source: "command /#{self.class.command_name}")
     end
 
     def execute
@@ -113,7 +113,7 @@ module Bot
     def run_autocomplete
       with_connection { autocomplete }
     rescue => e
-      Rails.logger.error("[#{self.class.command_name}] autocomplete #{e.class}: #{e.message}")
+      ErrorReporter.track(error: e, source: "autocomplete /#{self.class.command_name}")
       begin
         event.respond(choices: [])
       rescue

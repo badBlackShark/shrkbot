@@ -94,6 +94,7 @@ RSpec.describe Integrations::PollJob do
   context "when a watcher raises something that is not an integration error" do
     before do
       allow(watchers.fetch(first)).to receive(:observe).and_raise(NoMethodError, "our bug")
+      allow(Rails.error).to receive(:report)
     end
 
     it "records it as a failure without raising and still polls the other" do
@@ -108,11 +109,21 @@ RSpec.describe Integrations::PollJob do
         .once
     end
 
+    it "sends the bug to the error tracker" do
+      perform
+      expect(Rails.error).to have_received(:report).with(an_instance_of(NoMethodError), severity: :error)
+    end
+
     context "when the watch was already failing with the same error class" do
       let!(:first) { create(:integration_watch, failing_since: 2.hours.ago, polled_at: 1.hour.ago, last_error: "NoMethodError: older") }
 
       it "does not report it again" do
         expect { perform }.not_to have_enqueued_job(Integrations::ReportPollBugsJob)
+      end
+
+      it "does not send it to the error tracker again" do
+        perform
+        expect(Rails.error).not_to have_received(:report)
       end
     end
 
