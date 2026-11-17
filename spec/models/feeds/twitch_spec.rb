@@ -74,7 +74,7 @@ RSpec.describe Feeds::Twitch do
       let(:event) { create(:twitch_stream_started_event, watch: subscription.watch) }
 
       before do
-        allow(Feeds::Twitch::LiveImage).to receive(:for).with(event).and_return(nil)
+        allow(Feeds::Twitch::LiveImage).to receive(:for).with(event, subscription:).and_return(nil)
       end
 
       it { is_expected.to be_a(Feeds::Twitch::Announcement) }

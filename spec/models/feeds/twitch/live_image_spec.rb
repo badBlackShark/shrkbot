@@ -5,8 +5,9 @@ require "rails_helper"
 RSpec.describe Feeds::Twitch::LiveImage do
   include ActiveSupport::Testing::TimeHelpers
 
-  subject(:result) { described_class.for(event) }
+  subject(:result) { described_class.for(event, subscription:) }
 
+  let(:subscription) { build(:feed_subscription, :twitch) }
   let(:category_id) { "1145360737" }
   let(:event) { instance_double(Integrations::Twitch::StreamStarted, session: "40000000001", login: "shrkbot_dev", category_id:) }
   let(:previews) { instance_double(Integrations::Twitch::Previews) }
@@ -30,14 +31,26 @@ RSpec.describe Feeds::Twitch::LiveImage do
   end
 
   it "checks the preview once a minute per stream, so every server gets the same URL" do
-    first = described_class.for(event)
+    first = described_class.for(event, subscription:)
     travel 59.seconds
-    second = described_class.for(event)
+    second = described_class.for(event, subscription:)
     travel 2.seconds
-    described_class.for(event)
+    described_class.for(event, subscription:)
 
     expect(second).to eq(first)
     expect(previews).to have_received(:url_for).twice
+  end
+
+  context "when the follow has the preview frame off" do
+    before do
+      subscription.settings.show_preview_frame = false
+    end
+
+    it "is nil without looking up a preview or box art" do
+      expect(result).to be_nil
+      expect(previews).not_to have_received(:url_for)
+      expect(games).not_to have_received(:find)
+    end
   end
 
   context "when the preview is not ready" do
@@ -48,7 +61,7 @@ RSpec.describe Feeds::Twitch::LiveImage do
     end
 
     it "looks the box art up once for repeated calls" do
-      2.times { described_class.for(event) }
+      2.times { described_class.for(event, subscription:) }
 
       expect(games).to have_received(:find).once
     end
@@ -80,16 +93,16 @@ RSpec.describe Feeds::Twitch::LiveImage do
       end
 
       it "does not retry within ten minutes but does after" do
-        described_class.for(event)
+        described_class.for(event, subscription:)
 
         travel_to(9.minutes.from_now) do
-          described_class.for(event)
+          described_class.for(event, subscription:)
         end
 
         expect(games).to have_received(:find).once
 
         travel_to(11.minutes.from_now) do
-          described_class.for(event)
+          described_class.for(event, subscription:)
         end
 
         expect(games).to have_received(:find).twice

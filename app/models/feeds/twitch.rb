@@ -105,7 +105,7 @@ module Feeds
     end
 
     def self.scalar_settings
-      [:role_id, *POST_TYPES.map(&:role_column), :live_end_mode, :show_viewers, :switched_away]
+      [:role_id, *POST_TYPES.map(&:role_column), :live_end_mode, :show_viewers, :show_preview_frame, :switched_away]
     end
     private_class_method :scalar_settings
 
@@ -146,7 +146,7 @@ module Feeds
       when Integrations::Twitch::StreamEnded then Ending.announcement(event:, subscription:)
       when Integrations::Twitch::VideoEvent then VideoAnnouncement.new(event:, subscription:)
       when Integrations::Twitch::ClipEvent then ClipAnnouncement.new(event:, subscription:, category: GameLookup.find(event.category_id))
-      else Announcement.new(event:, subscription:, image_url: LiveImage.for(event))
+      else Announcement.new(event:, subscription:, image_url: LiveImage.for(event, subscription:))
       end
     end
   end

@@ -11,7 +11,10 @@ class Components::Feeds::Twitch::TypeFields < Components::Base
     render(Components::Feeds::OverrideFields.new(subscription: @subscription, event_type: @event_type, event: @event)) do
       role_override
     end
-    render Components::Feeds::Twitch::ViewersToggle.new(subscription: @subscription) if live?
+    if live?
+      render Components::Feeds::Twitch::SettingToggle.new(subscription: @subscription, setting: :show_viewers)
+      render Components::Feeds::Twitch::SettingToggle.new(subscription: @subscription, setting: :show_preview_frame)
+    end
     yield
     render Components::Feeds::Twitch::EndModeField.new(subscription: @subscription) if live?
   end

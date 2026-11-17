@@ -5,7 +5,9 @@ module Feeds
     class LiveImage
       PREVIEW_TTL = 1.minute
 
-      def self.for(event)
+      def self.for(event, subscription:)
+        return unless subscription.settings.show_preview_frame
+
         preview(event) || box_art(event)
       end
 

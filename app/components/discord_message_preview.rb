@@ -4,6 +4,8 @@ class Components::DiscordMessagePreview < Components::Base
   include Phlex::Rails::Helpers::ImageTag
 
   MESSAGE_TEXT_CLASSES = "whitespace-pre-wrap text-sm leading-relaxed text-[color:var(--discord-text)]"
+  CARD_CLASSES = "mt-2 max-w-lg rounded-lg border border-[color:var(--discord-code-bd)] bg-[var(--discord-code-bg)] p-3 text-[color:var(--discord-text)]"
+  IMAGE_PLACEHOLDER = "flex items-center justify-center rounded-lg bg-[var(--discord-divider)] p-2 text-center text-xs text-[color:var(--discord-muted)]"
 
   def initialize(label:, channel: nil, bot_name: "shrkbot", messages: [])
     @label = label
@@ -58,22 +60,46 @@ class Components::DiscordMessagePreview < Components::Base
   end
 
   def card(card)
-    div(class: "mt-2 max-w-lg rounded-lg border border-[color:var(--discord-code-bd)] bg-[var(--discord-code-bg)] p-3 text-[color:var(--discord-text)]") do
-      card_header(card)
-      card_body(card[:body])
+    div(class: CARD_CLASSES) do
+      card_section(card)
+      card_media(card[:media]) if card[:media]
+      div(class: "mt-3") { card_lines(card[:footer]) } if card[:footer]
     end
+  end
+
+  def card_section(card)
+    div(class: "flex items-start gap-3") do
+      div(class: "min-w-0 flex-1") do
+        card_header(card)
+        div(class: "mt-1") { card_lines(lines_of(card[:body])) }
+      end
+      image_placeholder(card[:thumbnail], "size-[85px] flex-none") if card[:thumbnail]
+    end
+  end
+
+  def card_media(media)
+    div(class: media[:class]) do
+      image_placeholder(media[:label], "mt-3 aspect-video w-[32rem] max-w-full")
+    end
+  end
+
+  def lines_of(body)
+    body.is_a?(Array) ? body : [{text: body, class: nil}]
+  end
+
+  def card_lines(lines)
+    lines.each do |line|
+      p(class: ["whitespace-pre-wrap text-sm", line[:class]].compact.join(" ")) { line[:text] }
+    end
+  end
+
+  def image_placeholder(label, shape)
+    div(class: "#{IMAGE_PLACEHOLDER} #{shape}") { label }
   end
 
   def card_with_button(content)
     card(content)
     card_button(content[:button]) if content[:button]
-  end
-
-  def card_body(body)
-    lines = body.is_a?(Array) ? body : [{text: body, class: nil}]
-    lines.each_with_index do |line, index|
-      p(class: ["whitespace-pre-wrap text-sm", ("mt-1" if index.zero?), line[:class]].compact.join(" ")) { line[:text] }
-    end
   end
 
   def card_button(label)

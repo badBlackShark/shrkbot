@@ -7,8 +7,9 @@ module Feeds
       ENDED = "Ended 5 minutes ago"
       STREAM_LENGTH_SECONDS = 7200
       VIDEO_LENGTH_SECONDS = 5400
-      VIEWERS_SHOWN = "hidden group-has-[[data-viewers-toggle]:checked]/type:block"
-      VIEWERS_HIDDEN = "group-has-[[data-viewers-toggle]:checked]/type:hidden"
+      VIEWERS_SHOWN = "hidden group-has-[[data-setting-toggle=show-viewers]:checked]/type:block"
+      VIEWERS_HIDDEN = "group-has-[[data-setting-toggle=show-viewers]:checked]/type:hidden"
+      FRAME_SHOWN = "hidden group-has-[[data-setting-toggle=show-preview-frame]:checked]/type:block"
       VIEWERS_WATCHING = 1234
       VIEWERS_PEAK = 2345
       SWITCHED_TO = "Just Chatting"
@@ -33,6 +34,7 @@ module Feeds
         {
           eyebrow:,
           title: value(:title),
+          thumbnail: image_label(:profile_picture),
           body: [
             line("Switched to #{SWITCHED_TO}"),
             line(STARTED)
@@ -47,6 +49,10 @@ module Feeds
         {text:, class: css}
       end
 
+      def image_label(name)
+        I18n.t("components.feeds.twitch.samples.images.#{name}")
+      end
+
       def watch_token
         "streamer"
       end
@@ -56,13 +62,14 @@ module Feeds
       end
 
       def live_card_ended
-        live_card.merge(body: live_card[:body] + [line("Stream ended 5 minutes ago")])
+        live_card.merge(footer: [line("Stream ended 5 minutes ago")])
       end
 
       def ended_card(vod:)
         {
           eyebrow: "#{@watch_name} · Was live on Twitch",
           title: value(:title),
+          thumbnail: image_label(:profile_picture),
           body: [
             line("Streamed #{value(:category)} for #{::Duration.about(STREAM_LENGTH_SECONDS)}"),
             line("At least #{VIEWERS_PEAK.to_fs(:delimited)} viewers at the peak · #{ENDED.downcase}", VIEWERS_SHOWN),
@@ -76,6 +83,8 @@ module Feeds
         {
           eyebrow:,
           title: value(:title),
+          thumbnail: image_label(:profile_picture),
+          media: {label: image_label(:preview_frame), class: FRAME_SHOWN},
           body: [
             line("Streaming #{value(:category)}"),
             line("#{VIEWERS_WATCHING.to_fs(:delimited)} watching · #{STARTED.downcase}", VIEWERS_SHOWN),
@@ -89,6 +98,8 @@ module Feeds
         {
           eyebrow:,
           title: value(:title),
+          thumbnail: image_label(:profile_picture),
+          media: {label: image_label(:thumbnail)},
           body: "Clipped by #{value(:clipper)} from #{value(:category)}\n#{CLIP_LINE}",
           button: ClipAnnouncement::LINK_LABEL
         }
@@ -98,6 +109,8 @@ module Feeds
         {
           eyebrow:,
           title: value(:title),
+          thumbnail: image_label(:profile_picture),
+          media: {label: image_label(:thumbnail)},
           body: ::Duration.about(VIDEO_LENGTH_SECONDS).upcase_first,
           button: VideoAnnouncement::LINK_LABEL
         }

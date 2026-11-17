@@ -13,6 +13,7 @@ module Feeds
       belongs_to :subscription, class_name: "Feeds::Subscription"
 
       validates :show_viewers, inclusion: {in: [true, false]}
+      validates :show_preview_frame, inclusion: {in: [true, false]}
       validates :live_end_mode, inclusion: {in: LIVE_END_MODES}
       validates :switched_away, inclusion: {in: SWITCHED_AWAY_MODES}
       validates :subscription_id, uniqueness: true

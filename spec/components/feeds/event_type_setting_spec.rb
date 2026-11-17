@@ -125,8 +125,8 @@ RSpec.describe Components::Feeds::EventTypeSetting do
 
       it "is the group the viewer-count preview lines react to, around the toggle they read" do
         expect(card["class"].split).to include("group/#{viewers_group}")
-        expect(card.at_css("[data-viewers-toggle]")).to be_present
-        expect(card.css("[class*='data-viewers-toggle']")).not_to be_empty
+        expect(card.at_css("[data-setting-toggle=show-viewers]")).to be_present
+        expect(card.css("[class*='data-setting-toggle=show-viewers']")).not_to be_empty
       end
     end
 

@@ -69,9 +69,54 @@ RSpec.describe Components::DiscordMessagePreview do
       }
     end
 
-    it "renders each line as its own paragraph with its class, the first one spaced from the title" do
-      expect(html).to match(%r{<p class="whitespace-pre-wrap text-sm mt-1">First line</p>})
+    it "renders each line as its own paragraph with its class" do
+      expect(html).to match(%r{<p class="whitespace-pre-wrap text-sm">First line</p>})
       expect(html).to match(%r{<p class="whitespace-pre-wrap text-sm hidden">Second line</p>})
+    end
+  end
+
+  context "with image slots on a card" do
+    let(:options) do
+      {
+        label: "Preview",
+        messages: [
+          {
+            card: {
+              title: "Live now",
+              body: [{text: "Streaming Hades II", class: nil}],
+              thumbnail: "Profile picture",
+              media: {label: "Preview frame", class: "frame-toggle"},
+              footer: [{text: "Stream ended 5 minutes ago", class: nil}],
+              button: "Watch on Twitch"
+            }
+          }
+        ]
+      }
+    end
+    let(:fragment) { Nokogiri::HTML5.fragment(html) }
+
+    def node_with_class(marker)
+      fragment.css("div").find { |node| node["class"].to_s.include?(marker) }
+    end
+
+    it "puts the thumbnail beside the title" do
+      thumbnail = node_with_class("size-[85px]")
+
+      expect(thumbnail.text).to eq("Profile picture")
+      expect(thumbnail.parent.text).to include("Live now")
+    end
+
+    it "wraps the 16:9 media placeholder in the slot's own class" do
+      media = node_with_class("frame-toggle")
+
+      expect(media.at_css("div.aspect-video").text).to eq("Preview frame")
+    end
+
+    it "orders body, image, then footer, with the button outside the card" do
+      expect(html.index("Streaming Hades II")).to be < html.index("Preview frame")
+      expect(html.index("Preview frame")).to be < html.index("Stream ended 5 minutes ago")
+      expect(node_with_class("--discord-code-bg").text).not_to include("Watch on Twitch")
+      expect(html).to include("Watch on Twitch")
     end
   end
 
@@ -98,6 +143,10 @@ RSpec.describe Components::DiscordMessagePreview do
 
   context "with a card that has no button" do
     let(:options) { {label: "Preview", messages: [{card: {title: "Patch 1.4", body: "Fixed."}}]} }
+
+    it "draws no image placeholders" do
+      expect(html).not_to include("size-[85px]", "aspect-video")
+    end
 
     it "draws no button" do
       expect(html).not_to include("<svg")

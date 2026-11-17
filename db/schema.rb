@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_14_131652) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_17_220747) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -113,6 +113,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_14_131652) do
     t.jsonb "categories", default: [], null: false
     t.string "switched_away", default: "summary", null: false
     t.bigint "role_id"
+    t.boolean "show_preview_frame", default: true, null: false
     t.index ["subscription_id"], name: "index_feed_twitch_settings_on_subscription_id", unique: true
     t.check_constraint "jsonb_array_length(categories) <= 100", name: "feed_twitch_settings_categories_max"
     t.check_constraint "jsonb_typeof(categories) = 'array'::text", name: "feed_twitch_settings_categories_array"

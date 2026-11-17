@@ -429,6 +429,10 @@ en:
             category: ''
             clipper: ''
             title: The boss fight that took all night
+          images:
+            preview_frame: Preview frame
+            profile_picture: Profile picture
+            thumbnail: Thumbnail
           stream_started:
             category: Hades II
             clipper: ''
@@ -437,6 +441,9 @@ en:
             category: ''
             clipper: ''
             title: Everything new in the 1.0 update
+        setting_toggle:
+          show_preview_frame: Show the preview frame
+          show_viewers: Show the viewer count
         switched_away_field:
           label: When the stream switches to another category
           modes:
@@ -447,8 +454,6 @@ en:
           no_ping: No ping
           role_label: Role override
           role_placeholder: Same as above
-        viewers_toggle:
-          label: Show the viewer count
       volume_line:
         counts:
           announcement_published:

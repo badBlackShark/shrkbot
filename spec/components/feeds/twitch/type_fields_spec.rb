@@ -18,7 +18,7 @@ RSpec.describe Components::Feeds::Twitch::TypeFields do
     end
 
     it "renders the live role, the end mode and the viewer toggle" do
-      expect(html).to include('name="subscription[live_role_id]"', 'name="subscription[live_end_mode]"', 'name="subscription[show_viewers]"')
+      expect(html).to include('name="subscription[live_role_id]"', 'name="subscription[live_end_mode]"', 'name="subscription[show_viewers]"', 'name="subscription[show_preview_frame]"')
     end
 
     it "puts the role override beside the channel override" do
@@ -54,7 +54,7 @@ RSpec.describe Components::Feeds::Twitch::TypeFields do
 
     it "offers that type's role only" do
       expect(html).to include('name="subscription[clips_role_id]"')
-      expect(html).not_to include("live_end_mode", "show_viewers")
+      expect(html).not_to include("live_end_mode", "show_viewers", "show_preview_frame")
     end
   end
 

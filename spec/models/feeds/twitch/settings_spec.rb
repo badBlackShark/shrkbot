@@ -11,6 +11,10 @@ RSpec.describe Feeds::Twitch::Settings do
     expect(settings.show_viewers).to be(true)
   end
 
+  it "shows the preview frame by default" do
+    expect(settings.show_preview_frame).to be(true)
+  end
+
   it "marks the card ended with a VOD link by default" do
     expect(settings.live_end_mode).to eq("mark_ended_with_vod")
   end
