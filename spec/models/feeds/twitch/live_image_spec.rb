@@ -41,6 +41,40 @@ RSpec.describe Feeds::Twitch::LiveImage do
     expect(previews).to have_received(:url_for).twice
   end
 
+  describe ".kept_for" do
+    subject(:kept) { described_class.kept_for(event, subscription:) }
+
+    context "when a preview was seen while the stream was live" do
+      let!(:seen) { described_class.for(event, subscription:) }
+
+      before do
+        allow(previews).to receive(:url_for).with("shrkbot_dev").and_return(nil)
+      end
+
+      it "is that preview even though Twitch no longer serves one, without asking again" do
+        expect(kept).to eq(seen)
+        expect(previews).to have_received(:url_for).once
+      end
+    end
+
+    context "when no preview was ever seen" do
+      it "is the category box art" do
+        expect(kept).to eq(box_art)
+      end
+    end
+
+    context "when the follow has the preview frame off" do
+      before do
+        subscription.settings.show_preview_frame = false
+      end
+
+      it "is nil without a box art lookup" do
+        expect(kept).to be_nil
+        expect(games).not_to have_received(:find)
+      end
+    end
+  end
+
   context "when the follow has the preview frame off" do
     before do
       subscription.settings.show_preview_frame = false

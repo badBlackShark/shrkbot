@@ -15,7 +15,7 @@ RSpec.describe Feeds::Twitch::Ending do
 
   before do
     subscription.settings.update!(live_end_mode:)
-    allow(Feeds::Twitch::LiveImage).to receive(:for).and_return("https://box.art/x.jpg")
+    allow(Feeds::Twitch::LiveImage).to receive(:kept_for).and_return("https://box.art/x.jpg")
     allow(Feeds::Twitch::Vod).to receive(:url_for).with(ended).and_return("https://www.twitch.tv/videos/1")
   end
 
