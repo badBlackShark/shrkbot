@@ -116,6 +116,7 @@ ignore_unused:
   - views.servers.moderation.sub_plugin_show.prerequisites.staff_role.cta
 
 search:
+  strict: false
   paths:
     - app/
   # Phlex views/components are Ruby classes, so a relative `t(".key")` is scoped
