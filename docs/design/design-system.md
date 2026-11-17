@@ -139,9 +139,10 @@ segmented control) ships with the Roles page that consumes it.
 ## Config pages
 
 A plugin config page is assembled by **`Components::ConfigPage`**, not by the
-per-plugin form. ConfigPage owns the single `form_with` (none when the toggle is
-instant) and renders, in order: a header (`PluginTile` + title + description + an inline **enable
-`Toggle`**), the body, and the global `SaveBar`. The
+per-plugin form. ConfigPage owns the single `form_with` and renders, in order: a
+header (`PluginTile` + title + description + an inline **enable `Toggle`**), the
+body, and the global `SaveBar` (none, and no SaveBar, when the toggle is
+instant). The
 per-plugin `Components::<Plugin>::ConfigForm` is **body-only** — it renders just
 the cards, with no form tag and no enable control of its own — and its root `div`
 carries the `#<plugin>-config` id that the Turbo Stream replaces on a failed save,

@@ -34,7 +34,9 @@ class Components::ConfigPage < Components::Base
   end
 
   def lock_reason
-    @toggle[:locked] ? @toggle[:reason] : t("components.plugin_row.preview_locked")
+    return t("components.plugin_row.preview_locked") if instant? && @server_configuration.preview?
+
+    @toggle[:reason]
   end
 
   def save_form

@@ -138,11 +138,21 @@ RSpec.describe Components::ConfigPage do
         header:,
         server_configuration: config,
         url: "/servers/-1/steam",
-        toggle: {field: "steam[enabled]", enabled: true, instant: true}
+        toggle:
       ).render_in(view_context) { "" }
     end
 
     let(:config) { create(:server_configuration, :preview, name:) }
+    let(:toggle) { {field: "steam[enabled]", enabled: true, instant: true} }
+
+    context "when the visitor also lacks toggle access" do
+      let(:toggle) { {field: "steam[enabled]", enabled: true, instant: true, locked: true, reason: "Only admins can toggle this."} }
+
+      it "names preview mode as the reason, not the access rule" do
+        expect(html).to include(ERB::Util.html_escape(I18n.t("components.plugin_row.preview_locked")))
+        expect(html).not_to include("Only admins can toggle this.")
+      end
+    end
 
     it "renders the toggle disabled" do
       expect(html).to match(/<input type="checkbox"[^>]* disabled/)
