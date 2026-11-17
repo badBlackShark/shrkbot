@@ -46,6 +46,10 @@ gem "ruby-vips"
 # Detects the language of Steam posts for the per-game language filter; model in vendor/fasttext.
 gem "fasttext"
 
+# Error tracking, tracing and one cron check-in. Sends nothing without SENTRY_DSN.
+gem "sentry-ruby"
+gem "sentry-rails"
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 

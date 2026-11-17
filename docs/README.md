@@ -58,6 +58,7 @@ work actually touches.
 ## Running it
 
 - [running/deployment.md](running/deployment.md) — deploying to a single box with Kamal 2: prerequisites, secrets and env vars, the OCR sidecar image, first deploy, redeploys, and an ops cheatsheet.
+- [running/error-tracking.md](running/error-tracking.md) — what web, jobs and bot send to Sentry, the privacy limits on it, the one cron monitor, and retention.
 - [running/web-debug-harness.md](running/web-debug-harness.md) — driving the web app locally without Discord.
 
 ## Cross-cutting

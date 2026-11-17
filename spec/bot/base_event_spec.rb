@@ -30,8 +30,8 @@ RSpec.describe Bot::BaseEvent do
 
     let(:klass) { event_class { raise "boom" } }
 
-    it "reports to the owner and returns nil" do
-      expect(Bot::OwnerNotifier).to receive(:report).with(hash_including(error: an_instance_of(RuntimeError)))
+    it "reports the error and returns nil" do
+      expect(Bot::ErrorReporter).to receive(:report).with(hash_including(error: an_instance_of(RuntimeError)))
       expect(call).to be_nil
     end
   end

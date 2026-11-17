@@ -31,8 +31,7 @@ module Bot
         route(event)
       end
     rescue => e
-      Rails.logger.error("[ConfigSubscriber] #{e.class}: #{e.message}")
-      OwnerNotifier.report(bot: @bot, error: e, source: "ConfigSubscriber")
+      ErrorReporter.report(bot: @bot, error: e, source: "ConfigSubscriber")
     end
 
     private

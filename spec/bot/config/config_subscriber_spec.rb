@@ -96,9 +96,9 @@ RSpec.describe Bot::ConfigSubscriber do
       let(:payload) { "not json" }
 
       it "reports the error instead of crashing the listener" do
-        allow(Bot::OwnerNotifier).to receive(:report)
+        allow(Bot::ErrorReporter).to receive(:report)
         expect { subscriber.handle(payload) }.not_to raise_error
-        expect(Bot::OwnerNotifier).to have_received(:report)
+        expect(Bot::ErrorReporter).to have_received(:report)
       end
     end
 

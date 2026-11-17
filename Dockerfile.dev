@@ -31,6 +31,9 @@ RUN npm install -g @anthropic-ai/claude-code @github/copilot
 RUN curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh \
   && install -m 0755 /root/.local/bin/rtk /usr/local/bin/rtk
 
+RUN curl -fsSL https://cli.sentry.dev/install \
+  | SENTRY_INSTALL_DIR=/usr/local/bin bash -s -- --no-modify-path --no-completions --no-agent-skills
+
 # Use PAT from the mounted host sandbox, if present.
 RUN git config --system credential.https://github.com.helper \
       '!f() { echo username=oauth2; echo password=$(cat /home/dev/.ai-sandbox/github-pat-private 2>/dev/null); }; f' \

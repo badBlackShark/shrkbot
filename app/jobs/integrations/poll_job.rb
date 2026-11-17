@@ -23,7 +23,10 @@ module Integrations
         break
       rescue => error
         failed = record_failure(watch, error)
-        bugs << "#{failed.label}: #{failed.last_error}" if failed && new_bug?(watch, error)
+        if failed && new_bug?(watch, error)
+          Rails.error.report(error, severity: :error)
+          bugs << "#{failed.label}: #{failed.last_error}"
+        end
       end
       ReportPollBugsJob.perform_later(bugs) if bugs.any?
     end

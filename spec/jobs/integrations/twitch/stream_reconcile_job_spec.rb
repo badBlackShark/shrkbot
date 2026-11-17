@@ -239,6 +239,7 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
     before do
       allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).and_call_original
       allow(Ops::Integrations::Twitch::Streams::Transition).to receive(:call).with(hash_including(watch: live_watch)).and_raise(NoMethodError, "our bug")
+      allow(Rails.error).to receive(:report)
     end
 
     let!(:idle_watch) { create(:integration_watch, watcher:, external_id: "2", name: "Idle Two", state: {"session" => "old", "stream_ids" => ["old"], "peak_viewers" => 1, "started_at" => "2026-11-01T08:00:00Z", "last_live_at" => 10.minutes.ago.iso8601, "login" => "idle", "display_name" => "Idle Two"}) }
@@ -252,6 +253,11 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
     it "does not report the same bug again on the next run" do
       described_class.perform_now
       expect { perform }.not_to have_enqueued_job(Integrations::ReportPollBugsJob)
+    end
+
+    it "sends the bug to the error tracker" do
+      perform
+      expect(Rails.error).to have_received(:report).with(an_instance_of(NoMethodError), severity: :error)
     end
 
     it "still transitions the other and reports the bug once" do

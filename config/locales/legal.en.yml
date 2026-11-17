@@ -75,7 +75,13 @@ en:
         For the Twilight Struggle integration, those details are the results and tournaments
         twilight-struggle.com sends, including player names and the Discord IDs of
         players and organisers, so that an incorrect result can be traced back to
-        exactly what arrived.'
+        exactly what arrived. When something fails or runs slowly, the Service also
+        sends a diagnostic report to Sentry, our error-monitoring provider: the error
+        and where in the code it happened, the address and browser type of the page
+        request or the name of the background job involved, the database queries it
+        ran, and how long each step took. A report can contain Discord IDs. It never
+        contains your IP address, cookies or what you enter into a form, and shrkbot
+        does not add message content to it.'
       data_reminders: 'Reminders: the reminder text you write, your Discord ID, the
         target channel and server, whether to deliver by DM, and the due time - kept
         until delivered or deleted by you with /unremind.'
@@ -171,8 +177,9 @@ en:
         moment the bot is removed from the server.'
       retention_h: How long we keep it
       retention_infra: Caches, background-job records and logs are cleared automatically
-        (at most 60 days, 30 days and 7 days, respectively). Deleted data also drops
-        out of database backups as they rotate.
+        (at most 60 days, 30 days and 7 days, respectively). Sentry deletes diagnostic
+        reports after at most 90 days. Deleted data also drops out of database backups
+        as they rotate.
       retention_integrations: 'Steam news: fetched posts are deleted 14 days after
         they are fetched. Text a server writes is deleted with the rest of its configuration.'
       retention_lfg: 'Looking for Game: cooldowns live in memory only and vanish on
@@ -214,10 +221,12 @@ en:
       sharing_h: Who we share data with
       sharing_p: 'Only the infrastructure that runs the Service: Discord itself, through
         its API (your use of Discord is governed by Discord''s own privacy policy),
-        and our hosting provider Hetzner (Helsinki, Finland, within the EEA), where
-        the Service and its database run. We may disclose data where required by law.'
+        our hosting provider Hetzner (Helsinki, Finland, within the EEA), where the
+        Service and its database run, and Sentry (Functional Software, Inc., a US
+        company), which stores the diagnostic reports described above in Frankfurt,
+        Germany. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: November 13th, 2026'
+      updated: 'Last updated: November 17th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

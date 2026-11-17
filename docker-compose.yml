@@ -114,6 +114,7 @@ services:
       - ~/.ai-sandbox/shrkbot/claude.json:/home/dev/.claude.json
       - ~/.ai-sandbox/shrkbot/local-state:/home/dev/.local/state/claude
       - ~/.ai-sandbox/shrkbot/local-share:/home/dev/.local/share/claude
+      - ~/.ai-sandbox/shrkbot/sentry:/home/dev/.config/sentry
       - ~/.config/gh:/home/dev/.config/gh
       - ~/.config/github-copilot:/home/dev/.config/github-copilot
       - ~/.ai-sandbox:/home/dev/.ai-sandbox:ro

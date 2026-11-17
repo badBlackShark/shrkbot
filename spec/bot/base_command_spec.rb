@@ -179,10 +179,23 @@ RSpec.describe Bot::BaseCommand do
 
       let(:klass) { command_class { raise "boom" } }
 
-      it "reports to the owner and responds without raising" do
-        expect(Bot::OwnerNotifier).to receive(:report).with(hash_including(source: "command /probe"))
+      it "reports the error and responds without raising" do
+        expect(Bot::ErrorReporter).to receive(:report).with(hash_including(source: "command /probe"))
         expect(event).to receive(:respond).with(hash_including(ephemeral: true))
         expect { dispatch }.not_to raise_error
+      end
+
+      context "when both the reply and the report go through" do
+        before do
+          allow(event).to receive(:respond)
+          allow(Bot::ErrorReporter).to receive(:report)
+        end
+
+        it "answers the interaction before reporting, so the reply stays inside Discord's 3-second window" do
+          dispatch
+          expect(event).to have_received(:respond).ordered
+          expect(Bot::ErrorReporter).to have_received(:report).ordered
+        end
       end
     end
 
@@ -192,7 +205,7 @@ RSpec.describe Bot::BaseCommand do
       let(:klass) { command_class { raise "boom" } }
 
       it "swallows the secondary failure" do
-        allow(Bot::OwnerNotifier).to receive(:report)
+        allow(Bot::ErrorReporter).to receive(:report)
         allow(event).to receive(:respond).and_raise("interaction expired")
         expect { dispatch }.not_to raise_error
       end
@@ -230,6 +243,10 @@ RSpec.describe Bot::BaseCommand do
         end
       end
 
+      before do
+        allow(Bot::ErrorReporter).to receive(:track)
+      end
+
       it "clears the picker with empty choices instead of leaving it hanging" do
         expect(event).to receive(:respond).with(choices: [])
         expect { klass.dispatch_autocomplete(event) }.not_to raise_error
@@ -238,6 +255,11 @@ RSpec.describe Bot::BaseCommand do
       it "swallows a secondary failure while clearing the picker" do
         allow(event).to receive(:respond).and_raise("interaction expired")
         expect { klass.dispatch_autocomplete(event) }.not_to raise_error
+      end
+
+      it "tracks the error under the command's name" do
+        klass.dispatch_autocomplete(event)
+        expect(Bot::ErrorReporter).to have_received(:track).with(error: an_instance_of(RuntimeError), source: "autocomplete /probe")
       end
     end
   end
