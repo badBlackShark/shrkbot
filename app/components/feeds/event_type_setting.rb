@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Components::Feeds::EventTypeSetting < Components::Base
-  CARD = "relative has-[[data-type-toggle]:checked]:border-accent-soft-bd"
+  CARD = "group/type relative has-[[data-type-toggle]:checked]:border-accent-soft-bd"
   HEADER = "cursor-pointer list-none select-none py-4 pl-5 pr-20 [&::-webkit-details-marker]:hidden"
 
   def initialize(subscription:, plugin_key:, event_type:, event:, type_fields: nil)

@@ -120,6 +120,14 @@ RSpec.describe Components::Feeds::EventTypeSetting do
       it "puts the notification text before the end mode" do
         expect(html.index("[notification]")).to be < html.index("live_end_mode")
       end
+
+      let(:viewers_group) { Feeds::Twitch::PreviewSamples::VIEWERS_SHOWN[%r{\]/(\w+):}, 1] }
+
+      it "is the group the viewer-count preview lines react to, around the toggle they read" do
+        expect(card["class"].split).to include("group/#{viewers_group}")
+        expect(card.at_css("[data-viewers-toggle]")).to be_present
+        expect(card.css("[class*='data-viewers-toggle']")).not_to be_empty
+      end
     end
 
     context "with all clips" do
