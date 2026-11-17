@@ -25,7 +25,7 @@ RSpec.describe Feeds::Twitch::PreviewSamples do
       expect(card).to include(
         eyebrow: "SomeStreamer · New clip on Twitch",
         thumbnail: "Profile picture",
-        media: {label: "Thumbnail"},
+        media: {label: "Thumbnail", class: described_class::IMAGE_SHOWN},
         title: "That dodge",
         body: "Clipped by Jane Doe from Hades II\n30 s · made 5 minutes ago",
         button: "Watch the clip"
@@ -36,7 +36,7 @@ RSpec.describe Feeds::Twitch::PreviewSamples do
       let(:event_type) { "Integrations::Twitch::HighlightPublished" }
 
       it "words it like the video announcement, with the length as the body" do
-        expect(card).to include(eyebrow: "SomeStreamer · New highlight on Twitch", media: {label: "Thumbnail"}, body: "About 1 h 30 min", button: "Watch on Twitch")
+        expect(card).to include(eyebrow: "SomeStreamer · New highlight on Twitch", media: {label: "Thumbnail", class: described_class::IMAGE_SHOWN}, body: "About 1 h 30 min", button: "Watch on Twitch")
       end
     end
 
@@ -47,7 +47,7 @@ RSpec.describe Feeds::Twitch::PreviewSamples do
         expect(card).to include(
           eyebrow: "SomeStreamer · Live on Twitch",
           thumbnail: "Profile picture",
-          media: {label: "Preview frame", class: described_class::FRAME_SHOWN},
+          media: {label: "Preview frame", class: described_class::IMAGE_SHOWN},
           body: [
             {text: "Streaming Hades II", class: nil},
             {text: "1,234 watching · started 2 hours ago", class: described_class::VIEWERS_SHOWN},

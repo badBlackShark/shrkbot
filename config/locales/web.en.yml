@@ -441,9 +441,6 @@ en:
             category: ''
             clipper: ''
             title: Everything new in the 1.0 update
-        setting_toggle:
-          show_preview_frame: Show the preview frame
-          show_viewers: Show the viewer count
         switched_away_field:
           label: When the stream switches to another category
           modes:
@@ -452,8 +449,11 @@ en:
           preview: Preview
         type_fields:
           no_ping: No ping
+          preview_frame_toggle: Show a preview frame
           role_label: Role override
           role_placeholder: Same as above
+          thumbnail_toggle: Show the thumbnail
+          viewers_toggle: Show the viewer count
       volume_line:
         counts:
           announcement_published:

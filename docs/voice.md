@@ -99,7 +99,7 @@ makes the reader look for a difference.
 | `server` | server configuration | |
 | `preview` | preview server | The fake server is only the vehicle: `Preview features`. |
 | `parent tournament` | the tournament above | |
-| `preview frame` | stream preview, screenshot, still | The image of the live stream on a live post. `Show the preview frame` |
+| `preview frame` | stream preview, screenshot, still | The image of the live stream on a live post. `Show a preview frame` |
 
 The same holds for verbs. The Roles tooltip says `Repost` because the toast
 already said `Reposting the role menu…`, both sign-in buttons on the home page

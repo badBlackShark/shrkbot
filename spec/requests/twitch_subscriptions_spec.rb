@@ -95,6 +95,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
         expect(page.css(%(input[name="subscription[live_end_mode]"]))).to be_one
         expect(page.css(%(input[type=checkbox][name="subscription[show_viewers]"]))).to be_one
         expect(page.css(%(input[type=checkbox][name="subscription[show_preview_frame]"]))).to be_one
+        expect(page.css(%(input[type=checkbox][name="subscription[show_clips_thumbnail]"]))).to be_one
       end
     end
   end
@@ -119,6 +120,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
         live_end_mode: "delete",
         show_viewers: "0",
         show_preview_frame: "0",
+        show_clips_thumbnail: "0",
         switched_away: "delete",
         categories: ["", *category_values],
         event_types: {live => "1", highlights => "1", clips => "0"},
@@ -138,6 +140,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
         live_end_mode: "delete",
         show_viewers: false,
         show_preview_frame: false,
+        show_clips_thumbnail: false,
         switched_away: "delete",
         categories: [{"id" => "1", "name" => "Hades II"}]
       )

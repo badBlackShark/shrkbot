@@ -104,6 +104,16 @@ RSpec.describe Feeds::Twitch::VideoAnnouncement do
       end
     end
 
+    context "when the thumbnail is off" do
+      before do
+        subscription.settings.update!(show_highlights_thumbnail: false)
+      end
+
+      it "has no media gallery" do
+        expect(container[:components].map { |component| component[:type] }).not_to include(Bot::Discord::Components::MEDIA_GALLERY)
+      end
+    end
+
     context "when the watch has no profile picture" do
       let(:profile_image) { nil }
 

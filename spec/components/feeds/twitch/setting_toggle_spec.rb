@@ -5,35 +5,27 @@ require "rails_helper"
 RSpec.describe Components::Feeds::Twitch::SettingToggle do
   include_context "component view context"
 
-  subject(:html) { described_class.new(subscription:, setting:).render_in(view_context) }
+  subject(:html) { described_class.new(subscription:, setting:, marker: "image", label: "Show a thing").render_in(view_context) }
 
   let(:subscription) { build(:feed_subscription, :twitch) }
-  let(:setting) { :show_viewers }
+  let(:setting) { :show_clips_thumbnail }
 
   it "marks the checkbox itself so the preview can follow it" do
-    expect(html).to match(/<input type="checkbox"[^>]*data-setting-toggle="show-viewers"/)
+    expect(html).to match(/<input type="checkbox"[^>]*data-setting-toggle="image"/)
   end
 
-  it "labels the viewer toggle" do
-    expect(html).to include("Show the viewer count")
+  it "labels the toggle and checks it by default" do
+    expect(html).to include("Show a thing")
+    expect(html).to match(/<input type="checkbox"[^>]*name="subscription\[show_clips_thumbnail\]"[^>]*checked/)
   end
 
-  context "with the preview frame setting" do
-    let(:setting) { :show_preview_frame }
-
-    it "labels it and checks it by default" do
-      expect(html).to include("Show the preview frame")
-      expect(html).to match(/<input type="checkbox"[^>]*name="subscription\[show_preview_frame\]"[^>]*checked/)
+  context "when the follow has it off" do
+    before do
+      subscription.settings.show_clips_thumbnail = false
     end
 
-    context "when the follow has it off" do
-      before do
-        subscription.settings.show_preview_frame = false
-      end
-
-      it "leaves the checkbox unchecked" do
-        expect(html).not_to match(/<input type="checkbox"[^>]*checked/)
-      end
+    it "leaves the checkbox unchecked" do
+      expect(html).not_to match(/<input type="checkbox"[^>]*checked/)
     end
   end
 end

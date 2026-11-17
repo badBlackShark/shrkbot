@@ -15,6 +15,36 @@ RSpec.describe Feeds::Twitch::Settings do
     expect(settings.show_preview_frame).to be(true)
   end
 
+  it "shows every thumbnail by default" do
+    expect(settings).to have_attributes(
+      show_highlights_thumbnail: true,
+      show_uploads_thumbnail: true,
+      show_featured_clips_thumbnail: true,
+      show_clips_thumbnail: true
+    )
+  end
+
+  describe "#show_image?" do
+    subject(:shown) { settings.show_image?(event_type) }
+
+    let(:event_type) { "Integrations::Twitch::ClipCreated" }
+
+    it "follows the type's own column" do
+      expect(shown).to be(true)
+    end
+
+    context "when the clip thumbnail is off" do
+      before do
+        settings.show_clips_thumbnail = false
+      end
+
+      it "is false for clips only" do
+        expect(shown).to be(false)
+        expect(settings.show_image?("Integrations::Twitch::HighlightPublished")).to be(true)
+      end
+    end
+  end
+
   it "marks the card ended with a VOD link by default" do
     expect(settings.live_end_mode).to eq("mark_ended_with_vod")
   end

@@ -7,9 +7,9 @@ module Feeds
       ENDED = "Ended 5 minutes ago"
       STREAM_LENGTH_SECONDS = 7200
       VIDEO_LENGTH_SECONDS = 5400
-      VIEWERS_SHOWN = "hidden group-has-[[data-setting-toggle=show-viewers]:checked]/type:block"
-      VIEWERS_HIDDEN = "group-has-[[data-setting-toggle=show-viewers]:checked]/type:hidden"
-      FRAME_SHOWN = "hidden group-has-[[data-setting-toggle=show-preview-frame]:checked]/type:block"
+      VIEWERS_SHOWN = "hidden group-has-[[data-setting-toggle=viewers]:checked]/type:block"
+      VIEWERS_HIDDEN = "group-has-[[data-setting-toggle=viewers]:checked]/type:hidden"
+      IMAGE_SHOWN = "hidden group-has-[[data-setting-toggle=image]:checked]/type:block"
       VIEWERS_WATCHING = 1234
       VIEWERS_PEAK = 2345
       SWITCHED_TO = "Just Chatting"
@@ -50,7 +50,7 @@ module Feeds
       end
 
       def image_label(name)
-        I18n.t("components.feeds.twitch.samples.images.#{name}")
+        sample(:images, name)
       end
 
       def watch_token
@@ -84,7 +84,7 @@ module Feeds
           eyebrow:,
           title: value(:title),
           thumbnail: image_label(:profile_picture),
-          media: {label: image_label(:preview_frame), class: FRAME_SHOWN},
+          media: {label: image_label(:preview_frame), class: IMAGE_SHOWN},
           body: [
             line("Streaming #{value(:category)}"),
             line("#{VIEWERS_WATCHING.to_fs(:delimited)} watching · #{STARTED.downcase}", VIEWERS_SHOWN),
@@ -99,7 +99,7 @@ module Feeds
           eyebrow:,
           title: value(:title),
           thumbnail: image_label(:profile_picture),
-          media: {label: image_label(:thumbnail)},
+          media: {label: image_label(:thumbnail), class: IMAGE_SHOWN},
           body: "Clipped by #{value(:clipper)} from #{value(:category)}\n#{CLIP_LINE}",
           button: ClipAnnouncement::LINK_LABEL
         }
@@ -110,7 +110,7 @@ module Feeds
           eyebrow:,
           title: value(:title),
           thumbnail: image_label(:profile_picture),
-          media: {label: image_label(:thumbnail)},
+          media: {label: image_label(:thumbnail), class: IMAGE_SHOWN},
           body: ::Duration.about(VIDEO_LENGTH_SECONDS).upcase_first,
           button: VideoAnnouncement::LINK_LABEL
         }
