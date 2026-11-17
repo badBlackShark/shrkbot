@@ -19,6 +19,10 @@ class Views::Servers::Feeds::Show < Views::Servers::SubPluginShow
     )
   end
 
+  def toggle
+    super.merge(instant: true)
+  end
+
   def body
     render Components::Feeds::SubscriptionList.new(server_configuration: @config, plugin_key:)
   end

@@ -31,6 +31,17 @@ RSpec.describe "Twitch config", type: :request do
           expect(response.body).to include("No channels yet")
         end
 
+        context "with the enable toggle" do
+          subject(:twitch_page) { get plugin_path }
+
+          it "saves on change without a save bar" do
+            twitch_page
+
+            expect(response.body).to include("change->toggle#submit")
+            expect(response.body).not_to include('data-controller="save-bar"')
+          end
+        end
+
         context "with the page header" do
           subject(:twitch_page) { get plugin_path }
 

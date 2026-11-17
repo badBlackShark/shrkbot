@@ -53,6 +53,17 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           expect(response.body).to include(I18n.t("views.servers.twilight_struggle.show.empty_archived"))
         end
 
+        context "with the enable toggle" do
+          subject(:overview) { get server_twilight_struggle_path(guild.id) }
+
+          it "saves on change without a save bar" do
+            overview
+
+            expect(response.body).to include("change->toggle#submit")
+            expect(response.body).not_to include('data-controller="save-bar"')
+          end
+        end
+
         context "with tournaments to show" do
           before { tournament }
 

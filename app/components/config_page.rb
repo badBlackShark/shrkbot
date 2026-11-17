@@ -15,19 +15,43 @@ class Components::ConfigPage < Components::Base
 
   def view_template(&block)
     render Components::ServerPage.new(server_configuration: @server_configuration, crumbs: trailing_crumbs) do
-      form_with(
-        url: @url,
-        method: :patch,
-        data: form_data
-      ) do
-        page_header
-        body(&block)
-        render Components::SaveBar.new(preview: @server_configuration.preview?)
+      if instant?
+        page_content(&block)
+      else
+        save_form { page_content(&block) }
       end
     end
   end
 
   private
+
+  def instant?
+    @toggle&.fetch(:instant, false)
+  end
+
+  def locked?
+    @toggle[:locked] || (instant? && @server_configuration.preview?)
+  end
+
+  def lock_reason
+    @toggle[:locked] ? @toggle[:reason] : t("components.plugin_row.preview_locked")
+  end
+
+  def save_form
+    form_with(
+      url: @url,
+      method: :patch,
+      data: form_data
+    ) do
+      yield
+      render Components::SaveBar.new(preview: @server_configuration.preview?)
+    end
+  end
+
+  def page_content(&block)
+    page_header
+    body(&block)
+  end
 
   def trailing_crumbs
     [@parent_crumb, {label: @header.title}].compact
@@ -65,7 +89,7 @@ class Components::ConfigPage < Components::Base
 
   def enable_control
     div(class: "group/enable flex flex-none items-center gap-2.5 pt-1") do
-      if @toggle[:locked]
+      if locked?
         locked_enable_control
       else
         interactive_enable_control
@@ -77,7 +101,7 @@ class Components::ConfigPage < Components::Base
     span(class: "text-sm font-medium text-text-secondary") do
       @toggle[:enabled] ? t(".enabled") : t(".disabled")
     end
-    render Components::Tooltip.new(text: @toggle[:reason]) do
+    render Components::Tooltip.new(text: lock_reason) do
       render Components::Toggle.new(
         name: @toggle[:field],
         checked: @toggle[:enabled],
@@ -93,8 +117,15 @@ class Components::ConfigPage < Components::Base
     render Components::Toggle.new(
       name: @toggle[:field],
       checked: @toggle[:enabled],
-      label: toggle_label
+      label: toggle_label,
+      **instant_options
     )
+  end
+
+  def instant_options
+    return {} unless instant?
+
+    {url: @url, submit_on_change: true}
   end
 
   def toggle_label

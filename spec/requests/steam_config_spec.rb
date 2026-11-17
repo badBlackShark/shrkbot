@@ -30,6 +30,17 @@ RSpec.describe "Steam config", type: :request do
           expect(response.body).to include(server_integrations_path(guild.id))
         end
 
+        context "with the enable toggle" do
+          subject(:steam_page) { get plugin_path }
+
+          it "saves on change without a save bar" do
+            steam_page
+
+            expect(response.body).to include("change->toggle#submit")
+            expect(response.body).not_to include('data-controller="save-bar"')
+          end
+        end
+
         context "when the server follows no games" do
           it "renders the empty state" do
             get plugin_path
