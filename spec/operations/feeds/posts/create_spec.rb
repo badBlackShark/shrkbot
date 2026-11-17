@@ -95,7 +95,7 @@ RSpec.describe Ops::Feeds::Posts::Create do
 
     before do
       subscription.settings.update!(live_role_id: 4242)
-      allow(Feeds::Twitch::LiveImage).to receive(:for).with(event).and_return("https://box.art/x.jpg")
+      allow(Feeds::Twitch::LiveImage).to receive(:for).with(event, subscription:).and_return("https://box.art/x.jpg")
     end
 
     it "sends the Twitch card with the live role allowed and no attachment" do

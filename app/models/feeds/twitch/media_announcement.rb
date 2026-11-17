@@ -20,7 +20,7 @@ module Feeds
       end
 
       def blocks
-        [*header, image]
+        [*header, image].compact
       end
 
       def header_texts
@@ -28,6 +28,8 @@ module Feeds
       end
 
       def image
+        return unless subscription.settings.show_image?(post_type)
+
         Bot::Discord::Components.media_gallery([event.thumbnail_url])
       end
     end

@@ -16,7 +16,11 @@ module Feeds
     def value(name)
       return @watch_name if name.to_s == watch_token
 
-      I18n.t("components.feeds.#{self.class.module_parent.plugin_key}.samples.#{Feeds.event_key(@event_type)}.#{name}")
+      sample(Feeds.event_key(@event_type), name)
+    end
+
+    def sample(group, name)
+      I18n.t("components.feeds.#{self.class.module_parent.plugin_key}.samples.#{group}.#{name}")
     end
   end
 end

@@ -142,8 +142,11 @@ are no preview routes for these pages.
   fails the lookup returns `nil` and the frame stays empty.
 
 - **Twitch pages.** `Feeds::Twitch` answers `channel` as the lookup param and permits
-  `role_id` plus the five role columns, `live_end_mode`, `show_viewers`, `switched_away`
-  and `categories`. `Components::Feeds::Twitch::SubscriptionFields` is the form
+  `role_id` plus the five role columns, `live_end_mode`, `show_viewers`,
+  `show_preview_frame`, the four thumbnail columns (`show_highlights_thumbnail`,
+  `show_uploads_thumbnail`, `show_featured_clips_thumbnail`, `show_clips_thumbnail`),
+  `switched_away` and `categories`.
+  `Components::Feeds::Twitch::SubscriptionFields` is the form
   (destination card, post type cards, categories card). `EventTypeList` and
   `EventTypeSetting` take an optional `type_fields:` component class, rendered in each
   card's body with `subscription:`, `event_type:` and `event:` and a block for the text
@@ -176,9 +179,15 @@ are no preview routes for these pages.
   (`EndedAnnouncement::VOD_LABEL`) and the post type's `label` in
   `Feeds::Twitch::POST_TYPES`; the body lines are
   copies of the renderers' text, so a renderer change needs the matching sample change.
-  The preview card shows text and an optional button only, so it has no accent bar,
-  profile picture or thumbnail. A role pill comes from the role
-  select in the field's own `data-feed-preview-scope` (the type's card) when it has a
+  The preview card has no accent bar. Images are blank labelled placeholders at Discord's
+  sizes: `thumbnail:` is the 85 px section thumbnail beside the text, `media:` a full-width
+  16:9 gallery image after it, and `footer:` the lines after the image. Twitch's image
+  and viewer lines follow the type card's `SettingToggle`s through
+  `group-has-[[data-setting-toggle=…]:checked]/type`, so `EventTypeSetting`'s card must keep
+  `group/type`. The marker values are `viewers` and `image` (each type card holds exactly one image
+  toggle, and `group/type` scopes it): Tailwind reads `_` in an arbitrary value as a space,
+  so a column name such as `show_viewers` compiles to a selector that never matches. A toggled `media:` class sits on a wrapper, so it never fights the placeholder's
+  own `flex`. A role pill comes from the role select in the field's own `data-feed-preview-scope` (the type's card) when it has a
   value, else the top card's role select (`lib/role_scope.js`); a `No ping` override shows
   no pill.
 - **Twitch images.** Channel profile pictures load straight from Twitch, so the CSP
@@ -198,13 +207,17 @@ tokens are `streamer`, `category`, `title` and `clipper`; a token a card has no 
 (`Feeds::Twitch::Settings`, `twitch_settings` on the subscription): a follow-wide
 `role_id` plus one override column per post type (`live_role_id`, `highlights_role_id`,
 `uploads_role_id`, `featured_clips_role_id`, `clips_role_id`), `show_viewers` (true by
-default) and `live_end_mode` (see below). `Settings#role_id_for` is the override or
+default), `show_preview_frame` (true by default), one `show_<type>_thumbnail` column per video and
+clip type (true by default) and `live_end_mode` (see below).
+`Settings#show_image?` gates the clip and video thumbnails; `show_preview_frame` gates the
+live image (`LiveImage`).
+`Settings#role_id_for` is the override or
 `role_id`; `#role_override_for` is the column alone (the form's override select). An
 override of `Settings::NO_PING` (`0`, never a snowflake) means no ping for that type even
 when the follow has a role; the controller skips it on an override column when it
 verifies role ids, and still refuses it as the follow's own role.
 `Feeds::Twitch::POST_TYPES` holds one `Feeds::Twitch::PostType` per post type, in UI
-order: event type, default notification, tokens, role column and eyebrow label.
+order: event type, default notification, tokens, role column, image column and eyebrow label.
 `event_types`, `template_tokens`, `tokens_for`, `default_notification`,
 `Settings#role_id_for`, the follow form's role select and permit list, and every card's
 eyebrow read it (`fetch_post_type`). `POSTED_AS` is a different axis: it maps the events
@@ -228,7 +241,8 @@ stats line, `N watching · started <relative time>` (viewers only with `show_vie
 a sampled count, else `Started <relative time>`; Discord renders the relative time live,
 so the card needs no edit for uptime), with the
 channel's profile picture (`watch.image_url`) as the section thumbnail. The image slot
-holds the stream preview when Twitch already has a frame, else the category's box art,
+is empty when `show_preview_frame` is off. Otherwise it holds the stream preview when
+Twitch already has a frame, else the category's box art,
 else nothing (`Feeds::Twitch::LiveImage`). The preview check is shared per stream for a
 minute, so every server following the channel gets the same URL and Discord fetches it once. The accent is Twitch purple and the button
 reads "Watch on Twitch". The default notification text is `<name> is live: <title>`.
@@ -298,8 +312,10 @@ false for `StreamEnded`, so the end event does nothing to it.
 (`Feeds::Twitch::Ending` builds the card):
 
 - `keep`: the live card re-rendered from the story's last live event (ping line and custom
-  message kept) plus a last block, `-# Stream ended <relative time>`. Twitch has no frame
-  by then, so the image becomes the category box art.
+  message kept) plus a last block, `-# Stream ended <relative time>`. Twitch redirects the
+  preview to a grey placeholder once the stream is offline, so the ended card reuses the last
+  preview URL `LiveImage` saw (`LiveImage.kept_for`, cached two days per stream session),
+  falling back to the category box art.
 - `delete`: the Discord message is deleted (`retract?`), and the post's `message_id` is cleared
   and `retracted_at` set.
 - `mark_ended`: the ended card (`Feeds::Twitch::EndedAnnouncement`): no ping line or custom
@@ -342,7 +358,7 @@ is the only chance to add the button, so `RevisePostJob` retries.
 - `feed_twitch_settings` (`Feeds::Twitch::Settings`): the Twitch-only settings of a
   subscription, 1:1 (unique `subscription_id`). An optional `role_id` and one optional override
   role column per post type,
-  `show_viewers` and `switched_away` (`summary` or `delete`, check-constrained).
+  `show_viewers`, `show_preview_frame`, the four `show_<type>_thumbnail` columns and `switched_away` (`summary` or `delete`, check-constrained).
 - `feed_subscribed_events` (`Feeds::SubscribedEvent`): the event types a subscription
   wants, each with an optional `template` override, an optional `channel_id` and
   `subscribed_since`, the moment that kind of post was followed (see Following since).

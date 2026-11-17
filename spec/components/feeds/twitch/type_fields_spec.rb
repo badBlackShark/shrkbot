@@ -18,7 +18,11 @@ RSpec.describe Components::Feeds::Twitch::TypeFields do
     end
 
     it "renders the live role, the end mode and the viewer toggle" do
-      expect(html).to include('name="subscription[live_role_id]"', 'name="subscription[live_end_mode]"', 'name="subscription[show_viewers]"')
+      expect(html).to include('name="subscription[live_role_id]"', 'name="subscription[live_end_mode]"', 'name="subscription[show_viewers]"', 'name="subscription[show_preview_frame]"')
+    end
+
+    it "labels the preview frame toggle" do
+      expect(document.text).to include("Show a preview frame", "Show the viewer count")
     end
 
     it "puts the role override beside the channel override" do
@@ -54,7 +58,21 @@ RSpec.describe Components::Feeds::Twitch::TypeFields do
 
     it "offers that type's role only" do
       expect(html).to include('name="subscription[clips_role_id]"')
-      expect(html).not_to include("live_end_mode", "show_viewers")
+      expect(html).not_to include("live_end_mode", "show_viewers", "show_preview_frame")
+    end
+
+    it "offers its thumbnail toggle" do
+      expect(html).to include('name="subscription[show_clips_thumbnail]"')
+    end
+  end
+
+  context "with a highlight" do
+    let(:event_type) { "Integrations::Twitch::HighlightPublished" }
+
+    it "offers the thumbnail toggle and no viewer toggle" do
+      expect(html).to include('name="subscription[show_highlights_thumbnail]"')
+      expect(document.text).to include("Show the thumbnail")
+      expect(html).not_to include("show_viewers")
     end
   end
 

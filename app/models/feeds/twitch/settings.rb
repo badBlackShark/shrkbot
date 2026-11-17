@@ -13,6 +13,7 @@ module Feeds
       belongs_to :subscription, class_name: "Feeds::Subscription"
 
       validates :show_viewers, inclusion: {in: [true, false]}
+      validates(*Twitch::POST_TYPES.map(&:image_column), inclusion: {in: [true, false]})
       validates :live_end_mode, inclusion: {in: LIVE_END_MODES}
       validates :switched_away, inclusion: {in: SWITCHED_AWAY_MODES}
       validates :subscription_id, uniqueness: true
@@ -28,6 +29,10 @@ module Feeds
 
       def role_override_for(event_type)
         public_send(Twitch.fetch_post_type(event_type).role_column)
+      end
+
+      def show_image?(event_type)
+        public_send(Twitch.fetch_post_type(event_type).image_column)
       end
 
       def accepts_category?(category_id)

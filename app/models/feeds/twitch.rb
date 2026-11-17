@@ -7,7 +7,7 @@ module Feeds
       "Integrations::Twitch::StreamSampled" => "Integrations::Twitch::StreamStarted",
       "Integrations::Twitch::StreamEnded" => "Integrations::Twitch::StreamStarted"
     }.freeze
-    PostType = Data.define(:event_type, :notification, :tokens, :role_column, :label)
+    PostType = Data.define(:event_type, :notification, :tokens, :role_column, :image_column, :label)
 
     POST_TYPES = [
       PostType.new(
@@ -15,6 +15,7 @@ module Feeds
         notification: "{streamer} is live: {title}",
         tokens: %w[streamer category title],
         role_column: :live_role_id,
+        image_column: :show_preview_frame,
         label: "Live on Twitch"
       ),
       PostType.new(
@@ -22,6 +23,7 @@ module Feeds
         notification: "{streamer} posted a highlight: {title}",
         tokens: %w[streamer title],
         role_column: :highlights_role_id,
+        image_column: :show_highlights_thumbnail,
         label: "New highlight on Twitch"
       ),
       PostType.new(
@@ -29,6 +31,7 @@ module Feeds
         notification: "{streamer} uploaded a video: {title}",
         tokens: %w[streamer title],
         role_column: :uploads_role_id,
+        image_column: :show_uploads_thumbnail,
         label: "New upload on Twitch"
       ),
       PostType.new(
@@ -36,6 +39,7 @@ module Feeds
         notification: "New featured clip from {streamer}: {title}",
         tokens: %w[streamer category title clipper],
         role_column: :featured_clips_role_id,
+        image_column: :show_featured_clips_thumbnail,
         label: "Featured clip on Twitch"
       ),
       PostType.new(
@@ -43,6 +47,7 @@ module Feeds
         notification: "New clip from {streamer}: {title}",
         tokens: %w[streamer category title clipper],
         role_column: :clips_role_id,
+        image_column: :show_clips_thumbnail,
         label: "New clip on Twitch"
       )
     ].freeze
@@ -105,7 +110,7 @@ module Feeds
     end
 
     def self.scalar_settings
-      [:role_id, *POST_TYPES.map(&:role_column), :live_end_mode, :show_viewers, :switched_away]
+      [:role_id, *POST_TYPES.map(&:role_column), :live_end_mode, :show_viewers, *POST_TYPES.map(&:image_column), :switched_away]
     end
     private_class_method :scalar_settings
 
@@ -146,7 +151,7 @@ module Feeds
       when Integrations::Twitch::StreamEnded then Ending.announcement(event:, subscription:)
       when Integrations::Twitch::VideoEvent then VideoAnnouncement.new(event:, subscription:)
       when Integrations::Twitch::ClipEvent then ClipAnnouncement.new(event:, subscription:, category: GameLookup.find(event.category_id))
-      else Announcement.new(event:, subscription:, image_url: LiveImage.for(event))
+      else Announcement.new(event:, subscription:, image_url: LiveImage.for(event, subscription:))
       end
     end
   end

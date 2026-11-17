@@ -22,6 +22,16 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   let(:header) { details.at_css("summary") }
   let(:body) { details.element_children.last }
 
+  shared_examples "an image toggle group" do
+    let(:image_group) { Feeds::Twitch::PreviewSamples::IMAGE_SHOWN[%r{\]/(\w+):}, 1] }
+
+    it "is the group the image preview reacts to, around the toggle it reads" do
+      expect(card["class"].split).to include("group/#{image_group}")
+      expect(card.at_css("[data-setting-toggle=image]")).to be_present
+      expect(card.css("[class*='data-setting-toggle=image']")).not_to be_empty
+    end
+  end
+
   it "is the card, scoped to its own type" do
     expect(card).to have_attribute("data-feed-preview-scope")
   end
@@ -125,13 +135,17 @@ RSpec.describe Components::Feeds::EventTypeSetting do
 
       it "is the group the viewer-count preview lines react to, around the toggle they read" do
         expect(card["class"].split).to include("group/#{viewers_group}")
-        expect(card.at_css("[data-viewers-toggle]")).to be_present
-        expect(card.css("[class*='data-viewers-toggle']")).not_to be_empty
+        expect(card.at_css("[data-setting-toggle=viewers]")).to be_present
+        expect(card.css("[class*='data-setting-toggle=viewers']")).not_to be_empty
       end
+
+      it_behaves_like "an image toggle group"
     end
 
     context "with all clips" do
       let(:event_type) { "Integrations::Twitch::ClipCreated" }
+
+      it_behaves_like "an image toggle group"
 
       it "puts the volume warning in the header, outside the body" do
         expect(body.text).not_to include("dozens to hundreds of clips")
