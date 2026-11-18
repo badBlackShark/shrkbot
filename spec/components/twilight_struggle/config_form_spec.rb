@@ -106,6 +106,15 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
       it "names the parent tournament and its channel under the select" do
         expect(html).to include("OTSL 2026 posts in Tournaments / #results.")
       end
+
+      it "shows the note only while the select is left on inherit" do
+        note = fragment.css("p").find { |line| line.text.include?("OTSL 2026 posts in") }
+        expect(note["class"].split).to include("hidden", 'group-has-[option[value=""]:checked]/setting:block')
+      end
+
+      it "feeds the inherited player display to the live preview" do
+        expect(fragment.at_css("#twilight_struggle-config")["data-twilight-struggle-preview-inherited-display-value"]).to eq("name")
+      end
     end
 
     context "when the inherited channel lives in a server the user cannot see" do
@@ -127,6 +136,10 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
 
     it "explains only the video template" do
       expect(html.scan(I18n.t("components.twilight_struggle.template_card.video.help")).size).to eq(1)
+    end
+
+    it "puts the video help below its box" do
+      expect(html.index("destination[template_video]")).to be < html.index(I18n.t("components.twilight_struggle.template_card.video.help"))
     end
   end
 

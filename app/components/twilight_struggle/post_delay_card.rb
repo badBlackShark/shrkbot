@@ -1,7 +1,13 @@
 # frozen_string_literal: true
 
 class Components::TwilightStruggle::PostDelayCard < Components::TwilightStruggle::SettingCardBase
+  INHERITING = "group-has-[input[type=number]:placeholder-shown]/setting:block"
+
   private
+
+  def inherit_note_visible_when
+    INHERITING
+  end
 
   def control
     render Components::DurationStepper.new(

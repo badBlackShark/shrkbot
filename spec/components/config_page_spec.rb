@@ -111,6 +111,23 @@ RSpec.describe Components::ConfigPage do
     end
   end
 
+  context "when the toggle names its own states" do
+    subject(:html) do
+      described_class.new(
+        header:,
+        server_configuration: config,
+        url: "/servers/900000001/reminders",
+        toggle: {field: "reminders[enabled]", enabled: true, states: {on: "Subscribed", off: "Not subscribed"}}
+      ).render_in(view_context) { "" }
+    end
+
+    it "swaps the state labels for them" do
+      expect(html).to match(/group-has-\[:checked\]\/enable:inline">Subscribed<\/span>/)
+      expect(html).to match(/group-has-\[:checked\]\/enable:hidden">Not subscribed<\/span>/)
+      expect(html).not_to include("Enabled")
+    end
+  end
+
   context "when the toggle is instant" do
     subject(:html) do
       described_class.new(
