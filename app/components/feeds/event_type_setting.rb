@@ -4,11 +4,13 @@ class Components::Feeds::EventTypeSetting < Components::Base
   CARD = "group/type relative has-[[data-type-toggle]:checked]:border-accent-soft-bd"
   HEADER = "cursor-pointer list-none select-none py-4 pl-5 pr-20 [&::-webkit-details-marker]:hidden"
 
-  def initialize(subscription:, plugin_key:, event_type:, event:, type_fields: nil)
+  def initialize(subscription:, plugin_key:, event_type:, event:, channel_labels:, role_names:, type_fields: nil)
     @subscription = subscription
     @plugin_key = plugin_key
     @event_type = event_type
     @event = event
+    @channel_labels = channel_labels
+    @role_names = role_names
     @type_fields = type_fields
   end
 
@@ -35,7 +37,17 @@ class Components::Feeds::EventTypeSetting < Components::Base
           render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 text-text-muted")
         end
       end
+      override_summary
     end
+  end
+
+  def override_summary
+    render Components::Feeds::OverrideSummary.new(
+      channel_id: @event&.channel_id,
+      role_id: ::Feeds.source(@plugin_key).role_override_for(@subscription, @event_type),
+      channel_labels: @channel_labels,
+      role_names: @role_names
+    )
   end
 
   def key

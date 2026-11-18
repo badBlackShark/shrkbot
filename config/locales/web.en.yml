@@ -131,6 +131,9 @@ en:
       override_fields:
         channel_label: Channel override
         channel_placeholder: Same as above
+      override_summary:
+        pings: Pings @%{role}
+        posts_in: Posts in %{channel}
       placeholders:
         steam:
           author: Who wrote the post. Empty when Steam doesn't say.

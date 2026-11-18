@@ -6,11 +6,13 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   include_context "component view context"
 
   subject(:html) do
-    described_class.new(subscription:, plugin_key:, event_type:, event:, **extra).render_in(view_context)
+    described_class.new(subscription:, plugin_key:, event_type:, event:, channel_labels:, role_names:, **extra).render_in(view_context)
   end
 
   let(:plugin_key) { :steam }
   let(:extra) { {} }
+  let(:channel_labels) { {} }
+  let(:role_names) { {} }
 
   let(:subscription) { build(:feed_subscription, watch: build(:integration_watch, name: "Hades II", external_id: "1145350")) }
   let(:event_type) { "Integrations::Steam::PatchNotesPublished" }
@@ -96,8 +98,14 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   context "with a channel of its own" do
     let(:event) { subscription.subscribed_events.build(event_type:, channel_id: 111) }
 
+    let(:channel_labels) { {111 => "#clips"} }
+
     before do
       create(:server_channel, server_configuration: subscription.server_configuration, discord_id: 111, name: "clips")
+    end
+
+    it "says so under the help line of the collapsed card" do
+      expect(header.text).to include("Posts in #clips")
     end
 
     it "selects it in the type's channel field" do
@@ -107,11 +115,26 @@ RSpec.describe Components::Feeds::EventTypeSetting do
     end
   end
 
+  it "shows no override line without overrides" do
+    expect(header.text).not_to match(/Posts in|Pings/)
+  end
+
   context "with a source that has per-type fields" do
     let(:plugin_key) { :twitch }
     let(:event_type) { "Integrations::Twitch::HighlightPublished" }
     let(:subscription) { build(:feed_subscription, :twitch) }
     let(:extra) { {type_fields: Components::Feeds::Twitch::TypeFields} }
+
+    context "with a role of its own" do
+      let(:event_type) { "Integrations::Twitch::HighlightPublished" }
+      let(:role_names) { {222 => "Streams"} }
+
+      before { subscription.settings.highlights_role_id = 222 }
+
+      it "names the ping under the help line of the collapsed card" do
+        expect(header.text).to include("Pings @Streams")
+      end
+    end
 
     it "renders them in the body before the text fields" do
       expect(body.css("select, textarea").map { |field| field["name"] }).to eq(
