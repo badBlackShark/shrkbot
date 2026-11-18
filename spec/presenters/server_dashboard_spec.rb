@@ -60,23 +60,23 @@ RSpec.describe ServerDashboard do
     end
   end
 
-  context "when Bot::Discord::UserGuilds::Unauthorized is raised" do
+  context "when Bot::Discord::Unauthorized is raised" do
     before do
-      allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Unauthorized, "token rejected")
+      allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Unauthorized, "token rejected")
     end
 
     it "propagates the error" do
-      expect { result }.to raise_error(Bot::Discord::UserGuilds::Unauthorized)
+      expect { result }.to raise_error(Bot::Discord::Unauthorized)
     end
   end
 
-  context "when Bot::Discord::UserGuilds::Error is raised and cache hits" do
+  context "when Bot::Discord::Error is raised and cache hits" do
     let(:cached_ids) { [target_id, other_id] }
     let!(:target_config) { create(:server_configuration, discord_id: target_id, name: "Dev Refuge", member_count: 100) }
     let!(:other_config) { create(:server_configuration, discord_id: other_id, name: "Other Server", member_count: 50) }
 
     before do
-      allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Error, "timeout")
+      allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Error, "timeout")
     end
 
     it "returns a Result from the cache" do
@@ -88,15 +88,15 @@ RSpec.describe ServerDashboard do
     end
   end
 
-  context "when Bot::Discord::UserGuilds::Error is raised and cache misses" do
+  context "when Bot::Discord::Error is raised and cache misses" do
     let(:cached_ids) { [] }
 
     before do
-      allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Error, "timeout")
+      allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Error, "timeout")
     end
 
     it "re-raises the error" do
-      expect { result }.to raise_error(Bot::Discord::UserGuilds::Error)
+      expect { result }.to raise_error(Bot::Discord::Error)
     end
   end
 end

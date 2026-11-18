@@ -31,36 +31,36 @@ RSpec.describe Bot::Discord::UserGuilds do
     )
   end
 
-  context "when Discord rejects the access token" do
-    let(:code) { "401" }
-    let(:body) { "" }
+  [401, 403].each do |status|
+    context "when Discord answers #{status}" do
+      let(:code) { status.to_s }
+      let(:body) { "" }
 
-    it "raises Unauthorized with its default message and status" do
-      expect { fetch }.to raise_error(described_class::Unauthorized, "Discord rejected the access token") do |error|
-        expect(error.status).to eq(401)
+      it "raises Bot::Discord::Unauthorized" do
+        expect { fetch }.to raise_error(Bot::Discord::Unauthorized)
       end
     end
   end
 
-  context "when Discord refuses the token's scope" do
-    let(:code) { "403" }
+  context "when Discord rate-limits the token" do
+    let(:code) { "429" }
     let(:body) { "" }
 
-    it "raises Error carrying the status" do
-      expect { fetch }.to raise_error(described_class::Error, "Discord responded with 403") do |error|
-        expect(error).to have_attributes(class: described_class::Error, status: 403)
-      end
+    before do
+      allow(response).to receive_messages("[]": nil, to_hash: {})
+    end
+
+    it "raises Bot::Discord::RateLimited" do
+      expect { fetch }.to raise_error(Bot::Discord::RateLimited)
     end
   end
 
-  context "when Discord responds with another error status" do
+  context "when Discord responds with a server error" do
     let(:code) { "500" }
     let(:body) { "" }
 
-    it "raises a generic error, not Unauthorized" do
-      expect { fetch }.to raise_error(described_class::Error) do |error|
-        expect(error).not_to be_a(described_class::Unauthorized)
-      end
+    it "raises Bot::Discord::Error" do
+      expect { fetch }.to raise_error(Bot::Discord::Error)
     end
   end
 
@@ -69,16 +69,16 @@ RSpec.describe Bot::Discord::UserGuilds do
       allow(Net::HTTP).to receive(:start).and_raise(Errno::ECONNRESET)
     end
 
-    it "raises Error, which the controller turns into a friendly page" do
-      expect { fetch }.to raise_error(described_class::Error)
+    it "raises Bot::Discord::Error, which the controller turns into a friendly page" do
+      expect { fetch }.to raise_error(Bot::Discord::Error)
     end
   end
 
   context "when the body is not valid JSON" do
     let(:body) { "not json" }
 
-    it "raises a wrapped error" do
-      expect { fetch }.to raise_error(described_class::Error)
+    it "raises Bot::Discord::Error" do
+      expect { fetch }.to raise_error(Bot::Discord::Error)
     end
   end
 end
