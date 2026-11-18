@@ -1,5 +1,5 @@
 # Image for the app processes (web/bot/jobs) in docker-compose.
-# Development-oriented for now; production hardening (multi-stage, non-root,
+# Development-oriented for now; production hardening (multi-stage,
 # asset precompile, RAILS_ENV=production) is Phase 9.
 FROM ruby:4.0.9-slim
 
@@ -17,6 +17,9 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle config set --local without "development test" && bundle install
 
 COPY . .
+
+RUN useradd --uid 1000 --create-home app
+USER app
 
 # Overridden per service in docker-compose.yml.
 CMD ["bin/rails", "server", "-b", "0.0.0.0", "-p", "3000"]

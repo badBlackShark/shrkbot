@@ -20,7 +20,8 @@ production. On boot it:
   (`Dev Refuge`, id `900000001`, owner),
 - idempotently seeds that guild via `Ops::ServerConfiguration::Ensure` — a plugin
   row per `PluginCatalog` definition, activations (all disabled) and every settings
-  row — plus a `Moderator` role (id 500) and a `#mod-log` channel (id 111).
+  row — plus a `Moderator` role (id 500), a `#mod-log` channel (id 111) and a Steam
+  feed subscription (Dota 2, all event types, posting to `#mod-log`).
 
 The seed never toggles state back — flip things in the UI or via `bin/rails runner`.
 
@@ -32,17 +33,17 @@ works as a signed-in owner.
 
 ## Driving with Playwright
 
-Playwright is not a project dependency — install it in a scratch directory:
+Playwright is not a project dependency. The dev container (`Dockerfile.dev`) ships it
+globally with Chromium and Firefox; a global package is invisible to a bare ESM
+`import`, so link it into the script's directory once:
 
 ```sh
-mkdir -p /tmp/pw && cd /tmp/pw
-npm install playwright
-npx playwright install chromium
-sudo npx playwright install-deps chromium
+mkdir -p /tmp/pw/node_modules && cd /tmp/pw
+ln -s "$(npm root -g)/playwright" node_modules/playwright
 ```
 
-The last line is not optional on a bare container: without it Chromium dies at
-launch with `error while loading shared libraries: libnspr4.so`.
+Anywhere else, `npm install playwright && npx playwright install --with-deps chromium`
+in the scratch directory instead.
 
 **Rebuild CSS after changing any Tailwind class.** `bin/web-debug` runs the server
 only, not `tailwindcss:watch`, so a class that is new to the codebase is missing from

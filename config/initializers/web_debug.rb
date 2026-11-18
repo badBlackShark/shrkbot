@@ -39,6 +39,23 @@ if ENV["WEB_DEBUG"] && Rails.env.development?
     unless config.server_channels.exists?(discord_id: 111)
       config.server_channels.create!(discord_id: 111, name: "mod-log", channel_type: 0)
     end
+    unless config.feed_subscriptions.exists?
+      result = Ops::Feeds::Subscriptions::Create.call(
+        server_configuration: config,
+        watcher: Feeds::Steam.watchers.first,
+        target: Integrations::Target.new(
+          external_id: "570",
+          name: "Dota 2",
+          image_url: nil,
+          url: "https://store.steampowered.com/app/570/"
+        ),
+        channel_id: 111,
+        event_types: Feeds::Steam.event_types,
+        choices: {},
+        settings: {}
+      )
+      warn "web_debug: feed subscription seed failed: #{result.errors.to_sentence}" if result.failure?
+    end
   rescue ActiveRecord::NoDatabaseError, ActiveRecord::StatementInvalid
     warn "web_debug: database not ready, seed skipped — run bin/rails db:prepare first"
   end
