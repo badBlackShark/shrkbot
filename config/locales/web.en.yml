@@ -349,6 +349,9 @@ en:
             body: A first look at the full release.
             feed: PC Gamer
             title: Our review of the 1.0 release
+          images:
+            image: First image in the post
+            thumbnail: Game artwork
           patch_notes_published:
             body: |-
               Fixed controller vibration on Steam Deck.
