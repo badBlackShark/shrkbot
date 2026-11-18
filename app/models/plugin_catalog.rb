@@ -55,12 +55,14 @@ class PluginCatalog
 
   NEW_FOR = 30.days
 
+  STAFF_ROLE_SET = ->(config) { config.moderation_settings&.staff_role_id.present? }
+
   DEFINITIONS = [
     Definition.new(key: :logging, name: "Logging", description: "Records what's happening on your server.", channel_setting: :logging_settings),
     Definition.new(key: :roles, name: "Roles", description: "Let members give themselves roles from a menu.", channel_setting: :role_setting),
     Definition.new(key: :welcomes, name: "Welcomes", description: "Greet new members and say goodbye when they leave.", channel_setting: :welcome_settings),
-    Definition.new(key: :spam_protection, name: "Cross-Channel Spam Guard", description: "Detects messages spammed across multiple channels without storing message content.", requires_plugin: :logging, parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
-    Definition.new(key: :image_scanning, name: "Scam Image Detection", description: "Reads the text inside posted images and checks it against known scam patterns and previously confirmed scam images.", requires_plugin: :logging, parent: :moderation, prerequisite: ->(c) { c.moderation_settings&.staff_role_id.present? }),
+    Definition.new(key: :spam_protection, name: "Cross-Channel Spam Guard", description: "Detects messages spammed across multiple channels without storing message content.", requires_plugin: :logging, parent: :moderation, prerequisite: STAFF_ROLE_SET),
+    Definition.new(key: :image_scanning, name: "Scam Image Detection", description: "Reads the text inside posted images and checks it against known scam patterns and previously confirmed scam images.", requires_plugin: :logging, parent: :moderation, prerequisite: STAFF_ROLE_SET),
     Definition.new(key: :lfg, name: "Looking for Game", description: "Let members find people to play with, on the fly or scheduled."),
     Definition.new(key: :steam, name: "Steam", description: "Posts new patch notes, announcements, and press coverage of the Steam games you follow.", parent: :integrations),
     Definition.new(key: :twitch, name: "Twitch", description: "Announces when the Twitch channels you follow go live, and posts their highlights, uploads, and clips.", parent: :integrations, beta: true, added_on: Date.new(2026, 11, 16)),
