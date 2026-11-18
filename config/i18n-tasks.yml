@@ -55,12 +55,17 @@ ignore_unused:
   - activerecord.errors.models.feeds/twitch/settings.attributes.categories.too_long
   # 6. Components::Feeds::VolumeLine
   - components.feeds.volume_line.counts.*
-  # 1. Views::Servers::SubPluginShow subclasses (through Moderation::SubPluginShow)
-  - views.servers.spam_protection.show.*
-  - views.servers.image_scanning.show.*
-  # 1. Components::Feeds::Twitch::ModeField subclasses
-  - components.feeds.twitch.end_mode_field.*
-  - components.feeds.twitch.switched_away_field.*
+  # 1. Components::Feeds::Twitch::ModeField subclasses (keys built from the subclass scope)
+  - components.feeds.twitch.end_mode_field.label
+  - components.feeds.twitch.end_mode_field.modes.delete
+  - components.feeds.twitch.end_mode_field.modes.keep
+  - components.feeds.twitch.end_mode_field.modes.mark_ended
+  - components.feeds.twitch.end_mode_field.modes.mark_ended_with_vod
+  - components.feeds.twitch.end_mode_field.preview
+  - components.feeds.twitch.switched_away_field.label
+  - components.feeds.twitch.switched_away_field.modes.delete
+  - components.feeds.twitch.switched_away_field.modes.summary
+  - components.feeds.twitch.switched_away_field.preview
   # 1. Components::Feeds::TargetCard (caption key read only when the source has one)
   - components.feeds.target_card.steam.external_id
   # 1. Components::Feeds::EventTypeSetting (help key read only when it exists)
