@@ -30,7 +30,7 @@ en:
       basis_h: Legal bases
       basis_p: Where the GDPR applies we rely on performance of the service (Art.
         6(1)(b) - providing the features you or your admins enable) and legitimate
-        interests (Art. 6(1)(f) - operating, securing and debugging the Service).
+        interests (Art. 6(1)(f) - operating, securing, and debugging the Service).
         You can object to processing based on legitimate interests; see "Your rights".
       changes_h: Changes
       changes_p: If this policy changes, the new version is published here with an
@@ -43,14 +43,14 @@ en:
       cookies_h: Cookies
       cookies_p: The only cookie we set is the essential encrypted session cookie
         described above. No tracking, no third-party cookies. Your browser also keeps
-        a few purely local preferences in localStorage — your theme choice and collapsed-panel
+        a few purely local preferences in localStorage - your theme choice and collapsed-panel
         state. These never leave your device and we never read them server-side.
       data_account: 'Dashboard account: when you sign in with Discord we store your
-        Discord ID, username, display name and avatar reference. We request only the
-        identify and guilds OAuth scopes - we never receive your email, password or
-        messages. Your Discord access token is held only in an encrypted session cookie
-        in your browser (valid two weeks), never in our database, and is used solely
-        to read which servers you manage.'
+        Discord ID, username, display name, and avatar reference. We request only
+        the identify and guilds OAuth scopes - we never receive your email, password,
+        or messages. Your Discord access token is held only in an encrypted session
+        cookie in your browser (valid two weeks), never in our database, and is used
+        solely to read which servers you manage.'
       data_guild: 'Server configuration: a cached copy of the server''s channels and
         roles, mirrored from Discord so the dashboard can show and apply your setup.
         Their permission overwrites can reference member Discord IDs. We also keep
@@ -65,29 +65,29 @@ en:
         browser that opens the page.'
       data_lead: 'Each feature stores only the personal data it needs:'
       data_lfg: 'Looking for Game: who joins a post lives entirely in the Discord
-        message, under Discord''s retention — we never store joiners or post content.
+        message, under Discord''s retention - we never store joiners or post content.
         A short-lived in-memory cooldown per member (minutes) throttles spam and is
         never written down.'
       data_operational: 'Operational data: background jobs briefly process the data
         above while running; a failed job may keep a short error record for up to
         30 days. The Service keeps technical logs for security and troubleshooting:
-        IP address, timestamp, browser type and the details of each request it receives.
+        IP address, timestamp, browser type, and the details of each request it receives.
         For the Twilight Struggle integration, those details are the results and tournaments
         twilight-struggle.com sends, including player names and the Discord IDs of
         players and organisers, so that an incorrect result can be traced back to
         exactly what arrived. When something fails or runs slowly, the Service also
         sends a diagnostic report to Sentry, our error-monitoring provider: the error
         and where in the code it happened, the address and browser type of the page
-        request or the name of the background job involved, the database queries it
-        ran, and how long each step took. A report can contain Discord IDs. It never
-        contains your IP address, cookies or what you enter into a form, and shrkbot
-        does not add message content to it.'
+        request, or the name of the background job involved, the database queries
+        it ran, and how long each step took. A report can contain Discord IDs. It
+        never contains your IP address, cookies, or what you enter into a form, and
+        shrkbot does not add message content to it.'
       data_reminders: 'Reminders: the reminder text you write, your Discord ID, the
         target channel and server, whether to deliver by DM, and the due time - kept
         until delivered or deleted by you with /unremind.'
       data_twilight_struggle: 'Twilight Struggle integration: for each server that
         subscribes to a tournament, we store the message templates it writes. The
-        result details - player names, flags, Discord IDs and dates - are never stored
+        result details - player names, flags, Discord IDs, and dates - are never stored
         on the tournament or game record. They exist only in the queued job that posts
         the message and in our technical logs (see operational data above). We also
         store the Discord IDs of a tournament''s organisers, when twilight-struggle.com
@@ -96,8 +96,8 @@ en:
         a Discord ID on twilight-struggle.com is optional: an organiser who sets none
         has no record here, and their tournament is configured by the server''s own
         admins.'
-      data_twitch: 'Twitch: shrkbot keeps the stream, video and clip events it receives
-        from Twitch, including channel names, titles and the name of each clip''s
+      data_twitch: 'Twitch: shrkbot keeps the stream, video, and clip events it receives
+        from Twitch, including channel names, titles, and the name of each clip''s
         creator, so it can announce them. It also keeps any text a server writes for
         a followed channel. The Twitch pages on the website load each channel''s profile
         picture straight from Twitch''s servers, so Twitch sees the IP address of
@@ -176,7 +176,7 @@ en:
       retention_guild: 'Server configuration: deleted automatically, in full, the
         moment the bot is removed from the server.'
       retention_h: How long we keep it
-      retention_infra: Caches, background-job records and logs are cleared automatically
+      retention_infra: Caches, background-job records, and logs are cleared automatically
         (at most 60 days, 30 days and 7 days, respectively). Sentry deletes diagnostic
         reports after at most 90 days. Deleted data also drops out of database backups
         as they rotate.
@@ -200,7 +200,7 @@ en:
         - and are deleted with the tournament.'
       retention_twitch: 'Twitch: received events are deleted 14 days after they arrive.
         Text a server writes is deleted with the rest of its configuration. A followed
-        channel''s name, the link to it and the link to its picture are kept while
+        channel''s name, the link to it, and the link to its picture are kept while
         a server follows it.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
@@ -208,7 +208,7 @@ en:
         discarded as soon as the leave message is decided, after 30 seconds either
         way, and on every restart.'
       rights_h: Your rights
-      rights_p: Under the GDPR you have the right to access, correct, delete, restrict
+      rights_p: Under the GDPR you have the right to access, correct, delete, restrict,
         or object to our use of your personal data, and the right to data portability.
         You also have the right to complain to a supervisory authority - in Germany,
         your regional data protection authority. To exercise any of these, contact
@@ -226,7 +226,7 @@ en:
         company), which stores the diagnostic reports described above in Frankfurt,
         Germany. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: November 17th, 2026'
+      updated: 'Last updated: November 18th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible
@@ -236,7 +236,7 @@ en:
         to do so and for informing your members as applicable law requires.
       availability_h: Availability and changes
       availability_p: The Service is provided "as is" and "as available", without
-        warranties of any kind. We may change, suspend, add or remove features, or
+        warranties of any kind. We may change, suspend, add, or remove features, or
         take the Service offline, at any time and without notice. We don't guarantee
         that the Service will be uninterrupted or error-free, or that data will never
         be lost.
@@ -249,16 +249,16 @@ en:
         Discord's Terms of Service and Community Guidelines when using the Service.
       intro: These terms govern your use of the shrkbot Discord bot and its web dashboard
         (the "Service"), operated by Tim Engelhardt. By adding shrkbot to a server,
-        using its features or signing in to the dashboard, you agree to them. If you
-        don't agree, please don't use the Service.
+        using its features, or signing in to the dashboard, you agree to them. If
+        you don't agree, please don't use the Service.
       law_h: Governing law
       law_p: These terms are governed by the laws of Germany, without regard to conflict-of-laws
         rules and subject to any mandatory consumer protections that apply where you
         live.
       liability_h: Limitation of liability
       liability_p: We are liable without limit for damages caused by intent or gross
-        negligence and for culpable injury to life, body or health. Beyond that, and
-        to the extent legally permissible, we are not liable for indirect, incidental
+        negligence and for culpable injury to life, body, or health. Beyond that,
+        and to the extent legally permissible, we are not liable for indirect, incidental,
         or consequential damages or for loss of data arising from your use of, or
         inability to use, the free Service. Nothing in these terms limits liability
         that cannot be limited by law.
@@ -268,7 +268,7 @@ en:
       privacy_pre: 'Our handling of data is described in our '
       service_h: The service
       service_p: shrkbot is a general-purpose Discord bot whose features (self-assignable
-        roles, reminders, welcome and leave messages, activity logging and automated
+        roles, reminders, welcome and leave messages, activity logging, and automated
         moderation) are enabled per server and configured through commands and this
         website. The Service is provided free of charge.
       source_h: Open source
@@ -286,13 +286,13 @@ en:
       trademark_p: Steam and the Steam logo are trademarks and/or registered trademarks
         of Valve Corporation in the U.S. and/or other countries. shrkbot is not affiliated
         with or endorsed by Valve.
-      updated: 'Last updated: October 25th, 2026'
+      updated: 'Last updated: November 18th, 2026'
       use_h: Acceptable use
       use_items_1: use the Service to violate Discord's Terms of Service, Community
-        Guidelines or any applicable law;
-      use_items_2: abuse, disrupt, overload or attempt to gain unauthorised access
+        Guidelines, or any applicable law;
+      use_items_2: abuse, disrupt, overload, or attempt to gain unauthorised access
         to the Service or its infrastructure;
       use_items_3: use the Service to harass others or to store or distribute unlawful
         content;
-      use_items_4: attempt to circumvent limits, security or access controls.
+      use_items_4: attempt to circumvent limits, security, or access controls.
       use_lead: 'You agree not to:'

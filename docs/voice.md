@@ -301,6 +301,10 @@ differs (`Reset to %{value}`), so no line prints the default.
 **Values read the way people say them.** A duration is a number and a unit, and
 opens on the largest unit that fits: 5 minutes, not 300 seconds.
 
+**A picker prompt says "Pick" and ends without "…".** `Pick a channel`,
+`Pick roles`. An ellipsis marks something in progress (`Checking recent
+posts…`); a prompt is waiting for the reader.
+
 **One description per plugin.** `PluginCatalog` holds it, and the dashboard,
 the page header, and the home page read it. It is one line that says what the
 plugin does for the reader.
@@ -505,6 +509,7 @@ reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
 | `Before you enable %{plugin}`, also on an enabled protection | `Required settings missing` while it is enabled | "Before you enable" is false for a plugin that is already on. |
 | `Delete your account and all associated data? This cannot be undone.` as the whole dialog | Title `Delete your account?`, body `This cannot be undone.`, button `Delete account` | The dialog has a title, so the question moved there. The body keeps only the consequence. |
 | Heading `Twilight Struggle` with the tournament in a badge | The tournament's name as the heading, `Switch tournament` on the menu | The heading named the plugin, which the sidebar already names. |
+| Page title `Bespoke plugins` | `Bespoke Plugins` | The top-bar link to the page says `Bespoke Plugins`. One name gets one spelling. |
 
 ### Labels and options
 
@@ -529,7 +534,9 @@ reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
 | `Example plugins` | `Plugins` | The grid shows every public plugin, so it is not a sample. |
 | `Feeds` / `Steam News` | `Integrations` / `Steam` | The group holds more than feeds, and a provider is named for its platform. |
 | Bare number on the account page | `Discord ID: %{id}` | An unlabelled 18-digit number. |
-| `Choose a role` on the Looking for Game role cards | `Pick a role…` | The staff role picker already said `Pick a role…`. Two verbs for one prompt. |
+| `Choose a role` on the Looking for Game role cards | `Pick a role` | The staff role picker already said `Pick a role…`. Two verbs for one prompt. |
+| `Choose a channel` / `Choose roles` / `Choose a server` / `Choose a new channel below` | `Pick a channel` / `Pick roles` / `Pick a server` / `Pick a new channel below` | The same rule, for the remaining pickers. |
+| `Choose roles members can pick` | `Pick roles` | With "Pick", the prompt said "pick" twice. The label `Assignable roles` already says which roles. |
 
 ### Help text
 
@@ -552,6 +559,7 @@ reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
 | `Some developers don't tag their patch notes, so their updates arrive as announcements. To get every update, keep Patch notes and Announcements both on.` | `Some developers don't tag their patch notes, so shrkbot posts them as announcements. To get every update, keep both "Patch notes" and "Announcements" on.` | "Their updates arrive" hid who files them. The quotes mark the two toggles. |
 | The clip-volume warning and the 48-hour note, inside the settings of a clip type | `Big channels get dozens to hundreds of clips per stream, and each one is a post.` / `Only clips featured within 48 hours of being made get posted.`, as each card's help | Both help decide whether to turn the type on, so hiding them until it was on defeated them. |
 | `Works, but has not been tested widely yet. Report problems to @%{owner} on Discord.` | `You might experience some bugs. Please report them to @%{owner} on Discord or via %{email}.` | It hedged twice around a plain warning. |
+| `Where the post comes from, such as Community Announcements or a news site.` | `Where the post comes from, e.g. Community Announcements or a news site.` | A token hint is read in passing. `e.g.` is the short form of the same thing. |
 
 ### Empty, required, and inherited
 
@@ -597,6 +605,7 @@ reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
 | `Could not delete the server configuration - it's a preview configuration.` | `Could not delete this server - it is a preview, not a real Discord guild.` | The cause repeated the noun instead of explaining it. |
 | Card `Don't see a server?` + `You need Manage Server permissions and shrkbot must be present. Invite it, then refresh.` | `Missing a server? You need the Manage Server permission there.` | A server without shrkbot already has its own invite card. A fallback does not need a card that competes with the servers. |
 | `Welcomes settings saved.` after saving a disabled plugin | `Saved. %{plugin} is still disabled.`, as a warning toast that stays | A green tick that disappears reads as "done". |
+| `You need Manage Server permissions` | `You need the Manage Server permission` | Discord has one permission with that name. |
 
 ### We, filler, and puffery
 
@@ -631,6 +640,9 @@ reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
 | Weak | Better | Fault |
 | --- | --- | --- |
 | `The title of the stream, video or clip.` / `... case, punctuation, extra spacing and invisible characters are ignored ...` / `(try 30m, 2h or 1d, up to 30 days)` | `The title of the stream, video, or clip.` / `... case, punctuation, extra spacing, and invisible characters are ignored ...` / `(try 30m, 2h, or 1d, up to 30 days)` | Three items, no serial comma. |
+| `operating, securing and debugging`, plus 19 more lists in the privacy policy and the terms | `operating, securing, and debugging` | Three items, no serial comma. |
+| `localStorage — your theme` / `Discord's retention — we never store` | `localStorage - your theme` / `Discord's retention - we never store` | The joiner is ` - `, as everywhere else. |
+| `Pick a role…` | `Pick a role` | The ellipsis said the prompt was in progress. |
 
 ### Structure
 
