@@ -27,6 +27,12 @@ RSpec.describe Bot::Discord::Rest do
     expect(sent_requests.first["User-Agent"]).to start_with("DiscordBot (#{ReleaseInfo::REPO_URL}, ")
   end
 
+  it "gives up on a slow Discord after five seconds, since pages wait on it" do
+    get_json
+
+    expect(Net::HTTP).to have_received(:start).with("discord.com", 443, hash_including(read_timeout: 5))
+  end
+
   it "sends the given authorization" do
     get_json
 

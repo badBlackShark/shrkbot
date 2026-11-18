@@ -4,6 +4,7 @@ module Bot
   module Discord
     module Rest
       BASE = "https://discord.com/api/#{Config::API_VERSION}"
+      READ_TIMEOUT = 5
 
       module_function
 
@@ -11,6 +12,7 @@ module Bot
         ::Integrations::Http.get_json(
           "#{BASE}#{path}",
           headers: {"Authorization" => authorization, "User-Agent" => user_agent},
+          read_timeout: READ_TIMEOUT,
           &
         )
       end
