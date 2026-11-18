@@ -51,6 +51,7 @@ jobs:
         with:
           name: bundler-update
           path: ${{ runner.temp }}/changes
+          include-hidden-files: true
 
   open-pr:
     needs: update

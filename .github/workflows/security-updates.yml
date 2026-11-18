@@ -62,6 +62,7 @@ jobs:
         with:
           name: security-updates
           path: ${{ runner.temp }}/changes
+          include-hidden-files: true
 
   open-pr:
     needs: update
@@ -70,7 +71,10 @@ jobs:
       artifact: security-updates
       branch: security-updates
       title: Fix security advisories
-      paths: Gemfile.lock config/importmap.rb vendor/javascript
+      paths: |
+        Gemfile.lock
+        config/importmap.rb
+        vendor/javascript
     secrets:
       token: ${{ secrets.SECURITY_PR_TOKEN }}
 
