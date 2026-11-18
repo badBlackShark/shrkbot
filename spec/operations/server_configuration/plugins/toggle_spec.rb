@@ -22,6 +22,30 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     allow(Bot::ConfigBus).to receive(:sync_commands)
   end
 
+  describe "locking" do
+    let(:plugin) { logging }
+    let(:enabled) { true }
+    let(:statements) { [] }
+    let(:collector) do
+      lambda do |*, payload|
+        statements << payload[:sql]
+      end
+    end
+
+    before do
+      ActiveSupport::Notifications.subscribed(collector, "sql.active_record") do
+        result
+      end
+    end
+
+    it "locks the server row before it reads any plugin activation, so concurrent toggles of one server queue up" do
+      lock = statements.index { |sql| sql.match?(/FROM "server_configurations".*FOR UPDATE/m) }
+      read = statements.index { |sql| sql.match?(/FROM "plugin_activations"/) }
+
+      expect(lock).to be < read
+    end
+  end
+
   context "with a raw checkbox value (form param, not yet cast)" do
     let(:plugin) { roles }
 

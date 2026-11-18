@@ -4,12 +4,11 @@ module Ops
   module ServerConfiguration
     module Plugins
       class Toggle < ApplicationOperation
-        self.transactional = false
-
         receives :server_configuration, :plugin, :enabled
         receives :publish_menu, default: true
 
         def call
+          lock_server
           activation = find_or_build_activation
           activation.enabled = enabled
           refusal = enabling_refusal(activation) || dependent_refusal(activation)
@@ -32,6 +31,10 @@ module Ops
         end
 
         private
+
+        def lock_server
+          ::ServerConfiguration.lock.where(id: server_configuration.id).pick(:id)
+        end
 
         def find_or_build_activation
           server_configuration.plugin_activations.find_by(plugin:) || PluginActivation.new(server_configuration:, plugin:)
