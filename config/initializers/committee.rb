@@ -28,7 +28,7 @@ Rails.application.config.middleware.use(TwilightStruggleApiAuthentication)
 Rails.application.config.middleware.use(
   Committee::Middleware::RequestValidation,
   schema: TwilightStruggleApiSchema.driver,
-  prefix: "/api/twilight-struggle/v1",
+  prefix: TwilightStruggleApiAuthentication::PREFIX,
   coerce_form_params: false,
   error_class: SchemaValidationError
 )

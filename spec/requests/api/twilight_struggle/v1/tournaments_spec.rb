@@ -54,6 +54,60 @@ RSpec.describe "Api::TwilightStruggle::V1::Tournaments", type: :request do
       end
     end
 
+    context "with a repeated slash in the path" do
+      subject(:put_tournament) do
+        put "/api//twilight-struggle/v1/tournaments/#{external_id}", params:, headers:, as: :json
+      end
+
+      context "without an Authorization header" do
+        let(:headers) { {} }
+
+        it "returns 401" do
+          put_tournament
+
+          expect(response).to have_http_status(:unauthorized)
+        end
+
+        it "does not create a tournament row" do
+          expect { put_tournament }.not_to change(TwilightStruggle::Tournament, :count)
+        end
+      end
+
+      context "with a valid token and an invalid body" do
+        let(:params) { {tournament: {}} }
+
+        it "still validates the schema" do
+          put_tournament
+
+          expect(response).to have_http_status(:unprocessable_content)
+        end
+      end
+    end
+
+    context "when the middleware's prefix does not match the route" do
+      let(:headers) { {} }
+
+      before do
+        stub_const("TwilightStruggleApiAuthentication::PREFIX", "/unmatched")
+      end
+
+      it "returns 401 from the controller" do
+        put_tournament
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+
+      it "sends the bearer challenge" do
+        put_tournament
+
+        expect(response.headers["WWW-Authenticate"]).to eq(TwilightStruggleApiAuthentication::CHALLENGE)
+      end
+
+      it "does not create a tournament row" do
+        expect { put_tournament }.not_to change(TwilightStruggle::Tournament, :count)
+      end
+    end
+
     context "with the second configured key" do
       let(:headers) { {"Authorization" => "Bearer key-two"} }
 
