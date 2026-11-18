@@ -1,4 +1,4 @@
-# Security updates
+# Dependency updates
 
 Dependabot opens security PRs only for advisories in GitHub's reviewed Advisory
 Database. bundler-audit reads the rubysec database, which often lists an
@@ -31,3 +31,10 @@ variants of native gems (`nokogiri`, `ffi`, `mini_portile2`) that a plain Bundle
 resolve drops, so each security PR removed them and the next Dependabot PR added
 them back. With `ruby` locked, Bundler needs those variants too and both agree.
 Installs still pick the precompiled platform builds.
+
+Dependabot never changes the `BUNDLED WITH` version: it writes the old one back
+after every update. It resolves with the newest Bundler, though, so a stale pin
+makes the two write different lockfiles. `.github/workflows/bundler-update.yml`
+runs weekly (and on `workflow_dispatch`), runs `bundle update --bundler`, and
+opens or updates a `bundler-update` PR when a newer Bundler exists. It uses the
+same token as the security workflow.

@@ -59,7 +59,7 @@ work actually touches.
 
 - [running/deployment.md](running/deployment.md) — deploying to a single box with Kamal 2: prerequisites, secrets and env vars, the OCR sidecar image, first deploy, redeploys, and an ops cheatsheet.
 - [running/error-tracking.md](running/error-tracking.md) — what web, jobs and bot send to Sentry, the privacy limits on it, the one cron monitor, and retention.
-- [running/security-updates.md](running/security-updates.md) — the nightly workflow that turns audit findings into a fix PR, and what a red run means.
+- [running/dependency-updates.md](running/dependency-updates.md) — the nightly security-fix PR, the weekly Bundler PR, what a red run means, and why the lockfile locks the `ruby` platform.
 - [running/web-debug-harness.md](running/web-debug-harness.md) — driving the web app locally without Discord.
 
 ## Cross-cutting
