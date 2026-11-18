@@ -24,18 +24,7 @@ class Servers::RolesController < ApplicationController
       enabled: roles_params[:enabled],
       role_sets: submitted_sets
     )
-    @success = result.success?
-    @toast =
-      if result.success?
-        {level: saved_level(result.value), message: saved_message(result.value)}
-      else
-        {level: "alert", message: result.errors.to_sentence.presence || t("servers.roles.failed")}
-      end
-
-    respond_to do |format|
-      format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
-      format.html { redirect_to server_roles_path(params[:server_id]), **flash_for(result) }
-    end
+    respond_with_save(result)
   end
 
   private

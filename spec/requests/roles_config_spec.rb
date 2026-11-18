@@ -87,13 +87,15 @@ RSpec.describe "Roles config", type: :request do
           expect(response.body).to include('target="plugin-sidebar"')
         end
 
-        it "returns 422 without a body replace when enabling without a channel" do
+        it "returns 422 with the inline error and no form replace when enabling without a channel" do
           patch server_roles_path(guild.id),
             params: {roles: {channel_id: "", enabled: "1", role_sets: {}}},
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :roles)).to be(false)
-          expect(response.body).not_to include('id="roles-config"')
+          expect(response.body).to include('target="roles-enable-error"').and include("Roles needs a channel.")
+          expect(response.body).not_to include('target="roles-config"')
+          expect(response.body).not_to include('target="toasts"')
         end
 
         it "falls back to a redirect without Turbo" do
