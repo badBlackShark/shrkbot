@@ -17,17 +17,17 @@ RSpec.describe Feeds::Steam::PreviewSamples do
   end
 
   describe "#card" do
-    it "words the card like the steam announcement" do
-      expect(samples.card).to include(
+    subject(:card) { samples.card }
+
+    it "words the card like the steam announcement and shows both images, with no footer" do
+      expect(card).to eq(
         eyebrow: "Hades II · PC Gamer",
         title: "Our review of the 1.0 release",
+        thumbnail: "Game artwork",
+        media: {label: "First image in the post"},
         body: "A first look at the full release.",
         button: Feeds::Steam::Announcement::LINK_LABEL
       )
-    end
-
-    it "shows the game artwork beside the heading and the first post image below, as a real post does" do
-      expect(samples.card).to include(thumbnail: "Game artwork", media: {label: "First image in the post"})
     end
   end
 end

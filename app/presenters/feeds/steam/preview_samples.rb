@@ -7,8 +7,8 @@ module Feeds
         {
           eyebrow: Announcement.eyebrow(@watch_name, @event_type, value(:feed)),
           title: value(:title),
-          thumbnail: sample(:images, :thumbnail),
-          media: {label: sample(:images, :image)},
+          thumbnail: image_label(:artwork),
+          media: {label: image_label(:image)},
           body: value(:body),
           button: Announcement::LINK_LABEL
         }
