@@ -32,6 +32,10 @@ RSpec.describe Components::Moderation::SpamProtectionForm do
     expect(html).to include('name="spam_protection[window_seconds]"')
   end
 
+  it "names both threshold steppers for screen readers" do
+    expect(html).to include('aria-label="Number of channels"').and include('aria-label="Time window in seconds"')
+  end
+
   it "caps the threshold stepper at the server-side maximum for native validation" do
     expect(html).to include('max="500"')
   end

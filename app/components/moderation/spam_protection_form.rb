@@ -34,7 +34,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
         render Components::NumberStepper.new(
           name: "spam_protection[channel_threshold]",
           value: @settings.channel_threshold,
-          label: "#{t(".detection.trigger_threshold.label")} #{t(".detection.trigger_threshold.channels_unit")}",
+          label: t(".detection.trigger_threshold.channels_name"),
           min: 2,
           max: 500,
           default: 4,
@@ -46,7 +46,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
         render Components::NumberStepper.new(
           name: "spam_protection[window_seconds]",
           value: @settings.window_seconds,
-          label: "#{t(".detection.trigger_threshold.within")} #{t(".detection.trigger_threshold.seconds_unit")}",
+          label: t(".detection.trigger_threshold.window_name"),
           min: 1,
           max: 60,
           default: 15,

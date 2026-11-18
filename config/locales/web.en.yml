@@ -630,9 +630,11 @@ en:
             help: Messages like "???" or "123" all count as the same message.
             label: Also match messages with only punctuation or numbers
           trigger_threshold:
+            channels_name: Number of channels
             channels_unit: different channels
             label: Act when the same message appears in
             seconds_unit: seconds
+            window_name: Time window in seconds
             within: within
         response:
           action:
