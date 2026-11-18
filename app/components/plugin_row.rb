@@ -72,11 +72,7 @@ class Components::PluginRow < Components::Base
   end
 
   def status_badge
-    if @row.locked
-      render Components::Badge.new(variant: :copper) { t(".status.always_on") }
-    elsif !@row.configured
-      render Components::Badge.new(variant: :warning, dot: true) { t(".status.needs_setup") }
-    end
+    render Components::PluginStatusBadge.new(configured: @row.configured, locked: @row.locked)
   end
 
   def group_count
