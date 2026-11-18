@@ -45,7 +45,7 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def meta
-    render Components::Description.new do
+    p(class: "mt-0.5 text-sm text-text-secondary") do
       channel
       if roles.shared?
         plain " - "

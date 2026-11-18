@@ -25,6 +25,6 @@ class Components::Feeds::TargetCard < Components::Base
     key = "components.feeds.target_card.#{@plugin_key}.external_id"
     return unless I18n.exists?(key)
 
-    render(Components::Description.new { t(key, id: @target.external_id) })
+    p(class: "mt-0.5 text-sm text-text-secondary") { t(key, id: @target.external_id) }
   end
 end

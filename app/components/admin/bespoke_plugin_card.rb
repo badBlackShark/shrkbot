@@ -21,7 +21,7 @@ class Components::Admin::BespokePluginCard < Components::Base
 
   def header
     p(class: "text-sm font-semibold") { @definition.name }
-    render(Components::Description.new { @definition.description })
+    render Components::Description.new { @definition.description }
   end
 
   def grant_list

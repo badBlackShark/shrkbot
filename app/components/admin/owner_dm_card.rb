@@ -6,7 +6,7 @@ class Components::Admin::OwnerDmCard < Components::Base
       render Components::Card.new(class: "flex items-center gap-4") do
         div(class: "flex-1") do
           p(class: "text-sm font-semibold") { t(".label") }
-          render(Components::Description.new { t(".description") })
+          render Components::Description.new { t(".description") }
         end
         render Components::Toggle.new(
           name: :owner_error_dms,
