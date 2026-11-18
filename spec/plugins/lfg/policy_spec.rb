@@ -7,8 +7,7 @@ RSpec.describe Lfg::Policy do
     described_class.new(
       effective:,
       channel_id:,
-      member_role_ids:,
-      member_joined_at:,
+      member:,
       cooldown_remaining:,
       now:
     ).result
@@ -19,6 +18,7 @@ RSpec.describe Lfg::Policy do
   let(:member_role_ids) { [7] }
   let(:member_joined_at) { now - 100.days }
   let(:cooldown_remaining) { 0 }
+  let(:member) { double(roles: member_role_ids.map { |id| double(id:) }, joined_at: member_joined_at) }
   let(:min_membership_days) { nil }
   let(:feature_required_role_ids) { [] }
   let(:role_required_role_ids) { [] }

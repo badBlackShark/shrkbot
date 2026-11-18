@@ -12,11 +12,11 @@ module Lfg
       end
     end
 
-    def initialize(effective:, channel_id:, member_role_ids:, member_joined_at:, cooldown_remaining:, now:)
+    def initialize(effective:, channel_id:, member:, cooldown_remaining:, now:)
       @effective = effective
       @channel_id = channel_id
-      @member_role_ids = member_role_ids
-      @member_joined_at = member_joined_at
+      @member_role_ids = member.roles.map(&:id)
+      @member_joined_at = member.joined_at
       @cooldown_remaining = cooldown_remaining
       @now = now
     end
