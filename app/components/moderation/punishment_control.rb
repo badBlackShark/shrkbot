@@ -14,8 +14,9 @@ class Components::Moderation::PunishmentControl < Components::Base
     {seconds: 2_419_200, label: "28 days"}
   ].freeze
 
-  def initialize(name:, value:, timeout_seconds:, none_label: nil)
+  def initialize(name:, value:, timeout_seconds:, label:, none_label: nil)
     @name = name
+    @label = label
     @value = value.to_s
     @timeout_seconds = timeout_seconds
     @none_label = none_label
@@ -26,6 +27,7 @@ class Components::Moderation::PunishmentControl < Components::Base
       render Components::SegmentedControl.new(
         name: @name,
         value: @value,
+        label: @label,
         options: [
           {value: "none", label: @none_label || t("components.moderation.punishment_control.none")},
           {value: "timeout", label: t("components.moderation.punishment_control.timeout")},

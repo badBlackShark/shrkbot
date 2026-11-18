@@ -7,7 +7,7 @@ RSpec.describe Components::DurationStepper do
 
   subject(:html) { described_class.new(**options).render_in(view_context) }
 
-  let(:options) { {name: "lfg[cooldown_seconds]", value: 300, base: :seconds, min: 0, max: 86_400, default: 300} }
+  let(:options) { {name: "lfg[cooldown_seconds]", value: 300, label: "Delay", base: :seconds, min: 0, max: 86_400, default: 300} }
   let(:fragment) { Nokogiri::HTML5.fragment(html) }
   let(:input) { fragment.at_css("input[type=number]") }
   let(:field) { fragment.at_css("input[type=hidden]") }
@@ -25,6 +25,10 @@ RSpec.describe Components::DurationStepper do
     expect(select.key?("data-tom-select-fixed-value")).to be(true)
     expect(select["data-number-stepper-target"]).to eq("unit")
     expect(select["data-action"]).to eq("change->number-stepper#changeUnit")
+  end
+
+  it "names the number input for screen readers" do
+    expect(input["aria-label"]).to eq("Delay")
   end
 
   it "names the unit picker for screen readers" do
@@ -71,7 +75,7 @@ RSpec.describe Components::DurationStepper do
   end
 
   context "when the field stores minutes" do
-    let(:options) { {name: "lfg[post_lifetime_minutes]", value: 360, base: :minutes, min: 5, max: 10_080, default: 360} }
+    let(:options) { {name: "lfg[post_lifetime_minutes]", value: 360, label: "Delay", base: :minutes, min: 5, max: 10_080, default: 360} }
 
     it "offers only units the field can store" do
       expect(fragment.css("option").map(&:text)).to eq(%w[minutes hours])
@@ -89,7 +93,7 @@ RSpec.describe Components::DurationStepper do
   end
 
   context "when the value is inherited" do
-    let(:options) { {name: "destination[post_delay_minutes]", value: nil, base: :minutes, min: 0, max: 10_080, placeholder: 30} }
+    let(:options) { {name: "destination[post_delay_minutes]", value: nil, label: "Delay", base: :minutes, min: 0, max: 10_080, placeholder: 30} }
 
     it "leaves the field empty and shows the placeholder in the shown unit" do
       expect(input.key?("value")).to be(false)
@@ -102,7 +106,7 @@ RSpec.describe Components::DurationStepper do
   end
 
   context "when the inherited value divides into hours" do
-    let(:options) { {name: "destination[post_delay_minutes]", value: nil, base: :minutes, min: 0, max: 10_080, placeholder: 120} }
+    let(:options) { {name: "destination[post_delay_minutes]", value: nil, label: "Delay", base: :minutes, min: 0, max: 10_080, placeholder: 120} }
 
     it "opens on hours with a whole placeholder" do
       expect(selected.text).to eq("hours")
@@ -111,7 +115,7 @@ RSpec.describe Components::DurationStepper do
   end
 
   context "when the inherited value does not divide into hours" do
-    let(:options) { {name: "destination[post_delay_minutes]", value: nil, base: :minutes, min: 0, max: 10_080, placeholder: 90} }
+    let(:options) { {name: "destination[post_delay_minutes]", value: nil, label: "Delay", base: :minutes, min: 0, max: 10_080, placeholder: 90} }
 
     it "opens on minutes with a whole placeholder" do
       expect(selected.text).to eq("minutes")
@@ -120,7 +124,7 @@ RSpec.describe Components::DurationStepper do
   end
 
   context "when the placeholder does not fit the shown unit" do
-    let(:options) { {name: "destination[post_delay_minutes]", value: 120, base: :minutes, min: 0, max: 10_080, placeholder: 15} }
+    let(:options) { {name: "destination[post_delay_minutes]", value: 120, label: "Delay", base: :minutes, min: 0, max: 10_080, placeholder: 15} }
 
     it "rounds it to two decimals" do
       expect(input["placeholder"]).to eq("0.25")

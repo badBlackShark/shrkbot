@@ -15,6 +15,7 @@ class Components::Lfg::MinDaysField < Components::Base
       render Components::NumberStepper.new(
         name: @name,
         value: @value,
+        label: @label,
         min: 0,
         max: 3650,
         unit: @unit,

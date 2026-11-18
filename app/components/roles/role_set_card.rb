@@ -100,6 +100,7 @@ class Components::Roles::RoleSetCard < Components::Base
         render Components::SegmentedControl.new(
           name: field(:selection_mode),
           value: @data.selection_mode,
+          label: t(".selection.label"),
           options: [
             {value: "single", label: t(".mode.single")},
             {value: "multi", label: t(".mode.multi")}
