@@ -133,6 +133,7 @@ en:
         channel_placeholder: Same as above
       override_summary:
         pings: Pings @%{role}
+        pings_no_one: Pings no one
         posts_in: Posts in %{channel}
       placeholders:
         steam:

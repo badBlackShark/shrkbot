@@ -6,7 +6,7 @@ RSpec.describe Components::Feeds::OverrideSummary do
   include_context "component view context"
 
   subject(:html) do
-    described_class.new(channel_id:, role_id:, channel_labels: {111 => "#clips"}, role_names: {222 => "Streams"}).render_in(view_context)
+    described_class.new(channel_id:, role_id:, labels: described_class::Labels.new(channels: {111 => "#clips"}, roles: {222 => "Streams"})).render_in(view_context)
   end
 
   let(:text) { Nokogiri::HTML.fragment(html).text }
@@ -45,9 +45,17 @@ RSpec.describe Components::Feeds::OverrideSummary do
     end
   end
 
+  context "with the explicit no-ping override" do
+    let(:role_id) { Feeds::Twitch::Settings::NO_PING }
+
+    it "says nobody is pinged" do
+      expect(text).to eq("Pings no one")
+    end
+  end
+
   context "with ids that no longer exist" do
     let(:channel_id) { 999 }
-    let(:role_id) { 0 }
+    let(:role_id) { 999 }
 
     it "renders nothing" do
       expect(html).to eq("")

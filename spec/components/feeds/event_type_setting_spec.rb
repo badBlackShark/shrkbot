@@ -6,13 +6,14 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   include_context "component view context"
 
   subject(:html) do
-    described_class.new(subscription:, plugin_key:, event_type:, event:, channel_labels:, role_names:, **extra).render_in(view_context)
+    described_class.new(subscription:, plugin_key:, event_type:, event:, override_labels:, **extra).render_in(view_context)
   end
 
   let(:plugin_key) { :steam }
   let(:extra) { {} }
   let(:channel_labels) { {} }
   let(:role_names) { {} }
+  let(:override_labels) { Components::Feeds::OverrideSummary::Labels.new(channels: channel_labels, roles: role_names) }
 
   let(:subscription) { build(:feed_subscription, watch: build(:integration_watch, name: "Hades II", external_id: "1145350")) }
   let(:event_type) { "Integrations::Steam::PatchNotesPublished" }

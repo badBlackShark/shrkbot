@@ -19,18 +19,16 @@ class Components::Feeds::EventTypeList < Components::Base
       plugin_key: @plugin_key,
       event_type:,
       event: events_by_type[event_type],
-      channel_labels:,
-      role_names:,
+      override_labels:,
       type_fields: @type_fields
     )
   end
 
-  def channel_labels
-    @channel_labels ||= ChannelOptions.new(@subscription.server_configuration).labels_by_id
-  end
-
-  def role_names
-    @role_names ||= ServerRoleOptions.new(@subscription.server_configuration).names_by_id
+  def override_labels
+    @override_labels ||= Components::Feeds::OverrideSummary::Labels.new(
+      channels: ChannelOptions.new(@subscription.server_configuration).labels_by_id,
+      roles: ServerRoleOptions.new(@subscription.server_configuration).names_by_id
+    )
   end
 
   def events_by_type

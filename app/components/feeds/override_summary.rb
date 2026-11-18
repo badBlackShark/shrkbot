@@ -2,12 +2,12 @@
 
 class Components::Feeds::OverrideSummary < Components::Base
   SEPARATOR = " · "
+  Labels = Data.define(:channels, :roles)
 
-  def initialize(channel_id:, role_id:, channel_labels:, role_names:)
+  def initialize(channel_id:, role_id:, labels:)
     @channel_id = channel_id
     @role_id = role_id
-    @channel_labels = channel_labels
-    @role_names = role_names
+    @labels = labels
   end
 
   def view_template
@@ -23,12 +23,14 @@ class Components::Feeds::OverrideSummary < Components::Base
   end
 
   def posts_in
-    label = @channel_labels[@channel_id]
+    label = @labels.channels[@channel_id]
     t(".posts_in", channel: label) if label
   end
 
   def pings
-    name = @role_names[@role_id]
+    return t(".pings_no_one") if @role_id == ::Feeds::Twitch::Settings::NO_PING
+
+    name = @labels.roles[@role_id]
     t(".pings", role: name) if name
   end
 end
