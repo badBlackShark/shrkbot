@@ -31,32 +31,6 @@ RSpec.describe Ops::ApplicationOperation do
     end
   end
 
-  describe "#rescue_invalid" do
-    subject(:result) { op.call(record:) }
-
-    let(:op) do
-      Class.new(described_class) do
-        receives :record
-
-        def call
-          rescue_invalid do
-            raise ActiveRecord::RecordInvalid, record
-          end
-        end
-      end
-    end
-    let(:record) do
-      ServerConfiguration.new.tap do |invalid|
-        invalid.errors.add(:base, "First problem")
-        invalid.errors.add(:base, "Second problem")
-      end
-    end
-
-    it "turns a RecordInvalid into a failure with the record's messages as one sentence" do
-      expect(result).to have_attributes(success?: false, errors: ["First problem and Second problem"])
-    end
-  end
-
   describe ".receives" do
     let(:op) do
       Class.new(described_class) do

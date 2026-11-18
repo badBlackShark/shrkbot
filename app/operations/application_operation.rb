@@ -85,12 +85,6 @@ module Ops
       ActiveRecord::Base.transaction(&)
     end
 
-    def rescue_invalid
-      yield
-    rescue ActiveRecord::RecordInvalid => error
-      failure([error.record.errors.full_messages.to_sentence])
-    end
-
     def truthy?(value)
       ActiveModel::Type::Boolean.new.cast(value)
     end

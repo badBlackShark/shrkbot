@@ -15,6 +15,8 @@ module Ops
         end
         toggled
       end
+    rescue ActiveRecord::RecordInvalid => error
+      failure(error.record.errors.full_messages)
     end
 
     def toggle_plugin(publish_menu: true)
