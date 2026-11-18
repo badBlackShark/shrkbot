@@ -35,8 +35,21 @@ RSpec.describe Bot::Discord::UserGuilds do
     let(:code) { "401" }
     let(:body) { "" }
 
-    it "raises Unauthorized" do
-      expect { fetch }.to raise_error(described_class::Unauthorized)
+    it "raises Unauthorized with its default message and status" do
+      expect { fetch }.to raise_error(described_class::Unauthorized, "Discord rejected the access token") do |error|
+        expect(error.status).to eq(401)
+      end
+    end
+  end
+
+  context "when Discord refuses the token's scope" do
+    let(:code) { "403" }
+    let(:body) { "" }
+
+    it "raises Error carrying the status" do
+      expect { fetch }.to raise_error(described_class::Error, "Discord responded with 403") do |error|
+        expect(error).to have_attributes(class: described_class::Error, status: 403)
+      end
     end
   end
 

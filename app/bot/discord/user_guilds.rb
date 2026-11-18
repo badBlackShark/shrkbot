@@ -7,12 +7,29 @@ module Bot
     class UserGuilds
       PATH = "/users/@me/guilds?with_counts=true"
 
-      class Error < StandardError; end
+      class Error < StandardError
+        attr_reader :status
 
-      class Unauthorized < Error; end
+        def initialize(message = nil, status: nil)
+          super(message)
+          @status = status
+        end
+      end
+
+      class Unauthorized < Error
+        def initialize(message = "Discord rejected the access token", status: 401)
+          super
+        end
+      end
 
       def self.call(access_token)
         new(access_token).call
+      end
+
+      def self.rejection(status)
+        return Unauthorized.new if status == 401
+
+        Error.new("Discord responded with #{status}", status:)
       end
 
       def initialize(access_token)
@@ -21,10 +38,8 @@ module Bot
 
       def call
         response = Rest.get(PATH, authorization: "Bearer #{@access_token}")
-        raise Unauthorized, "Discord rejected the access token" if response.code.to_i == 401
-        unless response.code.to_i.between?(200, 299)
-          raise Error, "Discord responded with #{response.code}"
-        end
+        status = response.code.to_i
+        raise self.class.rejection(status) unless status.between?(200, 299)
 
         JSON.parse(response.body).map { |guild| Guild.from_api(guild) }
       rescue *::Integrations::Http::TRANSPORT_ERRORS => e
