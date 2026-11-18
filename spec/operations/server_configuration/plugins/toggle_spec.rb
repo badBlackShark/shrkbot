@@ -22,27 +22,17 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     allow(Bot::ConfigBus).to receive(:sync_commands)
   end
 
-  describe "locking" do
+  context "when enabling logging" do
     let(:plugin) { logging }
     let(:enabled) { true }
-    let(:statements) { [] }
-    let(:collector) do
-      lambda do |*, payload|
-        statements << payload[:sql]
-      end
-    end
 
-    before do
-      ActiveSupport::Notifications.subscribed(collector, "sql.active_record") do
-        result
-      end
-    end
+    it_behaves_like "an operation that locks the server row first", /FROM "plugin_activations"/
 
-    it "locks the server row before it reads any plugin activation, so concurrent toggles of one server queue up" do
-      lock = statements.index { |sql| sql.match?(/FROM "server_configurations".*FOR UPDATE/m) }
-      read = statements.index { |sql| sql.match?(/FROM "plugin_activations"/) }
+    it "runs in a transaction, so the row lock is held until the activation is saved" do
+      allow(ActiveRecord::Base).to receive(:transaction).and_call_original
+      result
 
-      expect(lock).to be < read
+      expect(ActiveRecord::Base).to have_received(:transaction)
     end
   end
 
