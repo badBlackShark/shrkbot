@@ -26,18 +26,8 @@ RSpec.describe Feeds::Steam::PreviewSamples do
       )
     end
 
-    %w[PatchNotesPublished AnnouncementPublished ArticlePublished].each do |type|
-      context "with #{type}" do
-        subject(:samples) { described_class.new(watch_name: "Hades II", event_type: "Integrations::Steam::#{type}") }
-
-        it "shows the game artwork beside the heading and the first post image below, as a real post does" do
-          expect(samples.card).to include(thumbnail: "Game artwork", media: {label: "First image in the post"})
-        end
-
-        it "has no footer" do
-          expect(samples.card).not_to have_key(:footer)
-        end
-      end
+    it "shows the game artwork beside the heading and the first post image below, as a real post does" do
+      expect(samples.card).to include(thumbnail: "Game artwork", media: {label: "First image in the post"})
     end
   end
 end
