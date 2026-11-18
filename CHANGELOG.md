@@ -5,6 +5,12 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.15.1] - 2026-11-18
+
+### Fixed
+- Revoked Discord logins and signed-out server previews no longer send repeated requests to Discord. ([#420](https://github.com/badBlackShark/shrkbot/pull/420))
+- Fixed an issue that could bypass Twilight Struggle API authentication. ([#419](https://github.com/badBlackShark/shrkbot/pull/419))
+
 ## [3.15.0] - 2026-11-18
 
 ### Added
