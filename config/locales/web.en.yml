@@ -558,47 +558,45 @@ en:
         days_unit: days
         help: New accounts are judged more strictly.
         label: Treat accounts as new for
+      image_scanning_explainer:
+        line_fingerprint: Confirmed scams are remembered by image fingerprint, across
+          every server shrkbot is in.
+        line_memory: shrkbot reads image text in memory. Nothing is stored.
+        line_staff: Staff confirm or dismiss every flag with buttons in your log channel.
+        title: How image scanning works
       image_scanning_form:
         consent:
           body: Images are deleted automatically. Screenshots of scams that members
             post as warnings can be caught too. Staff are alerted to every action
             and can mark it as incorrect.
           title: Detection can be wrong
-        custom_keywords:
-          keywords_help: Extra words or phrases that mark an image as a scam; close
-            misspellings count. Longer phrases cause fewer false matches.
-          keywords_label: Custom keywords
-          keywords_placeholder: Type a word or phrase, then press Enter
-          min_hits_label: Require at least
-          min_hits_unit: matching keywords
-        detection:
-          sensitivity:
-            help: Stricter catches more scams and more innocent images.
-            label: Sensitivity
-            relaxed: Relaxed
-            standard: Standard (recommended)
-            strict: Strict
-        explainer:
-          line_fingerprint: Confirmed scams are remembered by image fingerprint, across
-            every server shrkbot is in.
-          line_memory: shrkbot reads image text in memory. Nothing is stored.
-          line_staff: Staff confirm or dismiss every flag with buttons in your log
-            channel.
-          title: How image scanning works
         report_scam:
           body: 'Staff can report any message with images: right-click -> Apps ->
             shrkbot -> "Report as scam".'
           title: Report a scam yourself
-        response:
-          action:
-            delete: Delete the image
-            flag_only: Only alert staff
-            label: When a scam is detected
-          confirmed_punishment:
-            inherit: Same as above
-            label: Punishment if confirmed by staff on this server
-          punishment:
-            label: Also punish the sender
+      image_scanning_keywords_card:
+        keywords_help: Extra words or phrases that mark an image as a scam; close
+          misspellings count. Longer phrases cause fewer false matches.
+        keywords_label: Custom keywords
+        keywords_placeholder: Type a word or phrase, then press Enter
+        min_hits_label: Require at least
+        min_hits_unit: matching keywords
+      image_scanning_response_card:
+        action:
+          delete: Delete the image
+          flag_only: Only alert staff
+          label: When a scam is detected
+        confirmed_punishment:
+          inherit: Same as above
+          label: Punishment if confirmed by staff on this server
+        punishment:
+          label: Also punish the sender
+      image_scanning_sensitivity_card:
+        help: Stricter catches more scams and more innocent images.
+        label: Sensitivity
+        relaxed: Relaxed
+        standard: Standard (recommended)
+        strict: Strict
       matching_explainer:
         row_keywords: Custom scam keywords keep digits, so entries like 50 giveaway
           match.
