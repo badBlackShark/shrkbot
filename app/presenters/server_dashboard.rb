@@ -16,9 +16,9 @@ class ServerDashboard
 
   def resolve
     live
-  rescue Integrations::Unauthorized
+  rescue Bot::Discord::Unauthorized
     raise
-  rescue Integrations::Error
+  rescue Bot::Discord::Error
     cached || raise
   end
 

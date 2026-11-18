@@ -7,7 +7,7 @@ class ServersController < ApplicationController
 
   before_action :load_dashboard, only: :show
 
-  rescue_from Integrations::Error, with: :render_error
+  rescue_from Bot::Discord::Error, with: :render_error
 
   include DiscordReauth
 

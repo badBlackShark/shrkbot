@@ -166,7 +166,7 @@ RSpec.describe "Server dashboard", type: :request do
 
       context "when the Discord token has expired" do
         before do
-          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Integrations::Unauthorized)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Unauthorized)
         end
 
         it "kicks off re-authentication" do
@@ -179,7 +179,7 @@ RSpec.describe "Server dashboard", type: :request do
       context "when Discord cannot be reached" do
         before do
           get server_path(guild.id)
-          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Integrations::Error)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Error)
         end
 
         context "when cached metadata is present" do
@@ -210,7 +210,7 @@ RSpec.describe "Server dashboard", type: :request do
       context "when the Discord token has expired and Discord is also unreachable" do
         before do
           get server_path(guild.id)
-          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Integrations::Unauthorized)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Unauthorized)
           config.update!(name: "Dev Refuge", icon_hash: "icyhash", member_count: 2481)
         end
 

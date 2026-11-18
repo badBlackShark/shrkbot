@@ -44,7 +44,7 @@ RSpec.describe "Logging config", type: :request do
 
       context "when Discord is unreachable after the dashboard cached authorization" do
         before do
-          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Integrations::Error)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Error)
         end
 
         it "still serves the config page from the cached authorization" do

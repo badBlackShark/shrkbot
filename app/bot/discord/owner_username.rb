@@ -26,7 +26,7 @@ module Bot
         return if Config.owner_id.blank?
 
         Rest.get_json("/users/#{Config.owner_id}", authorization: Config.rest_token) { |json| json.fetch("username") }
-      rescue ::Integrations::Error => e
+      rescue Error => e
         warn_failed(e.message)
       end
 

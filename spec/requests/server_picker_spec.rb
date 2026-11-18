@@ -147,7 +147,7 @@ RSpec.describe "Server picker", type: :request do
 
       context "when Discord cannot be reached" do
         before do
-          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Integrations::Error)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Error)
         end
 
         it "renders the error state without raising" do
@@ -159,7 +159,7 @@ RSpec.describe "Server picker", type: :request do
 
       context "when the Discord access token has expired" do
         before do
-          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Integrations::Unauthorized)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Unauthorized)
         end
 
         it "kicks off automatic re-authentication" do

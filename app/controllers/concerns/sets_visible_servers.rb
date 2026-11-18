@@ -41,9 +41,9 @@ module SetsVisibleServers
   def live_access
     @live_access ||= begin
       visible_servers.to_h { |server| [server.id, server.manageable?] }
-    rescue Integrations::Unauthorized
+    rescue Bot::Discord::Unauthorized
       raise
-    rescue Integrations::Error
+    rescue Bot::Discord::Error
       visible_server_ids.index_with { |id| managed_server_ids.include?(id) }
     end
   end

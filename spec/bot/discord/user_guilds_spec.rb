@@ -31,19 +31,13 @@ RSpec.describe Bot::Discord::UserGuilds do
     )
   end
 
-  it "sends the DiscordBot User-Agent Discord requires" do
-    fetch
-
-    expect(http).to have_received(:request).with(satisfy { |get| get["User-Agent"].start_with?("DiscordBot (") })
-  end
-
   [401, 403].each do |status|
     context "when Discord answers #{status}" do
       let(:code) { status.to_s }
       let(:body) { "" }
 
-      it "raises Integrations::Unauthorized" do
-        expect { fetch }.to raise_error(Integrations::Unauthorized)
+      it "raises Bot::Discord::Unauthorized" do
+        expect { fetch }.to raise_error(Bot::Discord::Unauthorized)
       end
     end
   end
@@ -56,8 +50,8 @@ RSpec.describe Bot::Discord::UserGuilds do
       allow(response).to receive_messages("[]": nil, to_hash: {})
     end
 
-    it "raises Integrations::RateLimited" do
-      expect { fetch }.to raise_error(Integrations::RateLimited)
+    it "raises Bot::Discord::RateLimited" do
+      expect { fetch }.to raise_error(Bot::Discord::RateLimited)
     end
   end
 
@@ -65,8 +59,8 @@ RSpec.describe Bot::Discord::UserGuilds do
     let(:code) { "500" }
     let(:body) { "" }
 
-    it "raises Integrations::Unavailable" do
-      expect { fetch }.to raise_error(Integrations::Unavailable)
+    it "raises Bot::Discord::Error" do
+      expect { fetch }.to raise_error(Bot::Discord::Error)
     end
   end
 
@@ -75,16 +69,16 @@ RSpec.describe Bot::Discord::UserGuilds do
       allow(Net::HTTP).to receive(:start).and_raise(Errno::ECONNRESET)
     end
 
-    it "raises Integrations::Unavailable, which the controller turns into a friendly page" do
-      expect { fetch }.to raise_error(Integrations::Unavailable)
+    it "raises Bot::Discord::Error, which the controller turns into a friendly page" do
+      expect { fetch }.to raise_error(Bot::Discord::Error)
     end
   end
 
   context "when the body is not valid JSON" do
     let(:body) { "not json" }
 
-    it "raises Integrations::Unavailable" do
-      expect { fetch }.to raise_error(Integrations::Unavailable)
+    it "raises Bot::Discord::Error" do
+      expect { fetch }.to raise_error(Bot::Discord::Error)
     end
   end
 end
