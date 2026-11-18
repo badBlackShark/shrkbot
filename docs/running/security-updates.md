@@ -25,3 +25,9 @@ A PR opened with the built-in `GITHUB_TOKEN` would not trigger CI.
 
 Ignored advisories go in `config/bundler-audit.yml`, which both
 `bin/bundler-audit check` and the workflow honour.
+
+`Gemfile.lock` lists the `ruby` platform. Dependabot's resolver writes generic
+variants of native gems (`nokogiri`, `ffi`, `mini_portile2`) that a plain Bundler
+resolve drops, so each security PR removed them and the next Dependabot PR added
+them back. With `ruby` locked, Bundler needs those variants too and both agree.
+Installs still pick the precompiled platform builds.
