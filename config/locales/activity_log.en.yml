@@ -9,6 +9,8 @@ en:
         cooldown: on cooldown (%{time} left)
         has_excluded_role: 'you have a role that''s blocked from Looking for Game:
           %{roles}'
+        member_unavailable: shrkbot couldn't load your member details from Discord,
+          try again in a moment
         missing_game_role: 'you need one of these roles to look for this game: %{roles}'
         missing_required_role: 'you need one of these roles to use Looking for Game:
           %{roles}'

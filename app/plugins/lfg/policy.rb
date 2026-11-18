@@ -12,11 +12,10 @@ module Lfg
       end
     end
 
-    def initialize(effective:, channel_id:, member:, cooldown_remaining:, now:)
+    def initialize(effective:, channel:, member:, cooldown_remaining:, now:)
       @effective = effective
-      @channel_id = channel_id
-      @member_role_ids = member.roles.map(&:id)
-      @member_joined_at = member.joined_at
+      @channel = channel
+      @member = member
       @cooldown_remaining = cooldown_remaining
       @now = now
     end
@@ -36,23 +35,27 @@ module Lfg
 
     def channel_allowed?
       allowed = @effective.allowed_channel_ids
-      allowed.empty? || allowed.include?(@channel_id)
+      allowed.empty? || allowed.include?(@channel.id)
     end
 
     def gate_met?(required)
-      required.empty? || required.intersect?(@member_role_ids)
+      required.empty? || required.intersect?(member_role_ids)
     end
 
     def blocking_excluded_role_ids
-      @blocking_excluded_role_ids ||= @effective.excluded_role_ids & @member_role_ids
+      @blocking_excluded_role_ids ||= @effective.excluded_role_ids & member_role_ids
     end
 
     def old_enough?
       days = @effective.min_membership_days
       return true if days.nil?
-      return false if @member_joined_at.nil?
+      return false if @member.joined_at.nil?
 
-      @member_joined_at <= @now - days.days
+      @member.joined_at <= @now - days.days
+    end
+
+    def member_role_ids
+      @member_role_ids ||= @member.roles.map(&:id)
     end
 
     def denial(reason, detail = nil)

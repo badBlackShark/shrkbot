@@ -62,7 +62,7 @@ module Lfg
     def policy(start)
       Lfg::Policy.new(
         effective: Lfg::EffectivePolicy.new(settings, pingable_role),
-        channel_id: @channel.id,
+        channel: @channel,
         member: @member,
         cooldown_remaining: cooldown.remaining(guild_id:, user_id: actor_id, at: @now),
         now: @now
