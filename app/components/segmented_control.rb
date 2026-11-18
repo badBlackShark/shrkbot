@@ -34,13 +34,18 @@ class Components::SegmentedControl < Components::Base
 
   def option_button(opt)
     active = opt[:value].to_s == @value
+    tabbable = active || (!selected? && opt.equal?(@options.first))
     button(
       type: "button",
       role: "radio",
       aria_checked: active.to_s,
-      tabindex: active ? 0 : -1,
+      tabindex: tabbable ? 0 : -1,
       data: {segmented_target: "option", value: opt[:value], action: "segmented#select"},
       class: "#{BASE} #{active ? ACTIVE : INACTIVE}"
     ) { opt[:label] }
+  end
+
+  def selected?
+    @options.any? { |opt| opt[:value].to_s == @value }
   end
 end

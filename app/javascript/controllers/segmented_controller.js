@@ -9,6 +9,8 @@ export default class extends Controller {
   }
 
   keydown(event) {
+    if (event.altKey || event.ctrlKey || event.metaKey) return
+
     const target = this.targetFor(event.key, event.target)
     if (!target) return
 
@@ -19,6 +21,8 @@ export default class extends Controller {
 
   choose(option) {
     const value = option.dataset.value
+    if (this.inputTarget.value === value) return
+
     this.inputTarget.value = value
     this.optionTargets.forEach((other) => {
       const active = other === option
@@ -32,17 +36,16 @@ export default class extends Controller {
 
   targetFor(key, from) {
     const options = this.optionTargets
-    const last = options.length - 1
+    const count = options.length
     const current = options.indexOf(from)
-    if (current < 0 && !["Home", "End"].includes(key)) return null
 
     const index = {
-      ArrowRight: current === last ? 0 : current + 1,
-      ArrowDown: current === last ? 0 : current + 1,
-      ArrowLeft: current === 0 ? last : current - 1,
-      ArrowUp: current === 0 ? last : current - 1,
+      ArrowRight: (current + 1) % count,
+      ArrowDown: (current + 1) % count,
+      ArrowLeft: (current - 1 + count) % count,
+      ArrowUp: (current - 1 + count) % count,
       Home: 0,
-      End: last,
+      End: count - 1,
     }[key]
     return options[index]
   }

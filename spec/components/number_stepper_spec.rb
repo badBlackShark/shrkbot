@@ -31,7 +31,7 @@ RSpec.describe Components::NumberStepper do
 
   it "names the input and the buttons for screen readers" do
     expect(fragment.at_css("input")["aria-label"]).to eq("Threshold")
-    expect(fragment.css("button").first(2).map { |b| b["aria-label"] }).to eq(%w[Decrease Increase])
+    expect(fragment.css("button").first(2).map { |b| b["aria-label"] }).to eq(["Decrease Threshold", "Increase Threshold"])
   end
 
   it "renders the unit label when provided" do

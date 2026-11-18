@@ -20,8 +20,8 @@ async function connect() {
   return [...document.querySelectorAll("button")]
 }
 
-function press(button, key) {
-  button.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }))
+function press(button, key, modifiers = {}) {
+  button.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...modifiers }))
 }
 
 function state() {
@@ -78,4 +78,24 @@ test("other keys leave the selection alone", async () => {
   press(buttons[0], "Tab")
 
   assert.equal(document.querySelector("input").value, "a")
+})
+
+test("arrow chords with a modifier are left to the browser", async () => {
+  const buttons = await connect()
+
+  press(buttons[0], "ArrowRight", { altKey: true })
+  press(buttons[0], "ArrowRight", { ctrlKey: true })
+  press(buttons[0], "ArrowRight", { metaKey: true })
+
+  assert.equal(document.querySelector("input").value, "a")
+})
+
+test("choosing the selected option fires no input event", async () => {
+  const buttons = await connect()
+  let fired = 0
+  document.querySelector("input").addEventListener("input", () => fired++)
+
+  buttons[0].click()
+
+  assert.equal(fired, 0)
 })

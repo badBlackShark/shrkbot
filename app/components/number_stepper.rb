@@ -73,11 +73,11 @@ class Components::NumberStepper < Components::Base
   end
 
   def decrement_button
-    stepper_button("minus", "decrement", DECREMENT_CORNER, t("components.number_stepper.decrease"))
+    stepper_button("minus", "decrement", DECREMENT_CORNER, t("components.number_stepper.decrease", label: @label))
   end
 
   def increment_button
-    stepper_button("plus", "increment", TRAILING_CORNER, t("components.number_stepper.increase"))
+    stepper_button("plus", "increment", TRAILING_CORNER, t("components.number_stepper.increase", label: @label))
   end
 
   def stepper_button(icon, method, corner, name)

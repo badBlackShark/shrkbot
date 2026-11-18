@@ -630,7 +630,7 @@ en:
             help: Messages like "???" or "123" all count as the same message.
             label: Also match messages with only punctuation or numbers
           trigger_threshold:
-            channels_name: Number of channels
+            channels_name: Number of different channels
             channels_unit: different channels
             label: Act when the same message appears in
             seconds_unit: seconds
@@ -669,8 +669,8 @@ en:
       this_server: This server
       title: Notifications
     number_stepper:
-      decrease: Decrease
-      increase: Increase
+      decrease: Decrease %{label}
+      increase: Increase %{label}
       reset: Reset to %{value}
     placeholder_section:
       label: Placeholders (click to copy)

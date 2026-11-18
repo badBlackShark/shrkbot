@@ -33,7 +33,9 @@ RSpec.describe Components::Moderation::SpamProtectionForm do
   end
 
   it "names both threshold steppers for screen readers" do
-    expect(html).to include('aria-label="Number of channels"').and include('aria-label="Time window in seconds"')
+    inputs = Nokogiri::HTML5.fragment(html).css("input[type=number]")
+
+    expect(inputs.map { |input| input["aria-label"] }).to eq(["Number of different channels", "Time window in seconds"])
   end
 
   it "caps the threshold stepper at the server-side maximum for native validation" do

@@ -287,7 +287,7 @@ duplicated class strings:
   reset segment grows the control to the right. `Components::ResetButton` takes `shape:` (`:standalone` bordered
   square, `:segment` inside a joined control). No UI cap (`max:` is optional, for the
   dynamic keyword-count limit); submits as a plain number field. `label:` is required and
-  names the input; the buttons are named "Decrease" and "Increase".
+  names the input and must contain the visible unit or label text; the buttons are named "Decrease <label>" and "Increase <label>".
 - **`Components::DurationStepper`** — `NumberStepper` subclass for durations. `base:`
   (`:seconds` / `:minutes`) is the unit the hidden field submits. The unit picker is the
   shared `TomSelect` (`tom_select_fixed_value: true`) skinned as a segment (`.ts-segment`
@@ -335,7 +335,7 @@ duplicated class strings:
   where the label leads into the value ("Treat accounts as new for [30] days").
 - **`Components::SegmentedControl`** — one-of-N buttons over a hidden input, a
   `role="radiogroup"` of `role="radio"` buttons with roving tabindex and arrow/Home/End
-  keys. `label:` is required: pass the text of the visible `FieldLabel` (no `for`).
+  keys. `label:` is required: pass the text of the visible `FieldLabel` (no `for`). With no value selected the first option stays tabbable.
 
 `Components::Icon` wraps Phosphor; names not in Phosphor (the `megaphone-slash`
 sub-plugin glyph) are served from its `CUSTOM_GLYPHS` map of inline SVGs. `steam` is
