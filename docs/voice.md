@@ -20,8 +20,8 @@ engineers. People judge the project by this surface, so the prose has to be
 clean. Technical, but no word a competent server admin would have to look up.
 
 **Release notes** - `CHANGELOG.md` and the GitHub release body built from it.
-One short line per change, saying what a user notices: no mechanism, timings
-or limits, because the linked PR carries those. The page is public, so no
+One short line per change, saying what a user notices: no mechanism, reasons,
+timings or limits, because the linked PR carries those. The page is public, so no
 internal class or constant names, and each bullet reads on its own without the
 diff beside it. Releases up to 3.14.0 used a long, detailed register and are
 left as a record. The release title takes the ` - `
