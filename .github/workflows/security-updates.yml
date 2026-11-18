@@ -1,0 +1,62 @@
+name: Security updates
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # The fasttext gem compiles with -march=native by default, and a cached bundle
+  # restored on a runner with an older CPU dies with SIGILL at require time.
+  BUNDLE_BUILD__FASTTEXT: "--with-optflags="
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        with:
+          bundler-cache: true
+
+      - name: Install libvips
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libvips42t64
+
+      - name: Update the advisory database
+        run: bin/bundler-audit update
+
+      - name: Update the vulnerable packages
+        id: update
+        run: |
+          bundle config set --local deployment false
+          bundle config set --local frozen false
+          bin/security-updates "$RUNNER_TEMP/security-pr.md" || echo "unresolved=true" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the security PR
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ secrets.SECURITY_PR_TOKEN }}
+          base: main
+          branch: security-updates
+          delete-branch: true
+          title: Fix security advisories
+          commit-message: Update packages with security advisories
+          body-path: ${{ runner.temp }}/security-pr.md
+          add-paths: |
+            Gemfile.lock
+            config/importmap.rb
+            vendor/javascript
+
+      - name: Fail when an advisory has no fix
+        if: steps.update.outputs.unresolved == 'true'
+        run: |
+          cat "$RUNNER_TEMP/security-pr.md" >> "$GITHUB_STEP_SUMMARY"
+          exit 1

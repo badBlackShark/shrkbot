@@ -4,10 +4,6 @@ on:
   pull_request:
   push:
     branches: [ main ]
-  schedule:
-    # Nightly dependency audit; CVE feeds change independently of our code, so a
-    # new advisory must not surface as a red check on an unrelated PR.
-    - cron: '0 6 * * *'
 
 permissions:
   contents: read
@@ -34,47 +30,6 @@ jobs:
 
       - name: Scan app code for security issues
         run: bin/brakeman
-
-  audit_ruby_deps:
-    runs-on: ubuntu-latest
-    # Whole-lockfile scan; not diff-scoped, so keep it off PRs (main + nightly).
-    if: github.event_name != 'pull_request'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
-        with:
-          bundler-cache: true
-
-      - name: Scan for known security vulnerabilities in gems used
-        run: bin/bundler-audit
-
-  audit_js_deps:
-    runs-on: ubuntu-latest
-    # Whole-lockfile scan; not diff-scoped, so keep it off PRs (main + nightly).
-    if: github.event_name != 'pull_request'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
-        with:
-          bundler-cache: true
-
-      - name: Install libvips
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libvips42t64
-
-      - name: Scan for security vulnerabilities in JavaScript dependencies
-        run: bin/importmap audit
 
   lint:
     runs-on: ubuntu-latest
@@ -205,8 +160,7 @@ jobs:
   api_docs:
     runs-on: ubuntu-latest
     # PRs build the docs as a check + downloadable artifact; main also publishes
-    # them to Pages (deploy_docs). The nightly audit run has no reason to rebuild.
-    if: github.event_name != 'schedule'
+    # them to Pages (deploy_docs).
 
     steps:
       - name: Checkout code
