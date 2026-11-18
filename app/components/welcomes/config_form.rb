@@ -84,7 +84,7 @@ class Components::Welcomes::ConfigForm < Components::Base
   end
 
   def preview_body_data(kind)
-    {welcome_preview_target: "#{kind}Output", empty_hint: t(".empty")}
+    {welcome_preview_target: "#{kind}Output", empty_hint: t("components.welcomes.message_column.empty")}
   end
 
   def preview_channel
