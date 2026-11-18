@@ -940,6 +940,7 @@ en:
     roles:
       failed: Couldn't save the role settings.
       saved: Role settings saved.
+    save_failed: Couldn't save. Try again.
     saved_while_disabled: Saved. %{plugin} is still disabled.
     spam_protection:
       saved: Cross-Channel Spam Guard settings saved.

@@ -79,6 +79,28 @@ RSpec.describe "LFG config", type: :request do
           expect(response.body).to include("saved")
         end
 
+        context "when the save is refused" do
+          subject(:refused_save) do
+            patch server_lfg_path(guild.id),
+              params: {
+                lfg: {
+                  enabled: "1",
+                  cooldown_seconds: -1,
+                  post_lifetime_minutes: 240,
+                  pingable_roles: {"0" => {role_id: 222}}
+                }
+              },
+              **turbo
+          end
+
+          it "answers 422 with only the save-error stream, so the form keeps the unsaved card" do
+            refused_save
+            expect(response).to have_http_status(:unprocessable_content)
+            expect(response.body).to include('target="lfg-save-error"').and include("Cooldown seconds")
+            expect(response.body).not_to include('target="lfg-config"')
+          end
+        end
+
         it "creates a pingable role from nested params" do
           patch server_lfg_path(guild.id),
             params: {

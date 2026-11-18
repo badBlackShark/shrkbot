@@ -1,1 +1,1 @@
-<%= render "servers/configuration_update", form: Components::Moderation::ImageScanningForm.new(context: @context, enable_error: @enable_error), active_key: "image_scanning" %>
+<%= render "servers/configuration_update", form: -> { Components::Moderation::ImageScanningForm.new(context: @context) }, active_key: "image_scanning" %>

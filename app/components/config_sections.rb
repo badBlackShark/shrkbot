@@ -1,24 +1,16 @@
 # frozen_string_literal: true
 
 class Components::ConfigSections < Components::Base
-  def initialize(key:, enable_error: nil, data: {})
+  def initialize(key:, save_error: nil, data: {})
     @key = key
-    @enable_error = enable_error
+    @save_error = save_error
     @data = data
   end
 
   def view_template
     div(id: "#{@key}-config", class: "flex flex-col gap-5", data: @data) do
-      enable_error_callout
+      render Components::SaveErrorCallout.new(key: @key, message: @save_error)
       yield
     end
-  end
-
-  private
-
-  def enable_error_callout
-    return unless @enable_error
-
-    render Components::Callout.new(variant: :danger) { @enable_error }
   end
 end

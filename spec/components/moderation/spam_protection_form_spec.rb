@@ -64,21 +64,4 @@ RSpec.describe Components::Moderation::SpamProtectionForm do
   it "renders the timeout_seconds duration select" do
     expect(html).to include('name="spam_protection[timeout_seconds]"')
   end
-
-  it "renders no enable_error callout by default" do
-    expect(html).not_to include("A staff role is required.")
-  end
-
-  context "with an enable_error" do
-    subject(:html) do
-      described_class.new(
-        context:,
-        enable_error: "A staff role is required."
-      ).render_in(view_context)
-    end
-
-    it "renders the error callout" do
-      expect(html).to include("A staff role is required.")
-    end
-  end
 end

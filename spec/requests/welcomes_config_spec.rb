@@ -96,14 +96,44 @@ RSpec.describe "Welcomes config", type: :request do
           expect(config.welcome_settings.reload.suppress_removal_messages).to be(true)
         end
 
-        it "re-renders the form with an inline error when enabling without a channel" do
+        it "replaces only the inline error when enabling without a channel" do
           patch server_welcomes_path(guild.id),
             params: {welcomes: {channel_id: "", join_message: "", leave_message: "", enabled: "1"}},
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :welcomes)).to be(false)
-          expect(response.body).to include("welcomes-config")
-          expect(response.body).to include("needs a channel.")
+          expect(response.body).to include('target="welcomes-save-error"').and include("needs a channel.")
+          expect(response.body).not_to include('target="welcomes-config"')
+        end
+
+        it "appends an alert toast with the same message, so it shows when the callout is off-screen" do
+          patch server_welcomes_path(guild.id),
+            params: {welcomes: {channel_id: "", join_message: "", leave_message: "", enabled: "1"}},
+            **turbo
+          expect(response.body).to include('target="toasts"').and include("border-danger/30")
+          expect(response.body.scan("needs a channel.").size).to eq(2)
+        end
+
+        it "marks the callout as an alert" do
+          patch server_welcomes_path(guild.id),
+            params: {welcomes: {channel_id: "", join_message: "", leave_message: "", enabled: "1"}},
+            **turbo
+          expect(response.body).to include('role="alert"')
+        end
+
+        context "when the operation fails without saying why" do
+          before do
+            allow(Ops::Welcomes::Settings::Update).to receive(:call)
+              .and_return(Ops::ApplicationOperation::Result.new(false, nil, [], []))
+          end
+
+          it "shows the generic message instead of an empty callout" do
+            patch server_welcomes_path(guild.id),
+              params: {welcomes: {channel_id: "", join_message: "", leave_message: "", enabled: "1"}},
+              **turbo
+            expect(response.body).to include('target="welcomes-save-error"').and include("Couldn&#39;t save. Try again.")
+            expect(response.body).not_to include('target="welcomes-config"')
+          end
         end
 
         it "saves messages without enabling and reports success" do

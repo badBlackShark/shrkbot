@@ -25,7 +25,7 @@ class Servers::WelcomesController < ApplicationController
       suppress_removal_messages: welcomes_params.fetch(:suppress_removal_messages, "0"),
       enabled: welcomes_params[:enabled]
     )
-    respond_with_configuration(result)
+    respond_with_save(result)
   end
 
   private

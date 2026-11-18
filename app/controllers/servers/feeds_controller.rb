@@ -15,7 +15,7 @@ class Servers::FeedsController < ApplicationController
 
   def update
     result = toggle_plugin(toggle_params[:enabled])
-    respond_with_configuration(result)
+    respond_with_save(result)
   end
 
   private
