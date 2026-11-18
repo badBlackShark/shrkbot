@@ -6,19 +6,19 @@ RSpec.describe Lfg::Policy do
   subject(:result) do
     described_class.new(
       effective:,
-      channel_id:,
-      member_role_ids:,
-      member_joined_at:,
+      channel:,
+      member:,
       cooldown_remaining:,
       now:
     ).result
   end
 
   let(:now) { Time.current }
-  let(:channel_id) { 20 }
+  let(:channel) { lfg_channel(id: 20) }
   let(:member_role_ids) { [7] }
   let(:member_joined_at) { now - 100.days }
   let(:cooldown_remaining) { 0 }
+  let(:member) { lfg_member(role_ids: member_role_ids, joined_at: member_joined_at) }
   let(:min_membership_days) { nil }
   let(:feature_required_role_ids) { [] }
   let(:role_required_role_ids) { [] }

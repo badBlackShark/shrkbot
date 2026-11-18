@@ -10,7 +10,7 @@ RSpec.describe Lfg::Post do
   let!(:pingable_role) { settings.pingable_roles.create!(role_id: 55, required_role_ids: [], excluded_role_ids: []) }
 
   let(:options) { {"role" => "55", "message" => nil, "starting_in" => nil} }
-  let(:member) { double("member", roles: [double("role", id: 7)], joined_at: Time.current) }
+  let(:member) { lfg_member(id: 1, role_ids: [7]) }
   let(:server) { double("server", id: 3, member: member) }
   let(:channel) { double("channel", id: 2, name: "c") }
   let(:user) { double("user", id: 1) }
@@ -57,6 +57,20 @@ RSpec.describe Lfg::Post do
           .and_return(outcome)
         execute
       end
+    end
+  end
+
+  context "when Discord has no member for the user" do
+    let(:member) { nil }
+
+    it "tells the user and does not call PostCreation" do
+      execute
+
+      expect(event).to have_received(:edit_response).with(
+        content: "⚠️ shrkbot couldn't load your member details from Discord, try again in a moment",
+        allowed_mentions: {parse: []}
+      )
+      expect(Lfg::PostCreation).not_to have_received(:call)
     end
   end
 

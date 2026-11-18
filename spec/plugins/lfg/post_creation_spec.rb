@@ -16,7 +16,7 @@ RSpec.describe Lfg::PostCreation do
   let(:actor_id) { 1 }
   let(:member_role_ids) { [] }
   let(:member_joined_at) { Time.current }
-  let(:member) { double(id: actor_id, roles: member_role_ids.map { |id| double(id:) }, joined_at: member_joined_at) }
+  let(:member) { lfg_member(id: actor_id, role_ids: member_role_ids, joined_at: member_joined_at) }
   let(:role_id) { 55 }
   let(:message) { nil }
   let(:starting_in) { nil }
