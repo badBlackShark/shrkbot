@@ -31,7 +31,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
 
     it "shows the tag note only while a tag option is pressed" do
       note = Nokogiri::HTML5.fragment(html).css("p").find { |line| line.text == "Missing tags fall back to player names. Tags don't ping." }
-      expect(note.parent["class"].split).to include(
+      expect(note["class"].split).to include(
         "hidden",
         "group-has-[[data-value=tag][aria-checked=true]]/setting:block",
         "group-has-[[data-value=name\\_and\\_tag][aria-checked=true]]/setting:block"
@@ -71,7 +71,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
 
     it "shows the tag note while inherit is picked, because the parent uses a tag mode" do
       note = Nokogiri::HTML5.fragment(html).css("p").find { |line| line.text.include?("Missing tags") }
-      expect(note.parent["class"].split).to include('group-has-[[data-value=""][aria-checked=true]]/setting:block')
+      expect(note["class"].split).to include('group-has-[[data-value=""][aria-checked=true]]/setting:block')
     end
 
     context "when the parent uses name only" do
@@ -79,7 +79,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
 
       it "keeps the tag note off inherit" do
         note = Nokogiri::HTML5.fragment(html).css("p").find { |line| line.text.include?("Missing tags") }
-        expect(note.parent["class"].split).not_to include('group-has-[[data-value=""][aria-checked=true]]/setting:block')
+        expect(note["class"].split).not_to include('group-has-[[data-value=""][aria-checked=true]]/setting:block')
       end
     end
 

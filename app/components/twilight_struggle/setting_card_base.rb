@@ -18,7 +18,6 @@ class Components::TwilightStruggle::SettingCardBase < Components::Base
   private
 
   def help
-    render Components::FieldHelp.new { t(".help") }
   end
 
   def parent

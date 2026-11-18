@@ -236,6 +236,35 @@ RSpec.describe Components::ConfigPage do
     end
   end
 
+  context "when a locked toggle names its own states" do
+    subject(:html) do
+      described_class.new(
+        header:,
+        server_configuration: config,
+        url: "/servers/900000001/reminders",
+        toggle: {field: "reminders[enabled]", enabled:, locked: true, reason: "Locked.", states: {on: "Subscribed", off: "Not subscribed"}}
+      ).render_in(view_context) { "" }
+    end
+
+    context "when on" do
+      let(:enabled) { true }
+
+      it "shows the on state" do
+        expect(html).to include(">Subscribed</span>")
+        expect(html).not_to include("Not subscribed")
+      end
+    end
+
+    context "when off" do
+      let(:enabled) { false }
+
+      it "shows the off state" do
+        expect(html).to include(">Not subscribed</span>")
+        expect(html).not_to include(">Subscribed</span>")
+      end
+    end
+  end
+
   context "with prerequisites" do
     subject(:html) do
       described_class.new(

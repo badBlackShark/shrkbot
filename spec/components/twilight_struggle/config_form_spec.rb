@@ -112,6 +112,15 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
         expect(note["class"].split).to include("hidden", 'group-has-[option[value=""]:checked]/setting:block')
       end
 
+      it "scopes the inherit note and the select in one group, not the shared channel card" do
+        select = fragment.at_css("select[name='destination[discord_channel_id]']")
+        note = fragment.css("p").find { |line| line.text.include?("OTSL 2026 posts in") }
+        group = select.ancestors("div").find { |div| div["class"].to_s.split.include?("group/setting") }
+
+        expect(group.css("p")).to include(note)
+        expect(group["class"]).not_to include("rounded-card")
+      end
+
       it "feeds the inherited player display to the live preview" do
         expect(fragment.at_css("#twilight_struggle-config")["data-twilight-struggle-preview-inherited-display-value"]).to eq("name")
       end
@@ -125,6 +134,12 @@ RSpec.describe Components::TwilightStruggle::ConfigForm do
       it "names no channel it cannot show" do
         expect(html).not_to include("posts in")
       end
+    end
+  end
+
+  describe "the channel select" do
+    it "offers the blank option the inherit note keys on" do
+      expect(fragment.at_css("select[name='destination[discord_channel_id]'] option[value='']")).to be_present
     end
   end
 

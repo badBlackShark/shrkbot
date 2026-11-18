@@ -39,7 +39,7 @@ const SIDES = { usa: "USA", ussr: "USSR" }
 const TOKEN = /\{(\w+)\}/g
 
 export default class extends Controller {
-  static values = { inheritedDisplay: { type: String, default: "name" } }
+  static values = { inheritedDisplay: String }
 
   static targets = [
     "winTemplate", "tieTemplate", "videoTemplate",

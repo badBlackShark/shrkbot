@@ -26,13 +26,15 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
   private
 
   def channel_card
-    render Components::ChannelCard.new(
-      name: "destination[discord_channel_id]",
-      channels:,
-      selected: @destination.discord_channel_id,
-      label: t(".channel.label")
-    ) do
-      channel_note
+    div(class: "group/setting") do
+      render Components::ChannelCard.new(
+        name: "destination[discord_channel_id]",
+        channels:,
+        selected: @destination.discord_channel_id,
+        label: t(".channel.label")
+      ) do
+        channel_note
+      end
     end
   end
 

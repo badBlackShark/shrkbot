@@ -9,6 +9,10 @@ class Components::TwilightStruggle::PostDelayCard < Components::TwilightStruggle
     INHERITING
   end
 
+  def help
+    render Components::FieldHelp.new { t(".help") }
+  end
+
   def control
     render Components::DurationStepper.new(
       name: "destination[post_delay_minutes]",

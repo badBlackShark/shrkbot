@@ -10,7 +10,7 @@ class Components::ChannelCard < Components::Base
   end
 
   def view_template(&block)
-    render Components::Card.new(class: "group/setting") do
+    render Components::Card.new do
       render Components::FieldLabel.new do
         plain @label
         render Components::RequiredMarker.new if @required
