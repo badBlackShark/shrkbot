@@ -10,6 +10,9 @@ en:
           twitch: This server follows %{max} channels, the most it can. Stop following
             one to add another.
         no_event_types: Turn on at least one type of post.
+    lfg:
+      settings:
+        role_required: Pick a role to ping on every card, or remove the empty card.
     plugin_activation:
       requires_settings: requires the plugin's settings to be configured first
     reminders:

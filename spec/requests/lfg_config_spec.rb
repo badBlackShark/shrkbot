@@ -46,6 +46,22 @@ RSpec.describe "LFG config", type: :request do
           expect(response.body).to include(server_logging_path(guild.id))
         end
 
+        it "answers 422 with the inline callout when a card has no role" do
+          patch server_lfg_path(guild.id),
+            params: {
+              lfg: {
+                enabled: "1",
+                cooldown_seconds: 300,
+                post_lifetime_minutes: 360,
+                pingable_roles: {"0" => {role_id: ""}}
+              }
+            },
+            **turbo
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.body).to include("Pick a role to ping on every card, or remove the empty card.")
+          expect(config.lfg_settings.reload.pingable_roles).to be_empty
+        end
+
         context "with an existing pingable role" do
           before do
             create(:lfg_pingable_role, lfg_settings: config.lfg_settings, role_id: 222)

@@ -95,13 +95,33 @@ RSpec.describe Ops::Lfg::Settings::Update do
     end
   end
 
-  context "with a blank pingable role row" do
-    let(:enabled) { "0" }
+  context "with a card that has no role" do
+    let(:cooldown_seconds) { 900 }
     let(:pingable_roles) do
-      [{role_id: "", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: nil}]
+      [
+        {role_id: "77", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: nil},
+        {role_id: "", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: nil}
+      ]
     end
 
-    it "skips the row without creating a pingable role" do
+    it "fails with the pick-a-role message" do
+      expect(result.errors).to eq(["Pick a role to ping on every card, or remove the empty card."])
+    end
+
+    it "saves no pingable role and no settings change" do
+      result
+      expect(settings.pingable_roles.count).to eq(0)
+      expect(settings.reload.cooldown_seconds).not_to eq(900)
+    end
+  end
+
+  context "with an empty card marked for removal" do
+    let(:enabled) { "0" }
+    let(:pingable_roles) do
+      [{role_id: "", _destroy: "1", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: nil}]
+    end
+
+    it "succeeds without creating a pingable role" do
       expect(result).to be_success
       expect(settings.pingable_roles.count).to eq(0)
     end

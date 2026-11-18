@@ -19,6 +19,9 @@ module Ops
           :pingable_roles
 
         def call
+          error = card_error
+          return failure(error) if error
+
           settings = server_configuration.lfg_settings
           settings.assign_attributes(
             cooldown_seconds:,
@@ -34,10 +37,8 @@ module Ops
         private
 
         def reconcile_pingable_roles(settings)
-          kept = pingable_roles.reject { |attrs| truthy?(attrs[:_destroy]) }.filter_map do |attrs|
-            role_id = attrs[:role_id].to_i
-            next if role_id.zero?
-
+          kept = pingable_roles.map do |attrs|
+            role_id = role_id_of(attrs)
             role = settings.pingable_roles.find_or_initialize_by(role_id:)
             role.assign_attributes(
               min_membership_days: attrs[:min_membership_days].presence,
@@ -49,6 +50,17 @@ module Ops
             role_id
           end
           settings.pingable_roles.where.not(role_id: kept).destroy_all
+        end
+
+        def card_error
+          role_ids = pingable_roles.map { |attrs| role_id_of(attrs) }
+          return I18n.t("operations.lfg.settings.role_required") if role_ids.include?(0)
+
+          I18n.t("operations.lfg.settings.duplicate_role") if role_ids.uniq.size != role_ids.size
+        end
+
+        def role_id_of(attrs)
+          attrs[:role_id].to_i
         end
 
         def plugin_key
