@@ -5,6 +5,10 @@ on:
     - cron: '30 6 * * 1'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
@@ -16,6 +20,8 @@ env:
 jobs:
   update:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.update.outputs.to }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -32,19 +38,27 @@ jobs:
         run: |
           bundle config set --local deployment false
           bundle config set --local frozen false
-          echo "from=$(tail -1 Gemfile.lock | xargs)" >> "$GITHUB_OUTPUT"
+          from=$(tail -1 Gemfile.lock | xargs)
           bundle update --bundler
-          echo "to=$(tail -1 Gemfile.lock | xargs)" >> "$GITHUB_OUTPUT"
+          to=$(tail -1 Gemfile.lock | xargs)
+          echo "to=$to" >> "$GITHUB_OUTPUT"
+          mkdir -p "$RUNNER_TEMP/changes/files"
+          cp Gemfile.lock "$RUNNER_TEMP/changes/files/"
+          echo "Bundler $from → $to. Dependabot never changes the \`BUNDLED WITH\` version, and it resolves with the newest Bundler, so a stale pin makes the two write different lockfiles. See \`docs/running/dependency-updates.md\`." > "$RUNNER_TEMP/changes/pr-body.md"
 
-      - name: Open or update the Bundler PR
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+      - name: Upload the changes
+        uses: actions/upload-artifact@v7
         with:
-          token: ${{ secrets.SECURITY_PR_TOKEN }}
-          base: main
-          branch: bundler-update
-          delete-branch: true
-          title: Update Bundler to ${{ steps.update.outputs.to }}
-          commit-message: Update Bundler to ${{ steps.update.outputs.to }}
-          body: |
-            Bundler ${{ steps.update.outputs.from }} → ${{ steps.update.outputs.to }}. Dependabot never changes the `BUNDLED WITH` version, and it resolves with the newest Bundler, so a stale pin makes the two write different lockfiles. See `docs/running/dependency-updates.md`.
-          add-paths: Gemfile.lock
+          name: bundler-update
+          path: ${{ runner.temp }}/changes
+
+  open-pr:
+    needs: update
+    uses: ./.github/workflows/open-pr.yml
+    with:
+      artifact: bundler-update
+      branch: bundler-update
+      title: Update Bundler to ${{ needs.update.outputs.version }}
+      paths: Gemfile.lock
+    secrets:
+      token: ${{ secrets.SECURITY_PR_TOKEN }}

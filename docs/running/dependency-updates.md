@@ -6,25 +6,39 @@ advisory days earlier. The Puma advisories of 2026-11 never reached GitHub's
 database, so `main` went red with no PR to fix it.
 
 `.github/workflows/security-updates.yml` closes that gap. It runs nightly and on
-demand (`workflow_dispatch`):
+demand (`workflow_dispatch`), one run at a time:
 
-1. `bin/bundler-audit update` fetches the rubysec database.
-2. `bin/security-updates` audits the gems and the importmap pins. It updates each
-   vulnerable gem with `bundle update --conservative` and re-pins each vulnerable
-   pin with `bin/importmap pin`, then audits again. It writes the PR body and
-   exits non-zero when an advisory has no fix.
-3. A standing `security-updates` PR is opened or updated with the change. When
-   the change is already on `main`, the branch is deleted and the PR closes.
-4. The run fails only when an advisory remains, and the run summary lists it.
-   A red run here means a manual fix is needed: a version constraint in the
-   `Gemfile`, or an advisory with no patched release.
+1. The `update` job fetches the rubysec database and runs `bin/security-updates`,
+   a thin wrapper over `lib/security_updates/`. It audits the gems and the
+   importmap pins, updates each vulnerable gem with `bundle update --conservative`,
+   re-pins each vulnerable pin with `bin/importmap pin`, and audits again. It
+   writes the PR body, with old and new versions for gems and pins. It exits 2
+   when an advisory has no fix, and any other failure keeps its own exit code.
+2. The `open-pr` job (`.github/workflows/open-pr.yml`, shared with the Bundler
+   workflow) opens or updates a standing `security-updates` PR. When the change
+   is already on `main`, the branch is deleted and the PR closes.
+3. The run fails only when an advisory remains, and the `update` job's summary
+   lists it. A red run here means a manual fix is needed: a version constraint
+   in the `Gemfile`, or an advisory with no patched release.
 
-The PR is opened with the `SECURITY_PR_TOKEN` repository secret, a fine-grained
-token with write access to Contents and Pull requests on this repository only.
-A PR opened with the built-in `GITHUB_TOKEN` would not trigger CI.
+`bin/importmap pin` takes the newest release, so a pin fix can be a major
+version bump. The PR body shows the old and new version.
 
-Ignored advisories go in `config/bundler-audit.yml`, which both
-`bin/bundler-audit check` and the workflow honour.
+Each run rebuilds the PR branch from `main` and force-pushes it. A commit pushed
+by hand to `security-updates` is lost on the next run, so a manual fix belongs
+on its own branch.
+
+The update job runs code from newly installed gems (`extconf.rb`, the app boot),
+so it has no secrets. The `open-pr` job holds the `SECURITY_PR_TOKEN` repository
+secret and runs no package code: it checks out `main`, copies the changed paths
+from the update job's artifact, and opens the PR. The token is fine-grained,
+with write access to Contents and Pull requests on this repository only. A PR
+opened with the built-in `GITHUB_TOKEN` would not trigger CI.
+
+Ignored gem advisories go in `config/bundler-audit.yml`, which both
+`bin/bundler-audit check` and the workflow honour. Pin advisories have no ignore
+list, so an npm advisory that does not apply here still turns the run red until
+the pin moves.
 
 `Gemfile.lock` lists the `ruby` platform. Dependabot's resolver writes generic
 variants of native gems (`nokogiri`, `ffi`, `mini_portile2`) that a plain Bundler

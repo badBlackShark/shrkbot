@@ -5,63 +5,33 @@ require_relative "../config/application"
 require "importmap/npm"
 require "json"
 require "open3"
-
-Advisory = Data.define(:package, :version, :id, :title, :url, :fixed_in)
+require_relative "../lib/security_updates/advisory"
+require_relative "../lib/security_updates/audit"
+require_relative "../lib/security_updates/version_changes"
+require_relative "../lib/security_updates/report"
 
 def gem_advisories
   report, = Open3.capture2("bin/bundler-audit", "check", "--format", "json")
-  JSON.parse(report).fetch("results").map do |result|
-    advisory = result.fetch("advisory")
-    Advisory.new(
-      package: result.dig("gem", "name"),
-      version: result.dig("gem", "version"),
-      id: advisory.fetch("id"),
-      title: advisory.fetch("title"),
-      url: advisory.fetch("url"),
-      fixed_in: advisory.fetch("patched_versions").join(", ")
-    )
-  end
+  SecurityUpdates::Audit.gems(JSON.parse(report))
 end
 
 def pin_advisories
-  Importmap::Npm.new.vulnerable_packages.map do |package|
-    Advisory.new(
-      package: package.name,
-      version: package.vulnerable_versions,
-      id: package.severity,
-      title: package.vulnerability,
-      url: nil,
-      fixed_in: "latest"
-    )
-  end
+  SecurityUpdates::Audit.pins(Importmap::Npm.new.vulnerable_packages)
 end
 
-def locked_versions(lockfile)
-  Bundler::LockfileParser.new(lockfile).specs.to_h { |spec| [spec.name, spec.version.to_s] }
-end
-
-def line(advisory)
-  reference = advisory.url ? "[#{advisory.id}](#{advisory.url})" : advisory.id
-  "- `#{advisory.package}` #{advisory.version}: #{reference} #{advisory.title} (fixed in #{advisory.fixed_in})"
-end
-
-gems = gem_advisories
+found_gems = gem_advisories
+gems = found_gems.reject { |advisory| advisory.id == SecurityUpdates::Audit::INSECURE_SOURCE_ID }
 pins = pin_advisories
-before = locked_versions(File.read("Gemfile.lock"))
+found = found_gems + pins
+lockfile_before = File.read("Gemfile.lock")
+importmap_before = File.read("config/importmap.rb")
 
 system("bundle", "update", "--conservative", *gems.map(&:package).uniq, exception: true) if gems.any?
 system("bin/importmap", "pin", *pins.map(&:package).uniq, exception: true) if pins.any?
 
-remaining = gem_advisories + pin_advisories
-fixed = gems + pins - remaining
-changes = locked_versions(File.read("Gemfile.lock")).filter_map do |name, version|
-  "- `#{name}` #{before[name]} → #{version}" if before[name] && before[name] != version
-end
+changes = SecurityUpdates::VersionChanges.gems(lockfile_before, File.read("Gemfile.lock")) +
+  SecurityUpdates::VersionChanges.pins(importmap_before, File.read("config/importmap.rb"))
+report = SecurityUpdates::Report.new(found:, remaining: gem_advisories + pin_advisories, changes:)
+File.write(ARGV.fetch(0), report.to_markdown)
 
-body = ["The nightly audit found these advisories, and this PR updates the packages that fix them.", ""]
-body += ["## Fixed", *fixed.map { |advisory| line(advisory) }, ""] if fixed.any?
-body += ["## Gem versions", *changes, ""] if changes.any?
-body += ["## Unresolved", "No update fixes these, so they need a manual change.", *remaining.map { |advisory| line(advisory) }] if remaining.any?
-File.write(ARGV.fetch(0), body.join("\n"))
-
-exit(remaining.empty?)
+exit 2 if report.unresolved?

@@ -1,0 +1,59 @@
+name: Open PR
+
+on:
+  workflow_call:
+    inputs:
+      artifact:
+        type: string
+        required: true
+      branch:
+        type: string
+        required: true
+      title:
+        type: string
+        required: true
+      paths:
+        type: string
+        required: true
+    secrets:
+      token:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  open:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Download the changes
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ inputs.artifact }}
+          path: ${{ runner.temp }}/changes
+
+      - name: Apply the changed paths
+        env:
+          PATHS: ${{ inputs.paths }}
+        run: |
+          for path in $PATHS; do
+            rm -rf "$path"
+            cp -R "$RUNNER_TEMP/changes/files/$path" "$path"
+          done
+
+      - name: Open or update the PR
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ secrets.token }}
+          base: main
+          branch: ${{ inputs.branch }}
+          delete-branch: true
+          title: ${{ inputs.title }}
+          commit-message: ${{ inputs.title }}
+          body-path: ${{ runner.temp }}/changes/pr-body.md
+          add-paths: ${{ inputs.paths }}
