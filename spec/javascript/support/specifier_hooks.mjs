@@ -8,6 +8,8 @@ export async function resolve(specifier, context, next) {
     return { url: new URL(`${specifier.slice(4)}.js`, LIB).href, shortCircuit: true }
   }
 
+  if (!/^[@a-z]/.test(specifier) || specifier.startsWith("node:")) return next(specifier, context)
+
   const vendored = new URL(`${specifier.replaceAll("/", "--")}.js`, VENDOR)
   if (existsSync(vendored)) return { url: vendored.href, shortCircuit: true }
 

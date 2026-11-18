@@ -37,9 +37,9 @@ Both modules are unit-tested under `spec/javascript/` with Node's own test
 runner. The parser is pure, so it is asserted directly against the tree it
 returns. The renderer needs a `document`, so those tests run against happy-dom:
 `support/dom.mjs` installs a happy-dom window as the globals. `npm ci` installs
-happy-dom at the version pinned in `package.json`. `support/register_hooks.mjs` teaches Node to
-resolve the `lib/…` specifiers and the vendored importmap pins the browser
-serves, which is why the suite runs as `node --import ./spec/javascript/support/register_hooks.mjs --test spec/javascript/*_test.mjs`.
+happy-dom at the version pinned in `package.json`. `support/register_hooks.mjs`
+teaches Node to resolve the `lib/…` specifiers and the vendored importmap pins
+the browser serves, which is why the suite runs as `node --import ./spec/javascript/support/register_hooks.mjs --test spec/javascript/*_test.mjs`.
 
 The Stimulus controllers (`welcome_preview_controller.js`,
 `twilight_struggle_preview_controller.js`) own neither parsing nor DOM
