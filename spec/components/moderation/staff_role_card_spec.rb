@@ -8,15 +8,13 @@ RSpec.describe Components::Moderation::StaffRoleCard do
   subject(:html) do
     described_class.new(
       server_configuration: config,
-      staff_role_id:,
-      permission_warning:
+      staff_role_id:
     ).render_in(view_context)
   end
 
   let(:config) { create(:server_configuration, discord_id: 900_000_001) }
   let(:role) { create(:server_role, server_configuration: config, discord_id: 501, name: "Moderators", color: 0, permissions: 0) }
   let(:staff_role_id) { nil }
-  let(:permission_warning) { false }
 
   before { role }
 
@@ -45,19 +43,6 @@ RSpec.describe Components::Moderation::StaffRoleCard do
 
     it "renders the role colour as a hex dot" do
       expect(html).to include("#e67e22")
-    end
-  end
-
-  context "when there is a permission warning" do
-    let(:staff_role_id) { 501 }
-    let(:permission_warning) { true }
-
-    it "renders the permission warning bold text" do
-      expect(html).to include("Staff pings will fail.")
-    end
-
-    it "renders the permission warning body" do
-      expect(html).to include("Mention All Roles")
     end
   end
 

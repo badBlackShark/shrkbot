@@ -38,6 +38,12 @@ RSpec.describe "Integrations config", type: :request do
           expect(response.body).not_to include('name="integrations[enabled]"')
         end
 
+        it "renders no settings form or save bar" do
+          get plugin_path
+
+          expect(response.body).not_to include('data-controller="save-bar"')
+        end
+
         it "lists the sources without a list heading" do
           get plugin_path
 
