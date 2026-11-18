@@ -132,7 +132,8 @@ overviews): it has no edits to batch, so its toggle is standalone (see below).
 Both paths render through a Turbo Stream view template (`action.turbo_stream.erb`, see [Web (controllers and views)](../web/controllers-and-views.md)): the template's
 `turbo_stream.replace`/`append` lines render our Phlex components as the content, so
 the stream markup stays in the view layer. Success re-renders the control plus a
-toast; a config-form failure re-renders the form region with inline errors — just
+toast; a config-form failure fills the form's error slot and keeps the form as
+the user left it — just
 more `turbo_stream.*` lines. The one config-form control still unbuilt (the
 segmented control) ships with the Roles page that consumes it.
 
@@ -168,8 +169,8 @@ through a hidden field. `prerequisites:` takes a `Components::PrerequisiteSteps`
 callout rendered above the editable body (a protection with unmet prerequisites;
 the Twilight Struggle tournament page while the plugin is off). A setting the plugin can't be enabled without (the channel
 picker on Welcomes/Logging) carries a danger `*` marker next to its label; the
-operation enforces the requirement server-side and the form re-renders with the
-inline error if it's missing. ConfigPage also has a plain path for
+operation enforces the requirement server-side and the form's error slot shows
+the message if it's missing. ConfigPage also has a plain path for
 always-on plugins: pass no `toggle:` and it drops the enable toggle,
 optionally rendering a copper `badge:` ("Always on") next to the title instead —
 Reminders is the one consumer.

@@ -92,8 +92,9 @@ re-verifies against live Discord on every server-scoped request.
   content: `turbo_stream.replace "plugin-#{@plugin.key}", html: render(Components::PluginRow.new(…))`,
   `turbo_stream.append "toasts", html: render(Components::Toast.new(**@toast))`. This
   is how auto-saving controls re-render in place: success re-renders the control
-  plus a toast, and (for the config forms) failure re-renders the form region with
-  inline errors — just more `turbo_stream.*` lines with different components and
+  plus a toast, and (for the config forms) a failed save replaces only the
+  `<key>-enable-error` slot (`Components::EnableErrorCallout`) and leaves the form,
+  with the user's unsaved input, untouched — just more `turbo_stream.*` lines with different components and
   targets. (These response templates are ERB; the Phlex-for-views convention is
   about page/component views — the stream wrapper is a thin format template.) `Servers::PluginsController#update`
   streams only for dashboard rows; a sub-plugin key (toggled on its group's overview)
