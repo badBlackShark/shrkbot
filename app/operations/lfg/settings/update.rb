@@ -19,18 +19,18 @@ module Ops
           :pingable_roles
 
         def call
-          settings = server_configuration.lfg_settings
-          settings.assign_attributes(
-            cooldown_seconds:,
-            post_lifetime_minutes:,
-            default_min_membership_days: default_min_membership_days.presence,
-            default_required_role_ids:,
-            default_excluded_role_ids:,
-            allowed_channel_ids:
-          )
-          save_with_activation(settings) { reconcile_pingable_roles(settings) }
-        rescue ActiveRecord::RecordInvalid => error
-          failure([error.record.errors.full_messages.to_sentence])
+          rescue_invalid do
+            settings = server_configuration.lfg_settings
+            settings.assign_attributes(
+              cooldown_seconds:,
+              post_lifetime_minutes:,
+              default_min_membership_days: default_min_membership_days.presence,
+              default_required_role_ids:,
+              default_excluded_role_ids:,
+              allowed_channel_ids:
+            )
+            save_with_activation(settings) { reconcile_pingable_roles(settings) }
+          end
         end
 
         private
