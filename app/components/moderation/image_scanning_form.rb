@@ -88,6 +88,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
       render Components::NumberStepper.new(
         name: "image_scanning[custom_keyword_min_hits]",
         value: @settings.custom_keyword_min_hits,
+        label: t(".custom_keywords.min_hits_label"),
         min: 1,
         max:,
         default: ::Moderation::ImageScanning::Settings.column_defaults.fetch("custom_keyword_min_hits"),
@@ -112,6 +113,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
       render Components::SegmentedControl.new(
         name: "image_scanning[action]",
         value: @settings.action,
+        label: t(".response.action.label"),
         options: [
           {value: "delete", label: t(".response.action.delete")},
           {value: "none", label: t(".response.action.flag_only")}
@@ -126,7 +128,8 @@ class Components::Moderation::ImageScanningForm < Components::Base
       render Components::Moderation::PunishmentControl.new(
         name: "image_scanning[punishment]",
         value: @settings.punishment,
-        timeout_seconds: @settings.timeout_seconds
+        timeout_seconds: @settings.timeout_seconds,
+        label: t(".response.punishment.label")
       )
     end
   end
@@ -138,6 +141,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
         name: "image_scanning[confirmed_punishment]",
         value: @settings.confirmed_punishment,
         timeout_seconds: @settings.confirmed_timeout_seconds,
+        label: t(".response.confirmed_punishment.label"),
         none_label: t(".response.confirmed_punishment.inherit")
       )
     end

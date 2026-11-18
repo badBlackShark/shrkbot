@@ -7,6 +7,7 @@ class Components::TwilightStruggle::PostDelayCard < Components::TwilightStruggle
     render Components::DurationStepper.new(
       name: "destination[post_delay_minutes]",
       value: own_minutes,
+      label: t(".label"),
       base: :minutes,
       min: 0,
       max: ::TwilightStruggle::Destination::MAX_POST_DELAY.in_minutes.to_i,

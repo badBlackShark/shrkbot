@@ -667,6 +667,8 @@ en:
       this_server: This server
       title: Notifications
     number_stepper:
+      decrease: Decrease
+      increase: Increase
       reset: Reset to %{value}
     placeholder_section:
       label: Placeholders (click to copy)
