@@ -12,9 +12,17 @@ module Api
         end
       end
 
+      before_action :require_api_key
       rescue_from UnknownTournament, with: :render_unknown_reference
 
       private
+
+      def require_api_key
+        return if ::TwilightStruggleApiAuthentication.authorized?(request.authorization)
+
+        response.headers["WWW-Authenticate"] = ::TwilightStruggleApiAuthentication::CHALLENGE
+        head :unauthorized
+      end
 
       def render_upsert(result)
         return render_errors(result.errors) if result.failure?

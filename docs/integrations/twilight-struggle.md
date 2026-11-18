@@ -42,7 +42,8 @@ whole game body against the OpenAPI contract in `config/api/twilight-struggle/v1
 `winning_turn` range, video URL scheme/count — before the controller runs. A
 `TwilightStruggleApiAuthentication` Rack middleware runs ahead of committee, so
 the bearer-token check fails closed before any schema validation or controller
-code. `Games#update` then reads only `external_id` and
+code; `Api::TwilightStruggle::BaseController` checks the key again in case a path
+ever slips past the middleware. `Games#update` then reads only `external_id` and
 `tournament_external_id`; only `external_id` and the resolved `tournament` reach
 `Ops::TwilightStruggle::Games::Upsert`. The player names and other result fields
 are validated as they pass through the schema and are never read into a record,

@@ -18,7 +18,10 @@ The shape:
   clobbering).
 - **Auth runs as a Rack middleware inserted before committee**
   (`TwilightStruggleApiAuthentication`), so an unauthenticated request 401s without
-  the schema ever revealing the contract.
+  the schema ever revealing the contract. The API's base controller checks the key
+  again, so a route the middleware's path prefix misses still fails closed. Both
+  call `TwilightStruggleApiAuthentication.authorized?`, and committee reads the
+  same `PREFIX`.
 - A `Committee::ValidationError` subclass renders 422s in the app's `{errors: [...]}`
   shape. It is defined in `config/initializers/committee.rb` rather than under
   `app/`, because initializers run before autoloading is available.
