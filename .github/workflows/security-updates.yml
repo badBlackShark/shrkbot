@@ -1,0 +1,89 @@
+name: Security updates
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # The fasttext gem compiles with -march=native by default, and a cached bundle
+  # restored on a runner with an older CPU dies with SIGILL at require time.
+  BUNDLE_BUILD__FASTTEXT: "--with-optflags="
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    outputs:
+      unresolved: ${{ steps.update.outputs.unresolved }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        with:
+          bundler-cache: true
+
+      - name: Install libvips
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libvips42t64
+
+      - name: Update the advisory database
+        run: bin/bundler-audit update
+
+      - name: Update the vulnerable packages
+        id: update
+        run: |
+          bundle config set --local deployment false
+          bundle config set --local frozen false
+          mkdir -p "$RUNNER_TEMP/changes/files/config" "$RUNNER_TEMP/changes/files/vendor"
+          status=0
+          bin/security-updates "$RUNNER_TEMP/changes/pr-body.md" || status=$?
+          if [ "$status" -eq 2 ]; then
+            echo "unresolved=true" >> "$GITHUB_OUTPUT"
+            cat "$RUNNER_TEMP/changes/pr-body.md" >> "$GITHUB_STEP_SUMMARY"
+          elif [ "$status" -ne 0 ]; then
+            exit "$status"
+          fi
+          cp Gemfile.lock "$RUNNER_TEMP/changes/files/"
+          cp config/importmap.rb "$RUNNER_TEMP/changes/files/config/"
+          cp -R vendor/javascript "$RUNNER_TEMP/changes/files/vendor/"
+
+      - name: Upload the changes
+        uses: actions/upload-artifact@v7
+        with:
+          name: security-updates
+          path: ${{ runner.temp }}/changes
+          include-hidden-files: true
+
+  open-pr:
+    needs: update
+    uses: ./.github/workflows/open-pr.yml
+    with:
+      artifact: security-updates
+      branch: security-updates
+      title: Fix security advisories
+      paths: |
+        Gemfile.lock
+        config/importmap.rb
+        vendor/javascript
+    secrets:
+      token: ${{ secrets.SECURITY_PR_TOKEN }}
+
+  unresolved:
+    needs: [update, open-pr]
+    if: needs.update.outputs.unresolved == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail when an advisory has no fix
+        run: |
+          echo "An advisory has no fix. The update job's summary lists it."
+          exit 1

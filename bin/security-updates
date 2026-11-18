@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative "../config/application"
+require "importmap/npm"
+require "json"
+require "bundler/audit/scanner"
+require_relative "../lib/security_updates/advisory"
+require_relative "../lib/security_updates/audit"
+require_relative "../lib/security_updates/version_changes"
+require_relative "../lib/security_updates/report"
+
+def gem_advisories
+  scanner = Bundler::Audit::Scanner.new(Dir.pwd, "Gemfile.lock", Bundler::Audit::Database.new, "config/bundler-audit.yml")
+  SecurityUpdates::Audit.gems(JSON.parse(JSON.generate({"results" => scanner.scan.map(&:to_h)})))
+end
+
+def pin_advisories
+  SecurityUpdates::Audit.pins(Importmap::Npm.new.vulnerable_packages)
+end
+
+gems = gem_advisories
+pins = pin_advisories
+found = gems + pins
+fixable_gems = gems.select(&:fixable?).map(&:package).uniq
+lockfile_before = File.read("Gemfile.lock")
+importmap_before = File.read("config/importmap.rb")
+
+system("bin/importmap", "pin", *pins.map(&:package).uniq, exception: true) if pins.any?
+system("bundle", "lock", "--update", *fixable_gems, "--conservative", exception: true) if fixable_gems.any?
+
+changes = SecurityUpdates::VersionChanges.gems(lockfile_before, File.read("Gemfile.lock")) +
+  SecurityUpdates::VersionChanges.pins(importmap_before, File.read("config/importmap.rb"))
+report = SecurityUpdates::Report.new(found:, remaining: gem_advisories + pin_advisories, changes:)
+File.write(ARGV.fetch(0), report.to_markdown)
+
+exit 2 if report.unresolved?

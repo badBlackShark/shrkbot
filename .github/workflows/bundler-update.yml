@@ -1,0 +1,65 @@
+name: Bundler update
+
+on:
+  schedule:
+    - cron: '30 6 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  # The fasttext gem compiles with -march=native by default, and a cached bundle
+  # restored on a runner with an older CPU dies with SIGILL at require time.
+  BUNDLE_BUILD__FASTTEXT: "--with-optflags="
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.update.outputs.to }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
+        with:
+          bundler-cache: true
+
+      - name: Update Bundler in the lockfile
+        id: update
+        run: |
+          bundle config set --local deployment false
+          bundle config set --local frozen false
+          from=$(tail -1 Gemfile.lock | xargs)
+          bundle update --bundler
+          to=$(tail -1 Gemfile.lock | xargs)
+          echo "to=$to" >> "$GITHUB_OUTPUT"
+          mkdir -p "$RUNNER_TEMP/changes/files"
+          cp Gemfile.lock "$RUNNER_TEMP/changes/files/"
+          echo "Bundler $from → $to. Dependabot never changes the \`BUNDLED WITH\` version, and it resolves with the newest Bundler, so a stale pin makes the two write different lockfiles. See \`docs/running/dependency-updates.md\`." > "$RUNNER_TEMP/changes/pr-body.md"
+
+      - name: Upload the changes
+        uses: actions/upload-artifact@v7
+        with:
+          name: bundler-update
+          path: ${{ runner.temp }}/changes
+          include-hidden-files: true
+
+  open-pr:
+    needs: update
+    uses: ./.github/workflows/open-pr.yml
+    with:
+      artifact: bundler-update
+      branch: bundler-update
+      title: Update Bundler to ${{ needs.update.outputs.version }}
+      paths: Gemfile.lock
+    secrets:
+      token: ${{ secrets.SECURITY_PR_TOKEN }}
