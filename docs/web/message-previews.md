@@ -34,12 +34,12 @@ viewed by other admins, so the renderer has to be XSS-safe by construction,
 not by sanitizing after the fact.
 
 Both modules are unit-tested under `spec/javascript/` with Node's own test
-runner and no test dependencies at all. The parser is pure, so it is asserted
-directly against the tree it returns. The renderer needs a `document`, so
-`support/fake_dom.mjs` supplies a minimal stand-in and serializes the result
-back to a string the tests can compare; `support/register_hooks.mjs` teaches
-Node to resolve the `lib/…` specifiers importmap serves in the browser, which
-is why the suite runs as `node --import ./spec/javascript/support/register_hooks.mjs --test spec/javascript/*_test.mjs`.
+runner. The parser is pure, so it is asserted directly against the tree it
+returns. The renderer needs a `document`, so those tests run against happy-dom:
+`support/dom.mjs` installs a happy-dom window as the globals. `npm ci` installs
+happy-dom at the version pinned in `package.json`. `support/register_hooks.mjs` teaches Node to
+resolve the `lib/…` specifiers and the vendored importmap pins the browser
+serves, which is why the suite runs as `node --import ./spec/javascript/support/register_hooks.mjs --test spec/javascript/*_test.mjs`.
 
 The Stimulus controllers (`welcome_preview_controller.js`,
 `twilight_struggle_preview_controller.js`) own neither parsing nor DOM

@@ -12,3 +12,4 @@ log/*
 # Sandbox Postgres data volume
 src/database
 .kamal
+node_modules
