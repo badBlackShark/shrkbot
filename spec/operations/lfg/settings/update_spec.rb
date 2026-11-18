@@ -108,9 +108,13 @@ RSpec.describe Ops::Lfg::Settings::Update do
       expect(result.errors).to eq(["Pick a role to ping on every card, or remove the empty card."])
     end
 
-    it "saves no pingable role and no settings change" do
+    it "saves none of the cards, including the valid one" do
       result
       expect(settings.pingable_roles.count).to eq(0)
+    end
+
+    it "saves none of the other settings" do
+      result
       expect(settings.reload.cooldown_seconds).not_to eq(900)
     end
   end
