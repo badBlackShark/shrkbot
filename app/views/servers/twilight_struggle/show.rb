@@ -15,7 +15,13 @@ class Views::Servers::TwilightStruggle::Show < Views::Servers::PluginConfigShow
   end
 
   def toggle
-    {field: "twilight_struggle[enabled]", enabled: @enabled, locked: !@toggleable, reason: t(".toggle_admin_only")}
+    {
+      field: "twilight_struggle[enabled]",
+      enabled: @enabled,
+      locked: !@toggleable,
+      reason: t(".toggle_admin_only"),
+      instant: true
+    }
   end
 
   def body

@@ -101,9 +101,69 @@ RSpec.describe Components::ConfigPage do
       expect(html).not_to include("disabled")
     end
 
+    it "renders the save bar" do
+      expect(html).to include('data-controller="save-bar"')
+    end
+
     it "renders both state labels, each shown only for its switch state" do
       expect(html).to match(/<span class="hidden [^"]*group-has-\[:checked\]\/enable:inline">Enabled<\/span>/)
       expect(html).to match(/<span class="[^"]*group-has-\[:checked\]\/enable:hidden">Disabled<\/span>/)
+    end
+  end
+
+  context "when the toggle is instant" do
+    subject(:html) do
+      described_class.new(
+        header:,
+        server_configuration: config,
+        url: "/servers/900000001/steam",
+        toggle:
+      ).render_in(view_context) { "" }
+    end
+
+    let(:toggle) { {field: "steam[enabled]", enabled: true, instant: true} }
+
+    it "renders no save bar" do
+      expect(html).not_to include('data-controller="save-bar"')
+    end
+
+    it "submits the toggle to the page url on change" do
+      expect(html).to include('action="/servers/900000001/steam"', "change->toggle#submit")
+    end
+  end
+
+  context "when the toggle is instant on a preview server" do
+    subject(:html) do
+      described_class.new(
+        header:,
+        server_configuration: config,
+        url: "/servers/-1/steam",
+        toggle:
+      ).render_in(view_context) { "" }
+    end
+
+    let(:config) { create(:server_configuration, :preview, name:) }
+    let(:toggle) { {field: "steam[enabled]", enabled: true, instant: true} }
+
+    context "when the visitor also lacks toggle access" do
+      let(:toggle) { {field: "steam[enabled]", enabled: true, instant: true, locked: true, reason: "Only admins can toggle this."} }
+
+      it "names preview mode as the reason, not the access rule" do
+        expect(html).to include(ERB::Util.html_escape(I18n.t("components.plugin_row.preview_locked")))
+        expect(html).not_to include("Only admins can toggle this.")
+      end
+    end
+
+    it "renders the toggle disabled" do
+      expect(html).to match(/<input type="checkbox"[^>]* disabled/)
+    end
+
+    it "shows the preview tooltip" do
+      expect(html).to include(ERB::Util.html_escape(I18n.t("components.plugin_row.preview_locked")))
+    end
+
+    it "does not submit on change" do
+      expect(html).not_to include("change->toggle#submit")
     end
   end
 

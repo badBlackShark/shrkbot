@@ -126,8 +126,10 @@ where the component can't render — that stays a native `title`.
 That split is the save model: standalone settings save instantly; **the plugin
 config pages do not auto-save** — they batch all edits behind an explicit save
 (the global `SaveBar`, below) so a configuration can be staged before going live
-(toggles there are `Components::Toggle` fields). Both paths render through a Turbo Stream view
-template (`action.turbo_stream.erb`, see [Web (controllers and views)](../web/controllers-and-views.md)): the template's
+(toggles there are `Components::Toggle` fields). The exception is a page whose
+only control is the enable toggle (the Steam, Twitch and Twilight Struggle
+overviews): it has no edits to batch, so its toggle is standalone (see below).
+Both paths render through a Turbo Stream view template (`action.turbo_stream.erb`, see [Web (controllers and views)](../web/controllers-and-views.md)): the template's
 `turbo_stream.replace`/`append` lines render our Phlex components as the content, so
 the stream markup stays in the view layer. Success re-renders the control plus a
 toast; a config-form failure re-renders the form region with inline errors — just
@@ -137,9 +139,10 @@ segmented control) ships with the Roles page that consumes it.
 ## Config pages
 
 A plugin config page is assembled by **`Components::ConfigPage`**, not by the
-per-plugin form. ConfigPage owns the single `form_with` and renders, in
-order: a header (`PluginTile` + title + description + an inline **enable
-`Toggle`**), the body, and the global `SaveBar`. The
+per-plugin form. ConfigPage owns the single `form_with` and renders, in order: a
+header (`PluginTile` + title + description + an inline **enable `Toggle`**), the
+body, and the global `SaveBar` (none, and no SaveBar, when the toggle is
+instant). The
 per-plugin `Components::<Plugin>::ConfigForm` is **body-only** — it renders just
 the cards, with no form tag and no enable control of its own — and its root `div`
 carries the `#<plugin>-config` id that the Turbo Stream replaces on a failed save,
@@ -151,9 +154,12 @@ configured channel is gone (`enabled && setting.channel_id.nil?`). ConfigPage
 renders a warning `Callout` banner above the form body so the owner sees the prompt
 to pick a replacement channel.
 
-The enable toggle is **staged, not instant**: flipping it stages an `enabled`
-field in the same batch as the rest of the form, and nothing persists until Save —
-unlike the dashboard's standalone plugin toggle. There is no overlay: a disabled plugin's body stays fully
+The enable toggle is **staged** wherever the page has other settings: flipping it
+stages an `enabled` field in the same batch as the rest of the form, and nothing
+persists until Save. A page whose only control is the toggle passes
+`toggle: {instant: true}` instead: ConfigPage drops the form and SaveBar, the
+toggle saves on flip like the dashboard's, and on a preview server it renders
+locked with the preview tooltip. There is no overlay: a disabled plugin's body stays fully
 editable, and the Enabled/Disabled label beside the toggle is a CSS
 `group-has-[:checked]` pair, so it follows the staged toggle with no JS. Saving a
 disabled plugin succeeds and toasts "Saved. X is still disabled."

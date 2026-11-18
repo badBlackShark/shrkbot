@@ -54,6 +54,8 @@ The UI never gives a visitor a control that would hit that guard:
   overview toggle POST on change, so on a preview row they render in the same
   disabled-with-tooltip state used elsewhere for a toggle the visitor isn't
   allowed to flip. `Components::SubPluginToggleForms` renders no stub forms there.
+- `Components::ConfigPage`'s instant enable toggle (`toggle: {instant: true}`)
+  saves on flip, so on a preview server it renders locked with the same tooltip.
 - Every other control - text fields, dropdowns, switches inside a form -
   stays interactive, because only saving is blocked.
 
