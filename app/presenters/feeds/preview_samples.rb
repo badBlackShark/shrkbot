@@ -19,6 +19,10 @@ module Feeds
       sample(Feeds.event_key(@event_type), name)
     end
 
+    def image_label(name)
+      sample(:images, name)
+    end
+
     def sample(group, name)
       I18n.t("components.feeds.#{self.class.module_parent.plugin_key}.samples.#{group}.#{name}")
     end
