@@ -5,6 +5,7 @@ require "digest"
 module Finders
   class VisibleServers
     CACHE_TTL = 30.seconds
+    REJECTION_TTLS = {401 => 1.hour, 403 => 1.hour, 429 => CACHE_TTL}.freeze
 
     def self.for(discord_token, discord_id)
       organiser_servers = Finders::TwilightStruggle::OrganiserServers.discord_ids_for(discord_id)
@@ -12,11 +13,31 @@ module Finders
     end
 
     def self.member_servers(discord_token)
-      Rails.cache.fetch(cache_key(discord_token), expires_in: CACHE_TTL) do
-        Bot::Discord::UserGuilds.call(discord_token).sort_by { |server| -server.member_count.to_i }
-      end
+      raise Bot::Discord::UserGuilds::Unauthorized if discord_token.blank?
+
+      cached = Rails.cache.read(cache_key(discord_token))
+      cached = fetch_and_store(discord_token) if cached.nil?
+      raise Bot::Discord::UserGuilds.rejection(cached) if cached.is_a?(Integer)
+
+      cached
     end
     private_class_method :member_servers
+
+    def self.fetch_and_store(discord_token)
+      value, ttl = fetch_servers(discord_token)
+      Rails.cache.write(cache_key(discord_token), value, expires_in: ttl)
+      value
+    end
+    private_class_method :fetch_and_store
+
+    def self.fetch_servers(discord_token)
+      [Bot::Discord::UserGuilds.call(discord_token).sort_by { |server| -server.member_count.to_i }, CACHE_TTL]
+    rescue Bot::Discord::UserGuilds::Error => error
+      raise unless REJECTION_TTLS.key?(error.status)
+
+      [error.status, REJECTION_TTLS.fetch(error.status)]
+    end
+    private_class_method :fetch_servers
 
     def self.cache_key(discord_token)
       "member_guilds:#{Digest::SHA256.hexdigest(discord_token.to_s)}"
