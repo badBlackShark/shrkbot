@@ -117,14 +117,14 @@ RSpec.describe "Logging config", type: :request do
           expect(response.body).to include("live-warning-list-value")
         end
 
-        it "re-renders with an inline error when enabling without a channel" do
+        it "replaces only the inline error when enabling without a channel" do
           patch server_logging_path(guild.id),
             params: {logging: {channel_id: "", enabled: "1", actions: {}}},
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :logging)).to be(false)
-          expect(response.body).to include("logging-config")
-          expect(response.body).to include("needs a channel.")
+          expect(response.body).to include('target="logging-enable-error"').and include("needs a channel.")
+          expect(response.body).not_to include('target="logging-config"')
         end
 
         it "falls back to a redirect without Turbo" do

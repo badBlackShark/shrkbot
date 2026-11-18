@@ -1,3 +1,7 @@
-<%= turbo_stream.replace "#{active_key}-config", html: render(form) if form %>
+<% if @enable_error.present? %>
+<%= turbo_stream.replace "#{active_key}-enable-error", html: render(Components::EnableErrorCallout.new(key: active_key, message: @enable_error)) %>
+<% elsif form %>
+<%= turbo_stream.replace "#{active_key}-config", html: render(form) %>
+<% end %>
 <%= turbo_stream.append "toasts", html: render(Components::Toast.new(**@toast)) if @toast %>
 <%= turbo_stream.replace "plugin-sidebar", html: render(Components::PluginSidebar.new(server_configuration: @server_configuration, active_key: active_key, access: plugin_access)) %>

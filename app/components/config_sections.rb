@@ -17,8 +17,6 @@ class Components::ConfigSections < Components::Base
   private
 
   def enable_error_callout
-    return unless @enable_error
-
-    render Components::Callout.new(variant: :danger) { @enable_error }
+    render Components::EnableErrorCallout.new(key: @key, message: @enable_error)
   end
 end

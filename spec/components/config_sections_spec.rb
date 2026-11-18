@@ -19,7 +19,8 @@ RSpec.describe Components::ConfigSections do
     expect(html).to include("Section body")
   end
 
-  it "does not render a danger callout" do
+  it "renders an empty enable-error target and no danger callout" do
+    expect(html).to include('id="welcomes-enable-error"')
     expect(html).not_to include("bg-danger-soft")
   end
 

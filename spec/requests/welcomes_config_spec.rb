@@ -96,14 +96,14 @@ RSpec.describe "Welcomes config", type: :request do
           expect(config.welcome_settings.reload.suppress_removal_messages).to be(true)
         end
 
-        it "re-renders the form with an inline error when enabling without a channel" do
+        it "replaces only the inline error when enabling without a channel" do
           patch server_welcomes_path(guild.id),
             params: {welcomes: {channel_id: "", join_message: "", leave_message: "", enabled: "1"}},
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :welcomes)).to be(false)
-          expect(response.body).to include("welcomes-config")
-          expect(response.body).to include("needs a channel.")
+          expect(response.body).to include('target="welcomes-enable-error"').and include("needs a channel.")
+          expect(response.body).not_to include('target="welcomes-config"')
         end
 
         it "saves messages without enabling and reports success" do
