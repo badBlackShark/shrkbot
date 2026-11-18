@@ -161,7 +161,7 @@ ol.discord-list {
   overflow: hidden;
   padding-block: 0;
   border-block-width: 0;
-  margin-bottom: -0.5rem;
+  margin-bottom: calc(-1 * var(--toast-gap));
   transition: height var(--dur-slow) linear,
     padding-block var(--dur-slow) linear,
     border-block-width var(--dur-slow) linear,

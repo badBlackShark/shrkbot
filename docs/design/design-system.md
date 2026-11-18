@@ -60,7 +60,7 @@ Flash messages render as dismissable toasts (`Components::Toasts`, rendered once
 from the layout so every page gets them). The `warning` level (a save that leaves a plugin disabled) is sticky: it
 stays until dismissed. A toast rises 8px as it fades in, and the `toast`
 controller plays `toast-leave`, then collapses the toast's height and gap to
-zero (`toast-collapse`, 260ms linear) before it removes the element, so the
+zero (`toast-collapse`, `--dur-slow`, linear) before it removes the element, so the
 toasts above it slide down instead of dropping. A toast is
 `data-turbo-temporary`: Turbo drops it from the page cache, so Back never
 replays one. Small dropdowns (the user menu) are the

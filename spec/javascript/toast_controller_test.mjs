@@ -77,6 +77,19 @@ test("the toast is removed when its height transition ends, not before", async (
   assert.equal(toast.isConnected, false)
 })
 
+test("a second dismiss during the leave animation measures and collapses only once", async () => {
+  const toast = await mount()
+  const reflows = []
+  toast.getBoundingClientRect = () => reflows.push(toast.style.height)
+
+  toast.querySelector("button").click()
+  toast.querySelector("button").click()
+  toast.dispatchEvent(new Event("animationend"))
+  toast.dispatchEvent(new Event("animationend"))
+
+  assert.equal(reflows.length, 1)
+})
+
 test("a toast dismisses itself after five seconds", async () => {
   const toast = await mount()
 

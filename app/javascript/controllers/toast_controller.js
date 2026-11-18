@@ -14,6 +14,9 @@ export default class extends Controller {
   }
 
   dismiss() {
+    if (this.dismissing) return
+
+    this.dismissing = true
     this.element.classList.add("toast-leave")
     this.element.addEventListener("animationend", () => this.collapse(), { once: true })
   }
