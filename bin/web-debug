@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# See docs/web-debug-harness.md.
+# See docs/running/web-debug-harness.md.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export WEB_DEBUG=1
