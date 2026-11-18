@@ -5,6 +5,20 @@ refactors, tooling, and CI changes are omitted; see the git history for those.
 
 This project follows [Semantic Versioning](https://semver.org).
 
+## [3.15.0] - 2026-11-18
+
+### Added
+- Preview frames and thumbnails can now be turned off for Twitch posts. ([#408](https://github.com/badBlackShark/shrkbot/pull/408))
+- The preview for Twitch posts now shows placeholders for preview images. ([#408](https://github.com/badBlackShark/shrkbot/pull/408))
+- Errors will now be tracked with Sentry. Requires `SENTRY_DSN` to be set. ([#406](https://github.com/badBlackShark/shrkbot/pull/406))
+
+### Changed
+- Pages with no other settings than an enable/disable toggle now save instantly. This includes Steam, Twitch, and Twilight Struggle. ([#409](https://github.com/badBlackShark/shrkbot/pull/409))
+- Animations have been improved and unified across the board. Reduced motion is respected. ([#400](https://github.com/badBlackShark/shrkbot/pull/400), [#401](https://github.com/badBlackShark/shrkbot/pull/401), [#402](https://github.com/badBlackShark/shrkbot/pull/402), [#403](https://github.com/badBlackShark/shrkbot/pull/403))
+
+### Fixed
+- The preview for Twitch posts now shows the viewer count again. ([#407](https://github.com/badBlackShark/shrkbot/pull/407))
+
 ## [3.14.0] - 2026-11-16
 
 ### Added

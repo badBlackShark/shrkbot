@@ -20,11 +20,11 @@ engineers. People judge the project by this surface, so the prose has to be
 clean. Technical, but no word a competent server admin would have to look up.
 
 **Release notes** - `CHANGELOG.md` and the GitHub release body built from it.
-Every technical detail a PR body would carry is allowed: the Discord event that
-fires, the API field and its bounds, the numbers that made the bug bite. The
-prose is held to website standard, because the release page is public: full
-sentences, no shorthand, no internal class or constant names, and each bullet
-reads on its own without the diff beside it. The release title takes the ` - `
+One short line per change, saying what a user notices: no mechanism, timings
+or limits, because the linked PR carries those. The page is public, so no
+internal class or constant names, and each bullet reads on its own without the
+diff beside it. Releases up to 3.14.0 used a long, detailed register and are
+left as a record. The release title takes the ` - `
 joiner. Releases up to 3.8.1 used an em dash and are left as a record.
 
 **PR descriptions** - written for software engineers, usually exactly one
