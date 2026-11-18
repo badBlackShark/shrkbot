@@ -40,14 +40,40 @@ afterEach(async () => {
   await settle()
 })
 
-test("dismissing plays the leave animation and removes the toast only when it ends", async () => {
+test("dismissing plays the leave animation first and leaves the toast in place", async () => {
   const toast = await mount()
 
   toast.querySelector("button").click()
+
   assert.equal(toast.classList.contains("toast-leave"), true)
+  assert.equal(toast.classList.contains("toast-collapse"), false)
+  assert.equal(toast.isConnected, true)
+})
+
+test("after the leave animation the toast collapses from its measured height to zero", async () => {
+  const toast = await mount()
+  Object.defineProperty(toast, "offsetHeight", { value: 42 })
+  const heightWhenReflowed = []
+  toast.getBoundingClientRect = () => heightWhenReflowed.push(toast.style.height)
+
+  toast.querySelector("button").click()
+  toast.dispatchEvent(new Event("animationend"))
+
+  assert.deepEqual(heightWhenReflowed, ["42px"])
+  assert.equal(toast.classList.contains("toast-collapse"), true)
+  assert.equal(toast.style.height, "0px")
+  assert.equal(toast.isConnected, true)
+})
+
+test("the toast is removed when its height transition ends, not before", async () => {
+  const toast = await mount()
+  toast.querySelector("button").click()
+  toast.dispatchEvent(new Event("animationend"))
+
+  toast.dispatchEvent(Object.assign(new Event("transitionend"), { propertyName: "padding-block" }))
   assert.equal(toast.isConnected, true)
 
-  toast.dispatchEvent(new Event("animationend"))
+  toast.dispatchEvent(Object.assign(new Event("transitionend"), { propertyName: "height" }))
   assert.equal(toast.isConnected, false)
 })
 

@@ -157,6 +157,16 @@ ol.discord-list {
 
 .toast-enter { animation: toastEnter var(--dur-base) var(--ease-standard); }
 .toast-leave { animation: toastLeave var(--dur-fast) var(--ease-exit) forwards; }
+.toast-collapse {
+  overflow: hidden;
+  padding-block: 0;
+  border-block-width: 0;
+  margin-bottom: -0.5rem;
+  transition: height var(--dur-slow) linear,
+    padding-block var(--dur-slow) linear,
+    border-block-width var(--dur-slow) linear,
+    margin-bottom var(--dur-slow) linear;
+}
 
 dialog[open] { animation: dialogEnter var(--dur-base) var(--ease-standard); }
 dialog[open]::backdrop { animation: fadeIn var(--dur-base) var(--ease-standard); }

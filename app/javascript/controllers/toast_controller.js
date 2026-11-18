@@ -15,6 +15,17 @@ export default class extends Controller {
 
   dismiss() {
     this.element.classList.add("toast-leave")
-    this.element.addEventListener("animationend", () => this.element.remove(), { once: true })
+    this.element.addEventListener("animationend", () => this.collapse(), { once: true })
+  }
+
+  collapse() {
+    const toast = this.element
+    toast.style.height = `${toast.offsetHeight}px`
+    toast.getBoundingClientRect()
+    toast.classList.add("toast-collapse")
+    toast.style.height = "0px"
+    toast.addEventListener("transitionend", ({ propertyName }) => {
+      if (propertyName === "height") toast.remove()
+    })
   }
 }
