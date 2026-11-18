@@ -31,7 +31,7 @@ class ServerChannel < ApplicationRecord
   }
 
   def everyone_visible?
-    overwrite = channel_overwrites.find_by(target_id: server_configuration.discord_id)
+    overwrite = channel_overwrites.find { |candidate| candidate.target_id == server_configuration.discord_id }
     return true unless overwrite
 
     !overwrite.deny.anybits?(VIEW_CHANNEL)

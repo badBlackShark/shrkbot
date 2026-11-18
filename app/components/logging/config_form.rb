@@ -107,7 +107,7 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def visible_channel_ids
-    @visible_channel_ids ||= @config.server_channels.text.select(&:everyone_visible?).map { |channel| channel.discord_id.to_s }
+    @visible_channel_ids ||= @config.server_channels.text.includes(:channel_overwrites).select(&:everyone_visible?).map { |channel| channel.discord_id.to_s }
   end
 
   def channels
