@@ -14,7 +14,7 @@ class Components::SettingRow < Components::Base
     div(class: "flex #{ALIGNMENTS.fetch(@align)} gap-4") do
       div(class: TEXT.fetch(@align)) do
         p(class: "text-sm font-semibold") { @label }
-        p(class: "mt-0.5 text-sm text-text-secondary") { @help } if @help
+        render(Components::Description.new { @help }) if @help
       end
       yield
     end

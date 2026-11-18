@@ -21,7 +21,7 @@ class Components::SubPluginRow < Components::Base
           status_badge
           render Components::PluginBadges.new(key: @row.key)
         end
-        p(class: "mt-0.5 text-sm text-text-secondary") { @row.description }
+        render(Components::Description.new { @row.description })
       end
       configure_link
       toggle_control
