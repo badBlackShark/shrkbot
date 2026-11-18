@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "devDependencies": {
+    "@hotwired/stimulus": "3.2.2",
+    "happy-dom": "21.0.4"
+  }
+}

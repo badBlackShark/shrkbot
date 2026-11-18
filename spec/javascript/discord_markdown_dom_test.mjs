@@ -1,8 +1,8 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { installFakeDocument, serialize, listenerCount } from "./support/fake_dom.mjs"
+import { installDom } from "./support/dom.mjs"
 
-installFakeDocument()
+const window = installDom()
 
 const { render } = await import("lib/discord_markdown_dom")
 
@@ -18,7 +18,7 @@ function pilled(value) {
 }
 
 function html(template, resolveText = plain) {
-  return render(template, resolveText).map(serialize).join("")
+  return render(template, resolveText).map((node) => node.outerHTML).join("")
 }
 
 test("wraps plain text in a paragraph and passes it through the resolver", () => {
@@ -35,11 +35,15 @@ test("maps each inline style to its own element", () => {
 test("makes a spoiler operable by keyboard as well as mouse", () => {
   const spoiler = render("||secret||", plain)[0].childNodes[0]
 
-  assert.equal(spoiler.attributes.get("role"), "button")
-  assert.equal(spoiler.attributes.get("tabindex"), "0")
-  assert.equal(spoiler.attributes.get("aria-expanded"), "false")
-  assert.equal(listenerCount(spoiler, "click"), 1)
-  assert.equal(listenerCount(spoiler, "keydown"), 1)
+  assert.equal(spoiler.getAttribute("role"), "button")
+  assert.equal(spoiler.getAttribute("tabindex"), "0")
+  assert.equal(spoiler.getAttribute("aria-expanded"), "false")
+
+  spoiler.dispatchEvent(new window.MouseEvent("click"))
+  assert.equal(spoiler.getAttribute("aria-expanded"), "true")
+
+  spoiler.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Enter" }))
+  assert.equal(spoiler.getAttribute("aria-expanded"), "false")
 })
 
 test("opens links in a new tab without leaking the opener", () => {
@@ -52,16 +56,16 @@ test("opens links in a new tab without leaking the opener", () => {
 test("flattens resolved tokens to plain text inside a code block", () => {
   const code = render("```\n{user} joined\n```", pilled)[0].childNodes[0]
 
-  assert.equal(code.nodeName, "code")
-  assert.equal(code.childNodes.length, 0)
+  assert.equal(code.localName, "code")
+  assert.equal(code.children.length, 0)
   assert.equal(code.textContent, "@newmember joined")
 })
 
 test("flattens resolved tokens to plain text inside an inline code span", () => {
   const code = render("`{user}`", pilled)[0].childNodes[0]
 
-  assert.equal(code.nodeName, "code")
-  assert.equal(code.childNodes.length, 0)
+  assert.equal(code.localName, "code")
+  assert.equal(code.children.length, 0)
   assert.equal(code.textContent, "@newmember")
 })
 
