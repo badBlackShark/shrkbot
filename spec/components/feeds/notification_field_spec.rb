@@ -42,6 +42,24 @@ RSpec.describe Components::Feeds::NotificationField do
     expect(html).not_to include("What push notifications say")
   end
 
+  describe "reset slot" do
+    subject(:slot) { Nokogiri::HTML5.fragment(html).at_css("[data-feed-preview-target='reset']") }
+
+    context "when the text equals the default" do
+      it "starts hidden" do
+        expect(slot).to have_attribute("hidden")
+      end
+    end
+
+    context "when the text was edited" do
+      let(:notification_template) { "Out now: {title}" }
+
+      it "starts visible" do
+        expect(slot).not_to have_attribute("hidden")
+      end
+    end
+  end
+
   it "renders the preview output and the sample tokens for the controller" do
     expect(html).to include('data-feed-preview-target="output"', "data-feed-preview-field", "Hades II", "Patch 1.4")
   end
