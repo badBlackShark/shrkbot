@@ -129,6 +129,22 @@ RSpec.describe "Roles config", type: :request do
             **turbo
           expect(response).to have_http_status(:not_found)
         end
+
+        it_behaves_like "a form that only accepts text channels" do
+          let(:submit_channel) do
+            lambda do |channel_override|
+              patch server_roles_path(guild.id),
+                params: {
+                  roles: {
+                    channel_id: 111,
+                    enabled: "1",
+                    role_sets: {"0" => {name: "Pings", selection_mode: "multi", channel_override:, role_ids: ["222"]}}
+                  }
+                },
+                **turbo
+            end
+          end
+        end
       end
     end
   end
