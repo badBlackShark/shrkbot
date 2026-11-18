@@ -11,7 +11,7 @@ class SentryBreadcrumbScrubber
 
     data = breadcrumb.data
     data.except!(*DROPPED_KEYS)
-    data[:url] = data[:url].to_s.sub(/[?#].*\z/m, "").gsub(TOKEN_PATH, "\\1#{FILTERED}") if data.key?(:url)
+    data[:url] = data[:url].sub(/[?#].*\z/m, "").gsub(TOKEN_PATH, "\\1#{FILTERED}")
     breadcrumb
   end
 end
