@@ -24,6 +24,7 @@ class Servers::RolesController < ApplicationController
       enabled: roles_params[:enabled],
       role_sets: submitted_sets
     )
+    preload_role_sets if result.success?
     respond_with_save(result)
   end
 
