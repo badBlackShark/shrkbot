@@ -161,7 +161,9 @@ persists until Save. A page whose only control is the toggle passes
 toggle saves on flip like the dashboard's, and on a preview server it renders
 locked with the preview tooltip. There is no overlay: a disabled plugin's body stays fully
 editable, and the Enabled/Disabled label beside the toggle is a CSS
-`group-has-[:checked]` pair, so it follows the staged toggle with no JS. Saving a
+`group-has-[:checked]` pair, so it follows the staged toggle with no JS. A toggle
+that is not the plugin switch passes its own pair as `states: {on:, off:}` (the
+Twilight Struggle tournament page says Subscribed/Not subscribed). Saving a
 disabled plugin succeeds and toasts "Saved. X is still disabled."
 (`ConfiguresPlugin#saved_message`). A locked toggle submits its current state
 through a hidden field. `prerequisites:` takes a `Components::PrerequisiteSteps`

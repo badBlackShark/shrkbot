@@ -31,7 +31,7 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
 
     it "shows the tag note only while a tag option is pressed" do
       note = Nokogiri::HTML5.fragment(html).css("p").find { |line| line.text == "Missing tags fall back to player names. Tags don't ping." }
-      expect(note.parent["class"].split).to include(
+      expect(note["class"].split).to include(
         "hidden",
         "group-has-[[data-value=tag][aria-checked=true]]/setting:block",
         "group-has-[[data-value=name\\_and\\_tag][aria-checked=true]]/setting:block"
@@ -62,6 +62,25 @@ RSpec.describe Components::TwilightStruggle::PlayerDisplayCard do
 
     it "offers inherit as well" do
       expect(html).to include("Inherit")
+    end
+
+    it "shows the inherit note only while inherit is picked" do
+      note = Nokogiri::HTML5.fragment(html).css("p").find { |line| line.text.include?("OTSL 2026 uses") }
+      expect(note["class"].split).to include("hidden", 'group-has-[[data-value=""][aria-checked=true]]/setting:block')
+    end
+
+    it "shows the tag note while inherit is picked, because the parent uses a tag mode" do
+      note = Nokogiri::HTML5.fragment(html).css("p").find { |line| line.text.include?("Missing tags") }
+      expect(note["class"].split).to include('group-has-[[data-value=""][aria-checked=true]]/setting:block')
+    end
+
+    context "when the parent uses name only" do
+      let!(:parent_destination) { create(:twilight_struggle_destination, tournament: parent, server_configuration:, player_display: "name") }
+
+      it "keeps the tag note off inherit" do
+        note = Nokogiri::HTML5.fragment(html).css("p").find { |line| line.text.include?("Missing tags") }
+        expect(note["class"].split).not_to include('group-has-[[data-value=""][aria-checked=true]]/setting:block')
+      end
     end
 
     it "starts on inherit while the destination sets nothing" do

@@ -1131,6 +1131,8 @@ en:
               cta: Open Twilight Struggle
               title: Tournament result posting is currently disabled
             subscribe: Post %{tournament} results in this server
+            subscribed_state: Subscribed
+            unsubscribed_state: Not subscribed
         show:
           empty_archived: Nothing has been archived.
           empty_body: twilight-struggle.com has not sent any tournaments yet. They

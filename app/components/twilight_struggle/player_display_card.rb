@@ -4,9 +4,20 @@ class Components::TwilightStruggle::PlayerDisplayCard < Components::TwilightStru
   TAG_NOTE = "hidden group-has-[[data-value=tag][aria-checked=true]]/setting:block " \
     'group-has-[[data-value=name\_and\_tag][aria-checked=true]]/setting:block'
 
+  INHERIT_PICKED = 'group-has-[[data-value=""][aria-checked=true]]/setting:block'
+
   private
 
-  def help
+  def inherit_note_visible_when
+    INHERIT_PICKED
+  end
+
+  def tag_note
+    inherits_tag_mode? ? "#{TAG_NOTE} #{INHERIT_PICKED}" : TAG_NOTE
+  end
+
+  def inherits_tag_mode?
+    ::TwilightStruggle::Destination::TAG_DISPLAYS.include?(@inherited.player_display)
   end
 
   def control
@@ -17,7 +28,7 @@ class Components::TwilightStruggle::PlayerDisplayCard < Components::TwilightStru
       input_data: {twilight_struggle_preview_target: "display"},
       options:
     )
-    div(class: TAG_NOTE) { render Components::FieldHelp.new { t(".tag_note") } }
+    render Components::FieldHelp.new(class: tag_note) { t(".tag_note") }
   end
 
   def attribute

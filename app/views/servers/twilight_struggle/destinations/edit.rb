@@ -17,7 +17,8 @@ class Views::Servers::TwilightStruggle::Destinations::Edit < Views::Base
         toggle: {
           field: "destination[subscribed]",
           enabled: @destination.active? && @destination.persisted?,
-          label: t(".subscribe", tournament: tournament.name)
+          label: t(".subscribe", tournament: tournament.name),
+          states: {on: t(".subscribed_state"), off: t(".unsubscribed_state")}
         },
         prerequisites:,
         parent_crumb:
