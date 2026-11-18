@@ -4,6 +4,7 @@ class Servers::RolesController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
   include VerifiesGuildChannels
+  include NormalizesNestedParams
 
   def show
     preload_role_sets
@@ -48,9 +49,7 @@ class Servers::RolesController < ApplicationController
   end
 
   def submitted_sets
-    raw = roles_params[:role_sets]
-    list = raw.respond_to?(:values) ? raw.values : Array(raw)
-    list.map { |set| set.to_h.symbolize_keys }
+    symbolized_list(roles_params[:role_sets])
   end
 
   def submitted_channel_overrides

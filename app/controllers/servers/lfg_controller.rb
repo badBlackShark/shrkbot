@@ -5,6 +5,7 @@ class Servers::LfgController < ApplicationController
   include ConfiguresPlugin
   include VerifiesGuildChannels
   include VerifiesGuildRoles
+  include NormalizesNestedParams
 
   def show
     render Views::Servers::Lfg::Show.new(
@@ -34,9 +35,7 @@ class Servers::LfgController < ApplicationController
   private
 
   def submitted_pingable_roles
-    raw = lfg_params[:pingable_roles]
-    list = raw.respond_to?(:values) ? raw.values : Array(raw)
-    list.map { |attrs| attrs.to_h.symbolize_keys }
+    symbolized_list(lfg_params[:pingable_roles])
   end
 
   def submitted_role_ids
