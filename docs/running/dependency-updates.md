@@ -10,7 +10,7 @@ demand (`workflow_dispatch`), one run at a time:
 
 1. The `update` job fetches the rubysec database and runs `bin/security-updates`,
    a thin wrapper over `lib/security_updates/`. It audits the gems and the
-   importmap pins, updates each vulnerable gem with `bundle update --conservative`,
+   importmap pins, resolves each vulnerable gem with `bundle lock --update --conservative`,
    re-pins each vulnerable pin with `bin/importmap pin`, and audits again. It
    writes the PR body, with old and new versions for gems and pins. It exits 2
    when an advisory has no fix, and any other failure keeps its own exit code.
@@ -28,12 +28,22 @@ Each run rebuilds the PR branch from `main` and force-pushes it. A commit pushed
 by hand to `security-updates` is lost on the next run, so a manual fix belongs
 on its own branch.
 
-The update job runs code from newly installed gems (`extconf.rb`, the app boot),
-so it has no secrets. The `open-pr` job holds the `SECURITY_PR_TOKEN` repository
-secret and runs no package code: it checks out `main`, copies the changed paths
-from the update job's artifact, and opens the PR. The token is fine-grained,
-with write access to Contents and Pull requests on this repository only. A PR
-opened with the built-in `GITHUB_TOKEN` would not trigger CI.
+The update job never installs or runs a new version. `bundle lock --update`
+resolves the fixed versions into `Gemfile.lock` without installing them, and the
+re-audit reads the lockfile in-process. The nightly run happens on `main`, so
+code running there could write to the Actions cache that later `main` runs
+restore. A new version first runs in CI on the security PR, where the cache is
+scoped to the PR and no secrets exist, as on a Dependabot PR. The update job
+also holds no secrets. The `open-pr` job holds the `SECURITY_PR_TOKEN`
+repository secret and runs no package code: it checks out `main`, refuses
+symlinks, copies the changed paths from the update job's artifact, and opens the
+PR. The token is fine-grained, with write access to Contents and Pull requests
+on this repository only. A PR opened with the built-in `GITHUB_TOKEN` would not
+trigger CI.
+
+`bundle update --bundler` in the Bundler workflow does run the new Bundler on
+`main`. That residual risk is accepted: Bundler ships with Ruby itself, and a
+compromised release would reach every Ruby CI at once.
 
 Ignored gem advisories go in `config/bundler-audit.yml`, which both
 `bin/bundler-audit check` and the workflow honour. Pin advisories have no ignore

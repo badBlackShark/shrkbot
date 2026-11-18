@@ -4,15 +4,15 @@
 require_relative "../config/application"
 require "importmap/npm"
 require "json"
-require "open3"
+require "bundler/audit/scanner"
 require_relative "../lib/security_updates/advisory"
 require_relative "../lib/security_updates/audit"
 require_relative "../lib/security_updates/version_changes"
 require_relative "../lib/security_updates/report"
 
 def gem_advisories
-  report, = Open3.capture2("bin/bundler-audit", "check", "--format", "json")
-  SecurityUpdates::Audit.gems(JSON.parse(report))
+  scanner = Bundler::Audit::Scanner.new(Dir.pwd, "Gemfile.lock", Bundler::Audit::Database.new, "config/bundler-audit.yml")
+  SecurityUpdates::Audit.gems(JSON.parse(JSON.generate({"results" => scanner.scan.map(&:to_h)})))
 end
 
 def pin_advisories
@@ -26,8 +26,8 @@ fixable_gems = gems.select(&:fixable?).map(&:package).uniq
 lockfile_before = File.read("Gemfile.lock")
 importmap_before = File.read("config/importmap.rb")
 
-system("bundle", "update", "--conservative", *fixable_gems, exception: true) if fixable_gems.any?
 system("bin/importmap", "pin", *pins.map(&:package).uniq, exception: true) if pins.any?
+system("bundle", "lock", "--update", *fixable_gems, "--conservative", exception: true) if fixable_gems.any?
 
 changes = SecurityUpdates::VersionChanges.gems(lockfile_before, File.read("Gemfile.lock")) +
   SecurityUpdates::VersionChanges.pins(importmap_before, File.read("config/importmap.rb"))
