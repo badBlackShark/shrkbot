@@ -55,6 +55,12 @@ that channel is configured. This is enforced in two places:
 `Ops::ServerConfiguration::Plugins::Toggle` gives the friendly failure, refuses a change that would leave an enabled dependent unmet (Logging off while a Server Shield protection is on), and a
 `PluginActivation` validation backstops any write that skips the op.
 
+Every operation that checks plugin state before writing (`Toggle`, `Moderation::Settings::Update`,
+`BespokePluginGrant::Destroy`) first calls `Ops::ServerConfiguration::Plugins::Lock`, which takes
+`FOR NO KEY UPDATE` on the server row. Concurrent changes to one server queue up, so two requests
+cannot each pass the refusal check against state the other is about to change. The lock lasts until
+the surrounding transaction ends, so a new operation of this kind must run transactionally.
+
 Groups have no activation, so `enabled_plugin_keys` never holds one. The `RemovePluginGroups`
 migration turned off the members of every disabled group and deleted the group rows.
 

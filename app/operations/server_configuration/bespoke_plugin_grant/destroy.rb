@@ -8,6 +8,7 @@ module Ops
 
         def call
           config = bespoke_plugin_grant.server_configuration
+          Plugins::Lock.call(server_configuration: config)
           bespoke_plugin_grant.destroy!
           disable_plugin(config)
           ok(bespoke_plugin_grant)
