@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require_relative "../../lib/sentry_breadcrumb_scrubber"
+
 Sentry.init do |config|
   config.enabled_environments = %w[production development]
-  config.breadcrumbs_logger = [:active_support_logger]
+  config.breadcrumbs_logger = [:active_support_logger, :http_logger]
+  config.before_breadcrumb = SentryBreadcrumbScrubber
   config.traces_sample_rate = 1.0
   config.data_collection.http_headers.request.terms += ["referer"]
   config.rails.register_error_subscriber = true

@@ -29,16 +29,21 @@ sets in every container.
 
 The privacy policy names what a report holds, and the SDK settings behind that
 promise are pinned in `spec/config/sentry_spec.rb`, so a dependency bump that
-flips a default fails the suite. Four things stay off:
+flips a default fails the suite. Three things stay off:
 
 - `send_default_pii` and every `data_collection` category: no user identity,
   cookies, request bodies, query strings, bound query values, job arguments or
   local variables. SQL text goes out as written, so a value put into it through
   a `?` placeholder goes with it.
 - The `Referer` request header: it carries the previous page's query string.
-- The `:http_logger` breadcrumbs: the bot answers interactions on URLs that carry
-  the interaction token in the path.
 - Log forwarding: log lines can quote what a handler was processing.
+
+Outgoing requests leave a breadcrumb (`:http_logger`) that has passed through
+`SentryBreadcrumbScrubber`. It keeps the method, status and URL path, and drops
+the query string and any body. It replaces the token segment of Discord
+`interactions/<id>/<token>` and `webhooks/<id>/<token>` paths with `[Filtered]`.
+A provider that puts a secret in the path needs a pattern there before its first
+request.
 
 ## Cron monitor
 
