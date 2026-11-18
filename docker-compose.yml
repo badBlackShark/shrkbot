@@ -33,7 +33,7 @@ services:
   # mounted .env via dotenv.
   web:
     build: .
-    command: bin/rails server -b 0.0.0.0 -p 3000
+    command: sh -c "rm -f /tmp/server.pid && exec bin/rails server -b 0.0.0.0 -p 3000 -P /tmp/server.pid"
     restart: unless-stopped
     environment:
       RAILS_ENV: development
