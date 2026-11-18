@@ -20,7 +20,7 @@ class Servers::TwilightStruggleController < ApplicationController
 
   def update
     result = toggle_plugin(twilight_struggle_params[:enabled])
-    respond_with_configuration(result)
+    respond_with_save(result)
   end
 
   private

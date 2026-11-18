@@ -123,7 +123,7 @@ RSpec.describe "Logging config", type: :request do
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :logging)).to be(false)
-          expect(response.body).to include('target="logging-enable-error"').and include("needs a channel.")
+          expect(response.body).to include('target="logging-save-error"').and include("needs a channel.")
           expect(response.body).not_to include('target="logging-config"')
         end
 

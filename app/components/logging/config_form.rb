@@ -3,14 +3,13 @@
 class Components::Logging::ConfigForm < Components::Base
   CHANNEL_FIELD = "logging[channel_id]"
 
-  def initialize(server_configuration:, enable_error: nil)
+  def initialize(server_configuration:)
     @config = server_configuration
     @settings = server_configuration.logging_settings
-    @enable_error = enable_error
   end
 
   def view_template
-    render Components::ConfigSections.new(key: "logging", enable_error: @enable_error) do
+    render Components::ConfigSections.new(key: "logging") do
       channel_card
       events_card
     end

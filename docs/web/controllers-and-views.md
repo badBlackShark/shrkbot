@@ -93,8 +93,12 @@ re-verifies against live Discord on every server-scoped request.
   `turbo_stream.append "toasts", html: render(Components::Toast.new(**@toast))`. This
   is how auto-saving controls re-render in place: success re-renders the control
   plus a toast, and (for the config forms) a failed save replaces only the
-  `<key>-enable-error` slot (`Components::EnableErrorCallout`) and leaves the form,
-  with the user's unsaved input, untouched — just more `turbo_stream.*` lines with different components and
+  `<key>-save-error` slot (`Components::SaveErrorCallout`), appends an alert toast
+  with the same message, and leaves the form, with the user's unsaved input,
+  untouched. `ConfiguresPlugin#respond_with_save` sets `@save_error` (the
+  operation's errors, or `servers.save_failed` when it gives none) and `@toast`;
+  the shared `servers/configuration_update` partial reads them and builds the form
+  only on success, so each update template passes the form as a lambda — just more `turbo_stream.*` lines with different components and
   targets. (These response templates are ERB; the Phlex-for-views convention is
   about page/component views — the stream wrapper is a thin format template.) `Servers::PluginsController#update`
   streams only for dashboard rows; a sub-plugin key (toggled on its group's overview)

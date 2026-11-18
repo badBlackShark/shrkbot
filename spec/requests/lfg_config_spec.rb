@@ -93,10 +93,10 @@ RSpec.describe "LFG config", type: :request do
               **turbo
           end
 
-          it "answers 422 with only the enable-error stream, so the form keeps the unsaved card" do
+          it "answers 422 with only the save-error stream, so the form keeps the unsaved card" do
             refused_save
             expect(response).to have_http_status(:unprocessable_content)
-            expect(response.body).to include('target="lfg-enable-error"').and include("Cooldown seconds")
+            expect(response.body).to include('target="lfg-save-error"').and include("Cooldown seconds")
             expect(response.body).not_to include('target="lfg-config"')
           end
         end

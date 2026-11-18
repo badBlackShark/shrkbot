@@ -27,7 +27,7 @@ class Servers::ImageScanningController < ApplicationController
       custom_keywords: image_scanning_params[:custom_keywords],
       enabled: image_scanning_params[:enabled]
     )
-    respond_with_configuration(result)
+    respond_with_save(result)
   end
 
   private

@@ -1,1 +1,1 @@
-<%= render "servers/configuration_update", form: @success ? Components::Roles::ConfigForm.new(server_configuration: @server_configuration) : nil, active_key: "roles" %>
+<%= render "servers/configuration_update", form: (-> { Components::Roles::ConfigForm.new(server_configuration: @server_configuration) } if @success), active_key: "roles" %>
