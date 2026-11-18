@@ -37,6 +37,13 @@ jobs:
           name: ${{ inputs.artifact }}
           path: ${{ runner.temp }}/changes
 
+      - name: Reject symlinks in the changes
+        run: |
+          if find "$RUNNER_TEMP/changes" -type l | grep -q .; then
+            echo "The update job produced a symlink; refusing to open the PR."
+            exit 1
+          fi
+
       - name: Apply the changed paths
         env:
           PATHS: ${{ inputs.paths }}

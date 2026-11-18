@@ -19,14 +19,14 @@ def pin_advisories
   SecurityUpdates::Audit.pins(Importmap::Npm.new.vulnerable_packages)
 end
 
-found_gems = gem_advisories
-gems = found_gems.reject { |advisory| advisory.id == SecurityUpdates::Audit::INSECURE_SOURCE_ID }
+gems = gem_advisories
 pins = pin_advisories
-found = found_gems + pins
+found = gems + pins
+fixable_gems = gems.select(&:fixable?).map(&:package).uniq
 lockfile_before = File.read("Gemfile.lock")
 importmap_before = File.read("config/importmap.rb")
 
-system("bundle", "update", "--conservative", *gems.map(&:package).uniq, exception: true) if gems.any?
+system("bundle", "update", "--conservative", *fixable_gems, exception: true) if fixable_gems.any?
 system("bin/importmap", "pin", *pins.map(&:package).uniq, exception: true) if pins.any?
 
 changes = SecurityUpdates::VersionChanges.gems(lockfile_before, File.read("Gemfile.lock")) +

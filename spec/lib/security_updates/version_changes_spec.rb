@@ -35,6 +35,14 @@ RSpec.describe SecurityUpdates::VersionChanges do
       expect(changes).to contain_exactly("`rack` 3.0.0 → 3.1.0", "`nokogiri` 1.18.0 → 1.19.0")
     end
 
+    context "when the update adds and drops a dependency" do
+      let(:after) { lockfile(rack: "3.1.0", rake: "13.0.0").sub("rake (13.0.0)", "rack-session (2.1.0)") }
+
+      it "lists the added and the removed gem" do
+        expect(changes).to include("`rack-session` (none) → 2.1.0", "`rake` 13.0.0 → (removed)")
+      end
+    end
+
     context "when nothing changed" do
       let(:after) { before }
 

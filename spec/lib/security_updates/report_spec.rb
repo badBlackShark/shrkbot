@@ -21,6 +21,17 @@ RSpec.describe SecurityUpdates::Report do
     )
   end
 
+  def pin_advisory(title:)
+    SecurityUpdates::Advisory.new(
+      package: "tom-select",
+      version: "< 2.6.2",
+      id: "high",
+      title:,
+      url: nil,
+      fixed_in: ["latest"]
+    )
+  end
+
   def section(name)
     markdown[/^## #{name}\n(.*?)(?=^## |\z)/m, 1]
   end
@@ -51,6 +62,38 @@ RSpec.describe SecurityUpdates::Report do
       it "says so instead of rendering an empty version" do
         expect(markdown).to include("(no fixed version yet)")
         expect(markdown).not_to include("fixed in )")
+      end
+    end
+
+    context "with an advisory that has no link or locked version" do
+      let(:found) do
+        [
+          SecurityUpdates::Advisory.new(
+            package: "http://rubygems.org/",
+            version: nil,
+            id: "insecure-source",
+            title: "Gem source uses an insecure protocol",
+            url: nil,
+            fixed_in: []
+          )
+        ]
+      end
+      let(:remaining) { found }
+
+      it "renders the bare id and omits the version" do
+        expect(section("Unresolved")).to include("- `http://rubygems.org/`: insecure-source Gem source uses an insecure protocol (no fixed version yet)")
+      end
+    end
+
+    context "with two pin advisories of the same severity, one still open" do
+      let(:open_pin) { pin_advisory(title: "Prototype pollution") }
+      let(:fixed_pin) { pin_advisory(title: "ReDoS in search") }
+      let(:found) { [open_pin, fixed_pin] }
+      let(:remaining) { [open_pin] }
+
+      it "tells them apart by title" do
+        expect(section("Fixed")).to include("ReDoS in search")
+        expect(section("Fixed")).not_to include("Prototype pollution")
       end
     end
 

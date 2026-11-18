@@ -23,8 +23,10 @@ module SecurityUpdates
     end
 
     def self.changes(before, after)
-      after.filter_map do |name, version|
-        "`#{name}` #{before[name]} → #{version}" if before.key?(name) && before[name] != version
+      (before.keys | after.keys).filter_map do |name|
+        old_version = before.fetch(name, "(none)")
+        new_version = after.fetch(name, "(removed)")
+        "`#{name}` #{old_version} → #{new_version}" if old_version != new_version
       end
     end
 

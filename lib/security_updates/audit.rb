@@ -2,8 +2,6 @@
 
 module SecurityUpdates
   class Audit
-    INSECURE_SOURCE_ID = "insecure-source"
-
     def self.gems(report)
       report.fetch("results").map do |result|
         if result.fetch("type") == "insecure_source"
@@ -43,7 +41,7 @@ module SecurityUpdates
       Advisory.new(
         package: result.fetch("source"),
         version: nil,
-        id: INSECURE_SOURCE_ID,
+        id: "insecure-source",
         title: "Gem source uses an insecure protocol",
         url: nil,
         fixed_in: []

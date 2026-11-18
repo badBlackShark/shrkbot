@@ -2,17 +2,18 @@
 
 module SecurityUpdates
   class Report
-    INTRO = "The nightly audit found these advisories, and this PR updates the packages that fix them."
+    INTRO = "The nightly audit found these advisories."
 
     def initialize(found:, remaining:, changes:)
-      @found = found
+      remaining_keys = remaining.map(&:key)
+      @fixed = found.reject { |advisory| remaining_keys.include?(advisory.key) }
       @remaining = remaining
       @changes = changes
     end
 
     def to_markdown
       lines = [INTRO, ""]
-      lines += ["## Fixed", *fixed.map { |advisory| advisory_line(advisory) }, ""] if fixed.any?
+      lines += ["## Fixed", *@fixed.map { |advisory| advisory_line(advisory) }, ""] if @fixed.any?
       lines += ["## Version changes", *@changes.map { |change| "- #{change}" }, ""] if @changes.any?
       lines += unresolved_section
       lines.join("\n")
@@ -23,11 +24,6 @@ module SecurityUpdates
     end
 
     private
-
-    def fixed
-      remaining_keys = @remaining.map(&:key)
-      @found.reject { |advisory| remaining_keys.include?(advisory.key) }
-    end
 
     def unresolved_section
       return [] if @remaining.empty?
