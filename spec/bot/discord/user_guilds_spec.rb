@@ -31,36 +31,42 @@ RSpec.describe Bot::Discord::UserGuilds do
     )
   end
 
-  context "when Discord rejects the access token" do
-    let(:code) { "401" }
-    let(:body) { "" }
+  it "sends the DiscordBot User-Agent Discord requires" do
+    fetch
 
-    it "raises Unauthorized with its default message and status" do
-      expect { fetch }.to raise_error(described_class::Unauthorized, "Discord rejected the access token") do |error|
-        expect(error.status).to eq(401)
+    expect(http).to have_received(:request).with(satisfy { |get| get["User-Agent"].start_with?("DiscordBot (") })
+  end
+
+  [401, 403].each do |status|
+    context "when Discord answers #{status}" do
+      let(:code) { status.to_s }
+      let(:body) { "" }
+
+      it "raises Integrations::Unauthorized" do
+        expect { fetch }.to raise_error(Integrations::Unauthorized)
       end
     end
   end
 
-  context "when Discord refuses the token's scope" do
-    let(:code) { "403" }
+  context "when Discord rate-limits the token" do
+    let(:code) { "429" }
     let(:body) { "" }
 
-    it "raises Error carrying the status" do
-      expect { fetch }.to raise_error(described_class::Error, "Discord responded with 403") do |error|
-        expect(error).to have_attributes(class: described_class::Error, status: 403)
-      end
+    before do
+      allow(response).to receive_messages("[]": nil, to_hash: {})
+    end
+
+    it "raises Integrations::RateLimited" do
+      expect { fetch }.to raise_error(Integrations::RateLimited)
     end
   end
 
-  context "when Discord responds with another error status" do
+  context "when Discord responds with a server error" do
     let(:code) { "500" }
     let(:body) { "" }
 
-    it "raises a generic error, not Unauthorized" do
-      expect { fetch }.to raise_error(described_class::Error) do |error|
-        expect(error).not_to be_a(described_class::Unauthorized)
-      end
+    it "raises Integrations::Unavailable" do
+      expect { fetch }.to raise_error(Integrations::Unavailable)
     end
   end
 
@@ -69,16 +75,16 @@ RSpec.describe Bot::Discord::UserGuilds do
       allow(Net::HTTP).to receive(:start).and_raise(Errno::ECONNRESET)
     end
 
-    it "raises Error, which the controller turns into a friendly page" do
-      expect { fetch }.to raise_error(described_class::Error)
+    it "raises Integrations::Unavailable, which the controller turns into a friendly page" do
+      expect { fetch }.to raise_error(Integrations::Unavailable)
     end
   end
 
   context "when the body is not valid JSON" do
     let(:body) { "not json" }
 
-    it "raises a wrapped error" do
-      expect { fetch }.to raise_error(described_class::Error)
+    it "raises Integrations::Unavailable" do
+      expect { fetch }.to raise_error(Integrations::Unavailable)
     end
   end
 end

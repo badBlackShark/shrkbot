@@ -36,14 +36,14 @@ re-verifies against live Discord on every server-scoped request.
   reason — see the tournament-organiser input below — and anything scoped to "your
   servers" as an admin (notifications) must read the narrower set. Discord being
   unreachable
-  (`UserGuilds::Error`) falls back to the session cache rather than locking admins
-  out during an outage; a bad/expired token (`UserGuilds::Unauthorized`) is not
+  (`Integrations::Error`) falls back to the session cache rather than locking admins
+  out during an outage; a bad/expired token (`Integrations::Unauthorized`) is not
   caught here — it propagates to `DiscordReauth`.
 - **Re-authentication is centralized in the `DiscordReauth` concern**, included by
   both `ServersController` and `RequiresManageableServer` (every server-scoped
   controller), since the user's Discord token is now read on every server-scoped
   request, not just the picker/dashboard. It `rescue_from`s
-  `Bot::Discord::UserGuilds::Unauthorized`, stashes the current path in
+  `Integrations::Unauthorized`, stashes the current path in
   `session[:return_to]`, and renders `Views::Reauth`; a second consecutive failure
   resets the session and bounces to the root page. `SessionsController#create`
   redirects to `session[:return_to]` (falling back to the picker) and clears the

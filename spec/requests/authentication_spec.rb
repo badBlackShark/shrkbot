@@ -43,7 +43,7 @@ RSpec.describe "Authentication", type: :request do
     before do
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
-      allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Unauthorized)
+      allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Integrations::Unauthorized)
     end
 
     it "renders the reauth page and stores the current path" do
