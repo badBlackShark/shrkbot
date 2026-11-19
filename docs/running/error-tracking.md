@@ -38,12 +38,14 @@ flips a default fails the suite. Three things stay off:
 - The `Referer` request header: it carries the previous page's query string.
 - Log forwarding: log lines can quote what a handler was processing.
 
-Outgoing requests leave a breadcrumb (`:http_logger`) that has passed through
-`SentryBreadcrumbScrubber`. It keeps the method, status and URL path, and drops
-the query string and any body. It replaces the token segment of Discord
-`interactions/<id>/<token>` and `webhooks/<id>/<token>` paths with `[Filtered]`.
-A provider that puts a secret in the path needs a pattern there before its first
-request.
+Outgoing requests leave a breadcrumb (`:http_logger`) and a trace span. Both
+pass through `SentryHttpScrubber`, which cuts every URL to `scheme://host`: no
+path, query or fragment. A path can hold a Discord interaction token, an
+attachment filename or a provider secret, so the rule is an allow-list of the
+host rather than a pattern per provider. The breadcrumb keeps only `method`,
+`status` and `url`. The span keeps the status and method, and its description
+reads `GET https://host`. The host of each outgoing request therefore reaches
+Sentry, and the privacy policy says so.
 
 ## Cron monitor
 

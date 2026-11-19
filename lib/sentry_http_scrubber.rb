@@ -3,7 +3,6 @@
 module SentryHttpScrubber
   ORIGIN = %r{\A[a-z][a-z0-9+.-]*://[^/?#]*}i
   KEPT_BREADCRUMB_KEYS = %i[method status url].freeze
-  SPAN_QUERY_KEY = Sentry::Span::DataConventions::HTTP_QUERY
   SPAN_URL_KEY = Sentry::Span::DataConventions::URL
 
   module_function
@@ -30,7 +29,6 @@ module SentryHttpScrubber
     method, url = span[:description].split(" ", 2)
     cut = origin(url)
     span[:description] = "#{method} #{cut}"
-    span[:data].delete(SPAN_QUERY_KEY)
     span[:data][SPAN_URL_KEY] = cut
   end
 

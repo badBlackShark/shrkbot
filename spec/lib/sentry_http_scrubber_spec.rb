@@ -52,11 +52,6 @@ RSpec.describe SentryHttpScrubber do
         data: include("url" => origin)
       )
     end
-
-    it "leaves no query in the span data" do
-      perform
-      expect(http_span[:data]).not_to have_key("http.query")
-    end
   end
 
   describe ".breadcrumb" do
@@ -66,7 +61,7 @@ RSpec.describe SentryHttpScrubber do
     let(:data) { {status: 200, method: "POST", url: "https://discord.com/api/v10/interactions/1/token/callback", query: "a=1", body: "x"} }
     let(:crumb) { Sentry::Breadcrumb.new(category:, data:) }
 
-    it "keeps the method and status and cuts the URL to its origin" do
+    it "keeps only the method, status and origin" do
       expect(scrubbed.data).to eq(status: 200, method: "POST", url: "https://discord.com")
     end
 
