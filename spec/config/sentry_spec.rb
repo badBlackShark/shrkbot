@@ -55,7 +55,13 @@ RSpec.describe "Sentry configuration" do
     end
 
     it "pass through the scrubber, because outgoing URLs carry tokens" do
-      expect(configuration.before_breadcrumb).to eq(SentryBreadcrumbScrubber)
+      expect(configuration.before_breadcrumb).to eq(SentryHttpScrubber.method(:breadcrumb))
+    end
+  end
+
+  describe "traces" do
+    it "pass outgoing request spans through the scrubber, because their URLs carry tokens" do
+      expect(configuration.before_send_transaction).to eq(SentryHttpScrubber.method(:transaction))
     end
   end
 
