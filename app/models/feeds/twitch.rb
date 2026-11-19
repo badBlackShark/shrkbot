@@ -118,6 +118,10 @@ module Feeds
       subscription.settings.role_id_for(event_type)
     end
 
+    def self.role_override_for(subscription, event_type)
+      subscription.settings.role_override_for(event_type)
+    end
+
     def self.accepts?(subscription, event)
       return true if event.is_a?(Integrations::Twitch::VideoEvent)
 

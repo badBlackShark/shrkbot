@@ -5,11 +5,10 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   TITLE = "font-display font-semibold"
 
-  def initialize(subscription:, plugin_key:, channel_labels:, role_names:, edit_href: nil)
+  def initialize(subscription:, plugin_key:, labels:, edit_href: nil)
     @subscription = subscription
     @plugin_key = plugin_key
-    @channel_labels = channel_labels
-    @role_names = role_names
+    @labels = labels
     @edit_href = edit_href
   end
 
@@ -56,12 +55,7 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   def ping_label
     role_id = roles.shared
-    role_id ? t(".pings", role: role_text(role_id)) : t(".no_ping")
-  end
-
-  def role_text(role_id)
-    name = @role_names[role_id]
-    name ? t(".mention", role: name) : t(".role_missing")
+    role_id ? t(".pings", role: @labels.role_text(role_id)) : t(".no_ping")
   end
 
   def roles
@@ -69,11 +63,11 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def channel
-    label = @channel_labels[@subscription.channel_id]
+    label = @labels.channel(@subscription.channel_id)
     if label
       span(class: "font-mono text-xs") { label }
     else
-      plain t(".channel_missing")
+      plain @labels.channel_missing
     end
   end
 
@@ -94,15 +88,13 @@ class Components::Feeds::SubscriptionRow < Components::Base
   end
 
   def channel_part(event_type)
-    channel_id = subscribed_event(event_type).channel_id
-    return if channel_id.nil? || channel_id == @subscription.channel_id
-
-    @channel_labels[channel_id] || t(".channel_missing")
+    channel_id = subscribed_event(event_type).channel_override
+    @labels.channel_text(channel_id) if channel_id
   end
 
   def role_part(event_type)
     role_id = roles.for(event_type) unless roles.shared?
-    role_text(role_id) if role_id
+    @labels.role_text(role_id) if role_id
   end
 
   def subscribed_event(event_type)

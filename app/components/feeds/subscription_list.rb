@@ -54,8 +54,7 @@ class Components::Feeds::SubscriptionList < Components::Base
     render Components::Feeds::SubscriptionRow.new(
       subscription:,
       plugin_key: @plugin_key,
-      channel_labels:,
-      role_names:,
+      labels: route_labels,
       edit_href: (::Feeds::SubscriptionPaths.edit_for(subscription) unless @config.preview?)
     )
   end
@@ -77,11 +76,7 @@ class Components::Feeds::SubscriptionList < Components::Base
     ).to_a
   end
 
-  def channel_labels
-    @channel_labels ||= ChannelOptions.new(@config).qualified_labels_by_id
-  end
-
-  def role_names
-    @role_names ||= ServerRoleOptions.new(@config).names_by_id
+  def route_labels
+    @route_labels ||= ::Feeds::RouteLabels.new(@config)
   end
 end

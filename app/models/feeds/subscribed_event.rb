@@ -11,6 +11,10 @@ module Feeds
     validates :event_type, inclusion: {in: ->(event) { event.subscription.source.event_types }}, uniqueness: {scope: :subscription_id}
     validates :subscribed_since, presence: true
 
+    def channel_override
+      channel_id unless channel_id == subscription.channel_id
+    end
+
     def apply(template: nil, notification: nil, channel_id: nil)
       self.template = Templates.custom(template)
       self.notification_template = Templates.notification(notification, subscription.source.default_notification(event_type))

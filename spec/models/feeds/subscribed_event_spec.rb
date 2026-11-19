@@ -77,6 +77,36 @@ RSpec.describe Feeds::SubscribedEvent do
     it { is_expected.to be_valid }
   end
 
+  describe "#channel_override" do
+    subject(:override) { subscribed_event.channel_override }
+
+    before { subscribed_event.channel_id = channel_id }
+
+    context "with a channel other than the follow's" do
+      let(:channel_id) { subscription.channel_id + 1 }
+
+      it "is that channel" do
+        expect(override).to eq(channel_id)
+      end
+    end
+
+    context "with the follow's own channel" do
+      let(:channel_id) { subscription.channel_id }
+
+      it "is nil" do
+        expect(override).to be_nil
+      end
+    end
+
+    context "with no channel" do
+      let(:channel_id) { nil }
+
+      it "is nil" do
+        expect(override).to be_nil
+      end
+    end
+  end
+
   describe "#apply" do
     subject(:apply) { subscribed_event.apply(**choices) }
 
