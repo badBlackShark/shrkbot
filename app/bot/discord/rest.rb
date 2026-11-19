@@ -1,23 +1,28 @@
 # frozen_string_literal: true
 
-require "net/http"
-
 module Bot
   module Discord
     module Rest
       BASE = "https://discord.com/api/#{Config::API_VERSION}"
-      TIMEOUT = 5
+      READ_TIMEOUT = 5
+      STATUS_ERRORS = {401 => Unauthorized, 403 => Unauthorized}.freeze
 
       module_function
 
-      def get(path, authorization:)
-        uri = URI("#{BASE}#{path}")
-        Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: TIMEOUT, read_timeout: TIMEOUT, max_retries: 0) do |http|
-          request = Net::HTTP::Get.new(uri)
-          request["Authorization"] = authorization
-          request["User-Agent"] = user_agent
-          http.request(request)
-        end
+      def get_json(path, authorization:, &)
+        ::Integrations::Http.get_json(
+          "#{BASE}#{path}",
+          headers: {"Authorization" => authorization, "User-Agent" => user_agent},
+          status_errors: STATUS_ERRORS,
+          read_timeout: READ_TIMEOUT,
+          &
+        )
+      rescue Error
+        raise
+      rescue ::Integrations::RateLimited => e
+        raise RateLimited, e.message
+      rescue ::Integrations::Error => e
+        raise Error, e.message
       end
 
       def user_agent

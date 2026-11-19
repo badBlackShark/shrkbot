@@ -4,7 +4,7 @@ module DiscordReauth
   extend ActiveSupport::Concern
 
   included do
-    rescue_from Bot::Discord::UserGuilds::Unauthorized, with: :reauthenticate
+    rescue_from Bot::Discord::Unauthorized, with: :reauthenticate
   end
 
   private
