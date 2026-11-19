@@ -22,6 +22,14 @@ RSpec.describe Components::PluginStatusBadge do
     end
   end
 
+  context "when the plugin is always on and configured" do
+    let(:locked) { true }
+
+    it "still says always on" do
+      expect(html).to include("Always on")
+    end
+  end
+
   context "when the plugin is always on" do
     let(:configured) { false }
     let(:locked) { true }
