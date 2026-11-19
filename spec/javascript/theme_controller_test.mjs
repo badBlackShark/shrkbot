@@ -1,6 +1,7 @@
 import { test, beforeEach } from "node:test"
 import assert from "node:assert/strict"
 import { installDom } from "./support/dom.mjs"
+import { settle } from "./support/helpers.mjs"
 
 const window = installDom()
 globalThis.localStorage = window.localStorage
@@ -25,14 +26,23 @@ beforeEach(async () => {
   supportAnimatedProperties(false)
   localStorage.clear()
   document.body.innerHTML = '<button data-controller="theme" data-action="theme#toggle">Theme</button>'
-  await new Promise((resolve) => setTimeout(resolve, 0))
+  await settle()
 })
 
-test("toggling flips the theme and remembers it", () => {
+test("toggling light flips to dark and remembers it", () => {
   document.querySelector("button").click()
 
   assert.equal(root.dataset.theme, "dark")
   assert.equal(localStorage.getItem("shrk-theme"), "dark")
+})
+
+test("toggling dark flips to light and remembers it", () => {
+  root.dataset.theme = "dark"
+
+  document.querySelector("button").click()
+
+  assert.equal(root.dataset.theme, "light")
+  assert.equal(localStorage.getItem("shrk-theme"), "light")
 })
 
 test("toggling while the ink transition runs changes nothing", async () => {
@@ -40,7 +50,7 @@ test("toggling while the ink transition runs changes nothing", async () => {
   root.classList.add("theme-inking")
 
   document.querySelector("button").click()
-  await new Promise((resolve) => setTimeout(resolve, 0))
+  await settle()
 
   assert.equal(root.dataset.theme, "light")
   assert.equal(localStorage.getItem("shrk-theme"), null)

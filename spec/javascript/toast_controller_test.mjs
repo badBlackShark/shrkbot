@@ -1,6 +1,7 @@
 import { test, afterEach } from "node:test"
 import assert from "node:assert/strict"
 import { installDom } from "./support/dom.mjs"
+import { settle } from "./support/helpers.mjs"
 
 installDom()
 
@@ -10,17 +11,20 @@ const { default: ToastController } = await import("../../app/javascript/controll
 const application = Application.start()
 application.register("toast", ToastController)
 
-const AUTO_DISMISS_MS = 5000
 const realSetTimeout = globalThis.setTimeout
+const realClearTimeout = globalThis.clearTimeout
 const scheduled = []
+const cleared = []
 
 globalThis.setTimeout = (callback, delay, ...rest) => {
-  if (delay === AUTO_DISMISS_MS) scheduled.push(callback)
-  return realSetTimeout(callback, delay, ...rest)
+  const handle = realSetTimeout(callback, delay, ...rest)
+  if (delay > 0) scheduled.push({ callback, delay, handle })
+  return handle
 }
 
-async function settle() {
-  await new Promise((resolve) => realSetTimeout(resolve, 0))
+globalThis.clearTimeout = (handle) => {
+  cleared.push(handle)
+  return realClearTimeout(handle)
 }
 
 async function mount(attributes = "") {
@@ -32,6 +36,7 @@ async function mount(attributes = "") {
 afterEach(async () => {
   document.body.innerHTML = ""
   scheduled.length = 0
+  cleared.length = 0
   await settle()
 })
 
@@ -49,9 +54,18 @@ test("dismissing plays the leave animation and removes the toast only when it en
 test("a toast dismisses itself after five seconds", async () => {
   const toast = await mount()
 
-  assert.equal(scheduled.length, 1)
-  scheduled[0]()
+  assert.deepEqual(scheduled.map(({ delay }) => delay), [5000])
+  scheduled[0].callback()
   assert.equal(toast.classList.contains("toast-leave"), true)
+})
+
+test("removing a toast cancels its pending dismissal", async () => {
+  const toast = await mount()
+
+  toast.remove()
+  await settle()
+
+  assert.equal(cleared.includes(scheduled[0].handle), true)
 })
 
 test("a sticky toast schedules no automatic dismissal", async () => {
