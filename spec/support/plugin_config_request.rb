@@ -31,12 +31,12 @@ RSpec.shared_examples "a config page that requires a manageable server" do
 end
 
 RSpec.shared_examples "a form that only accepts text channels" do
-  before do
-    create(:server_channel, server_configuration: config, name: "Games", discord_id: 333, channel_type: ServerChannel::CATEGORY_TYPE)
-  end
+  subject(:submit_category) { submit_channel(category.discord_id) }
+
+  let!(:category) { create(:server_channel, server_configuration: config, name: "Games", channel_type: ServerChannel::CATEGORY_TYPE) }
 
   it "rejects a category of the same server with 404" do
-    submit_channel.call(333)
+    submit_category
     expect(response).to have_http_status(:not_found)
   end
 end

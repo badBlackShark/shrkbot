@@ -220,6 +220,12 @@ RSpec.describe "Steam subscriptions", type: :request do
       end
     end
 
+    def submit_channel(channel_id)
+      post server_steam_subscriptions_path(guild.id), params: {subscription: attributes.merge(channel_id: channel_id.to_s)}
+    end
+
+    it_behaves_like "a form that only accepts text channels"
+
     context "with a channel from another server" do
       let(:channel_id) { "999" }
 

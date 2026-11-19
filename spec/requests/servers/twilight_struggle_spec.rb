@@ -355,6 +355,12 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
           end
         end
 
+        def submit_channel(channel_id)
+          patch server_twilight_struggle_destination_path(guild.id, tournament), params: {destination: attributes.merge(discord_channel_id: channel_id.to_s)}
+        end
+
+        it_behaves_like "a form that only accepts text channels"
+
         context "when the channel belongs to a different guild" do
           let(:attributes) { super().merge(discord_channel_id: "9999") }
 
