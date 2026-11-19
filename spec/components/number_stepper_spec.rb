@@ -7,7 +7,7 @@ RSpec.describe Components::NumberStepper do
 
   subject(:html) { described_class.new(**options).render_in(view_context) }
 
-  let(:options) { {name: "spam_protection[channel_threshold]", value: 4, min: 2, default: 4, unit: "channels"} }
+  let(:options) { {name: "spam_protection[channel_threshold]", value: 4, min: 2, label: "Threshold", default: 4, unit: "channels"} }
   let(:fragment) { Nokogiri::HTML5.fragment(html) }
 
   it "renders a number input with the correct name and value" do
@@ -29,6 +29,11 @@ RSpec.describe Components::NumberStepper do
     expect(html).to include('data-number-stepper-target="input"')
   end
 
+  it "names the input and the buttons for screen readers" do
+    expect(fragment.at_css("input")["aria-label"]).to eq("Threshold")
+    expect(fragment.css("button").first(2).map { |b| b["aria-label"] }).to eq(["Decrease Threshold", "Increase Threshold"])
+  end
+
   it "renders the unit label when provided" do
     expect(html).to include("channels")
   end
@@ -40,7 +45,7 @@ RSpec.describe Components::NumberStepper do
   end
 
   context "when the value differs from the default" do
-    let(:options) { {name: "spam_protection[channel_threshold]", value: 6, min: 2, default: 4} }
+    let(:options) { {name: "spam_protection[channel_threshold]", value: 6, min: 2, label: "Threshold", default: 4} }
 
     it "renders a visible reset wired to the controller" do
       reset = fragment.at_css("[data-number-stepper-target=reset]")
@@ -54,7 +59,7 @@ RSpec.describe Components::NumberStepper do
   end
 
   context "when the default is above max" do
-    let(:options) { {name: "image_scanning[custom_keyword_min_hits]", value: 1, min: 1, max: 1, default: 2} }
+    let(:options) { {name: "image_scanning[custom_keyword_min_hits]", value: 1, min: 1, label: "Field", max: 1, default: 2} }
 
     it "renders no reset" do
       expect(fragment.at_css("[data-number-stepper-target=reset]")).to be_nil
@@ -62,7 +67,7 @@ RSpec.describe Components::NumberStepper do
   end
 
   context "when max is provided" do
-    let(:options) { {name: "image_scanning[custom_keyword_min_hits]", value: 1, min: 1, default: 2, max: 5} }
+    let(:options) { {name: "image_scanning[custom_keyword_min_hits]", value: 1, min: 1, label: "Field", default: 2, max: 5} }
 
     it "sets the max attribute and data value on the controller wrapper" do
       expect(html).to include('max="5"')
@@ -78,7 +83,7 @@ RSpec.describe Components::NumberStepper do
   end
 
   context "when default is omitted" do
-    let(:options) { {name: "lfg[default_min_membership_days]", value: nil, min: 0} }
+    let(:options) { {name: "lfg[default_min_membership_days]", value: nil, min: 0, label: "Field"} }
 
     it "renders no reset" do
       expect(fragment.at_css("[data-number-stepper-target=reset]")).to be_nil
@@ -88,7 +93,7 @@ RSpec.describe Components::NumberStepper do
   end
 
   context "when a placeholder is given" do
-    let(:options) { {name: "lfg[default_min_membership_days]", value: nil, min: 0, placeholder: "No minimum"} }
+    let(:options) { {name: "lfg[default_min_membership_days]", value: nil, min: 0, label: "Field", placeholder: "No minimum"} }
 
     it "renders it on the input" do
       expect(html).to include('placeholder="No minimum"')
@@ -96,7 +101,7 @@ RSpec.describe Components::NumberStepper do
   end
 
   context "when an input width is given" do
-    let(:options) { {name: "lfg[default_min_membership_days]", value: nil, min: 0, input_class: "w-28"} }
+    let(:options) { {name: "lfg[default_min_membership_days]", value: nil, min: 0, label: "Field", input_class: "w-28"} }
 
     it "uses it instead of the default width" do
       expect(html).to include("w-28")

@@ -628,9 +628,11 @@ en:
             help: Messages like "???" or "123" all count as the same message.
             label: Also match messages with only punctuation or numbers
           trigger_threshold:
+            channels_name: Number of different channels
             channels_unit: different channels
             label: Act when the same message appears in
             seconds_unit: seconds
+            window_name: Time window in seconds
             within: within
         response:
           action:
@@ -661,6 +663,8 @@ en:
       this_server: This server
       title: Notifications
     number_stepper:
+      decrease: Decrease %{label}
+      increase: Increase %{label}
       reset: Reset to %{value}
     placeholder_section:
       label: Placeholders (click to copy)
@@ -1121,6 +1125,8 @@ en:
               cta: Open Twilight Struggle
               title: Tournament result posting is currently disabled
             subscribe: Post %{tournament} results in this server
+            subscribed_state: Subscribed
+            unsubscribed_state: Not subscribed
         show:
           empty_archived: Nothing has been archived.
           empty_body: twilight-struggle.com has not sent any tournaments yet. They

@@ -2,13 +2,18 @@
 
 class Components::TwilightStruggle::ConfigForm < Components::Base
   TEMPLATES = [:win, :tie, :video].freeze
+  INHERITING_CHANNEL = 'group-has-[option[value=""]:checked]/setting:block'
 
   def initialize(destination:)
     @destination = destination
   end
 
   def view_template
-    render Components::ConfigSections.new(key: "twilight_struggle", data: {controller: "twilight-struggle-preview", action: "input->twilight-struggle-preview#render"}) do
+    render Components::ConfigSections.new(key: "twilight_struggle", data: {
+      controller: "twilight-struggle-preview",
+      action: "input->twilight-struggle-preview#render",
+      twilight_struggle_preview_inherited_display_value: inherited.player_display
+    }) do
       channel_card
       render Components::TwilightStruggle::PlayerDisplayCard.new(destination: @destination, inherited:)
       render Components::TwilightStruggle::PostDelayCard.new(destination: @destination, inherited:)
@@ -21,20 +26,22 @@ class Components::TwilightStruggle::ConfigForm < Components::Base
   private
 
   def channel_card
-    render Components::ChannelCard.new(
-      name: "destination[discord_channel_id]",
-      channels:,
-      selected: @destination.discord_channel_id,
-      label: t(".channel.label")
-    ) do
-      channel_note
+    div(class: "group/setting") do
+      render Components::ChannelCard.new(
+        name: "destination[discord_channel_id]",
+        channels:,
+        selected: @destination.discord_channel_id,
+        label: t(".channel.label")
+      ) do
+        channel_note
+      end
     end
   end
 
   def channel_note
     return unless inherited_channel_label
 
-    render Components::TwilightStruggle::InheritNote.new do
+    render Components::TwilightStruggle::InheritNote.new(visible_when: INHERITING_CHANNEL) do
       t(
         ".channel.inherits_from",
         parent: inherited.source_of(:discord_channel_id).name,

@@ -88,6 +88,7 @@ makes the reader look for a difference.
 | --- | --- | --- |
 | `enabled` / `disabled`, for a plugin | on, off, switched on | `Only a server admin can enable or disable this plugin.` |
 | `on` / `off`, for an option inside a plugin | enabled, disabled | `of %{total} on` under a Logging event group |
+| `Subscribed` / `Not subscribed`, for a tournament on the Twilight Struggle page | Enabled / Disabled | A tournament is followed, not switched on like a plugin. |
 | `Server Shield` | Moderation | Its old name. One exception, under "Kept on purpose". |
 | `Protections` | sub-plugins, group | The code's words for a plugin inside a group and for the group. Neither is ever shown. |
 | `delete` | purge | `Delete the messages`, `Cross-channel spam deleted` |
@@ -524,6 +525,7 @@ reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
 | `Require at least [2] matching keywords before shrkbot acts` + `1 is aggressive - a single matched word can delete an image. ...` | `Require at least` [2] `matching keywords` | Every threshold means "before shrkbot acts". The help did arithmetic the reader can do. |
 | `Ended, with VOD` / `Ended` / `Keep live card` / `Delete`, each with a help | `Summary with VOD link` / `Summary` / `Leave as is` / `Delete the post` | The preview under each option shows the result. The labels now name it. |
 | `Live` / `Highlights` / `Uploads` | `Going live` / `New highlight` / `New upload` | Plain nouns read as page sections. The new labels name the moment a post is made. |
+| `Enabled` / `Disabled` beside the tournament toggle | `Subscribed` / `Not subscribed` | The toggle sets whether this server follows the tournament. The plugin switch keeps `Enabled`. |
 | `Decided game` + `Used when one player won.` | `A player won` | The label now says when the template is used. |
 | `Game with a video` + `... Keep it spoiler-free - no winner, turn or method.` | `Result with a video` + `If a result comes with a video, this template is used over the other two. Keeping it spoiler-free is highly recommended.` | It is a result, not a game. The spoiler advice is advice, not a rule the form enforces. |
 | `Steam link or app ID` + subtitle `Paste the game's Steam store page, its community hub, or its SteamDB page. An app ID works too.` | One label: `Paste a link to the game's Steam store page, community hub, or SteamDB page. An app ID works too.` | The label named the field and the subtitle explained it. |

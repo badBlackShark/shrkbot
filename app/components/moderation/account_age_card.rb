@@ -11,6 +11,7 @@ class Components::Moderation::AccountAgeCard < Components::Base
         render Components::NumberStepper.new(
           name: "moderation[new_account_age_days]",
           value: @new_account_age_days,
+          label: t(".label"),
           min: 1,
           max: 365,
           default: column_default(::Moderation::Settings, "new_account_age_days"),

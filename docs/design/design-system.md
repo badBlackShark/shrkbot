@@ -162,7 +162,9 @@ persists until Save. A page whose only control is the toggle passes
 toggle saves on flip like the dashboard's, and on a preview server it renders
 locked with the preview tooltip. There is no overlay: a disabled plugin's body stays fully
 editable, and the Enabled/Disabled label beside the toggle is a CSS
-`group-has-[:checked]` pair, so it follows the staged toggle with no JS. Saving a
+`group-has-[:checked]` pair, so it follows the staged toggle with no JS. A toggle
+that is not the plugin switch passes its own pair as `states: {on:, off:}` (the
+Twilight Struggle tournament page says Subscribed/Not subscribed). Saving a
 disabled plugin succeeds and toasts "Saved. X is still disabled."
 (`ConfiguresPlugin#saved_message`). A locked toggle submits its current state
 through a hidden field. `prerequisites:` takes a `Components::PrerequisiteSteps`
@@ -293,7 +295,8 @@ duplicated class strings:
   default, no reset. A stepper with `default:` must be left-anchored, because the
   reset segment grows the control to the right. `Components::ResetButton` takes `shape:` (`:standalone` bordered
   square, `:segment` inside a joined control). No UI cap (`max:` is optional, for the
-  dynamic keyword-count limit); submits as a plain number field.
+  dynamic keyword-count limit); submits as a plain number field. `label:` is required and
+  names the input and must contain the visible unit or label text; the buttons are named "Decrease <label>" and "Increase <label>".
 - **`Components::DurationStepper`** — `NumberStepper` subclass for durations. `base:`
   (`:seconds` / `:minutes`) is the unit the hidden field submits. The unit picker is the
   shared `TomSelect` (`tom_select_fixed_value: true`) skinned as a segment (`.ts-segment`
@@ -312,7 +315,11 @@ duplicated class strings:
   and help-text styling for a form field (`<label>` and `<p>` respectively); no
   parameters, block content only. Help goes under the control via `FieldHelp`,
   never between label and control.
-- **Option help** — a help line that describes some options of a `SegmentedControl` shows only while one of them is pressed: the card is a named group (`group/setting`), and a wrapper around the `FieldHelp` under the control carries `hidden group-has-[[data-value=<value>][aria-pressed=true]]/setting:block` per option, with `_` in a value written `\_`. It sits under the control so the options do not move when it appears. CSS only (`TwilightStruggle::PlayerDisplayCard`).
+- **`Components::Description`** — the one-line description under a row or card
+  title (`SettingRow`, `SubPluginRow`, admin cards): `mt-0.5 text-sm
+  text-text-secondary`, block content only. It describes the thing the title
+  names; `FieldHelp` (`text-xs`, muted) explains a form field and sits under it.
+- **Option help** — a help line that describes some options of a `SegmentedControl` shows only while one of them is selected: the card is a named group (`group/setting`), and a wrapper around the `FieldHelp` under the control carries `hidden group-has-[[data-value=<value>][aria-checked=true]]/setting:block` per option, with `_` in a value written `\_`. It sits under the control so the options do not move when it appears. CSS only (`TwilightStruggle::PlayerDisplayCard`).
 - **`Components::RequiredMarker`** — the red asterisk after a required field's
   label; the only required marker. Labels never say "(required)" or "(optional)".
 - **`Components::ConfigSections`** — the config-page section stack: renders the
@@ -339,9 +346,9 @@ duplicated class strings:
   `<span>`, same reason as `SettingRow`) followed by the control yielded as a
   block, wrapping on narrow widths. Help goes below it as a `FieldHelp`. Used
   where the label leads into the value ("Treat accounts as new for [30] days").
-- **`Components::SegmentedControl`** — one-of-N buttons over a hidden input. Pass
-  `label:` when the visible label is a `FieldLabel` (no `for`): it names the
-  `role="group"` for screen readers.
+- **`Components::SegmentedControl`** — one-of-N buttons over a hidden input, a
+  `role="radiogroup"` of `role="radio"` buttons with roving tabindex and arrow/Home/End
+  keys. `label:` is required: pass the text of the visible `FieldLabel` (no `for`). With no value selected the first option stays tabbable.
 
 `Components::Icon` wraps Phosphor; names not in Phosphor (the `megaphone-slash`
 sub-plugin glyph) are served from its `CUSTOM_GLYPHS` map of inline SVGs. `steam` is

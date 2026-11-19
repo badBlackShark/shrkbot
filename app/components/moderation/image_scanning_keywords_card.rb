@@ -42,6 +42,7 @@ class Components::Moderation::ImageScanningKeywordsCard < Components::Base
       render Components::NumberStepper.new(
         name: "image_scanning[custom_keyword_min_hits]",
         value: @custom_keyword_min_hits,
+        label: t(".min_hits_label"),
         min: 1,
         max:,
         default: column_default(::Moderation::ImageScanning::Settings, "custom_keyword_min_hits"),

@@ -9,8 +9,8 @@ class Components::TwilightStruggle::SettingCardBase < Components::Base
   def view_template
     render Components::Card.new(class: "group/setting") do
       p(class: "text-sm font-semibold") { t(".label") }
-      help
       div(class: "mt-3") { control }
+      help
       inherit_note
     end
   end
@@ -18,7 +18,6 @@ class Components::TwilightStruggle::SettingCardBase < Components::Base
   private
 
   def help
-    p(class: "mt-0.5 text-sm text-text-secondary") { t(".help") }
   end
 
   def parent
@@ -32,7 +31,7 @@ class Components::TwilightStruggle::SettingCardBase < Components::Base
   def inherit_note
     return unless parent
 
-    render Components::TwilightStruggle::InheritNote.new { inherit_note_text }
+    render Components::TwilightStruggle::InheritNote.new(visible_when: inherit_note_visible_when) { inherit_note_text }
   end
 
   def inherit_note_text

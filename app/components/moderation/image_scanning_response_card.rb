@@ -27,6 +27,7 @@ class Components::Moderation::ImageScanningResponseCard < Components::Base
       render Components::SegmentedControl.new(
         name: "image_scanning[action]",
         value: @action,
+        label: t(".action.label"),
         options: [
           {value: "delete", label: t(".action.delete")},
           {value: "none", label: t(".action.flag_only")}
@@ -41,7 +42,8 @@ class Components::Moderation::ImageScanningResponseCard < Components::Base
       render Components::Moderation::PunishmentControl.new(
         name: "image_scanning[punishment]",
         value: @punishment,
-        timeout_seconds: @timeout_seconds
+        timeout_seconds: @timeout_seconds,
+        label: t(".punishment.label")
       )
     end
   end
@@ -53,6 +55,7 @@ class Components::Moderation::ImageScanningResponseCard < Components::Base
         name: "image_scanning[confirmed_punishment]",
         value: @confirmed_punishment,
         timeout_seconds: @confirmed_timeout_seconds,
+        label: t(".confirmed_punishment.label"),
         none_label: t(".confirmed_punishment.inherit")
       )
     end

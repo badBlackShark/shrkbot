@@ -4,8 +4,8 @@ class Components::DurationStepper < Components::NumberStepper
   UNIT_SECONDS = {seconds: 1, minutes: 60, hours: 3_600}.freeze
   UNIT_SEGMENT = "ts-segment relative flex #{SEGMENT} #{TRAILING_CORNER}"
 
-  def initialize(name:, value:, base:, min:, max:, default: nil, placeholder: nil)
-    super(name:, value:, min:, max:, default:, placeholder:)
+  def initialize(name:, value:, base:, min:, max:, label:, default: nil, placeholder: nil)
+    super(name:, value:, min:, max:, label:, default:, placeholder:)
     @base = base
     @shown_unit = unit_for(value || placeholder)
   end

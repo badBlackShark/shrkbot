@@ -33,6 +33,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
         render Components::NumberStepper.new(
           name: "spam_protection[channel_threshold]",
           value: @settings.channel_threshold,
+          label: t(".detection.trigger_threshold.channels_name"),
           min: 2,
           max: 500,
           default: column_default(::Moderation::SpamProtection::Settings, "channel_threshold"),
@@ -44,6 +45,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
         render Components::NumberStepper.new(
           name: "spam_protection[window_seconds]",
           value: @settings.window_seconds,
+          label: t(".detection.trigger_threshold.window_name"),
           min: 1,
           max: 60,
           default: column_default(::Moderation::SpamProtection::Settings, "window_seconds"),
@@ -99,6 +101,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
       render Components::SegmentedControl.new(
         name: "spam_protection[action]",
         value: @settings.action,
+        label: t(".response.action.label"),
         options: [
           {value: "purge", label: t(".response.action.purge")},
           {value: "notify_only", label: t(".response.action.notify_only")}
@@ -113,7 +116,8 @@ class Components::Moderation::SpamProtectionForm < Components::Base
       render Components::Moderation::PunishmentControl.new(
         name: "spam_protection[punishment]",
         value: @settings.punishment,
-        timeout_seconds: @settings.timeout_seconds
+        timeout_seconds: @settings.timeout_seconds,
+        label: t(".response.punishment.label")
       )
     end
   end
