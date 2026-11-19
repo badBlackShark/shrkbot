@@ -886,6 +886,7 @@ en:
       config_form:
         channel:
           label: Channel
+        empty: Nothing will be sent.
         ping_on_join:
           help: When off, the mention makes no sound and sends no push notification.
           label: Ping on join
