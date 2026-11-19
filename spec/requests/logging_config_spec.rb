@@ -87,7 +87,7 @@ RSpec.describe "Logging config", type: :request do
 
           it "warns that the configured channel was deleted" do
             get server_logging_path(guild.id)
-            expect(response.body).to include("was deleted").and include("Choose a new channel")
+            expect(response.body).to include("was deleted").and include("Pick a new channel")
           end
         end
       end
