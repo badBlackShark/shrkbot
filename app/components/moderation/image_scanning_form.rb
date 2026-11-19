@@ -10,10 +10,19 @@ class Components::Moderation::ImageScanningForm < Components::Base
     render Components::ConfigSections.new(key: "image_scanning", enable_error: @enable_error) do
       consent_callout
       report_scam_callout
-      sensitivity_card
-      custom_keywords_card
-      response_card
-      image_explainer
+      render Components::Moderation::ImageScanningSensitivityCard.new(sensitivity: @settings.sensitivity)
+      render Components::Moderation::ImageScanningKeywordsCard.new(
+        custom_keywords: @settings.custom_keywords,
+        custom_keyword_min_hits: @settings.custom_keyword_min_hits
+      )
+      render Components::Moderation::ImageScanningResponseCard.new(
+        action: @settings.action,
+        punishment: @settings.punishment,
+        timeout_seconds: @settings.timeout_seconds,
+        confirmed_punishment: @settings.confirmed_punishment,
+        confirmed_timeout_seconds: @settings.confirmed_timeout_seconds
+      )
+      render Components::Moderation::ImageScanningExplainer.new
     end
   end
 
@@ -34,144 +43,6 @@ class Components::Moderation::ImageScanningForm < Components::Base
         p(class: "font-semibold") { t(".report_scam.title") }
         p(class: "mt-1") { t(".report_scam.body") }
       end
-    end
-  end
-
-  def sensitivity_card
-    render Components::Card.new do
-      render Components::FieldLabel.new { t(".detection.sensitivity.label") }
-      render Components::SegmentedControl.new(
-        name: "image_scanning[sensitivity]",
-        value: @settings.sensitivity,
-        label: t(".detection.sensitivity.label"),
-        options: [
-          {value: "relaxed", label: t(".detection.sensitivity.relaxed")},
-          {value: "standard", label: t(".detection.sensitivity.standard")},
-          {value: "strict", label: t(".detection.sensitivity.strict")}
-        ]
-      )
-      render Components::FieldHelp.new { t(".detection.sensitivity.help") }
-    end
-  end
-
-  def custom_keywords_card
-    render Components::Card.new do
-      div(class: "grid gap-5") do
-        keywords_field
-        min_hits_field
-      end
-    end
-  end
-
-  def keywords_field
-    div do
-      render Components::FieldLabel.new { t(".custom_keywords.keywords_label") }
-      render Components::TomSelect.new(
-        name: "image_scanning[custom_keywords][]",
-        options: keyword_options,
-        selected: @settings.custom_keywords,
-        multiple: true,
-        controller_data: {
-          tom_select_create_value: true,
-          tom_select_placeholder_value: t(".custom_keywords.keywords_placeholder")
-        }
-      )
-      render Components::FieldHelp.new { t(".custom_keywords.keywords_help") }
-    end
-  end
-
-  def min_hits_field
-    keyword_count = @settings.custom_keywords.size
-    max = keyword_count.positive? ? keyword_count : nil
-
-    render Components::InlineField.new(label: t(".custom_keywords.min_hits_label")) do
-      render Components::NumberStepper.new(
-        name: "image_scanning[custom_keyword_min_hits]",
-        value: @settings.custom_keyword_min_hits,
-        min: 1,
-        max:,
-        default: ::Moderation::ImageScanning::Settings.column_defaults.fetch("custom_keyword_min_hits"),
-        unit: t(".custom_keywords.min_hits_unit")
-      )
-    end
-  end
-
-  def response_card
-    render Components::Card.new do
-      div(class: "grid gap-5") do
-        action_field
-        punishment_field
-        confirmed_punishment_field
-      end
-    end
-  end
-
-  def action_field
-    div do
-      render Components::FieldLabel.new { t(".response.action.label") }
-      render Components::SegmentedControl.new(
-        name: "image_scanning[action]",
-        value: @settings.action,
-        options: [
-          {value: "delete", label: t(".response.action.delete")},
-          {value: "none", label: t(".response.action.flag_only")}
-        ]
-      )
-    end
-  end
-
-  def punishment_field
-    div do
-      render Components::FieldLabel.new { t(".response.punishment.label") }
-      render Components::Moderation::PunishmentControl.new(
-        name: "image_scanning[punishment]",
-        value: @settings.punishment,
-        timeout_seconds: @settings.timeout_seconds
-      )
-    end
-  end
-
-  def confirmed_punishment_field
-    div do
-      render Components::FieldLabel.new { t(".response.confirmed_punishment.label") }
-      render Components::Moderation::PunishmentControl.new(
-        name: "image_scanning[confirmed_punishment]",
-        value: @settings.confirmed_punishment,
-        timeout_seconds: @settings.confirmed_timeout_seconds,
-        none_label: t(".response.confirmed_punishment.inherit")
-      )
-    end
-  end
-
-  def image_explainer
-    details(
-      class: "rounded-card border border-border-default bg-surface-card shadow-sm overflow-hidden",
-      data: {controller: "disclosure"}
-    ) do
-      summary(
-        class: "flex cursor-pointer select-none list-none items-center gap-3 border-b border-border-subtle bg-surface-sunken px-5 py-3.5 [&::-webkit-details-marker]:hidden",
-        data: {action: "click->disclosure#toggle"}
-      ) do
-        render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 text-text-muted")
-        span(class: "text-sm font-semibold flex-1") { t(".explainer.title") }
-      end
-      div(class: "px-5 py-4") do
-        ol(class: "list-decimal list-outside space-y-2.5 pl-5 marker:text-text-muted") do
-          explainer_line(t(".explainer.line_memory"))
-          explainer_line(t(".explainer.line_staff"))
-          explainer_line(t(".explainer.line_fingerprint"))
-        end
-      end
-    end
-  end
-
-  def explainer_line(text)
-    li(class: "text-sm text-text-secondary") { text }
-  end
-
-  def keyword_options
-    @settings.custom_keywords.map do |kw|
-      Components::TomSelect::Option.for(value: kw, label: kw)
     end
   end
 end
