@@ -5,30 +5,13 @@ require "rails_helper"
 RSpec.describe Moderation::UndoVerdict do
   include_context "moderation button event"
 
+  let(:custom_id) { "mod:undo_verdict:#{phash_hex}" }
   let(:phash_hex) { "deadbeefdeadbeef" }
 
-  let(:member) { double("member", mention: "<@222>", roles: [staff_role], permission?: false) }
-  let(:server) { double("server", id: guild_id) }
-  let(:user) { double("user", id: 222) }
   let(:confirm_button) { {custom_id: "mod:confirm:#{phash_hex}", type: Bot::Discord::Components::BUTTON} }
   let(:dismiss_button) { {custom_id: "mod:dismiss:#{phash_hex}", type: Bot::Discord::Components::BUTTON} }
-  let(:fake_container) { double("container", components: [], buttons: []) }
-  let(:fake_message) { double("message", components: [fake_container]) }
-  let(:event) do
-    double(
-      "event",
-      custom_id: "mod:undo_verdict:#{phash_hex}",
-      server:,
-      user:,
-      update_message: nil,
-      respond: nil,
-      bot: double("bot"),
-      message: fake_message
-    )
-  end
 
   before do
-    allow(server).to receive(:member).with(222).and_return(member)
     allow(Ops::Moderation::Phashes::Clear).to receive(:call)
     allow(Moderation::Interaction::VerdictButtons).to receive(:build).and_return([confirm_button, dismiss_button])
   end

@@ -5,29 +5,10 @@ require "rails_helper"
 RSpec.describe Moderation::UndoPunishment do
   include_context "moderation button event"
 
-  let(:actor_id) { 222 }
   let(:target_id) { 999 }
-
-  let(:member) { double("member", mention: "<@#{actor_id}>", roles: [staff_role], permission?: false) }
-  let(:server) { double("server", id: guild_id, name: "Test Server") }
-  let(:user) { double("user", id: actor_id) }
-  let(:bot) { double("bot") }
-
-  let(:event) do
-    double(
-      "event",
-      custom_id: "mod:undo_punishment:#{target_id}:timeout",
-      server:,
-      user:,
-      respond: nil,
-      defer: nil,
-      edit_response: nil,
-      bot:
-    )
-  end
+  let(:custom_id) { "mod:undo_punishment:#{target_id}:timeout" }
 
   before do
-    allow(server).to receive(:member).with(actor_id).and_return(member)
     allow(Moderation::Unpunisher).to receive(:call)
   end
 
