@@ -15,7 +15,7 @@ class Components::ConfigPage < Components::Base
 
   def view_template(&block)
     render Components::ServerPage.new(server_configuration: @server_configuration, crumbs: trailing_crumbs) do
-      if instant?
+      if instant? || @url.nil?
         page_content(&block)
       else
         save_form { page_content(&block) }

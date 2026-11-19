@@ -11,8 +11,7 @@ class Components::Moderation::OverviewForm < Components::Base
     render Components::ConfigSections.new(key: "moderation", enable_error: @enable_error) do
       render Components::Moderation::StaffRoleCard.new(
         server_configuration: @config,
-        staff_role_id: @context.staff_role_id,
-        permission_warning: @context.permission_warning?
+        staff_role_id: @context.staff_role_id
       )
       render Components::Moderation::StaffPingCard.new(ping_staff: @context.ping_staff)
       render Components::Moderation::AccountAgeCard.new(

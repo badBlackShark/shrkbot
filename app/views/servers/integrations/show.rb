@@ -7,6 +7,10 @@ class Views::Servers::Integrations::Show < Views::Servers::GroupShow
     :integrations
   end
 
+  def url
+    nil
+  end
+
   def body
     render Components::Integrations::Overview.new(server_configuration: @config)
   end

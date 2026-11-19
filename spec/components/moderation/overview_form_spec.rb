@@ -11,8 +11,7 @@ RSpec.describe Components::Moderation::OverviewForm do
       Moderation::OverviewContext,
       staff_role_id: nil,
       ping_staff: true,
-      new_account_age_days: 30,
-      permission_warning?: false
+      new_account_age_days: 30
     )
   end
 
