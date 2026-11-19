@@ -103,7 +103,7 @@ makes the reader look for a difference.
 
 The same holds for verbs. The Roles tooltip says `Repost` because the toast
 already said `Reposting the role menu…`, both sign-in buttons on the home page
-say `Sign in with Discord`, and every role picker prompts `Pick a role…`.
+say `Sign in with Discord`, and every role picker prompts `Pick a role`.
 
 ## Rules for every surface
 
@@ -502,14 +502,14 @@ reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
 
 | Weak | Better | Fault |
 | --- | --- | --- |
-| Eyebrow `Bespoke plugins` + headline `shrkbot can do it all, even if it's only for you` | Title `Bespoke plugins` | The eyebrow named the page and the headline was a slogan. |
+| Eyebrow `Bespoke plugins` + headline `shrkbot can do it all, even if it's only for you` | Title `Bespoke Plugins` | The eyebrow named the page and the headline was a slogan. |
 | `Before you turn this on` + `Deletion is on by default, and detection is automated and imperfect. ... Staff are pinged on every action and can mark a decision as wrong with one click in Discord.` | `Detection can be wrong` + `Images are deleted automatically. Screenshots of scams that members post as warnings can be caught too. Staff are alerted to every action and can mark it as incorrect.` | The box stays after the plugin is enabled, so its title went stale. "Pinged on every action" became false when staff pings became optional. "Wrong" also reads as a moral judgement. |
 | `This role can't see staff commands.` + `It doesn't have the Manage Messages permission, so its members won't see staff-only commands like Report as scam. ...` | `This role can't use "Report as scam".` + `Give it Manage Messages, or allow it under Server Settings -> Integrations -> shrkbot.` | "Staff commands like" generalised from the one staff command there is. The title names it, and the body is only the fix. |
 | `The plugin is disabled` + `Twilight Struggle is switched off for this server, so nothing is posted anywhere yet.` | `Tournament result posting is currently disabled` | The title now says what stopped. The body repeated it with a second word for the same state. |
 | `Before you enable %{plugin}`, also on an enabled protection | `Required settings missing` while it is enabled | "Before you enable" is false for a plugin that is already on. |
 | `Delete your account and all associated data? This cannot be undone.` as the whole dialog | Title `Delete your account?`, body `This cannot be undone.`, button `Delete account` | The dialog has a title, so the question moved there. The body keeps only the consequence. |
 | Heading `Twilight Struggle` with the tournament in a badge | The tournament's name as the heading, `Switch tournament` on the menu | The heading named the plugin, which the sidebar already names. |
-| Page title `Bespoke plugins` | `Bespoke Plugins` | The top-bar link to the page says `Bespoke Plugins`. One name gets one spelling. |
+| Page title, admin page title and admin menu entry `Bespoke plugins` | `Bespoke Plugins` | The top-bar link to the page says `Bespoke Plugins`. One name gets one spelling, everywhere it is a name. |
 
 ### Labels and options
 
@@ -535,7 +535,7 @@ reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
 | `Feeds` / `Steam News` | `Integrations` / `Steam` | The group holds more than feeds, and a provider is named for its platform. |
 | Bare number on the account page | `Discord ID: %{id}` | An unlabelled 18-digit number. |
 | `Choose a role` on the Looking for Game role cards | `Pick a role` | The staff role picker already said `Pick a role…`. Two verbs for one prompt. |
-| `Choose a channel` / `Choose roles` / `Choose a server` / `Choose a new channel below` | `Pick a channel` / `Pick roles` / `Pick a server` / `Pick a new channel below` | The same rule, for the remaining pickers. |
+| `Choose a channel` / `Choose roles` / `Choose a server` / `Choose a new channel below` / `%{plugin_name} was affected - choose a new channel` | `Pick a channel` / `Pick roles` / `Pick a server` / `Pick a new channel below` / `%{plugin_name} was affected - pick a new channel` | The same rule, for the remaining pickers and the channel-deleted notification. |
 | `Choose roles members can pick` | `Pick roles` | With "Pick", the prompt said "pick" twice. The label `Assignable roles` already says which roles. |
 
 ### Help text

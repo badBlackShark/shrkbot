@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Bespoke plugins page", type: :request do
+RSpec.describe "Bespoke Plugins page", type: :request do
   subject(:bespoke_plugins) { get bespoke_plugins_path }
 
   it "responds ok while signed out" do

@@ -42,7 +42,7 @@ en:
     app_shell:
       account: Account
       add_server: Add another server
-      admin_bespoke_plugins: Bespoke plugins
+      admin_bespoke_plugins: Bespoke Plugins
       admin_settings: Admin settings
       log_out: Log out
       notifications: Notifications
@@ -913,7 +913,7 @@ en:
   notifications:
     kinds:
       channel_deleted:
-        message: "%{plugin_name} was affected - choose a new channel"
+        message: "%{plugin_name} was affected - pick a new channel"
         title: "%{channel_name} was deleted"
         title_unknown: A channel was deleted
   servers:
@@ -985,7 +985,7 @@ en:
             them here. None are built yet.
           empty_title: No bespoke plugins yet
           subtitle: Plugins you activate by hand, one server at a time.
-          title: Bespoke plugins
+          title: Bespoke Plugins
       settings:
         show:
           subtitle: Global settings for shrkbot's owner.
