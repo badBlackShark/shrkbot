@@ -87,6 +87,10 @@ RSpec.describe "Roles config", type: :request do
           expect(response.body).to include('target="plugin-sidebar"')
         end
 
+        it "ignores role_sets sent as a single hash without index keys instead of raising" do
+          expect { patch server_roles_path(guild.id), params: {roles: {channel_id: 111, enabled: "1", role_sets: {name: "Pings"}}}, **turbo }.not_to raise_error
+        end
+
         it "returns 422 without a body replace when enabling without a channel" do
           patch server_roles_path(guild.id),
             params: {roles: {channel_id: "", enabled: "1", role_sets: {}}},
