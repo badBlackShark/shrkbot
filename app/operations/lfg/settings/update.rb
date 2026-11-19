@@ -29,8 +29,6 @@ module Ops
             allowed_channel_ids:
           )
           save_with_activation(settings) { reconcile_pingable_roles(settings) }
-        rescue ActiveRecord::RecordInvalid => error
-          failure([error.record.errors.full_messages.to_sentence])
         end
 
         private

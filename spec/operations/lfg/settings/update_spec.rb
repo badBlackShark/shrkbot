@@ -216,4 +216,16 @@ RSpec.describe Ops::Lfg::Settings::Update do
       expect(settings.reload.cooldown_seconds).to eq(300)
     end
   end
+
+  context "atomicity: an invalid pingable role also rolls back the plugin activation" do
+    let(:enabled) { "1" }
+    let(:pingable_roles) do
+      [{role_id: "77", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: []}]
+    end
+
+    it "leaves the plugin disabled" do
+      expect(result).to be_failure
+      expect(config.reload.enabled_plugin_keys).not_to include("lfg")
+    end
+  end
 end
