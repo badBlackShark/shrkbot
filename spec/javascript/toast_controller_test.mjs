@@ -11,6 +11,9 @@ const { default: ToastController } = await import("../../app/javascript/controll
 const application = Application.start()
 application.register("toast", ToastController)
 
+const SLOW_MS = 260
+document.documentElement.style.setProperty("--dur-slow", `${SLOW_MS}ms`)
+
 const realSetTimeout = globalThis.setTimeout
 const realClearTimeout = globalThis.clearTimeout
 const scheduled = []
@@ -40,15 +43,76 @@ afterEach(async () => {
   await settle()
 })
 
-test("dismissing plays the leave animation and removes the toast only when it ends", async () => {
+function leave(toast, animationName = "toastLeave") {
+  toast.dispatchEvent(Object.assign(new Event("animationend"), { animationName }))
+}
+
+function endTransition(toast, type, propertyName = "grid-template-rows") {
+  toast.dispatchEvent(Object.assign(new Event(type), { propertyName }))
+}
+
+async function dismissed() {
   const toast = await mount()
+  toast.querySelector("button").click()
+  return toast
+}
+
+test("dismissing plays the leave animation first and leaves the toast in place", async () => {
+  const toast = await dismissed()
+
+  assert.equal(toast.classList.contains("toast-leave"), true)
+  assert.equal(toast.classList.contains("toast-collapse"), false)
+  assert.equal(toast.isConnected, true)
+})
+
+test("an animation that is not the leave animation does not start the collapse", async () => {
+  const toast = await dismissed()
+
+  leave(toast, "toastEnter")
+
+  assert.equal(toast.classList.contains("toast-collapse"), false)
+})
+
+test("after the leave animation the toast collapses", async () => {
+  const toast = await dismissed()
+
+  leave(toast)
+
+  assert.equal(toast.classList.contains("toast-collapse"), true)
+  assert.equal(toast.isConnected, true)
+})
+
+for (const type of ["transitionend", "transitioncancel"]) {
+  test(`the toast is removed on ${type} of its row collapse, not before`, async () => {
+    const toast = await dismissed()
+    leave(toast)
+
+    endTransition(toast, type, "opacity")
+    assert.equal(toast.isConnected, true)
+
+    endTransition(toast, type)
+    assert.equal(toast.isConnected, false)
+  })
+}
+
+test("a collapse whose transition never reports is removed by the fallback timer", async () => {
+  const toast = await dismissed()
+  leave(toast)
+
+  const fallback = scheduled.find(({ delay }) => delay === SLOW_MS)
+  fallback.callback()
+
+  assert.equal(toast.isConnected, false)
+})
+
+test("a repeated leave animation event collapses only once", async () => {
+  const toast = await dismissed()
 
   toast.querySelector("button").click()
-  assert.equal(toast.classList.contains("toast-leave"), true)
-  assert.equal(toast.isConnected, true)
+  leave(toast)
+  leave(toast)
 
-  toast.dispatchEvent(new Event("animationend"))
-  assert.equal(toast.isConnected, false)
+  assert.equal(scheduled.filter(({ delay }) => delay === SLOW_MS).length, 1)
 })
 
 test("a toast dismisses itself after five seconds", async () => {
