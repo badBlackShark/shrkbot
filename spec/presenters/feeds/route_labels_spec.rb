@@ -51,4 +51,17 @@ RSpec.describe Feeds::RouteLabels do
 
     expect(ServerRoleOptions).not_to have_received(:new)
   end
+
+  it "loads each list once however many labels it hands out" do
+    allow(ServerRoleOptions).to receive(:new).and_call_original
+    allow(ChannelOptions).to receive(:new).and_call_original
+
+    2.times do
+      labels.role_text(20)
+      labels.channel(11)
+    end
+
+    expect(ServerRoleOptions).to have_received(:new).once
+    expect(ChannelOptions).to have_received(:new).once
+  end
 end
