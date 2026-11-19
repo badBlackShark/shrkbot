@@ -48,9 +48,7 @@ class Servers::RolesController < ApplicationController
   end
 
   def submitted_sets
-    raw = roles_params[:role_sets]
-    list = raw.respond_to?(:values) ? raw.values : Array(raw)
-    list.map { |set| set.to_h.symbolize_keys }
+    @submitted_sets ||= Array(roles_params[:role_sets]&.values).map { |set| set.to_h.symbolize_keys }
   end
 
   def submitted_channel_overrides
@@ -58,10 +56,12 @@ class Servers::RolesController < ApplicationController
   end
 
   def roles_params
-    params.require(:roles).permit(
-      :channel_id,
-      :enabled,
-      role_sets: [:id, :name, :selection_mode, :channel_override, :_destroy, {role_ids: []}]
+    params.expect(
+      roles: [
+        :channel_id,
+        :enabled,
+        role_sets: [[:id, :name, :selection_mode, :channel_override, :_destroy, {role_ids: []}]]
+      ]
     )
   end
 end

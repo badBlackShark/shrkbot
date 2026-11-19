@@ -34,9 +34,7 @@ class Servers::LfgController < ApplicationController
   private
 
   def submitted_pingable_roles
-    raw = lfg_params[:pingable_roles]
-    list = raw.respond_to?(:values) ? raw.values : Array(raw)
-    list.map { |attrs| attrs.to_h.symbolize_keys }
+    @submitted_pingable_roles ||= Array(lfg_params[:pingable_roles]&.values).map { |attrs| attrs.to_h.symbolize_keys }
   end
 
   def submitted_role_ids
@@ -54,18 +52,18 @@ class Servers::LfgController < ApplicationController
   end
 
   def lfg_params
-    params.require(:lfg).permit(
-      :enabled,
-      :cooldown_seconds,
-      :post_lifetime_minutes,
-      :default_min_membership_days,
-      default_required_role_ids: [],
-      default_excluded_role_ids: [],
-      allowed_channel_ids: [],
-      pingable_roles: [
-        :role_id,
-        :min_membership_days,
-        {required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: []}
+    params.expect(
+      lfg: [
+        :enabled,
+        :cooldown_seconds,
+        :post_lifetime_minutes,
+        :default_min_membership_days,
+        {default_required_role_ids: [], default_excluded_role_ids: [], allowed_channel_ids: []},
+        pingable_roles: [[
+          :role_id,
+          :min_membership_days,
+          {required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: []}
+        ]]
       ]
     )
   end
