@@ -25,7 +25,6 @@ export default class extends Controller {
   reset({ params: { kind } }) {
     const input = this[`${kind}MessageTarget`]
     resetToDefault(input, input.dataset.default)
-    input.focus()
   }
 
   paint(input, output, kind) {

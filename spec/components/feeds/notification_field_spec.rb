@@ -45,17 +45,31 @@ RSpec.describe Components::Feeds::NotificationField do
   describe "reset slot" do
     subject(:slot) { Nokogiri::HTML5.fragment(html).at_css("[data-feed-preview-target='reset']") }
 
-    context "when the text equals the default" do
+    it "starts hidden while the text equals the default" do
+      expect(slot).to have_attribute("hidden")
+    end
+
+    context "with a stored text" do
+      let(:notification_template) { "Out now: {title}" }
+
+      it "starts visible" do
+        expect(slot).not_to have_attribute("hidden")
+      end
+    end
+
+    context "when the stored text is the default with edge whitespace" do
+      let(:notification_template) { "  {game} · Patch notes: {title}\n" }
+
       it "starts hidden" do
         expect(slot).to have_attribute("hidden")
       end
     end
 
-    context "when the text was edited" do
-      let(:notification_template) { "Out now: {title}" }
+    context "when the stored text is empty" do
+      let(:notification_template) { "" }
 
-      it "starts visible" do
-        expect(slot).not_to have_attribute("hidden")
+      it "starts hidden because empty already means the default" do
+        expect(slot).to have_attribute("hidden")
       end
     end
   end

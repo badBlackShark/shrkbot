@@ -16,7 +16,7 @@ export default class extends Controller {
     this.templateTargets.forEach((input) => this.paint(input, this.inField(input, this.outputTargets)))
     this.resetTargets.forEach((reset) => {
       const input = this.inField(reset, this.templateTargets)
-      syncResetButton(reset, input, input.dataset.fallback)
+      syncResetButton(reset, input, input.dataset.fallback, { emptyIsDefault: true })
     })
   }
 
