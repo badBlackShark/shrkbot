@@ -57,6 +57,8 @@ class PluginCatalog
 
   STAFF_ROLE_SET = ->(config) { config.moderation_settings&.staff_role_id.present? }
 
+  private_constant :STAFF_ROLE_SET
+
   DEFINITIONS = [
     Definition.new(key: :logging, name: "Logging", description: "Records what's happening on your server.", channel_setting: :logging_settings),
     Definition.new(key: :roles, name: "Roles", description: "Let members give themselves roles from a menu.", channel_setting: :role_setting),
