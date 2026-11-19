@@ -13,7 +13,7 @@ class Components::Moderation::AccountAgeCard < Components::Base
           value: @new_account_age_days,
           min: 1,
           max: 365,
-          default: ::Moderation::Settings.column_defaults.fetch("new_account_age_days"),
+          default: column_default(::Moderation::Settings, "new_account_age_days"),
           unit: t(".days_unit")
         )
       end

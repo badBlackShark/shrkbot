@@ -62,7 +62,7 @@ class Components::Welcomes::MessageColumn < Components::Base
   end
 
   def default_message
-    ::Welcomes::Settings.column_defaults.fetch("#{@kind}_message")
+    column_default(::Welcomes::Settings, "#{@kind}_message")
   end
 
   def field_id

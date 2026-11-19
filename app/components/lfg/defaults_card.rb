@@ -77,7 +77,7 @@ class Components::Lfg::DefaultsCard < Components::Base
       value: @settings.cooldown_seconds,
       min: 0,
       max: 86_400,
-      default: column_default("cooldown_seconds"),
+      default: column_default(::Lfg::Settings, "cooldown_seconds"),
       base: :seconds,
       label: t(".cooldown.label")
     )
@@ -89,14 +89,10 @@ class Components::Lfg::DefaultsCard < Components::Base
       value: @settings.post_lifetime_minutes,
       min: 5,
       max: 10_080,
-      default: column_default("post_lifetime_minutes"),
+      default: column_default(::Lfg::Settings, "post_lifetime_minutes"),
       base: :minutes,
       label: t(".lifetime.label"),
       help: t(".lifetime.help")
     )
-  end
-
-  def column_default(name)
-    ::Lfg::Settings.column_defaults.fetch(name)
   end
 end
