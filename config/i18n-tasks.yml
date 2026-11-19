@@ -13,8 +13,8 @@ data:
     - ["operations.*", "config/locales/operations.%{locale}.yml"]
     - "config/locales/web.%{locale}.yml"
 
-# Relative keys in the abstract show views (Moderation::SubPluginShow, PluginConfigShow),
-# in Components::TwilightStruggle::SettingCardBase and in
+# Relative keys in the abstract show view (PluginConfigShow), in
+# Components::TwilightStruggle::SettingCardBase and in
 # Components::Feeds::Twitch::ModeField resolve at runtime
 # against the SUBCLASS scope (e.g. logging/welcomes show),
 # which the static file-path scoping above cannot see.
@@ -29,33 +29,23 @@ ignore_missing:
 
 # Every entry here is a key that IS used, by an indirection the static scanner
 # cannot follow. Keep this list exact — a wildcard wide enough to cover a real
-# dead key makes the whole report worthless. Seven mechanisms, in order:
+# dead key makes the whole report worthless. Six mechanisms, in order:
 #
-# 1. The abstract show views resolve `t(".key")` against the subclass scope, so
-#    the scanner attributes the lookup to the base class instead.
+# 1. A relative `t(".key")` in an abstract class resolves against the subclass
+#    scope, so the scanner attributes the lookup to the base class instead.
 # 2. A ternary inside the `t()` call.
 # 3. Key strings held in a constant and looked up by symbol.
-# 4. The key chosen by a ternary before the `t()` call.
+# 4. The key built before the `t()` call, by a ternary or behind `I18n.exists?`.
 # 5. ActiveModel error messages, looked up by `errors.add(:base, :symbol)`.
-# 6. The key built from `Feeds.event_key(event_type)` inside the `t()` call.
-# 7. The key interpolated from the plugin key inside the `t()` call.
-# 8. The key built from a duration unit symbol.
+# 6. The key interpolated from the plugin key inside a translation helper call.
+#
+# `search.strict: false` makes a dynamic key such as
+# `t("views.servers.#{plugin_key}.show.title")` count every matching key as used,
+# so keys read that way need no entry.
 ignore_unused:
-  # 8. Components::DurationStepper
-  - components.duration_stepper.amount.seconds.one
-  - components.duration_stepper.amount.seconds.other
-  - components.duration_stepper.amount.minutes.one
-  - components.duration_stepper.amount.minutes.other
-  - components.duration_stepper.amount.hours.one
-  - components.duration_stepper.amount.hours.other
-  - components.duration_stepper.units.seconds
-  - components.duration_stepper.units.minutes
-  - components.duration_stepper.units.hours
   # 5. Feeds::Twitch::Settings
   - activerecord.errors.models.feeds/twitch/settings.attributes.categories.too_long
-  # 6. Components::Feeds::VolumeLine
-  - components.feeds.volume_line.counts.*
-  # 1. Components::Feeds::Twitch::ModeField subclasses (keys built from the subclass scope)
+  # 1. Components::Feeds::Twitch::ModeField subclasses
   - components.feeds.twitch.end_mode_field.label
   - components.feeds.twitch.end_mode_field.modes.delete
   - components.feeds.twitch.end_mode_field.modes.keep
@@ -66,31 +56,15 @@ ignore_unused:
   - components.feeds.twitch.switched_away_field.modes.delete
   - components.feeds.twitch.switched_away_field.modes.summary
   - components.feeds.twitch.switched_away_field.preview
-  # 1. Components::Feeds::TargetCard (caption key read only when the source has one)
+  # 4. Components::Feeds::TargetCard (caption key read only when the source has one)
   - components.feeds.target_card.steam.external_id
-  # 1. Components::Feeds::EventTypeSetting (help key read only when it exists)
+  # 4. Components::Feeds::EventTypeSetting (help key read only when it exists)
   - components.feeds.event_types.announcement_published.help
   - components.feeds.event_types.article_published.help
   - components.feeds.event_types.clip_created.help
   - components.feeds.event_types.featured_clip_published.help
   - components.feeds.event_types.patch_notes_published.help
-  # 7. Views::Servers::Feeds::Show#header
-  - views.servers.steam.show.title
-  - views.servers.twitch.show.title
-  # 1. Views::Servers::PluginConfigShow subclasses
-  - views.servers.logging.show.title
-  - views.servers.roles.show.title
-  - views.servers.welcomes.show.title
-  - views.servers.lfg.show.title
-  - views.servers.reminders.show.title
-  - views.servers.reminders.show.badge
-  - views.servers.moderation.show.title
-  - views.servers.integrations.show.title
-  - views.servers.twilight_struggle.show.title
   # 1. Components::TwilightStruggle::SettingCardBase subclasses
-  - components.twilight_struggle.player_display_card.label
-  - components.twilight_struggle.player_display_card.inherits_from
-  - components.twilight_struggle.player_display_card.inherits_default
   - components.twilight_struggle.post_delay_card.label
   - components.twilight_struggle.post_delay_card.help
   - components.twilight_struggle.post_delay_card.inherits_from.one
@@ -105,20 +79,9 @@ ignore_unused:
   # 4. Servers::PluginsController#feedback
   - servers.plugin_enabled
   - servers.plugin_disabled
-  # 7. Ops::ServerConfiguration::Plugins::Toggle#requirement_message
+  # 6. Ops::ServerConfiguration::Plugins::Toggle#requirement_message
   - operations.server_configuration.plugins.requires.spam_protection
   - operations.server_configuration.plugins.requires.image_scanning
-  - operations.server_configuration.plugins.still_needed.logging.one
-  - operations.server_configuration.plugins.still_needed.logging.other
-  - operations.server_configuration.plugins.still_needed.moderation.one
-  - operations.server_configuration.plugins.still_needed.moderation.other
-  # 7. Moderation::SetupSteps#step
-  - views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.message
-  - views.servers.moderation.sub_plugin_show.prerequisites.logging_channel.cta
-  - views.servers.moderation.sub_plugin_show.prerequisites.logging_disabled.message
-  - views.servers.moderation.sub_plugin_show.prerequisites.logging_disabled.cta
-  - views.servers.moderation.sub_plugin_show.prerequisites.staff_role.message
-  - views.servers.moderation.sub_plugin_show.prerequisites.staff_role.cta
 
 search:
   strict: false
