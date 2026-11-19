@@ -13,6 +13,7 @@ module Ops
           settings.new_account_age_days = new_account_age_days if new_account_age_days.present?
           return failure(settings.errors.full_messages) unless settings.valid?
 
+          ::Ops::ServerConfiguration::Plugins::Lock.call(server_configuration:)
           refusal = ::Ops::ServerConfiguration::Plugins::Toggle.dependent_refusal(:moderation, server_configuration)
           return failure(refusal) if refusal
 

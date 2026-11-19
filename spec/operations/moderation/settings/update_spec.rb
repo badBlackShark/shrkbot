@@ -26,6 +26,8 @@ RSpec.describe Ops::Moderation::Settings::Update do
     end
   end
 
+  it_behaves_like "an operation that locks the server row first", /"plugin_activations"/
+
   context "when saving the staff role" do
     it "succeeds" do
       expect(result).to be_success

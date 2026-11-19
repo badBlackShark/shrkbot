@@ -13,6 +13,8 @@ RSpec.describe Ops::ServerConfiguration::BespokePluginGrant::Destroy do
     allow(Bot::ConfigBus).to receive(:sync_commands)
   end
 
+  it_behaves_like "an operation that locks the server row first", /DELETE FROM "bespoke_plugin_grants"/
+
   it "destroys the grant" do
     bespoke_plugin_grant
     expect { result }.to change(BespokePluginGrant, :count).by(-1)
