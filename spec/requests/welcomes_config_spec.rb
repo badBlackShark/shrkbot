@@ -151,6 +151,14 @@ RSpec.describe "Welcomes config", type: :request do
             **turbo
           expect(response).to have_http_status(:not_found)
         end
+
+        def submit_channel(channel_id)
+          patch server_welcomes_path(guild.id),
+            params: {welcomes: {channel_id:, join_message: "hi", leave_message: "", enabled: "1"}},
+            **turbo
+        end
+
+        it_behaves_like "a form that only accepts text channels"
       end
     end
   end
