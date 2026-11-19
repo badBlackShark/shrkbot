@@ -23,11 +23,6 @@ module Moderation
       @config.moderation_settings&.new_account_age_days
     end
 
-    def permission_warning?
-      # Mention-All-Roles detection lands here once bot permissions are stored
-      false
-    end
-
     def logging_channel_name
       return unless @config.logging_settings&.channel_id
 

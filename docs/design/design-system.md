@@ -172,7 +172,8 @@ operation enforces the requirement server-side and the form re-renders with the
 inline error if it's missing. ConfigPage also has a plain path for
 always-on plugins: pass no `toggle:` and it drops the enable toggle,
 optionally rendering a copper `badge:` ("Always on") next to the title instead —
-Reminders is the one consumer.
+Reminders is the one consumer. Pass `url: nil` for a page with no settings of its own
+(the Integrations overview): ConfigPage then renders the body with no form and no SaveBar.
 
 On config pages the app shell also renders a left **`Components::PluginSidebar`**
 (passed to `AppShell` via `sidebar:`, which switches the shell to a sidebar+main

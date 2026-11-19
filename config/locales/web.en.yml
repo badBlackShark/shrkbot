@@ -646,10 +646,6 @@ en:
       staff_role_card:
         help: Exempt from all checks and optionally pinged for alerts.
         label: Staff role
-        permission_warning_body: shrkbot is missing the Mention All Roles permission
-          in this server. Alerts still post to the log channel, but nobody gets pinged
-          until it's restored.
-        permission_warning_bold: Staff pings will fail.
         placeholder: Pick a role…
         staff_permission_warning_body: Give it Manage Messages, or allow it under
           Server Settings -> Integrations -> shrkbot.
