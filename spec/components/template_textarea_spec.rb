@@ -9,4 +9,12 @@ RSpec.describe Components::TemplateTextarea do
     expect(html).to include('name="t[x]"', 'placeholder="Default"', 'data-target="x"', 'rows="2"', "font-mono")
     expect(html).to include(">Hi {title}</textarea>")
   end
+
+  context "with mono: false" do
+    subject(:html) { described_class.new(name: "t[x]", value: "Hi", placeholder: "Default", mono: false).call }
+
+    it "renders the field in the body font" do
+      expect(html).not_to include("font-mono")
+    end
+  end
 end
