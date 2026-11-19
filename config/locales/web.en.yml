@@ -132,7 +132,7 @@ en:
         channel_label: Channel override
         channel_placeholder: Same as above
       override_summary:
-        pings: Pings @%{role}
+        pings: Pings %{role}
         pings_no_one: Pings no one
         posts_in: Posts in %{channel}
       placeholders:
@@ -147,6 +147,9 @@ en:
           clipper: Who made the clip.
           streamer: The channel's name on Twitch.
           title: The title of the stream, video, or clip.
+      route_labels:
+        channel_missing: channel deleted
+        role_missing: a role that was deleted
       steam:
         language_card:
           help: Posts whose language can't be detected, like very short ones, are
@@ -383,11 +386,8 @@ en:
           heading: Followed channels
         usage: "%{used} of %{max}"
       subscription_row:
-        channel_missing: channel deleted
-        mention: "@%{role}"
         no_ping: no ping
         pings: pings %{role}
-        role_missing: a role that was deleted
         steam:
           broken: Steam hasn't answered for this game since %{since} UTC. shrkbot
             keeps trying every hour, and posts what it missed from the last 48 hours

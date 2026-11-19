@@ -18,7 +18,9 @@ RSpec.describe Feeds::Twitch do
   describe ".role_override_for" do
     subject(:override) { described_class.role_override_for(subscription, "Integrations::Twitch::StreamStarted") }
 
-    before { subscription.settings.update!(role_id: 1, live_role_id: 4242) }
+    before do
+      subscription.settings.update!(role_id: 1, live_role_id: 4242)
+    end
 
     it "is the type's own role, not the shared one" do
       expect(override).to eq(4242)

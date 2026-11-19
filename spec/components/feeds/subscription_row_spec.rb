@@ -6,18 +6,24 @@ RSpec.describe Components::Feeds::SubscriptionRow do
   include_context "component view context"
 
   subject(:document) do
-    html = described_class.new(subscription:, plugin_key:, channel_labels:, role_names:).render_in(view_context)
+    html = described_class.new(subscription:, plugin_key:, labels: Feeds::RouteLabels.new(subscription.server_configuration)).render_in(view_context)
     Nokogiri::HTML5.fragment(html)
   end
 
   let(:plugin_key) { :twitch }
-  let(:role_names) { {1 => "Streams"} }
-  let(:channel_labels) { {555_000 => "#clips"} }
+  let(:roles) { {1 => "Streams"} }
+  let(:channels) { {555_000 => "clips"} }
   let(:failing_since) { 25.hours.ago }
   let(:watch) { create(:integration_watch, :twitch, failing_since:) }
   let(:subscription) { create(:feed_subscription, :twitch, watch:) }
+  let(:server) { subscription.server_configuration }
   let(:text) { document.text.squish }
   let(:badges) { document.css("span").map { |badge| badge.text.squish } }
+
+  before do
+    channels.each { |discord_id, name| create(:server_channel, server_configuration: server, discord_id:, name:) }
+    roles.each { |discord_id, name| create(:server_role, server_configuration: server, discord_id:, name:) }
+  end
 
   it "says Twitch has not answered for the channel's videos and clips, and that live posts still work" do
     expect(text).to include(
@@ -27,8 +33,8 @@ RSpec.describe Components::Feeds::SubscriptionRow do
   end
 
   context "when a followed type posts to a channel of its own" do
-    let(:channel_labels) { {555_000 => "#clips", 556 => "#vods"} }
-    let(:role_names) { {1 => "Streams", 2 => "Clips"} }
+    let(:channels) { {555_000 => "clips", 556 => "vods"} }
+    let(:roles) { {1 => "Streams", 2 => "Clips"} }
 
     before do
       subscription.settings.update!(clips_role_id: 2, live_role_id: 1)
@@ -53,7 +59,7 @@ RSpec.describe Components::Feeds::SubscriptionRow do
     end
 
     context "when that channel was deleted" do
-      let(:channel_labels) { {555_000 => "#clips"} }
+      let(:channels) { {555_000 => "clips"} }
 
       it "says so on the badge" do
         expect(badges).to include("All clips · channel deleted · @Clips")
@@ -63,7 +69,7 @@ RSpec.describe Components::Feeds::SubscriptionRow do
 
   context "when every followed type pings the same role" do
     let(:plugin_key) { :steam }
-    let(:role_names) { {7 => "Updates"} }
+    let(:roles) { {7 => "Updates"} }
     let(:watch) { create(:integration_watch) }
     let(:subscription) do
       build(:steam_feed_subscription, role_id: 7, watch:).tap do |built|
@@ -84,7 +90,7 @@ RSpec.describe Components::Feeds::SubscriptionRow do
   end
 
   context "when followed types ping different roles" do
-    let(:role_names) { {1 => "Streams", 2 => "Clips"} }
+    let(:roles) { {1 => "Streams", 2 => "Clips"} }
 
     before do
       subscription.settings.update!(live_role_id: 1, highlights_role_id: 2)
@@ -102,7 +108,7 @@ RSpec.describe Components::Feeds::SubscriptionRow do
     end
 
     context "when one of them pings no role" do
-      let(:role_names) { {1 => "Streams"} }
+      let(:roles) { {1 => "Streams"} }
 
       before do
         subscription.settings.update!(highlights_role_id: nil)
@@ -114,7 +120,7 @@ RSpec.describe Components::Feeds::SubscriptionRow do
     end
 
     context "when one of the roles was deleted" do
-      let(:role_names) { {1 => "Streams"} }
+      let(:roles) { {1 => "Streams"} }
 
       it "says so on that badge" do
         expect(badges).to include("New highlight · a role that was deleted")

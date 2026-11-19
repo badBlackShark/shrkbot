@@ -5,14 +5,20 @@ require "rails_helper"
 RSpec.describe Components::Feeds::OverrideSummary do
   include_context "component view context"
 
-  subject(:html) do
-    described_class.new(channel_id:, role_id:, labels: described_class::Labels.new(channels: {111 => "#clips"}, roles: {222 => "Streams"})).render_in(view_context)
-  end
+  subject(:html) { described_class.new(channel_id:, role_id:, labels:).render_in(view_context) }
 
+  let(:server) { create(:server_configuration) }
+  let(:labels) { Feeds::RouteLabels.new(server) }
   let(:text) { Nokogiri::HTML.fragment(html).text }
 
   let(:channel_id) { nil }
   let(:role_id) { nil }
+
+  before do
+    create(:server_channel, server_configuration: server, discord_id: 111, name: "clips")
+    create(:server_role, server_configuration: server, discord_id: 222, name: "Streams")
+    create(:server_role, server_configuration: server, discord_id: 333, name: "@everyone")
+  end
 
   context "with no override" do
     it "renders nothing" do
@@ -33,6 +39,14 @@ RSpec.describe Components::Feeds::OverrideSummary do
 
     it "names the role" do
       expect(text).to eq("Pings @Streams")
+    end
+  end
+
+  context "with the everyone role" do
+    let(:role_id) { 333 }
+
+    it "does not double the @" do
+      expect(text).to eq("Pings @everyone")
     end
   end
 
@@ -57,8 +71,8 @@ RSpec.describe Components::Feeds::OverrideSummary do
     let(:channel_id) { 999 }
     let(:role_id) { 999 }
 
-    it "renders nothing" do
-      expect(html).to eq("")
+    it "says what the list page says" do
+      expect(text).to eq("Posts in channel deleted · Pings a role that was deleted")
     end
   end
 end
