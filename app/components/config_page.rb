@@ -3,7 +3,7 @@
 class Components::ConfigPage < Components::Base
   include Phlex::Rails::Helpers::FormWith
 
-  def initialize(header:, server_configuration:, url:, toggle: nil, prerequisites: nil, channel_lost: false, parent_crumb: nil, form: true)
+  def initialize(header:, server_configuration:, url:, toggle: nil, prerequisites: nil, channel_lost: false, parent_crumb: nil)
     @header = header
     @server_configuration = server_configuration
     @url = url
@@ -11,12 +11,11 @@ class Components::ConfigPage < Components::Base
     @prerequisites = prerequisites
     @channel_lost = channel_lost
     @parent_crumb = parent_crumb
-    @form = form
   end
 
   def view_template(&block)
     render Components::ServerPage.new(server_configuration: @server_configuration, crumbs: trailing_crumbs) do
-      if instant? || !@form
+      if instant? || @url.nil?
         page_content(&block)
       else
         save_form { page_content(&block) }

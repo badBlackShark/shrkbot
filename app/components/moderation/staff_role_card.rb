@@ -63,19 +63,15 @@ class Components::Moderation::StaffRoleCard < Components::Base
       shown: unprivileged_ids.include?(@staff_role_id.to_s),
       class: "mt-3"
     ) do
-      warning_text(t(".staff_permission_warning_bold"), t(".staff_permission_warning_body"))
+      span do
+        b(class: "text-warning-text") { t(".staff_permission_warning_bold") }
+        whitespace
+        plain t(".staff_permission_warning_body")
+      end
     end
   end
 
   def role_ids_without_manage_messages
     @role_ids_without_manage_messages ||= roles.reject(&:manage_messages?).map { |role| role.discord_id.to_s }
-  end
-
-  def warning_text(bold, body)
-    span do
-      b(class: "text-warning-text") { bold }
-      whitespace
-      plain body
-    end
   end
 end

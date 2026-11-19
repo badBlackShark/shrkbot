@@ -18,8 +18,7 @@ class Views::Servers::PluginConfigShow < Views::Base
         toggle:,
         prerequisites:,
         channel_lost: channel_lost?,
-        parent_crumb:,
-        form: form?
+        parent_crumb:
       ) do
         body
       end
@@ -69,10 +68,6 @@ class Views::Servers::PluginConfigShow < Views::Base
 
   def after_config_page
     nil
-  end
-
-  def form?
-    true
   end
 
   def channel_lost?

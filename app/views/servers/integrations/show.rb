@@ -7,8 +7,8 @@ class Views::Servers::Integrations::Show < Views::Servers::GroupShow
     :integrations
   end
 
-  def form?
-    false
+  def url
+    nil
   end
 
   def body

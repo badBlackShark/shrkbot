@@ -23,6 +23,24 @@ RSpec.describe Components::ConfigPage do
     ).render_in(view_context) { "" }
   end
 
+  context "without a url" do
+    subject(:html) do
+      described_class.new(header:, server_configuration: config, url: nil).render_in(view_context) { "Body" }
+    end
+
+    it "renders the body with no form and no save bar" do
+      expect(html).to include("Body")
+      expect(html).not_to include("<form")
+      expect(html).not_to include("save-bar")
+    end
+  end
+
+  context "with a url" do
+    it "wraps the page in the settings form and save bar" do
+      expect(html).to include("<form").and include("save-bar")
+    end
+  end
+
   context "without a banner" do
     it "shows the plugin tile and the title" do
       expect(html).to include("chamfer-tile", "<h1")

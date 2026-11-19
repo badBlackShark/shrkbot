@@ -42,6 +42,7 @@ RSpec.describe "Integrations config", type: :request do
           get plugin_path
 
           expect(response.body).not_to include('data-controller="save-bar"')
+          expect(Nokogiri::HTML(response.body).css(%(form[action="#{plugin_path}"]))).to be_empty
         end
 
         it "lists the sources without a list heading" do
