@@ -432,7 +432,9 @@ The fasttext gem compiles with `-march=native` by default, so a compiled bundle 
 runs on CPUs with the build machine's instruction set. Anywhere a bundle can move
 between machines (the CI cache, `Dockerfile.prod`), `BUNDLE_BUILD__FASTTEXT` is set to
 `--with-optflags=` for a portable build; otherwise the gem dies with SIGILL at
-`require`.
+`require`. Every workflow job sets up Ruby through the composite action
+`.github/actions/setup-ruby/action.yml`, which exports the flag before `bundler-cache`
+runs, so the flag lives there for CI.
 
 ## Retention
 
