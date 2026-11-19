@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Components::Moderation::ImageScanningSensitivityCard < Components::Base
-  def initialize(settings:)
-    @settings = settings
+  def initialize(sensitivity:)
+    @sensitivity = sensitivity
   end
 
   def view_template
@@ -10,7 +10,7 @@ class Components::Moderation::ImageScanningSensitivityCard < Components::Base
       render Components::FieldLabel.new { t(".label") }
       render Components::SegmentedControl.new(
         name: "image_scanning[sensitivity]",
-        value: @settings.sensitivity,
+        value: @sensitivity,
         label: t(".label"),
         options: [
           {value: "relaxed", label: t(".relaxed")},

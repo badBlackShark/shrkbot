@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
 class Components::Moderation::ImageScanningResponseCard < Components::Base
-  def initialize(settings:)
-    @settings = settings
+  def initialize(action:, punishment:, timeout_seconds:, confirmed_punishment:, confirmed_timeout_seconds:)
+    @action = action
+    @punishment = punishment
+    @timeout_seconds = timeout_seconds
+    @confirmed_punishment = confirmed_punishment
+    @confirmed_timeout_seconds = confirmed_timeout_seconds
   end
 
   def view_template
@@ -22,7 +26,7 @@ class Components::Moderation::ImageScanningResponseCard < Components::Base
       render Components::FieldLabel.new { t(".action.label") }
       render Components::SegmentedControl.new(
         name: "image_scanning[action]",
-        value: @settings.action,
+        value: @action,
         options: [
           {value: "delete", label: t(".action.delete")},
           {value: "none", label: t(".action.flag_only")}
@@ -36,8 +40,8 @@ class Components::Moderation::ImageScanningResponseCard < Components::Base
       render Components::FieldLabel.new { t(".punishment.label") }
       render Components::Moderation::PunishmentControl.new(
         name: "image_scanning[punishment]",
-        value: @settings.punishment,
-        timeout_seconds: @settings.timeout_seconds
+        value: @punishment,
+        timeout_seconds: @timeout_seconds
       )
     end
   end
@@ -47,8 +51,8 @@ class Components::Moderation::ImageScanningResponseCard < Components::Base
       render Components::FieldLabel.new { t(".confirmed_punishment.label") }
       render Components::Moderation::PunishmentControl.new(
         name: "image_scanning[confirmed_punishment]",
-        value: @settings.confirmed_punishment,
-        timeout_seconds: @settings.confirmed_timeout_seconds,
+        value: @confirmed_punishment,
+        timeout_seconds: @confirmed_timeout_seconds,
         none_label: t(".confirmed_punishment.inherit")
       )
     end
