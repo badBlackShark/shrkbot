@@ -90,7 +90,7 @@ class Components::Moderation::ImageScanningForm < Components::Base
         value: @settings.custom_keyword_min_hits,
         min: 1,
         max:,
-        default: ::Moderation::ImageScanning::Settings.column_defaults.fetch("custom_keyword_min_hits"),
+        default: column_default(::Moderation::ImageScanning::Settings, "custom_keyword_min_hits"),
         unit: t(".custom_keywords.min_hits_unit")
       )
     end

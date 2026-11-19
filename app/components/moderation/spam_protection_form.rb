@@ -36,7 +36,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
           value: @settings.channel_threshold,
           min: 2,
           max: 500,
-          default: 4,
+          default: column_default(::Moderation::SpamProtection::Settings, "channel_threshold"),
           unit: t(".detection.trigger_threshold.channels_unit")
         )
         span(class: "text-sm text-text-secondary h-8 inline-flex items-center") do
@@ -47,7 +47,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
           value: @settings.window_seconds,
           min: 1,
           max: 60,
-          default: 15,
+          default: column_default(::Moderation::SpamProtection::Settings, "window_seconds"),
           unit: t(".detection.trigger_threshold.seconds_unit")
         )
       end

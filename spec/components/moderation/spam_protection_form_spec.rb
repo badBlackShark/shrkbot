@@ -36,6 +36,12 @@ RSpec.describe Components::Moderation::SpamProtectionForm do
     expect(html).to include('max="500"')
   end
 
+  it "resets the threshold and window steppers to the column defaults" do
+    defaults = ::Moderation::SpamProtection::Settings.column_defaults.values_at("channel_threshold", "window_seconds")
+
+    expect(html.scan(/data-number-stepper-default-value="(\d+)"/).flatten.map(&:to_i)).to eq(defaults)
+  end
+
   it "caps the window seconds stepper at the server-side maximum for native validation" do
     expect(html).to include('max="60"')
   end
