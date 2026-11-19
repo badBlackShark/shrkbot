@@ -26,7 +26,11 @@ class Components::PluginRow < Components::Base
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { name }
-          @row.group ? group_count : status_badge
+          if @row.group
+            group_count
+          else
+            render Components::PluginStatusBadge.new(configured: @row.configured, locked: @row.locked)
+          end
           render Components::BespokeBadge.new if @row.bespoke
           render Components::PluginBadges.new(key: @row.key)
         end
@@ -69,14 +73,6 @@ class Components::PluginRow < Components::Base
 
   def name
     t(".plugin.#{@row.key}.name")
-  end
-
-  def status_badge
-    if @row.locked
-      render Components::Badge.new(variant: :copper) { t(".status.always_on") }
-    elsif !@row.configured
-      render Components::Badge.new(variant: :warning, dot: true) { t(".status.needs_setup") }
-    end
   end
 
   def group_count

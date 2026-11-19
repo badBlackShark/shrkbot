@@ -273,6 +273,11 @@ duplicated class strings:
   neither applies. New rolls up to a parent from a new sub-plugin; Beta does not.
   **`Components::NewSparkle`** is the sidebar's icon-only New marker, with
   screen-reader text, on an item and on a group's own line.
+- **`Components::PluginStatusBadge(configured:, locked:)`** — the dashboard row's status
+  pill: a copper "Always on" when the plugin is locked on, else a warning "Needs setup"
+  when it is not configured, else nothing. `PluginRow` and `SubPluginRow` both render it.
+- **`Components::SiteLogo(href:)`** — the mascot tile (`chamfer-tile-sm`, empty `alt` because the
+  wordmark beside it names the site) and `Wordmark` as one link. The app bar and the public header both use it.
 - **`Components::BespokeBadge`** — the copper Bespoke pill (filled puzzle-piece icon)
   on a bespoke plugin's dashboard row and on the bespoke plugins page.
 - **`Components::PluginTile`** — the chamfered identity tile (icon on teal when
