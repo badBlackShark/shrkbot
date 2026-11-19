@@ -4,7 +4,6 @@ class Servers::RolesController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
   include VerifiesGuildChannels
-  include NormalizesNestedParams
 
   def show
     preload_role_sets
@@ -49,7 +48,7 @@ class Servers::RolesController < ApplicationController
   end
 
   def submitted_sets
-    symbolized_list(roles_params[:role_sets])
+    @submitted_sets ||= Array(roles_params[:role_sets]&.values).map { |set| set.to_h.symbolize_keys }
   end
 
   def submitted_channel_overrides
@@ -57,10 +56,12 @@ class Servers::RolesController < ApplicationController
   end
 
   def roles_params
-    params.require(:roles).permit(
-      :channel_id,
-      :enabled,
-      role_sets: [:id, :name, :selection_mode, :channel_override, :_destroy, {role_ids: []}]
+    params.expect(
+      roles: [
+        :channel_id,
+        :enabled,
+        role_sets: [[:id, :name, :selection_mode, :channel_override, :_destroy, {role_ids: []}]]
+      ]
     )
   end
 end

@@ -96,6 +96,10 @@ RSpec.describe "LFG config", type: :request do
           expect(role.required_role_ids).to eq([333])
         end
 
+        it "ignores pingable_roles sent as a single hash without index keys instead of raising" do
+          expect { patch server_lfg_path(guild.id), params: {lfg: {enabled: "1", pingable_roles: {role_id: 222}}}, **turbo }.not_to raise_error
+        end
+
         context "with an existing pingable role" do
           before do
             create(:lfg_pingable_role, lfg_settings: config.lfg_settings, role_id: 222)
