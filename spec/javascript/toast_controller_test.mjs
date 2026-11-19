@@ -105,7 +105,7 @@ test("a collapse whose transition never reports is removed by the fallback timer
   assert.equal(toast.isConnected, false)
 })
 
-test("a second dismiss during the leave animation collapses only once", async () => {
+test("a repeated leave animation event collapses only once", async () => {
   const toast = await dismissed()
 
   toast.querySelector("button").click()
