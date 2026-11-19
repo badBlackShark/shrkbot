@@ -2,35 +2,10 @@
 
 class Components::Moderation::MatchingExplainer < Components::Base
   def view_template
-    div(
+    render Components::Moderation::Explainer.new(
       id: "matching",
-      class: "overflow-hidden rounded-card border border-border-default bg-surface-card shadow-sm"
-    ) do
-      details(
-        data: {controller: "disclosure"}
-      ) do
-        summary(
-          class: "flex cursor-pointer list-none select-none items-center gap-3 bg-surface-sunken border-b border-border-subtle px-5 py-3.5 [&::-webkit-details-marker]:hidden",
-          data: {action: "click->disclosure#toggle"}
-        ) do
-          render Components::Icon.new("caret-down", class: "dropdown-chevron size-4 flex-none text-text-muted")
-          span(class: "flex-1 text-sm font-semibold") { t(".title") }
-        end
-        div(class: "px-5 py-4") do
-          ul(class: "list-['-'] list-outside space-y-2.5 pl-4 marker:text-text-muted") do
-            explainer_row(t(".row_normalize"))
-            explainer_row(t(".row_lookalike"))
-            explainer_row(t(".row_spam"))
-            explainer_row(t(".row_keywords"))
-          end
-        end
-      end
-    end
-  end
-
-  private
-
-  def explainer_row(text)
-    li(class: "pl-1 text-sm text-text-secondary") { text }
+      title: t(".title"),
+      rows: [t(".row_normalize"), t(".row_lookalike"), t(".row_spam"), t(".row_keywords")]
+    )
   end
 end
