@@ -8,21 +8,31 @@ class Components::Feeds::NotificationField < Components::Feeds::TemplateField
   end
 
   def label_row
-    div(class: "flex items-center justify-between gap-3") do
+    div(class: "flex min-h-8 items-center justify-between gap-3") do
       label(for: field_id, class: "text-sm font-semibold") { t(".label") }
-      render Components::ResetButton.new(
+      render Components::ResetSlot.new(
         label: t(".reset"),
+        hidden: at_default?,
+        slot_data: {feed_preview_target: "reset"},
         data: {action: "feed-preview#reset"}
       )
     end
   end
 
   def value
-    @event&.notification_template || source.default_notification(@event_type)
+    @event&.notification_template || default
+  end
+
+  def at_default?
+    value.strip.empty? || value.strip == default.strip
+  end
+
+  def default
+    source.default_notification(@event_type)
   end
 
   def textarea_data
-    super.merge(fallback: source.default_notification(@event_type))
+    super.merge(fallback: default)
   end
 
   def preview_label

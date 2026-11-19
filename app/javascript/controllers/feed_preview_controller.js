@@ -3,16 +3,21 @@ import { text, pill, nodes } from "lib/token_preview"
 import { render as renderMarkdown } from "lib/discord_markdown_dom"
 import { tokenPattern, previewTemplate } from "lib/feed_template"
 import { roleSelectFor, pingedRoleName } from "lib/role_scope"
+import { syncResetButton, resetToDefault } from "lib/reset_to_default"
 
 export default class extends Controller {
-  static targets = ["template", "output", "role"]
+  static targets = ["template", "output", "role", "reset"]
 
   connect() {
     this.render()
   }
 
   render() {
-    this.templateTargets.forEach((input) => this.paint(input, this.outputFor(input)))
+    this.templateTargets.forEach((input) => this.paint(input, this.inField(input, this.outputTargets)))
+    this.resetTargets.forEach((reset) => {
+      const input = this.inField(reset, this.templateTargets)
+      syncResetButton(reset, input, input.dataset.fallback, { emptyIsDefault: true })
+    })
   }
 
   paint(input, output) {
@@ -30,15 +35,13 @@ export default class extends Controller {
   }
 
   reset(event) {
-    const field = event.currentTarget.closest("[data-feed-preview-field]")
-    const input = this.templateTargets.find((template) => field.contains(template))
-    input.value = input.dataset.fallback
-    input.dispatchEvent(new Event("input", { bubbles: true }))
+    const input = this.inField(event.currentTarget, this.templateTargets)
+    resetToDefault(input, input.dataset.fallback)
   }
 
-  outputFor(input) {
-    const field = input.closest("[data-feed-preview-field]")
-    return this.outputTargets.find((output) => field.contains(output))
+  inField(element, targets) {
+    const field = element.closest("[data-feed-preview-field]")
+    return targets.find((target) => field.contains(target))
   }
 
   roleName(input) {
