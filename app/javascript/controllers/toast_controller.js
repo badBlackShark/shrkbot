@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { milliseconds } from "lib/motion"
 
 export default class extends Controller {
   static values = { sticky: Boolean }
@@ -11,6 +12,7 @@ export default class extends Controller {
 
   disconnect() {
     clearTimeout(this.timeout)
+    clearTimeout(this.fallback)
   }
 
   dismiss() {
@@ -18,17 +20,20 @@ export default class extends Controller {
 
     this.dismissing = true
     this.element.classList.add("toast-leave")
-    this.element.addEventListener("animationend", () => this.collapse(), { once: true })
+    this.element.addEventListener("animationend", this.#collapseAfterLeave)
   }
 
-  collapse() {
+  #collapseAfterLeave = ({ animationName }) => {
+    if (animationName !== "toastLeave") return
+
     const toast = this.element
-    toast.style.height = `${toast.offsetHeight}px`
-    toast.getBoundingClientRect()
+    toast.removeEventListener("animationend", this.#collapseAfterLeave)
     toast.classList.add("toast-collapse")
-    toast.style.height = "0px"
-    toast.addEventListener("transitionend", ({ propertyName }) => {
-      if (propertyName === "height") toast.remove()
-    })
+    const remove = ({ propertyName }) => {
+      if (propertyName === "grid-template-rows") toast.remove()
+    }
+    toast.addEventListener("transitionend", remove)
+    toast.addEventListener("transitioncancel", remove)
+    this.fallback = setTimeout(() => toast.remove(), milliseconds("--dur-slow"))
   }
 }

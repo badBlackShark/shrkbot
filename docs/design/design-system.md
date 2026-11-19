@@ -59,9 +59,11 @@ and centre themselves.
 Flash messages render as dismissable toasts (`Components::Toasts`, rendered once
 from the layout so every page gets them). The `warning` level (a save that leaves a plugin disabled) is sticky: it
 stays until dismissed. A toast rises 8px as it fades in, and the `toast`
-controller plays `toast-leave`, then collapses the toast's height and gap to
-zero (`toast-collapse`, `--dur-slow`, linear) before it removes the element, so the
-toasts above it slide down instead of dropping. A toast is
+controller plays `toast-leave` (the toast stops taking clicks from then on), then
+collapses the toast's grid row from `1fr` to `0fr` (`toast-collapse`, `--dur-slow`,
+linear) before it removes the element on `transitionend` or `transitioncancel`, with a
+timer as a fallback. The toast's gap is its card's top margin, inside the collapsing
+row, so the toasts above it slide down instead of dropping. A toast is
 `data-turbo-temporary`: Turbo drops it from the page cache, so Back never
 replays one. Small dropdowns (the user menu) are the
 standard pattern: a native `<details>` with the `dropdown` Stimulus controller.
