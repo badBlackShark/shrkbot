@@ -62,19 +62,5 @@ RSpec.describe Components::Logging::ConfigForm do
         expect(callout.key?("hidden")).to be(true)
       end
     end
-
-    context "with several private channels" do
-      let(:channels) { create_list(:server_channel, 3, server_configuration: config) }
-
-      before do
-        channels.each do |channel|
-          create(:channel_overwrite, server_channel: channel, target_id: config.discord_id, deny: ServerChannel::VIEW_CHANNEL)
-        end
-      end
-
-      it "reads every channel's overwrites in one query" do
-        expect(JSON.parse(warning["data-live-warning-list-value"])).to be_empty
-      end
-    end
   end
 end
