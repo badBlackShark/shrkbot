@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 class Components::Moderation::ImageScanningForm < Components::Base
-  def initialize(context:, enable_error: nil)
+  def initialize(context:)
     @settings = context.settings
-    @enable_error = enable_error
   end
 
   def view_template
-    render Components::ConfigSections.new(key: "image_scanning", enable_error: @enable_error) do
+    render Components::ConfigSections.new(key: "image_scanning") do
       consent_callout
       report_scam_callout
       render Components::Moderation::ImageScanningSensitivityCard.new(sensitivity: @settings.sensitivity)
