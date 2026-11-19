@@ -24,7 +24,7 @@ class Servers::ModerationController < ApplicationController
       ping_staff: moderation_params[:ping_staff],
       new_account_age_days: moderation_params[:new_account_age_days]
     )
-    respond_with_configuration(result)
+    respond_with_save(result)
   end
 
   private

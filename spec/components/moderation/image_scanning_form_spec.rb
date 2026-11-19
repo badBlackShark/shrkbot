@@ -111,19 +111,6 @@ RSpec.describe Components::Moderation::ImageScanningForm do
     expect(html).to include("Report as scam")
   end
 
-  context "with an enable_error" do
-    subject(:html) do
-      described_class.new(
-        context:,
-        enable_error: "A staff role is required."
-      ).render_in(view_context)
-    end
-
-    it "renders the error callout" do
-      expect(html).to include("A staff role is required.")
-    end
-  end
-
   context "when the settings have custom keywords" do
     let(:settings) do
       create(

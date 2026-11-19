@@ -91,13 +91,43 @@ RSpec.describe "Roles config", type: :request do
           expect { patch server_roles_path(guild.id), params: {roles: {channel_id: 111, enabled: "1", role_sets: {name: "Pings"}}}, **turbo }.not_to raise_error
         end
 
-        it "returns 422 without a body replace when enabling without a channel" do
+        it "returns 422 with the inline error and no form replace when enabling without a channel" do
           patch server_roles_path(guild.id),
             params: {roles: {channel_id: "", enabled: "1", role_sets: {}}},
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :roles)).to be(false)
-          expect(response.body).not_to include('id="roles-config"')
+          expect(response.body).to include('target="roles-save-error"').and include("Roles needs a channel.")
+          expect(response.body).not_to include('target="roles-config"')
+          expect(response.body).to include('target="toasts"')
+        end
+
+        it "returns 422 with the reason in the error slot when a role set is invalid" do
+          patch server_roles_path(guild.id),
+            params: {roles: {channel_id: 111, enabled: "0", role_sets: {"0" => {name: "", selection_mode: "multi"}}}},
+            **turbo
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.body).to include('target="roles-save-error"').and include("can&#39;t be blank")
+          expect(response.body).not_to include('target="roles-config"')
+        end
+
+        context "when several saved role sets are re-rendered", :skip_prosopite do
+          subject(:per_set_loads) do
+            queries = []
+            ActiveSupport::Notifications.subscribed(->(*, payload) { queries << payload[:sql] }, "sql.active_record") do
+              patch server_roles_path(guild.id), params: {roles: {channel_id: 111, enabled: "0", role_sets: submitted}}, **turbo
+            end
+            queries.grep(/FROM "assignable_roles" WHERE "assignable_roles"."role_set_id" = \$1 ORDER BY/)
+          end
+
+          let(:sets) { create_list(:role_set, 3, role_setting: config.role_setting) }
+          let(:submitted) { sets.each_with_index.to_h { |set, index| [index.to_s, {id: set.id, name: set.name, selection_mode: "multi", role_ids: ["222"]}] } }
+
+          before { sets.each { |set| create(:assignable_role, role_set: set, role_id: 222) } }
+
+          it "loads the assignable roles once for all sets, not once per set" do
+            expect(per_set_loads).to be_empty
+          end
         end
 
         it "falls back to a redirect without Turbo" do

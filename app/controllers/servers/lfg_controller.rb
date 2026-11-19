@@ -28,7 +28,7 @@ class Servers::LfgController < ApplicationController
       allowed_channel_ids: Array(lfg_params[:allowed_channel_ids]),
       pingable_roles: submitted_pingable_roles
     )
-    respond_with_configuration(result)
+    respond_with_save(result)
   end
 
   private

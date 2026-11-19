@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 class Components::Moderation::SpamProtectionForm < Components::Base
-  def initialize(context:, enable_error: nil)
+  def initialize(context:)
     @settings = context.settings
-    @enable_error = enable_error
   end
 
   def view_template
-    render Components::ConfigSections.new(key: "spam_protection", enable_error: @enable_error) do
+    render Components::ConfigSections.new(key: "spam_protection") do
       detection_card
       response_card
     end

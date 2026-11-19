@@ -26,7 +26,7 @@ class Servers::SpamProtectionController < ApplicationController
       timeout_seconds: spam_protection_params[:timeout_seconds],
       enabled: spam_protection_params[:enabled]
     )
-    respond_with_configuration(result)
+    respond_with_save(result)
   end
 
   private

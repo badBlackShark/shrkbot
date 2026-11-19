@@ -3,14 +3,13 @@
 class Components::Feeds::SubscriptionList < Components::Base
   CAP_REASON_ID = "feed-subscriptions-cap"
 
-  def initialize(server_configuration:, plugin_key:, enable_error: nil)
+  def initialize(server_configuration:, plugin_key:)
     @config = server_configuration
     @plugin_key = plugin_key
-    @enable_error = enable_error
   end
 
   def view_template
-    render Components::ConfigSections.new(key: @plugin_key.to_s, enable_error: @enable_error) do
+    render Components::ConfigSections.new(key: @plugin_key.to_s) do
       header if subscriptions.any?
       cap_reason if at_cap?
       if subscriptions.empty?

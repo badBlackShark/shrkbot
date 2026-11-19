@@ -34,29 +34,11 @@ RSpec.describe Components::Moderation::OverviewForm do
     expect(html).to include("moderation[new_account_age_days]")
   end
 
-  it "renders no enable_error callout by default" do
-    expect(html).not_to include("Something went wrong enabling.")
-  end
-
   context "with the matching explainer" do
     let(:explainer) { Nokogiri::HTML.fragment(html).at_css("#matching details[data-controller='disclosure']") }
 
     it "is a disclosure that its summary toggles" do
       expect(explainer.at_xpath("./summary")["data-action"]).to eq("click->disclosure#toggle")
-    end
-  end
-
-  context "with an enable_error" do
-    subject(:html) do
-      described_class.new(
-        server_configuration: config,
-        context:,
-        enable_error: "Something went wrong enabling."
-      ).render_in(view_context)
-    end
-
-    it "renders the error callout" do
-      expect(html).to include("Something went wrong enabling.")
     end
   end
 end
