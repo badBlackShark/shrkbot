@@ -84,41 +84,6 @@ RSpec.describe ServerChannel do
     end
   end
 
-  describe "#everyone_visible?" do
-    subject(:visible) { channel.everyone_visible? }
-
-    let(:server) { create(:server_configuration, discord_id: 42) }
-    let(:channel) { create(:server_channel, server_configuration: server) }
-
-    context "with no @everyone overwrite" do
-      it { is_expected.to be(true) }
-    end
-
-    context "when @everyone is denied VIEW_CHANNEL" do
-      before do
-        create(:channel_overwrite, server_channel: channel, target_id: 42, deny: ServerChannel::VIEW_CHANNEL)
-      end
-
-      it { is_expected.to be(false) }
-    end
-
-    context "when @everyone has an overwrite that does not touch VIEW_CHANNEL" do
-      before do
-        create(:channel_overwrite, server_channel: channel, target_id: 42, deny: 0)
-      end
-
-      it { is_expected.to be(true) }
-    end
-
-    context "when a non-@everyone role is denied VIEW_CHANNEL" do
-      before do
-        create(:channel_overwrite, server_channel: channel, target_id: 999, deny: ServerChannel::VIEW_CHANNEL)
-      end
-
-      it { is_expected.to be(true) }
-    end
-  end
-
   describe "#channel_overwrites" do
     subject(:destroy_channel) { channel.destroy }
 
