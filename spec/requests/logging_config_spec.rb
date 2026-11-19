@@ -140,6 +140,14 @@ RSpec.describe "Logging config", type: :request do
           expect(flash[:alert]).to be_present
         end
 
+        def submit_channel(channel_id)
+          patch server_logging_path(guild.id),
+            params: {logging: {channel_id:, enabled: "1", actions: {}}},
+            **turbo
+        end
+
+        it_behaves_like "a form that only accepts text channels"
+
         it "rejects a channel from another server with 404" do
           patch server_logging_path(guild.id),
             params: {logging: {channel_id: 424242, enabled: "1", actions: {}}},

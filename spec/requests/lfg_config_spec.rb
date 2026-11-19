@@ -133,6 +133,14 @@ RSpec.describe "LFG config", type: :request do
           expect(response).to have_http_status(:not_found)
         end
 
+        def submit_channel(channel_id)
+          patch server_lfg_path(guild.id),
+            params: {lfg: {enabled: "1", cooldown_seconds: 300, post_lifetime_minutes: 360, allowed_channel_ids: [channel_id.to_s]}},
+            **turbo
+        end
+
+        it_behaves_like "a form that only accepts text channels"
+
         it "rejects a default required role from another server with 404" do
           patch server_lfg_path(guild.id),
             params: {
