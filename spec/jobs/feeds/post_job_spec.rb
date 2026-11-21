@@ -29,6 +29,41 @@ RSpec.describe Feeds::PostJob do
     expect(subscription.posts.pluck(:story_key)).to eq(["story-1"])
   end
 
+  context "when posting raises an error that makes the subscription unpostable" do
+    let!(:channel) { create(:server_channel, server_configuration: subscription.server_configuration, discord_id: subscription.channel_id, name: "news") }
+    let(:error) { Discordrb::Errors::NoPermission.new("Missing Permissions") }
+    let(:notifications) { subscription.server_configuration.notifications.where(kind: "feed_post_failed") }
+
+    before do
+      allow(Ops::Feeds::Posts::Create).to receive(:call).and_raise(error)
+    end
+
+    it "tells the server instead of raising" do
+      expect { perform }.not_to raise_error
+      expect(notifications.map(&:data)).to eq(
+        [{"plugin_key" => "steam", "name" => watch.name, "channel_name" => "news", "subscription_id" => subscription.id}]
+      )
+    end
+
+    context "when the channel is gone" do
+      let(:error) { Discordrb::Errors::UnknownChannel.new("Unknown Channel") }
+
+      it "tells the server" do
+        expect { perform }.to change(notifications, :count).by(1)
+      end
+    end
+
+    context "when the error is not a permanent one" do
+      let(:error) { StandardError.new("boom") }
+
+      it "tells nobody" do
+        perform
+
+        expect(notifications).to be_empty
+      end
+    end
+  end
+
   context "when the subscription is no longer active" do
     let(:subscription) { create(:feed_subscription, watch:) }
 

@@ -35,7 +35,7 @@ class NotificationsController < ApplicationController
 
   private
 
-  CONFIGURABLE_PLUGINS = %w[roles welcomes logging reminders].freeze
+  CONFIGURABLE_PLUGINS = %w[roles welcomes logging reminders steam twitch].freeze
 
   def plugin_config_path_for(notification)
     discord_id = notification.server_configuration.discord_id

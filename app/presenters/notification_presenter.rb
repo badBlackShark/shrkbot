@@ -2,7 +2,8 @@
 
 class NotificationPresenter
   ICON_BY_KIND = {
-    "channel_deleted" => "warning"
+    "channel_deleted" => "warning",
+    "feed_post_failed" => "warning"
   }.freeze
 
   DEFAULT_ICON = "bell"
@@ -14,8 +15,8 @@ class NotificationPresenter
   end
 
   def title
-    if notification.kind == "channel_deleted" && notification.data["channel_name"].nil?
-      I18n.t("notifications.kinds.channel_deleted.title_unknown")
+    if notification.data["channel_name"].nil? && I18n.exists?("notifications.kinds.#{notification.kind}.title_unknown")
+      I18n.t("notifications.kinds.#{notification.kind}.title_unknown")
     else
       I18n.t("notifications.kinds.#{notification.kind}.title", **symbolized_data)
     end

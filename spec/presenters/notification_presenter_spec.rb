@@ -27,6 +27,29 @@ RSpec.describe NotificationPresenter do
     end
   end
 
+  describe "for a feed_post_failed notification" do
+    let(:notification) do
+      build(:notification, kind: "feed_post_failed", data: {"name" => "Team Fortress 2", "channel_name" => channel_name})
+    end
+    let(:channel_name) { "news" }
+
+    it "names the channel in the title" do
+      expect(presenter.title).to eq("Can't post in news")
+    end
+
+    it "uses the warning icon" do
+      expect(presenter.icon).to eq("warning")
+    end
+
+    context "when the channel is unknown" do
+      let(:channel_name) { nil }
+
+      it "falls back to the title_unknown key" do
+        expect(presenter.title).to eq("Can't post in a deleted channel")
+      end
+    end
+  end
+
   describe "#message" do
     it "returns the localised message" do
       expect(presenter.message).to eq("Logging was affected - pick a new channel")

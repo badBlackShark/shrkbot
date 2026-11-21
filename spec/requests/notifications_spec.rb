@@ -101,6 +101,12 @@ RSpec.describe "Notifications", type: :request do
         expect(response).to redirect_to(server_logging_path(guild_a.id))
       end
 
+      it "sends a feed failure to the follow list" do
+        feed = create(:notification, server_configuration: config_a, kind: "feed_post_failed", data: {"plugin_key" => "steam", "name" => "Team Fortress 2"})
+        get notification_path(feed)
+        expect(response).to redirect_to(server_steam_path(guild_a.id))
+      end
+
       it "returns 404 for a notification on a non-authorized server" do
         get notification_path(notif_other)
         expect(response).to have_http_status(:not_found)

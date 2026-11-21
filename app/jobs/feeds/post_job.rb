@@ -12,8 +12,10 @@ module Feeds
     self.log_arguments = false
 
     discard_on ActiveJob::DeserializationError
-    discard_on "Discordrb::Errors::UnknownChannel"
-    discard_on "Discordrb::Errors::NoPermission"
+    discard_on "Discordrb::Errors::UnknownChannel", "Discordrb::Errors::NoPermission" do |job, _error|
+      subscription, event = job.arguments
+      Ops::Notification::ReportFeedPostFailure.call(subscription:, event:)
+    end
 
     def perform(subscription, event)
       return log_skipped(event, "the subscription is no longer active") unless Subscription.active.exists?(subscription.id)

@@ -921,6 +921,10 @@ en:
         message: "%{plugin_name} was affected - pick a new channel"
         title: "%{channel_name} was deleted"
         title_unknown: A channel was deleted
+      feed_post_failed:
+        message: Posts for %{name} stopped - check the channel and shrkbot's permissions
+        title: Can't post in %{channel_name}
+        title_unknown: Can't post in a deleted channel
   servers:
     image_scanning:
       saved: Scam Image Detection settings saved.
