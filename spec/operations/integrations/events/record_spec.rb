@@ -66,6 +66,16 @@ RSpec.describe Ops::Integrations::Events::Record do
     end
   end
 
+  context "when one batch holds the same type and subject twice" do
+    let(:events) { [valid, duplicate] }
+    let(:duplicate) { build(:steam_news_event, watch:, subject_key: "valid", occurred_at: 1.hour.ago) }
+
+    it "records it once instead of breaking on the unique index" do
+      expect(result.value).to eq([valid])
+      expect(Integrations::Event.where(watch:).count).to eq(1)
+    end
+  end
+
   context "when another watch stored the same subject" do
     before { create(:steam_news_event, subject_key: "valid", occurred_at: 2.hours.ago) }
 
