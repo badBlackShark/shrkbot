@@ -69,10 +69,6 @@ RSpec.describe Components::SubPluginRow do
       described_class.new(**with_row(enabled: false, configured: false)).render_in(view_context)
     end
 
-    it "renders the Needs setup badge" do
-      expect(html).to include("Needs setup")
-    end
-
     it "renders the toggle as disabled with the dashboard hint" do
       expect(html).to include("disabled").and include(CGI.escapeHTML(I18n.t("components.plugin_row.needs_setup_hint")))
     end

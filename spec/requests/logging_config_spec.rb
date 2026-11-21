@@ -44,7 +44,7 @@ RSpec.describe "Logging config", type: :request do
 
       context "when Discord is unreachable after the dashboard cached authorization" do
         before do
-          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Error)
+          allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Error)
         end
 
         it "still serves the config page from the cached authorization" do
@@ -87,7 +87,7 @@ RSpec.describe "Logging config", type: :request do
 
           it "warns that the configured channel was deleted" do
             get server_logging_path(guild.id)
-            expect(response.body).to include("was deleted").and include("Choose a new channel")
+            expect(response.body).to include("was deleted").and include("Pick a new channel")
           end
         end
       end
@@ -117,14 +117,14 @@ RSpec.describe "Logging config", type: :request do
           expect(response.body).to include("live-warning-list-value")
         end
 
-        it "re-renders with an inline error when enabling without a channel" do
+        it "replaces only the inline error when enabling without a channel" do
           patch server_logging_path(guild.id),
             params: {logging: {channel_id: "", enabled: "1", actions: {}}},
             **turbo
           expect(response).to have_http_status(:unprocessable_content)
           expect(config.plugins.enabled.exists?(key: :logging)).to be(false)
-          expect(response.body).to include("logging-config")
-          expect(response.body).to include("needs a channel.")
+          expect(response.body).to include('target="logging-save-error"').and include("needs a channel.")
+          expect(response.body).not_to include('target="logging-config"')
         end
 
         it "falls back to a redirect without Turbo" do
@@ -139,6 +139,14 @@ RSpec.describe "Logging config", type: :request do
           expect(response).to redirect_to(server_logging_path(guild.id))
           expect(flash[:alert]).to be_present
         end
+
+        def submit_channel(channel_id)
+          patch server_logging_path(guild.id),
+            params: {logging: {channel_id:, enabled: "1", actions: {}}},
+            **turbo
+        end
+
+        it_behaves_like "a form that only accepts text channels"
 
         it "rejects a channel from another server with 404" do
           patch server_logging_path(guild.id),

@@ -29,7 +29,7 @@ en:
         grant: Grant
         granted: Granted to
         none: Not granted to any server yet.
-        placeholder: Choose a server
+        placeholder: Pick a server
       bespoke_plugin_grant_row:
         confirm: The server loses the page and its commands, and the plugin is switched
           off.
@@ -42,7 +42,7 @@ en:
     app_shell:
       account: Account
       add_server: Add another server
-      admin_bespoke_plugins: Bespoke plugins
+      admin_bespoke_plugins: Bespoke Plugins
       admin_settings: Admin settings
       log_out: Log out
       notifications: Notifications
@@ -57,10 +57,10 @@ en:
       label: Breadcrumb
     channel_card:
       none: No channels have synced yet. shrkbot needs to be in the server first.
-      placeholder: Choose a channel
+      placeholder: Pick a channel
     config_page:
-      channel_lost: The channel you configured for %{plugin} was deleted. Choose a
-        new channel below to keep it working.
+      channel_lost: The channel you configured for %{plugin} was deleted. Pick a new
+        channel below to keep it working.
       disabled: Disabled
       enable: Enable %{plugin}
       enabled: Enabled
@@ -97,7 +97,7 @@ en:
         preview: Preview
       destination_card:
         channel_label: Channel
-        channel_placeholder: Choose a channel
+        channel_placeholder: Pick a channel
         role_label: Role to ping
         role_placeholder: No ping
       event_types:
@@ -131,10 +131,14 @@ en:
       override_fields:
         channel_label: Channel override
         channel_placeholder: Same as above
+      override_summary:
+        pings: Pings %{role}
+        pings_no_one: Pings no one
+        posts_in: Posts in %{channel}
       placeholders:
         steam:
           author: Who wrote the post. Empty when Steam doesn't say.
-          feed: Where the post comes from, such as Community Announcements or a news
+          feed: Where the post comes from, e.g. Community Announcements or a news
             site.
           game: The game's name on Steam.
           title: The post's title.
@@ -143,6 +147,9 @@ en:
           clipper: Who made the clip.
           streamer: The channel's name on Twitch.
           title: The title of the stream, video, or clip.
+      route_labels:
+        channel_missing: channel deleted
+        role_missing: a role that was deleted
       steam:
         language_card:
           help: Posts whose language can't be detected, like very short ones, are
@@ -349,6 +356,9 @@ en:
             body: A first look at the full release.
             feed: PC Gamer
             title: Our review of the 1.0 release
+          images:
+            artwork: Game artwork
+            image: First image in the post
           patch_notes_published:
             body: |-
               Fixed controller vibration on Steam Deck.
@@ -379,11 +389,8 @@ en:
           heading: Followed channels
         usage: "%{used} of %{max}"
       subscription_row:
-        channel_missing: channel deleted
-        mention: "@%{role}"
         no_ping: no ping
         pings: pings %{role}
-        role_missing: a role that was deleted
         steam:
           broken: Steam hasn't answered for this game since %{since} UTC. shrkbot
             keeps trying every hour, and posts what it missed from the last 48 hours
@@ -501,20 +508,20 @@ en:
         delete: Remove role
         excluded:
           label: Also excludes
-          placeholder: Choose roles
+          placeholder: Pick roles
         min_days:
           label: Minimum membership time override
           unit: days
         required:
           label: Also requires
-          placeholder: Choose roles
+          placeholder: Pick roles
         role:
           label: Role to ping
-          placeholder: Pick a role…
+          placeholder: Pick a role
         summary:
           one: "%{count} extra restriction"
           other: "%{count} extra restrictions"
-        unpicked: Pick a role…
+        unpicked: Pick a role
       pingable_roles_card:
         add: Add role
         label: Roles members can ping with /lfg
@@ -558,47 +565,45 @@ en:
         days_unit: days
         help: New accounts are judged more strictly.
         label: Treat accounts as new for
+      image_scanning_explainer:
+        line_fingerprint: Confirmed scams are remembered by image fingerprint, across
+          every server shrkbot is in.
+        line_memory: shrkbot reads image text in memory. Nothing is stored.
+        line_staff: Staff confirm or dismiss every flag with buttons in your log channel.
+        title: How image scanning works
       image_scanning_form:
         consent:
           body: Images are deleted automatically. Screenshots of scams that members
             post as warnings can be caught too. Staff are alerted to every action
             and can mark it as incorrect.
           title: Detection can be wrong
-        custom_keywords:
-          keywords_help: Extra words or phrases that mark an image as a scam; close
-            misspellings count. Longer phrases cause fewer false matches.
-          keywords_label: Custom keywords
-          keywords_placeholder: Type a word or phrase, then press Enter
-          min_hits_label: Require at least
-          min_hits_unit: matching keywords
-        detection:
-          sensitivity:
-            help: Stricter catches more scams and more innocent images.
-            label: Sensitivity
-            relaxed: Relaxed
-            standard: Standard (recommended)
-            strict: Strict
-        explainer:
-          line_fingerprint: Confirmed scams are remembered by image fingerprint, across
-            every server shrkbot is in.
-          line_memory: shrkbot reads image text in memory. Nothing is stored.
-          line_staff: Staff confirm or dismiss every flag with buttons in your log
-            channel.
-          title: How image scanning works
         report_scam:
           body: 'Staff can report any message with images: right-click -> Apps ->
             shrkbot -> "Report as scam".'
           title: Report a scam yourself
-        response:
-          action:
-            delete: Delete the image
-            flag_only: Only alert staff
-            label: When a scam is detected
-          confirmed_punishment:
-            inherit: Same as above
-            label: Punishment if confirmed by staff on this server
-          punishment:
-            label: Also punish the sender
+      image_scanning_keywords_card:
+        keywords_help: Extra words or phrases that mark an image as a scam; close
+          misspellings count. Longer phrases cause fewer false matches.
+        keywords_label: Custom keywords
+        keywords_placeholder: Type a word or phrase, then press Enter
+        min_hits_label: Require at least
+        min_hits_unit: matching keywords
+      image_scanning_response_card:
+        action:
+          delete: Delete the image
+          flag_only: Only alert staff
+          label: When a scam is detected
+        confirmed_punishment:
+          inherit: Same as above
+          label: Punishment if confirmed by staff on this server
+        punishment:
+          label: Also punish the sender
+      image_scanning_sensitivity_card:
+        help: Stricter catches more scams and more innocent images.
+        label: Sensitivity
+        relaxed: Relaxed
+        standard: Standard (recommended)
+        strict: Strict
       matching_explainer:
         row_keywords: Custom scam keywords keep digits, so entries like 50 giveaway
           match.
@@ -630,9 +635,11 @@ en:
             help: Messages like "???" or "123" all count as the same message.
             label: Also match messages with only punctuation or numbers
           trigger_threshold:
+            channels_name: Number of different channels
             channels_unit: different channels
             label: Act when the same message appears in
             seconds_unit: seconds
+            window_name: Time window in seconds
             within: within
         response:
           action:
@@ -646,11 +653,7 @@ en:
       staff_role_card:
         help: Exempt from all checks and optionally pinged for alerts.
         label: Staff role
-        permission_warning_body: shrkbot is missing the Mention All Roles permission
-          in this server. Alerts still post to the log channel, but nobody gets pinged
-          until it's restored.
-        permission_warning_bold: Staff pings will fail.
-        placeholder: Pick a role…
+        placeholder: Pick a role
         staff_permission_warning_body: Give it Manage Messages, or allow it under
           Server Settings -> Integrations -> shrkbot.
         staff_permission_warning_bold: This role can't use "Report as scam".
@@ -667,6 +670,8 @@ en:
       this_server: This server
       title: Notifications
     number_stepper:
+      decrease: Decrease %{label}
+      increase: Increase %{label}
       reset: Reset to %{value}
     placeholder_section:
       label: Placeholders (click to copy)
@@ -707,14 +712,14 @@ en:
           name: Welcomes
       preview_locked: Preview doesn't save - add shrkbot to your server to enable
         plugins there.
-      status:
-        always_on: Always on
-        needs_setup: Needs setup
       toggle: Toggle %{plugin}
     plugin_sidebar:
       locked: You can't configure this plugin on this server.
       overview: Overview
       plugins: Plugins
+    plugin_status_badge:
+      always_on: Always on
+      needs_setup: Needs setup
     preview_banner:
       invite: Invite shrkbot
       leave: Leave preview
@@ -755,7 +760,7 @@ en:
             one: "%{count} role"
             other: "%{count} roles"
           label: Assignable roles
-          placeholder: Choose roles members can pick
+          placeholder: Pick roles
           unassignable: shrkbot can't assign roles above its highest one, or roles
             managed by Discord.
         selection:
@@ -779,8 +784,6 @@ en:
       pre: 'shrkbot is '
     sub_plugin_row:
       configure: Configure
-      status:
-        needs_setup: Needs setup
       toggle_label: Enable %{name}
     theme_toggle:
       toggle_theme: Toggle dark mode
@@ -887,10 +890,6 @@ en:
         channel:
           label: Channel
         empty: Nothing will be sent.
-        join_message:
-          label: Join message
-        leave_message:
-          label: Leave message
         ping_on_join:
           help: When off, the mention makes no sound and sends no push notification.
           label: Ping on join
@@ -904,16 +903,22 @@ en:
         preview:
           label: Live preview
           timestamp: Today
-        reset_to_default: Reset to default
         suppress_removal_messages:
           label: Skip leave messages for kicks and bans
+      message_column:
+        empty: Nothing will be sent.
+        join_message:
+          label: Join message
+        leave_message:
+          label: Leave message
+        reset_to_default: Reset to default
   meta:
     default_description: A mechanical helper.
     default_title: shrkbot
   notifications:
     kinds:
       channel_deleted:
-        message: "%{plugin_name} was affected - choose a new channel"
+        message: "%{plugin_name} was affected - pick a new channel"
         title: "%{channel_name} was deleted"
         title_unknown: A channel was deleted
   servers:
@@ -938,8 +943,8 @@ en:
         disabled: Enable the Roles plugin to post role menus.
         queued: Reposting the role menu…
     roles:
-      failed: Couldn't save the role settings.
       saved: Role settings saved.
+    save_failed: Couldn't save. Try again.
     saved_while_disabled: Saved. %{plugin} is still disabled.
     spam_protection:
       saved: Cross-Channel Spam Guard settings saved.
@@ -985,7 +990,7 @@ en:
             them here. None are built yet.
           empty_title: No bespoke plugins yet
           subtitle: Plugins you activate by hand, one server at a time.
-          title: Bespoke plugins
+          title: Bespoke Plugins
       settings:
         show:
           subtitle: Global settings for shrkbot's owner.
@@ -1006,7 +1011,7 @@ en:
       lede: Need something shrkbot doesn't do, or don't want another bot on your server?
         I can build it as a plugin that only your server gets. It sits in your dashboard
         next to the regular plugins, and no other server sees it.
-      title: Bespoke plugins
+      title: Bespoke Plugins
       write: Email me
     home:
       bespoke_plugins_link: bespoke plugins
@@ -1056,7 +1061,7 @@ en:
         show:
           title: Scam Image Detection
       index:
-        empty_body: You need Manage Server permissions and shrkbot must be present.
+        empty_body: You need the Manage Server permission and shrkbot must be present.
           Invite it to get started.
         empty_title: shrkbot isn't in any of your servers yet
         error: shrkbot couldn't reach Discord to load your servers. Try again in a
@@ -1127,6 +1132,8 @@ en:
               cta: Open Twilight Struggle
               title: Tournament result posting is currently disabled
             subscribe: Post %{tournament} results in this server
+            subscribed_state: Subscribed
+            unsubscribed_state: Not subscribed
         show:
           empty_archived: Nothing has been archived.
           empty_body: twilight-struggle.com has not sent any tournaments yet. They

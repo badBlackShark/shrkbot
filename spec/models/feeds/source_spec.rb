@@ -13,6 +13,12 @@ RSpec.describe Feeds::Source do
   let(:subscription) { instance_double(Feeds::Subscription) }
   let(:event) { instance_double(Integrations::Event) }
 
+  describe ".role_override_for" do
+    it "is none, since a source has no per-type roles unless it says so" do
+      expect(source.role_override_for(subscription, "Integrations::Steam::PatchNotesPublished")).to be_nil
+    end
+  end
+
   describe ".post_type" do
     subject(:post_type) { source.post_type("Integrations::Steam::ArticlePublished") }
 

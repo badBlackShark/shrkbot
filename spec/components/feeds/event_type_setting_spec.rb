@@ -6,11 +6,12 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   include_context "component view context"
 
   subject(:html) do
-    described_class.new(subscription:, plugin_key:, event_type:, event:, **extra).render_in(view_context)
+    described_class.new(subscription:, plugin_key:, event_type:, event:, route_labels:, **extra).render_in(view_context)
   end
 
   let(:plugin_key) { :steam }
   let(:extra) { {} }
+  let(:route_labels) { Feeds::RouteLabels.new(subscription.server_configuration) }
 
   let(:subscription) { build(:feed_subscription, watch: build(:integration_watch, name: "Hades II", external_id: "1145350")) }
   let(:event_type) { "Integrations::Steam::PatchNotesPublished" }
@@ -100,6 +101,10 @@ RSpec.describe Components::Feeds::EventTypeSetting do
       create(:server_channel, server_configuration: subscription.server_configuration, discord_id: 111, name: "clips")
     end
 
+    it "says so under the help line of the collapsed card" do
+      expect(header.text).to include("Posts in #clips")
+    end
+
     it "selects it in the type's channel field" do
       select = Nokogiri::HTML.fragment(html).at_css(%(select[name="subscription[choices][#{event_type}][channel_id]"]))
 
@@ -107,11 +112,42 @@ RSpec.describe Components::Feeds::EventTypeSetting do
     end
   end
 
+  context "with the follow's own channel chosen" do
+    let(:event) { subscription.subscribed_events.build(event_type:, channel_id: subscription.channel_id) }
+
+    it "shows no override line" do
+      expect(header.text).not_to include("Posts in")
+    end
+  end
+
+  it "shows no override line without overrides" do
+    expect(header.text).not_to match(/Posts in|Pings/)
+  end
+
   context "with a source that has per-type fields" do
     let(:plugin_key) { :twitch }
     let(:event_type) { "Integrations::Twitch::HighlightPublished" }
     let(:subscription) { build(:feed_subscription, :twitch) }
     let(:extra) { {type_fields: Components::Feeds::Twitch::TypeFields} }
+
+    context "with a role of its own" do
+      before do
+        create(:server_role, server_configuration: subscription.server_configuration, discord_id: 222, name: "Streams")
+        subscription.settings.highlights_role_id = 222
+      end
+
+      it "names the ping under the help line of the collapsed card" do
+        expect(header.text).to include("Pings @Streams")
+      end
+
+      context "when the type is not followed" do
+        let(:event) { nil }
+
+        it "shows no override line" do
+          expect(header.text).not_to include("Pings")
+        end
+      end
+    end
 
     it "renders them in the body before the text fields" do
       expect(body.css("select, textarea").map { |field| field["name"] }).to eq(

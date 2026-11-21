@@ -46,6 +46,22 @@ RSpec.describe "LFG config", type: :request do
           expect(response.body).to include(server_logging_path(guild.id))
         end
 
+        it "answers 422 with the inline callout when a card has no role" do
+          patch server_lfg_path(guild.id),
+            params: {
+              lfg: {
+                enabled: "1",
+                cooldown_seconds: 300,
+                post_lifetime_minutes: 360,
+                pingable_roles: {"0" => {role_id: ""}}
+              }
+            },
+            **turbo
+          expect(response).to have_http_status(:unprocessable_content)
+          expect(response.body).to include("Pick a role to ping on every card, or remove the empty card.")
+          expect(config.lfg_settings.reload.pingable_roles).to be_empty
+        end
+
         context "with an existing pingable role" do
           before do
             create(:lfg_pingable_role, lfg_settings: config.lfg_settings, role_id: 222)
@@ -79,6 +95,28 @@ RSpec.describe "LFG config", type: :request do
           expect(response.body).to include("saved")
         end
 
+        context "when the save is refused" do
+          subject(:refused_save) do
+            patch server_lfg_path(guild.id),
+              params: {
+                lfg: {
+                  enabled: "1",
+                  cooldown_seconds: -1,
+                  post_lifetime_minutes: 240,
+                  pingable_roles: {"0" => {role_id: 222}}
+                }
+              },
+              **turbo
+          end
+
+          it "answers 422 with only the save-error stream, so the form keeps the unsaved card" do
+            refused_save
+            expect(response).to have_http_status(:unprocessable_content)
+            expect(response.body).to include('target="lfg-save-error"').and include("Cooldown seconds")
+            expect(response.body).not_to include('target="lfg-config"')
+          end
+        end
+
         it "creates a pingable role from nested params" do
           patch server_lfg_path(guild.id),
             params: {
@@ -94,6 +132,10 @@ RSpec.describe "LFG config", type: :request do
           role = config.lfg_settings.reload.pingable_roles.find_by(role_id: 222)
           expect(role).to be_present
           expect(role.required_role_ids).to eq([333])
+        end
+
+        it "ignores pingable_roles sent as a single hash without index keys instead of raising" do
+          expect { patch server_lfg_path(guild.id), params: {lfg: {enabled: "1", pingable_roles: {role_id: 222}}}, **turbo }.not_to raise_error
         end
 
         context "with an existing pingable role" do
@@ -128,6 +170,14 @@ RSpec.describe "LFG config", type: :request do
             **turbo
           expect(response).to have_http_status(:not_found)
         end
+
+        def submit_channel(channel_id)
+          patch server_lfg_path(guild.id),
+            params: {lfg: {enabled: "1", cooldown_seconds: 300, post_lifetime_minutes: 360, allowed_channel_ids: [channel_id.to_s]}},
+            **turbo
+        end
+
+        it_behaves_like "a form that only accepts text channels"
 
         it "rejects a default required role from another server with 404" do
           patch server_lfg_path(guild.id),

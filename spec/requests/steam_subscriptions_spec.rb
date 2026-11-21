@@ -220,6 +220,12 @@ RSpec.describe "Steam subscriptions", type: :request do
       end
     end
 
+    def submit_channel(channel_id)
+      post server_steam_subscriptions_path(guild.id), params: {subscription: attributes.merge(channel_id: channel_id.to_s)}
+    end
+
+    it_behaves_like "a form that only accepts text channels"
+
     context "with a channel from another server" do
       let(:channel_id) { "999" }
 
@@ -429,13 +435,12 @@ RSpec.describe "Steam subscriptions", type: :request do
     context "when every post type is unchecked" do
       let(:event_types) { {patch_notes => "0", announcements => "0"} }
 
-      it "re-renders the form with the reason, keeping what was entered, and changes nothing" do
+      it "answers with the reason in the error slot only and changes nothing" do
         update
 
-        page = Nokogiri::HTML(response.body)
         expect(response).to have_http_status(:unprocessable_content)
-        expect(response.body).to include("Turn on at least one type of post.", ">Patch day: {title}</textarea>")
-        expect(page.at_css(%(select[name="subscription[channel_id]"] option[selected]))["value"]).to eq("777")
+        expect(response.body).to include('target="steam-save-error"').and include("Turn on at least one type of post.")
+        expect(response.body).not_to include('target="steam-config"')
         expect(subscription.reload).to have_attributes(channel_id: 555)
       end
     end
@@ -443,7 +448,7 @@ RSpec.describe "Steam subscriptions", type: :request do
     context "when the channel is cleared" do
       let(:channel_id) { "" }
 
-      it "re-renders the form with the reason and changes nothing" do
+      it "answers with the reason and changes nothing" do
         update
 
         expect(response).to have_http_status(:unprocessable_content)
@@ -452,27 +457,13 @@ RSpec.describe "Steam subscriptions", type: :request do
         expect(subscription.settings.body_length).to eq("preview")
       end
 
-      context "when a followed post type is unchecked with a draft message" do
-        let(:event_types) { {announcements => "1"} }
-        let(:choices) { {patch_notes => {template: "Draft survives: {title}"}} }
-
-        it "re-renders the draft in that type's textarea" do
-          update
-
-          expect(response).to have_http_status(:unprocessable_content)
-          expect(response.body).to include(">Draft survives: {title}</textarea>")
-        end
-      end
-
       context "when a followed post type is unchecked" do
         let(:event_types) { {announcements => "1"} }
 
-        it "re-renders the type as unchecked and keeps it followed in the database" do
+        it "keeps it followed in the database" do
           update
 
           expect(response).to have_http_status(:unprocessable_content)
-          expect(checkbox(patch_notes)["checked"]).to be_nil
-          expect(checkbox(announcements)["checked"]).to be_present
           expect(subscription.subscribed_events.reload.map(&:event_type)).to eq([patch_notes])
         end
       end

@@ -18,10 +18,10 @@ class Components::SubPluginRow < Components::Base
       div(class: "min-w-0 flex-1") do
         div(class: "flex flex-wrap items-center gap-2") do
           span(class: "font-display font-semibold") { @row.name }
-          status_badge
+          render Components::PluginStatusBadge.new(configured: @row.configured)
           render Components::PluginBadges.new(key: @row.key)
         end
-        p(class: "mt-0.5 text-sm text-text-secondary") { @row.description }
+        render Components::Description.new { @row.description }
       end
       configure_link
       toggle_control
@@ -29,12 +29,6 @@ class Components::SubPluginRow < Components::Base
   end
 
   private
-
-  def status_badge
-    return if @row.configured
-
-    render Components::Badge.new(variant: :warning, dot: true) { t(".status.needs_setup") }
-  end
 
   def needs_setup?
     !@row.configured && !@row.enabled

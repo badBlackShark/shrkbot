@@ -349,6 +349,24 @@ RSpec.describe "Twitch subscriptions", type: :request do
       expect(subscription.twitch_settings).to have_attributes(live_end_mode: "mark_ended", show_viewers: false)
     end
 
+    context "when the save is refused" do
+      subject(:update) do
+        patch(
+          server_twitch_subscription_path(guild.id, subscription),
+          params: {subscription: {channel_id: "", live_end_mode: "mark_ended", show_viewers: "0", categories: [""], event_types: {live => "1"}, choices: {}}},
+          **turbo
+        )
+      end
+
+      it "answers 422 with only the error slot and a toast, so the form keeps the unsaved input" do
+        update
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.body).to include('target="twitch-save-error"').and include("Channel can&#39;t be blank").and include('target="toasts"')
+        expect(response.body).not_to include('target="twitch-config"')
+      end
+    end
+
     context "with a post type channel of this server" do
       let(:channels) { {live => "777"} }
 

@@ -3,14 +3,13 @@
 class Components::Welcomes::ConfigForm < Components::Base
   PLACEHOLDERS = %w[user username displayname membercount].freeze
 
-  def initialize(server_configuration:, enable_error: nil)
+  def initialize(server_configuration:)
     @config = server_configuration
     @settings = server_configuration.welcome_settings
-    @enable_error = enable_error
   end
 
   def view_template
-    render Components::ConfigSections.new(key: "welcomes", enable_error: @enable_error, data: {controller: "welcome-preview"}) do
+    render Components::ConfigSections.new(key: "welcomes", data: {controller: "welcome-preview"}) do
       channel_card
       message_card
       preview

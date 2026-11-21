@@ -13,6 +13,7 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
     render Components::Card.new do
       heading
       field
+      help
       preview
     end
   end
@@ -23,7 +24,6 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
     div(class: "mb-2 flex items-start justify-between gap-3") do
       div do
         label(class: "block text-sm font-semibold") { t(".#{@kind}.label") }
-        help
       end
       reset_button
     end
@@ -32,13 +32,13 @@ class Components::TwilightStruggle::TemplateCard < Components::Base
   def help
     return unless @kind == :video
 
-    p(class: "mt-0.5 text-sm text-text-secondary") { t(".video.help") }
+    render Components::FieldHelp.new { t(".video.help") }
   end
 
   def reset_button
     render Components::ResetSlot.new(
       label: reset_label,
-      hidden: @value == @inherited,
+      hidden: @value.to_s.strip == @inherited.to_s.strip,
       slot_data: {twilight_struggle_preview_target: "#{@kind}Reset"},
       data: {action: "twilight-struggle-preview#reset", twilight_struggle_preview_kind_param: @kind}
     )

@@ -15,6 +15,10 @@ RSpec.describe Components::TwilightStruggle::PostDelayCard do
     expect(html).to include('name="destination[post_delay_minutes]"')
   end
 
+  it "puts the help below the field" do
+    expect(html.index('name="destination[post_delay_minutes]"')).to be < html.index("Wait this long after a result")
+  end
+
   context "when the destination has its own delay" do
     let(:destination) { create(:twilight_struggle_destination, tournament:, server_configuration:, post_delay_seconds: 900) }
 
@@ -45,6 +49,11 @@ RSpec.describe Components::TwilightStruggle::PostDelayCard do
 
     it "names the parent and its delay in minutes" do
       expect(html).to include("OTSL 2026 uses a 30-minute delay.")
+    end
+
+    it "shows the inherit note only while the field is empty" do
+      note = Nokogiri::HTML5.fragment(html).css("p").find { |line| line.text.include?("OTSL 2026 uses") }
+      expect(note["class"].split).to include("hidden", "group-has-[input[type=number]:placeholder-shown]/setting:block")
     end
 
     it "uses the inherited minutes as the placeholder" do

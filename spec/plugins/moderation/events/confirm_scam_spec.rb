@@ -3,37 +3,14 @@
 require "rails_helper"
 
 RSpec.describe Moderation::ConfirmScam do
-  subject(:handle) { described_class.new(event).handle }
+  include_context "moderation button event"
 
-  let(:guild_id) { 111 }
-  let(:staff_role_id) { 333 }
+  let(:custom_id) { "mod:confirm:#{phash_hex}" }
   let(:phash_hex) { "deadbeefdeadbeef" }
 
-  let!(:config) { create(:server_configuration, discord_id: guild_id) }
-  let!(:settings) { create(:moderation_settings, server_configuration: config, staff_role_id:) }
-
-  let(:staff_role) { double("role", id: staff_role_id) }
-  let(:member) { double("member", mention: "<@222>", roles: [staff_role], permission?: false) }
-  let(:server) { double("server", id: guild_id) }
-  let(:user) { double("user", id: 222) }
   let(:undo_button) { {custom_id: "mod:undo_verdict:#{phash_hex}", type: Bot::Discord::Components::BUTTON} }
-  let(:fake_container) { double("container", components: [], buttons: []) }
-  let(:fake_message) { double("message", components: [fake_container]) }
-  let(:event) do
-    double(
-      "event",
-      custom_id: "mod:confirm:#{phash_hex}",
-      server:,
-      user:,
-      update_message: nil,
-      respond: nil,
-      bot: double("bot"),
-      message: fake_message
-    )
-  end
 
   before do
-    allow(server).to receive(:member).with(222).and_return(member)
     allow(Ops::Moderation::Phashes::Confirm).to receive(:call)
     allow(Moderation::Interaction::VerdictButtons).to receive(:build).and_return([undo_button])
   end

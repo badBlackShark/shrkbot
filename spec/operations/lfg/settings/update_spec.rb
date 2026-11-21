@@ -95,15 +95,47 @@ RSpec.describe Ops::Lfg::Settings::Update do
     end
   end
 
-  context "with a blank pingable role row" do
-    let(:enabled) { "0" }
+  context "with a card that has no role" do
+    let(:cooldown_seconds) { 900 }
     let(:pingable_roles) do
-      [{role_id: "", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: nil}]
+      [
+        {role_id: "77", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: nil},
+        {role_id: "", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: nil}
+      ]
     end
 
-    it "skips the row without creating a pingable role" do
-      expect(result).to be_success
+    it "fails with the pick-a-role message" do
+      expect(result.errors).to eq(["Pick a role to ping on every card, or remove the empty card."])
+    end
+
+    it "saves none of the cards, including the valid one" do
+      result
       expect(settings.pingable_roles.count).to eq(0)
+    end
+
+    it "saves none of the other settings" do
+      result
+      expect(settings.reload.cooldown_seconds).to eq(300)
+    end
+  end
+
+  context "with two cards for the same role" do
+    let(:cooldown_seconds) { 900 }
+    let(:pingable_roles) do
+      [
+        {role_id: "77", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: nil},
+        {role_id: "77", min_membership_days: "30", required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: nil}
+      ]
+    end
+
+    it "fails with the one-card-per-role message" do
+      expect(result.errors).to eq(["Each role can have only one card."])
+    end
+
+    it "saves no pingable role and no settings change" do
+      result
+      expect(settings.pingable_roles.count).to eq(0)
+      expect(settings.reload.cooldown_seconds).to eq(300)
     end
   end
 
@@ -138,19 +170,6 @@ RSpec.describe Ops::Lfg::Settings::Update do
       result
       expect(Lfg::PingableRole.find_by(id: dropped_role.id)).to be_nil
       expect(Lfg::PingableRole.find_by(id: kept_role.id)).to be_present
-    end
-  end
-
-  context "with _destroy truthy on an existing role" do
-    let(:enabled) { "0" }
-    let!(:existing) { settings.pingable_roles.create!(role_id: 77, excluded_role_ids: [], required_role_ids: []) }
-    let(:pingable_roles) do
-      [{role_id: "77", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: nil, _destroy: "1"}]
-    end
-
-    it "removes the role" do
-      result
-      expect(Lfg::PingableRole.find_by(id: existing.id)).to be_nil
     end
   end
 
@@ -214,6 +233,18 @@ RSpec.describe Ops::Lfg::Settings::Update do
     it "does not persist the settings changes from the same call" do
       result
       expect(settings.reload.cooldown_seconds).to eq(300)
+    end
+  end
+
+  context "atomicity: an invalid pingable role also rolls back the plugin activation" do
+    let(:enabled) { "1" }
+    let(:pingable_roles) do
+      [{role_id: "77", min_membership_days: nil, required_role_ids: [], excluded_role_ids: [], allowed_channel_ids: []}]
+    end
+
+    it "leaves the plugin disabled" do
+      expect(result).to be_failure
+      expect(config.reload.enabled_plugin_keys).not_to include("lfg")
     end
   end
 end

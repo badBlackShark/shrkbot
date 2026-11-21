@@ -9,7 +9,8 @@ RSpec.describe Components::Moderation::PunishmentControl do
     described_class.new(
       name: "spam_protection[punishment]",
       value: "none",
-      timeout_seconds: 3600
+      timeout_seconds: 3600,
+      label: "Punishment"
     ).render_in(view_context)
   end
 
@@ -18,6 +19,10 @@ RSpec.describe Components::Moderation::PunishmentControl do
     expect(html).to include("Time out")
     expect(html).to include("Kick")
     expect(html).to include("Ban")
+  end
+
+  it "names the segmented group after the field" do
+    expect(html).to include('aria-label="Punishment"')
   end
 
   it "renders the hidden punishment input with the correct name" do
@@ -42,7 +47,8 @@ RSpec.describe Components::Moderation::PunishmentControl do
       described_class.new(
         name: "spam_protection[punishment]",
         value: "timeout",
-        timeout_seconds: 3600
+        timeout_seconds: 3600,
+        label: "Punishment"
       ).render_in(view_context)
     end
 
@@ -56,7 +62,8 @@ RSpec.describe Components::Moderation::PunishmentControl do
       described_class.new(
         name: "image_scanning[punishment]",
         value: "none",
-        timeout_seconds: 3600
+        timeout_seconds: 3600,
+        label: "Punishment"
       ).render_in(view_context)
     end
 
@@ -70,7 +77,8 @@ RSpec.describe Components::Moderation::PunishmentControl do
       described_class.new(
         name: "image_scanning[confirmed_punishment]",
         value: "none",
-        timeout_seconds: 3600
+        timeout_seconds: 3600,
+        label: "Punishment"
       ).render_in(view_context)
     end
 
@@ -84,6 +92,7 @@ RSpec.describe Components::Moderation::PunishmentControl do
           name: "image_scanning[confirmed_punishment]",
           value: "none",
           timeout_seconds: 3600,
+          label: "Punishment",
           none_label: "Same as above"
         ).render_in(view_context)
       end

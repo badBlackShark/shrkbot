@@ -15,7 +15,6 @@ namespace :twilight_struggle do
       end
 
       emoji.upload(emoji_name, TwilightStruggle::CountryFlag.image_path(emoji_name))
-      emoji.reset!
       puts "uploaded #{emoji_name}"
     end
   end

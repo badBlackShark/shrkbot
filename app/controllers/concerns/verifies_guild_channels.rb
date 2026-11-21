@@ -7,6 +7,6 @@ module VerifiesGuildChannels
 
   def guild_channels?(*channel_ids)
     ids = channel_ids.flatten.compact_blank.map(&:to_s).uniq
-    ids.empty? || @server_configuration.server_channels.where(discord_id: ids).count == ids.size
+    ids.empty? || @server_configuration.server_channels.text.where(discord_id: ids).count == ids.size
   end
 end

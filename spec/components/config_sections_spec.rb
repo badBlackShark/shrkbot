@@ -4,11 +4,11 @@ require "rails_helper"
 
 RSpec.describe Components::ConfigSections do
   subject(:html) do
-    described_class.new(key:, enable_error:, data:).call { "Section body" }
+    described_class.new(key:, save_error:, data:).call { "Section body" }
   end
 
   let(:key) { "welcomes" }
-  let(:enable_error) { nil }
+  let(:save_error) { nil }
   let(:data) { {} }
 
   it "wraps the content in a div with the key-derived id" do
@@ -19,7 +19,8 @@ RSpec.describe Components::ConfigSections do
     expect(html).to include("Section body")
   end
 
-  it "does not render a danger callout" do
+  it "renders an empty save-error target and no danger callout" do
+    expect(html).to include('id="welcomes-save-error"')
     expect(html).not_to include("bg-danger-soft")
   end
 
@@ -31,8 +32,8 @@ RSpec.describe Components::ConfigSections do
     end
   end
 
-  context "with an enable_error" do
-    let(:enable_error) { "Something went wrong." }
+  context "with an save_error" do
+    let(:save_error) { "Something went wrong." }
 
     it "renders a danger callout with the error" do
       expect(html).to include("bg-danger-soft").and include("Something went wrong.")

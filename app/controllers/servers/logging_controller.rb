@@ -22,7 +22,7 @@ class Servers::LoggingController < ApplicationController
       enabled_actions: submitted_actions,
       enabled: logging_params[:enabled]
     )
-    respond_with_configuration(result)
+    respond_with_save(result)
   end
 
   private

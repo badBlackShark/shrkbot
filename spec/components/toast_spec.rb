@@ -5,6 +5,15 @@ require "rails_helper"
 RSpec.describe Components::Toast do
   subject(:html) { described_class.new(level:, message: "Saved.").call }
 
+  let(:level) { "notice" }
+
+  it "puts the card in a collapsible row so a dismissed toast can fold away" do
+    row = Nokogiri::HTML5.fragment(html).at_css("[data-controller='toast']")
+
+    expect(row["class"]).to include("toast-slot")
+    expect(row.at_css("div.min-h-0 > div.pointer-events-auto")).to be_present
+  end
+
   context "with the warning level" do
     let(:level) { "warning" }
 

@@ -23,6 +23,24 @@ RSpec.describe Components::ConfigPage do
     ).render_in(view_context) { "" }
   end
 
+  context "without a url" do
+    subject(:html) do
+      described_class.new(header:, server_configuration: config, url: nil).render_in(view_context) { "Body" }
+    end
+
+    it "renders the body with no form and no save bar" do
+      expect(html).to include("Body")
+      expect(html).not_to include("<form")
+      expect(html).not_to include("save-bar")
+    end
+  end
+
+  context "with a url" do
+    it "wraps the page in the settings form and save bar" do
+      expect(html).to include("<form").and include("save-bar")
+    end
+  end
+
   context "without a banner" do
     it "shows the plugin tile and the title" do
       expect(html).to include("chamfer-tile", "<h1")
@@ -108,6 +126,23 @@ RSpec.describe Components::ConfigPage do
     it "renders both state labels, each shown only for its switch state" do
       expect(html).to match(/<span class="hidden [^"]*group-has-\[:checked\]\/enable:inline">Enabled<\/span>/)
       expect(html).to match(/<span class="[^"]*group-has-\[:checked\]\/enable:hidden">Disabled<\/span>/)
+    end
+  end
+
+  context "when the toggle names its own states" do
+    subject(:html) do
+      described_class.new(
+        header:,
+        server_configuration: config,
+        url: "/servers/900000001/reminders",
+        toggle: {field: "reminders[enabled]", enabled: true, states: {on: "Subscribed", off: "Not subscribed"}}
+      ).render_in(view_context) { "" }
+    end
+
+    it "swaps the state labels for them" do
+      expect(html).to match(/group-has-\[:checked\]\/enable:inline">Subscribed<\/span>/)
+      expect(html).to match(/group-has-\[:checked\]\/enable:hidden">Not subscribed<\/span>/)
+      expect(html).not_to include("Enabled")
     end
   end
 
@@ -216,6 +251,35 @@ RSpec.describe Components::ConfigPage do
 
     it "renders the toggle as disabled" do
       expect(html).to include("disabled")
+    end
+  end
+
+  context "when a locked toggle names its own states" do
+    subject(:html) do
+      described_class.new(
+        header:,
+        server_configuration: config,
+        url: "/servers/900000001/reminders",
+        toggle: {field: "reminders[enabled]", enabled:, locked: true, reason: "Locked.", states: {on: "Subscribed", off: "Not subscribed"}}
+      ).render_in(view_context) { "" }
+    end
+
+    context "when on" do
+      let(:enabled) { true }
+
+      it "shows the on state" do
+        expect(html).to include(">Subscribed</span>")
+        expect(html).not_to include("Not subscribed")
+      end
+    end
+
+    context "when off" do
+      let(:enabled) { false }
+
+      it "shows the off state" do
+        expect(html).to include(">Not subscribed</span>")
+        expect(html).not_to include(">Subscribed</span>")
+      end
     end
   end
 

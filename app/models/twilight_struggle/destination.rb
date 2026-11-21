@@ -5,7 +5,8 @@ module TwilightStruggle
     self.table_name = "twilight_struggle_destinations"
 
     DEFAULT_PLAYER_DISPLAY = "name"
-    PLAYER_DISPLAYS = [DEFAULT_PLAYER_DISPLAY, "name_and_tag", "tag"].freeze
+    TAG_DISPLAYS = %w[name_and_tag tag].freeze
+    PLAYER_DISPLAYS = [DEFAULT_PLAYER_DISPLAY, *TAG_DISPLAYS].freeze
     MAX_POST_DELAY = 1.week
 
     string_enum :player_display, PLAYER_DISPLAYS, validate: {allow_nil: true}, prefix: true

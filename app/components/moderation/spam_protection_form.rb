@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
 class Components::Moderation::SpamProtectionForm < Components::Base
-  def initialize(context:, enable_error: nil)
+  def initialize(context:)
     @settings = context.settings
-    @enable_error = enable_error
   end
 
   def view_template
-    render Components::ConfigSections.new(key: "spam_protection", enable_error: @enable_error) do
+    render Components::ConfigSections.new(key: "spam_protection") do
       detection_card
       response_card
     end
@@ -34,9 +33,10 @@ class Components::Moderation::SpamProtectionForm < Components::Base
         render Components::NumberStepper.new(
           name: "spam_protection[channel_threshold]",
           value: @settings.channel_threshold,
+          label: t(".detection.trigger_threshold.channels_name"),
           min: 2,
           max: 500,
-          default: 4,
+          default: column_default(::Moderation::SpamProtection::Settings, "channel_threshold"),
           unit: t(".detection.trigger_threshold.channels_unit")
         )
         span(class: "text-sm text-text-secondary h-8 inline-flex items-center") do
@@ -45,9 +45,10 @@ class Components::Moderation::SpamProtectionForm < Components::Base
         render Components::NumberStepper.new(
           name: "spam_protection[window_seconds]",
           value: @settings.window_seconds,
+          label: t(".detection.trigger_threshold.window_name"),
           min: 1,
           max: 60,
-          default: 15,
+          default: column_default(::Moderation::SpamProtection::Settings, "window_seconds"),
           unit: t(".detection.trigger_threshold.seconds_unit")
         )
       end
@@ -100,6 +101,7 @@ class Components::Moderation::SpamProtectionForm < Components::Base
       render Components::SegmentedControl.new(
         name: "spam_protection[action]",
         value: @settings.action,
+        label: t(".response.action.label"),
         options: [
           {value: "purge", label: t(".response.action.purge")},
           {value: "notify_only", label: t(".response.action.notify_only")}
@@ -114,7 +116,8 @@ class Components::Moderation::SpamProtectionForm < Components::Base
       render Components::Moderation::PunishmentControl.new(
         name: "spam_protection[punishment]",
         value: @settings.punishment,
-        timeout_seconds: @settings.timeout_seconds
+        timeout_seconds: @settings.timeout_seconds,
+        label: t(".response.punishment.label")
       )
     end
   end

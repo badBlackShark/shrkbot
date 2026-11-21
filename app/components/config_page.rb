@@ -15,7 +15,7 @@ class Components::ConfigPage < Components::Base
 
   def view_template(&block)
     render Components::ServerPage.new(server_configuration: @server_configuration, crumbs: trailing_crumbs) do
-      if instant?
+      if instant? || @url.nil?
         page_content(&block)
       else
         save_form { page_content(&block) }
@@ -101,7 +101,7 @@ class Components::ConfigPage < Components::Base
 
   def locked_enable_control
     span(class: "text-sm font-medium text-text-secondary") do
-      @toggle[:enabled] ? t(".enabled") : t(".disabled")
+      @toggle[:enabled] ? on_text : off_text
     end
     render Components::Tooltip.new(text: lock_reason) do
       render Components::Toggle.new(
@@ -114,8 +114,8 @@ class Components::ConfigPage < Components::Base
   end
 
   def interactive_enable_control
-    span(class: "hidden text-sm font-medium text-text-secondary group-has-[:checked]/enable:inline") { t(".enabled") }
-    span(class: "text-sm font-medium text-text-secondary group-has-[:checked]/enable:hidden") { t(".disabled") }
+    span(class: "hidden text-sm font-medium text-text-secondary group-has-[:checked]/enable:inline") { on_text }
+    span(class: "text-sm font-medium text-text-secondary group-has-[:checked]/enable:hidden") { off_text }
     render Components::Toggle.new(
       name: @toggle[:field],
       checked: @toggle[:enabled],
@@ -128,6 +128,14 @@ class Components::ConfigPage < Components::Base
     return {} unless instant?
 
     {url: @url, submit_on_change: true}
+  end
+
+  def on_text
+    @toggle.dig(:states, :on) || t(".enabled")
+  end
+
+  def off_text
+    @toggle.dig(:states, :off) || t(".disabled")
   end
 
   def toggle_label

@@ -7,7 +7,7 @@ module Ops
     def save_with_activation(settings, publish_menu: true)
       return failure(settings.errors.full_messages) unless settings.valid?
 
-      transaction do
+      ActiveRecord::Base.transaction(requires_new: true) do
         toggled = toggle_plugin(publish_menu:)
         if toggled.success?
           settings.save!
@@ -15,6 +15,8 @@ module Ops
         end
         toggled
       end
+    rescue ActiveRecord::RecordInvalid => error
+      failure(error.record.errors.full_messages)
     end
 
     def toggle_plugin(publish_menu: true)
