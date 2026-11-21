@@ -10,6 +10,9 @@ module Feeds
       event_types
     end
 
+    def self.role_override_for(_subscription, _event_type)
+    end
+
     def self.retract?(_subscription, _event)
       false
     end

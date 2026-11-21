@@ -6,8 +6,9 @@ class Components::NumberStepper < Components::Base
     "hover:bg-surface-sunken hover:text-text-primary"
   TRAILING_CORNER = "rounded-r-[7px] [&:has(+:not([hidden]))]:rounded-r-none"
 
-  def initialize(name:, value:, min:, default: nil, unit: nil, max: nil, placeholder: nil, input_class: "w-11")
+  def initialize(name:, value:, min:, label:, default: nil, unit: nil, max: nil, placeholder: nil, input_class: "w-11")
     @name = name
+    @label = label
     @value = value
     @min = min
     @default = default
@@ -72,16 +73,17 @@ class Components::NumberStepper < Components::Base
   end
 
   def decrement_button
-    stepper_button("minus", "decrement", DECREMENT_CORNER)
+    stepper_button("minus", "decrement", DECREMENT_CORNER, t("components.number_stepper.decrease", label: @label))
   end
 
   def increment_button
-    stepper_button("plus", "increment", TRAILING_CORNER)
+    stepper_button("plus", "increment", TRAILING_CORNER, t("components.number_stepper.increase", label: @label))
   end
 
-  def stepper_button(icon, method, corner)
+  def stepper_button(icon, method, corner, name)
     button(
       type: "button",
+      aria_label: name,
       class: "flex w-8 items-center justify-center text-text-secondary transition-colors hover:bg-surface-sunken hover:text-text-primary #{corner}",
       data: {action: "click->number-stepper##{method}"}
     ) do
@@ -92,6 +94,7 @@ class Components::NumberStepper < Components::Base
   def number_input
     input(
       type: "number",
+      aria_label: @label,
       step:,
       class: "#{@input_class} h-full border-x border-border-default bg-transparent [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none px-1 text-center font-mono text-sm text-text-primary focus:outline-none",
       data: input_data,

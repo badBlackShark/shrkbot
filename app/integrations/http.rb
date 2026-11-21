@@ -25,9 +25,10 @@ module Integrations
       JSON::ParserError
     ].freeze
     MAX_BYTES = 5.megabytes
+    READ_TIMEOUT = 15
 
-    def self.get_json(url, params: {}, headers: {}, status_errors: {}, &)
-      new(Net::HTTP::Get.new(uri(url, params)), headers:, status_errors:).json(&)
+    def self.get_json(url, params: {}, headers: {}, status_errors: {}, read_timeout: READ_TIMEOUT, &)
+      new(Net::HTTP::Get.new(uri(url, params)), headers:, status_errors:, read_timeout:).json(&)
     end
 
     def self.post_form(url, form:, status_errors: {}, &)
@@ -62,7 +63,7 @@ module Integrations
     end
     private_class_method :uri
 
-    def initialize(request, headers: {}, status_errors: {}, accept: "application/json")
+    def initialize(request, headers: {}, status_errors: {}, accept: "application/json", read_timeout: READ_TIMEOUT)
       @request = request
       @request["User-Agent"] = USER_AGENT
       @request["Accept"] = accept
@@ -71,6 +72,7 @@ module Integrations
       end
       @uri = request.uri
       @status_errors = STATUS_ERRORS.merge(status_errors)
+      @read_timeout = read_timeout
     end
 
     def bytes
@@ -105,7 +107,7 @@ module Integrations
         @uri.port,
         use_ssl: @uri.scheme == "https",
         open_timeout: 5,
-        read_timeout: 15,
+        read_timeout: @read_timeout,
         max_retries: 0
       ) do |http|
         http.request(@request)

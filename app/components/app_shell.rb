@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Components::AppShell < Components::Base
-  include Phlex::Rails::Helpers::ImageTag
   include Phlex::Rails::Helpers::ButtonTo
   include Phlex::Rails::Helpers::TurboFrameTag
 
@@ -42,7 +41,7 @@ class Components::AppShell < Components::Base
 
   def top_bar
     header(class: "app-bar z-30 flex h-16 flex-none items-center gap-3 px-5") do
-      wordmark
+      render Components::SiteLogo.new(href: servers_path)
       render Components::VersionBadge.new
       server_switcher if @current_server
       div(class: "flex-1")
@@ -98,15 +97,6 @@ class Components::AppShell < Components::Base
 
   def dashboard_path_for(server)
     PluginPaths.dashboard_for(server.id)
-  end
-
-  def wordmark
-    a(href: servers_path, class: "flex items-center gap-2") do
-      image_tag("shrkbot-mascot.png", alt: "", class: "size-9 chamfer-tile-sm")
-      span(class: "font-display text-lg font-bold tracking-tight") do
-        render Components::Wordmark.new
-      end
-    end
   end
 
   def notification_frame

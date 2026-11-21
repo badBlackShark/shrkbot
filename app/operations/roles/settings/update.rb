@@ -17,8 +17,6 @@ module Ops
           result = save_with_activation(setting, publish_menu: false) { reconcile_sets(setting) }
           plan.publish if result.success?
           result
-        rescue ActiveRecord::RecordInvalid => error
-          failure([error.record.errors.full_messages.to_sentence])
         end
 
         private

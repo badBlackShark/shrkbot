@@ -11,6 +11,7 @@ class Components::Feeds::Twitch::ModeField < Components::Base
       render Components::SegmentedControl.new(
         name: "subscription[#{setting}]",
         value: selected,
+        label:,
         options: modes.map { |mode| {value: mode, label: mode_label(mode)} },
         input_data: {action: "input->option-panels#show"}
       )

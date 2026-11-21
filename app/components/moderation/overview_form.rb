@@ -1,18 +1,16 @@
 # frozen_string_literal: true
 
 class Components::Moderation::OverviewForm < Components::Base
-  def initialize(server_configuration:, context:, enable_error: nil)
+  def initialize(server_configuration:, context:)
     @config = server_configuration
     @context = context
-    @enable_error = enable_error
   end
 
   def view_template
-    render Components::ConfigSections.new(key: "moderation", enable_error: @enable_error) do
+    render Components::ConfigSections.new(key: "moderation") do
       render Components::Moderation::StaffRoleCard.new(
         server_configuration: @config,
-        staff_role_id: @context.staff_role_id,
-        permission_warning: @context.permission_warning?
+        staff_role_id: @context.staff_role_id
       )
       render Components::Moderation::StaffPingCard.new(ping_staff: @context.ping_staff)
       render Components::Moderation::AccountAgeCard.new(

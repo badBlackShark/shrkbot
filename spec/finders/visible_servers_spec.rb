@@ -63,11 +63,11 @@ RSpec.describe Finders::VisibleServers do
 
     context "when Discord rejects the token" do
       before do
-        allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Unauthorized)
+        allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Unauthorized)
       end
 
       it "raises Unauthorized" do
-        expect { guilds }.to raise_error(Bot::Discord::UserGuilds::Unauthorized)
+        expect { guilds }.to raise_error(Bot::Discord::Unauthorized)
       end
 
       it "keeps the rejection past the guild-list TTL, so a replayed session cannot pile up rejected requests" do
@@ -85,34 +85,21 @@ RSpec.describe Finders::VisibleServers do
       end
     end
 
-    context "when the token lacks the guilds scope" do
-      before do
-        allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds.rejection(403))
-      end
-
-      it "raises the plain error with the status, not Unauthorized" do
-        expect { guilds }.to raise_error(Bot::Discord::UserGuilds::Error) do |error|
-          expect(error).to have_attributes(class: Bot::Discord::UserGuilds::Error, status: 403)
-        end
-      end
-
-      it "keeps the rejection past the guild-list TTL" do
-        look_up_ignoring_errors
-        travel(described_class::CACHE_TTL + 1.second) { look_up_ignoring_errors }
-
-        expect(Bot::Discord::UserGuilds).to have_received(:call).once
-      end
-    end
-
     context "when Discord rate-limits the token" do
       before do
-        allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds.rejection(429))
+        allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::RateLimited)
       end
 
       it "asks Discord only once within the guild-list TTL" do
         2.times { look_up_ignoring_errors }
 
         expect(Bot::Discord::UserGuilds).to have_received(:call).once
+      end
+
+      it "re-raises the rate limit from the cache" do
+        look_up_ignoring_errors
+
+        expect { guilds }.to raise_error(Bot::Discord::RateLimited)
       end
 
       it "asks Discord again after the guild-list TTL" do
@@ -125,7 +112,7 @@ RSpec.describe Finders::VisibleServers do
 
     context "when Discord fails with a server error" do
       before do
-        allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds.rejection(500))
+        allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Error)
       end
 
       it "does not cache the failure" do
@@ -139,7 +126,7 @@ RSpec.describe Finders::VisibleServers do
       subject(:guilds) { described_class.for(nil, discord_id) }
 
       it "raises Unauthorized" do
-        expect { guilds }.to raise_error(Bot::Discord::UserGuilds::Unauthorized)
+        expect { guilds }.to raise_error(Bot::Discord::Unauthorized)
       end
 
       it "does not ask Discord" do
@@ -147,6 +134,12 @@ RSpec.describe Finders::VisibleServers do
 
         expect(Bot::Discord::UserGuilds).not_to have_received(:call)
       end
+    end
+
+    it "ignores a rejection cached under the key format used before the version prefix" do
+      memory.write("member_guilds:#{Digest::SHA256.hexdigest("tok")}", 401, expires_in: 1.hour)
+
+      expect(guilds).to include(manageable_guild)
     end
 
     it "caches per token" do
@@ -158,7 +151,7 @@ RSpec.describe Finders::VisibleServers do
 
     def look_up_ignoring_errors(token = "tok")
       described_class.for(token, discord_id)
-    rescue Bot::Discord::UserGuilds::Error
+    rescue Bot::Discord::Error
       nil
     end
   end

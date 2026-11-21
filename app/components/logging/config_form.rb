@@ -3,14 +3,13 @@
 class Components::Logging::ConfigForm < Components::Base
   CHANNEL_FIELD = "logging[channel_id]"
 
-  def initialize(server_configuration:, enable_error: nil)
+  def initialize(server_configuration:)
     @config = server_configuration
     @settings = server_configuration.logging_settings
-    @enable_error = enable_error
   end
 
   def view_template
-    render Components::ConfigSections.new(key: "logging", enable_error: @enable_error) do
+    render Components::ConfigSections.new(key: "logging") do
       channel_card
       events_card
     end
@@ -107,7 +106,7 @@ class Components::Logging::ConfigForm < Components::Base
   end
 
   def visible_channel_ids
-    @visible_channel_ids ||= @config.server_channels.text.select(&:everyone_visible?).map { |channel| channel.discord_id.to_s }
+    @visible_channel_ids ||= Finders::EveryoneVisibleChannelIds.for(@config).map(&:to_s)
   end
 
   def channels

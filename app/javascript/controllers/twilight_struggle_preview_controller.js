@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import { text, pill, hint, nodes } from "lib/token_preview"
 import { render as renderMarkdown } from "lib/discord_markdown_dom"
+import { syncResetButton, resetToDefault } from "lib/reset_to_default"
 
 const GAMES = {
   win: {
@@ -39,6 +40,8 @@ const SIDES = { usa: "USA", ussr: "USSR" }
 const TOKEN = /\{(\w+)\}/g
 
 export default class extends Controller {
+  static values = { inheritedDisplay: String }
+
   static targets = [
     "winTemplate", "tieTemplate", "videoTemplate",
     "winOutput", "tieOutput", "videoOutput",
@@ -54,15 +57,13 @@ export default class extends Controller {
     for (const kind of Object.keys(GAMES)) {
       const input = this[`${kind}TemplateTarget`]
       this.paint(input, this[`${kind}OutputTarget`], GAMES[kind])
-      this[`${kind}ResetTarget`].hidden = input.value === input.dataset.default
+      syncResetButton(this[`${kind}ResetTarget`], input, input.dataset.default)
     }
   }
 
   reset({ params: { kind } }) {
     const input = this[`${kind}TemplateTarget`]
-    input.value = input.dataset.default
-    input.dispatchEvent(new Event("input", { bubbles: true }))
-    input.focus()
+    resetToDefault(input, input.dataset.default)
   }
 
   paint(input, output, game) {
@@ -160,6 +161,6 @@ export default class extends Controller {
   }
 
   get display() {
-    return (this.hasDisplayTarget && this.displayTarget.value) || "name"
+    return (this.hasDisplayTarget && this.displayTarget.value) || this.inheritedDisplayValue
   }
 }

@@ -14,17 +14,20 @@ module Lfg
 
     def execute
       event.defer(ephemeral: true)
+      member = event.server.member(event.user.id)
+      return reply(unavailable_member_message) unless member
+
       outcome = Lfg::PostCreation.call(
         server_configuration:,
         channel: event.channel,
         bot: event.bot,
-        member: event.server.member(event.user.id),
+        member:,
         role_id: event.options["role"].to_i,
         message: event.options["message"],
         starting_in: event.options["starting_in"],
         mention_permission: event.interaction.application_permissions&.mention_everyone
       )
-      event.edit_response(content: outcome.message, allowed_mentions: {parse: []})
+      reply(outcome.message)
     end
 
     def autocomplete
@@ -32,6 +35,14 @@ module Lfg
     end
 
     private
+
+    def reply(content)
+      event.edit_response(content:, allowed_mentions: {parse: []})
+    end
+
+    def unavailable_member_message
+      "⚠️ #{Lfg::Denial.reason_text(:member_unavailable)}"
+    end
 
     def server_configuration
       ServerConfiguration.find_by(discord_id: event.server.id)

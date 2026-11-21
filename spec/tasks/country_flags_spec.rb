@@ -19,6 +19,12 @@ RSpec.describe "twilight_struggle:upload_country_flags" do
     allow($stdout).to receive(:puts)
   end
 
+  it "refreshes the emoji cache once, before reading what is already uploaded" do
+    run_task
+
+    expect(Bot::Discord::ApplicationEmoji).to have_received(:reset!).once
+  end
+
   it "uploads every regional flag the application does not carry yet" do
     run_task
 

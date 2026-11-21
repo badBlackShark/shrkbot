@@ -32,8 +32,20 @@ RSpec.describe Components::Moderation::SpamProtectionForm do
     expect(html).to include('name="spam_protection[window_seconds]"')
   end
 
+  it "names both threshold steppers for screen readers" do
+    inputs = Nokogiri::HTML5.fragment(html).css("input[type=number]")
+
+    expect(inputs.map { |input| input["aria-label"] }).to eq(["Number of different channels", "Time window in seconds"])
+  end
+
   it "caps the threshold stepper at the server-side maximum for native validation" do
     expect(html).to include('max="500"')
+  end
+
+  it "resets the threshold and window steppers to the column defaults" do
+    defaults = ::Moderation::SpamProtection::Settings.column_defaults.values_at("channel_threshold", "window_seconds")
+
+    expect(html.scan(/data-number-stepper-default-value="(\d+)"/).flatten.map(&:to_i)).to eq(defaults)
   end
 
   it "caps the window seconds stepper at the server-side maximum for native validation" do
@@ -63,22 +75,5 @@ RSpec.describe Components::Moderation::SpamProtectionForm do
 
   it "renders the timeout_seconds duration select" do
     expect(html).to include('name="spam_protection[timeout_seconds]"')
-  end
-
-  it "renders no enable_error callout by default" do
-    expect(html).not_to include("A staff role is required.")
-  end
-
-  context "with an enable_error" do
-    subject(:html) do
-      described_class.new(
-        context:,
-        enable_error: "A staff role is required."
-      ).render_in(view_context)
-    end
-
-    it "renders the error callout" do
-      expect(html).to include("A staff role is required.")
-    end
   end
 end

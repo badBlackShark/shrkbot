@@ -19,8 +19,13 @@ class Components::Feeds::EventTypeList < Components::Base
       plugin_key: @plugin_key,
       event_type:,
       event: events_by_type[event_type],
+      route_labels:,
       type_fields: @type_fields
     )
+  end
+
+  def route_labels
+    @route_labels ||= ::Feeds::RouteLabels.new(@subscription.server_configuration)
   end
 
   def events_by_type

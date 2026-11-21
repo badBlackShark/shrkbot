@@ -43,7 +43,7 @@ RSpec.describe "Authentication", type: :request do
     before do
       post "/auth/discord/callback"
       create(:server_configuration, discord_id: guild.id)
-      allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::UserGuilds::Unauthorized)
+      allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Bot::Discord::Unauthorized)
     end
 
     it "renders the reauth page and stores the current path" do
@@ -69,6 +69,17 @@ RSpec.describe "Authentication", type: :request do
       expect(response).to redirect_to(root_path)
       expect(flash[:alert]).to be_present
       expect(session[:reauth_attempted]).to be_nil
+    end
+
+    context "when another provider's integration rejects its credentials" do
+      before do
+        allow(Bot::Discord::UserGuilds).to receive(:call).and_raise(Integrations::Unauthorized)
+      end
+
+      it "does not start Discord re-authentication" do
+        expect { get server_logging_path(guild.id) }.to raise_error(Integrations::Unauthorized)
+        expect(session[:reauth_attempted]).to be_blank
+      end
     end
   end
 

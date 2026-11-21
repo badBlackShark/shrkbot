@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "json"
-
 module Bot
   module Discord
     class OwnerUsername
@@ -27,11 +25,8 @@ module Bot
       def fetch
         return if Config.owner_id.blank?
 
-        response = Rest.get("/users/#{Config.owner_id}", authorization: Config.rest_token)
-        return JSON.parse(response.body).fetch("username") if response.code.to_i == 200
-
-        warn_failed("Discord responded with #{response.code}")
-      rescue *::Integrations::Http::TRANSPORT_ERRORS, KeyError => e
+        Rest.get_json("/users/#{Config.owner_id}", authorization: Config.rest_token) { |json| json.fetch("username") }
+      rescue Error => e
         warn_failed(e.message)
       end
 

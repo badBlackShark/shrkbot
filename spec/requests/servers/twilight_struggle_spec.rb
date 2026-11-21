@@ -218,8 +218,13 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
 
         it "offers the subscription toggle in the page header, switched on" do
           get edit_server_twilight_struggle_destination_path(guild.id, tournament)
-          expect(response.body).to include("destination[subscribed]")
-          expect(response.body).to include(I18n.t("components.config_page.enabled"))
+          toggle = Nokogiri::HTML5(response.body).at_css('input[type=checkbox][name="destination[subscribed]"]')
+          expect(toggle["checked"]).not_to be_nil
+        end
+
+        it "labels the toggle states as a subscription" do
+          get edit_server_twilight_struggle_destination_path(guild.id, tournament)
+          expect(response.body).to include("Subscribed").and include("Not subscribed")
         end
 
         it "names the tournament on the toggle rather than calling it the plugin switch" do
@@ -270,7 +275,8 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
 
           it "shows the subscription toggle switched off" do
             get edit_server_twilight_struggle_destination_path(guild.id, tournament)
-            expect(response.body).to include(I18n.t("components.config_page.disabled"))
+            toggle = Nokogiri::HTML5(response.body).at_css('input[type=checkbox][name="destination[subscribed]"]')
+            expect(toggle["checked"]).to be_nil
           end
         end
 
@@ -354,6 +360,12 @@ RSpec.describe "Servers::TwilightStruggle", type: :request do
             end
           end
         end
+
+        def submit_channel(channel_id)
+          patch server_twilight_struggle_destination_path(guild.id, tournament), params: {destination: attributes.merge(discord_channel_id: channel_id.to_s)}
+        end
+
+        it_behaves_like "a form that only accepts text channels"
 
         context "when the channel belongs to a different guild" do
           let(:attributes) { super().merge(discord_channel_id: "9999") }

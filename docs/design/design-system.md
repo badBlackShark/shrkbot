@@ -59,7 +59,11 @@ and centre themselves.
 Flash messages render as dismissable toasts (`Components::Toasts`, rendered once
 from the layout so every page gets them). The `warning` level (a save that leaves a plugin disabled) is sticky: it
 stays until dismissed. A toast rises 8px as it fades in, and the `toast`
-controller plays `toast-leave` before it removes the element. A toast is
+controller plays `toast-leave` (the toast stops taking clicks from then on), then
+collapses the toast's grid row from `1fr` to `0fr` (`toast-collapse`, `--dur-slow`,
+linear) before it removes the element on `transitionend` or `transitioncancel`, with a
+timer as a fallback. The toast's gap is its card's top margin, inside the collapsing
+row, so the toasts above it slide down instead of dropping. A toast is
 `data-turbo-temporary`: Turbo drops it from the page cache, so Back never
 replays one. Small dropdowns (the user menu) are the
 standard pattern: a native `<details>` with the `dropdown` Stimulus controller.
@@ -132,7 +136,8 @@ overviews): it has no edits to batch, so its toggle is standalone (see below).
 Both paths render through a Turbo Stream view template (`action.turbo_stream.erb`, see [Web (controllers and views)](../web/controllers-and-views.md)): the template's
 `turbo_stream.replace`/`append` lines render our Phlex components as the content, so
 the stream markup stays in the view layer. Success re-renders the control plus a
-toast; a config-form failure re-renders the form region with inline errors — just
+toast; a failed config-form save fills the form's error slot, appends an alert
+toast, and leaves the form as the user left it — just
 more `turbo_stream.*` lines. The one config-form control still unbuilt (the
 segmented control) ships with the Roles page that consumes it.
 
@@ -161,18 +166,21 @@ persists until Save. A page whose only control is the toggle passes
 toggle saves on flip like the dashboard's, and on a preview server it renders
 locked with the preview tooltip. There is no overlay: a disabled plugin's body stays fully
 editable, and the Enabled/Disabled label beside the toggle is a CSS
-`group-has-[:checked]` pair, so it follows the staged toggle with no JS. Saving a
+`group-has-[:checked]` pair, so it follows the staged toggle with no JS. A toggle
+that is not the plugin switch passes its own pair as `states: {on:, off:}` (the
+Twilight Struggle tournament page says Subscribed/Not subscribed). Saving a
 disabled plugin succeeds and toasts "Saved. X is still disabled."
 (`ConfiguresPlugin#saved_message`). A locked toggle submits its current state
 through a hidden field. `prerequisites:` takes a `Components::PrerequisiteSteps`
 callout rendered above the editable body (a protection with unmet prerequisites;
 the Twilight Struggle tournament page while the plugin is off). A setting the plugin can't be enabled without (the channel
 picker on Welcomes/Logging) carries a danger `*` marker next to its label; the
-operation enforces the requirement server-side and the form re-renders with the
-inline error if it's missing. ConfigPage also has a plain path for
+operation enforces the requirement server-side and a failed save shows the
+message in the form's error slot if it's missing. ConfigPage also has a plain path for
 always-on plugins: pass no `toggle:` and it drops the enable toggle,
 optionally rendering a copper `badge:` ("Always on") next to the title instead —
-Reminders is the one consumer.
+Reminders is the one consumer. Pass `url: nil` for a page with no settings of its own
+(the Integrations overview): ConfigPage then renders the body with no form and no SaveBar.
 
 On config pages the app shell also renders a left **`Components::PluginSidebar`**
 (passed to `AppShell` via `sidebar:`, which switches the shell to a sidebar+main
@@ -272,6 +280,11 @@ duplicated class strings:
   neither applies. New rolls up to a parent from a new sub-plugin; Beta does not.
   **`Components::NewSparkle`** is the sidebar's icon-only New marker, with
   screen-reader text, on an item and on a group's own line.
+- **`Components::PluginStatusBadge(configured:, locked:)`** — the dashboard row's status
+  pill: a copper "Always on" when the plugin is locked on, else a warning "Needs setup"
+  when it is not configured, else nothing. `PluginRow` and `SubPluginRow` both render it.
+- **`Components::SiteLogo(href:)`** — the mascot tile (`chamfer-tile-sm`, empty `alt` because the
+  wordmark beside it names the site) and `Wordmark` as one link. The app bar and the public header both use it.
 - **`Components::BespokeBadge`** — the copper Bespoke pill (filled puzzle-piece icon)
   on a bespoke plugin's dashboard row and on the bespoke plugins page.
 - **`Components::PluginTile`** — the chamfered identity tile (icon on teal when
@@ -286,7 +299,8 @@ duplicated class strings:
   default, no reset. A stepper with `default:` must be left-anchored, because the
   reset segment grows the control to the right. `Components::ResetButton` takes `shape:` (`:standalone` bordered
   square, `:segment` inside a joined control). No UI cap (`max:` is optional, for the
-  dynamic keyword-count limit); submits as a plain number field.
+  dynamic keyword-count limit); submits as a plain number field. `label:` is required and
+  names the input and must contain the visible unit or label text; the buttons are named "Decrease <label>" and "Increase <label>".
 - **`Components::DurationStepper`** — `NumberStepper` subclass for durations. `base:`
   (`:seconds` / `:minutes`) is the unit the hidden field submits. The unit picker is the
   shared `TomSelect` (`tom_select_fixed_value: true`) skinned as a segment (`.ts-segment`
@@ -301,16 +315,24 @@ duplicated class strings:
 - **`Components::RadioCardGroup`** — stacked radio options as bordered cards with a
   title + one-line description; native radios, so selection is reactive with no JS.
 - **`Components::PrerequisiteSteps`** (a title plus one `Step` per unmet prerequisite) / **`Components::SidebarGroup`** — see *Plugin groups*.
+- **`Components::TemplateTextarea`** — every message template field (welcome
+  messages, feed posts, Twilight Struggle results). Messages are prose people
+  write, so the field uses the body font, never monospace; tokens like `{title}`
+  stand out through the live preview, not the field's font.
 - **`Components::FieldLabel`** / **`Components::FieldHelp`** — the shared label
   and help-text styling for a form field (`<label>` and `<p>` respectively); no
   parameters, block content only. Help goes under the control via `FieldHelp`,
   never between label and control.
-- **Option help** — a help line that describes some options of a `SegmentedControl` shows only while one of them is pressed: the card is a named group (`group/setting`), and a wrapper around the `FieldHelp` under the control carries `hidden group-has-[[data-value=<value>][aria-pressed=true]]/setting:block` per option, with `_` in a value written `\_`. It sits under the control so the options do not move when it appears. CSS only (`TwilightStruggle::PlayerDisplayCard`).
+- **`Components::Description`** — the one-line description under a row or card
+  title (`SettingRow`, `SubPluginRow`, admin cards): `mt-0.5 text-sm
+  text-text-secondary`, block content only. It describes the thing the title
+  names; `FieldHelp` (`text-xs`, muted) explains a form field and sits under it.
+- **Option help** — a help line that describes some options of a `SegmentedControl` shows only while one of them is selected: the card is a named group (`group/setting`), and a wrapper around the `FieldHelp` under the control carries `hidden group-has-[[data-value=<value>][aria-checked=true]]/setting:block` per option, with `_` in a value written `\_`. It sits under the control so the options do not move when it appears. CSS only (`TwilightStruggle::PlayerDisplayCard`).
 - **`Components::RequiredMarker`** — the red asterisk after a required field's
   label; the only required marker. Labels never say "(required)" or "(optional)".
 - **`Components::ConfigSections`** — the config-page section stack: renders the
   `<key>-config` div Turbo targets, the vertical `gap-5` rhythm, and the
-  danger callout every plugin form was repeating (`enable_error:`).
+  `<key>-save-error` slot (`Components::SaveErrorCallout`) that a failed save fills.
 - **Toggle cards that open** (`Components::Feeds::EventTypeSetting`) — an option with its own settings is a card: a
   `SettingRow` header with a chevron and the toggle at the card edge. Turning it on opens the card and turning it off folds
   it; a click anywhere on the header
@@ -332,9 +354,9 @@ duplicated class strings:
   `<span>`, same reason as `SettingRow`) followed by the control yielded as a
   block, wrapping on narrow widths. Help goes below it as a `FieldHelp`. Used
   where the label leads into the value ("Treat accounts as new for [30] days").
-- **`Components::SegmentedControl`** — one-of-N buttons over a hidden input. Pass
-  `label:` when the visible label is a `FieldLabel` (no `for`): it names the
-  `role="group"` for screen readers.
+- **`Components::SegmentedControl`** — one-of-N buttons over a hidden input, a
+  `role="radiogroup"` of `role="radio"` buttons with roving tabindex and arrow/Home/End
+  keys. `label:` is required: pass the text of the visible `FieldLabel` (no `for`). With no value selected the first option stays tabbable.
 
 `Components::Icon` wraps Phosphor; names not in Phosphor (the `megaphone-slash`
 sub-plugin glyph) are served from its `CUSTOM_GLYPHS` map of inline SVGs. `steam` is

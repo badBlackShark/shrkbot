@@ -22,6 +22,20 @@ RSpec.describe Ops::ServerConfiguration::Plugins::Toggle do
     allow(Bot::ConfigBus).to receive(:sync_commands)
   end
 
+  context "when enabling logging" do
+    let(:plugin) { logging }
+    let(:enabled) { true }
+
+    it_behaves_like "an operation that locks the server row first", /FROM "plugin_activations"/
+
+    it "runs in a transaction, so the row lock is held until the activation is saved" do
+      allow(ActiveRecord::Base).to receive(:transaction).and_call_original
+      result
+
+      expect(ActiveRecord::Base).to have_received(:transaction)
+    end
+  end
+
   context "with a raw checkbox value (form param, not yet cast)" do
     let(:plugin) { roles }
 

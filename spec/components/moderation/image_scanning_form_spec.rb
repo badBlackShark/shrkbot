@@ -45,7 +45,7 @@ RSpec.describe Components::Moderation::ImageScanningForm do
   end
 
   it "renders all three sensitivity options" do
-    group = Nokogiri::HTML5.fragment(html).at_css("[role=group]")
+    group = Nokogiri::HTML5.fragment(html).at_css("[role=radiogroup]")
     expect(group.css("button").map { |option| option.text.strip }).to eq(["Relaxed", "Standard (recommended)", "Strict"])
     expect(html).to include("Stricter catches more scams and more innocent images.")
   end
@@ -109,19 +109,6 @@ RSpec.describe Components::Moderation::ImageScanningForm do
   it "renders the report-as-scam callout" do
     expect(html).to include("Report a scam yourself")
     expect(html).to include("Report as scam")
-  end
-
-  context "with an enable_error" do
-    subject(:html) do
-      described_class.new(
-        context:,
-        enable_error: "A staff role is required."
-      ).render_in(view_context)
-    end
-
-    it "renders the error callout" do
-      expect(html).to include("A staff role is required.")
-    end
   end
 
   context "when the settings have custom keywords" do

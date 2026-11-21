@@ -49,10 +49,6 @@ module Feeds
         {text:, class: css}
       end
 
-      def image_label(name)
-        sample(:images, name)
-      end
-
       def watch_token
         "streamer"
       end

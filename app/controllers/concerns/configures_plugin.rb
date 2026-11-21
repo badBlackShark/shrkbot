@@ -23,13 +23,9 @@ module ConfiguresPlugin
     )
   end
 
-  def respond_with_configuration(result)
-    @enable_error = result.errors.to_sentence.presence if result.failure?
-    respond_with_save(result)
-  end
-
   def respond_with_save(result)
-    @toast = {level: saved_level(result.value), message: saved_message(result.value)} if result.success?
+    @save_error = save_error_message(result) if result.failure?
+    @toast = result.success? ? {level: saved_level(result.value), message: saved_message(result.value)} : {level: "alert", message: @save_error}
     respond_to do |format|
       format.turbo_stream { render status: result.success? ? :ok : :unprocessable_content }
       format.html { redirect_to configuration_url, **flash_for(result) }
@@ -43,7 +39,11 @@ module ConfiguresPlugin
   def flash_for(result)
     return {flash: {saved_level(result.value) => saved_message(result.value)}} if result.success?
 
-    {alert: result.errors.to_sentence}
+    {alert: save_error_message(result)}
+  end
+
+  def save_error_message(result)
+    result.errors.to_sentence.presence || t("servers.save_failed")
   end
 
   def saved_level(saved)

@@ -18,6 +18,7 @@ class Components::Lfg::DurationField < Components::Base
       render Components::DurationStepper.new(
         name: @name,
         value: @value,
+        label: @label,
         min: @min,
         max: @max,
         default: @default,
