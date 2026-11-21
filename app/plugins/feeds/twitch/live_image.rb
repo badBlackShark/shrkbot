@@ -19,7 +19,7 @@ module Feeds
       end
 
       def self.preview(event)
-        Rails.cache.fetch(["feeds/twitch/preview/v1", event.session], expires_in: PREVIEW_TTL) do
+        CachedFetch.call(["feeds/twitch/preview/v1", event.session], missing: "Twitch preview for #{event.login}", ttl: PREVIEW_TTL, failure_ttl: nil) do
           url = Integrations::Twitch::Previews.new.url_for(event.login)
           if url
             stamped = "#{url}?t=#{Time.current.to_i}"
@@ -27,9 +27,6 @@ module Feeds
             stamped
           end
         end
-      rescue Integrations::Error => error
-        Rails.logger.warn("Feeds: no Twitch preview for #{event.login}: #{error.class}: #{error.message}")
-        nil
       end
 
       def self.box_art(event)
