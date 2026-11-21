@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe "Bespoke plugins page", type: :request do
+RSpec.describe "Bespoke Plugins page", type: :request do
   subject(:bespoke_plugins) { get bespoke_plugins_path }
 
   it "responds ok while signed out" do
@@ -14,7 +14,7 @@ RSpec.describe "Bespoke plugins page", type: :request do
   it "leads with the bespoke-plugin pitch" do
     bespoke_plugins
 
-    expect(response.body).to include("Bespoke plugins</h1>")
+    expect(response.body).to include("Bespoke Plugins</h1>")
     expect(response.body).to include("I can build it as a plugin that only your server gets.")
   end
 

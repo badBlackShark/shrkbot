@@ -29,7 +29,7 @@ en:
         grant: Grant
         granted: Granted to
         none: Not granted to any server yet.
-        placeholder: Choose a server
+        placeholder: Pick a server
       bespoke_plugin_grant_row:
         confirm: The server loses the page and its commands, and the plugin is switched
           off.
@@ -42,7 +42,7 @@ en:
     app_shell:
       account: Account
       add_server: Add another server
-      admin_bespoke_plugins: Bespoke plugins
+      admin_bespoke_plugins: Bespoke Plugins
       admin_settings: Admin settings
       log_out: Log out
       notifications: Notifications
@@ -57,10 +57,10 @@ en:
       label: Breadcrumb
     channel_card:
       none: No channels have synced yet. shrkbot needs to be in the server first.
-      placeholder: Choose a channel
+      placeholder: Pick a channel
     config_page:
-      channel_lost: The channel you configured for %{plugin} was deleted. Choose a
-        new channel below to keep it working.
+      channel_lost: The channel you configured for %{plugin} was deleted. Pick a new
+        channel below to keep it working.
       disabled: Disabled
       enable: Enable %{plugin}
       enabled: Enabled
@@ -97,7 +97,7 @@ en:
         preview: Preview
       destination_card:
         channel_label: Channel
-        channel_placeholder: Choose a channel
+        channel_placeholder: Pick a channel
         role_label: Role to ping
         role_placeholder: No ping
       event_types:
@@ -134,7 +134,7 @@ en:
       placeholders:
         steam:
           author: Who wrote the post. Empty when Steam doesn't say.
-          feed: Where the post comes from, such as Community Announcements or a news
+          feed: Where the post comes from, e.g. Community Announcements or a news
             site.
           game: The game's name on Steam.
           title: The post's title.
@@ -501,20 +501,20 @@ en:
         delete: Remove role
         excluded:
           label: Also excludes
-          placeholder: Choose roles
+          placeholder: Pick roles
         min_days:
           label: Minimum membership time override
           unit: days
         required:
           label: Also requires
-          placeholder: Choose roles
+          placeholder: Pick roles
         role:
           label: Role to ping
-          placeholder: Pick a role…
+          placeholder: Pick a role
         summary:
           one: "%{count} extra restriction"
           other: "%{count} extra restrictions"
-        unpicked: Pick a role…
+        unpicked: Pick a role
       pingable_roles_card:
         add: Add role
         label: Roles members can ping with /lfg
@@ -650,7 +650,7 @@ en:
           in this server. Alerts still post to the log channel, but nobody gets pinged
           until it's restored.
         permission_warning_bold: Staff pings will fail.
-        placeholder: Pick a role…
+        placeholder: Pick a role
         staff_permission_warning_body: Give it Manage Messages, or allow it under
           Server Settings -> Integrations -> shrkbot.
         staff_permission_warning_bold: This role can't use "Report as scam".
@@ -755,7 +755,7 @@ en:
             one: "%{count} role"
             other: "%{count} roles"
           label: Assignable roles
-          placeholder: Choose roles members can pick
+          placeholder: Pick roles
           unassignable: shrkbot can't assign roles above its highest one, or roles
             managed by Discord.
         selection:
@@ -913,7 +913,7 @@ en:
   notifications:
     kinds:
       channel_deleted:
-        message: "%{plugin_name} was affected - choose a new channel"
+        message: "%{plugin_name} was affected - pick a new channel"
         title: "%{channel_name} was deleted"
         title_unknown: A channel was deleted
   servers:
@@ -985,7 +985,7 @@ en:
             them here. None are built yet.
           empty_title: No bespoke plugins yet
           subtitle: Plugins you activate by hand, one server at a time.
-          title: Bespoke plugins
+          title: Bespoke Plugins
       settings:
         show:
           subtitle: Global settings for shrkbot's owner.
@@ -1006,7 +1006,7 @@ en:
       lede: Need something shrkbot doesn't do, or don't want another bot on your server?
         I can build it as a plugin that only your server gets. It sits in your dashboard
         next to the regular plugins, and no other server sees it.
-      title: Bespoke plugins
+      title: Bespoke Plugins
       write: Email me
     home:
       bespoke_plugins_link: bespoke plugins
@@ -1056,7 +1056,7 @@ en:
         show:
           title: Scam Image Detection
       index:
-        empty_body: You need Manage Server permissions and shrkbot must be present.
+        empty_body: You need the Manage Server permission and shrkbot must be present.
           Invite it to get started.
         empty_title: shrkbot isn't in any of your servers yet
         error: shrkbot couldn't reach Discord to load your servers. Try again in a
