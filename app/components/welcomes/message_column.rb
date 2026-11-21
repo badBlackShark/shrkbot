@@ -44,7 +44,6 @@ class Components::Welcomes::MessageColumn < Components::Base
       id: field_id,
       value: message,
       rows: 4,
-      mono: false,
       placeholder: t(".empty"),
       data: {
         welcome_preview_target: "#{@kind}Message",

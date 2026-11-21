@@ -5,16 +5,12 @@ require "rails_helper"
 RSpec.describe Components::TemplateTextarea do
   subject(:html) { described_class.new(name: "t[x]", value: "Hi {title}", placeholder: "Default", data: {target: "x"}).call }
 
-  it "renders the monospace field with name, value, placeholder and data" do
-    expect(html).to include('name="t[x]"', 'placeholder="Default"', 'data-target="x"', 'rows="2"', "font-mono")
+  it "renders the field with name, value, placeholder and data" do
+    expect(html).to include('name="t[x]"', 'placeholder="Default"', 'data-target="x"', 'rows="2"')
     expect(html).to include(">Hi {title}</textarea>")
   end
 
-  context "with mono: false" do
-    subject(:html) { described_class.new(name: "t[x]", value: "Hi", placeholder: "Default", mono: false).call }
-
-    it "renders the field in the body font" do
-      expect(html).not_to include("font-mono")
-    end
+  it "renders a message in the body font, never monospace" do
+    expect(html).not_to include("font-mono")
   end
 end
