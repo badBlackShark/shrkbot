@@ -1,15 +1,44 @@
-# examples:
-#   periodic_cleanup:
-#     class: CleanSoftDeletedRecordsJob
-#     queue: background
-#     args: [ 1000, { batch_size: 500 } ]
-#     schedule: every hour
-#   periodic_cleanup_with_command:
-#     command: "SoftDeletedRecord.due.delete_all"
-#     priority: 2
-#     schedule: at 5am every day
+shared: &shared
+  integrations_steam_news_poll:
+    class: Integrations::PollJob
+    args: ["Integrations::Steam::NewsWatcher"]
+    schedule: every hour
+  integrations_steam_watch_refresh:
+    class: Integrations::RefreshWatchesJob
+    args: ["Integrations::Steam::NewsWatcher"]
+    schedule: every day at 6am
+  integrations_twitch_stream_reconcile:
+    class: Integrations::Twitch::StreamReconcileJob
+    schedule: every 10 minutes
+  integrations_twitch_media_poll:
+    class: Integrations::PollJob
+    args: ["Integrations::Twitch::ChannelWatcher"]
+    schedule: every 10 minutes
+  integrations_twitch_eventsub_reconcile:
+    class: Integrations::Twitch::EventSubReconcileJob
+    schedule: every 5 minutes
+  integrations_twitch_watch_refresh:
+    class: Integrations::RefreshWatchesJob
+    args: ["Integrations::Twitch::ChannelWatcher"]
+    schedule: every day at 6:05am
+  integrations_broken_watch_report:
+    class: Integrations::ReportBrokenWatchesJob
+    schedule: every hour at minute 50
+  integrations_prune:
+    command: "Ops::Integrations::Prune.call"
+    schedule: every day at 5:30am
+  integrations_orphan_watch_prune:
+    command: "Ops::Integrations::Watches::PruneOrphans.call"
+    schedule: every day at 5:35am
+  integrations_stranded_event_dispatch:
+    command: "Ops::Integrations::Events::Dispatch.call(events: Integrations::Event.stranded.to_a)"
+    schedule: every 5 minutes
+  feeds_post_prune:
+    command: "Ops::Feeds::Posts::Prune.call"
+    schedule: every day at 5:40am
 
 production:
+  <<: *shared
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
@@ -25,79 +54,6 @@ production:
   clear_stale_twilight_struggle_post_failures:
     command: "SolidQueue::FailedExecution.joins(:job).where(solid_queue_jobs: {class_name: \"TwilightStruggle::PostJob\"}).where(created_at: ...48.hours.ago).discard_all_in_batches"
     schedule: every hour at minute 42
-  integrations_steam_news_poll:
-    class: Integrations::PollJob
-    args: ["Integrations::Steam::NewsWatcher"]
-    schedule: every hour
-  integrations_steam_watch_refresh:
-    class: Integrations::RefreshWatchesJob
-    args: ["Integrations::Steam::NewsWatcher"]
-    schedule: every day at 6am
-  integrations_twitch_stream_reconcile:
-    class: Integrations::Twitch::StreamReconcileJob
-    schedule: every 10 minutes
-  integrations_twitch_media_poll:
-    class: Integrations::PollJob
-    args: ["Integrations::Twitch::ChannelWatcher"]
-    schedule: every 10 minutes
-  integrations_twitch_eventsub_reconcile:
-    class: Integrations::Twitch::EventSubReconcileJob
-    schedule: every 5 minutes
-  integrations_twitch_watch_refresh:
-    class: Integrations::RefreshWatchesJob
-    args: ["Integrations::Twitch::ChannelWatcher"]
-    schedule: every day at 6:05am
-  integrations_broken_watch_report:
-    class: Integrations::ReportBrokenWatchesJob
-    schedule: every hour at minute 50
-  integrations_prune:
-    command: "Ops::Integrations::Prune.call"
-    schedule: every day at 5:30am
-  integrations_orphan_watch_prune:
-    command: "Ops::Integrations::Watches::PruneOrphans.call"
-    schedule: every day at 5:35am
-  integrations_stranded_event_dispatch:
-    command: "Ops::Integrations::Events::Dispatch.call(events: Integrations::Event.stranded.to_a)"
-    schedule: every 5 minutes
-  feeds_post_prune:
-    command: "Ops::Feeds::Posts::Prune.call"
-    schedule: every day at 5:40am
 
 development:
-  integrations_steam_news_poll:
-    class: Integrations::PollJob
-    args: ["Integrations::Steam::NewsWatcher"]
-    schedule: every hour
-  integrations_steam_watch_refresh:
-    class: Integrations::RefreshWatchesJob
-    args: ["Integrations::Steam::NewsWatcher"]
-    schedule: every day at 6am
-  integrations_twitch_stream_reconcile:
-    class: Integrations::Twitch::StreamReconcileJob
-    schedule: every 10 minutes
-  integrations_twitch_media_poll:
-    class: Integrations::PollJob
-    args: ["Integrations::Twitch::ChannelWatcher"]
-    schedule: every 10 minutes
-  integrations_twitch_eventsub_reconcile:
-    class: Integrations::Twitch::EventSubReconcileJob
-    schedule: every 5 minutes
-  integrations_twitch_watch_refresh:
-    class: Integrations::RefreshWatchesJob
-    args: ["Integrations::Twitch::ChannelWatcher"]
-    schedule: every day at 6:05am
-  integrations_broken_watch_report:
-    class: Integrations::ReportBrokenWatchesJob
-    schedule: every hour at minute 50
-  integrations_prune:
-    command: "Ops::Integrations::Prune.call"
-    schedule: every day at 5:30am
-  integrations_orphan_watch_prune:
-    command: "Ops::Integrations::Watches::PruneOrphans.call"
-    schedule: every day at 5:35am
-  integrations_stranded_event_dispatch:
-    command: "Ops::Integrations::Events::Dispatch.call(events: Integrations::Event.stranded.to_a)"
-    schedule: every 5 minutes
-  feeds_post_prune:
-    command: "Ops::Feeds::Posts::Prune.call"
-    schedule: every day at 5:40am
+  <<: *shared
