@@ -5,17 +5,13 @@ module Integrations
     Clip = Data.define(
       :id,
       :url,
-      :broadcaster_id,
       :broadcaster_name,
       :creator_name,
-      :video_id,
       :category_id,
       :title,
-      :view_count,
       :created_at,
       :thumbnail_url,
-      :duration,
-      :featured
+      :duration
     )
   end
 end

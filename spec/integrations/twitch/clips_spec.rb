@@ -82,30 +82,26 @@ RSpec.describe Integrations::Twitch::Clips do
       Integrations::Twitch::Clip.new(
         id: "PiercingFragileHornetPJSalt-MWN6RC3-Dp3tHDsx",
         url: "https://www.twitch.tv/lirik/clip/PiercingFragileHornetPJSalt-MWN6RC3-Dp3tHDsx",
-        broadcaster_id: "23161357",
         broadcaster_name: "LIRIK",
         creator_name: "Mythriak_",
-        video_id: "2889882220",
         category_id: "509658",
         title: "thats crazy",
-        view_count: 879,
         created_at: Time.utc(2026, 10, 2, 16, 23, 15),
         thumbnail_url: "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/a156412b-e785-41e5-8ddd-e24d1d680bbd/landscape/thumb/thumb-0000000000-480x272.jpg",
-        duration: 60,
-        featured: false
+        duration: 60
       )
     )
   end
 
-  context "when the clip's VOD is gone or the game unset" do
+  context "when the clip's game is unset" do
     let(:response) do
       super().tap do |body|
-        body.fetch("data").first.merge!("video_id" => "", "game_id" => "")
+        body.fetch("data").first.merge!("game_id" => "")
       end
     end
 
-    it "has no video and no category" do
-      expect(clips_for.first).to have_attributes(video_id: nil, category_id: nil)
+    it "has no category" do
+      expect(clips_for.first).to have_attributes(category_id: nil)
     end
   end
 end

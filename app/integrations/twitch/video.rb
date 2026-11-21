@@ -5,11 +5,8 @@ module Integrations
     Video = Data.define(
       :id,
       :stream_id,
-      :user_id,
       :user_name,
       :title,
-      :description,
-      :created_at,
       :published_at,
       :url,
       :thumbnail_url,
