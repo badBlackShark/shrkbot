@@ -17,18 +17,28 @@ class Components::Toast < Components::Base
     div(
       role: "status",
       data: {controller: "toast", toast_sticky_value: style[:sticky] ? "true" : nil, turbo_temporary: true},
-      class: "toast-enter pointer-events-auto flex items-center gap-2.5 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-lg #{style[:tone]}"
+      class: "toast-slot toast-enter"
     ) do
-      render Components::Icon.new(style[:icon], class: "size-4 flex-none")
-      span { @message }
-      button(
-        type: "button",
-        aria_label: "Dismiss",
-        data: {action: "toast#dismiss"},
-        class: "-mr-1 ml-1 flex size-5 flex-none items-center justify-center rounded transition-colors hover:bg-surface-sunken"
-      ) do
-        render Components::Icon.new("x", class: "size-3.5")
+      div(class: "min-h-0") do
+        div(class: "pointer-events-auto mt-2 flex items-center gap-2.5 rounded-lg border px-4 py-2.5 text-sm font-medium shadow-lg #{style[:tone]}") do
+          render Components::Icon.new(style[:icon], class: "size-4 flex-none")
+          span { @message }
+          dismiss_button
+        end
       end
+    end
+  end
+
+  private
+
+  def dismiss_button
+    button(
+      type: "button",
+      aria_label: "Dismiss",
+      data: {action: "toast#dismiss"},
+      class: "-mr-1 ml-1 flex size-5 flex-none items-center justify-center rounded transition-colors hover:bg-surface-sunken"
+    ) do
+      render Components::Icon.new("x", class: "size-3.5")
     end
   end
 end

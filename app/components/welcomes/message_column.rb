@@ -32,7 +32,7 @@ class Components::Welcomes::MessageColumn < Components::Base
   def reset_button
     render Components::ResetSlot.new(
       label: t(".reset_to_default"),
-      hidden: message == default_message,
+      hidden: message.to_s.strip == default_message.strip,
       slot_data: {welcome_preview_target: "#{@kind}Reset"},
       data: {action: "welcome-preview#reset", welcome_preview_kind_param: @kind}
     )

@@ -6,7 +6,7 @@ class Components::Toasts < Components::Base
   end
 
   def view_template
-    div(id: "toasts", class: "pointer-events-none fixed inset-x-0 bottom-6 z-50 flex flex-col items-center gap-2 px-4") do
+    div(id: "toasts", class: "pointer-events-none fixed inset-x-0 bottom-6 z-50 flex flex-col items-center px-4") do
       @flash.each { |level, message| render Components::Toast.new(level:, message:) }
     end
   end
