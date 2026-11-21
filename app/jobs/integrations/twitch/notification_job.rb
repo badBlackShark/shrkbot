@@ -5,6 +5,11 @@ module Integrations
     class NotificationJob < ApplicationJob
       queue_as :default
 
+      rescue_from Error, with: :warn_failure
+      retry_on Unavailable, wait: 5.seconds, attempts: 3 do |job, error|
+        job.warn_failure(error)
+      end
+
       def perform(type, event)
         watch = ChannelWatcher.followed_for_live.find_by(external_id: event.fetch("broadcaster_user_id"))
         return unless watch
@@ -13,7 +18,10 @@ module Integrations
         return unless observation
 
         Ops::Integrations::Twitch::Streams::Transition.call(watch:, observation:)
-      rescue Error => error
+      end
+
+      def warn_failure(error)
+        type, event = arguments
         Rails.logger.warn("Integrations: Twitch #{type} for channel #{event["broadcaster_user_id"]} failed, the stream reconcile catches up: #{error.class}: #{error.message}")
       end
 

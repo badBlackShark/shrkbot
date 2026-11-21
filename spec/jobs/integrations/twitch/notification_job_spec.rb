@@ -3,6 +3,8 @@
 require "rails_helper"
 
 RSpec.describe Integrations::Twitch::NotificationJob do
+  include ActiveJob::TestHelper
+
   subject(:perform) { described_class.perform_now(type, event) }
 
   let(:watcher) { "Integrations::Twitch::ChannelWatcher" }
@@ -79,11 +81,39 @@ RSpec.describe Integrations::Twitch::NotificationJob do
         allow(Rails.logger).to receive(:warn)
       end
 
-      it "logs and leaves the state for the reconcile" do
-        perform
+      it "retries in a few seconds instead of waiting for the reconcile" do
+        expect { perform }.to have_enqueued_job(described_class).with(type, event)
 
-        expect(watch.reload.state).to eq({})
-        expect(Rails.logger).to have_received(:warn).with(/stream.online for channel 1 failed.*Integrations::Unavailable/)
+        expect(Rails.logger).not_to have_received(:warn)
+      end
+
+      context "on every attempt" do
+        subject(:perform) do
+          perform_enqueued_jobs do
+            described_class.perform_later(type, event)
+          end
+        end
+
+        it "tries three times, then logs and leaves the state for the reconcile" do
+          perform
+
+          expect(channels).to have_received(:for).exactly(3).times
+          expect(watch.reload.state).to eq({})
+          expect(Rails.logger).to have_received(:warn).once.with(/stream.online for channel 1 failed.*Integrations::Unavailable/)
+        end
+      end
+    end
+
+    context "when Twitch rate-limits the request" do
+      before do
+        allow(channels).to receive(:for).and_raise(Integrations::RateLimited.new("api.twitch.tv responded 429", retry_after: 30))
+        allow(Rails.logger).to receive(:warn)
+      end
+
+      it "logs once without a retry" do
+        expect { perform }.not_to have_enqueued_job(described_class)
+
+        expect(Rails.logger).to have_received(:warn).with(/stream.online for channel 1 failed.*Integrations::RateLimited/)
       end
     end
   end

@@ -166,8 +166,9 @@ dropped) and maps the event onto a Session observation. `stream.online` becomes 
 from the event plus a `/channels` lookup for title and category; viewers stay nil until the
 stream reconcile samples them. `stream.offline` becomes `Offline`. `channel.update`
 becomes `ChannelUpdate`, which changes title and category of an open session (a
-`StreamUpdated` when they differ) and never stamps `last_live_at`. A Twitch failure in
-the job is logged; the stream reconcile catches up. A duplicate delivery changes nothing,
+`StreamUpdated` when they differ) and never stamps `last_live_at`. When Twitch is
+unavailable, the job tries three times, 5 s apart. After that, and on any other Twitch
+failure, the job logs it and the stream reconcile catches up. A duplicate delivery changes nothing,
 because every Session rule is idempotent, so there is no Message-Id ledger. A late
 duplicate `stream.online` after the end at worst reopens the session until the next
 stream reconcile ends it again; `Events::Record` skips the already stored start and end,
