@@ -50,10 +50,18 @@ RSpec.describe "Sentry configuration" do
   end
 
   describe "breadcrumbs" do
-    subject(:loggers) { configuration.breadcrumbs_logger }
+    it "record outgoing requests" do
+      expect(configuration.breadcrumbs_logger).to include(:http_logger)
+    end
 
-    it "skip outgoing requests, because Discord interaction tokens sit in their path" do
-      expect(loggers).not_to include(:http_logger)
+    it "pass through the scrubber, because outgoing URLs carry tokens" do
+      expect(configuration.before_breadcrumb).to eq(SentryHttpScrubber.method(:breadcrumb))
+    end
+  end
+
+  describe "traces" do
+    it "pass outgoing request spans through the scrubber, because their URLs carry tokens" do
+      expect(configuration.before_send_transaction).to eq(SentryHttpScrubber.method(:transaction))
     end
   end
 

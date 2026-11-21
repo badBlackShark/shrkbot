@@ -79,9 +79,10 @@ en:
         sends a diagnostic report to Sentry, our error-monitoring provider: the error
         and where in the code it happened, the address and browser type of the page
         request or the name of the background job involved, the database queries it
-        ran, and how long each step took. A report can contain Discord IDs. It never
-        contains your IP address, cookies or what you enter into a form, and shrkbot
-        does not add message content to it.'
+        ran, the host of each outgoing request it made (never the path or query),
+        and how long each step took. A report can contain Discord IDs. It never contains
+        your IP address, cookies or what you enter into a form, and shrkbot does not
+        add message content to it.'
       data_reminders: 'Reminders: the reminder text you write, your Discord ID, the
         target channel and server, whether to deliver by DM, and the due time - kept
         until delivered or deleted by you with /unremind.'
@@ -226,7 +227,7 @@ en:
         company), which stores the diagnostic reports described above in Frankfurt,
         Germany. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: November 17th, 2026'
+      updated: 'Last updated: November 19th, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible
