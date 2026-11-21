@@ -74,4 +74,17 @@ RSpec.describe SentryHttpScrubber do
       end
     end
   end
+
+  describe ".transaction" do
+    subject(:scrubbed) { described_class.transaction(event) }
+
+    let(:db_span) { {op: "db.sql.active_record", description: "SELECT * FROM users WHERE id = 1", data: {}} }
+    let(:http_span) { {op: "http.client", description: "GET https://cdn.discordapp.com/attachments/1/2/a.png?ex=1", data: {"url" => "https://cdn.discordapp.com/attachments/1/2/a.png?ex=1"}} }
+    let(:event) { instance_double(Sentry::TransactionEvent, spans: [db_span, http_span]) }
+
+    it "cuts only the outgoing-request span to its origin and leaves other spans as they are" do
+      scrubbed
+      expect([db_span[:description], http_span[:description]]).to eq(["SELECT * FROM users WHERE id = 1", "GET https://cdn.discordapp.com"])
+    end
+  end
 end
