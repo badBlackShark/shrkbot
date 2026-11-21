@@ -887,10 +887,6 @@ en:
         channel:
           label: Channel
         empty: Nothing will be sent.
-        join_message:
-          label: Join message
-        leave_message:
-          label: Leave message
         ping_on_join:
           help: When off, the mention makes no sound and sends no push notification.
           label: Ping on join
@@ -904,9 +900,15 @@ en:
         preview:
           label: Live preview
           timestamp: Today
-        reset_to_default: Reset to default
         suppress_removal_messages:
           label: Skip leave messages for kicks and bans
+      message_column:
+        empty: Nothing will be sent.
+        join_message:
+          label: Join message
+        leave_message:
+          label: Leave message
+        reset_to_default: Reset to default
   meta:
     default_description: A mechanical helper.
     default_title: shrkbot

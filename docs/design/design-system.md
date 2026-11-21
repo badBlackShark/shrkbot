@@ -301,6 +301,10 @@ duplicated class strings:
 - **`Components::RadioCardGroup`** — stacked radio options as bordered cards with a
   title + one-line description; native radios, so selection is reactive with no JS.
 - **`Components::PrerequisiteSteps`** (a title plus one `Step` per unmet prerequisite) / **`Components::SidebarGroup`** — see *Plugin groups*.
+- **`Components::TemplateTextarea`** — every message template field (welcome
+  messages, feed posts, Twilight Struggle results). Messages are prose people
+  write, so the field uses the body font, never monospace; tokens like `{title}`
+  stand out through the live preview, not the field's font.
 - **`Components::FieldLabel`** / **`Components::FieldHelp`** — the shared label
   and help-text styling for a form field (`<label>` and `<p>` respectively); no
   parameters, block content only. Help goes under the control via `FieldHelp`,
