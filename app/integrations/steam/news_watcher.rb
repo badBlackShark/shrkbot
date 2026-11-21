@@ -41,8 +41,9 @@ module Integrations
 
       def observe
         recent = @watch.events.to_a
-        events = @news.for_app(@watch.external_id).map { |item| event(item) }
-        Stories.new(recent).assign(events)
+        recorded = recent.to_set { |event| [event.type, event.subject_key] }
+        items = @news.for_app(@watch.external_id).reject { |item| recorded.include?([self.class.event_class(item).name, item.gid]) }
+        Stories.new(recent).assign(items.map { |item| event(item) })
       end
 
       private
