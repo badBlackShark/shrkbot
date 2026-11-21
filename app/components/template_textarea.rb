@@ -5,14 +5,13 @@ class Components::TemplateTextarea < Components::Base
     "text-sm text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
     "focus:ring-3 focus:ring-[var(--focus-ring)]"
 
-  def initialize(name:, value:, placeholder:, rows: 2, data: {}, id: nil, mono: true)
+  def initialize(name:, value:, placeholder:, rows: 2, data: {}, id: nil)
     @name = name
     @value = value
     @placeholder = placeholder
     @rows = rows
     @data = data
     @id = id
-    @mono = mono
   end
 
   def view_template
@@ -20,7 +19,7 @@ class Components::TemplateTextarea < Components::Base
       name: @name,
       id: @id,
       rows: @rows,
-      class: [FIELD, ("font-mono" if @mono)],
+      class: FIELD,
       placeholder: @placeholder,
       data: @data
     ) { @value }
