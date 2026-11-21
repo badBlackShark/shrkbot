@@ -4,6 +4,8 @@ class Servers::Steam::VolumesController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
 
+  rate_limit to: 60, within: 1.minute, by: -> { session[:user_id] }
+
   WATCHER = ::Integrations::Steam::NewsWatcher
 
   def show

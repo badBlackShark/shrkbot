@@ -25,6 +25,17 @@ RSpec.describe "Steam volume line", type: :request do
 
     it_behaves_like "a config page that requires a manageable server"
 
+    context "when the per-user limit is exceeded" do
+      before { allow(Rails.cache).to receive(:increment).and_return(9_999) }
+
+      it "answers 429 and asks Steam nothing" do
+        show
+
+        expect(response).to have_http_status(:too_many_requests)
+        expect(Feeds::VolumeLookup).not_to have_received(:call)
+      end
+    end
+
     it "renders the frame with the volume sentence" do
       show
 

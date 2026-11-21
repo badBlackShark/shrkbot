@@ -7,6 +7,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   include VerifiesGuildChannels
   include VerifiesGuildRoles
 
+  rate_limit to: 60, within: 1.minute, by: -> { session[:user_id] }, only: [:new, :create]
   before_action :load_subscription, only: [:edit, :update, :destroy]
 
   def new
