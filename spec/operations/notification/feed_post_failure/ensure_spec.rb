@@ -2,7 +2,7 @@
 
 require "rails_helper"
 
-RSpec.describe Ops::Notification::ReportFeedPostFailure do
+RSpec.describe Ops::Notification::FeedPostFailure::Ensure do
   subject(:result) { described_class.call(subscription:, event:) }
 
   let(:watch) { create(:integration_watch) }

@@ -14,7 +14,7 @@ module Feeds
     discard_on ActiveJob::DeserializationError
     discard_on "Discordrb::Errors::UnknownChannel", "Discordrb::Errors::NoPermission" do |job, _error|
       subscription, event = job.arguments
-      Ops::Notification::ReportFeedPostFailure.call(subscription:, event:)
+      Ops::Notification::FeedPostFailure::Ensure.call(subscription:, event:)
     end
 
     def perform(subscription, event)

@@ -3,6 +3,8 @@
 class NotificationsController < ApplicationController
   include SetsVisibleServers
 
+  CONFIGURABLE_PLUGINS = %w[roles welcomes logging reminders steam twitch].freeze
+
   def index
     scope = notification_scope
     authorized = Finders::AuthorizedNotifications.new(
@@ -34,8 +36,6 @@ class NotificationsController < ApplicationController
   end
 
   private
-
-  CONFIGURABLE_PLUGINS = %w[roles welcomes logging reminders steam twitch].freeze
 
   def plugin_config_path_for(notification)
     discord_id = notification.server_configuration.discord_id

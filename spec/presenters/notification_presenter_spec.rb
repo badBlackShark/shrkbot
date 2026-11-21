@@ -45,7 +45,7 @@ RSpec.describe NotificationPresenter do
       let(:channel_name) { nil }
 
       it "falls back to the title_unknown key" do
-        expect(presenter.title).to eq("Can't post in a deleted channel")
+        expect(presenter.title).to eq("Can't post in a channel")
       end
     end
   end
