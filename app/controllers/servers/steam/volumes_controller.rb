@@ -19,6 +19,6 @@ class Servers::Steam::VolumesController < ApplicationController
   private
 
   def plugin_key
-    :steam
+    ::Feeds::Steam.plugin_key
   end
 end

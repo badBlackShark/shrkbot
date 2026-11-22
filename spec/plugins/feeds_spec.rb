@@ -33,7 +33,7 @@ RSpec.describe Feeds do
     end
 
     it "gives every source a follow-cap message" do
-      expect(sources.map { |source| "operations.feeds.subscriptions.cap.#{source.plugin_key}" }).to all(satisfy { |key| I18n.exists?(key) })
+      expect(sources.map { |source| "operations.feeds.subscriptions.cap.#{source.key}" }).to all(satisfy { |key| I18n.exists?(key) })
     end
 
     it "gives every source its settings contract" do
