@@ -35,14 +35,13 @@ class NotificationsController < ApplicationController
 
   private
 
-  CONFIGURABLE_PLUGINS = %w[roles welcomes logging reminders].freeze
-
   def plugin_config_path_for(notification)
     discord_id = notification.server_configuration.discord_id
     key = notification.data["plugin_key"].to_s
-    return server_path(discord_id) unless CONFIGURABLE_PLUGINS.include?(key)
+    path_helper = "server_#{key}_path"
+    return server_path(discord_id) unless PluginCatalog.find(key.to_sym) && respond_to?(path_helper)
 
-    public_send("server_#{key}_path", discord_id)
+    public_send(path_helper, discord_id)
   end
 
   def notification_scope
