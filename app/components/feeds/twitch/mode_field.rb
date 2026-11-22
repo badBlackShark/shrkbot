@@ -46,7 +46,7 @@ class Components::Feeds::Twitch::ModeField < Components::Base
   end
 
   def samples
-    @samples ||= ::Feeds::Twitch::PreviewSamples.new(
+    @samples ||= @subscription.source::PreviewSamples.new(
       watch_name: @subscription.watch.name,
       event_type: ::Integrations::Twitch::StreamStarted.name
     )

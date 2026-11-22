@@ -28,6 +28,15 @@ RSpec.describe Components::Feeds::WatchImage do
         expect(html).not_to include("aspect-[460/215]")
       end
     end
+
+    context "with a Twitch category" do
+      let(:source) { ::Feeds::TwitchCategory }
+
+      it "is a portrait box art" do
+        expect(html).to include("aspect-[3/4]", "w-22")
+        expect(html).not_to include("rounded-full")
+      end
+    end
   end
 
   context "without an image url" do

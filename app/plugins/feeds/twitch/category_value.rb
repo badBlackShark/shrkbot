@@ -14,6 +14,8 @@ module Feeds
       end
 
       def parse(value)
+        return unless value.is_a?(String)
+
         data = JSON.parse(value)
         return unless data.is_a?(Hash)
 

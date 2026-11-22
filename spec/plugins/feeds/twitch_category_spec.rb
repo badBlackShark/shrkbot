@@ -108,6 +108,30 @@ RSpec.describe Feeds::TwitchCategory do
     end
   end
 
+  describe ".lookup_param" do
+    it "looks categories up by the category param" do
+      expect(described_class.lookup_param).to eq(:category)
+    end
+  end
+
+  describe ".lookup_reference" do
+    subject(:reference) { described_class.lookup_reference(value) }
+
+    context "with a picked category" do
+      let(:value) { Feeds::Twitch::CategoryValue.dump({"id" => "509658", "name" => "Just Chatting"}) }
+
+      it { is_expected.to eq("509658") }
+    end
+
+    context "with anything that is not a picked category" do
+      let(:value) { "509658" }
+
+      it "passes it through for the watcher to judge" do
+        expect(reference).to eq("509658")
+      end
+    end
+  end
+
   describe ".settings_from" do
     subject(:attributes) { described_class.settings_from(ActionController::Parameters.new(params).permit(*described_class.settings_params)) }
 

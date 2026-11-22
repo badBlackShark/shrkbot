@@ -3,9 +3,6 @@
 class Views::Servers::Feeds::Subscriptions::Lookup < Views::Base
   include Phlex::Rails::Helpers::FormWith
 
-  FIELD = "w-full rounded-control border-[1.5px] border-border-strong bg-surface-card px-3 py-2 font-mono text-sm " \
-    "text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
-    "focus:ring-3 focus:ring-[var(--focus-ring)] aria-invalid:border-danger"
   ERROR_ID = "feed-lookup-error"
 
   def initialize(source:, lookup_param:, server_configuration:, user:, input: nil, error: nil, existing: nil)
@@ -32,19 +29,14 @@ class Views::Servers::Feeds::Subscriptions::Lookup < Views::Base
   def lookup_form
     form_with(url: ::Feeds::SubscriptionPaths.new_for(@config, @source), method: :get, class: "flex flex-col gap-3") do
       render Components::FieldLabel.new { t(".#{@source.key}.label") }
-      input(
-        type: "text",
-        name: @lookup_param,
-        value: @input,
-        class: FIELD,
-        autofocus: true,
-        autocomplete: "off",
-        aria_invalid: problem?.to_s,
-        aria_describedby: (ERROR_ID if problem?)
-      )
+      render lookup_field.new(name: @lookup_param, value: @input, server_configuration: @config, error_id: (ERROR_ID if problem?))
       problem_message
       div(class: "flex justify-end") { render Components::Button.new(label: t(".submit"), type: "submit") }
     end
+  end
+
+  def lookup_field
+    "Components::Feeds::#{@source.key.to_s.camelize}::LookupField".safe_constantize || Components::Feeds::LookupTextField
   end
 
   def problem?

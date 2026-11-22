@@ -14,7 +14,7 @@ class Views::Servers::Feeds::Subscriptions::Edit < Views::Base
         header:,
         server_configuration: @config,
         url: ::Feeds::SubscriptionPaths.for(@subscription),
-        parent_crumb: {label: PluginCatalog.find(@source.plugin_key).name, href: PluginPaths.for(@config, @source.plugin_key)}
+        parent_crumb: {label: PluginCatalog.find(@source.plugin_key).name, href: ::Feeds::SubscriptionPaths.plugin_for(@config, @source)}
       ) do
         render Components::Feeds::SubscriptionForm.new(subscription: @subscription, source: @source)
       end

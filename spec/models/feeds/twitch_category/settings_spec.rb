@@ -37,13 +37,25 @@ RSpec.describe Feeds::TwitchCategory::Settings do
     end
 
     it "takes a language code, a regional code and other" do
-      settings.languages = %w[en pt-br other]
+      settings.languages = %w[en zh-hk other]
+
+      expect(settings).to be_valid
+    end
+
+    it "takes every language the picker offers" do
+      settings.languages = Feeds::TwitchCategory::LANGUAGES
 
       expect(settings).to be_valid
     end
 
     it "refuses text that is not a language code" do
       settings.languages = ["English"]
+
+      expect(settings).not_to be_valid
+    end
+
+    it "refuses a well-formed code outside the list" do
+      settings.languages = ["xx"]
 
       expect(settings).not_to be_valid
     end

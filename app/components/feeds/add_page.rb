@@ -16,7 +16,7 @@ class Components::Feeds::AddPage < Components::Base
 
   def crumbs
     [
-      {label: PluginCatalog.find(@source.plugin_key).name, href: PluginPaths.for(@config, @source.plugin_key)},
+      {label: PluginCatalog.find(@source.plugin_key).name, href: ::Feeds::SubscriptionPaths.plugin_for(@config, @source)},
       {label: t(".#{@source.key}.title")}
     ]
   end

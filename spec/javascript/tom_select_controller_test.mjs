@@ -37,3 +37,12 @@ test("a multiple select keeps every pick", async () => {
 
   assert.deepEqual(select.items, ["a", "b"])
 })
+
+test("the focus node carries the label, the error and its message", async () => {
+  const select = await connect('aria-label="Category" aria-invalid="true" aria-describedby="problem"')
+
+  assert.deepEqual(
+    ["aria-label", "aria-invalid", "aria-describedby"].map((name) => select.focus_node.getAttribute(name)),
+    ["Category", "true", "problem"]
+  )
+})

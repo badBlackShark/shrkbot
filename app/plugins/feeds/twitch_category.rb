@@ -3,6 +3,9 @@
 module Feeds
   class TwitchCategory < Twitch
     MAX_FOLLOWS = 10
+    LANGUAGES = %w[
+      en de fr es it pt ru ja ko zh zh-hk ar bg ca cs da el fi hi hu id ms nl no pl ro sk sv th tl tr uk vi asl other
+    ].freeze
     SCALAR_SETTINGS = %i[role_id min_viewers live_end_mode switched_away show_viewers show_preview_frame].freeze
 
     def self.key
@@ -23,6 +26,14 @@ module Feeds
 
     def self.settings_association
       :twitch_category_settings
+    end
+
+    def self.lookup_param
+      :category
+    end
+
+    def self.lookup_reference(value)
+      CategoryValue.parse(value)&.fetch("id") || value
     end
 
     def self.settings_params

@@ -8,6 +8,7 @@ class Servers::FeedsController < ApplicationController
   def show
     render Views::Servers::Feeds::Show.new(
       plugin_key:,
+      tab: params[:tab],
       server_configuration: @server_configuration,
       user: current_user
     )

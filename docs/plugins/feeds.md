@@ -73,7 +73,9 @@ renderer and does the I/O that renderer needs (Steam: the padded thumbnail via
 defaults only: a method every source answers differently has no stub there, and
 `spec/plugins/feeds_spec.rb` enforces the contract.
 For the follow form a source also answers `lookup_param` (the lookup page's query param),
-`settings_params` (the permit list for its settings) and `settings_from(permitted)` (the
+`lookup_reference(value)` (turns the submitted lookup value into what the watcher's `resolve`
+takes; the base passes it through, `TwitchCategory` reads the id out of a picked
+`CategoryValue`), `settings_params` (the permit list for its settings) and `settings_from(permitted)` (the
 settings hash that `Subscription#build_settings` and `Ops::Feeds::Subscriptions::Update`
 take).
 
@@ -108,6 +110,41 @@ not through the watch the event sits on.
   (`Source.max_follows`).
 - **Revise.** `ReviseJob` finds posts by story key across active subscriptions, because a
   stream that left the category keeps its card.
+
+### Category follows on the website
+
+The Twitch page has two sources, so `Components::Feeds::SourceTabs` renders a
+`SegmentedControl` driving the generic `option-panels` controller, one hidden-until-picked
+panel per source, each a `SubscriptionList`. A plugin with one source renders its list
+directly. `SourceTabs` owns the `<plugin>-config`
+container, so the plugin toggle's Turbo Stream replaces both lists, but the replacement
+opens the first tab again: the toggle form carries no tab. `?tab=<source key>` picks the
+tab, and every redirect and breadcrumb back to the plugin goes through
+`Feeds::SubscriptionPaths.plugin_for`, which adds the tab when the plugin has several
+sources.
+
+The routes live under `resource :twitch` as `category_subscriptions` at
+`/twitch/category-follows`, with `defaults: {source_key: "twitch_category"}`; the helper
+names (`new_server_twitch_category_subscription_path`) are what `SubscriptionPaths` builds
+from `source.key`. The lookup page takes its input field from
+`Components::Feeds::<Source>::LookupField` when one exists
+(`TwitchCategory::LookupField`: a single-select `TomSelect` over the same categories
+search as the filter), else `Components::Feeds::LookupTextField`. The picker submits a
+`CategoryValue` dump as `category`; `lookup_reference` reduces it to the id.
+
+The form (`TwitchCategory::SubscriptionFields`) is `DestinationCard` (the follow's one
+role), one Live `EventTypeSetting` whose `TwitchCategory::TypeFields` has no role override
+(a category follow has one post type, so the follow's role is the only one) but keeps the
+viewer and preview-frame toggles, `Twitch::EndModeField` and `Twitch::SwitchedAwayField`,
+and `TwitchCategory::FiltersCard`: the floor (a `NumberStepper`), languages (a multiple
+`TomSelect` over `Feeds::TwitchCategory::LANGUAGES`, names in
+`components.feeds.twitch_category.filters_card.languages`) and excluded channels (a
+`TomSelect` with `create`; names are normalised on assignment, never looked up). Both
+lists submit a hidden empty entry first so clearing them reaches the server. The card
+opens with the top-100 limit, because every filter applies to the streams shrkbot sees.
+`TwitchCategory::PreviewSamples` shows a sample streamer in the previews, since the
+watch's name is the category, not a channel. Box art is portrait, so `WatchImage` has a
+`twitch_category` shape.
 
 ### One card per stream and channel
 

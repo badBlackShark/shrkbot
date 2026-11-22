@@ -24,7 +24,11 @@ module Feeds
     end
 
     def sample(group, name)
-      I18n.t("components.feeds.#{self.class.module_parent.key}.samples.#{group}.#{name}")
+      I18n.t("components.feeds.#{samples_key}.samples.#{group}.#{name}")
+    end
+
+    def samples_key
+      self.class.module_parent.key
     end
   end
 end

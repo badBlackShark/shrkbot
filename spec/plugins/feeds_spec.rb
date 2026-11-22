@@ -62,6 +62,12 @@ RSpec.describe Feeds do
     end
   end
 
+  describe "lookup_reference" do
+    it "hands the input to the watcher untouched unless a source says otherwise" do
+      expect(Feeds::Steam.lookup_reference("1145350")).to eq("1145350")
+    end
+  end
+
   describe "Twitch settings_from" do
     subject(:settings) { Feeds::Twitch.settings_from(params) }
 
