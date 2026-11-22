@@ -42,6 +42,19 @@ RSpec.describe Feeds::Twitch::Ending do
     end
   end
 
+  context "when keeping the card of a category follow whose stream had left the category" do
+    let(:subscription) { create(:feed_subscription, :twitch_category) }
+    let(:live_end_mode) { "keep" }
+
+    before do
+      updated.update!(category_id: "elsewhere")
+    end
+
+    it "keeps the summary card" do
+      expect(announcement).to be_a(Feeds::Twitch::SwitchedAnnouncement)
+    end
+  end
+
   context "when marking the stream ended" do
     let(:live_end_mode) { "mark_ended" }
 

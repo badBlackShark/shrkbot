@@ -2,8 +2,6 @@
 
 module Feeds
   class Subscription < ApplicationRecord
-    MAX_PER_SOURCE = 25
-
     self.table_name = "feed_subscriptions"
 
     belongs_to :server_configuration
@@ -12,6 +10,7 @@ module Feeds
     has_many :posts, dependent: :delete_all
     has_one :steam_settings, class_name: "Feeds::Steam::Settings", dependent: :delete, autosave: true
     has_one :twitch_settings, class_name: "Feeds::Twitch::Settings", dependent: :delete, autosave: true
+    has_one :twitch_category_settings, class_name: "Feeds::TwitchCategory::Settings", dependent: :delete, autosave: true
 
     validates :channel_id, presence: true
     validates :watch_id, uniqueness: {scope: :server_configuration_id}
@@ -43,15 +42,19 @@ module Feeds
     end
 
     def self.at_cap?(server_configuration, source)
-      server_configuration.feed_subscriptions.for_source(source).count >= MAX_PER_SOURCE
+      server_configuration.feed_subscriptions.for_source(source).count >= source.max_follows
     end
 
     def self.cap_message(source)
-      I18n.t("operations.feeds.subscriptions.cap.#{source.key}", max: MAX_PER_SOURCE)
+      I18n.t("operations.feeds.subscriptions.cap.#{source.key}", max: source.max_follows)
     end
 
     def self.demanding(event_types)
       active.where(id: SubscribedEvent.where(event_type: event_types).select(:subscription_id))
+    end
+
+    def self.viewer_floors(watch_ids)
+      Feeds.sources.flat_map { |source| source.viewer_floors(watch_ids) }
     end
 
     def self.demanded_types(watch_ids)

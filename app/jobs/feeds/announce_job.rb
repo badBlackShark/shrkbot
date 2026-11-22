@@ -23,14 +23,11 @@ module Feeds
     private
 
     def subscriptions(event)
-      Subscription
-        .demanding(source(event).post_type(event.type))
-        .where(watch_id: event.watch_id)
+      Feeds.sources
+        .select { |source| source.announced_types.include?(event.type) }
+        .map { |source| source.subscriptions_for(event).demanding(source.post_type(event.type)) }
+        .reduce(:or)
         .where.not(id: Post.where(story_key: event.story_key).select(:subscription_id))
-    end
-
-    def source(event)
-      Feeds.source_for_watcher(event.watch.watcher)
     end
   end
 end

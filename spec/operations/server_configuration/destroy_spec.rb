@@ -103,6 +103,17 @@ RSpec.describe Ops::ServerConfiguration::Destroy do
     end
   end
 
+  context "twitch category feed handling" do
+    let!(:category_subscription) { create(:feed_subscription, :twitch_category, server_configuration: config) }
+    let(:category_settings) { category_subscription.twitch_category_settings }
+
+    it "removes the category settings, with their excluded channel names, with the subscription" do
+      result
+
+      expect(Feeds::TwitchCategory::Settings.find_by(id: category_settings.id)).to be_nil
+    end
+  end
+
   context "twilight struggle destination handling" do
     let!(:tournament) { create(:twilight_struggle_tournament) }
     let!(:destination) do

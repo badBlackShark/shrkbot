@@ -248,6 +248,12 @@ of watch id to a `Set` of event types, and `PollJob` loads its due watches once 
 assigns each its set as the non-column `Watch#demanded_types`. A watcher reads that set
 to skip API calls for types nobody follows, so it never queries per channel.
 
+A source also answers `viewer_floors(watch_ids)` with `[watch_id, floor]` pairs, the
+minimum viewer counts its active rows set on those watches. `Watch.viewer_floors_for(watches)`
+unions the answers into a hash of watch id to floors. `CategoryPollJob` reads it once per
+tick and `CategorySighting` observes a stream whose count crosses one of its category's
+floors, so a follow's floor posts at the crossing.
+
 `Ops::Integrations::Watches::PruneOrphans` runs daily at 5:35 and destroys each watch
 that is not `referenced`. With no registered
 source it deletes nothing: an empty registry means the wiring failed, not that nothing

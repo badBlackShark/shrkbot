@@ -16,7 +16,7 @@ module Feeds
 
       def self.kept(event, subscription)
         live = last_live(event)
-        return SwitchedAnnouncement.new(event: live, subscription:, ended_at: event.ended_at) unless Twitch.accepts?(subscription, live)
+        return SwitchedAnnouncement.new(event: live, subscription:, ended_at: event.ended_at) unless subscription.source.accepts?(subscription, live)
 
         Announcement.new(event: live, subscription:, image_url: LiveImage.kept_for(live, subscription:), ended_at: event.ended_at)
       end

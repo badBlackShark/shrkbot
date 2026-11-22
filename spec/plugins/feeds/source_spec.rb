@@ -19,6 +19,12 @@ RSpec.describe Feeds::Source do
     end
   end
 
+  describe ".postable?" do
+    it "lets every event post" do
+      expect(source.postable?(subscription, event)).to be(true)
+    end
+  end
+
   describe ".post_type" do
     subject(:post_type) { source.post_type("Integrations::Steam::ArticlePublished") }
 

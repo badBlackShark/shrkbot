@@ -192,6 +192,51 @@ RSpec.describe Feeds::PostJob do
     end
   end
 
+  context "for a stream found through a followed category" do
+    subject(:announce) do
+      Feeds::AnnounceJob.perform_now(event)
+      ActiveJob::Base.queue_adapter.enqueued_jobs
+        .select { |job| job["job_class"] == described_class.name }
+        .each { |job| ActiveJob::Base.execute(job) }
+    end
+
+    let(:watch) { create(:integration_watch, :twitch, state: {"session" => "9001"}) }
+    let(:subscription) { create(:feed_subscription, :active, :twitch_category) }
+    let(:subscribed_types) { %w[Integrations::Twitch::StreamStarted] }
+    let!(:patch_notes) { nil }
+    let!(:article) { nil }
+    let(:category_id) { subscription.watch.external_id }
+
+    before do
+      allow(Feeds::Twitch::LiveImage).to receive(:for).and_return(nil)
+      subscription.settings.update!(min_viewers: 100)
+      ActiveJob::Base.queue_adapter.enqueued_jobs.clear
+    end
+
+    context "when the stream starts below the floor" do
+      let(:event) { create(:twitch_stream_started_event, watch:, session: "9001", category_id:, viewer_count: 3) }
+
+      it "posts nothing" do
+        announce
+
+        expect(subscription.posts).to be_empty
+      end
+    end
+
+    context "when a sample crosses the floor" do
+      let(:event) { create(:twitch_stream_sampled_event, watch:, session: "9001", category_id:, viewer_count: 120) }
+
+      before { create(:twitch_stream_started_event, watch:, session: "9001", category_id:, viewer_count: 3, occurred_at: 1.hour.ago) }
+
+      it "posts the stream once" do
+        announce
+
+        expect(subscription.posts.pluck(:story_key)).to eq(["stream:9001"])
+        expect(Bot::Discord::Components).to have_received(:create_with_subject).once
+      end
+    end
+  end
+
   describe "concurrency" do
     subject(:key) { described_class.new(subscription, patch_notes).concurrency_key }
 

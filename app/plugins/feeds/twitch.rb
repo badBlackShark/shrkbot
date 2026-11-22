@@ -106,13 +106,18 @@ module Feeds
     end
 
     def self.settings_from(permitted)
-      permitted.slice(*scalar_settings).to_h.symbolize_keys.merge(categories: CategoryValue.parse_all(permitted[:categories]))
+      permitted.slice(*scalar_settings).to_h.symbolize_keys.merge(list_settings(permitted))
     end
 
     def self.scalar_settings
       [:role_id, *POST_TYPES.map(&:role_column), :live_end_mode, :show_viewers, *POST_TYPES.map(&:image_column), :switched_away]
     end
     private_class_method :scalar_settings
+
+    def self.list_settings(permitted)
+      {categories: CategoryValue.parse_all(permitted[:categories])}
+    end
+    private_class_method :list_settings
 
     def self.role_id_for(subscription, event_type)
       subscription.settings.role_id_for(event_type)

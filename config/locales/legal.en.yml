@@ -100,9 +100,11 @@ en:
       data_twitch: 'Twitch: shrkbot keeps the stream, video, and clip events it receives
         from Twitch, including channel names, titles, and the name of each clip''s
         creator, so it can announce them. It also keeps any text a server writes for
-        a followed channel. The Twitch pages on the website load each channel''s profile
-        picture straight from Twitch''s servers, so Twitch sees the IP address of
-        the browser that opens the page.'
+        a followed channel. For a followed category it also keeps the category, the
+        filters a server sets, and the channel names a server excludes. A server types
+        those names, so they are free text that can name a streamer. The Twitch pages
+        on the website load each channel''s profile picture straight from Twitch''s
+        servers, so Twitch sees the IP address of the browser that opens the page.'
       data_welcomes: 'Welcome messages: on servers that use Discord''s membership
         screening, a short-lived in-memory note that a member has joined but not yet
         finished onboarding - the server ID and their Discord ID, nothing else. It
@@ -202,7 +204,9 @@ en:
       retention_twitch: 'Twitch: received events are deleted 14 days after they arrive.
         Text a server writes is deleted with the rest of its configuration. A followed
         channel''s name, the link to it, and the link to its picture are kept while
-        a server follows it.'
+        a server follows it. A followed category''s filters, including the excluded
+        channel names, are kept until the server stops following the category or shrkbot
+        leaves the server.'
       retention_welcomes: 'Pending-join notes: discarded the moment the welcome is
         sent or the member leaves, after 24 hours either way, and on every restart.
         They live in memory only and are never written down. Kick and ban notes are
@@ -227,7 +231,7 @@ en:
         company), which stores the diagnostic reports described above in Frankfurt,
         Germany. We may disclose data where required by law.'
       title: Privacy policy
-      updated: 'Last updated: November 19th, 2026'
+      updated: 'Last updated: November 22nd, 2026'
     terms_of_service:
       admin_h: Your responsibilities as a server admin
       admin_p: If you add shrkbot to a server or configure it, you're responsible

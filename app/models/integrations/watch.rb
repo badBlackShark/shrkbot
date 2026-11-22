@@ -49,6 +49,12 @@ module Integrations
       pairs.group_by(&:first).transform_values { |rows| rows.to_set(&:last) }
     end
 
+    def self.viewer_floors_for(watches)
+      ids = watches.map(&:id)
+      rows = demand_sources.flat_map { |source| source.viewer_floors(ids) }
+      rows.group_by(&:first).transform_values { |pairs| pairs.map(&:last) }
+    end
+
     def self.demand_matching
       demand_sources.map { |source| where(id: yield(source).select(:watch_id)) }.reduce(:or) || none
     end

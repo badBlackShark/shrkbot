@@ -172,6 +172,11 @@ which checks every watch with an open session. Discovered channels get no EventS
 subscriptions (the budget is for channels someone follows for Live), so their changes
 arrive by poll only.
 
+The follow side (filters, floor, dedupe) is `Feeds::TwitchCategory`, see
+[../plugins/feeds.md](../plugins/feeds.md). `CategorySighting` also observes a stream whose
+count crosses a follow's `min_viewers`, so the post lands at the crossing and not at the
+next reconcile.
+
 A discovered channel watch has no subscription, so `Watch.referenced` also counts watches
 that have events; `PruneOrphans` removes it once its events expire.
 
@@ -361,3 +366,4 @@ Not recorded:
 ## Feeds
 
 Twitch's Feeds source is `Feeds::Twitch` (see [../plugins/feeds.md](../plugins/feeds.md)). The Live card is described there.
+A category follow is `Feeds::TwitchCategory`, described in the same file under Twitch categories: its filters, the viewer floor, the dedupe against a direct follow and the cap.

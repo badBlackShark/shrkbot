@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_17_230156) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_22_195459) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -61,6 +61,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_230156) do
     t.bigint "channel_id"
     t.bigint "message_id"
     t.datetime "retracted_at"
+    t.index ["story_key"], name: "index_feed_posts_on_story_key"
     t.index ["subscription_id", "story_key"], name: "index_feed_posts_on_subscription_id_and_story_key", unique: true
   end
 
@@ -97,6 +98,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_230156) do
     t.string "watch_id", null: false
     t.index ["server_configuration_id", "watch_id"], name: "idx_on_server_configuration_id_watch_id_6baa6b1d76", unique: true
     t.index ["watch_id"], name: "index_feed_subscriptions_on_watch_id"
+  end
+
+  create_table "feed_twitch_category_settings", id: :string, default: -> { "('ftcs_'::text || gen_random_uuid())" }, force: :cascade do |t|
+    t.string "subscription_id", null: false
+    t.bigint "role_id"
+    t.integer "min_viewers", default: 0, null: false
+    t.jsonb "languages", default: [], null: false
+    t.jsonb "excluded_channels", default: [], null: false
+    t.string "live_end_mode", default: "mark_ended_with_vod", null: false
+    t.string "switched_away", default: "summary", null: false
+    t.boolean "show_viewers", default: true, null: false
+    t.boolean "show_preview_frame", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["subscription_id"], name: "index_feed_twitch_category_settings_on_subscription_id", unique: true
+    t.check_constraint "jsonb_array_length(excluded_channels) <= 100", name: "feed_twitch_category_settings_excluded_channels_max"
+    t.check_constraint "jsonb_array_length(languages) <= 50", name: "feed_twitch_category_settings_languages_max"
+    t.check_constraint "jsonb_typeof(excluded_channels) = 'array'::text", name: "feed_twitch_category_settings_excluded_channels_array"
+    t.check_constraint "jsonb_typeof(languages) = 'array'::text", name: "feed_twitch_category_settings_languages_array"
+    t.check_constraint "live_end_mode::text = ANY (ARRAY['keep'::character varying, 'delete'::character varying, 'mark_ended'::character varying, 'mark_ended_with_vod'::character varying]::text[])", name: "feed_twitch_category_settings_live_end_mode_check"
+    t.check_constraint "min_viewers >= 0", name: "feed_twitch_category_settings_min_viewers_check"
+    t.check_constraint "switched_away::text = ANY (ARRAY['summary'::character varying, 'delete'::character varying]::text[])", name: "feed_twitch_category_settings_switched_away_check"
   end
 
   create_table "feed_twitch_settings", id: :string, default: -> { "('fts_'::text || gen_random_uuid())" }, force: :cascade do |t|
@@ -620,6 +643,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_230156) do
   add_foreign_key "feed_subscribed_events", "feed_subscriptions", column: "subscription_id"
   add_foreign_key "feed_subscriptions", "integration_watches", column: "watch_id"
   add_foreign_key "feed_subscriptions", "server_configurations"
+  add_foreign_key "feed_twitch_category_settings", "feed_subscriptions", column: "subscription_id"
   add_foreign_key "feed_twitch_settings", "feed_subscriptions", column: "subscription_id"
   add_foreign_key "image_scanning_settings", "server_configurations"
   add_foreign_key "integration_events", "integration_watches", column: "watch_id"

@@ -3,9 +3,10 @@
 module Integrations
   module Twitch
     class CategorySighting
-      def initialize(streams:, watches:)
+      def initialize(streams:, watches:, floors: {})
         @streams = streams
         @watches = watches
+        @floors = floors
       end
 
       def observations
@@ -24,7 +25,12 @@ module Integrations
         return true unless state.key?("session")
         return true unless state.fetch("stream_ids").include?(live.stream_id)
 
-        !state["titles_pushed"] && Session.drifted?(state, live)
+        crossed_floor?(state, live) || (!state["titles_pushed"] && Session.drifted?(state, live))
+      end
+
+      def crossed_floor?(state, live)
+        before = state["viewer_count"].to_i
+        @floors.fetch(live.category_id, []).any? { |floor| before < floor && floor <= live.viewer_count }
       end
     end
   end

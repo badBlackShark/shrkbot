@@ -27,7 +27,7 @@ class Components::Feeds::SubscriptionList < Components::Base
       div(class: "flex items-center gap-2") do
         p(class: "text-[11px] font-semibold uppercase tracking-widest text-text-muted") { t(".#{@source.key}.heading") }
         span(class: "text-sm leading-none text-text-muted", aria_hidden: "true") { "•" }
-        p(class: "text-xs tabular-nums text-text-muted") { t(".usage", used: subscriptions.size, max: ::Feeds::Subscription::MAX_PER_SOURCE) }
+        p(class: "text-xs tabular-nums text-text-muted") { t(".usage", used: subscriptions.size, max: @source.max_follows) }
       end
       add_button
     end

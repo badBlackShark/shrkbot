@@ -102,6 +102,21 @@ RSpec.describe Integrations::Twitch::CategoryPollJob do
     end
   end
 
+  context "when a follow has a viewer floor and a stream climbs past it" do
+    let(:chess_streams) { [stream("s1", "1", "7")] }
+    let(:climbed) { [stream("s1", "1", "7").with(viewer_count: 30)] }
+
+    before do
+      create(:feed_subscription, :active, :twitch_category, watch: chess).settings.update!(min_viewers: 20)
+      described_class.perform_now
+      allow(streams).to receive(:in_category).with("7").and_return(climbed)
+    end
+
+    it "records a sample at the crossing" do
+      expect { perform }.to change { Integrations::Twitch::StreamSampled.count }.by(1)
+    end
+  end
+
   context "when Twitch rate limits a category" do
     before do
       allow(streams).to receive(:in_category).with("7").and_raise(Integrations::RateLimited.new("slow down", retry_after: 30))

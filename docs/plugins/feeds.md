@@ -47,8 +47,12 @@ tokens that type can fill, in the placeholder list and the preview) and
 `default_notification(event_type)`, plus the settings contract: `settings_association`
 (the `Subscription` association that holds its provider settings, which the list finder
 preloads), `role_id_for(subscription, event_type)` and `accepts?(subscription, event)`.
-`Feeds::Source` gives four more a default, and a source overrides only where it differs:
+`Feeds::Source` gives these a default, and a source overrides only where it differs:
 `post_type(event_type)` (the event type itself), `announced_types` (`event_types`),
+`max_follows` (`Source::MAX_FOLLOWS`), `postable?(subscription, event)` (true;
+the first-post gate, see Twitch categories) and `subscriptions_for(event)` (the source's
+subscriptions on the event's watch; `AnnounceJob` asks each source whose
+`announced_types` include the event),
 `retract?(subscription, event)`
 (true when the post is deleted instead of edited; false, Twitch for `StreamEnded` in
 `delete` mode and for a switched-away stream in `delete` mode) and
@@ -70,6 +74,38 @@ For the follow form a source also answers `lookup_param` (the lookup page's quer
 `settings_params` (the permit list for its settings) and `settings_from(permitted)` (the
 settings hash that `Subscription#build_settings` and `Ops::Feeds::Subscriptions::Update`
 take).
+
+## Twitch categories
+
+`Feeds::TwitchCategory < Feeds::Twitch` follows a Twitch category instead of a channel. It
+shares the Twitch plugin, post type (Live only), renderers and `Feeds::Twitch::Ending`,
+and overrides `key` (`:twitch_category`), `watchers` (`CategoryWatcher`), `event_types`,
+`announced_types` (adds `StreamSampled`, the floor crossing), the settings contract
+(`Feeds::TwitchCategory::Settings`, table `feed_twitch_category_settings`) and `accepts?`.
+The provider side is in [../integrations/twitch.md](../integrations/twitch.md) § Category
+watches: a discovered stream is an event on its own channel watch, so the follow finds
+events through `subscriptions_for(event)` (follows on the watch of `event.category_id`),
+not through the watch the event sits on.
+
+- **Filters.** `min_viewers`, `languages` (empty means all; a stream of unknown language
+  does not match a filter) and `excluded_channels` (normalised to a lowercase login on
+  assignment, never looked up). `accepts?` is the category, language and exclusion check
+  plus the dedupe below.
+- **Floor.** It gates the first post only: `postable?` is checked in
+  `StoryPick#eligible_copy?`, not in `accepts?`, so a stream that dips below the floor
+  keeps its card. A stream that climbs past it posts at the crossing: the poll observes a
+  stream whose count crosses a floor (`Watch.viewer_floors_for`, from
+  `Subscription.viewer_floors`, which asks each source's `viewer_floors`), and the resulting `StreamSampled` is the copy that
+  posts. A stream that re-enters below the floor stays retracted until a sample above it.
+- **Dedupe.** A category follow does not accept a stream while a direct follow of that
+  channel in the same server demands Live and accepts the stream (its own category
+  filter). A direct follow for clips only, or one whose filter rejects the stream's
+  category, leaves the category follow posting. Leaving the category, a language change
+  out of the filter and a new exclusion read as `switched_away`.
+- **Cap.** Ten category follows per server, counted apart from the 25 channel follows
+  (`Source.max_follows`).
+- **Revise.** `ReviseJob` finds posts by story key across active subscriptions, because a
+  stream that left the category keeps its card.
 
 ## Config UI
 
@@ -126,8 +162,8 @@ are no preview routes for these pages.
 - **Paths.** `Feeds::SubscriptionPaths` builds the add, edit and subscription paths from
   the source's plugin key (`new_server_<key>_subscription_path`), so a new source adds a
   nested `resources :subscriptions`, not new path code.
-- **Cap.** A server follows at most `Feeds::Subscription::MAX_PER_SOURCE` (25) things per
-  source: 25 Steam games don't block a Twitch channel. The cap protects each provider's
+- **Cap.** A server follows at most `source.max_follows` things per source (25 by
+  default, `Feeds::Source::MAX_FOLLOWS`; Twitch categories 10): 25 Steam games don't block a Twitch channel. The cap protects each provider's
   request budget, so it counts per source. The list disables Add at the cap and says why
   (`Subscription.cap_message`, one locale key per source under
   `operations.feeds.subscriptions.cap`).
