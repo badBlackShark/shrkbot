@@ -49,7 +49,7 @@ tokens that type can fill, in the placeholder list and the preview) and
 preloads), `role_id_for(subscription, event_type)` and `accepts?(subscription, event)`.
 `Feeds::Source` gives these a default, and a source overrides only where it differs:
 `post_type(event_type)` (the event type itself), `announced_types` (`event_types`),
-`max_follows` (`Subscription::MAX_PER_SOURCE`), `postable?(subscription, event)` (true;
+`max_follows` (`Source::MAX_FOLLOWS`), `postable?(subscription, event)` (true;
 the first-post gate, see Twitch categories) and `subscriptions_for(event)` (the source's
 subscriptions on the event's watch; `AnnounceJob` asks each source whose
 `announced_types` include the event),
@@ -95,7 +95,7 @@ not through the watch the event sits on.
   `StoryPick#eligible_copy?`, not in `accepts?`, so a stream that dips below the floor
   keeps its card. A stream that climbs past it posts at the crossing: the poll observes a
   stream whose count crosses a floor (`Watch.viewer_floors_for`, from
-  `Subscription.viewer_floors`), and the resulting `StreamSampled` is the copy that
+  `Subscription.viewer_floors`, which asks each source's `viewer_floors`), and the resulting `StreamSampled` is the copy that
   posts. A stream that re-enters below the floor stays retracted until a sample above it.
 - **Dedupe.** A category follow does not accept a stream while a direct follow of that
   channel in the same server demands Live and accepts the stream (its own category
@@ -163,7 +163,7 @@ are no preview routes for these pages.
   the source's plugin key (`new_server_<key>_subscription_path`), so a new source adds a
   nested `resources :subscriptions`, not new path code.
 - **Cap.** A server follows at most `source.max_follows` things per source (25 by
-  default, `Feeds::Subscription::MAX_PER_SOURCE`; Twitch categories 10): 25 Steam games don't block a Twitch channel. The cap protects each provider's
+  default, `Feeds::Source::MAX_FOLLOWS`; Twitch categories 10): 25 Steam games don't block a Twitch channel. The cap protects each provider's
   request budget, so it counts per source. The list disables Add at the cap and says why
   (`Subscription.cap_message`, one locale key per source under
   `operations.feeds.subscriptions.cap`).

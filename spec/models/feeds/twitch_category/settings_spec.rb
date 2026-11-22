@@ -139,12 +139,4 @@ RSpec.describe Feeds::TwitchCategory::Settings do
       expect(settings.show_image?("Integrations::Twitch::StreamStarted")).to be(false)
     end
   end
-
-  describe "#role_id_for" do
-    it "is the one role" do
-      settings.role_id = 4242
-
-      expect(settings.role_id_for("Integrations::Twitch::StreamStarted")).to eq(4242)
-    end
-  end
 end

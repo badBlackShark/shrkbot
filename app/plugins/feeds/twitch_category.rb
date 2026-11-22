@@ -25,19 +25,34 @@ module Feeds
       :twitch_category_settings
     end
 
-    def self.lookup_param
-      :category
-    end
-
     def self.settings_params
-      [*SCALAR_SETTINGS, {languages: [], excluded_channels: []}]
+      [*scalar_settings, {languages: [], excluded_channels: []}]
     end
 
-    def self.settings_from(permitted)
-      permitted.slice(*SCALAR_SETTINGS).to_h.symbolize_keys.merge(
+    def self.scalar_settings
+      SCALAR_SETTINGS
+    end
+    private_class_method :scalar_settings
+
+    def self.list_settings(permitted)
+      {
         languages: Array(permitted[:languages]).compact_blank,
         excluded_channels: Array(permitted[:excluded_channels])
-      )
+      }
+    end
+    private_class_method :list_settings
+
+    def self.role_override_for(_subscription, _event_type)
+    end
+
+    def self.viewer_floors(watch_ids)
+      Subscription
+        .active
+        .for_source(self)
+        .where(watch_id: watch_ids)
+        .joins(:twitch_category_settings)
+        .where("feed_twitch_category_settings.min_viewers > 0")
+        .pluck(:watch_id, "feed_twitch_category_settings.min_viewers")
     end
 
     def self.max_follows
@@ -55,8 +70,6 @@ module Feeds
     end
 
     def self.subscriptions_for(event)
-      return Subscription.none unless event.category_id
-
       Subscription.for_source(self).where(
         watch_id: Integrations::Watch.where(watcher: watchers, external_id: event.category_id).select(:id)
       )

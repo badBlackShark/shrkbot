@@ -103,15 +103,15 @@ RSpec.describe Feeds::Subscription do
     let(:server_configuration) { create(:server_configuration) }
 
     context "with the cap reached on the source" do
-      before { create_list(:feed_subscription, described_class::MAX_PER_SOURCE, server_configuration:) }
+      before { create_list(:feed_subscription, Feeds::Source::MAX_FOLLOWS, server_configuration:) }
 
       it { is_expected.to be(true) }
     end
 
     context "with the cap reached on another source only" do
       before do
-        create_list(:feed_subscription, described_class::MAX_PER_SOURCE - 1, server_configuration:)
-        create_list(:integration_watch, described_class::MAX_PER_SOURCE, watcher: "Integrations::Other::Watcher").each do |watch|
+        create_list(:feed_subscription, Feeds::Source::MAX_FOLLOWS - 1, server_configuration:)
+        create_list(:integration_watch, Feeds::Source::MAX_FOLLOWS, watcher: "Integrations::Other::Watcher").each do |watch|
           create(:feed_subscription, server_configuration:, watch:)
         end
       end

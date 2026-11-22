@@ -2,8 +2,6 @@
 
 module Feeds
   class Subscription < ApplicationRecord
-    MAX_PER_SOURCE = 25
-
     self.table_name = "feed_subscriptions"
 
     belongs_to :server_configuration
@@ -56,11 +54,7 @@ module Feeds
     end
 
     def self.viewer_floors(watch_ids)
-      active
-        .where(watch_id: watch_ids)
-        .joins(:twitch_category_settings)
-        .where("feed_twitch_category_settings.min_viewers > 0")
-        .pluck(:watch_id, "feed_twitch_category_settings.min_viewers")
+      Feeds.sources.flat_map { |source| source.viewer_floors(watch_ids) }
     end
 
     def self.demanded_types(watch_ids)

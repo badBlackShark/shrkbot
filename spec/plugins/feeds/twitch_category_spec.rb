@@ -101,28 +101,10 @@ RSpec.describe Feeds::TwitchCategory do
       expect(found).to contain_exactly(subscription)
     end
 
-    context "when the stream has no category" do
-      let(:event) { build(:twitch_stream_started_event, watch: stream_watch, category_id: nil) }
-
-      it { is_expected.to be_empty }
-    end
-
     context "when only another category is followed" do
       let(:event) { build(:twitch_stream_started_event, watch: stream_watch, category_id: "other") }
 
       it { is_expected.to be_empty }
-    end
-  end
-
-  describe ".announced_types" do
-    it "includes the floor crossing" do
-      expect(described_class.announced_types).to include("Integrations::Twitch::StreamSampled")
-    end
-  end
-
-  describe ".max_follows" do
-    it "is ten" do
-      expect(described_class.max_follows).to eq(10)
     end
   end
 

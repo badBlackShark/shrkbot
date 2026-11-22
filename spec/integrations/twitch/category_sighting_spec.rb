@@ -96,6 +96,14 @@ RSpec.describe Integrations::Twitch::CategorySighting do
       end
     end
 
+    context "when the count equals a floor exactly" do
+      let(:floors) { {"7" => [12]} }
+
+      it "transitions it, since the floor is inclusive" do
+        expect(observations.map(&:first)).to eq([watch])
+      end
+    end
+
     context "when no count was stored" do
       let(:state) { open_state }
 

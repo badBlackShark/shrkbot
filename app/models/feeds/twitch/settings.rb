@@ -10,6 +10,8 @@ module Feeds
 
       self.table_name = "feed_twitch_settings"
 
+      include ValidatesJsonList
+
       belongs_to :subscription, class_name: "Feeds::Subscription"
 
       validates :show_viewers, inclusion: {in: [true, false]}
@@ -17,8 +19,7 @@ module Feeds
       validates :live_end_mode, inclusion: {in: LIVE_END_MODES}
       validates :switched_away, inclusion: {in: SWITCHED_AWAY_MODES}
       validates :subscription_id, uniqueness: true
-      validate :categories_shape
-      validate :categories_count
+      validates_json_list(:categories, max: MAX_CATEGORIES) { |category| CategoryValue.valid?(category) }
 
       def role_id_for(event_type)
         override = role_override_for(event_type)
@@ -37,20 +38,6 @@ module Feeds
 
       def accepts_category?(category_id)
         categories.empty? || categories.any? { |category| category["id"] == category_id }
-      end
-
-      private
-
-      def categories_shape
-        return if categories.is_a?(Array) && categories.all? { |category| CategoryValue.valid?(category) }
-
-        errors.add(:categories, :invalid)
-      end
-
-      def categories_count
-        return unless categories.is_a?(Array) && categories.size > MAX_CATEGORIES
-
-        errors.add(:categories, :too_long, count: MAX_CATEGORIES)
       end
     end
   end

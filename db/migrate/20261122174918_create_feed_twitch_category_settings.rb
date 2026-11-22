@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class CreateFeedTwitchCategorySettings < ActiveRecord::Migration[8.1]
-  disable_ddl_transaction!
-
   def up
     safety_assured do
       create_table :feed_twitch_category_settings, id: false do |t|
@@ -28,12 +26,9 @@ class CreateFeedTwitchCategorySettings < ActiveRecord::Migration[8.1]
       end
       execute "ALTER TABLE feed_twitch_category_settings ALTER COLUMN id SET DEFAULT ('ftcs_' || gen_random_uuid())"
     end
-
-    add_index :feed_posts, :story_key, algorithm: :concurrently
   end
 
   def down
-    remove_index :feed_posts, :story_key
     drop_table :feed_twitch_category_settings
   end
 end
