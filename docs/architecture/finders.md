@@ -26,13 +26,14 @@ That line is why some querying classes are deliberately NOT finders:
 - **`CachedDashboard`, `ServerDashboard`** query, but their job is assembling one
   page's view model.
 - **`TwilightStruggle::EffectiveConfig`** queries the destination chain, but its job
-  is resolving inherited values with i18n fallbacks. Domain logic, and it stays in
-  `app/models/`.
+  is resolving inherited values with i18n fallbacks. Domain logic of one plugin, so it
+  lives in `app/plugins/twilight_struggle/`.
 
-Value objects, static catalogs and utility modules (`Duration`, `TemplateText`,
-`PluginCatalog`, `LoggableEventCatalog`, `PreviewData`) also stay in `app/models/`.
-`app/models/` holding more than ActiveRecord classes is accepted; holding query
-objects is what this layer fixed.
+Value objects, static catalogs and utility modules that no single plugin owns
+(`Duration`, `TemplateText`, `PluginCatalog`, `LoggableEventCatalog`, `PreviewData`)
+stay in `app/models/`. A plugin's own non-model classes (`Feeds::StoryPick`,
+`TwilightStruggle::GameReport`) live in `app/plugins/<plugin>/`, beside its commands
+and events; its ActiveRecord models stay in `app/models/<plugin>/`.
 
 ## The shadowing trap
 
