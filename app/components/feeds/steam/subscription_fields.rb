@@ -12,7 +12,7 @@ class Components::Feeds::Steam::SubscriptionFields < Components::Base
       render Components::Feeds::DestinationCard.new(subscription: @subscription)
       volume_frame
       render Components::Callout.new(variant: :warning) { t(".what_note") }
-      render Components::Feeds::EventTypeList.new(subscription: @subscription, plugin_key: :steam)
+      render Components::Feeds::EventTypeList.new(subscription: @subscription, source: ::Feeds::Steam)
       render Components::Feeds::Steam::LanguageCard.new(subscription: @subscription)
       render Components::Feeds::Steam::LengthCard.new(subscription: @subscription)
     end

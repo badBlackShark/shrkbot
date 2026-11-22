@@ -40,11 +40,11 @@ Rails.application.routes.draw do
       resource :lfg, only: [:show, :update], controller: "lfg"
       resource :integrations, only: :show, controller: "integrations"
       resource :steam, only: [:show, :update], controller: "feeds", defaults: {plugin_key: "steam"} do
-        resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], controller: "feeds/subscriptions"
+        resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], controller: "feeds/subscriptions", defaults: {source_key: "steam"}
         resource :volume, only: :show, module: :steam
       end
       resource :twitch, only: [:show, :update], controller: "feeds", defaults: {plugin_key: "twitch"} do
-        resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], controller: "feeds/subscriptions"
+        resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], controller: "feeds/subscriptions", defaults: {source_key: "twitch"}
         resources :categories, only: :index, module: :twitch
       end
       resource :twilight_struggle, only: [:show, :update], controller: "twilight_struggle" do

@@ -15,11 +15,8 @@ module Ops
         private
 
         def subscriptions
-          server_configuration.feed_subscriptions.for_source(source) if source
-        end
-
-        def source
-          ::Feeds.find_source(plugin_key)
+          scopes = ::Feeds.sources_for_plugin(plugin_key).map { |source| server_configuration.feed_subscriptions.for_source(source) }
+          scopes.reduce(:or)
         end
       end
     end

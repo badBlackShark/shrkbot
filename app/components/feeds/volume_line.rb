@@ -4,9 +4,9 @@ class Components::Feeds::VolumeLine < Components::Base
   FRAME_ID = "feed-volume"
   ICON = "chart-bar"
 
-  def initialize(volume:, plugin_key:)
+  def initialize(volume:, source:)
     @volume = volume
-    @plugin_key = plugin_key
+    @source = source
   end
 
   def render?
@@ -20,7 +20,7 @@ class Components::Feeds::VolumeLine < Components::Base
   private
 
   def counts
-    ::Feeds.source(@plugin_key).event_types.filter_map { |event_type| count_phrase(event_type) }.to_sentence
+    @source.event_types.filter_map { |event_type| count_phrase(event_type) }.to_sentence
   end
 
   def count_phrase(event_type)

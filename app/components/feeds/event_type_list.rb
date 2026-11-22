@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 class Components::Feeds::EventTypeList < Components::Base
-  def initialize(subscription:, plugin_key:, type_fields: nil)
+  def initialize(subscription:, source:, type_fields: nil)
     @subscription = subscription
-    @plugin_key = plugin_key
+    @source = source
     @type_fields = type_fields
   end
 
   def view_template
-    ::Feeds.source(@plugin_key).event_types.each { |event_type| event_type_row(event_type) }
+    @source.event_types.each { |event_type| event_type_row(event_type) }
   end
 
   private
@@ -16,7 +16,7 @@ class Components::Feeds::EventTypeList < Components::Base
   def event_type_row(event_type)
     render Components::Feeds::EventTypeSetting.new(
       subscription: @subscription,
-      plugin_key: @plugin_key,
+      source: @source,
       event_type:,
       event: events_by_type[event_type],
       route_labels:,

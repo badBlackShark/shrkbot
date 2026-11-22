@@ -28,7 +28,7 @@ class Components::Feeds::NotificationField < Components::Feeds::TemplateField
   end
 
   def default
-    source.default_notification(@event_type)
+    @source.default_notification(@event_type)
   end
 
   def textarea_data

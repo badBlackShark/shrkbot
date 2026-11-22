@@ -24,6 +24,6 @@ class Views::Servers::Feeds::Show < Views::Servers::SubPluginShow
   end
 
   def body
-    render Components::Feeds::SubscriptionList.new(server_configuration: @config, plugin_key:)
+    render Components::Feeds::SubscriptionList.new(server_configuration: @config, source: ::Feeds.source(plugin_key))
   end
 end

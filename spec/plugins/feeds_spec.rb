@@ -74,7 +74,7 @@ RSpec.describe Feeds do
   end
 
   describe ".source" do
-    it "finds a source by plugin key" do
+    it "finds a source by key" do
       expect(described_class.source(:steam)).to eq(Feeds::Steam)
     end
 
@@ -82,8 +82,18 @@ RSpec.describe Feeds do
       expect(described_class.source(:twitch)).to eq(Feeds::Twitch)
     end
 
-    it "raises for an unknown plugin key" do
+    it "raises for an unknown key" do
       expect { described_class.source(:nope) }.to raise_error(KeyError)
+    end
+  end
+
+  describe ".sources_for_plugin" do
+    it "gives the sources that belong to the plugin" do
+      expect(described_class.sources_for_plugin(:steam)).to eq([Feeds::Steam])
+    end
+
+    it "gives nothing for a plugin without sources" do
+      expect(described_class.sources_for_plugin(:logging)).to eq([])
     end
   end
 

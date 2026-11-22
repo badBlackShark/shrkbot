@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 class Components::Feeds::SubscriptionForm < Components::Base
-  def initialize(subscription:, plugin_key:, error: nil)
+  def initialize(subscription:, source:, error: nil)
     @subscription = subscription
-    @plugin_key = plugin_key
+    @source = source
     @error = error
   end
 
   def view_template
-    render Components::ConfigSections.new(key: @plugin_key.to_s, save_error: @error) do
-      render "Components::Feeds::#{@plugin_key.to_s.camelize}::SubscriptionFields".constantize.new(subscription: @subscription)
+    render Components::ConfigSections.new(key: @source.key.to_s, save_error: @error) do
+      render "Components::Feeds::#{@source.key.to_s.camelize}::SubscriptionFields".constantize.new(subscription: @subscription)
       stop_following_button if @subscription.persisted?
     end
   end

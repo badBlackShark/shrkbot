@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Components::Feeds::MessageFields < Components::Base
-  def initialize(subscription:, plugin_key:, event_type:, event:)
+  def initialize(subscription:, source:, event_type:, event:)
     @subscription = subscription
-    @plugin_key = plugin_key
+    @source = source
     @event_type = event_type
     @event = event
   end
@@ -19,12 +19,12 @@ class Components::Feeds::MessageFields < Components::Base
   private
 
   def fields
-    {subscription: @subscription, plugin_key: @plugin_key, event_type: @event_type, event: @event}
+    {subscription: @subscription, source: @source, event_type: @event_type, event: @event}
   end
 
   def placeholders
-    ::Feeds.source(@plugin_key).tokens_for(@event_type).index_with do |name|
-      t("components.feeds.placeholders.#{@plugin_key}.#{name}")
+    @source.tokens_for(@event_type).index_with do |name|
+      t("components.feeds.placeholders.#{@source.key}.#{name}")
     end
   end
 end

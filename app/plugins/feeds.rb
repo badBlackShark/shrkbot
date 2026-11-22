@@ -5,12 +5,12 @@ module Feeds
     [Steam, Twitch]
   end
 
-  def self.find_source(plugin_key)
-    sources.find { |source| source.plugin_key == plugin_key }
+  def self.source(key)
+    sources.find { |source| source.key == key } || raise(KeyError, "no Feeds source for #{key.inspect}")
   end
 
-  def self.source(plugin_key)
-    find_source(plugin_key) || raise(KeyError, "no Feeds source for #{plugin_key.inspect}")
+  def self.sources_for_plugin(plugin_key)
+    sources.select { |source| source.plugin_key == plugin_key }
   end
 
   def self.source_for_watcher(watcher)

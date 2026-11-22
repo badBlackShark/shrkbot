@@ -5,9 +5,9 @@ require "rails_helper"
 RSpec.describe Components::Feeds::MessageFields do
   include_context "component view context"
 
-  subject(:html) { described_class.new(subscription:, plugin_key:, event_type:, event: nil).render_in(view_context) }
+  subject(:html) { described_class.new(subscription:, source:, event_type:, event: nil).render_in(view_context) }
 
-  let(:plugin_key) { :steam }
+  let(:source) { ::Feeds::Steam }
   let(:event_type) { "Integrations::Steam::PatchNotesPublished" }
   let(:subscription) { build(:feed_subscription, watch: build(:integration_watch, name: "Hades II")) }
   let(:chips) { html.scan(/data-clipboard-text-param="\{(\w+)\}"/).flatten }
@@ -27,7 +27,7 @@ RSpec.describe Components::Feeds::MessageFields do
   end
 
   context "with Twitch" do
-    let(:plugin_key) { :twitch }
+    let(:source) { ::Feeds::Twitch }
     let(:subscription) { build(:feed_subscription, :twitch) }
 
     context "with a highlight" do

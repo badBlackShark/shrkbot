@@ -3,14 +3,14 @@
 class Views::Servers::Steam::Volumes::Show < Views::Base
   include Phlex::Rails::Helpers::TurboFrameTag
 
-  def initialize(volume:, plugin_key:)
+  def initialize(volume:, source:)
     @volume = volume
-    @plugin_key = plugin_key
+    @source = source
   end
 
   def view_template
     turbo_frame_tag(Components::Feeds::VolumeLine::FRAME_ID) do
-      render Components::Feeds::VolumeLine.new(volume: @volume, plugin_key: @plugin_key)
+      render Components::Feeds::VolumeLine.new(volume: @volume, source: @source)
     end
   end
 end

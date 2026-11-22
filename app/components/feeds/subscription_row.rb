@@ -5,16 +5,16 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   TITLE = "font-display font-semibold"
 
-  def initialize(subscription:, plugin_key:, labels:, edit_href: nil)
+  def initialize(subscription:, source:, labels:, edit_href: nil)
     @subscription = subscription
-    @plugin_key = plugin_key
+    @source = source
     @labels = labels
     @edit_href = edit_href
   end
 
   def view_template
     render Components::Card.new(enabled: true, lift: linked?, class: "relative flex flex-wrap items-center gap-4") do
-      render Components::Feeds::WatchImage.new(url: watch.image_url, plugin_key: @plugin_key, size: :list)
+      render Components::Feeds::WatchImage.new(url: watch.image_url, source: @source, size: :list)
       div(class: "min-w-0 flex-1") do
         title
         meta
@@ -101,12 +101,8 @@ class Components::Feeds::SubscriptionRow < Components::Base
     @subscription.subscribed_events.find { |event| event.event_type == event_type }
   end
 
-  def source
-    ::Feeds.source(@plugin_key)
-  end
-
   def event_types
-    order = source.event_types
+    order = @source.event_types
     @subscription.subscribed_events.map(&:event_type).sort_by { |event_type| order.index(event_type) }
   end
 
@@ -118,7 +114,7 @@ class Components::Feeds::SubscriptionRow < Components::Base
 
   def broken_callout
     render Components::Callout.new(variant: :warning, class: "w-full") do
-      t(".#{@plugin_key}.broken", since: l(watch.failing_since, format: :long))
+      t(".#{@source.key}.broken", since: l(watch.failing_since, format: :long))
     end
   end
 end

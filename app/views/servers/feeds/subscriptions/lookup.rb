@@ -8,8 +8,8 @@ class Views::Servers::Feeds::Subscriptions::Lookup < Views::Base
     "focus:ring-3 focus:ring-[var(--focus-ring)] aria-invalid:border-danger"
   ERROR_ID = "feed-lookup-error"
 
-  def initialize(plugin_key:, lookup_param:, server_configuration:, user:, input: nil, error: nil, existing: nil)
-    @plugin_key = plugin_key
+  def initialize(source:, lookup_param:, server_configuration:, user:, input: nil, error: nil, existing: nil)
+    @source = source
     @lookup_param = lookup_param
     @config = server_configuration
     @user = user
@@ -19,9 +19,9 @@ class Views::Servers::Feeds::Subscriptions::Lookup < Views::Base
   end
 
   def view_template
-    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: @plugin_key) do
-      render Components::Feeds::AddPage.new(server_configuration: @config, plugin_key: @plugin_key) do
-        render Components::PageHeading.new(title: t(".#{@plugin_key}.title"))
+    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: @source.plugin_key) do
+      render Components::Feeds::AddPage.new(server_configuration: @config, source: @source) do
+        render Components::PageHeading.new(title: t(".#{@source.key}.title"))
         render Components::Card.new { lookup_form }
       end
     end
@@ -30,8 +30,8 @@ class Views::Servers::Feeds::Subscriptions::Lookup < Views::Base
   private
 
   def lookup_form
-    form_with(url: ::Feeds::SubscriptionPaths.new_for(@config, @plugin_key), method: :get, class: "flex flex-col gap-3") do
-      render Components::FieldLabel.new { t(".#{@plugin_key}.label") }
+    form_with(url: ::Feeds::SubscriptionPaths.new_for(@config, @source), method: :get, class: "flex flex-col gap-3") do
+      render Components::FieldLabel.new { t(".#{@source.key}.label") }
       input(
         type: "text",
         name: @lookup_param,
@@ -55,7 +55,7 @@ class Views::Servers::Feeds::Subscriptions::Lookup < Views::Base
     if @existing
       existing_message
     elsif @error
-      p(id: ERROR_ID, class: "text-sm text-danger-text") { t(".#{@plugin_key}.errors.#{@error}") }
+      p(id: ERROR_ID, class: "text-sm text-danger-text") { t(".#{@source.key}.errors.#{@error}") }
     end
   end
 

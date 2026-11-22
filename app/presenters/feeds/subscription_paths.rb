@@ -2,24 +2,24 @@
 
 module Feeds
   class SubscriptionPaths
-    def self.new_for(server_configuration, plugin_key)
-      helpers.public_send("new_server_#{plugin_key}_subscription_path", server_configuration.discord_id)
+    def self.new_for(server_configuration, source)
+      helpers.public_send("new_server_#{source.key}_subscription_path", server_configuration.discord_id)
     end
 
-    def self.collection_for(server_configuration, plugin_key)
-      helpers.public_send("server_#{plugin_key}_subscriptions_path", server_configuration.discord_id)
+    def self.collection_for(server_configuration, source)
+      helpers.public_send("server_#{source.key}_subscriptions_path", server_configuration.discord_id)
     end
 
     def self.edit_for(subscription)
-      helpers.public_send("edit_server_#{subscription.source.plugin_key}_subscription_path", subscription.server_configuration.discord_id, subscription)
+      helpers.public_send("edit_server_#{subscription.source.key}_subscription_path", subscription.server_configuration.discord_id, subscription)
     end
 
     def self.for(subscription)
-      helpers.public_send("server_#{subscription.source.plugin_key}_subscription_path", subscription.server_configuration.discord_id, subscription)
+      helpers.public_send("server_#{subscription.source.key}_subscription_path", subscription.server_configuration.discord_id, subscription)
     end
 
     def self.volume_for(subscription)
-      helpers.public_send("server_#{subscription.source.plugin_key}_volume_path", subscription.server_configuration.discord_id, app: subscription.watch.external_id)
+      helpers.public_send("server_#{subscription.source.key}_volume_path", subscription.server_configuration.discord_id, app: subscription.watch.external_id)
     end
 
     private_class_method def self.helpers

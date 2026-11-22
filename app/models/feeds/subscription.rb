@@ -47,7 +47,7 @@ module Feeds
     end
 
     def self.cap_message(source)
-      I18n.t("operations.feeds.subscriptions.cap.#{source.plugin_key}", max: MAX_PER_SOURCE)
+      I18n.t("operations.feeds.subscriptions.cap.#{source.key}", max: MAX_PER_SOURCE)
     end
 
     def self.demanding(event_types)

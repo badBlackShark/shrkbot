@@ -6,10 +6,10 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   include_context "component view context"
 
   subject(:html) do
-    described_class.new(subscription:, plugin_key:, event_type:, event:, route_labels:, **extra).render_in(view_context)
+    described_class.new(subscription:, source:, event_type:, event:, route_labels:, **extra).render_in(view_context)
   end
 
-  let(:plugin_key) { :steam }
+  let(:source) { ::Feeds::Steam }
   let(:extra) { {} }
   let(:route_labels) { Feeds::RouteLabels.new(subscription.server_configuration) }
 
@@ -125,7 +125,7 @@ RSpec.describe Components::Feeds::EventTypeSetting do
   end
 
   context "with a source that has per-type fields" do
-    let(:plugin_key) { :twitch }
+    let(:source) { ::Feeds::Twitch }
     let(:event_type) { "Integrations::Twitch::HighlightPublished" }
     let(:subscription) { build(:feed_subscription, :twitch) }
     let(:extra) { {type_fields: Components::Feeds::Twitch::TypeFields} }

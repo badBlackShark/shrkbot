@@ -2,6 +2,10 @@
 
 module Feeds
   class Source
+    def self.key
+      plugin_key
+    end
+
     def self.post_type(event_type)
       event_type
     end
