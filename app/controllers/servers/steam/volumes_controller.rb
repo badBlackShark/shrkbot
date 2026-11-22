@@ -3,8 +3,9 @@
 class Servers::Steam::VolumesController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
+  include RateLimitsExternalCalls
 
-  rate_limit to: 60, within: 1.minute, by: -> { session[:user_id] }
+  rate_limit_external_calls
 
   WATCHER = ::Integrations::Steam::NewsWatcher
 

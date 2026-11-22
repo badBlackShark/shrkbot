@@ -6,8 +6,9 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   include ReadsFeedPluginKey
   include VerifiesGuildChannels
   include VerifiesGuildRoles
+  include RateLimitsExternalCalls
 
-  rate_limit to: 60, within: 1.minute, by: -> { session[:user_id] }, only: [:new, :create]
+  rate_limit_external_calls only: [:new, :create]
   before_action :load_subscription, only: [:edit, :update, :destroy]
 
   def new
