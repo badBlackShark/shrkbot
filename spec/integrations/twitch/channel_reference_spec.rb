@@ -12,16 +12,9 @@ RSpec.describe Integrations::Twitch::ChannelReference do
   end
 
   describe ".parse" do
-    {
-      "bare login" => "shroud",
-      "login with @ and capitals" => "@Shroud",
-      "URL without scheme" => "twitch.tv/shroud",
-      "URL with a sub-page" => "https://www.twitch.tv/shroud/videos",
-      "mobile URL" => "m.twitch.tv/shroud",
-      "upper-case URL with a query" => "HTTPS://TWITCH.TV/Shroud?x=1"
-    }.each do |label, input|
-      it "reads a #{label}" do
-        expect(described_class.parse(input)).to eq("shroud")
+    JSON.parse(Rails.root.join("spec/fixtures/channel_references.json").read).each do |reference|
+      it "reads #{reference["input"].inspect} as #{reference["login"]}" do
+        expect(described_class.parse(reference["input"])).to eq(reference["login"])
       end
     end
 

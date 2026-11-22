@@ -18,6 +18,11 @@ RSpec.describe Components::Feeds::TwitchCategory::FiltersCard do
     expect(document.text.index("100 most-watched")).to be < document.text.index("Only post streams with at least")
   end
 
+  it "counts the streams that would post, above the top-100 note" do
+    expect(document.at_css("[data-controller='category-counter']")).to be_present
+    expect(document.text.index("Counting streams")).to be < document.text.index("100 most-watched")
+  end
+
   it "holds the stored floor in a stepper that can't go below zero" do
     input = document.at_css("input[name='subscription[min_viewers]']")
 

@@ -1,0 +1,10 @@
+[
+  {"input": "shroud", "login": "shroud"},
+  {"input": "Shroud", "login": "shroud"},
+  {"input": "@Shroud", "login": "shroud"},
+  {"input": "twitch.tv/Shroud", "login": "shroud"},
+  {"input": "https://www.twitch.tv/Shroud/videos", "login": "shroud"},
+  {"input": "HTTPS://TWITCH.TV/Shroud?x=1", "login": "shroud"},
+  {"input": "m.twitch.tv/some_one?x=1", "login": "some_one"},
+  {"input": "@Some_One", "login": "some_one"}
+]
