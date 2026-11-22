@@ -121,6 +121,30 @@ RSpec.describe Integrations::Steam::NewsWatcher do
       expect { events }.not_to change(Integrations::Event, :count)
     end
 
+    context "when the patch notes are already recorded" do
+      let!(:recorded) { create(:steam_news_event, watch:, subject_key: "1846651706682902", story_key: "1846651706682901") }
+
+      before do
+        allow(Integrations::HtmlToMarkdown).to receive(:call).and_call_original
+      end
+
+      it "returns and converts only the new items" do
+        expect(events.map(&:subject_key)).not_to include("1846651706682902")
+        expect(Integrations::HtmlToMarkdown).to have_received(:call).twice
+      end
+    end
+
+    context "when the patch notes were recorded as an announcement before Steam tagged them" do
+      let!(:recorded) { create(:steam_announcement_event, watch:, subject_key: "1846651706682902", story_key: "1846651706682901") }
+
+      it "returns them under the new type in the same story" do
+        expect(events.find { |event| event.subject_key == "1846651706682902" }).to have_attributes(
+          class: Integrations::Steam::PatchNotesPublished,
+          story_key: "1846651706682901"
+        )
+      end
+    end
+
     context "with an untagged community post" do
       before do
         response["appnews"]["newsitems"].first.delete("tags")
