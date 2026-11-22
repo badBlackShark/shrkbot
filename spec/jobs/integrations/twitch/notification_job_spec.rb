@@ -94,12 +94,65 @@ RSpec.describe Integrations::Twitch::NotificationJob do
           end
         end
 
+        let(:streams) { instance_double(Integrations::Twitch::Streams) }
+        let(:live_streams) { [] }
+        let(:stream) do
+          instance_double(
+            Integrations::Twitch::Stream,
+            id: "s1",
+            user_id: "1",
+            user_login: "liveone",
+            user_name: "Live One",
+            category_id: "7",
+            category_name: "Chess",
+            title: "Ranked",
+            viewer_count: 12,
+            started_at: Time.zone.parse("2026-11-01 09:00:00")
+          )
+        end
+
+        before do
+          allow(Integrations::Twitch::Streams).to receive(:new).and_return(streams)
+          allow(streams).to receive(:live).and_raise(Integrations::Unavailable, "api.twitch.tv responded 503")
+        end
+
         it "tries three times, then logs and leaves the state for the reconcile" do
           perform
 
-          expect(channels).to have_received(:for).exactly(3).times
+          expect(channels).to have_received(:for).once
+          expect(streams).to have_received(:live).with(["1"]).twice
           expect(watch.reload.state).to eq({})
           expect(Rails.logger).to have_received(:warn).once.with(/stream.online for channel 1 failed.*Integrations::Unavailable/)
+        end
+
+        context "when Twitch recovers but the stream ended before the retry" do
+          before do
+            allow(channels).to receive(:for).and_invoke(
+              ->(_ids) { raise Integrations::Unavailable, "api.twitch.tv responded 503" },
+              ->(_ids) { [channel] }
+            )
+            allow(streams).to receive(:live).and_return([])
+          end
+
+          it "announces nothing, because Twitch no longer lists the stream as live" do
+            perform
+
+            expect(watch.reload.state).to eq({})
+            expect(watch.events).to be_empty
+          end
+        end
+
+        context "when the stream is still live at the retry" do
+          before do
+            allow(streams).to receive(:live).and_return([stream])
+          end
+
+          it "starts the session from what Twitch lists now" do
+            perform
+
+            expect(watch.reload.state).to include("session" => "s1", "title" => "Ranked", "viewer_count" => 12)
+            expect(watch.events).to contain_exactly(an_instance_of(Integrations::Twitch::StreamStarted))
+          end
         end
       end
     end
