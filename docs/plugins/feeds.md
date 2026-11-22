@@ -58,7 +58,7 @@ renderer and does the I/O that renderer needs (Steam: the padded thumbnail via
 `Feeds::Steam::Thumbnail`; Twitch: `Feeds::Twitch::LiveImage`).
 `Feeds.sources` lists them; a new source adds a class and one entry there. The base holds
 defaults only: a method every source answers differently has no stub there, and
-`spec/models/feeds_spec.rb` enforces the contract.
+`spec/plugins/feeds_spec.rb` enforces the contract.
 For the follow form a source also answers `lookup_param` (the lookup page's query param),
 `settings_params` (the permit list for its settings) and `settings_from(permitted)` (the
 settings hash that `Subscription#build_settings` and `Ops::Feeds::Subscriptions::Update`
