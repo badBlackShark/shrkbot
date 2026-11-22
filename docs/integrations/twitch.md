@@ -33,7 +33,9 @@ fresh one; a second 401 raises `Unauthorized`. A failed token fetch raises at on
 | `Twitch::Users#for(user_ids)` | `GET /users` | `[Twitch::User]`, 100 ids per call |
 | `Twitch::Channels#for(broadcaster_ids)` | `GET /channels` | `[Twitch::Channel]` |
 | `Twitch::Streams#live(user_ids)` | `GET /streams` | `[Twitch::Stream]` |
-| `Twitch::Games#find(id)` | `GET /games` | `Twitch::Game` (box art at 285x380), `nil` for an unknown id |
+| `Twitch::Streams#in_category(category_id)` | `GET /streams?game_id=` | `[Twitch::Stream]`, one page: the 100 most watched live streams |
+| `Twitch::Games#for(ids)` | `GET /games` | `[Twitch::Game]` (box art at 285x380), 100 ids per call |
+| `Twitch::Games#find(id)` | `GET /games` | `Twitch::Game`, `nil` for an unknown id (`for` with one id) |
 | `Twitch::Videos#for_user(user_id, type:, first:)` | `GET /videos` | `[Twitch::Video]` |
 | `Twitch::Clips#for_broadcaster(broadcaster_id, started_at:, ended_at:, featured:)` | `GET /clips` | `[Twitch::Clip]`, every page |
 | `Twitch::Schedule#segments(broadcaster_id, start_time:, first:)` | `GET /schedule` | `[Twitch::Segment]` |
@@ -66,7 +68,7 @@ offline ends it. If Twitch fails the check, the session stays open and the stale
 below ends it.
 
 State keys: `session` (the first stream id of the session), `stream_ids`, `title`,
-`category_id`, `category_name`, `started_at`, `last_live_at` (the latest live sighting),
+`category_id`, `category_name`, `language`, `started_at`, `last_live_at` (the latest live sighting),
 `login`, `display_name`, `viewer_count` (the last sampled count, nil until the first
 `/streams` sighting), `peak_viewers`, `titles_pushed` (set by the first
 `ChannelUpdate`) and, while the stream is down, `offline_at`.
@@ -89,14 +91,14 @@ at `last_live_at`, so its duration stays true.
 | `Live` | session, a known stream id, less than `GRACE` after `offline_at` | nothing (a lagging `/streams` after a pushed offline) |
 | `Live` | no session | start; `StreamStarted` at the stream's `started_at` |
 | `Live` | stale session, a stream id it has not seen | end at `last_live_at`, then start; `StreamEnded` + `StreamStarted` |
-| `Live` | session otherwise | continue: stamp `last_live_at`, add the stream id (a reconnect with a new id merges), drop `offline_at`, raise the peak; `StreamUpdated` when title or category changed, unless `titles_pushed` (then push owns them and a lagging poll cannot undo a pushed title); `StreamSampled` when the observation carries a viewer count (a `/streams` sighting) |
+| `Live` | session otherwise | continue: stamp `last_live_at`, add the stream id (a reconnect with a new id merges), drop `offline_at`, raise the peak; `StreamUpdated` when title, category or language changed, unless `titles_pushed` (then push owns them and a lagging poll cannot undo a pushed title); `StreamSampled` when the observation carries a viewer count (a `/streams` sighting) |
 | `Offline` | no session | nothing |
 | `Offline` | stale session | end at `last_live_at` |
 | `Offline` | session, no `offline_at` | set `offline_at = now`, schedule the close check; no event |
 | `Offline` | otherwise | nothing |
 | `Close(offline_since)` | session, `offline_at == offline_since` | end at `offline_at` |
 | `Close(offline_since)` | back live, already ended or a stale time | nothing |
-| `ChannelUpdate` | session | `StreamUpdated` when title or category changed; no sighting stamp |
+| `ChannelUpdate` | session | `StreamUpdated` when title, category or language changed; no sighting stamp |
 | `ChannelUpdate` | no session | nothing |
 
 A stale session that sees its own stream id again continues: the stream never ended, we
@@ -111,7 +113,7 @@ go-live that ended within the first reconcile interval).
 **Subject keys:** `stream:<session>` (started), `stream-update:<session>:<now unix>`
 (updated), `stream-sample:<session>:<now unix>` (sampled), `stream-end:<session>` (ended).
 **Story key:** `stream:<session>` on every stream event, so all four belong to one story.
-`StreamUpdated` fires on a title or category change only; a name change never emits. `Events::Record` skips
+`StreamUpdated` fires on a title, category or language change only; a name change never emits. `Events::Record` skips
 an event whose type and subject key the watch already stored, so a closed session that
 reopens on the same stream id does not break on the unique index.
 
@@ -144,6 +146,40 @@ any exception from one is logged with its backtrace
 and DMs through `ReportPollBugsJob`, at most once a day per watch and error class; the
 other watches still transition. Nothing creates Twitch watches yet, so in production the
 job finds no live watch and does nothing.
+
+## Category watches
+
+A category watch is an `Integrations::Watch` of `CategoryWatcher` (`external_id` is the
+Twitch category id). `CategoryWatcher.resolve` takes a category id, `refresh` maps ids to
+`Target`s, and `followed` is the watches some active source row demands. It has no
+instance side: no `PollJob` runs for it.
+
+`CategoryPollJob` runs every minute. For each followed category, `CategoryStreams#refresh`
+reads one `/streams?game_id=` page, which is the 100 most watched live streams, and caches
+it for two minutes so a reader of the live count needs no Helix call. There is no
+pagination: streams below the first page are not seen. One call per category per minute
+costs one point.
+
+All streams of the tick go through `Ops::Integrations::Twitch::Watches::Discover`, which
+makes sure each broadcaster has a `ChannelWatcher` watch (new ones come from `/users`,
+inserted race-safely against a concurrent follow). `CategorySighting` then picks the
+streams that need a `Transition`: no open session, a stream id the session has not seen,
+or, while `titles_pushed` is unset, a changed title, category or language. Everything else
+is skipped, because a `Transition` with a viewer count writes a `StreamSampled` and a
+minute poll would write one per stream per minute. Samples, an offline stream and a
+channel that switched out of the category stay with the 10-minute `StreamReconcileJob`,
+which checks every watch with an open session. Discovered channels get no EventSub
+subscriptions (the budget is for channels someone follows for Live), so their changes
+arrive by poll only.
+
+A discovered channel watch has no subscription, so `Watch.referenced` also counts watches
+that have events; `PruneOrphans` removes it once its events expire.
+
+A category tick fails as a whole only when every category call failed. That failure
+tracking is shared with the stream reconcile through `TracksCheckFailures`: a
+`RateLimited` stops the tick and DMs once a day, `Unauthorized` DMs through the shared
+`twitch/unauthorized` claim, and 24 hours of failed ticks DM
+`ReportCategoryCheckBrokenJob`. A category that fails while another succeeds is logged.
 
 ## EventSub
 

@@ -15,6 +15,12 @@ module Integrations
         end
       end
 
+      def in_category(category_id)
+        @client.get_json("/streams", params: {game_id: category_id, first: Client::MAX_IDS, type: "live"}) do |body|
+          body.fetch("data").map { |data| stream(data) }
+        end
+      end
+
       private
 
       def stream(data)
@@ -27,7 +33,8 @@ module Integrations
           category_name: data.fetch("game_name").presence,
           title: data.fetch("title"),
           viewer_count: data.fetch("viewer_count"),
-          started_at: Time.zone.parse(data.fetch("started_at"))
+          started_at: Time.zone.parse(data.fetch("started_at")),
+          language: data.fetch("language")
         )
       end
     end

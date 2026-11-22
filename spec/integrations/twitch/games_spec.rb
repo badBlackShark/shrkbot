@@ -16,7 +16,7 @@ RSpec.describe Integrations::Twitch::Games do
   it "asks for the game by id" do
     found
 
-    expect(client).to have_received(:get_json).with("/games", params: {id: "27471"})
+    expect(client).to have_received(:get_json).with("/games", params: {id: ["27471"]})
   end
 
   it "returns the game with its box art at a fixed size" do
@@ -34,6 +34,28 @@ RSpec.describe Integrations::Twitch::Games do
 
     it "is nil" do
       expect(found).to be_nil
+    end
+  end
+
+  describe "#for" do
+    subject(:games_for) { games.for(ids) }
+
+    let(:ids) { (1..101).map(&:to_s) }
+
+    it "asks in slices of 100 ids" do
+      games_for
+
+      expect(client).to have_received(:get_json).with("/games", params: {id: ids.first(100)})
+      expect(client).to have_received(:get_json).with("/games", params: {id: ["101"]})
+    end
+
+    context "without ids" do
+      let(:ids) { [] }
+
+      it "returns nothing and makes no request" do
+        expect(games_for).to eq([])
+        expect(client).not_to have_received(:get_json)
+      end
     end
   end
 end

@@ -58,7 +58,8 @@ RSpec.describe Integrations::Twitch::CloseSessionJob do
             category_name: nil,
             title: nil,
             viewer_count: 3,
-            started_at: 1.minute.ago
+            started_at: 1.minute.ago,
+            language: "en"
           )
         ]
       )

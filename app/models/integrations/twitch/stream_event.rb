@@ -3,7 +3,7 @@
 module Integrations
   module Twitch
     class StreamEvent < Integrations::Event
-      store_accessor :payload, :session, :login, :display_name, :title, :category_id, :category_name, :started_at, :viewer_count
+      store_accessor :payload, :session, :login, :display_name, :title, :category_id, :category_name, :language, :started_at, :viewer_count
 
       validates :session, :login, :display_name, presence: true
 

@@ -2,7 +2,7 @@
 
 module Integrations
   module Twitch
-    Live = Data.define(:stream_id, :started_at, :title, :category_id, :category_name, :login, :display_name, :viewer_count) do
+    Live = Data.define(:stream_id, :started_at, :title, :category_id, :category_name, :login, :display_name, :viewer_count, :language) do
       def self.from_stream(stream)
         new(
           stream_id: stream.id,
@@ -12,7 +12,8 @@ module Integrations
           category_name: stream.category_name,
           login: stream.user_login,
           display_name: stream.user_name,
-          viewer_count: stream.viewer_count
+          viewer_count: stream.viewer_count,
+          language: stream.language
         )
       end
 
@@ -25,7 +26,8 @@ module Integrations
           category_name: channel.category_name,
           login: event.fetch("broadcaster_user_login"),
           display_name: event.fetch("broadcaster_user_name"),
-          viewer_count: nil
+          viewer_count: nil,
+          language: channel.language
         )
       end
     end

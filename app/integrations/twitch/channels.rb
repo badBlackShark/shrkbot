@@ -22,7 +22,8 @@ module Integrations
           broadcaster_id: data.fetch("broadcaster_id"),
           title: data.fetch("title"),
           category_id: data.fetch("game_id").presence,
-          category_name: data.fetch("game_name").presence
+          category_name: data.fetch("game_name").presence,
+          language: data.fetch("broadcaster_language")
         )
       end
     end

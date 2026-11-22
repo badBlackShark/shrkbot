@@ -10,6 +10,9 @@ shared: &shared
   integrations_twitch_stream_reconcile:
     class: Integrations::Twitch::StreamReconcileJob
     schedule: every 10 minutes
+  integrations_twitch_category_poll:
+    class: Integrations::Twitch::CategoryPollJob
+    schedule: every minute
   integrations_twitch_media_poll:
     class: Integrations::PollJob
     args: ["Integrations::Twitch::ChannelWatcher"]
@@ -21,6 +24,10 @@ shared: &shared
     class: Integrations::RefreshWatchesJob
     args: ["Integrations::Twitch::ChannelWatcher"]
     schedule: every day at 6:05am
+  integrations_twitch_category_refresh:
+    class: Integrations::RefreshWatchesJob
+    args: ["Integrations::Twitch::CategoryWatcher"]
+    schedule: every day at 6:10am
   integrations_broken_watch_report:
     class: Integrations::ReportBrokenWatchesJob
     schedule: every hour at minute 50

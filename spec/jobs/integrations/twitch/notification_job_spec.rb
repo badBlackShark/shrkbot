@@ -22,7 +22,7 @@ RSpec.describe Integrations::Twitch::NotificationJob do
     }
   end
   let(:channels) { instance_double(Integrations::Twitch::Channels, for: [channel]) }
-  let(:channel) { Integrations::Twitch::Channel.new(broadcaster_id: "1", title: "Ranked", category_id: "7", category_name: "Chess") }
+  let(:channel) { Integrations::Twitch::Channel.new(broadcaster_id: "1", title: "Ranked", category_id: "7", category_name: "Chess", language: "en") }
   let(:open_state) do
     {
       "session" => "s1",
@@ -30,6 +30,7 @@ RSpec.describe Integrations::Twitch::NotificationJob do
       "title" => "Ranked",
       "category_id" => "7",
       "category_name" => "Chess",
+      "language" => "en",
       "started_at" => "2026-11-01T09:00:00Z",
       "last_live_at" => 1.minute.ago.iso8601,
       "login" => "liveone",
@@ -107,7 +108,8 @@ RSpec.describe Integrations::Twitch::NotificationJob do
             category_name: "Chess",
             title: "Ranked",
             viewer_count: 12,
-            started_at: Time.zone.parse("2026-11-01 09:00:00")
+            started_at: Time.zone.parse("2026-11-01 09:00:00"),
+            language: "en"
           )
         end
 
@@ -185,7 +187,7 @@ RSpec.describe Integrations::Twitch::NotificationJob do
 
   context "when the channel info changes in an open session" do
     let(:type) { "channel.update" }
-    let(:event) { {"broadcaster_user_id" => "1", "title" => "Casual", "category_id" => "", "category_name" => ""} }
+    let(:event) { {"broadcaster_user_id" => "1", "title" => "Casual", "category_id" => "", "category_name" => "", "language" => "en"} }
     let(:state) { open_state }
 
     it "records the new title and category" do
