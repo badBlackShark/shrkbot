@@ -135,6 +135,7 @@ jobs:
         with:
           oidc: true
           files: coverage/lcov/*.lcov
+          telemetry: false
 
       - name: Check coverage of changed lines
         if: github.event_name == 'pull_request'
