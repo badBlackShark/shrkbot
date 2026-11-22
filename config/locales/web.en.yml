@@ -548,9 +548,9 @@ en:
           streamer: SomeStreamer
         stream_counter:
           counting: Counting streams…
-          failed: Couldn't reach Twitch to count streams.
+          failed: Couldn't reach Twitch to count streams. Reload the page to try again.
           many: With these settings, %{number} streams would post right now.
-          none: No stream would post right now with these settings.
+          none: With these settings, no streams would post right now.
           one: With these settings, 1 stream would post right now.
       volume_line:
         counts:

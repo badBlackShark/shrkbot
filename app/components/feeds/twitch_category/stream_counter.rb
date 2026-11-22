@@ -7,7 +7,7 @@ class Components::Feeds::TwitchCategory::StreamCounter < Components::Base
   end
 
   def view_template
-    p(class: "text-sm font-medium text-text-primary", aria_live: "polite", data:) do
+    p(class: "text-sm font-medium text-text-primary", role: "status", data:) do
       t(".counting")
     end
   end

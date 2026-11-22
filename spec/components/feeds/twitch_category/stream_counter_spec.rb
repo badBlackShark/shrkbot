@@ -9,8 +9,8 @@ RSpec.describe Components::Feeds::TwitchCategory::StreamCounter do
 
   let(:server_configuration) { build(:server_configuration, discord_id: 42) }
 
-  it "is a polite live region that starts on a placeholder" do
-    expect(counter["aria-live"]).to eq("polite")
+  it "is a status region that starts on a placeholder" do
+    expect(counter["role"]).to eq("status")
     expect(counter.text).to eq("Counting streams…")
   end
 
@@ -22,7 +22,7 @@ RSpec.describe Components::Feeds::TwitchCategory::StreamCounter do
   it "hands the controller every sentence, with a slot for the number" do
     expect(counter["data-category-counter-many-value"]).to eq("With these settings, {number} streams would post right now.")
     expect(counter["data-category-counter-one-value"]).to eq("With these settings, 1 stream would post right now.")
-    expect(counter["data-category-counter-none-value"]).to eq("No stream would post right now with these settings.")
-    expect(counter["data-category-counter-failed-value"]).to eq("Couldn't reach Twitch to count streams.")
+    expect(counter["data-category-counter-none-value"]).to eq("With these settings, no streams would post right now.")
+    expect(counter["data-category-counter-failed-value"]).to eq("Couldn't reach Twitch to count streams. Reload the page to try again.")
   end
 end

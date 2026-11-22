@@ -29,11 +29,15 @@ export default class extends Controller {
 
   render = () => {
     if (this.rows === undefined) return
-    if (this.rows === null) {
-      this.element.textContent = this.failedValue
-      return
-    }
+    this.show(this.rows === null ? this.failedValue : this.counted())
+  }
+
+  counted() {
     const count = countStreams(this.rows, readFilters(this.form))
-    this.element.textContent = sentence(count, { none: this.noneValue, one: this.oneValue, many: this.manyValue })
+    return sentence(count, { none: this.noneValue, one: this.oneValue, many: this.manyValue })
+  }
+
+  show(text) {
+    if (this.element.textContent !== text) this.element.textContent = text
   }
 }

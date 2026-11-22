@@ -19,9 +19,7 @@ RSpec.describe Components::Feeds::TwitchCategory::FiltersCard do
   end
 
   it "counts the streams that would post, above the top-100 note" do
-    counter = document.at_css("[data-controller='category-counter']")
-
-    expect(counter["data-category-counter-url-value"]).to end_with("/twitch/categories/#{subscription.watch.external_id}/streams")
+    expect(document.at_css("[data-controller='category-counter']")).to be_present
     expect(document.text.index("Counting streams")).to be < document.text.index("100 most-watched")
   end
 

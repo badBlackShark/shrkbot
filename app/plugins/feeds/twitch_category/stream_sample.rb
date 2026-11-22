@@ -5,7 +5,7 @@ module Feeds
     module StreamSample
       def self.call(category_id)
         Integrations::Twitch::CategoryStreams.new.current(category_id).map do |stream|
-          {viewers: stream.viewer_count, language: stream.language, login: stream.user_login.to_s.downcase}
+          {viewers: stream.viewer_count, language: stream.language, login: stream.user_login.downcase}
         end
       rescue Integrations::Error
         nil

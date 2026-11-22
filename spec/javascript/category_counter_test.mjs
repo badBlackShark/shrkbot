@@ -1,5 +1,6 @@
 import { test, afterEach } from "node:test"
 import assert from "node:assert/strict"
+import { readFileSync } from "node:fs"
 import { installDom } from "./support/dom.mjs"
 import { settle } from "./support/helpers.mjs"
 
@@ -38,11 +39,16 @@ test("an empty row list counts nothing", () => {
   assert.equal(countStreams([], everything), 0)
 })
 
-test("normaliseLogin trims, strips the @, reads twitch urls and lowercases", () => {
+const REFERENCES = JSON.parse(readFileSync(new URL("../fixtures/channel_references.json", import.meta.url), "utf8"))
+
+test("normaliseLogin reads every reference the server reads", () => {
+  for (const { input, login } of REFERENCES) {
+    assert.equal(normaliseLogin(input), login, input)
+  }
+})
+
+test("normaliseLogin trims surrounding whitespace", () => {
   assert.equal(normaliseLogin("  @SomeOne "), "someone")
-  assert.equal(normaliseLogin("twitch.tv/SomeOne"), "someone")
-  assert.equal(normaliseLogin("m.twitch.tv/some_one?x=1"), "some_one")
-  assert.equal(normaliseLogin("plain"), "plain")
 })
 
 test("sentence picks the none, one and many wording", () => {
@@ -80,6 +86,29 @@ function mount() {
   return { floor: document.querySelector("input"), output: document.querySelector("p") }
 }
 
+function mountPickers() {
+  document.body.innerHTML = `
+    <form>
+      <input name="subscription[min_viewers]" value="0">
+      <select multiple name="subscription[languages][]">
+        <option value="en">English</option><option value="de">German</option>
+      </select>
+      <select multiple name="subscription[excluded_channels][]">
+        <option value="alpha">alpha</option><option value="beta">beta</option>
+      </select>
+      <p data-controller="category-counter" data-category-counter-url-value="/streams"
+         data-category-counter-none-value="none" data-category-counter-one-value="one"
+         data-category-counter-many-value="{number} many" data-category-counter-failed-value="failed">Counting</p>
+    </form>`
+  const pick = (name, values) => {
+    const select = document.querySelector(`select[name='${name}']`)
+    const labels = [...select.options].map((option) => [option.value, option.textContent])
+    select.innerHTML = labels.map(([value, label]) => `<option value="${value}" ${values.includes(value) ? "selected" : ""}>${label}</option>`).join("")
+    select.dispatchEvent(new Event("change", { bubbles: true }))
+  }
+  return { pick, output: document.querySelector("p") }
+}
+
 afterEach(async () => {
   globalThis.fetch = realFetch
   document.body.innerHTML = ""
@@ -109,4 +138,23 @@ test("the controller shows the failure text and does not retry", async () => {
 
   assert.equal(output.textContent, "failed")
   assert.equal(calls, 1)
+})
+
+test("picking languages recounts from the select's own selection", async () => {
+  globalThis.fetch = async () => ({ ok: true, json: async () => ROWS })
+  const { pick, output } = mountPickers()
+  await settle()
+  assert.equal(output.textContent, "4 many")
+
+  pick("subscription[languages][]", ["de"])
+  assert.equal(output.textContent, "one")
+})
+
+test("picking excluded channels recounts from the select's own selection", async () => {
+  globalThis.fetch = async () => ({ ok: true, json: async () => ROWS })
+  const { pick, output } = mountPickers()
+  await settle()
+
+  pick("subscription[excluded_channels][]", ["alpha", "beta"])
+  assert.equal(output.textContent, "2 many")
 })
