@@ -22,7 +22,10 @@ Prosopite.rails_logger = false
 # its own row lock, because a watch's state change and its events must commit together.
 # Rejected finding: PollJob polls one watch at a time, and Events::Record locks each watch's
 # row so a push and a poll recording the same item take turns.
+# Rejected finding: the Twitch page lists one source per tab, so it queries once per source (two), not
+# once per row.
 Prosopite.allow_stack_paths = [
+  "app/components/feeds/source_tabs.rb",
   "app/finders/twilight_struggle/administered_tournaments.rb",
   "app/jobs/integrations/poll_job.rb",
   "app/jobs/integrations/twitch/stream_reconcile_job.rb",

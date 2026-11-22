@@ -31,6 +31,34 @@ RSpec.describe "Twitch config", type: :request do
           expect(response.body).to include("No channels yet")
         end
 
+        context "with its two sources" do
+          let(:tabs) { Nokogiri::HTML(response.body).css("[data-controller=option-panels] [role=radio]").map { |tab| [tab.text, tab["aria-checked"]] } }
+          let(:panels) { Nokogiri::HTML(response.body).css("[data-option-panels-target=panel]").to_h { |panel| [panel["data-value"], panel] } }
+
+          it "offers channels and categories, each with its own list, and opens channels" do
+            get plugin_path
+
+            expect(tabs).to eq([["Channels", "true"], ["Categories", "false"]])
+            expect(panels.fetch("twitch").text).to include("No channels yet")
+            expect(panels.fetch("twitch_category").text).to include("No categories yet")
+            expect(panels.fetch("twitch_category")).to have_attribute("hidden")
+          end
+
+          it "opens the tab the query names" do
+            get plugin_path, params: {tab: "twitch_category"}
+
+            expect(tabs).to eq([["Channels", "false"], ["Categories", "true"]])
+            expect(panels.fetch("twitch")).to have_attribute("hidden")
+            expect(panels.fetch("twitch_category")).not_to have_attribute("hidden")
+          end
+
+          it "keeps one config container for the plugin toggle to replace" do
+            get plugin_path
+
+            expect(Nokogiri::HTML(response.body).css("#twitch-config").size).to eq(1)
+          end
+        end
+
         context "with the enable toggle" do
           subject(:twitch_page) { get plugin_path }
 
@@ -65,6 +93,14 @@ RSpec.describe "Twitch config", type: :request do
           expect(response.media_type).to eq("text/vnd.turbo-stream.html")
           expect(response.body).to include(%(id="twitch-config"))
           expect(config.enabled_plugin_keys).to include(:twitch)
+        end
+
+        it "re-renders both lists, so the categories survive the toggle" do
+          create(:feed_subscription, :twitch_category, server_configuration: config)
+
+          toggle
+
+          expect(response.body).to include("Some Category", "Channels", "Categories")
         end
 
         context "without a Turbo Stream" do

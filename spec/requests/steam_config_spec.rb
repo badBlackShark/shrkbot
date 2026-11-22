@@ -49,6 +49,12 @@ RSpec.describe "Steam config", type: :request do
             expect(response.body).to include("No games yet")
           end
 
+          it "has no tabs, since Steam has one source" do
+            get plugin_path
+
+            expect(response.body).not_to include("option-panels")
+          end
+
           it "keeps the route's plugin key over a query parameter" do
             get plugin_path, params: {plugin_key: "twitch"}
 

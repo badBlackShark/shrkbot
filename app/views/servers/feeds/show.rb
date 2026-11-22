@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 class Views::Servers::Feeds::Show < Views::Servers::SubPluginShow
-  def initialize(plugin_key:, **)
+  def initialize(plugin_key:, tab: nil, **)
     @plugin_key = plugin_key
+    @tab = tab
     super(**)
   end
 
@@ -24,6 +25,6 @@ class Views::Servers::Feeds::Show < Views::Servers::SubPluginShow
   end
 
   def body
-    render Components::Feeds::SubscriptionList.new(server_configuration: @config, source: ::Feeds.source(plugin_key))
+    render Components::Feeds::PluginBody.new(server_configuration: @config, plugin_key:, selected: @tab)
   end
 end

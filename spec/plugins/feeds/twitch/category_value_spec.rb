@@ -28,6 +28,10 @@ RSpec.describe Feeds::Twitch::CategoryValue do
       expect(described_class.parse("garbage")).to be_nil
     end
 
+    it "is nil for a value that is not text, like a missing or forged parameter" do
+      expect([nil, ["x"], {"id" => "1"}].map { |value| described_class.parse(value) }).to all(be_nil)
+    end
+
     it "is nil for an object with a numeric id" do
       expect(described_class.parse('{"id":1,"name":"x"}')).to be_nil
     end

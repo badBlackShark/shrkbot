@@ -20,6 +20,10 @@ module Feeds
       MAX_FOLLOWS
     end
 
+    def self.lookup_reference(value)
+      value
+    end
+
     def self.postable?(_subscription, _event)
       true
     end

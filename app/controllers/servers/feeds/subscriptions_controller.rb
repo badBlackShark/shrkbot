@@ -16,7 +16,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
     return redirect_to plugin_path, alert: ::Feeds::Subscription.cap_message(source) if ::Feeds::Subscription.at_cap?(@server_configuration, source)
     return render_lookup if params[lookup_param].blank?
 
-    lookup = ::Feeds::TargetLookup.call(watcher_class, params[lookup_param])
+    lookup = ::Feeds::TargetLookup.call(watcher_class, source.lookup_reference(params[lookup_param]))
     return render_lookup(input: params[lookup_param], error: lookup.error) if lookup.error
 
     existing = followed_subscription(lookup.target)
@@ -154,7 +154,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   end
 
   def plugin_path
-    PluginPaths.for(@server_configuration, plugin_key)
+    ::Feeds::SubscriptionPaths.plugin_for(@server_configuration, source)
   end
 
   def configuration_url

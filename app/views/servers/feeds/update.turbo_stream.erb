@@ -1,1 +1,1 @@
-<%= render "servers/configuration_update", form: -> { Components::Feeds::SubscriptionList.new(server_configuration: @server_configuration, source: ::Feeds.source(plugin_key)) }, active_key: plugin_key.to_s %>
+<%= render "servers/configuration_update", form: -> { Components::Feeds::PluginBody.new(server_configuration: @server_configuration, plugin_key:, selected: params[:tab]) }, active_key: plugin_key.to_s %>

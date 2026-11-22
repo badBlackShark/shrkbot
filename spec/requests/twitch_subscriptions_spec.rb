@@ -6,7 +6,7 @@ RSpec.describe "Twitch subscriptions", type: :request do
   include_context "plugin config request"
 
   let(:plugin_path) { new_server_twitch_subscription_path(guild.id) }
-  let(:list_path) { server_twitch_path(guild.id) }
+  let(:list_path) { server_twitch_path(guild.id, tab: "twitch") }
   let(:live) { "Integrations::Twitch::StreamStarted" }
   let(:highlights) { "Integrations::Twitch::HighlightPublished" }
   let(:uploads) { "Integrations::Twitch::UploadPublished" }

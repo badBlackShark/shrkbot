@@ -5,7 +5,7 @@ module Feeds
     class Settings < ApplicationRecord
       MAX_LANGUAGES = 50
       MAX_EXCLUDED = 100
-      LANGUAGE = /\A([a-z]{2}(-[a-z]+)?|other)\z/
+      LANGUAGE = /\A([a-z]{2,3}(-[a-z]+)?|other)\z/
       LOGIN = /\A[a-z0-9_]{1,25}\z/
 
       self.table_name = "feed_twitch_category_settings"

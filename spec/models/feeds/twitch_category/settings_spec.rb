@@ -42,6 +42,12 @@ RSpec.describe Feeds::TwitchCategory::Settings do
       expect(settings).to be_valid
     end
 
+    it "takes every language the picker offers" do
+      settings.languages = Feeds::TwitchCategory::LANGUAGES
+
+      expect(settings).to be_valid
+    end
+
     it "refuses text that is not a language code" do
       settings.languages = ["English"]
 

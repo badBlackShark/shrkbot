@@ -32,6 +32,27 @@ RSpec.describe Components::Feeds::SubscriptionRow do
     )
   end
 
+  context "with a followed category" do
+    let(:source) { ::Feeds::TwitchCategory }
+    let(:watch) { create(:integration_watch, :twitch_category, failing_since:) }
+    let(:subscription) { create(:feed_subscription, :twitch_category, watch:) }
+
+    before do
+      subscription.settings.update!(role_id: 1)
+      subscription.follow("Integrations::Twitch::StreamStarted")
+      subscription.save!
+    end
+
+    it "says Twitch has not answered for the category" do
+      expect(text).to include("Twitch hasn't answered for this category since", "resumes posting once Twitch answers.")
+    end
+
+    it "shows the follow's role and its one post type" do
+      expect(text).to include("pings @Streams").or include("pings Streams")
+      expect(badges).to include("Going live")
+    end
+  end
+
   context "when a followed type posts to a channel of its own" do
     let(:channels) { {555_000 => "clips", 556 => "vods"} }
     let(:roles) { {1 => "Streams", 2 => "Clips"} }

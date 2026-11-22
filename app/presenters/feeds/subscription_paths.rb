@@ -2,6 +2,13 @@
 
 module Feeds
   class SubscriptionPaths
+    def self.plugin_for(server_configuration, source)
+      path = PluginPaths.for(server_configuration, source.plugin_key)
+      return path if Feeds.sources_for_plugin(source.plugin_key).one?
+
+      "#{path}?#{{tab: source.key}.to_query}"
+    end
+
     def self.new_for(server_configuration, source)
       helpers.public_send("new_server_#{source.key}_subscription_path", server_configuration.discord_id)
     end

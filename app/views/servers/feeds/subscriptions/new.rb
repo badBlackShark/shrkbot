@@ -38,7 +38,7 @@ class Views::Servers::Feeds::Subscriptions::New < Views::Base
       render Components::Button.new(
         variant: :ghost,
         label: t(".cancel"),
-        href: PluginPaths.for(@config, @source.plugin_key)
+        href: ::Feeds::SubscriptionPaths.plugin_for(@config, @source)
       )
       render Components::Button.new(label: t(".follow", name: @target.name), type: "submit")
     end

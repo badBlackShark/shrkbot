@@ -9,7 +9,7 @@ class Components::Feeds::SubscriptionList < Components::Base
   end
 
   def view_template
-    render Components::ConfigSections.new(key: @source.key.to_s) do
+    div(class: "flex flex-col gap-5") do
       header if subscriptions.any?
       cap_reason if at_cap?
       if subscriptions.empty?
