@@ -25,7 +25,7 @@ module Feeds
     def posts(event)
       base = Post.where(
         story_key: event.story_key,
-        subscription_id: Subscription.active.where(watch_id: event.watch_id).select(:id)
+        subscription_id: Subscription.active.select(:id)
       )
       base.where.not(message_id: nil).or(base.where.not(retracted_at: nil))
     end

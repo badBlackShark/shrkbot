@@ -2,7 +2,7 @@
 
 module Feeds
   def self.sources
-    [Steam, Twitch]
+    [Steam, Twitch, TwitchCategory]
   end
 
   def self.source(key)

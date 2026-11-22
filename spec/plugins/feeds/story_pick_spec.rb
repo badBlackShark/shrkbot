@@ -172,6 +172,33 @@ RSpec.describe Feeds::StoryPick do
     end
   end
 
+  context "with a category follow that has a viewer floor" do
+    let(:subscription) { create(:feed_subscription, :twitch_category, :active) }
+    let(:watch) { create(:integration_watch, :twitch) }
+    let(:subscribed_types) { %w[Integrations::Twitch::StreamStarted] }
+    let(:viewer_count) { 99 }
+    let(:event) do
+      create(:twitch_stream_sampled_event, watch:, story_key: "stream:1", category_id: subscription.watch.external_id, viewer_count:)
+    end
+    let!(:patch_notes) { nil }
+    let!(:article) { nil }
+    let!(:other_story) { nil }
+
+    before { subscription.settings.update!(min_viewers: 100) }
+
+    it "is not eligible below the floor" do
+      expect(pick).not_to be_eligible
+    end
+
+    context "when the stream is at the floor" do
+      let(:viewer_count) { 100 }
+
+      it "is eligible" do
+        expect(pick).to be_eligible
+      end
+    end
+  end
+
   describe "ranking by the secondary class attribute" do
     let(:event) { patch_notes }
 

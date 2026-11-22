@@ -11,5 +11,11 @@ FactoryBot.define do
       sequence(:external_id) { |n| (1000 + n).to_s }
       name { "Some Streamer" }
     end
+
+    trait :twitch_category do
+      watcher { "Integrations::Twitch::CategoryWatcher" }
+      sequence(:external_id) { |n| (5000 + n).to_s }
+      name { "Some Category" }
+    end
   end
 end

@@ -9,6 +9,12 @@ en:
           attributes:
             categories:
               too_long: can have at most %{count} categories
+        feeds/twitch_category/settings:
+          attributes:
+            excluded_channels:
+              too_long: can have at most %{count} channels
+            languages:
+              too_long: can have at most %{count} languages
   admin:
     bespoke_plugin_grants:
       granted: Plugin granted.

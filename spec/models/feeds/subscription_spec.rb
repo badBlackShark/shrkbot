@@ -120,6 +120,38 @@ RSpec.describe Feeds::Subscription do
     end
   end
 
+  describe ".at_cap? for category follows" do
+    subject(:at_cap) { described_class.at_cap?(server_configuration, Feeds::TwitchCategory) }
+
+    let(:server_configuration) { create(:server_configuration) }
+
+    context "with nine category follows" do
+      before { create_list(:feed_subscription, 9, :twitch_category, server_configuration:) }
+
+      it { is_expected.to be(false) }
+
+      context "and a tenth" do
+        before { create(:feed_subscription, :twitch_category, server_configuration:) }
+
+        it { is_expected.to be(true) }
+      end
+    end
+
+    context "with channel follows up to their own cap" do
+      before { create_list(:feed_subscription, 10, :twitch, server_configuration:) }
+
+      it "does not count them" do
+        expect(at_cap).to be(false)
+      end
+    end
+  end
+
+  describe ".cap_message" do
+    it "names the category cap" do
+      expect(described_class.cap_message(Feeds::TwitchCategory)).to include("10 categories")
+    end
+  end
+
   describe ".demanding" do
     subject(:demanding) { described_class.demanding([stream_started]) }
 

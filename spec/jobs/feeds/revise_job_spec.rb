@@ -14,6 +14,23 @@ RSpec.describe Feeds::ReviseJob do
     expect { perform }.to have_enqueued_job(Feeds::RevisePostJob).once.with(post, event)
   end
 
+  context "when a category follow's post is revised by an event from another category" do
+    let(:category_subscription) { create(:feed_subscription, :twitch_category, :active) }
+    let(:event) { create(:twitch_stream_updated_event, watch:, category_id: "elsewhere") }
+    let!(:category_post) { create(:feed_post, :sent, subscription: category_subscription, story_key: event.story_key) }
+
+    before { ActiveJob::Base.queue_adapter.enqueued_jobs.clear }
+
+    it "still revises it" do
+      perform
+
+      post_ids = ActiveJob::Base.queue_adapter.enqueued_jobs
+        .select { |job| job["job_class"] == "Feeds::RevisePostJob" }
+        .map { |job| job["arguments"].first["_aj_globalid"] }
+      expect(post_ids).to contain_exactly(post.to_global_id.to_s, category_post.to_global_id.to_s)
+    end
+  end
+
   context "when shrkbot retracted the post" do
     let!(:post) { create(:feed_post, :sent, subscription:, story_key: event.story_key, message_id: nil, retracted_at: Time.current) }
 

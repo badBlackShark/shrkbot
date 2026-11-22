@@ -75,6 +75,52 @@ RSpec.describe Integrations::Twitch::CategorySighting do
     end
   end
 
+  describe "viewer floors" do
+    subject(:observations) { described_class.new(streams: [stream], watches: {"1" => watch}, floors:).observations }
+
+    let(:floors) { {"7" => [10, 50]} }
+    let(:state) { open_state.merge("viewer_count" => stored) }
+    let(:stored) { 9 }
+
+    context "when the count rose across a floor since the stored sample" do
+      it "transitions it" do
+        expect(observations.map(&:first)).to eq([watch])
+      end
+    end
+
+    context "when the stored count was already past the floor" do
+      let(:stored) { 10 }
+
+      it "skips it" do
+        expect(observations).to be_empty
+      end
+    end
+
+    context "when no count was stored" do
+      let(:state) { open_state }
+
+      it "counts it as zero" do
+        expect(observations.map(&:first)).to eq([watch])
+      end
+    end
+
+    context "when the count is still below every floor" do
+      let(:floors) { {"7" => [13]} }
+
+      it "skips it" do
+        expect(observations).to be_empty
+      end
+    end
+
+    context "when the floors belong to another category" do
+      let(:floors) { {"8" => [10]} }
+
+      it "skips it" do
+        expect(observations).to be_empty
+      end
+    end
+  end
+
   context "when the stream's watch is missing" do
     subject(:observations) { described_class.new(streams: [stream], watches: {}).observations }
 

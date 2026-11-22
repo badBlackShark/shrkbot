@@ -188,6 +188,30 @@ RSpec.describe Integrations::Watch do
       end
     end
 
+    describe ".viewer_floors_for" do
+      subject(:floors) { described_class.viewer_floors_for([category_watch, other_watch]) }
+
+      let(:category_watch) { create(:integration_watch, :twitch_category) }
+      let(:other_watch) { create(:integration_watch, :twitch_category) }
+
+      before do
+        create(:feed_subscription, :active, :twitch_category, watch: category_watch).settings.update!(min_viewers: 50)
+        create(:feed_subscription, :active, :twitch_category, watch: category_watch).settings.update!(min_viewers: 10)
+        create(:feed_subscription, :active, :twitch_category, watch: other_watch)
+        create(:feed_subscription, :twitch_category, watch: other_watch).settings.update!(min_viewers: 5)
+      end
+
+      it "lists each watch's active floors, leaving out the zero ones and inactive follows" do
+        expect(floors.transform_values(&:sort)).to eq(category_watch.id => [10, 50])
+      end
+
+      context "without a registered source" do
+        include_context "without demand sources"
+
+        it { is_expected.to eq({}) }
+      end
+    end
+
     describe ".referenced" do
       subject(:referenced) { described_class.referenced }
 

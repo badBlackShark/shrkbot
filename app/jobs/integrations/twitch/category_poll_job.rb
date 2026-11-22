@@ -22,7 +22,7 @@ module Integrations
         streams = fetch_streams(watches)&.uniq(&:user_id)
         return if streams.nil?
 
-        transition(streams)
+        transition(streams, watches)
       end
 
       private
@@ -52,13 +52,18 @@ module Integrations
         Ops::Integrations::Watches::RecordObservation.call(watch:, events: [])
       end
 
-      def transition(streams)
+      def transition(streams, category_watches)
         watches = Ops::Integrations::Twitch::Watches::Discover.call(streams:).value
         clear_failing
-        observations = CategorySighting.new(streams:, watches:).observations
+        observations = CategorySighting.new(streams:, watches:, floors: floors(category_watches)).observations
         Ops::Integrations::Twitch::Streams::TransitionAll.call(observations:)
       rescue Error => error
         report(error)
+      end
+
+      def floors(category_watches)
+        by_watch = Watch.viewer_floors_for(category_watches)
+        category_watches.to_h { |watch| [watch.external_id, by_watch.fetch(watch.id, [])] }
       end
 
       def failure_key

@@ -19,6 +19,18 @@ RSpec.describe Feeds::Source do
     end
   end
 
+  describe ".max_follows" do
+    it "is the default cap per source" do
+      expect(source.max_follows).to eq(Feeds::Subscription::MAX_PER_SOURCE)
+    end
+  end
+
+  describe ".postable?" do
+    it "lets every event post" do
+      expect(source.postable?(subscription, event)).to be(true)
+    end
+  end
+
   describe ".post_type" do
     subject(:post_type) { source.post_type("Integrations::Steam::ArticlePublished") }
 
