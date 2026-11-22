@@ -142,6 +142,12 @@ and `TwitchCategory::FiltersCard`: the floor (a `NumberStepper`), languages (a m
 `TomSelect` with `create`; names are normalised on assignment, never looked up). Both
 lists submit a hidden empty entry first so clearing them reaches the server. The card
 opens with the top-100 limit, because every filter applies to the streams shrkbot sees.
+Under the title, `TwitchCategory::StreamCounter` says how many of those streams would post
+right now with the settings on screen. The `category-counter` controller fetches the
+category's top-100 sample once from `Servers::Twitch::Categories::StreamsController`
+(`Feeds::TwitchCategory::StreamSample` over `CategoryStreams#current`: the minute poll's
+cache, else one Helix call) and recounts in the browser (`lib/category_count`) on every form
+`input` or `change`. A failed fetch shows the failure sentence and is not retried.
 `TwitchCategory::PreviewSamples` shows a sample streamer in the previews, since the
 watch's name is the category, not a channel. Box art is portrait, so `WatchImage` has a
 `twitch_category` shape.

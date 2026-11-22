@@ -11,6 +11,10 @@ class Components::Feeds::TwitchCategory::FiltersCard < Components::Base
   def view_template
     render Components::Card.new(class: "flex flex-col gap-5") do
       h2(class: "font-semibold") { t(".title") }
+      render Components::Feeds::TwitchCategory::StreamCounter.new(
+        server_configuration: @subscription.server_configuration,
+        category_id: @subscription.watch.external_id
+      )
       render(Components::Callout.new(variant: :neutral)) { t(".top_streams") }
       min_viewers_field
       languages_field

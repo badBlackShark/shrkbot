@@ -46,7 +46,9 @@ Rails.application.routes.draw do
       resource :twitch, only: [:show, :update], controller: "feeds", defaults: {plugin_key: "twitch"} do
         resources :subscriptions, only: [:new, :create, :edit, :update, :destroy], controller: "feeds/subscriptions", defaults: {source_key: "twitch"}
         resources :category_subscriptions, path: "category-follows", only: [:new, :create, :edit, :update, :destroy], controller: "feeds/subscriptions", defaults: {source_key: "twitch_category"}
-        resources :categories, only: :index, module: :twitch
+        resources :categories, only: :index, module: :twitch do
+          resources :streams, only: :index, module: :categories
+        end
       end
       resource :twilight_struggle, only: [:show, :update], controller: "twilight_struggle" do
         scope module: :twilight_struggle do

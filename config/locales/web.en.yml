@@ -546,6 +546,12 @@ en:
           placeholder: Search Twitch categories
         preview_samples:
           streamer: SomeStreamer
+        stream_counter:
+          counting: Counting streams…
+          failed: Couldn't reach Twitch to count streams.
+          many: With these settings, %{number} streams would post right now.
+          none: No stream would post right now with these settings.
+          one: With these settings, 1 stream would post right now.
       volume_line:
         counts:
           announcement_published:
