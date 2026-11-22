@@ -35,7 +35,8 @@ RSpec.describe Integrations::Twitch::Streams do
         category_name: "League of Legends",
         title: "🔴WORLDS 2026 G2 VS HLE ELIMINATION🔴",
         viewer_count: 307518,
-        started_at: Time.utc(2026, 10, 30, 14, 55, 54)
+        started_at: Time.utc(2026, 10, 30, 14, 55, 54),
+        language: "en"
       )
     )
   end
@@ -69,6 +70,20 @@ RSpec.describe Integrations::Twitch::Streams do
     it "returns nothing and makes no request" do
       expect(live).to eq([])
       expect(client).not_to have_received(:get_json)
+    end
+  end
+
+  describe "#in_category" do
+    subject(:in_category) { streams.in_category("21779") }
+
+    it "asks for one page of the category's live streams, the most watched first" do
+      in_category
+
+      expect(client).to have_received(:get_json).once.with("/streams", params: {game_id: "21779", first: 100, type: "live"})
+    end
+
+    it "maps every stream on the page" do
+      expect(in_category.map(&:user_login)).to eq(%w[caedrel riotgames])
     end
   end
 end

@@ -2,6 +2,6 @@
 
 module Integrations
   module Twitch
-    Channel = Data.define(:broadcaster_id, :title, :category_id, :category_name)
+    Channel = Data.define(:broadcaster_id, :title, :category_id, :category_name, :language)
   end
 end

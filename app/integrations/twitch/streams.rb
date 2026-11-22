@@ -3,6 +3,8 @@
 module Integrations
   module Twitch
     class Streams
+      PAGE_SIZE = 100
+
       def initialize(client: Client.new)
         @client = client
       end
@@ -12,6 +14,12 @@ module Integrations
           @client.get_json("/streams", params: {user_id: ids, first: Client::MAX_IDS}) do |body|
             body.fetch("data").map { |data| stream(data) }
           end
+        end
+      end
+
+      def in_category(category_id)
+        @client.get_json("/streams", params: {game_id: category_id, first: PAGE_SIZE, type: "live"}) do |body|
+          body.fetch("data").map { |data| stream(data) }
         end
       end
 
@@ -27,7 +35,8 @@ module Integrations
           category_name: data.fetch("game_name").presence,
           title: data.fetch("title"),
           viewer_count: data.fetch("viewer_count"),
-          started_at: Time.zone.parse(data.fetch("started_at"))
+          started_at: Time.zone.parse(data.fetch("started_at")),
+          language: data.fetch("language")
         )
       end
     end

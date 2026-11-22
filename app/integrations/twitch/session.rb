@@ -7,6 +7,12 @@ module Integrations
       STALE_AFTER = 20.minutes
       Outcome = Data.define(:state, :events, :went_offline)
 
+      def self.drifted?(state, observation)
+        state["title"] != observation.title ||
+          state["category_id"] != observation.category_id ||
+          (state.key?("language") && state["language"] != observation.language)
+      end
+
       def initialize(state, now:)
         @state = state
         @now = now
@@ -78,6 +84,7 @@ module Integrations
           "title" => observation.title,
           "category_id" => observation.category_id,
           "category_name" => observation.category_name,
+          "language" => observation.language,
           "started_at" => observation.started_at.iso8601,
           "last_live_at" => @now.iso8601,
           "login" => observation.login,
@@ -101,7 +108,8 @@ module Integrations
           "viewer_count" => observation.viewer_count || @state["viewer_count"],
           "peak_viewers" => [@state["peak_viewers"], observation.viewer_count].compact.max,
           "login" => observation.login,
-          "display_name" => observation.display_name
+          "display_name" => observation.display_name,
+          "language" => @state.key?("language") ? @state["language"] : observation.language
         )
         revised = state["titles_pushed"] ? outcome(state) : update(state, observation)
         return revised unless observation.viewer_count
@@ -117,18 +125,15 @@ module Integrations
       end
 
       def update(state, observation)
-        return outcome(state) unless changed?(observation)
+        return outcome(state) unless self.class.drifted?(@state, observation)
 
         state = state.merge(
           "title" => observation.title,
           "category_id" => observation.category_id,
-          "category_name" => observation.category_name
+          "category_name" => observation.category_name,
+          "language" => observation.language
         )
         outcome(state, [event(StreamUpdated, state, occurred_at: @now, subject_key: "stream-update:#{state["session"]}:#{@now.to_i}")])
-      end
-
-      def changed?(observation)
-        @state["title"] != observation.title || @state["category_id"] != observation.category_id
       end
 
       def finish(ended_at)
@@ -159,6 +164,7 @@ module Integrations
           title: state["title"],
           category_id: state["category_id"],
           category_name: state["category_name"],
+          language: state["language"],
           started_at: state["started_at"],
           viewer_count: state["viewer_count"],
           story_key: "stream:#{state["session"]}",

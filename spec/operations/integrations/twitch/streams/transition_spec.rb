@@ -20,7 +20,8 @@ RSpec.describe Ops::Integrations::Twitch::Streams::Transition do
       category_name: "Chess",
       login: "shroud",
       display_name: "Shroud",
-      viewer_count: 100
+      viewer_count: 100,
+      language: "en"
     )
   end
   let(:going_offline) { Integrations::Twitch::Offline.new }

@@ -11,7 +11,8 @@ module Integrations
       :category_name,
       :title,
       :viewer_count,
-      :started_at
+      :started_at,
+      :language
     )
   end
 end

@@ -3,7 +3,7 @@
 module Integrations
   module Twitch
     class StreamReconcileJob < ApplicationJob
-      FAILING_SINCE_KEY = "integrations/twitch/streams/failing_since"
+      include TracksCheckFailures
 
       queue_as :default
       limits_concurrency(
@@ -37,59 +37,23 @@ module Integrations
       end
 
       def transition_all(watches, live)
-        bugs = []
-        watches.each do |watch|
+        observations = watches.map do |watch|
           stream = live[watch.external_id]
-          Ops::Integrations::Twitch::Streams::Transition.call(
-            watch:,
-            observation: stream ? Live.from_stream(stream) : Offline.new
-          )
-        rescue => error
-          log_bug(watch, error)
-          if NotifiesOwner.claim("twitch/streams/bug/#{watch.id}/#{error.class}")
-            Rails.error.report(error, severity: :error)
-            bugs << "#{watch.label}: #{error.class}: #{error.message}"
-          end
+          [watch, stream ? Live.from_stream(stream) : Offline.new]
         end
-        ReportPollBugsJob.perform_later(bugs) if bugs.any?
+        Ops::Integrations::Twitch::Streams::TransitionAll.call(observations:)
       end
 
-      def log_bug(watch, error)
-        Rails.logger.error("Integrations: Twitch stream transition for #{watch.label} failed: #{error.full_message(highlight: false)}")
+      def failure_key
+        "twitch/streams"
       end
 
-      def report(error)
-        Rails.logger.warn("Integrations: Twitch stream reconcile failed: #{error.class}: #{error.message}")
-        failing_since = mark_failing
-        case error
-        when RateLimited then report_rate_limit(error)
-        when Unauthorized then report_unauthorized(error)
-        else report_broken(error) if failing_since <= Watch::BROKEN_AFTER.ago
-        end
+      def failure_label
+        "Twitch streams"
       end
 
-      def report_rate_limit(error)
-        return unless NotifiesOwner.claim("twitch/streams/rate_limited")
-
-        ReportRateLimitJob.perform_later("Twitch streams", error.message, error.retry_after)
-      end
-
-      def report_unauthorized(error)
-        ReportUnauthorizedJob.perform_later(error.message) if NotifiesOwner.claim("twitch/unauthorized")
-      end
-
-      def report_broken(error)
-        ReportLiveCheckBrokenJob.perform_later("#{error.class}: #{error.message}") if NotifiesOwner.claim("twitch/streams/broken")
-      end
-
-      def mark_failing
-        since = Rails.cache.read(FAILING_SINCE_KEY) || Time.current
-        Rails.cache.write(FAILING_SINCE_KEY, since, expires_in: Watch::DORMANT_AFTER)
-        since
-      end
-
-      def clear_failing
-        Rails.cache.delete(FAILING_SINCE_KEY)
+      def report_broken(message)
+        ReportLiveCheckBrokenJob.perform_later(message)
       end
     end
   end

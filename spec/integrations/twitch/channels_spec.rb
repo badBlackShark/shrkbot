@@ -27,7 +27,8 @@ RSpec.describe Integrations::Twitch::Channels do
           broadcaster_id: "141981764",
           title: "Standard Output // October 16, 2024 at 2:30pm EDT",
           category_id: "1469308723",
-          category_name: "Software and Game Development"
+          category_name: "Software and Game Development",
+          language: "en"
         )
       ]
     )

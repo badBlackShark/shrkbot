@@ -36,7 +36,7 @@ module Integrations
     end
 
     def self.referenced
-      demand_matching(&:all)
+      demand_matching(&:all).or(where(id: Event.select(:watch_id)))
     end
 
     def self.demanding(event_types)

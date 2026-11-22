@@ -194,6 +194,18 @@ RSpec.describe Integrations::Watch do
       it "includes every watch any subscription points at, active or not" do
         expect(referenced).to contain_exactly(active_watch, inactive_watch)
       end
+
+      context "when an unsubscribed watch still has an event" do
+        let!(:evented_watch) { create(:integration_watch) }
+
+        before do
+          create(:steam_news_event, watch: evented_watch)
+        end
+
+        it "includes it too, so a discovered channel survives until its events expire" do
+          expect(referenced).to contain_exactly(active_watch, inactive_watch, evented_watch)
+        end
+      end
     end
 
     context "without a registered source" do

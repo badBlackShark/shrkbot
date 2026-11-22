@@ -10,9 +10,14 @@ module Integrations
       end
 
       def find(id)
-        @client.get_json("/games", params: {id:}) do |body|
-          data = body.fetch("data").first
-          game(data) if data
+        self.for([id]).first
+      end
+
+      def for(ids)
+        ids.each_slice(Client::MAX_IDS).flat_map do |slice|
+          @client.get_json("/games", params: {id: slice}) do |body|
+            body.fetch("data").map { |data| game(data) }
+          end
         end
       end
 

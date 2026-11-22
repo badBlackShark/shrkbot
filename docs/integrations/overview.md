@@ -235,8 +235,12 @@ re-registers it after every code reload, and `demand_sources` resets with the re
   its active rows that follow any of those event types. Twitch's live jobs use it
   through `ChannelWatcher.followed_for_live`, so a channel nobody follows for Live is not
   checked.
-- `Watch.referenced` is every watch any source row points at, active or not. It is the
-  keep side of the orphan prune.
+- `Watch.referenced` is every watch any source row points at, active or not, plus every
+  watch that still has events. It is the keep side of the orphan prune. The events clause
+  keeps a watch nothing subscribes to (a Twitch channel found through a category) alive
+  while its stream is being recorded; the watch goes once its events expire (14 d).
+  A Steam game nobody follows any more lingers the same way, and keeps getting the daily
+  name refresh.
 
 A source may also answer `demanded_types(watch_ids)` with `[watch_id, event_type]` pairs
 for its active rows. `Watch.demanded_types_for(watches)` unions the answers into a hash
@@ -245,7 +249,7 @@ assigns each its set as the non-column `Watch#demanded_types`. A watcher reads t
 to skip API calls for types nobody follows, so it never queries per channel.
 
 `Ops::Integrations::Watches::PruneOrphans` runs daily at 5:35 and destroys each watch
-that is not `referenced`, taking its events with it. With no registered
+that is not `referenced`. With no registered
 source it deletes nothing: an empty registry means the wiring failed, not that nothing
 is followed. A server that switches a plugin off keeps its rows, so its watch stays
 and is simply not polled.

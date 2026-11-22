@@ -19,7 +19,8 @@ RSpec.describe Integrations::Twitch::Session do
       category_name: "Chess",
       login: "shroud",
       display_name: "Shroud",
-      viewer_count: 100
+      viewer_count: 100,
+      language: "en"
     )
   end
   let(:open_state) do
@@ -29,6 +30,7 @@ RSpec.describe Integrations::Twitch::Session do
       "title" => "Ranked",
       "category_id" => "1",
       "category_name" => "Chess",
+      "language" => "en",
       "started_at" => started_at.iso8601,
       "last_live_at" => last_live_at.iso8601,
       "login" => "shroud",
@@ -59,6 +61,7 @@ RSpec.describe Integrations::Twitch::Session do
             title: "Ranked",
             category_id: "1",
             category_name: "Chess",
+            language: "en",
             started_at: started_at.iso8601,
             story_key: "stream:s1"
           )
@@ -278,7 +281,7 @@ RSpec.describe Integrations::Twitch::Session do
   end
 
   context "when a channel update arrives with no session" do
-    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Casual", category_id: "1", category_name: "Chess") }
+    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Casual", category_id: "1", category_name: "Chess", language: "en") }
 
     it "does nothing" do
       expect(outcome).to have_attributes(state: {}, events: [])
@@ -287,7 +290,7 @@ RSpec.describe Integrations::Twitch::Session do
 
   context "when a channel update changes the title of an open session" do
     let(:state) { open_state }
-    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Casual", category_id: "1", category_name: "Chess") }
+    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Casual", category_id: "1", category_name: "Chess", language: "en") }
 
     it "emits StreamUpdated, marks titles as pushed and stamps no sighting" do
       expect(outcome.state).to eq(open_state.merge("title" => "Casual", "titles_pushed" => true))
@@ -301,10 +304,29 @@ RSpec.describe Integrations::Twitch::Session do
 
   context "when a channel update repeats the title and category" do
     let(:state) { open_state }
-    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Ranked", category_id: "1", category_name: "Chess") }
+    let(:observation) { Integrations::Twitch::ChannelUpdate.new(title: "Ranked", category_id: "1", category_name: "Chess", language: "en") }
 
     it "only marks titles as pushed" do
       expect(outcome).to have_attributes(state: open_state.merge("titles_pushed" => true), events: [])
+    end
+  end
+
+  context "when only the language changes in a poll sighting" do
+    let(:state) { open_state }
+    let(:observation) { live.with(language: "de") }
+
+    it "emits StreamUpdated and stores the new language" do
+      expect(outcome.state).to include("language" => "de")
+      expect(outcome.events).to include(an_instance_of(Integrations::Twitch::StreamUpdated).and(have_attributes(language: "de")))
+    end
+  end
+
+  context "when a session opened before languages were stored is sighted" do
+    let(:state) { open_state.except("language") }
+
+    it "stores the language without a StreamUpdated" do
+      expect(outcome.state).to include("language" => "en")
+      expect(outcome.events).to all(be_an_instance_of(Integrations::Twitch::StreamSampled))
     end
   end
 
