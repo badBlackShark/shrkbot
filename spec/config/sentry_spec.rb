@@ -76,7 +76,7 @@ RSpec.describe "Sentry configuration" do
   describe "cron monitoring" do
     subject(:monitored) { task_keys.reject { |key| excluded.any? { |pattern| pattern === key } } }
 
-    let(:task_keys) { YAML.load_file(Rails.root.join("config/recurring.yml")).fetch("production").keys }
+    let(:task_keys) { ActiveSupport::ConfigurationFile.parse(Rails.root.join("config/recurring.yml")).fetch("production").keys }
     let(:excluded) { configuration.rails.solid_queue_exclude_recurring_tasks }
 
     it "watches exactly one recurring task, because the plan has one monitor seat" do
