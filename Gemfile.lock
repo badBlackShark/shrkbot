@@ -108,9 +108,9 @@ GEM
     bundler-audit (0.9.3)
       bundler (>= 1.2.0)
       thor (~> 1.0)
-    committee (5.6.4)
+    committee (5.7.0)
       json_schema (~> 0.14, >= 0.14.3)
-      openapi_parser (~> 2.0)
+      openapi_parser (~> 2.8)
       rack (>= 1.5)
     concurrent-ruby (1.3.8)
     connection_pool (3.0.3)
@@ -340,7 +340,7 @@ GEM
     omniauth-rails_csrf_protection (2.0.1)
       actionpack (>= 4.2)
       omniauth (~> 2.0)
-    openapi_parser (2.3.1)
+    openapi_parser (2.8.0)
     opus-ruby (1.0.1)
       ffi
     ostruct (0.6.3)
@@ -382,11 +382,11 @@ GEM
     prosopite (2.5.0)
       activerecord (>= 6.1)
       railties (>= 6.1)
-    puma (8.1.1)
+    puma (8.1.2)
       nio4r (~> 2.0)
     raabro (1.5.0)
     racc (1.8.1)
-    rack (3.2.8)
+    rack (3.2.9)
     rack-protection (4.2.1)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
@@ -510,10 +510,10 @@ GEM
       logger
     rugged (1.9.6)
     securerandom (0.4.1)
-    sentry-rails (7.2.0)
+    sentry-rails (7.3.0)
       railties (>= 5.2.0)
-      sentry-ruby (~> 7.2.0)
-    sentry-ruby (7.2.0)
+      sentry-ruby (~> 7.3.0)
+    sentry-ruby (7.3.0)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
       logger
@@ -570,10 +570,10 @@ GEM
     terminal-table (4.0.0)
       unicode-display_width (>= 1.1.1, < 4)
     thor (1.5.0)
-    thruster (0.1.27)
-    thruster (0.1.27-aarch64-linux)
-    thruster (0.1.27-arm64-darwin)
-    thruster (0.1.27-x86_64-linux)
+    thruster (0.1.28)
+    thruster (0.1.28-aarch64-linux)
+    thruster (0.1.28-arm64-darwin)
+    thruster (0.1.28-x86_64-linux)
     timeout (0.6.1)
     tsort (0.2.0)
     turbo-rails (2.0.23)
@@ -695,7 +695,7 @@ CHECKSUMS
   builder (3.3.0) sha256=497918d2f9dca528fdca4b88d84e4ef4387256d984b8154e9d5d3fe5a9c8835f
   bundler (4.1.0) sha256=d7b7a797b988e544a0677a9c6ed78146f2f63d05ae1af8bc7d9426cf88b46377
   bundler-audit (0.9.3) sha256=81c8766c71e47d0d28a0f98c7eed028539f21a6ea3cd8f685eb6f42333c9b4e9
-  committee (5.6.4) sha256=702aa5f0d1c535113ea08e2612cce7d3474db7907c145ff6a8adde63f71ebdb6
+  committee (5.7.0) sha256=660098d3fe8cae7638dfc6a50c2aacc760c054b5036f017bb2d1b3b5392fe5bd
   concurrent-ruby (1.3.8) sha256=b2f1be836e968ccc78ccfce277ea79c72a88633f22306782c16ff23fb415d1e1
   connection_pool (3.0.3) sha256=e0f8ee3ee0039396753e06e8a2dde0ef028e40f7df29e97f57da7577c489cb5e
   crass (1.0.8) sha256=7a0145c7a2c59f8e7923b3a69ce819c444823a00a5127d805298fea13be24efe
@@ -792,7 +792,7 @@ CHECKSUMS
   omniauth-discord (1.2.0) sha256=e6e92649a645862ccb29ce3d5f2f876de9e26198722b9d05f9f6d4f3805d5c70
   omniauth-oauth2 (1.9.0) sha256=ed15f6d9d20991807ce114cc5b9c1453bce3645b64e51c68c90cff5ff153fee8
   omniauth-rails_csrf_protection (2.0.1) sha256=c6e3204d7e3925bb537cb52d50fdfc9f05293f1a9d87c5d4ab4ca3a39ba8c32d
-  openapi_parser (2.3.1) sha256=c5415a8123c148692617a607a086f71e26d843339aa0bfa10c24e18d446d5e8b
+  openapi_parser (2.8.0) sha256=99534b698997714f4139e31ed230d051b9820bec5ade9b34b6a837cc0e317924
   opus-ruby (1.0.1) sha256=8dc808d6773a488469374cccf252808b2ad7bc7e00229a319832f0e09012ce53
   ostruct (0.6.3) sha256=95a2ed4a4bd1d190784e666b47b2d3f078e4a9efda2fccf18f84ddc6538ed912
   ox (2.14.29) sha256=206736d5a8dade9dca10cf72022bc157ad6ca3eecaba3853918426ed88e12dc2
@@ -814,10 +814,10 @@ CHECKSUMS
   prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
   propshaft (1.3.2) sha256=1d56a3e56a92c21bfc29caf07406b5386b00d4c47ddf357cf989a5a234b1389e
   prosopite (2.5.0) sha256=48ed8b147d119c58ad7ea6dfb9ff7f6741053db3161dcc01ccd53b144f2fd689
-  puma (8.1.1) sha256=24800758cf064ecc19d056301b6946f628d77ea14653d485fa17ff6a6331555c
+  puma (8.1.2) sha256=3a6d9a34c9a4d0175eabd11b703939b5d43ebe08bc2534ac7dfd4df33a6ceedc
   raabro (1.5.0) sha256=3f998a7bc84f9c84df3ab580634d2e0a5bda4f0841168d56035f529c9877440a
   racc (1.8.1) sha256=4a7f6929691dbec8b5209a0b373bc2614882b55fc5d2e447a21aaa691303d62f
-  rack (3.2.8) sha256=1fecc85e463ebc7a2a945fff829ffcd549babeb1556384796fad946c28dc4ec7
+  rack (3.2.9) sha256=8235c1d08f0c461bedcff4413bbeba888173e5b09e1332ae951c98f0ee460dcc
   rack-protection (4.2.1) sha256=cf6e2842df8c55f5e4d1a4be015e603e19e9bc3a7178bae58949ccbb58558bac
   rack-session (2.1.2) sha256=595434f8c0c3473ae7d7ac56ecda6cc6dfd9d37c0b2b5255330aa1576967ffe8
   rack-test (2.3.0) sha256=b118d177cc002c572fc1b6fd8d19c9ed5881a36e8d6f689f9e618f9f861241e8
@@ -853,8 +853,8 @@ CHECKSUMS
   ruby-vips (2.3.0) sha256=e685ec02c13969912debbd98019e50492e12989282da5f37d05f5471442f5374
   rugged (1.9.6) sha256=c6e45250e51cdf19f6130d050e280ba8d6af475d4c76580f91377a59fe23d3c7
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
-  sentry-rails (7.2.0) sha256=c3874fed94a68f3f60a917243b6e25414ff284455abd14e3351479a32807af79
-  sentry-ruby (7.2.0) sha256=2da448c2b7028a7691f31ae5c946830b8e694d0aec78ef2b9e5c7e1da9c3e01a
+  sentry-rails (7.3.0) sha256=2941ecc5b8f66ede5f7ff9e23d7f714d110675c20490a1be8162f35bf81b98ff
+  sentry-ruby (7.3.0) sha256=b097f082e6609c778ca3ac28fa61ce38af998040e042660ff7196fcdcad9f1a4
   sexp_processor (4.17.6) sha256=3c5d0e9db06377abde06db51dbacb14ce239ed0bd038ae515bc42c81602c6c1f
   simplecov (1.3.2) sha256=2a22ec1759f1b8db60881a2e038758956fc69ef93ed669be0bde0678de6d0e85
   simplecov-lcov (0.9.0) sha256=7a77a31e200a595ed4b0249493056efd0c920601f53d2ef135ca34ee796346cd
@@ -877,10 +877,10 @@ CHECKSUMS
   tailwindcss-ruby (4.3.3-x86_64-linux-musl) sha256=27d478c417bcf73828e5b544744c5bdfd5b5cb54f1a266fc4f185281c32efe6c
   terminal-table (4.0.0) sha256=f504793203f8251b2ea7c7068333053f0beeea26093ec9962e62ea79f94301d2
   thor (1.5.0) sha256=e3a9e55fe857e44859ce104a84675ab6e8cd59c650a49106a05f55f136425e73
-  thruster (0.1.27) sha256=5fd3855192bb4e8d13db69ae5f70d39f2dfd88fe0394fa372104996edf0bb599
-  thruster (0.1.27-aarch64-linux) sha256=c50789f2dcd4dfa072c4719f99c38dea5d47ebb60ad0cc1fd1996b2266ecfd22
-  thruster (0.1.27-arm64-darwin) sha256=ece0ff0f2ec195008030fbca97067e5e867f4e1f66501fa8b8a3ec3f829bf2bf
-  thruster (0.1.27-x86_64-linux) sha256=7e0e6381011401810b047ff25506e0e38755b2430499ff5586f1a110086981c6
+  thruster (0.1.28) sha256=62672bb4588f49fa764f2e70db108a978818f8976f97ec3fd932d67c9e6b5e39
+  thruster (0.1.28-aarch64-linux) sha256=74cfaab322198dd31c30265e82f092c13f651f24c257025f9d4d89b3f1c7c477
+  thruster (0.1.28-arm64-darwin) sha256=3984853754e3ce3f41564e2ad72e117a77974429086e801ddab33a058bd1dd3f
+  thruster (0.1.28-x86_64-linux) sha256=309c22dca620dc4974bd5672d18afe3d2383899dc712acb1c1d902ad55f2eef4
   timeout (0.6.1) sha256=78f57368a7e7bbadec56971f78a3f5ecbcfb59b7fcbb0a3ed6ddc08a5094accb
   tsort (0.2.0) sha256=9650a793f6859a43b6641671278f79cfead60ac714148aabe4e3f0060480089f
   turbo-rails (2.0.23) sha256=ee0d90733aafff056cf51ff11e803d65e43cae258cc55f6492020ec1f9f9315f
