@@ -36,11 +36,8 @@ RSpec.describe Integrations::Twitch::Videos do
       Integrations::Twitch::Video.new(
         id: "2277656159",
         stream_id: "44926619787",
-        user_id: "141981764",
         user_name: "TwitchDev",
         title: "Standard Output // October 16, 2024",
-        description: "",
-        created_at: Time.utc(2024, 10, 16, 18, 31, 23),
         published_at: Time.utc(2024, 10, 16, 18, 31, 23),
         url: "https://www.twitch.tv/videos/2277656159",
         thumbnail_url: "https://static-cdn.jtvnw.net/cf_vods/d2nvs31859zcd8/30f3738ff535638f66df_twitchdev_44926619787_1729103477//thumb/thumb0-1280x720.jpg",

@@ -27,8 +27,7 @@ module Integrations
           category_name: data.fetch("game_name").presence,
           title: data.fetch("title"),
           viewer_count: data.fetch("viewer_count"),
-          started_at: Time.zone.parse(data.fetch("started_at")),
-          thumbnail_url: data.fetch("thumbnail_url")
+          started_at: Time.zone.parse(data.fetch("started_at"))
         )
       end
     end

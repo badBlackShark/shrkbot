@@ -21,11 +21,8 @@ module Integrations
         Video.new(
           id: data.fetch("id"),
           stream_id: data.fetch("stream_id").presence,
-          user_id: data.fetch("user_id"),
           user_name: data.fetch("user_name"),
           title: data.fetch("title"),
-          description: data.fetch("description"),
-          created_at: Time.zone.parse(data.fetch("created_at")),
           published_at: Time.zone.parse(data.fetch("published_at")),
           url: data.fetch("url"),
           thumbnail_url: thumbnail(data.fetch("thumbnail_url")),

@@ -28,17 +28,13 @@ module Integrations
         Clip.new(
           id: data.fetch("id"),
           url: data.fetch("url"),
-          broadcaster_id: data.fetch("broadcaster_id"),
           broadcaster_name: data.fetch("broadcaster_name"),
           creator_name: data.fetch("creator_name"),
-          video_id: data.fetch("video_id").presence,
           category_id: data.fetch("game_id").presence,
           title: data.fetch("title"),
-          view_count: data.fetch("view_count"),
           created_at: Time.zone.parse(data.fetch("created_at")),
           thumbnail_url: data.fetch("thumbnail_url"),
-          duration: data.fetch("duration"),
-          featured: data.fetch("is_featured")
+          duration: data.fetch("duration")
         )
       end
     end

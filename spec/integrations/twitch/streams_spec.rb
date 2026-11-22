@@ -24,7 +24,7 @@ RSpec.describe Integrations::Twitch::Streams do
     expect(live.map(&:user_login)).to eq(%w[caedrel riotgames])
   end
 
-  it "maps the first stream, keeping the thumbnail template" do
+  it "maps the first stream" do
     expect(live.first).to eq(
       Integrations::Twitch::Stream.new(
         id: "318183054051",
@@ -35,8 +35,7 @@ RSpec.describe Integrations::Twitch::Streams do
         category_name: "League of Legends",
         title: "🔴WORLDS 2026 G2 VS HLE ELIMINATION🔴",
         viewer_count: 307518,
-        started_at: Time.utc(2026, 10, 30, 14, 55, 54),
-        thumbnail_url: "https://static-cdn.jtvnw.net/previews-ttv/live_user_caedrel-{width}x{height}.jpg"
+        started_at: Time.utc(2026, 10, 30, 14, 55, 54)
       )
     )
   end

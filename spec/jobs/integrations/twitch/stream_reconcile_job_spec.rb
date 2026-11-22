@@ -22,8 +22,7 @@ RSpec.describe Integrations::Twitch::StreamReconcileJob do
       category_name: "Chess",
       title: "Ranked",
       viewer_count: 12,
-      started_at: Time.zone.parse("2026-11-01 09:00:00"),
-      thumbnail_url: "https://example.test/t.jpg"
+      started_at: Time.zone.parse("2026-11-01 09:00:00")
     )
   end
 
