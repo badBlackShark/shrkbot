@@ -136,7 +136,7 @@ RSpec.describe "Steam config", type: :request do
           it "disables Add and gives the reason" do
             get plugin_path
 
-            expect(response.body).to match(/<button[^>]*disabled[^>]*aria-describedby="feed-subscriptions-cap"[^>]*>|<button[^>]*aria-describedby="feed-subscriptions-cap"[^>]*disabled[^>]*>/)
+            expect(response.body).to match(/<button[^>]*disabled[^>]*aria-describedby="feed-subscriptions-cap-steam"[^>]*>|<button[^>]*aria-describedby="feed-subscriptions-cap-steam"[^>]*disabled[^>]*>/)
             expect(response.body).to include("This server follows 25 games, the most it can.")
           end
         end

@@ -20,16 +20,18 @@ export default class extends Controller {
       ...this.remoteSearch(),
       ...this.fixedOptions()
     })
-    this.labelFocusNode()
+    this.describeFocusNode()
   }
 
   fixedOptions() {
     return this.fixedValue ? { controlInput: null } : {}
   }
 
-  labelFocusNode() {
-    const label = this.element.getAttribute("aria-label")
-    if (label) this.select.focus_node.setAttribute("aria-label", label)
+  describeFocusNode() {
+    for (const name of ["aria-label", "aria-describedby", "aria-invalid"]) {
+      const value = this.element.getAttribute(name)
+      if (value) this.select.focus_node.setAttribute(name, value)
+    }
   }
 
   remoteSearch() {

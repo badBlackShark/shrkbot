@@ -8,6 +8,18 @@ class Components::Feeds::SourceTabs < Components::Base
   end
 
   def view_template
+    render Components::ConfigSections.new(key: @plugin_key.to_s) do
+      if sources.one?
+        render Components::Feeds::SubscriptionList.new(server_configuration: @config, source: sources.first)
+      else
+        tabs
+      end
+    end
+  end
+
+  private
+
+  def tabs
     div(class: "flex flex-col gap-5", data: {controller: "option-panels"}) do
       div(class: "max-w-md") do
         render Components::SegmentedControl.new(
@@ -21,8 +33,6 @@ class Components::Feeds::SourceTabs < Components::Base
       sources.each { |source| panel(source) }
     end
   end
-
-  private
 
   def panel(source)
     div(hidden: source != current, data: {option_panels_target: "panel", value: source.key.to_s}) do

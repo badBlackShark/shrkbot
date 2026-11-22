@@ -98,7 +98,7 @@ en:
         twitch:
           title: Add a channel
         twitch_category:
-          title: Follow a category
+          title: Add a category
       custom_message_field:
         label: Message
         placeholder: Shown above the card.
@@ -406,7 +406,7 @@ en:
           empty_title: No channels yet
           heading: Followed channels
         twitch_category:
-          add: Follow a category
+          add: Add a category
           empty_title: No categories yet
           heading: Followed categories
         usage: "%{used} of %{max}"
@@ -439,8 +439,9 @@ en:
             a category.
           label: Only post when streaming one of these categories
           placeholder: Every category
-          search_failed: Twitch didn't answer. Try again in a minute.
           title: Categories
+        category_picker:
+          search_failed: Twitch didn't answer. Try again in a minute.
         end_mode_field:
           label: When the stream ends
           modes:
@@ -449,6 +450,9 @@ en:
             mark_ended: Summary
             mark_ended_with_vod: Summary with VOD link
           preview: Preview
+        live_toggles:
+          preview_frame: Show a preview frame
+          viewers: Show the viewer count
         samples:
           clip_created:
             category: Hades II
@@ -482,11 +486,9 @@ en:
           preview: Preview
         type_fields:
           no_ping: No ping
-          preview_frame_toggle: Show a preview frame
           role_label: Role override
           role_placeholder: Same as above
           thumbnail_toggle: Show the thumbnail
-          viewers_toggle: Show the viewer count
       twitch_category:
         filters_card:
           excluded_help: Names are matched as typed, never looked up. If a streamer
@@ -542,7 +544,6 @@ en:
         lookup_field:
           label: Category
           placeholder: Search Twitch categories
-          search_failed: Twitch didn't answer. Try again in a minute.
         preview_samples:
           streamer: SomeStreamer
       volume_line:
@@ -1153,7 +1154,7 @@ en:
                 not_found: Twitch has no such category. Pick another one.
                 unavailable: Twitch didn't answer. Try again in a minute.
               label: Category
-              title: Follow a category
+              title: Add a category
           new:
             cancel: Cancel
             follow: Follow %{name}

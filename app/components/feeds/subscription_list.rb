@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Components::Feeds::SubscriptionList < Components::Base
-  CAP_REASON_ID = "feed-subscriptions-cap"
-
   def initialize(server_configuration:, source:)
     @config = server_configuration
     @source = source
@@ -37,14 +35,14 @@ class Components::Feeds::SubscriptionList < Components::Base
     return if @config.preview?
 
     if at_cap?
-      render Components::Button.new(label: t(".#{@source.key}.add"), disabled: true, aria_describedby: CAP_REASON_ID)
+      render Components::Button.new(label: t(".#{@source.key}.add"), disabled: true, aria_describedby: cap_reason_id)
     else
       render Components::Button.new(label: t(".#{@source.key}.add"), href: ::Feeds::SubscriptionPaths.new_for(@config, @source))
     end
   end
 
   def cap_reason
-    p(id: CAP_REASON_ID, class: "text-sm text-text-secondary") do
+    p(id: cap_reason_id, class: "text-sm text-text-secondary") do
       ::Feeds::Subscription.cap_message(@source)
     end
   end
@@ -56,6 +54,10 @@ class Components::Feeds::SubscriptionList < Components::Base
       labels: route_labels,
       edit_href: (::Feeds::SubscriptionPaths.edit_for(subscription) unless @config.preview?)
     )
+  end
+
+  def cap_reason_id
+    "feed-subscriptions-cap-#{@source.key}"
   end
 
   def at_cap?

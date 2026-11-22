@@ -25,6 +25,6 @@ class Views::Servers::Feeds::Show < Views::Servers::SubPluginShow
   end
 
   def body
-    render Components::Feeds::PluginBody.new(server_configuration: @config, plugin_key:, selected: @tab)
+    render Components::Feeds::SourceTabs.new(server_configuration: @config, plugin_key:, selected: @tab)
   end
 end

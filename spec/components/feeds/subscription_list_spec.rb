@@ -41,7 +41,7 @@ RSpec.describe Components::Feeds::SubscriptionList do
 
     it "disables Add a game and points it at the reason" do
       expect(html).not_to include(add_path)
-      expect(html).to include("disabled", 'aria-describedby="feed-subscriptions-cap"', 'id="feed-subscriptions-cap"')
+      expect(html).to include("disabled", 'aria-describedby="feed-subscriptions-cap-steam"', 'id="feed-subscriptions-cap-steam"')
     end
   end
 

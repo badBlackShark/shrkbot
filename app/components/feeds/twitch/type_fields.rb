@@ -11,34 +11,20 @@ class Components::Feeds::Twitch::TypeFields < Components::Base
     render(Components::Feeds::OverrideFields.new(subscription: @subscription, event_type: @event_type, event: @event)) do
       role_override
     end
-    viewers_toggle if live?
-    image_toggle
+    live? ? render(Components::Feeds::Twitch::LiveToggles.new(subscription: @subscription)) : thumbnail_toggle
     yield
     render Components::Feeds::Twitch::EndModeField.new(subscription: @subscription) if live?
   end
 
   private
 
-  def viewers_toggle
-    render Components::Feeds::Twitch::SettingToggle.new(
-      subscription: @subscription,
-      setting: :show_viewers,
-      marker: "viewers",
-      label: t(".viewers_toggle")
-    )
-  end
-
-  def image_toggle
+  def thumbnail_toggle
     render Components::Feeds::Twitch::SettingToggle.new(
       subscription: @subscription,
       setting: post_type.image_column,
       marker: "image",
-      label: image_toggle_label
+      label: t(".thumbnail_toggle")
     )
-  end
-
-  def image_toggle_label
-    live? ? t(".preview_frame_toggle") : t(".thumbnail_toggle")
   end
 
   def post_type

@@ -41,4 +41,13 @@ RSpec.describe Components::Feeds::SourceTabs do
       expect(document.at_css("[role=radio][aria-checked=true]").text).to eq("Channels")
     end
   end
+
+  context "with a plugin that has one source" do
+    subject(:document) { Nokogiri::HTML.fragment(described_class.new(server_configuration:, plugin_key: :steam).render_in(view_context)) }
+
+    it "renders its list without tabs" do
+      expect(document.css("[role=radio]")).to be_empty
+      expect(document.text).to include("No games yet")
+    end
+  end
 end

@@ -17,7 +17,7 @@ class Components::TomSelect < Components::Base
     end
   end
 
-  def initialize(name:, options:, selected: nil, multiple: false, include_blank: false, required: false, aria_label: nil, controller_data: {})
+  def initialize(name:, options:, selected: nil, multiple: false, include_blank: false, required: false, aria_label: nil, aria_invalid: false, aria_describedby: nil, controller_data: {})
     @name = name
     @options = options
     @selected = selected
@@ -25,6 +25,8 @@ class Components::TomSelect < Components::Base
     @include_blank = include_blank
     @required = required
     @aria_label = aria_label
+    @aria_invalid = aria_invalid
+    @aria_describedby = aria_describedby
     @controller_data = controller_data
   end
 
@@ -43,6 +45,8 @@ class Components::TomSelect < Components::Base
     attrs = {name: @name, multiple: @multiple, autocomplete: "off", class: "w-full", data: {controller: "tom-select", **@controller_data}}
     attrs[:aria_required] = "true" if @required
     attrs[:aria_label] = @aria_label if @aria_label
+    attrs[:aria_invalid] = "true" if @aria_invalid
+    attrs[:aria_describedby] = @aria_describedby if @aria_describedby
     attrs
   end
 

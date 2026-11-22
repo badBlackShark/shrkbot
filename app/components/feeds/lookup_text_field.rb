@@ -5,7 +5,7 @@ class Components::Feeds::LookupTextField < Components::Base
     "text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none " \
     "focus:ring-3 focus:ring-[var(--focus-ring)] aria-invalid:border-danger"
 
-  def initialize(name:, value:, error_id: nil, **)
+  def initialize(name:, value:, error_id:, server_configuration:)
     @name = name
     @value = value
     @error_id = error_id

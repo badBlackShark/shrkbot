@@ -37,7 +37,7 @@ RSpec.describe "Twitch category follows", type: :request do
         lookup
 
         expect(response).to have_http_status(:ok)
-        expect(response.body).to include("Follow a category", "Look up")
+        expect(response.body).to include("Add a category", "Look up")
         expect(response.body).not_to include("translation missing")
         expect(page.at_css("select[name=category]")["data-tom-select-search-url-value"]).to eq(server_twitch_categories_path(guild.id))
         expect(page.at_css("input[type=text][name=category]")).to be_nil

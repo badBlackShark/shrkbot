@@ -113,10 +113,10 @@ not through the watch the event sits on.
 
 ### Category follows on the website
 
-The Twitch page has two sources, so `Components::Feeds::PluginBody` renders
-`Components::Feeds::SourceTabs` (a `SegmentedControl` driving the generic `option-panels`
-controller, one hidden-until-picked panel per source, each a `SubscriptionList`). A plugin
-with one source renders its list directly. `PluginBody` owns the `<plugin>-config`
+The Twitch page has two sources, so `Components::Feeds::SourceTabs` renders a
+`SegmentedControl` driving the generic `option-panels` controller, one hidden-until-picked
+panel per source, each a `SubscriptionList`. A plugin with one source renders its list
+directly. `SourceTabs` owns the `<plugin>-config`
 container, so the plugin toggle's Turbo Stream replaces both lists, but the replacement
 opens the first tab again: the toggle form carries no tab. `?tab=<source key>` picks the
 tab, and every redirect and breadcrumb back to the plugin goes through

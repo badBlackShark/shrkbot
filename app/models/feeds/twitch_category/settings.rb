@@ -5,7 +5,6 @@ module Feeds
     class Settings < ApplicationRecord
       MAX_LANGUAGES = 50
       MAX_EXCLUDED = 100
-      LANGUAGE = /\A([a-z]{2,3}(-[a-z]+)?|other)\z/
       LOGIN = /\A[a-z0-9_]{1,25}\z/
 
       self.table_name = "feed_twitch_category_settings"
@@ -19,7 +18,7 @@ module Feeds
       validates :live_end_mode, inclusion: {in: Twitch::Settings::LIVE_END_MODES}
       validates :switched_away, inclusion: {in: Twitch::Settings::SWITCHED_AWAY_MODES}
       validates :subscription_id, uniqueness: true
-      validates_json_list(:languages, max: MAX_LANGUAGES) { |language| language.is_a?(String) && language.match?(LANGUAGE) }
+      validates_json_list(:languages, max: MAX_LANGUAGES) { |language| LANGUAGES.include?(language) }
       validates_json_list(:excluded_channels, max: MAX_EXCLUDED) { |login| login.is_a?(String) && login.match?(LOGIN) }
 
       def excluded_channels=(values)

@@ -10,7 +10,6 @@ RSpec.describe Components::Feeds::LookupTextField do
   let(:error_id) { nil }
 
   it "is a text input named for the source's lookup param, holding the typed value" do
-    expect(input).to have_attributes(name: "input")
     expect(input.attributes.transform_values(&:value)).to include("type" => "text", "name" => "app", "value" => "1145", "aria-invalid" => "false")
     expect(input["aria-describedby"]).to be_nil
   end

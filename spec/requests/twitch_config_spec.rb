@@ -95,12 +95,14 @@ RSpec.describe "Twitch config", type: :request do
           expect(config.enabled_plugin_keys).to include(:twitch)
         end
 
-        it "re-renders both lists, so the categories survive the toggle" do
+        it "re-renders both lists on the first tab, so the categories survive the toggle" do
           create(:feed_subscription, :twitch_category, server_configuration: config)
 
           toggle
 
-          expect(response.body).to include("Some Category", "Channels", "Categories")
+          document = Nokogiri::HTML(response.body)
+          expect(response.body).to include("Some Category")
+          expect(document.css("[role=radio]").map { |tab| [tab.text, tab["aria-checked"]] }).to eq([["Channels", "true"], ["Categories", "false"]])
         end
 
         context "without a Turbo Stream" do

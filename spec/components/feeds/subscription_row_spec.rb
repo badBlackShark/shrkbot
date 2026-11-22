@@ -48,7 +48,7 @@ RSpec.describe Components::Feeds::SubscriptionRow do
     end
 
     it "shows the follow's role and its one post type" do
-      expect(text).to include("pings @Streams").or include("pings Streams")
+      expect(text).to include("pings @Streams")
       expect(badges).to include("Going live")
     end
   end

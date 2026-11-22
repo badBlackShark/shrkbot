@@ -9,8 +9,8 @@ module Feeds
 
       private
 
-      def sample(group, name)
-        I18n.t("components.feeds.twitch.samples.#{group}.#{name}")
+      def samples_key
+        :twitch
       end
     end
   end

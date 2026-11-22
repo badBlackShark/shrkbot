@@ -52,6 +52,16 @@ RSpec.describe Components::TomSelect do
     expect(html).to include('aria-label="Unit"')
   end
 
+  it "marks the select invalid and points at its message" do
+    html = described_class.new(name: "x", options: [], aria_invalid: true, aria_describedby: "problem").call
+    expect(html).to include('aria-invalid="true"', 'aria-describedby="problem"')
+  end
+
+  it "leaves the select unmarked without a problem" do
+    html = described_class.new(name: "x", options: []).call
+    expect(html).not_to include("aria-invalid", "aria-describedby")
+  end
+
   it "leaves the select unlabelled without an aria label" do
     html = described_class.new(name: "x", options: []).call
     expect(html).not_to include("aria-label")
