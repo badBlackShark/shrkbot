@@ -5,11 +5,11 @@ module Feeds
     TTL = 1.day
     FAILURE_TTL = 10.minutes
 
-    def self.call(key, missing:, errors: [Integrations::Error], &)
-      Rails.cache.fetch(key, expires_in: TTL, &)
+    def self.call(key, missing:, errors: [Integrations::Error], ttl: TTL, failure_ttl: FAILURE_TTL, &)
+      Rails.cache.fetch(key, expires_in: ttl, &)
     rescue *errors => error
       Rails.logger.warn("Feeds: no #{missing}: #{error.class}: #{error.message}")
-      Rails.cache.write(key, nil, expires_in: FAILURE_TTL)
+      Rails.cache.write(key, nil, expires_in: failure_ttl) if failure_ttl
       nil
     end
   end
