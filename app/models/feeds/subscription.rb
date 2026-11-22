@@ -25,6 +25,12 @@ module Feeds
       subscribed_events.where(event_type: source.post_type(event_type)).pick(:channel_id) || channel_id
     end
 
+    def self.posting_to(channel_id, event_type)
+      joins(:subscribed_events)
+        .where(feed_subscribed_events: {event_type:})
+        .where("COALESCE(feed_subscribed_events.channel_id, feed_subscriptions.channel_id) = ?", channel_id)
+    end
+
     def source
       Feeds.source_for_watcher(watch.watcher)
     end

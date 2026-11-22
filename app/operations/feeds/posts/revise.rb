@@ -4,29 +4,40 @@ module Ops
   module Feeds
     module Posts
       class Revise < ApplicationOperation
+        include ForgetsMessage
+
         self.transactional = false
 
         receives :post, :event
 
         def call
           return ok unless latest?
-          return revive if revivable?
-          return ok unless post.message_id
 
-          source.retract?(subscription, event) ? retract : edit
-          ok
-        rescue Discordrb::Errors::UnknownMessage
-          forget_message
-        rescue Discordrb::Errors::UnknownChannel, Discordrb::Errors::NoPermission
-          Ops::Notification::FeedPostFailure::Ensure.call(subscription:, channel_id: post.channel_id)
-          forget_message
+          forgetting_a_lost_card(post) do
+            next revive if revivable?
+            next ok unless post.message_id
+            next hand_off_or_settle if source.switched_away?(subscription, event)
+
+            settle
+            ok
+          end
         end
 
         private
 
-        def forget_message
-          post.update!(message_id: nil, retracted_at: nil)
+        def hand_off_or_settle
+          ::Feeds::StoryLock.hold(subscription.server_configuration, post.story_key) do
+            post.reload
+            next unless post.message_id && latest?
+
+            successor = ::Feeds::CardOwnership.successor(post:, event:)
+            successor ? HandOff.call(post:, subscription: successor, event:) : settle
+          end
           ok
+        end
+
+        def settle
+          source.retract?(subscription, event) ? retract : edit
         end
 
         def latest?
