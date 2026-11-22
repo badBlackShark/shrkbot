@@ -34,7 +34,7 @@ RSpec.describe NotificationPresenter do
     let(:channel_name) { "news" }
 
     it "names the channel in the title" do
-      expect(presenter.title).to eq("Can't post in news")
+      expect(presenter.title).to eq("Couldn't post in news")
     end
 
     it "uses the warning icon" do
@@ -45,7 +45,7 @@ RSpec.describe NotificationPresenter do
       let(:channel_name) { nil }
 
       it "falls back to the title_unknown key" do
-        expect(presenter.title).to eq("Can't post in a channel")
+        expect(presenter.title).to eq("Couldn't post in a channel")
       end
     end
   end
