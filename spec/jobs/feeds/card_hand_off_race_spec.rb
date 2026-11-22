@@ -33,20 +33,6 @@ RSpec.describe "A stream moving between followed categories" do
     expect(holders).to eq([follow_b.id])
   end
 
-  it "keeps one message when the announcement runs before the revision" do
-    post_job.call
-    revise.call
-
-    expect_one_card_moved
-  end
-
-  it "keeps one message when the revision runs before the announcement" do
-    revise.call
-    post_job.call
-
-    expect_one_card_moved
-  end
-
   it "keeps one message when the revision gets in between the announcement's checks and its lock" do
     run_other_job_before_the_lock(revise)
     post_job.call

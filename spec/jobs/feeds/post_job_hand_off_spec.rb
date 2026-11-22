@@ -30,6 +30,20 @@ RSpec.describe Feeds::PostJob, "handing a live card over" do
     end
   end
 
+  context "when the card of the follow the stream left was deleted" do
+    before do
+      allow(Bot::Discord::Components).to receive(:edit).and_raise(Discordrb::Errors::UnknownMessage.new("Unknown Message"))
+    end
+
+    it "posts a card of its own instead of leaving the stream without one" do
+      perform
+
+      expect(Bot::Discord::Components).to have_received(:create_with_subject).once
+      expect(follow_b.posts.pluck(:message_id)).to eq([888_000])
+      expect(card_of_a.reload.message_id).to be_nil
+    end
+  end
+
   context "when the follow already has a row for the story" do
     before do
       create(:feed_post, subscription: follow_b, story_key:)

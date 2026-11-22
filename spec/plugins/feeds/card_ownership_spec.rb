@@ -3,12 +3,10 @@
 require "rails_helper"
 
 RSpec.describe Feeds::CardOwnership do
-  subject(:ownership) { described_class.new }
-
   include_context "with a stream moving between followed categories"
 
-  describe "#handed_off_post" do
-    subject(:handed_off) { ownership.handed_off_post(subscription: follow_b, event:) }
+  describe ".handed_off_post" do
+    subject(:handed_off) { described_class.handed_off_post(subscription: follow_b, event:) }
 
     let(:event) { updated_to_b }
 
@@ -43,8 +41,8 @@ RSpec.describe Feeds::CardOwnership do
     end
   end
 
-  describe "#successor" do
-    subject(:successor) { ownership.successor(post: card_of_a, event: updated_to_b) }
+  describe ".successor" do
+    subject(:successor) { described_class.successor(post: card_of_a, event: updated_to_b) }
 
     it { is_expected.to eq(follow_b) }
 

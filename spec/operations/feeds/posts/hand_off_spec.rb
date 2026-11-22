@@ -67,8 +67,9 @@ RSpec.describe Ops::Feeds::Posts::HandOff do
       allow(Bot::Discord::Components).to receive(:edit).and_raise(Discordrb::Errors::UnknownMessage.new("Unknown Message"))
     end
 
-    it "forgets the message so the new owner can post normally" do
+    it "forgets the message and hands nothing over" do
       expect(result).to be_success
+      expect(result.value).to be_nil
       expect(card_of_a.reload.message_id).to be_nil
       expect(follow_b.posts).to be_empty
     end

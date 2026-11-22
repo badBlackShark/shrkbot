@@ -128,12 +128,25 @@ follow posts with its ping.
   or filling its empty one. A stream that goes A, B, A moves the card back by edit, and A is
   not pinged again.
 - **Who moves it.** `PostJob` for the new follow, when it has no row yet
-  (`CardOwnership#handed_off_post`), and `Posts::Revise` for the old follow
-  (`CardOwnership#successor`, which also covers a follow whose row is empty). Whichever runs
+  (`CardOwnership.handed_off_post`), and `Posts::Revise` for the old follow
+  (`CardOwnership.successor`, which also covers a follow whose row is empty). Whichever runs
   first moves the card; the other finds nothing to do.
 - **Lock.** Both run under `Feeds::StoryLock` (a Postgres advisory transaction lock per
-  server and story), so a hand-off and a post cannot interleave. `PostJob` checks for a row
-  again inside the lock and `Posts::Revise` reloads the post there.
+  server and story). It covers the decision between posting and handing off and the Discord
+  call itself, so a successor search never sees a claim that is still in flight. `PostJob`
+  checks for a row again inside the lock, and `Posts::Revise` reloads the post and checks
+  `latest?` again there, so an event that arrived after its first check wins.
+- **Checks before the lock.** `StoryPick#eligible?` and `#best?` run before the lock. That is
+  safe because they are re-derivable from the event and the follow's settings, and the
+  in-lock row check catches a story another job already claimed.
+- **A card that is gone.** When Discord no longer has the old card (deleted message, channel
+  or permission), `HandOff` forgets the message and returns nothing. `PostJob` then posts a
+  new card for the follow; `Posts::Revise` ends and the follow waits for the next event.
+- **Paused follows.** A card held by a paused follow can be taken by an active follow, since
+  the successor search only looks at active follows.
+- **At-least-once.** If the bot crashes after Discord accepts a new message but before the
+  transaction commits, the retry posts the story again. The lock spans the send on purpose:
+  a hand-off that ran in between would otherwise move a card that has no row yet.
 
 ## Config UI
 

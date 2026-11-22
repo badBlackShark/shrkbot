@@ -35,12 +35,10 @@ module Feeds
       StoryLock.hold(subscription.server_configuration, event.story_key) do
         next log_skipped(event, "the story was already posted") if subscription.posts.exists?(story_key: event.story_key)
 
-        previous = CardOwnership.new.handed_off_post(subscription:, event:)
-        if previous
-          Ops::Feeds::Posts::HandOff.call(post: previous, subscription:, event:)
-        else
-          Ops::Feeds::Posts::Create.call(subscription:, event:)
-        end
+        previous = CardOwnership.handed_off_post(subscription:, event:)
+        next if previous && Ops::Feeds::Posts::HandOff.call(post: previous, subscription:, event:).value
+
+        Ops::Feeds::Posts::Create.call(subscription:, event:)
       end
     end
 

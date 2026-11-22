@@ -56,6 +56,30 @@ RSpec.describe Ops::Feeds::Posts::Revise, "handing a live card over" do
     end
   end
 
+  context "when a newer event arrives between the first check and the lock" do
+    let(:back_in_a) { create(:twitch_stream_updated_event, watch: stream_watch, session:, category_id: "cat-a", occurred_at: 1.minute.from_now) }
+
+    before do
+      armed = true
+      allow(Feeds::StoryLock).to receive(:hold).and_wrap_original do |original, *args, &block|
+        if armed
+          armed = false
+          back_in_a
+        end
+        original.call(*args, &block)
+      end
+    end
+
+    it "neither hands the card over nor settles it, since the newer event decides" do
+      result
+
+      expect(Bot::Discord::Components).not_to have_received(:edit)
+      expect(Bot::Discord::Components).not_to have_received(:delete_message)
+      expect(card_of_a.reload.message_id).to eq(777_000)
+      expect(follow_b.posts).to be_empty
+    end
+  end
+
   context "when the stream ended" do
     let!(:ended) { create(:twitch_stream_ended_event, watch: stream_watch, session:, category_id: "cat-b", occurred_at: 1.minute.from_now) }
     let(:event) { ended }
