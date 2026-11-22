@@ -56,4 +56,11 @@ RSpec.describe Feeds::Source do
       expect(revive).to be(false)
     end
   end
+  describe ".switched_away?" do
+    subject(:switched_away) { source.switched_away?(subscription, event) }
+
+    it "never hands a card over" do
+      expect(switched_away).to be(false)
+    end
+  end
 end

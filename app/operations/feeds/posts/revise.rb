@@ -13,7 +13,9 @@ module Ops
           return revive if revivable?
           return ok unless post.message_id
 
-          source.retract?(subscription, event) ? retract : edit
+          return hand_off_or_settle if source.switched_away?(subscription, event)
+
+          settle
           ok
         rescue Discordrb::Errors::UnknownMessage
           forget_message
@@ -23,6 +25,21 @@ module Ops
         end
 
         private
+
+        def hand_off_or_settle
+          ::Feeds::StoryLock.hold(subscription.server_configuration, post.story_key) do
+            post.reload
+            next unless post.message_id
+
+            successor = ::Feeds::CardOwnership.new.successor(post:, event:)
+            successor ? HandOff.call(post:, subscription: successor, event:) : settle
+          end
+          ok
+        end
+
+        def settle
+          source.retract?(subscription, event) ? retract : edit
+        end
 
         def forget_message
           post.update!(message_id: nil, retracted_at: nil)

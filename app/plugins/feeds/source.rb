@@ -42,5 +42,9 @@ module Feeds
     def self.revive?(_subscription, _event)
       false
     end
+
+    def self.switched_away?(_subscription, _event)
+      false
+    end
   end
 end

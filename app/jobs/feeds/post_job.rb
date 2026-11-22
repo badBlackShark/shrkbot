@@ -26,10 +26,23 @@ module Feeds
       return log_skipped(event, "the server does not follow this kind of post or its filters, or followed it after it was published") unless pick.eligible?
       return log_skipped(event, "a better copy of the story is followed") unless pick.best?
 
-      Ops::Feeds::Posts::Create.call(subscription:, event:)
+      post_once(subscription, event)
     end
 
     private
+
+    def post_once(subscription, event)
+      StoryLock.hold(subscription.server_configuration, event.story_key) do
+        next log_skipped(event, "the story was already posted") if subscription.posts.exists?(story_key: event.story_key)
+
+        previous = CardOwnership.new.handed_off_post(subscription:, event:)
+        if previous
+          Ops::Feeds::Posts::HandOff.call(post: previous, subscription:, event:)
+        else
+          Ops::Feeds::Posts::Create.call(subscription:, event:)
+        end
+      end
+    end
 
     def log_skipped(event, reason)
       Rails.logger.info { "#{self.class} skipped story #{event.story_key}: #{reason}." }

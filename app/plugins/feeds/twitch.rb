@@ -151,7 +151,6 @@ module Feeds
     def self.switched_away?(subscription, event)
       live?(event) && !accepts?(subscription, event)
     end
-    private_class_method :switched_away?
 
     def self.announcement(event:, subscription:)
       return SwitchedAnnouncement.new(event:, subscription:) if switched_away?(subscription, event)

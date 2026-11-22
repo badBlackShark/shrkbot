@@ -57,7 +57,9 @@ subscriptions on the event's watch; `AnnounceJob` asks each source whose
 (true when the post is deleted instead of edited; false, Twitch for `StreamEnded` in
 `delete` mode and for a switched-away stream in `delete` mode) and
 `revive?(subscription, event)` (true when a post shrkbot deleted may be sent again; false,
-Twitch for a live event in a chosen category). Each source
+Twitch for a live event in a chosen category) and
+`switched_away?(subscription, event)` (true when a live event no longer fits the follow, so
+its card may move to another follow; false, Twitch for a live stream outside the filter). Each source
 with settings adds its own `has_one` on `Feeds::Subscription` (`steam_settings`), so the
 foreign key and the guild purge follow the subscription. `Subscription#settings` reads
 that row and `#build_settings` builds it; the row is built once, with the subscription,
@@ -106,6 +108,32 @@ not through the watch the event sits on.
   (`Source.max_follows`).
 - **Revise.** `ReviseJob` finds posts by story key across active subscriptions, because a
   stream that left the category keeps its card.
+
+### One card per stream and channel
+
+A server shows one live card per stream and channel. When the follow that holds a card stops
+accepting the stream (`switched_away?`) and another active follow of the same server accepts
+it, demands Live, posts to the same channel and passes `StoryPick#eligible?` (floor,
+language, exclusions and the dedupe included), the card moves: `Ops::Feeds::Posts::HandOff`
+edits the message with the new follow's card and ping settings, so nobody is pinged. A card
+changes owner only when the stream changes category (category to category, category to
+direct follow, direct follow to category). A different channel, a `StreamEnded` and a stream
+nobody else accepts keep today's behaviour: the old follow settles its own card, and the new
+follow posts with its ping.
+
+- **Rows are markers.** A follow's `feed_posts` row for a story is also its "already announced
+  this session" mark, and `AnnounceJob` and `PostJob` skip a follow that has one. A hand-off
+  never deletes the old row: it clears `message_id` (`retracted_at` stays nil, so
+  `Posts::Revise` never re-posts it) and puts the message on the new follow's row, creating it
+  or filling its empty one. A stream that goes A, B, A moves the card back by edit, and A is
+  not pinged again.
+- **Who moves it.** `PostJob` for the new follow, when it has no row yet
+  (`CardOwnership#handed_off_post`), and `Posts::Revise` for the old follow
+  (`CardOwnership#successor`, which also covers a follow whose row is empty). Whichever runs
+  first moves the card; the other finds nothing to do.
+- **Lock.** Both run under `Feeds::StoryLock` (a Postgres advisory transaction lock per
+  server and story), so a hand-off and a post cannot interleave. `PostJob` checks for a row
+  again inside the lock and `Posts::Revise` reloads the post there.
 
 ## Config UI
 
