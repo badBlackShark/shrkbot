@@ -608,7 +608,7 @@ reviewed every page; `git show 3.14.0:docs/voice.md` has the rows from before.
 | Card `Don't see a server?` + `You need Manage Server permissions and shrkbot must be present. Invite it, then refresh.` | `Missing a server? You need the Manage Server permission there.` | A server without shrkbot already has its own invite card. A fallback does not need a card that competes with the servers. |
 | `Welcomes settings saved.` after saving a disabled plugin | `Saved. %{plugin} is still disabled.`, as a warning toast that stays | A green tick that disappears reads as "done". |
 | `You need Manage Server permissions` | `You need the Manage Server permission` | Discord has one permission with that name. |
-| `Can't post in %{channel_name}` + `Posts for %{name} are failing - check the channel and shrkbot's permissions` | `Couldn't post in %{channel_name}` + `A post for %{name} has failed. Please check its configuration. Perhaps you deleted a channel or changed some permissions?` | The notice reports one failed post, not a state shrkbot can vouch for, and it names the likely causes. The whole notification links to the follow list, so the text carries no link of its own. |
+| `Can't post in %{channel_name}` + `Posts for %{name} are failing - check the channel and shrkbot's permissions` | `Couldn't post in %{channel_name}` + `A post for %{name} has failed. Please check the configuration. Perhaps you deleted a channel or changed some permissions?` | The notice reports one failed post, not a state shrkbot can vouch for, and it names the likely causes. The whole notification links to the follow list, so the text carries no link of its own. |
 
 ### We, filler, and puffery
 

@@ -922,7 +922,7 @@ en:
         title: "%{channel_name} was deleted"
         title_unknown: A channel was deleted
       feed_post_failed:
-        message: A post for %{name} has failed. Please check its configuration. Perhaps
+        message: A post for %{name} has failed. Please check the configuration. Perhaps
           you deleted a channel or changed some permissions?
         title: Couldn't post in %{channel_name}
         title_unknown: Couldn't post in a channel
