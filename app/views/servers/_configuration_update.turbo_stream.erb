@@ -1,7 +1,8 @@
+<% section_key = local_assigns.fetch(:section_key, active_key) %>
 <% if @save_error %>
-<%= turbo_stream.replace "#{active_key}-save-error", html: render(Components::SaveErrorCallout.new(key: active_key, message: @save_error)) %>
+<%= turbo_stream.replace "#{section_key}-save-error", html: render(Components::SaveErrorCallout.new(key: section_key, message: @save_error)) %>
 <% elsif form %>
-<%= turbo_stream.replace "#{active_key}-config", html: render(form.call) %>
+<%= turbo_stream.replace "#{section_key}-config", html: render(form.call) %>
 <% end %>
 <%= turbo_stream.append "toasts", html: render(Components::Toast.new(**@toast)) if @toast %>
 <%= turbo_stream.replace "plugin-sidebar", html: render(Components::PluginSidebar.new(server_configuration: @server_configuration, active_key: active_key, access: plugin_access)) %>

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Components::Feeds::TemplateField < Components::Base
-  def initialize(subscription:, plugin_key:, event_type:, event:)
+  def initialize(subscription:, source:, event_type:, event:)
     @subscription = subscription
-    @plugin_key = plugin_key
+    @source = source
     @event_type = event_type
     @event = event
   end
@@ -17,10 +17,6 @@ class Components::Feeds::TemplateField < Components::Base
   end
 
   private
-
-  def source
-    ::Feeds.source(@plugin_key)
-  end
 
   def key
     ::Feeds.event_key(@event_type)
@@ -49,15 +45,15 @@ class Components::Feeds::TemplateField < Components::Base
   end
 
   def samples
-    @samples ||= source::PreviewSamples.new(watch_name: @subscription.watch.name, event_type: @event_type)
+    @samples ||= @source::PreviewSamples.new(watch_name: @subscription.watch.name, event_type: @event_type)
   end
 
   def preview_tokens
-    source.template_tokens.index_with { "" }.merge(samples.tokens(token_names))
+    @source.template_tokens.index_with { "" }.merge(samples.tokens(token_names))
   end
 
   def token_names
-    source.tokens_for(@event_type)
+    @source.tokens_for(@event_type)
   end
 
   def preview

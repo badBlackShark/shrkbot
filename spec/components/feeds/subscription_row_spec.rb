@@ -6,11 +6,11 @@ RSpec.describe Components::Feeds::SubscriptionRow do
   include_context "component view context"
 
   subject(:document) do
-    html = described_class.new(subscription:, plugin_key:, labels: Feeds::RouteLabels.new(subscription.server_configuration)).render_in(view_context)
+    html = described_class.new(subscription:, source:, labels: Feeds::RouteLabels.new(subscription.server_configuration)).render_in(view_context)
     Nokogiri::HTML5.fragment(html)
   end
 
-  let(:plugin_key) { :twitch }
+  let(:source) { ::Feeds::Twitch }
   let(:roles) { {1 => "Streams"} }
   let(:channels) { {555_000 => "clips"} }
   let(:failing_since) { 25.hours.ago }
@@ -68,7 +68,7 @@ RSpec.describe Components::Feeds::SubscriptionRow do
   end
 
   context "when every followed type pings the same role" do
-    let(:plugin_key) { :steam }
+    let(:source) { ::Feeds::Steam }
     let(:roles) { {7 => "Updates"} }
     let(:watch) { create(:integration_watch) }
     let(:subscription) do

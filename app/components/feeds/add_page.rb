@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Components::Feeds::AddPage < Components::Base
-  def initialize(server_configuration:, plugin_key:)
+  def initialize(server_configuration:, source:)
     @config = server_configuration
-    @plugin_key = plugin_key
+    @source = source
   end
 
   def view_template(&)
@@ -16,8 +16,8 @@ class Components::Feeds::AddPage < Components::Base
 
   def crumbs
     [
-      {label: PluginCatalog.find(@plugin_key).name, href: PluginPaths.for(@config, @plugin_key)},
-      {label: t(".#{@plugin_key}.title")}
+      {label: PluginCatalog.find(@source.plugin_key).name, href: PluginPaths.for(@config, @source.plugin_key)},
+      {label: t(".#{@source.key}.title")}
     ]
   end
 end

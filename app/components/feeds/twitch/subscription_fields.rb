@@ -10,7 +10,7 @@ class Components::Feeds::Twitch::SubscriptionFields < Components::Base
       render Components::Feeds::DestinationCard.new(subscription: @subscription)
       render Components::Feeds::EventTypeList.new(
         subscription: @subscription,
-        plugin_key: :twitch,
+        source: ::Feeds::Twitch,
         type_fields: Components::Feeds::Twitch::TypeFields
       )
       render Components::Feeds::Twitch::CategoriesCard.new(subscription: @subscription)

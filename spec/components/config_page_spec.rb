@@ -54,7 +54,7 @@ RSpec.describe Components::ConfigPage do
         title: "Reminders",
         banner: Components::Feeds::TargetBanner.new(
           watch: build(:integration_watch, name: "Hades II", image_url: "https://example.test/game.jpg"),
-          plugin_key: :steam
+          source: ::Feeds::Steam
         )
       )
     end

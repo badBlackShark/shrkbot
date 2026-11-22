@@ -33,8 +33,15 @@ shared Feeds controllers (see Config UI).
 
 ## Sources
 
+A source's `key` names it: `Feeds.source(key)` lookup, copy keys, route helpers
+(`server_<key>_subscriptions_path`), DOM ids and the `Components::Feeds::<Key>` modules. Its
+`plugin_key` names the plugin it belongs to: activation, catalog entry, sidebar and
+`PluginPaths`. One plugin may have several sources (`Feeds.sources_for_plugin`); `key`
+defaults to `plugin_key`, so a plugin's first source needs no override. Feeds components and
+views take the source class (`source:`), never a bare key.
+
 A source is a class under `Feeds::` (`Feeds::Steam`) that inherits `Feeds::Source` and
-answers `plugin_key`, `watchers`, `event_types` (in UI order), `template_tokens` (every
+answers `plugin_key`, `key`, `watchers`, `event_types` (in UI order), `template_tokens` (every
 token any type fills, blanked when a post has no value), `tokens_for(event_type)` (the
 tokens that type can fill, in the placeholder list and the preview) and
 `default_notification(event_type)`, plus the settings contract: `settings_association`
@@ -68,9 +75,10 @@ take).
 
 Each source's `resource` (`resource :steam`) routes to `Servers::FeedsController` (show,
 update) with `defaults: {plugin_key: "steam"}`, and its `resources :subscriptions` (`new`,
-`create`, `edit`, `update`, `destroy`) to `Servers::Feeds::SubscriptionsController`, which
-inherits the default. Both read `params[:plugin_key]`: a route default beats a query param of
-the same name, and `Feeds.source` raises for an unknown key. `FeedsController` overrides
+`create`, `edit`, `update`, `destroy`) to `Servers::Feeds::SubscriptionsController` with
+`defaults: {source_key: "steam"}`. `FeedsController` (plugin-level) reads
+`params[:plugin_key]`, the subscriptions controller reads `params[:source_key]`: a route
+default beats a query param of the same name, and `Feeds.source` raises for an unknown key. `FeedsController` overrides
 `configuration_url` because `url_for(action: :show)` ignores non-path defaults and picks the
 first source's route. `Views::Servers::Feeds::Show` reads `views.servers.<key>.show.*` by
 explicit key, since a relative `t` would resolve to `views.servers.feeds.show`. The

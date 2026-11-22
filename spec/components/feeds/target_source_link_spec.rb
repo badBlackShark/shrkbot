@@ -5,10 +5,10 @@ require "rails_helper"
 RSpec.describe Components::Feeds::TargetSourceLink do
   include_context "component view context"
 
-  subject(:html) { described_class.new(url:, plugin_key:).render_in(view_context) }
+  subject(:html) { described_class.new(url:, source:).render_in(view_context) }
 
   let(:link) { Nokogiri::HTML.fragment(html).at_css("a") }
-  let(:plugin_key) { :steam }
+  let(:source) { ::Feeds::Steam }
   let(:url) { "https://store.steampowered.com/app/1145350/" }
 
   it "opens the source in a new tab without leaking the opener" do
@@ -19,7 +19,7 @@ RSpec.describe Components::Feeds::TargetSourceLink do
   end
 
   context "with Twitch" do
-    let(:plugin_key) { :twitch }
+    let(:source) { ::Feeds::Twitch }
     let(:url) { "https://www.twitch.tv/twitchdev" }
 
     it "is labelled for Twitch" do

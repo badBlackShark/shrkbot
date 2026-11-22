@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe Components::Feeds::SubscriptionList do
   include_context "component view context"
 
-  subject(:html) { described_class.new(server_configuration:, plugin_key: :steam).render_in(view_context) }
+  subject(:html) { described_class.new(server_configuration:, source: ::Feeds::Steam).render_in(view_context) }
 
   let(:server_configuration) { create(:server_configuration) }
   let(:add_path) { Rails.application.routes.url_helpers.new_server_steam_subscription_path(server_configuration.discord_id) }

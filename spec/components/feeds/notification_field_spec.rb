@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe Components::Feeds::NotificationField do
   include_context "component view context"
 
-  subject(:html) { described_class.new(subscription:, plugin_key: :steam, event_type:, event:).render_in(view_context) }
+  subject(:html) { described_class.new(subscription:, source: ::Feeds::Steam, event_type:, event:).render_in(view_context) }
 
   let(:event_type) { "Integrations::Steam::PatchNotesPublished" }
   let(:subscription) { build(:feed_subscription, watch: build(:integration_watch, name: "Hades II")) }

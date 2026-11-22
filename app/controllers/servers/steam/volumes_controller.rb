@@ -12,13 +12,13 @@ class Servers::Steam::VolumesController < ApplicationController
   def show
     render Views::Servers::Steam::Volumes::Show.new(
       volume: ::Feeds::VolumeLookup.call(WATCHER, params.expect(:app)),
-      plugin_key:
+      source: ::Feeds::Steam
     )
   end
 
   private
 
   def plugin_key
-    :steam
+    ::Feeds::Steam.plugin_key
   end
 end

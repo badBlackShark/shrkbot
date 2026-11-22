@@ -3,10 +3,10 @@
 require "rails_helper"
 
 RSpec.describe Components::Feeds::WatchImage do
-  subject(:html) { described_class.new(url:, plugin_key:, size:).call }
+  subject(:html) { described_class.new(url:, source:, size:).call }
 
   let(:size) { :md }
-  let(:plugin_key) { :steam }
+  let(:source) { ::Feeds::Steam }
 
   context "with an image url" do
     let(:url) { "https://shared.akamai.steamstatic.com/hades.jpg" }
@@ -21,7 +21,7 @@ RSpec.describe Components::Feeds::WatchImage do
     end
 
     context "with Twitch" do
-      let(:plugin_key) { :twitch }
+      let(:source) { ::Feeds::Twitch }
 
       it "is a round avatar" do
         expect(html).to include("aspect-square", "rounded-full", "w-22")

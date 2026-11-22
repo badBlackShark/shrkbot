@@ -5,7 +5,7 @@ require "rails_helper"
 RSpec.describe Components::Feeds::TargetBanner do
   include_context "component view context"
 
-  subject(:document) { Nokogiri::HTML.fragment(described_class.new(watch:, plugin_key: :twitch).render_in(view_context)) }
+  subject(:document) { Nokogiri::HTML.fragment(described_class.new(watch:, source: ::Feeds::Twitch).render_in(view_context)) }
 
   let(:watch) { build(:integration_watch, :twitch, name: "TwitchDev", url: "https://www.twitch.tv/twitchdev") }
 

@@ -3,8 +3,8 @@
 class Views::Servers::Feeds::Subscriptions::New < Views::Base
   include Phlex::Rails::Helpers::FormWith
 
-  def initialize(plugin_key:, server_configuration:, user:, subscription:, target:, error: nil)
-    @plugin_key = plugin_key
+  def initialize(source:, server_configuration:, user:, subscription:, target:, error: nil)
+    @source = source
     @config = server_configuration
     @user = user
     @subscription = subscription
@@ -13,10 +13,10 @@ class Views::Servers::Feeds::Subscriptions::New < Views::Base
   end
 
   def view_template
-    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: @plugin_key) do
-      render Components::Feeds::AddPage.new(server_configuration: @config, plugin_key: @plugin_key) do
-        render Components::Feeds::TargetCard.new(target: @target, plugin_key: @plugin_key) do
-          render Components::Feeds::TargetChangeLink.new(href: ::Feeds::SubscriptionPaths.new_for(@config, @plugin_key))
+    render Components::PluginShell.new(user: @user, server_configuration: @config, active_key: @source.plugin_key) do
+      render Components::Feeds::AddPage.new(server_configuration: @config, source: @source) do
+        render Components::Feeds::TargetCard.new(target: @target, source: @source) do
+          render Components::Feeds::TargetChangeLink.new(href: ::Feeds::SubscriptionPaths.new_for(@config, @source))
         end
         follow_form
       end
@@ -26,9 +26,9 @@ class Views::Servers::Feeds::Subscriptions::New < Views::Base
   private
 
   def follow_form
-    form_with(url: ::Feeds::SubscriptionPaths.collection_for(@config, @plugin_key), class: "mt-5 flex flex-col gap-5") do
+    form_with(url: ::Feeds::SubscriptionPaths.collection_for(@config, @source), class: "mt-5 flex flex-col gap-5") do
       input(type: "hidden", name: "subscription[external_id]", value: @target.external_id)
-      render Components::Feeds::SubscriptionForm.new(subscription: @subscription, plugin_key: @plugin_key, error: @error)
+      render Components::Feeds::SubscriptionForm.new(subscription: @subscription, source: @source, error: @error)
       actions
     end
   end
@@ -38,7 +38,7 @@ class Views::Servers::Feeds::Subscriptions::New < Views::Base
       render Components::Button.new(
         variant: :ghost,
         label: t(".cancel"),
-        href: PluginPaths.for(@config, @plugin_key)
+        href: PluginPaths.for(@config, @source.plugin_key)
       )
       render Components::Button.new(label: t(".follow", name: @target.name), type: "submit")
     end

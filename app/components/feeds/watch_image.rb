@@ -6,9 +6,9 @@ class Components::Feeds::WatchImage < Components::Base
     twitch: {shape: "aspect-square rounded-full", md: "w-22", list: "w-14 sm:w-22"}
   }.freeze
 
-  def initialize(url:, plugin_key:, size: :md, loading: "lazy")
+  def initialize(url:, source:, size: :md, loading: "lazy")
     @url = url
-    @plugin_key = plugin_key
+    @source = source
     @size = size
     @loading = loading
   end
@@ -24,7 +24,7 @@ class Components::Feeds::WatchImage < Components::Base
   private
 
   def css
-    shape = SHAPES.fetch(@plugin_key)
+    shape = SHAPES.fetch(@source.key)
     "#{shape.fetch(@size)} #{shape.fetch(:shape)} flex-none"
   end
 end

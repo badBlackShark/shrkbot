@@ -3,10 +3,11 @@
 class Servers::Feeds::SubscriptionsController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
-  include ReadsFeedPluginKey
   include VerifiesGuildChannels
   include VerifiesGuildRoles
   include RateLimitsExternalCalls
+
+  helper_method :source
 
   rate_limit_external_calls only: [:new, :create]
   before_action :load_subscription, only: [:edit, :update, :destroy]
@@ -39,7 +40,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
       event_types:,
       choices: type_choices
     )
-    return redirect_to plugin_path, notice: t("servers.#{plugin_key}.followed", name: lookup.target.name) if result.success?
+    return redirect_to plugin_path, notice: t("servers.#{source.key}.followed", name: lookup.target.name) if result.success?
 
     render_new(
       subscription: result.value || submitted_subscription(lookup.target),
@@ -51,7 +52,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
 
   def edit
     render Views::Servers::Feeds::Subscriptions::Edit.new(
-      plugin_key:,
+      source:,
       server_configuration: @server_configuration,
       user: current_user,
       subscription: @subscription
@@ -74,7 +75,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
 
   def destroy
     Ops::Feeds::Subscriptions::Destroy.call(subscription: @subscription)
-    redirect_to plugin_path, notice: t("servers.#{plugin_key}.unfollowed", name: @subscription.watch.name), status: :see_other
+    redirect_to plugin_path, notice: t("servers.#{source.key}.unfollowed", name: @subscription.watch.name), status: :see_other
   end
 
   private
@@ -84,7 +85,11 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   end
 
   def source
-    ::Feeds.source(plugin_key)
+    @source ||= ::Feeds.source(params[:source_key].to_sym)
+  end
+
+  def plugin_key
+    source.plugin_key
   end
 
   def lookup_param
@@ -97,7 +102,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
   end
 
   def source_subscriptions
-    Finders::Feeds::SourceSubscriptions.call(server_configuration: @server_configuration, plugin_key:)
+    Finders::Feeds::SourceSubscriptions.call(server_configuration: @server_configuration, source:)
   end
 
   def followed_subscription(target)
@@ -127,7 +132,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
 
   def render_lookup(input: nil, error: nil, existing: nil, status: :ok)
     render Views::Servers::Feeds::Subscriptions::Lookup.new(
-      plugin_key:,
+      source:,
       lookup_param:,
       server_configuration: @server_configuration,
       user: current_user,
@@ -139,7 +144,7 @@ class Servers::Feeds::SubscriptionsController < ApplicationController
 
   def render_new(subscription:, target:, error: nil, status: :ok)
     render Views::Servers::Feeds::Subscriptions::New.new(
-      plugin_key:,
+      source:,
       server_configuration: @server_configuration,
       user: current_user,
       subscription:,
