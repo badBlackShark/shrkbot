@@ -84,6 +84,11 @@ re-verifies against live Discord on every server-scoped request.
   job (same anti-spoofing rule as loading records). Assignability *rules* beyond mere
   ownership (managed/above-bot role filtering in `Roles::AssignableServerRoles`) stay
   in the op as business logic.
+- **An action that calls an external API per request is rate-limited per user**
+  through `RateLimitsExternalCalls` (`rate_limit_external_calls only: [...]`): 60 a
+  minute, keyed by the session's user. It guards Discord's and the providers' budgets,
+  so the server list, the Twitch category search, the Steam volume frame and the feed
+  follow lookup and save all share it. Actions that only read our database stay unlimited.
 - **Turbo Stream responses live in a view template**, not in controller helpers —
   the standard Rails `action.turbo_stream.erb` (e.g.
   `app/views/servers/plugins/update.turbo_stream.erb`). The controller sets its

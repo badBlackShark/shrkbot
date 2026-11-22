@@ -35,6 +35,17 @@ RSpec.describe "Steam subscriptions", type: :request do
 
     let(:input) { "1145350" }
 
+    context "when the per-user limit is exceeded" do
+      before { allow(Rails.cache).to receive(:increment).and_return(9_999) }
+
+      it "answers 429 and looks nothing up" do
+        lookup
+
+        expect(response).to have_http_status(:too_many_requests)
+        expect(Integrations::Steam::NewsWatcher).not_to have_received(:resolve)
+      end
+    end
+
     context "with a conflicting plugin key in the query" do
       subject(:lookup) { get plugin_path, params: {plugin_key: "twitch"} }
 
@@ -186,6 +197,17 @@ RSpec.describe "Steam subscriptions", type: :request do
 
           expect(response).to have_http_status(:not_found)
         end
+      end
+    end
+
+    context "when the per-user limit is exceeded" do
+      before { allow(Rails.cache).to receive(:increment).and_return(9_999) }
+
+      it "answers 429 and looks nothing up" do
+        create_subscription
+
+        expect(response).to have_http_status(:too_many_requests)
+        expect(Integrations::Steam::NewsWatcher).not_to have_received(:refresh)
       end
     end
 

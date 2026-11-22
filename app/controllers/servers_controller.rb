@@ -2,8 +2,9 @@
 
 class ServersController < ApplicationController
   include SetsVisibleServers
+  include RateLimitsExternalCalls
 
-  rate_limit to: 60, within: 1.minute, by: -> { session[:user_id] }, only: :index
+  rate_limit_external_calls only: :index
 
   before_action :load_dashboard, only: :show
 

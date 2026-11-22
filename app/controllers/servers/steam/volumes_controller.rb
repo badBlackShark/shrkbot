@@ -3,6 +3,9 @@
 class Servers::Steam::VolumesController < ApplicationController
   include RequiresManageableServer
   include ConfiguresPlugin
+  include RateLimitsExternalCalls
+
+  rate_limit_external_calls
 
   WATCHER = ::Integrations::Steam::NewsWatcher
 
