@@ -239,11 +239,19 @@ RSpec.describe Ops::Feeds::Posts::Revise do
       expect { result }.to change { post.reload.message_id }.from(777_000).to(nil)
     end
 
+    it "tells nobody, because a moderator deleted the message" do
+      expect { result }.not_to change(Notification, :count)
+    end
+
     context "because the channel is gone" do
       let(:error) { Discordrb::Errors::UnknownChannel.new("Unknown Channel") }
 
       it "forgets the message id" do
         expect { result }.to change { post.reload.message_id }.to(nil)
+      end
+
+      it "tells the server that the feed can no longer post" do
+        expect { result }.to change(Notification.where(kind: "feed_post_failed"), :count).by(1)
       end
     end
 

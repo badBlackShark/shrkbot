@@ -6,7 +6,7 @@ module Ops
       class Ensure < ApplicationOperation
         KIND = "feed_post_failed"
 
-        receives :subscription, :event
+        receives :subscription, :channel_id
 
         def call
           return ok(nil) if already_reported?
@@ -30,7 +30,7 @@ module Ops
         end
 
         def channel_name
-          server_configuration.server_channels.find_by(discord_id: subscription.channel_for(event.type))&.name
+          server_configuration.server_channels.find_by(discord_id: channel_id)&.name
         end
 
         def server_configuration

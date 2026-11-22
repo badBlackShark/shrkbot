@@ -15,12 +15,19 @@ module Ops
 
           source.retract?(subscription, event) ? retract : edit
           ok
-        rescue Discordrb::Errors::UnknownMessage, Discordrb::Errors::UnknownChannel, Discordrb::Errors::NoPermission
-          post.update!(message_id: nil, retracted_at: nil)
-          ok
+        rescue Discordrb::Errors::UnknownMessage
+          forget_message
+        rescue Discordrb::Errors::UnknownChannel, Discordrb::Errors::NoPermission
+          Ops::Notification::FeedPostFailure::Ensure.call(subscription:, channel_id: post.channel_id)
+          forget_message
         end
 
         private
+
+        def forget_message
+          post.update!(message_id: nil, retracted_at: nil)
+          ok
+        end
 
         def latest?
           ::Integrations::Event

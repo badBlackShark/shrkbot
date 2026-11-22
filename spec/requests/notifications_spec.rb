@@ -101,6 +101,12 @@ RSpec.describe "Notifications", type: :request do
         expect(response).to redirect_to(server_logging_path(guild_a.id))
       end
 
+      it "sends any plugin with its own page there, without a list to keep" do
+        lfg = create(:notification, server_configuration: config_a, data: {"plugin_key" => "lfg"})
+        get notification_path(lfg)
+        expect(response).to redirect_to(server_lfg_path(guild_a.id))
+      end
+
       it "sends a feed failure to the follow list" do
         feed = create(:notification, server_configuration: config_a, kind: "feed_post_failed", data: {"plugin_key" => "steam", "name" => "Team Fortress 2"})
         get notification_path(feed)

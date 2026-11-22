@@ -3,17 +3,12 @@
 require "rails_helper"
 
 RSpec.describe Ops::Notification::FeedPostFailure::Ensure do
-  subject(:result) { described_class.call(subscription:, event:) }
+  subject(:result) { described_class.call(subscription:, channel_id: subscription.channel_id) }
 
   let(:watch) { create(:integration_watch) }
   let(:subscription) { create(:feed_subscription, :active, watch:) }
   let(:server) { subscription.server_configuration }
-  let(:event) { create(:steam_news_event, watch:) }
   let!(:channel) { create(:server_channel, server_configuration: server, discord_id: subscription.channel_id, name: "news") }
-
-  before do
-    create(:feed_subscribed_event, subscription:, event_type: "Integrations::Steam::PatchNotesPublished")
-  end
 
   it "records the subscription, its source and the channel name" do
     expect(result.value.data).to eq(
