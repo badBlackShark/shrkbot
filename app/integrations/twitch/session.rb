@@ -7,6 +7,12 @@ module Integrations
       STALE_AFTER = 20.minutes
       Outcome = Data.define(:state, :events, :went_offline)
 
+      def self.drifted?(state, observation)
+        state["title"] != observation.title ||
+          state["category_id"] != observation.category_id ||
+          (state.key?("language") && state["language"] != observation.language)
+      end
+
       def initialize(state, now:)
         @state = state
         @now = now
@@ -119,7 +125,7 @@ module Integrations
       end
 
       def update(state, observation)
-        return outcome(state) unless changed?(observation)
+        return outcome(state) unless self.class.drifted?(@state, observation)
 
         state = state.merge(
           "title" => observation.title,
@@ -128,16 +134,6 @@ module Integrations
           "language" => observation.language
         )
         outcome(state, [event(StreamUpdated, state, occurred_at: @now, subject_key: "stream-update:#{state["session"]}:#{@now.to_i}")])
-      end
-
-      def changed?(observation)
-        @state["title"] != observation.title ||
-          @state["category_id"] != observation.category_id ||
-          language_changed?(@state, observation.language)
-      end
-
-      def language_changed?(state, language)
-        state.key?("language") && state["language"] != language
       end
 
       def finish(ended_at)

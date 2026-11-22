@@ -3,6 +3,8 @@
 module Integrations
   module Twitch
     class Streams
+      PAGE_SIZE = 100
+
       def initialize(client: Client.new)
         @client = client
       end
@@ -16,7 +18,7 @@ module Integrations
       end
 
       def in_category(category_id)
-        @client.get_json("/streams", params: {game_id: category_id, first: Client::MAX_IDS, type: "live"}) do |body|
+        @client.get_json("/streams", params: {game_id: category_id, first: PAGE_SIZE, type: "live"}) do |body|
           body.fetch("data").map { |data| stream(data) }
         end
       end

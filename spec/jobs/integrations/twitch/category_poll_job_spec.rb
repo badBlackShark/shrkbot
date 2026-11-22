@@ -131,16 +131,47 @@ RSpec.describe Integrations::Twitch::CategoryPollJob do
       expect(Integrations::Watch.find_by!(external_id: "2").state).to include("session" => "s2")
     end
 
-    it "does not count as a failed check" do
-      expect(Rails.cache).not_to receive(:write).with("integrations/twitch/categories/failing_since", anything, anything)
-
+    it "records the failure on that category's watch only" do
       perform
+
+      expect(chess.reload).to have_attributes(failing_since: be_present, last_error: "Integrations::Unavailable: api.twitch.tv responded 503")
+      expect(go.reload).to have_attributes(failing_since: nil, last_error: nil)
+    end
+
+    it "does not count as a failed job-level check" do
+      expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportCategoryCheckBrokenJob)
+      expect(Rails.cache.read("integrations/twitch/categories/failing_since")).to be_nil
+    end
+
+    context "when the category answers on a later tick" do
+      before do
+        described_class.perform_now
+        allow(streams).to receive(:in_category).with("7").and_return(chess_streams)
+      end
+
+      it "clears the failure" do
+        perform
+
+        expect(chess.reload).to have_attributes(failing_since: nil, last_error: nil)
+      end
     end
   end
 
-  context "when every category fails for 24 hours" do
+  context "when every category fails" do
     before do
       allow(streams).to receive(:in_category).and_raise(Integrations::Unavailable, "api.twitch.tv responded 503")
+    end
+
+    it "records each watch and sends no job-level report" do
+      expect { perform }.not_to have_enqueued_job(Integrations::Twitch::ReportCategoryCheckBrokenJob)
+      expect(chess.reload.failing_since).to be_present
+      expect(go.reload.failing_since).to be_present
+    end
+  end
+
+  context "when looking up the broadcasters fails for 24 hours" do
+    before do
+      allow(users).to receive(:for).and_raise(Integrations::Unavailable, "api.twitch.tv responded 503")
       Rails.cache.write("integrations/twitch/categories/failing_since", 25.hours.ago, expires_in: 1.hour)
     end
 

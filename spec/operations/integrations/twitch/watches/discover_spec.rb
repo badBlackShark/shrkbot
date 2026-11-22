@@ -43,6 +43,17 @@ RSpec.describe Ops::Integrations::Twitch::Watches::Discover do
     end
   end
 
+  context "when Twitch knows none of the new users" do
+    before do
+      allow(users).to receive(:for).with(%w[2 3]).and_return([])
+    end
+
+    it "creates nothing and returns the existing watches" do
+      expect { result }.not_to change(Integrations::Watch, :count)
+      expect(result.value).to eq("1" => known)
+    end
+  end
+
   context "when a follow created the watch while Twitch was asked" do
     before do
       allow(users).to receive(:for).with(%w[2 3]) do

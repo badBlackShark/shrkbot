@@ -45,10 +45,6 @@ module Integrations
       def failing_since_key
         "integrations/#{failure_key}/failing_since"
       end
-
-      def failure_label
-        failure_key.humanize.tr("/", " ")
-      end
     end
   end
 end

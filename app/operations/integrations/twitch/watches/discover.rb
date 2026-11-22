@@ -11,9 +11,10 @@ module Ops
 
           def call
             ids = streams.map(&:user_id).uniq
-            missing = ids - existing(ids).keys
-            create(missing) if missing.any?
-            ok(existing(ids))
+            found = existing(ids)
+            missing = ids - found.keys
+            found = existing(ids) if create(missing)
+            ok(found)
           end
 
           private
@@ -23,6 +24,8 @@ module Ops
           end
 
           def create(ids)
+            return false if ids.empty?
+
             rows = ::Integrations::Twitch::Users.new.for(ids).map do |user|
               {
                 watcher: watcher_name,
@@ -32,9 +35,10 @@ module Ops
                 url: ::Integrations::Twitch::ChannelReference.url(user.login)
               }
             end
-            return if rows.empty?
+            return false if rows.empty?
 
             ::Integrations::Watch.insert_all(rows, unique_by: :index_integration_watches_on_watcher_and_external_id)
+            true
           end
 
           def watcher_name

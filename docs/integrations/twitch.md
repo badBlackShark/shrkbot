@@ -175,11 +175,14 @@ arrive by poll only.
 A discovered channel watch has no subscription, so `Watch.referenced` also counts watches
 that have events; `PruneOrphans` removes it once its events expire.
 
-A category tick fails as a whole only when every category call failed. That failure
-tracking is shared with the stream reconcile through `TracksCheckFailures`: a
-`RateLimited` stops the tick and DMs once a day, `Unauthorized` DMs through the shared
-`twitch/unauthorized` claim, and 24 hours of failed ticks DM
-`ReportCategoryCheckBrokenJob`. A category that fails while another succeeds is logged.
+A category that fails is recorded on its own watch (`failing_since`, `last_error`: a
+category watch is never polled by `PollJob`, so the columns are free) and cleared by its
+next good call, with no write while it is healthy. The hourly `ReportBrokenWatchesJob`
+DMs the owner once a category has failed for 24 hours. The job-level tracking is shared
+with the stream reconcile through `TracksCheckFailures` and covers what stops the whole
+tick: a `RateLimited` DMs once a day, `Unauthorized` DMs through the shared
+`twitch/unauthorized` claim, and 24 hours of failed discovery DM
+`ReportCategoryCheckBrokenJob`.
 
 ## EventSub
 

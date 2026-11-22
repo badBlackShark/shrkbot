@@ -28,25 +28,28 @@ module Integrations
       private
 
       def fetch_streams(watches)
-        errors = []
-        streams = watches.flat_map { |watch| fetch(watch, errors) }
-        return streams if errors.size < watches.size
-
-        report(errors.first)
-        nil
-      rescue RateLimited => error
+        watches.flat_map { |watch| fetch(watch) }
+      rescue RateLimited, Unauthorized => error
         report(error)
         nil
       end
 
-      def fetch(watch, errors)
-        CategoryStreams.new.refresh(watch.external_id)
-      rescue RateLimited
+      def fetch(watch)
+        streams = CategoryStreams.new.refresh(watch.external_id)
+        clear_category_failure(watch)
+        streams
+      rescue RateLimited, Unauthorized
         raise
       rescue Error => error
         Rails.logger.warn("Integrations: Twitch category #{watch.label} check failed: #{error.class}: #{error.message}")
-        errors << error
+        Ops::Integrations::Watches::RecordFailure.call(watch:, error:)
         []
+      end
+
+      def clear_category_failure(watch)
+        return unless watch.failing_since
+
+        Ops::Integrations::Watches::RecordObservation.call(watch:, events: [])
       end
 
       def transition(streams)
@@ -60,6 +63,10 @@ module Integrations
 
       def failure_key
         "twitch/categories"
+      end
+
+      def failure_label
+        "Twitch categories"
       end
 
       def report_broken(message)

@@ -48,6 +48,10 @@ module Integrations
         "twitch/streams"
       end
 
+      def failure_label
+        "Twitch streams"
+      end
+
       def report_broken(message)
         ReportLiveCheckBrokenJob.perform_later(message)
       end
