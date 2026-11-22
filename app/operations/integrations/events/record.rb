@@ -8,12 +8,16 @@ module Ops
 
         def call
           watch.lock!
-          published = events.reject { |event| recorded?(event) }.select { |event| persist(event) }
+          published = unique_events.reject { |event| recorded?(event) }.select { |event| persist(event) }
           dispatch_after_commit(published)
           ok(published)
         end
 
         private
+
+        def unique_events
+          @unique_events ||= events.uniq { |event| [event.type, event.subject_key] }
+        end
 
         def recorded?(event)
           already_recorded.include?([event.type, event.subject_key])
@@ -21,7 +25,7 @@ module Ops
 
         def already_recorded
           @already_recorded ||= ::Integrations::Event
-            .where(watch:, subject_key: events.map(&:subject_key))
+            .where(watch:, subject_key: unique_events.map(&:subject_key))
             .pluck(:type, :subject_key)
             .to_set
         end
